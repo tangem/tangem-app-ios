@@ -49,7 +49,7 @@ final class WCServiceV2 {
     private let dappInfoLoadingSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private let proposalSubject: CurrentValueSubject<Session.Proposal?, Never> = .init(nil)
     private let selectedWalletIdSubject: CurrentValueSubject<String?, Never> = .init(nil)
-    private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
+    private let selectedNetworksToConnectSubject: CurrentValueSubject<[BlockchainNetwork], Never> = .init([])
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
     private let errorsSubject = PassthroughSubject<(error: WalletConnectV2Error, dAppName: String), Never>()
     private var bag = Set<AnyCancellable>()
@@ -100,8 +100,6 @@ final class WCServiceV2 {
 
 extension WCServiceV2 {
     func updateConnectionData(userWalletId: String) {
-        guard userWalletId != selectedWalletId else { return }
-
         selectedWalletIdSubject.send(userWalletId)
     }
 
@@ -154,7 +152,6 @@ private extension WCServiceV2 {
             .store(in: &bag)
 
         WalletKit.instance.sessionDeletePublisher
-            .receive(on: DispatchQueue.main)
             .asyncMap { [weak self] topic, reason in
                 WCLogger.info(LoggerStrings.receiveDeleteMessage(topic, reason))
 
@@ -184,7 +181,6 @@ private extension WCServiceV2 {
     func subscribeToSelectedNetwork() {
         selectedNetworksToConnectSubject
             .dropFirst()
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { wcService, selectedNetworks in
                 guard
@@ -207,7 +203,6 @@ private extension WCServiceV2 {
     func subscribeToSelectedWalletId() {
         selectedWalletIdSubject
             .dropFirst()
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { wcService, updatedId in
                 guard
@@ -262,7 +257,6 @@ private extension WCServiceV2 {
                 .init(
                     userWalletModelId: selectedWalletId,
                     requestData: requestData,
-                    sessionNamespaces: sessionsNamespaces,
                     connect: {
                         try await self.accept(
                             with: proposal.id,
@@ -274,15 +268,18 @@ private extension WCServiceV2 {
                 )
             )
 
+            dappInfoLoadingSubject.send(false)
             //            log request
-        } catch let error as WalletConnectV2Error {
-            errorsSubject.send((error, proposal.proposer.name))
+        } catch WalletConnectV2Error.requiredChainsNotSatisfied(let requestData) {
+            proposalSubject.send(proposal)
+            connectionRequestSubject.send(.init(userWalletModelId: selectedWalletId, requestData: requestData))
+            errorsSubject.send((.requiredChainsNotSatisfied(requestData), proposal.proposer.name))
         } catch {
+            proposalSubject.send(proposal)
             WCLogger.error(error: error)
             errorsSubject.send((.unknown(error.localizedDescription), proposal.proposer.name))
         }
         canEstablishNewSessionSubject.send(true)
-        dappInfoLoadingSubject.send(false)
     }
 }
 
@@ -300,7 +297,8 @@ extension WCServiceV2 {
                 sheet: WCConnectionSheetViewModel(
                     requestPublisher: connectionRequestSubject.eraseToAnyPublisher(),
                     dappInfoLoadingPublisher: dappInfoLoadingSubject.eraseToAnyPublisher(),
-                    proposalPublisher: proposalSubject.eraseToAnyPublisher()
+                    proposalPublisher: proposalSubject.eraseToAnyPublisher(),
+                    errorsPublisher: errorsPublisher
                 )
             )
         }
@@ -320,13 +318,13 @@ extension WCServiceV2 {
         Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
 
         do {
+            selectedWalletId = userWalletRepository.selectedUserWalletId?.stringValue
             try await WalletKit.instance.pair(uri: url)
 
             try Task.checkCancellation()
 
             WCLogger.info(LoggerStrings.establishedPair(url))
 
-            selectedWalletId = userWalletRepository.selectedUserWalletId?.stringValue
         } catch {
             dismissFloatingSheetWithToast(error: error)
 
