@@ -14,7 +14,6 @@ import TangemUI
 import TangemFoundation
 import ReownWalletKit
 
-@MainActor
 final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, ObservableObject {
     // MARK: Dependencies
 
@@ -30,11 +29,18 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
     // MARK: Public properties
 
     let id = UUID().uuidString
+    private(set) var blockchains: [WCSelectedBlockchainItem] = []
+    private(set) var tokenIconsInfo: [TokenIconInfo] = []
+    private(set) var requiredBlockchainNames: [String] = []
 
     // MARK: Published properties
 
     @Published
-    private(set) var presentationState: PresentationState = .dappInfoLoading
+    private(set) var presentationState: PresentationState = .dappInfoLoading {
+        didSet {
+            previousState = oldValue
+        }
+    }
 
     @Published
     private(set) var request: WCConnectionRequestModel?
@@ -42,9 +48,7 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
     @Published
     private(set) var proposal: Session.Proposal?
 
-    var isWalletSelectorVisible: Bool {
-        userWalletRepository.models.count > 1
-    }
+    @Published var contentHeight: CGFloat = 0
 
     // MARK: Private properties
 
@@ -52,30 +56,24 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
     private let requestPublisher: AnyPublisher<WCConnectionRequestModel?, Never>
     private let proposalPublisher: AnyPublisher<Session.Proposal?, Never>
     private let dappInfoLoadingPublisher: AnyPublisher<Bool, Never>
+    private let errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never>
     private let contentSwitchAnimation: Animation = .timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.5)
 
     private var bag = Set<AnyCancellable>()
+    private(set) var previousState: PresentationState = .dappInfoLoading
 
-    private var tokenItemMapper: TokenItemMapper? {
-        guard
-            let selectedUserWalletModel = userWalletRepository.models.first(where: {
-                $0.userWalletId.stringValue == request?.userWalletModelId
-            })
-        else {
-            return nil
-        }
-
-        return TokenItemMapper(supportedBlockchains: selectedUserWalletModel.config.supportedBlockchains)
-    }
+    var containerHeight: CGFloat = 0
 
     init(
         requestPublisher: AnyPublisher<WCConnectionRequestModel?, Never>,
         dappInfoLoadingPublisher: AnyPublisher<Bool, Never>,
-        proposalPublisher: AnyPublisher<Session.Proposal?, Never>
+        proposalPublisher: AnyPublisher<Session.Proposal?, Never>,
+        errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never>
     ) {
         self.requestPublisher = requestPublisher
         self.dappInfoLoadingPublisher = dappInfoLoadingPublisher
         self.proposalPublisher = proposalPublisher
+        self.errorsPublisher = errorsPublisher
 
         bind()
     }
@@ -86,6 +84,8 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
             cancel()
         case .showUserWallets:
             showUserWallets()
+        case .showUserNetworks:
+            showUserNetworks()
         case .selectUserWallet(let userWalletModel):
             selectUserWallet(userWalletModel)
         case .returnToConnectionDetails:
@@ -103,38 +103,78 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
 extension WCConnectionSheetViewModel {
     func bind() {
         requestPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.request, on: self, ownership: .weak)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, request in
+                guard let request else { return }
+
+                viewModel.blockchains = request.blockchains.compactMap {
+                    .init(
+                        from: $0,
+                        tokenItemMapper: viewModel.makeTokenItemMapper(for: request.userWalletModelId),
+                        tokenIconInfoBuilder: viewModel.tokenIconInfoBuilder
+                    )
+                }.sorted(by: { $0.name < $1.name })
+                
+                viewModel.requiredBlockchainNames = viewModel.blockchains.compactMap {
+                    $0.state == .requiredToAdd ? $0.name : nil
+                }
+                
+                viewModel.tokenIconsInfo = viewModel.blockchains.compactMap(\.tokenIconInfo)
+                
+                viewModel.request = request
+            }
             .store(in: &bag)
 
         dappInfoLoadingPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, isDappInfoLoading in
-                viewModel.presentationState = isDappInfoLoading ? .dappInfoLoading : .connectionDetails
+                if viewModel.presentationState == .dappInfoLoading {
+                    withAnimation(.default) {
+                        viewModel.presentationState = isDappInfoLoading ? .dappInfoLoading : .connectionDetails
+                    }
+                }
             }
             .store(in: &bag)
 
         proposalPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .removeDuplicates()
             .assign(to: \.proposal, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        errorsPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                if case .requiredChainsNotSatisfied = result.error {
+                    withAnimation(viewModel.contentSwitchAnimation) {
+                        viewModel.presentationState = .noRequiredChains
+                    }
+                }
+            }
             .store(in: &bag)
     }
 }
 
 // MARK: - Button actions
 
-extension WCConnectionSheetViewModel {
-    private func connect() {
+private extension WCConnectionSheetViewModel {
+    func connect() {
         Task { [weak self] in
             guard let self else { return }
 
             do {
                 presentationState = .connecting
-                try await request?.connect()
+
+                try await request?.connect?()
+
                 presentationState = .connectionDetails
-                floatingSheetPresenter.removeActiveSheet()
+                
+                Task { @MainActor in
+                    self.floatingSheetPresenter.removeActiveSheet()
+                }
 
             } catch let error as WalletConnectV2Error {
                 makeWarningToast(with: error.localizedDescription)
@@ -148,20 +188,58 @@ extension WCConnectionSheetViewModel {
         }
     }
 
-    private func cancel() {
-        request?.cancel()
-        floatingSheetPresenter.removeActiveSheet()
-    }
+    func cancel() {
+        request?.cancel?()
 
-    func showUserWallets() {
-        guard userWalletRepository.models.filter({ !$0.isUserWalletLocked }).count > 1 else { return }
-
-        withAnimation(contentSwitchAnimation) {
-            presentationState = .walletSelector
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 
-    func selectUserWallet(_ userWalletModel: some UserWalletModel) {
+    func updateSelectedNetworks(_ selectedNetworks: [BlockchainNetwork]) {
+        returnToConnectionDetails()
+        wcService.updateSelectedNetworks(selectedNetworks)
+    }
+
+    func showUserWallets() {
+        guard
+            isConnectionDetailsPresented,
+            userWalletRepository.models.filter ({
+                !$0.isUserWalletLocked && $0.config.hasFeature(.walletConnect)
+            })
+            .count > 1
+        else {
+            return
+        }
+
+        let input = WCWalletSelectorInput(
+            selectedWalletId: selectedUserWalletId,
+            userWalletModels: userWalletRepository.models,
+            selectWallet: selectUserWallet(_:),
+            backAction: returnToConnectionDetails
+        )
+
+        withAnimation(contentSwitchAnimation) {
+            presentationState = .walletSelector(input)
+        }
+    }
+
+    func showUserNetworks() {
+        guard isConnectionDetailsPresented else { return }
+
+        let input = WCNetworkSelectorInput(
+            blockchains: blockchains,
+            requiredBlockchainNames: requiredBlockchainNames,
+            onSelectCompete: updateSelectedNetworks(_:),
+            backAction: returnToConnectionDetails
+        )
+
+        withAnimation(contentSwitchAnimation) {
+            presentationState = .networkSelector(input)
+        }
+    }
+
+    func selectUserWallet(_ userWalletModel: UserWalletModel) {
         wcService.updateSelectedWalletId(userWalletModel.userWalletId.stringValue)
 
         withAnimation(contentSwitchAnimation) {
@@ -171,8 +249,32 @@ extension WCConnectionSheetViewModel {
 
     func returnToConnectionDetails() {
         withAnimation(contentSwitchAnimation) {
-            presentationState = .connectionDetails
+            presentationState = previousState
         }
+    }
+}
+
+// MARK: - Factory methods
+
+extension WCConnectionSheetViewModel {
+    private func makeWarningToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(
+                layout: .top(padding: 20),
+                type: .temporary()
+            )
+    }
+    
+    private func makeTokenItemMapper(for userWalletModelId: String) -> TokenItemMapper? {
+        guard
+            let selectedUserWalletModel = userWalletRepository.models.first(where: {
+                $0.userWalletId.stringValue == userWalletModelId
+            })
+        else {
+            return nil
+        }
+        
+        return TokenItemMapper(supportedBlockchains: selectedUserWalletModel.config.supportedBlockchains)
     }
 }
 
@@ -199,8 +301,16 @@ extension WCConnectionSheetViewModel {
         presentationState != .connectionDetails
     }
 
-    var userWalletModels: [UserWalletModel] {
-        userWalletRepository.models
+    var isWalletSelectorVisible: Bool {
+        userWalletRepository.models.count > 1
+    }
+
+    var isTransitionFromNetworkSelector: Bool {
+        if case .networkSelector = previousState {
+            return true
+        }
+
+        return false
     }
 
     var selectedUserWalletId: String {
@@ -211,35 +321,16 @@ extension WCConnectionSheetViewModel {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }.count > 1
     }
 
-    func makeTokenIconsInfo() -> [TokenIconInfo] {
-        let items = request?.selectedNetworks.compactMap { blockchain -> TokenIconInfo? in
-            guard
-                let tokenItem = tokenItemMapper?.mapToTokenItem(
-                    id: blockchain.coinId,
-                    name: blockchain.coinDisplayName,
-                    symbol: blockchain.currencySymbol,
-                    network: .init(
-                        networkId: blockchain.networkId,
-                        contractAddress: nil,
-                        decimalCount: blockchain.decimalCount
-                    )
-                )
-            else {
-                return nil
-            }
+    var isConnectionDetailsPresented: Bool {
+        let state: [PresentationState] = [.connecting, .connectionDetails, .dappInfoLoading, .error, .noRequiredChains]
 
-            return tokenIconInfoBuilder.build(from: tokenItem, isCustom: false)
-        } ?? []
-
-        return items
+        return state.contains(presentationState)
     }
+    
+    var isNetworksPreviewPresented: Bool {
+        let state: [PresentationState] = [.connecting, .connectionDetails]
 
-    private func makeWarningToast(with text: String) {
-        Toast(view: WarningToast(text: text))
-            .present(
-                layout: .top(padding: 20),
-                type: .temporary()
-            )
+        return state.contains(presentationState)
     }
 }
 
@@ -248,10 +339,12 @@ extension WCConnectionSheetViewModel {
 extension WCConnectionSheetViewModel {
     enum PresentationState: Equatable {
         case connectionDetails
-        case walletSelector
+        case walletSelector(WCWalletSelectorInput)
+        case networkSelector(WCNetworkSelectorInput)
         case dappInfoLoading
         case connecting
         case error
+        case noRequiredChains
     }
 }
 
@@ -264,6 +357,7 @@ extension WCConnectionSheetViewModel {
         case cancel
         case selectUserWallet(UserWalletModel)
         case showUserWallets
+        case showUserNetworks
         case returnToConnectionDetails
     }
 }
