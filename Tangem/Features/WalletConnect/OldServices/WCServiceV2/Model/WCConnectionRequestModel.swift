@@ -11,27 +11,26 @@ import ReownWalletKit
 
 struct WCConnectionRequestModel {
     let userWalletModelId: String
-    let selectedNetworks: [BlockchainSdk.Blockchain]
-    let availableToSelectNetworks: [BlockchainSdk.Blockchain]
-    let notAddedNetworks: [BlockchainSdk.Blockchain]
-    let sessionNamespaces: [String: SessionNamespace]
-    let connect: () async throws -> Void
-    let cancel: () -> Void
+    let blockchains: [WCRequestBlockchainItem]
+    let connect: (() async throws -> Void)?
+    let cancel: (() -> Void)?
 }
 
 extension WCConnectionRequestModel {
     init(
         userWalletModelId: String,
-        requestData: [WCConnectionRequestData],
-        sessionNamespaces: [String: SessionNamespace],
-        connect: @escaping () async throws -> Void,
-        cancel: @escaping () -> Void
+        requestData: [WCConnectionRequestDataItem]? = nil,
+        connect: (() async throws -> Void)? = nil,
+        cancel: (() -> Void)? = nil
     ) {
         self.userWalletModelId = userWalletModelId
-        selectedNetworks = requestData.compactMap(\.selectedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
-        availableToSelectNetworks = requestData.compactMap(\.availableToSelectBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
-        notAddedNetworks = requestData.compactMap(\.notAddedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
-        self.sessionNamespaces = sessionNamespaces
+        blockchains = requestData?.compactMap {
+            if let blockchain = WCUtils.makeBlockchain(from: $0.blockchainData.wcBlockchain) {
+                return .init(blockchain: blockchain, state: $0.blockchainData.state)
+            } else {
+                return nil
+            }
+        } ?? []
         self.connect = connect
         self.cancel = cancel
     }
