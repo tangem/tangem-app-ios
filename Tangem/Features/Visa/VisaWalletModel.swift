@@ -29,6 +29,8 @@ class VisaWalletModel {
 
     var demoBalance: Decimal?
     let tokenItem: TokenItem
+    private let walletManager: VisaWalletManager
+    
     private let stateSubject = CurrentValueSubject<WalletModelState, Never>(.created)
     private lazy var rateSubject = CurrentValueSubject<WalletModelRate, Never>(.loading(cached: quotesRepository.quote(for: tokenItem)))
     private let transactionDependency = VisaDummyTransactionDependencies(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
@@ -37,12 +39,14 @@ class VisaWalletModel {
 
     init(
         tokenItem: TokenItem,
+        walletManager: VisaWalletManager,
         tokenBalancesRepository: TokenBalancesRepository,
         transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
     ) {
         self.tokenItem = tokenItem
         id = .init(tokenItem: tokenItem)
 
+        self.walletManager = walletManager
         self.tokenBalancesRepository = tokenBalancesRepository
         self.transactionSendAvailabilityProvider = transactionSendAvailabilityProvider
     }

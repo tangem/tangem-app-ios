@@ -29,8 +29,6 @@ class CommonUserWalletModel {
     let totalBalanceProvider: TotalBalanceProviding
     let cardImageProvider: CardImageProviding
 
-    private let walletManagersRepository: WalletManagersRepository
-
     private var associatedCardIds: Set<String>
 
     var signer: TangemSigner { _signer }
@@ -68,7 +66,6 @@ class CommonUserWalletModel {
         config: UserWalletConfig,
         userWalletId: UserWalletId,
         associatedCardIds: Set<String>,
-        walletManagersRepository: WalletManagersRepository,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         userTokenListManager: UserTokenListManager,
@@ -85,7 +82,6 @@ class CommonUserWalletModel {
         associatedCardIds.insert(cardInfo.card.cardId)
         self.associatedCardIds = associatedCardIds
 
-        self.walletManagersRepository = walletManagersRepository
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.userTokenListManager = userTokenListManager
