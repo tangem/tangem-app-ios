@@ -86,15 +86,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultToggleRowViewModel(
-                title: "Visa Testnet",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaTestnet },
-                    set: { $0.isVisaTestnet = $1 }
-                )
-            ),
-            DefaultToggleRowViewModel(
                 title: "Visa API Mocks",
                 isOn: BindingValue<Bool>(
                     root: featureStorage,
