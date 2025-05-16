@@ -10,21 +10,19 @@ import Combine
 
 @MainActor
 final class WalletConnectConnectionRequestViewModel: ObservableObject {
-    private let uri: WalletConnectV2URI
-    private let analyticsSource: Analytics.WalletConnectSessionSource
+    private let getDAppUseCase: WalletConnectGetDAppUseCase
 
-    private var dAppInformationLoadingTask: Task<Void, Never>?
+    private var dAppLoadingTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectConnectionRequestViewState
 
-    init(state: WalletConnectConnectionRequestViewState, uri: WalletConnectV2URI, analyticsSource: Analytics.WalletConnectSessionSource) {
+    init(state: WalletConnectConnectionRequestViewState, getDAppUseCase: WalletConnectGetDAppUseCase) {
         self.state = state
-        self.uri = uri
-        self.analyticsSource = analyticsSource
+        self.getDAppUseCase = getDAppUseCase
     }
 
     deinit {
-        dAppInformationLoadingTask?.cancel()
+        dAppLoadingTask?.cancel()
     }
 }
 
@@ -57,10 +55,15 @@ extension WalletConnectConnectionRequestViewModel {
     }
 
     private func handleViewDidAppear() {
-        dAppInformationLoadingTask?.cancel()
+        dAppLoadingTask?.cancel()
 
-        dAppInformationLoadingTask = Task { [weak self] in
-
+        dAppLoadingTask = Task { [weak self, getDAppUseCase] in
+            do {
+                let dApp = try await getDAppUseCase()
+                // [REDACTED_TODO_COMMENT]
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+            }
         }
     }
 
