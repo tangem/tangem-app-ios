@@ -240,7 +240,7 @@ final class AppScanTask: CardSessionRunnable {
             apiType: featureStorage.visaAPIType,
             isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
         ).build(
-            isTestnet: featureStorage.isVisaTestnet,
+            isTestnet: featureStorage.visaAPIType.isTestnet,
             urlSessionConfiguration: .visaConfiguration,
             refreshTokenRepository: visaRefreshTokenRepository
         )
