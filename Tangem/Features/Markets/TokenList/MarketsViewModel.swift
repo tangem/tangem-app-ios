@@ -422,12 +422,10 @@ private extension MarketsViewModel {
             chartsProvider: chartsHistoryProvider,
             filterProvider: filterProvider,
             onTapAction: { [weak self] in
-                let analyticsParams: [Analytics.ParameterKey: String] = [
-                    .source: Analytics.ParameterValue.market.rawValue,
-                    .token: tokenItemModel.symbol.uppercased(),
-                ]
-
-                Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
+                self?.logAnalyticsOnMarketChartOpen(
+                    tokenSymbol: tokenItemModel.symbol,
+                    marketCap: tokenItemModel.marketCap
+                )
 
                 self?.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
             }
@@ -458,6 +456,21 @@ private extension MarketsViewModel {
             lightAppearanceSnapshotImage: lightAppearanceSnapshotImage,
             darkAppearanceSnapshotImage: darkAppearanceSnapshotImage
         )
+    }
+
+    private func logAnalyticsOnMarketChartOpen(tokenSymbol: String, marketCap: Decimal?) {
+        let analyticsParams: [Analytics.ParameterKey: String] = [
+            .source: Analytics.ParameterValue.market.rawValue,
+            .token: tokenSymbol.uppercased(),
+        ]
+
+        Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
+
+        guard let marketCap, marketCap < 100_000 else {
+            return
+        }
+
+        Analytics.log(.openedLowCapTokenPage)
     }
 }
 
