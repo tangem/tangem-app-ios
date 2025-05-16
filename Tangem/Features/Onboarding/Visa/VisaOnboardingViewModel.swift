@@ -324,7 +324,7 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             visaActivationManager.setupRefreshTokenSaver(visaRefreshTokenRepository)
 
             goToNextStep()
-        case .blockedForActivation:
+        case .blockedForActivation, .failed:
             // [REDACTED_TODO_COMMENT]
             await showAlertAsync("This card was blocked... Is this even possible?..".alertBinder)
         case .paymentAccountDeploying:
