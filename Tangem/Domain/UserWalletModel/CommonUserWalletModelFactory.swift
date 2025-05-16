@@ -17,12 +17,38 @@ struct CommonUserWalletModelFactory {
     func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> UserWalletModel? {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        guard let userWalletIdSeed = config.userWalletIdSeed,
-              let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
+        guard let userWalletIdSeed = config.userWalletIdSeed else {
             return nil
         }
 
         let userWalletId = UserWalletId(with: userWalletIdSeed)
+
+        switch cardInfo.walletData {
+        case .visa:
+            return makeVisaModel(
+                cardInfo: cardInfo,
+                config: config,
+                userWalletId: userWalletId
+            )
+        default:
+            return makeCommonModel(
+                cardInfo: cardInfo,
+                config: config,
+                userWalletId: userWalletId,
+                associatedCardIds: associatedCardIds
+            )
+        }
+    }
+
+    private func makeCommonModel(
+        cardInfo: CardInfo,
+        config: UserWalletConfig,
+        userWalletId: UserWalletId,
+        associatedCardIds: Set<String>
+    ) -> UserWalletModel? {
+        guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
+            return nil
+        }
 
         let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
 
@@ -82,7 +108,6 @@ struct CommonUserWalletModelFactory {
             config: config,
             userWalletId: userWalletId,
             associatedCardIds: associatedCardIds,
-            walletManagersRepository: walletManagersRepository,
             walletModelsManager: walletModelsManager,
             userTokensManager: userTokensManager,
             userTokenListManager: userTokenListManager,
@@ -95,11 +120,31 @@ struct CommonUserWalletModelFactory {
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
 
-        switch cardInfo.walletData {
-        case .visa:
-            return VisaUserWalletModel(userWalletModel: model, cardInfo: cardInfo)
-        default:
-            return model
-        }
+        return model
+    }
+
+    private func makeVisaModel(cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> UserWalletModel {
+        let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
+        let walletModelsManager = VisaWalletModelsManager(keysRepository: keysRepository)
+
+        let model = CommonUserWalletModel(
+            cardInfo: cardInfo,
+            config: config,
+            userWalletId: userWalletId,
+            associatedCardIds: [],
+            walletModelsManager: walletModelsManager,
+            userTokensManager: VisaUserTokensManager(),
+            userTokenListManager: VisaTokenListManager(),
+            nftManager: NotSupportedNFTManager(),
+            keysRepository: CommonKeysRepository(with: cardInfo.card.wallets),
+            derivationManager: nil,
+            totalBalanceProvider: TotalBalanceProvider(
+                userWalletId: userWalletId,
+                walletModelsManager: walletModelsManager,
+                derivationManager: nil
+            )
+        )
+
+        return VisaUserWalletModel(userWalletModel: model, cardInfo: cardInfo)
     }
 }

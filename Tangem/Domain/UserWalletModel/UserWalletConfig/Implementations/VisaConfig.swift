@@ -52,7 +52,7 @@ extension VisaConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: VisaUtilities().visaDefaultDerivationPath)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
     }
