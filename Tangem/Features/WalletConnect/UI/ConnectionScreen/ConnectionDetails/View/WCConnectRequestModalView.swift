@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct WCConnectRequestModalView: View {
@@ -15,58 +16,78 @@ struct WCConnectRequestModalView: View {
 
     var body: some View {
         content
+            .background {
+                Colors.Background.tertiary
+            }
     }
 
     private var content: some View {
         ZStack {
-            if case .walletSelector = viewModel.presentationState {
-                walletSelector
+            if case .walletSelector(let input) = viewModel.presentationState {
+                WCWalletSelectorView(input: input)
                     .transition(walletSelectorTransition)
-            } else {
-                connectionDetails
+            }
+
+            if case .networkSelector(let input) = viewModel.presentationState {
+                WCNetworksSelectorView(input: input)
                     .transition(connectionDetailsTransition)
             }
-        }
-        .background {
-            // [REDACTED_TODO_COMMENT]
-            Colors.Background.tertiary
+
+            if viewModel.isConnectionDetailsPresented {
+                connectionDetails
+                    .transition(viewModel.isTransitionFromNetworkSelector ? walletSelectorTransition : connectionDetailsTransition)
+            }
         }
     }
 
     private var connectionDetails: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 12) {
             header
-                .padding(.init(top: 20, leading: 16, bottom: 24, trailing: 16))
 
-            dappInfoSection
-                .padding(.init(top: 0, leading: 16, bottom: 14, trailing: 16))
+            scrollableSections
+        }
+        .overlay(alignment: .bottom, content: actionButtons)
+    }
 
-            connectionParametersSection
-                .padding(.init(top: 0, leading: 16, bottom: 24, trailing: 16))
+    private var scrollableSections: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                dappInfoSection
+                    .padding(.init(top: 0, leading: 16, bottom: 14, trailing: 16))
 
-            HStack(spacing: 8) {
-                MainButton(settings: .init(title: "Cancel", style: .secondary, action: { viewModel.handleViewAction(.cancel) }))
-                MainButton(
-                    settings: .init(
-                        title: "Connect",
-                        isLoading: viewModel.isConnecting,
-                        isDisabled: viewModel.isConnectionButtonDisabled,
-                        action: { viewModel.handleViewAction(.connect) }
-                    )
-                )
+                connectionParametersSection
+                    .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
             }
-            .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+            .readGeometry(\.size.height) { updatedHeight in
+                withAnimation(scrollContentHeighAnimation(updatedHeight)) {
+                    viewModel.contentHeight = updatedHeight
+                }
+            }
+        }
+        .frame(maxHeight: viewModel.contentHeight, alignment: .top)
+        .scrollDisabledBackport(viewModel.contentHeight < viewModel.containerHeight)
+        .readGeometry(\.size.height) { updatedHeight in
+            viewModel.containerHeight = updatedHeight
         }
     }
 
-    private var walletSelector: some View {
-        WCWalletSelectorView(
-            selectedWalletId: viewModel.selectedUserWalletId,
-            userWalletModels: viewModel.userWalletModels,
-            onTapAction: { viewModel.handleViewAction(.selectUserWallet($0)) },
-            backAction: { viewModel.handleViewAction(.returnToConnectionDetails) }
+    private func actionButtons() -> some View {
+        HStack(spacing: 8) {
+            MainButton(settings: .init(title: "Cancel", style: .secondary, action: { viewModel.handleViewAction(.cancel) }))
+            MainButton(
+                settings: .init(
+                    title: "Connect",
+                    isLoading: viewModel.isConnecting,
+                    isDisabled: viewModel.isConnectionButtonDisabled,
+                    action: { viewModel.handleViewAction(.connect) }
+                )
+            )
+        }
+        .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+        .background(
+            ListFooterOverlayShadowView()
+                .padding(.top, -50)
         )
-        .padding(.init(top: 20, leading: 16, bottom: 14, trailing: 16))
     }
 }
 
@@ -79,7 +100,7 @@ private extension WCConnectRequestModalView {
                 WCDappTitleView(isLoading: viewModel.isDappInfoLoading, proposal: viewModel.proposal)
                     .padding(.horizontal, 16)
 
-                Divider()
+                Separator(height: .minimal, color: Colors.Stroke.primary)
                     .padding(.vertical, 12)
 
                 WCConnectionRequestDescriptionView(isLoading: viewModel.isDappInfoLoading)
@@ -96,44 +117,32 @@ private extension WCConnectRequestModalView {
                 .padding(.init(top: 12, leading: 16, bottom: 0, trailing: 16))
                 .disabled(viewModel.isDappInfoLoading)
 
-            Divider()
+            Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
 
             selectedNetworks
                 .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
                 .disabled(viewModel.isDappInfoLoading)
+
+            if viewModel.presentationState == .noRequiredChains {
+                Separator(height: .minimal, color: Colors.Stroke.primary)
+
+                WCRequiredNetworksView(blockchainNames: viewModel.requiredBlockchainNames)
+                    .padding(.init(top: 14, leading: 16, bottom: 14, trailing: 16))
+            }
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
     }
 }
 
-// MARK: - Subviews
+// MARK: - Header
 
 private extension WCConnectRequestModalView {
     var header: some View {
-        HStack(alignment: .center) {
-            Text("Wallet Connect")
-                .style(Fonts.Bold.headline, color: Colors.Text.primary1)
-                .frame(maxWidth: .infinity)
-                .overlay(alignment: .trailing, content: closeButton)
-        }
-    }
-
-    private func closeButton() -> some View {
-        Button(
-            action: { viewModel.handleViewAction(.dismissConnectionView) },
-            label: {
-                ZStack {
-                    Circle()
-                        .foregroundStyle(Colors.Button.secondary)
-                        .frame(size: .init(bothDimensions: 28))
-                    Assets.cross.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.secondary)
-                        .rotationEffect(.degrees(180))
-                }
-            }
+        WalletConnectNavigationBarView(
+            title: "Wallet Connect",
+            closeButtonAction: { viewModel.handleViewAction(.dismissConnectionView) }
         )
     }
 }
@@ -144,6 +153,7 @@ private extension WCConnectRequestModalView {
     var selectedWallet: some View {
         HStack(spacing: 0) {
             Assets.Glyphs.walletNew.image
+                .renderingMode(.template)
                 .resizable()
                 .frame(width: 24, height: 24)
                 .foregroundStyle(Colors.Icon.accent)
@@ -166,7 +176,6 @@ private extension WCConnectRequestModalView {
     }
 
     var selectedNetworks: some View {
-        // [REDACTED_TODO_COMMENT]
         return HStack(spacing: 0) {
             Assets.Glyphs.networkNew.image
                 .resizable()
@@ -179,19 +188,36 @@ private extension WCConnectRequestModalView {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 8)
 
-            ZStack(alignment: .trailing) {
-                if viewModel.isDappInfoLoading {
-                    connectionNetworksStub
-                } else {
-                    WCConnectionNetworksView(tokenIconsInfo: viewModel.makeTokenIconsInfo())
-                        .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
-                }
-            }
+            tokenSelectionIcon
 
-            if viewModel.presentationState == .connectionDetails {
-                Assets.WalletConnect.selectIcon.image
-                    .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))
-            }
+            networkSelectionIcon
+        }
+        .clipShape(Rectangle())
+        .onTapGesture {
+            viewModel.handleViewAction(.showUserNetworks)
+        }
+    }
+
+    @ViewBuilder
+    var tokenSelectionIcon: some View {
+        if viewModel.isDappInfoLoading {
+            connectionNetworksStub
+        } else if viewModel.isNetworksPreviewPresented {
+            WCConnectionNetworksView(tokenIconsInfo: viewModel.tokenIconsInfo)
+                .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
+        }
+    }
+
+    @ViewBuilder
+    var networkSelectionIcon: some View {
+        if viewModel.isNetworksPreviewPresented {
+            Assets.WalletConnect.selectIcon.image
+                .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))
+        } else if viewModel.presentationState == .noRequiredChains {
+            Assets.WalletConnect.chevronRight.image
+                .renderingMode(.template)
+                .foregroundStyle(Colors.Icon.informative)
+                .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))
         }
     }
 }
@@ -239,7 +265,21 @@ private extension WCConnectRequestModalView {
         return .move(edge: .bottom).animation(animationCurve).combined(with: .opacity.animation(animationCurve))
     }
 
+    func scrollContentHeighAnimation(_ updatedHeight: CGFloat) -> Animation {
+        if updatedHeight > viewModel.contentHeight {
+            .timingCurve(0.76, 0, 0.24, 1, duration: 0.5)
+        } else {
+            makeDefaultAnimationCurve(duration: 0.3)
+        }
+    }
+
     func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
         .timingCurve(0.65, 0, 0.35, 1, duration: duration)
     }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 40 } // summ padding between scroll content and overlay buttons
 }

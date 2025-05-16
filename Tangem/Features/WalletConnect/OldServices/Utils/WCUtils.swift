@@ -51,11 +51,11 @@ extension WCUtils {
         selectedWalletModelProvider: WalletConnectWalletModelProvider,
         selectedUserWalletModelId: String,
         selectedOptionalNetworks: [BlockchainNetwork] = []
-    ) throws -> (SessionNamespace: [String: SessionNamespace], requestData: [WCConnectionRequestData]) {
+    ) throws -> (SessionNamespace: [String: SessionNamespace], requestData: [WCConnectionRequestDataItem]) {
         let builder = WCSessionNamespacesBuilder()
         let chains = Set(proposal.namespaceChains)
 
-        let requestData: [WCConnectionRequestData] = chains.compactMap { wcBlockchain -> WCConnectionRequestData? in
+        let requestData: [WCConnectionRequestDataItem] = chains.compactMap { wcBlockchain -> WCConnectionRequestDataItem? in
             builder.makeConnectionRequestData(
                 from: wcBlockchain,
                 and: proposal,
@@ -63,24 +63,25 @@ extension WCUtils {
                 selectedWalletModelProvider: selectedWalletModelProvider
             )
         }
-        try checkMissingBlockchains(builder.missingBlockchains)
 
         try checkUnsupportedEVMBlockchains(builder.unsupportedEVMBlockchains)
 
-        let sessionNamespaces = try AutoNamespaces.build(
-            sessionProposal: proposal,
-            chains: Array(builder.supportedChains),
-            methods: proposal.namespaceMethods,
-            events: proposal.namespaceEvents,
-            accounts: requestData.compactMap(\.accounts).reduce([], +)
-        )
+        do {
+            let sessionNamespaces = try AutoNamespaces.build(
+                sessionProposal: proposal,
+                chains: Array(builder.supportedChains),
+                methods: proposal.namespaceMethods,
+                events: proposal.namespaceEvents,
+                accounts: requestData.compactMap(\.accounts).reduce([], +)
+            )
 
-        return (sessionNamespaces, requestData)
-    }
+            return (sessionNamespaces, requestData)
+        } catch let error as AutoNamespacesError {
+            if case .requiredChainsNotSatisfied = error {
+                throw WalletConnectV2Error.requiredChainsNotSatisfied(requestData)
+            }
 
-    private func checkMissingBlockchains(_ blockchains: [String]) throws {
-        guard blockchains.isEmpty else {
-            throw WalletConnectV2Error.missingBlockchains(blockchains)
+            throw error
         }
     }
 
