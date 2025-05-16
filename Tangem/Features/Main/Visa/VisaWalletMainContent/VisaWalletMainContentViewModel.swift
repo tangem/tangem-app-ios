@@ -142,6 +142,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                     return
                 case .idle:
                     self.updateLimits()
+                    self.setupNotifications(nil)
                 case .failedToLoad(let error):
                     Analytics.log(event: .visaErrors, params: [
                         .errorCode: "\(error.universalErrorCode)",
@@ -172,7 +173,12 @@ class VisaWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError) {
+    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError?) {
+        guard let modelError else {
+            failedToLoadInfoNotificationInput = nil
+            return
+        }
+
         switch modelError {
         case .missingValidRefreshToken:
             failedToLoadInfoNotificationInput = .init(
