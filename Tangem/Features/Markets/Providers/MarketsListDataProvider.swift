@@ -107,7 +107,7 @@ final class MarketsListDataProvider {
                 let searchText = searchText.trimmed()
 
                 let response = try await provider.loadItems(searchText, with: filter)
-                await provider.handleFetchResult(.success(response))
+                await provider.handleFetchResult(.success(response), isSearchCleared: searchText.isEmpty)
             } catch {
                 await provider.handleFetchResult(.failure(error))
             }
@@ -165,7 +165,7 @@ extension MarketsListDataProvider {
 // MARK: - Handling fetch response
 
 private extension MarketsListDataProvider {
-    func handleFetchResult(_ result: Result<MarketsDTO.General.Response, Error>) async {
+    func handleFetchResult(_ result: Result<MarketsDTO.General.Response, Error>, isSearchCleared: Bool? = nil) async {
         do {
             let response = try result.get()
             currentOffset = response.offset + response.limit
@@ -174,6 +174,10 @@ private extension MarketsListDataProvider {
             AppLogger.tag("Markets").info("Load new items finished. Is loading set to false.")
             isLoading = false
             AppLogger.tag("Markets").info("Loaded new items for market list. New total tokens count: \(items.count + response.tokens.count)")
+
+            if isSearchCleared == false {
+                Analytics.log(event: .tokenSearch, params: [.tokenFound: response.tokens.isNotEmpty ? "Yes" : "No"])
+            }
 
             items.append(contentsOf: response.tokens)
             stakingApy = response.summary?.maxApy
