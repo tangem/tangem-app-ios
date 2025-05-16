@@ -30,6 +30,7 @@ extension Analytics {
         case token = "Token"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
+        case tokenFound = "Token Found"
         case derivationPath = "Derivation Path"
         case derivation = "Derivation"
         case network = "Network"
