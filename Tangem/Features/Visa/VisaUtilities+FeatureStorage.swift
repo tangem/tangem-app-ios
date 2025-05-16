@@ -10,6 +10,6 @@ import TangemVisa
 
 extension VisaUtilities {
     init() {
-        self = VisaUtilities(isTestnet: FeatureStorage.instance.isVisaTestnet)
+        self = VisaUtilities(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
     }
 }
