@@ -67,27 +67,15 @@ extension WalletConnectConnectionRequestViewModel {
         }
     }
 
-    private func handleVerifiedDomainIconTapped() {
+    private func handleVerifiedDomainIconTapped() {}
 
-    }
+    private func handleConnectionRequestSectionHeaderTapped() {}
 
-    private func handleConnectionRequestSectionHeaderTapped() {
+    private func handleWalletRowTapped() {}
 
-    }
+    private func handleNetworksRowTapped() {}
 
-    private func handleWalletRowTapped() {
+    private func handleCancelButtonTapped() {}
 
-    }
-
-    private func handleNetworksRowTapped() {
-
-    }
-
-    private func handleCancelButtonTapped() {
-
-    }
-
-    private func handleConnectButtonTapped() {
-
-    }
+    private func handleConnectButtonTapped() {}
 }
