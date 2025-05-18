@@ -23,6 +23,7 @@ final class WCServiceV2 {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Refac
+
     // [REDACTED_TODO_COMMENT]
 
     private var sessionProposalContinuation: CheckedContinuation<Session.Proposal, Never>?

@@ -246,7 +246,10 @@ private extension WCConnectionSheetViewModel {
 
     func selectUserWallet(_ userWalletModel: UserWalletModel) {
         wcService.updateSelectedWalletId(userWalletModel.userWalletId.stringValue)
-        presentationState = .connectionDetails
+
+        withAnimation(contentSwitchAnimation) {
+            presentationState = .connectionDetails
+        }
     }
 
     func returnToConnectionDetails() {
