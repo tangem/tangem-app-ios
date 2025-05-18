@@ -38,7 +38,6 @@ struct WCConnectRequestModalView: View {
                     .transition(viewModel.isTransitionFromNetworkSelector ? walletSelectorTransition : connectionDetailsTransition)
             }
         }
-        .animation(.fadeAndSlide, value: viewModel.presentationState)
     }
 
     private var connectionDetails: some View {
@@ -234,7 +233,7 @@ private extension WCConnectRequestModalView {
             .foregroundStyle(.clear)
             .frame(width: 94, height: 24)
             .skeletonable(isShown: true, radius: 8)
-            .transition(.opacity.animation(.defaultAnimationCurve(duration: 0.4)))
+            .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
     }
 }
 
@@ -242,11 +241,11 @@ private extension WCConnectRequestModalView {
 
 private extension WCConnectRequestModalView {
     var mainContentOpacityTransition: AnyTransition {
-        .opacity.animation(.fadeAndSlide(duration: 0.3))
+        .opacity.animation(.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.3))
     }
 
     var mainContentOpacityTransitionWithDelay: AnyTransition {
-        .opacity.animation(.fadeAndSlide(duration: 0.3, delay: 0.2))
+        .opacity.animation(.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.3).delay(0.2))
     }
 
     var walletSelectorTransition: AnyTransition {
