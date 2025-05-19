@@ -60,14 +60,15 @@ extension WalletConnectConnectionRequestViewModel {
         dAppLoadingTask = Task { [weak self, getDAppUseCase] in
             do {
                 let dApp = try await getDAppUseCase()
-                // [REDACTED_TODO_COMMENT]
             } catch {
                 // [REDACTED_TODO_COMMENT]
             }
         }
     }
 
-    private func handleVerifiedDomainIconTapped() {}
+    private func handleVerifiedDomainIconTapped() {
+        state = .verifiedDomain
+    }
 
     private func handleConnectionRequestSectionHeaderTapped() {}
 

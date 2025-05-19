@@ -7,7 +7,7 @@
 //
 
 enum BlockaidSiteScanMapper {
-    static func mapToDomain(_ responseDTO: BlockaidDTO.SiteScan.Response) -> WalletConnectDAppVerificationStatus {
+    static func mapToDomain(_ responseDTO: BlockaidDTO.SiteScan.Response) -> WalletConnectDApp.VerificationStatus {
         switch responseDTO.status {
         case .hit where !responseDTO.isMalicious:
             return .verified
@@ -21,7 +21,7 @@ enum BlockaidSiteScanMapper {
         }
     }
 
-    private static func mapAttackType(_ dtoAttackType: BlockaidDTO.SiteScan.Response.AttackType) -> WalletConnectDAppVerificationStatus.AttackType {
+    private static func mapAttackType(_ dtoAttackType: BlockaidDTO.SiteScan.Response.AttackType) -> WalletConnectDApp.VerificationStatus.AttackType {
         switch dtoAttackType {
         case .signatureFarming: .signatureFarming
         case .approvalFarming: .approvalFarming
