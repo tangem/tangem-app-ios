@@ -13,7 +13,7 @@ final class CommonWalletConnectDAppDataService: WalletConnectDAppDataService {
         self.walletConnectService = walletConnectService
     }
 
-    func getDAppData(for uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> WalletConnectDAppData {
+    func getDAppData(for uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> WalletConnectDApp.DAppData {
         try await walletConnectService.openSession(with: uri, source: source)
     }
 }

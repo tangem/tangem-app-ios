@@ -30,6 +30,9 @@ final class WalletConnectGetDAppUseCase {
     func callAsFunction() async throws -> WalletConnectDApp {
         let dAppData = try await dAppDataService.getDAppData(for: uri, source: analyticsSource)
         let verificationStatus = try await verificationService.verify(dAppDomain: dAppData.domain)
+        // get required + optional blockchains for dApp. This information is immutable
+        // if throw WalletConnectV2Error.unsupportedBlockchains -> end flow with an error
+        // 
 
         return WalletConnectDApp(data: dAppData, verificationStatus: verificationStatus)
     }
