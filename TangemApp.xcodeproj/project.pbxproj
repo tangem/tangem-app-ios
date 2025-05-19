@@ -13480,6 +13480,47 @@
 			path = "DApp connection proposal";
 			sourceTree = "<group>";
 		};
+		C274DFA42DDB81E900B1D97B /* DApp connection */ = {
+			isa = PBXGroup;
+			children = (
+				C274DFA02DDB817C00B1D97B /* WalletConnectDAppConnectionProposal.swift */,
+				C2E921312DD7AA7600ACE654 /* WalletConnectDAppData.swift */,
+				C274DF9E2DDB813E00B1D97B /* WalletConnectDAppVerificationStatus.swift */,
+				C274DFA22DDB818A00B1D97B /* WalletConnectSessionProposal.swift */,
+				C274DF9C2DDB810D00B1D97B /* WalletConnectDAppConnectionRequest.swift */,
+			);
+			path = "DApp connection";
+			sourceTree = "<group>";
+		};
+		C274DFA52DDBB3B600B1D97B /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C274DFA92DDBB4B800B1D97B /* Service implementations */,
+				C274DFA62DDBB3C300B1D97B /* Mappers */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		C274DFA62DDBB3C300B1D97B /* Mappers */ = {
+			isa = PBXGroup;
+			children = (
+				C274DFAC2DDBC1B300B1D97B /* WalletConnectDAppDataMapper.swift */,
+				C274DFAA2DDBB60D00B1D97B /* WalletConnectBlockchainMapper.swift */,
+				C274DFA72DDBB3F800B1D97B /* WalletConnectSessionProposalMapper.swift */,
+				C2E9213A2DD7AFF500ACE654 /* BlockaidSiteScanMapper.swift */,
+			);
+			path = Mappers;
+			sourceTree = "<group>";
+		};
+		C274DFA92DDBB4B800B1D97B /* Service implementations */ = {
+			isa = PBXGroup;
+			children = (
+				C2E921332DD7AB7E00ACE654 /* ReownWalletConnectDAppDataService.swift */,
+				C2E921372DD7ACB700ACE654 /* BlockaidWalletConnectDAppVerificationService.swift */,
+			);
+			path = "Service implementations";
+			sourceTree = "<group>";
+		};
 		C2DB41952DCA2AAC0028E6B0 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
