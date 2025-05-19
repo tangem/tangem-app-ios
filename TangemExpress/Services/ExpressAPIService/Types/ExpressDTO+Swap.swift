@@ -89,6 +89,7 @@ extension ExpressDTO {
                 let toAmount: String
                 let toDecimals: Int
                 let allowanceContract: String?
+                let averageDuration: TimeInterval?
             }
         }
 

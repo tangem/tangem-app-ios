@@ -13,6 +13,27 @@ import UIKit
 
 struct ExpressProviderFormatter {
     let balanceFormatter: BalanceFormatter
+    
+    func getDurationString(state: ExpressProviderManagerState) -> String? {
+        var durationInSeconds: Double? {
+            switch state {
+            case .idle, .error, .restriction:
+                return nil
+            case .permissionRequired(let state):
+                return state.quote.averageDuration
+            case .preview(let state):
+                return state.quote.averageDuration
+            case .ready(let state):
+                return state.quote.averageDuration
+            }
+        }
+        
+        guard let durationInSeconds else {
+            return nil
+        }
+        
+        return TimeIntervalFormatter().formattedMinutesOrSeconds(from: durationInSeconds)
+    }
 
     func mapToRateSubtitle(
         state: ExpressProviderManagerState,
