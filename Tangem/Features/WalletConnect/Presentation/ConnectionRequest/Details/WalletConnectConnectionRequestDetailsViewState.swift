@@ -33,7 +33,7 @@ struct WalletConnectConnectionRequestDetailsViewState {
     }
 
     static func content(
-        dApp: WalletConnectDApp,
+        dAppData: WalletConnectDAppData,
         walletName: String,
         walletSelectionIsAvailable: Bool
     ) -> WalletConnectConnectionRequestDetailsViewState {
@@ -41,9 +41,9 @@ struct WalletConnectConnectionRequestDetailsViewState {
             dAppDescriptionSection: DAppDescriptionSection(
                 state: .content(
                     DAppDescriptionSection.ContentState(
-                        iconURL: dApp.data.icon,
-                        name: dApp.data.name,
-                        domain: dApp.data.domain.host
+                        iconURL: dAppData.icon,
+                        name: dAppData.name,
+                        domain: dAppData.domain.host
                     )
                 )
             ),
