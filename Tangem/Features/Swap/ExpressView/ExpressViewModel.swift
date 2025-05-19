@@ -666,7 +666,8 @@ private extension ExpressViewModel {
             isDisabled: false,
             badge: badge,
             subtitles: [subtitle],
-            detailsType: .chevron
+            detailsType: .chevron,
+            averageSwapDuration: expressProviderFormatter.getDurationString(state: state)
         ) { [weak self] in
             self?.presentProviderSelectorView()
         }
