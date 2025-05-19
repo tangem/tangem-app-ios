@@ -146,7 +146,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         if let percentSubtitle = await makePercentSubtitle(provider: provider) {
             subtitles.append(percentSubtitle)
         }
-
+        
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: provider.provider),
             titleFormat: .name,
@@ -154,6 +154,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
             badge: badge,
             subtitles: subtitles,
             detailsType: isSelected ? .selected : .none,
+            averageSwapDuration: expressProviderFormatter.getDurationString(state: state),
             tapAction: { [weak self] in
                 self?.userDidTap(provider: provider)
             }
