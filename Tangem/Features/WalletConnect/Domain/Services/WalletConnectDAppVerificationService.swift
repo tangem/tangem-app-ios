@@ -9,5 +9,5 @@
 import struct Foundation.URL
 
 protocol WalletConnectDAppVerificationService {
-    func verify(dAppDomain: URL) async throws -> WalletConnectDAppVerificationStatus
+    func verify(dAppDomain: URL) async throws -> WalletConnectDApp.VerificationStatus
 }
