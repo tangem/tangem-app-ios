@@ -41,6 +41,7 @@ struct ProviderRowViewModel: Identifiable {
     let badge: Badge?
     let subtitles: [Subtitle]
     let detailsType: DetailsType?
+    let averageSwapDuration: String?
     let tapAction: (() -> Void)?
 
     init(
@@ -50,6 +51,7 @@ struct ProviderRowViewModel: Identifiable {
         badge: Badge?,
         subtitles: [Subtitle],
         detailsType: DetailsType?,
+        averageSwapDuration: String? = nil,
         tapAction: (() -> Void)? = nil
     ) {
         self.provider = provider
@@ -58,6 +60,7 @@ struct ProviderRowViewModel: Identifiable {
         self.badge = badge
         self.subtitles = subtitles
         self.detailsType = detailsType
+        self.averageSwapDuration = averageSwapDuration
         self.tapAction = tapAction
     }
 }
