@@ -31,8 +31,12 @@ struct ProviderRowView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 titleView
-
+                
                 subtitleView
+                
+                if let averageSwapDuration = viewModel.averageSwapDuration {
+                    averageSwapDurationView(averageSwapDuration: averageSwapDuration).padding(.top, 4)
+                }
             }
 
             Spacer()
@@ -81,6 +85,20 @@ struct ProviderRowView: View {
                 }
             }
         }
+    }
+    
+    private func averageSwapDurationView(averageSwapDuration: String) -> some View {
+        HStack(spacing: 6) {
+            Assets.speedMiniIcon2.image
+                .renderingMode(.template)
+                .foregroundColor(Colors.Icon.informative)
+            
+            Text(averageSwapDuration)
+                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+        }
+        .padding(.vertical, 2)
+        .padding(.horizontal, 4)
+        .background(RoundedRectangle(cornerRadius: 4).stroke(Colors.Stroke.primary, lineWidth: 1))
     }
 
     @ViewBuilder
@@ -185,7 +203,8 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
             isDisabled: isDisabled,
             badge: badge,
             subtitles: [.text("1 132,46 MATIC")] + subtitles,
-            detailsType: detailsType
+            detailsType: detailsType,
+            averageSwapDuration: "5 mins"
         ) {}
     }
 }
