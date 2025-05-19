@@ -15,7 +15,7 @@ final class BlockaidWalletConnectDAppVerificationService: WalletConnectDAppVerif
         self.apiService = apiService
     }
 
-    func verify(dAppDomain: URL) async throws -> WalletConnectDAppVerificationStatus {
+    func verify(dAppDomain: URL) async throws -> WalletConnectDApp.VerificationStatus {
         let apiResult = try await apiService.scanSite(url: dAppDomain)
         return BlockaidSiteScanMapper.mapToDomain(apiResult)
     }
