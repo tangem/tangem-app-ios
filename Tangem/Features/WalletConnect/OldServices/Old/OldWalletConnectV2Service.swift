@@ -55,8 +55,6 @@ final class OldWalletConnectV2Service {
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
 
-        guard !FeatureProvider.isAvailable(.walletConnectUI) else { return }
-
         Networking.configure(
             groupIdentifier: AppEnvironment.current.suiteName,
             projectId: keysManager.walletConnectProjectId,
