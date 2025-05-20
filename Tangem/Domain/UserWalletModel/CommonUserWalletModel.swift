@@ -102,7 +102,6 @@ class CommonUserWalletModel {
         bind()
 
         userTokensManager.sync {}
-        nftManager.update()
     }
 
     deinit {
