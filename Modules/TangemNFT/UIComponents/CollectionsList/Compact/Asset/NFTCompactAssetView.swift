@@ -94,9 +94,10 @@ extension NFTCompactAssetView {
             state: .loaded(
                 NFTAsset(
                     assetIdentifier: "some",
-                    collectionIdentifier: "some1",
+                    assetContractAddress: "some1",
                     chain: .solana,
                     contractType: .unknown,
+                    decimalCount: 0,
                     ownerAddress: "",
                     name: "My asset",
                     description: "",
