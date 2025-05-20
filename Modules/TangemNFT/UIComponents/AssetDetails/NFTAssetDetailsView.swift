@@ -114,9 +114,10 @@ private extension NFTAssetDetailsView {
             viewModel: NFTAssetDetailsViewModel(
                 asset: NFTAsset(
                     assetIdentifier: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-                    collectionIdentifier: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
+                    assetContractAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     chain: .solana,
                     contractType: .erc1155,
+                    decimalCount: 0,
                     ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     name: "My awesone asset",
                     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
