@@ -75,13 +75,13 @@ class CustomBitcoinFeeService {
     }
 
     private func customFeeDidChanged(fee: Fee) {
-        let fortmatted = fortmatToFiat(value: fee.amount.value)
-        customFeeInFiat.send(fortmatted)
+        let formatted = formatToFiat(value: fee.amount.value)
+        customFeeInFiat.send(formatted)
 
         output?.customFeeDidChanged(fee)
     }
 
-    private func fortmatToFiat(value: Decimal?) -> String? {
+    private func formatToFiat(value: Decimal?) -> String? {
         guard let value,
               let currencyId = feeTokenItem.currencyId else {
             return nil
