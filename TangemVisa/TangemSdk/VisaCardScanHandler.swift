@@ -32,8 +32,8 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         cardActivationStateProvider: VisaCardActivationStatusService,
         refreshTokenRepository: VisaRefreshTokenRepository
     ) {
-        /// - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
-        /// that didn't work properly, and for Visa we must generate derive keys using polygon derivation
+        // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
+        // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
         visaUtilities = .init(isTestnet: false)
         self.authorizationService = authorizationService
         self.cardActivationStateProvider = cardActivationStateProvider
