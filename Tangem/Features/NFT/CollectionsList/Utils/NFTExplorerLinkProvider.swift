@@ -13,10 +13,6 @@ import TangemFoundation
 
 struct NFTExplorerLinkProvider {
     func provide(for asset: NFTAsset) -> URL? {
-        guard let tokenAddress = asset.id.collectionIdentifier else {
-            return nil
-        }
-
         // [REDACTED_TODO_COMMENT]
         // The dummy hardcoded `version` is used here since it has no effect on the external URL generation
         let blockchain = NFTChainConverter.convert(asset.id.chain, version: .v2)
@@ -28,8 +24,8 @@ struct NFTExplorerLinkProvider {
         )
 
         let exploreURL = provider.nftURL(
-            tokenAddress: tokenAddress,
-            tokenID: asset.id.assetIdentifier
+            tokenAddress: asset.id.contractAddress,
+            tokenID: asset.id.identifier
         )
 
         return exploreURL

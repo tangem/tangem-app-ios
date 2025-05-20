@@ -121,9 +121,10 @@ struct DummyProvider: NFTChainIconProvider {
                 assets: (0 ... 2).map {
                     NFTAsset(
                         assetIdentifier: "some-\($0)",
-                        collectionIdentifier: "some1",
+                        assetContractAddress: "some1",
                         chain: .solana,
                         contractType: .unknown,
+                        decimalCount: 0,
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
