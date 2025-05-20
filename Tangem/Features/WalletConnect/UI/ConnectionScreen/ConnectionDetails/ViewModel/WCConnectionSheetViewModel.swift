@@ -117,7 +117,7 @@ extension WCConnectionSheetViewModel {
                 }.sorted(by: { $0.name < $1.name })
 
                 viewModel.requiredBlockchainNames = viewModel.blockchains.compactMap {
-                    $0.state == .requiredToAdd2 ? $0.name : nil
+                    $0.state == .requiredToAdd ? $0.name : nil
                 }
 
                 viewModel.tokenIconsInfo = viewModel.blockchains.compactMap(\.tokenIconInfo)
