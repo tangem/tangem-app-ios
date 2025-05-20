@@ -17,7 +17,7 @@ final class WCNetworksSelectorViewModel: ObservableObject {
     var isDoneButtonDisabled: Bool {
         blockchains.contains { $0.state == .requiredToAdd }
     }
-    
+
     var isAllRequiredChainsAdded: Bool {
         !blockchains.contains { $0.state == .requiredToAdd }
     }
@@ -57,7 +57,7 @@ final class WCNetworksSelectorViewModel: ObservableObject {
             false
         }
     }
-    
+
     func filterBlockchain(by states: [WCSelectBlockchainItemState]) -> [WCSelectedBlockchainItem] {
         blockchains.filter { states.contains($0.state) }
     }
