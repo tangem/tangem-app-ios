@@ -12,7 +12,7 @@ import TangemUI
 
 struct WCWalletSelectorView: View {
     @StateObject private var viewModel: WCWalletSelectorViewModel
-    
+
     init(input: WCWalletSelectorInput) {
         _viewModel = .init(wrappedValue: .init(input: input))
     }
@@ -24,7 +24,7 @@ struct WCWalletSelectorView: View {
     private var content: some View {
         VStack(spacing: 12) {
             header
-            
+
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(viewModel.userWalletModels, id: \.userWalletId) { userWalletModel in
                     WCWalletRowView(
@@ -35,7 +35,7 @@ struct WCWalletSelectorView: View {
                     )
                     .padding(.init(top: 14, leading: 16, bottom: 14, trailing: 16))
                     .background { selectionBorder(userWalletModel.userWalletId.stringValue) }
-                    
+
                     if viewModel.checkNotLastListItem(userWalletModel) {
                         Separator(height: .minimal, color: Colors.Stroke.primary)
                             .padding(.leading, 62)
@@ -50,23 +50,6 @@ struct WCWalletSelectorView: View {
         WalletConnectNavigationBarView(
             title: "Choose wallet",
             backButtonAction: { viewModel.handleViewAction(.returnToConnectionDetails) }
-        )
-    }
-
-    private func backButton() -> some View {
-        Button(
-            action: { viewModel.handleViewAction(.returnToConnectionDetails) },
-            label: {
-                ZStack {
-                    Circle()
-                        .foregroundStyle(Colors.Button.secondary)
-                        .frame(size: .init(bothDimensions: 28))
-                    Assets.WalletConnect.chevronRight.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.secondary)
-                        .rotationEffect(.degrees(180))
-                }
-            }
         )
     }
 
