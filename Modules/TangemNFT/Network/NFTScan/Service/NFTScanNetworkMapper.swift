@@ -15,10 +15,17 @@ final class NFTScanNetworkMapper {
         chain: NFTChain,
         ownerAddress: String
     ) throws -> NFTCollection? {
-        guard let collectionID = collection.collection, let name = collection.collection else {
+        guard let collectionIdentifier = collection.collection else {
+            NFTLogger.warning(
+                String(
+                    format: "Collection missing required fields: collection %@",
+                    String(describing: collection.collection)
+                )
+            )
             return nil
         }
 
+        let name = collectionIdentifier
         let assets = collection.assets.compactMap { mapAsset($0, chain: chain) }
         let ownerAddress = assets.first?.id.ownerAddress ?? ownerAddress
 
@@ -29,7 +36,7 @@ final class NFTScanNetworkMapper {
             .map(NFTIPFSURLConverter.convert(_:))
 
         return NFTCollection(
-            collectionIdentifier: collectionID,
+            collectionIdentifier: collectionIdentifier,
             chain: chain,
             contractType: .unknown,
             ownerAddress: ownerAddress,
@@ -45,7 +52,13 @@ final class NFTScanNetworkMapper {
         _ asset: NFTScanNetworkResult.Asset,
         chain: NFTChain
     ) -> NFTAsset? {
-        guard let collectionID = asset.collection else {
+        guard let collectionIdentifier = asset.collection else {
+            NFTLogger.warning(
+                String(
+                    format: "Asset missing required fields: collection %@",
+                    String(describing: asset.collection)
+                )
+            )
             return nil
         }
 
@@ -74,9 +87,10 @@ final class NFTScanNetworkMapper {
 
         return NFTAsset(
             assetIdentifier: asset.tokenUri,
-            collectionIdentifier: collectionID,
+            assetContractAddress: collectionIdentifier,
             chain: chain,
             contractType: .unknown,
+            decimalCount: Constants.decimalCount,
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
@@ -88,6 +102,12 @@ final class NFTScanNetworkMapper {
 
     func mapSalePrice(for asset: NFTScanNetworkResult.Asset) -> NFTSalePrice? {
         guard let latestPrice = asset.latestTradePrice else {
+            NFTLogger.warning(
+                String(
+                    format: "Asset missing required fields: latest_trade_price %@",
+                    String(describing: asset.latestTradePrice)
+                )
+            )
             return nil
         }
 
@@ -123,6 +143,9 @@ final class NFTScanNetworkMapper {
 
 private extension NFTScanNetworkMapper {
     enum Constants {
+        /// NFTScan doesn't provide decimal count for Solana NFT collections,
+        /// so we're using this default value instead.
+        static let decimalCount = 0
         static let rarityAttributeName = "Rarity Rank"
         static let assetDescriptionKey = "description"
     }
