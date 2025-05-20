@@ -223,7 +223,7 @@ struct SendDependenciesBuilder {
             return SendAmount(type: .typical(crypto: sellParameters.amount, fiat: fiatValue))
         }
 
-        // the additionalField is requried. Other can be optional
+        // the additionalField is required. Other can be optional
         let additionalField: SendDestinationAdditionalField = {
             guard let type = SendDestinationAdditionalFieldType.type(for: walletModel.tokenItem.blockchain) else {
                 return .notSupported

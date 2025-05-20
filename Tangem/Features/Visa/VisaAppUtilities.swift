@@ -13,8 +13,8 @@ import TangemVisa
 
 struct VisaAppUtilities {
     func makeAddress(using list: [CardDTO.Wallet]) -> Address? {
-        /// - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
-        /// that didn't work properly, and for Visa we must generate derive keys using polygon derivation
+        // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
+        // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
         let utils = VisaUtilities(isTestnet: false)
         guard let wallet = list.first(where: { $0.curve == utils.mandatoryCurve }) else {
             return nil
