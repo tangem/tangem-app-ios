@@ -14,7 +14,7 @@ import BlockchainSdk
 
 struct WCNetworksSelectorView: View {
     @StateObject private var viewModel: WCNetworksSelectorViewModel
-    
+
     init(input: WCNetworkSelectorInput) {
         _viewModel = .init(wrappedValue: .init(input: input))
     }
@@ -31,7 +31,7 @@ struct WCNetworksSelectorView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     requiredBlockchainsSection
 
-                    blockchainsSection(title: "Available networks",state: [.selected, .notSelected, .required])
+                    blockchainsSection(title: "Available networks", state: [.selected, .notSelected, .required])
 
                     blockchainsSection(title: "Not added", state: [.notAdded])
                 }
