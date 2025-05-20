@@ -92,7 +92,7 @@ extension NFTScanNFTNetworkService: NFTNetworkService {
         let apiTarget = NFTScanAPITarget(
             chain: chain,
             target: .getNFTByTokenID(
-                tokenID: assetIdentifier.assetIdentifier,
+                tokenID: assetIdentifier.identifier,
                 params: NFTScanNetworkParams.NFTByTokenID(showAttribute: true)
             )
         )
