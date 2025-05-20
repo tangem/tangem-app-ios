@@ -175,15 +175,11 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
-        guard let collectionAddress = assetIdentifier.collectionIdentifier else {
-            throw Error.missingCollectionAddress(assetId: assetIdentifier)
-        }
-
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
         let token = MoralisEVMNetworkParams.NFTAssetsBody.Token(
-            tokenAddress: collectionAddress,
-            tokenId: assetIdentifier.assetIdentifier
+            tokenAddress: assetIdentifier.contractAddress,
+            tokenId: assetIdentifier.identifier
         )
 
         let target = MoralisEVMAPITarget(
@@ -201,24 +197,20 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         let response = try await networkProvider
             .asyncRequest(target)
             .mapAPIResponse([MoralisEVMNetworkResult.EVMNFTAsset].self, using: decoder)
-            .first { $0.tokenAddress == assetIdentifier.collectionIdentifier && $0.tokenId == assetIdentifier.assetIdentifier }
+            .first { $0.tokenAddress == assetIdentifier.contractAddress && $0.tokenId == assetIdentifier.identifier }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
         return mapper.map(asset: response, ownerAddress: assetIdentifier.ownerAddress)
     }
 
     public func getSalePrice(assetIdentifier: NFTAsset.ID) async throws -> NFTSalePrice? {
-        guard let collectionAddress = assetIdentifier.collectionIdentifier else {
-            throw Error.missingCollectionAddress(assetId: assetIdentifier)
-        }
-
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
         let target = MoralisEVMAPITarget(
             version: Constants.apiVersion,
             target: .getNFTSalePrice(
-                collectionAddress: collectionAddress,
-                tokenId: assetIdentifier.assetIdentifier,
+                collectionAddress: assetIdentifier.contractAddress,
+                tokenId: assetIdentifier.identifier,
                 params: .init(
                     chain: moralisNFTChain,
                     days: Constants.salePriceHistoryDuration
@@ -241,7 +233,6 @@ public extension MoralisEVMNFTNetworkService {
     enum Error: Swift.Error, LocalizedError {
         case unsupportedNFTChain(chain: NFTChain)
         case apiError(message: String)
-        case missingCollectionAddress(assetId: NFTAsset.ID)
 
         public var errorDescription: String? {
             switch self {
@@ -249,8 +240,6 @@ public extension MoralisEVMNFTNetworkService {
                 return "Unsupported NFT chain: '\(chain)'"
             case .apiError(let message):
                 return message
-            case .missingCollectionAddress(let assetId):
-                return "Missing collectionId for \(assetId)"
             }
         }
     }
