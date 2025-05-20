@@ -56,7 +56,7 @@ struct MoralisEVMNetworkMapper {
         guard
             let asset,
             let assetIdentifier = asset.tokenId,
-            let collectionIdentifier = asset.tokenAddress,
+            let assetContractAddress = asset.tokenAddress,
             let name = asset.name
         else {
             NFTLogger.warning(
@@ -77,9 +77,10 @@ struct MoralisEVMNetworkMapper {
 
         return NFTAsset(
             assetIdentifier: assetIdentifier,
-            collectionIdentifier: collectionIdentifier,
+            assetContractAddress: assetContractAddress,
             chain: chain,
             contractType: contractType,
+            decimalCount: Constants.decimalCount,
             ownerAddress: asset.ownerOf ?? ownerAddress(),
             name: name,
             description: asset.normalizedMetadata?.description,
@@ -190,5 +191,13 @@ struct MoralisEVMNetworkMapper {
 
             return NFTAsset.Trait(name: name, value: value.description)
         } ?? []
+    }
+}
+
+private extension MoralisEVMNetworkMapper {
+    enum Constants {
+        /// Moralis doesn't provide decimal count for EVM NFT collections,
+        /// so we're using this default value instead.
+        static let decimalCount = 0
     }
 }
