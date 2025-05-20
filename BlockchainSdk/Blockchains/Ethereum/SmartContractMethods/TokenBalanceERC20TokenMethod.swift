@@ -20,10 +20,10 @@ public struct TokenBalanceERC20TokenMethod {
 // MARK: - SmartContractMethod
 
 extension TokenBalanceERC20TokenMethod: SmartContractMethod {
-    public var prefix: String { "0x70a08231" }
+    public var methodId: String { "0x70a08231" }
 
     public var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let ownerData = Data(hexString: owner).leadingZeroPadding(toLength: 32)
         return prefixData + ownerData
     }
