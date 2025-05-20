@@ -115,7 +115,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         let rankValue = rarity.rank
         let rank = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsRarityRank,
-            value: rankValue?.description ?? nil,
+            value: rankValue?.description,
             action: { [weak self] in
                 self?.openAssetExtendedInfo(
                     title: Localization.nftDetailsRarityRank,
@@ -158,7 +158,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
         let contractAddress = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsContractAddress,
-            value: asset.id.collectionIdentifier,
+            value: asset.id.contractAddress,
             action: { [weak self] in
                 self?.openAssetExtendedInfo(
                     title: Localization.nftDetailsContractAddress,
@@ -169,7 +169,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
         let tokenID = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsTokenId,
-            value: asset.id.assetIdentifier,
+            value: asset.id.identifier,
             action: { [weak self] in
                 self?.openAssetExtendedInfo(
                     title: Localization.nftDetailsTokenId,
@@ -211,7 +211,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         value: String?,
         action: @escaping () -> Void
     ) -> KeyValuePairViewData? {
-        guard let value else { return nil }
+        guard let value = value?.nilIfEmpty else { return nil }
 
         return KeyValuePairViewData(
             key: KeyValuePairViewData.Key(text: key, action: action),
@@ -229,7 +229,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     }
 
     private func openDescription() {
-        guard let description = asset.description else { return }
+        guard let description = asset.description?.nilIfEmpty else { return }
 
         coordinator?.openInfo(
             with: NFTAssetExtendedInfoViewData(
