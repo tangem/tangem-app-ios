@@ -23,10 +23,10 @@ public struct ApproveERC20TokenMethod {
 // MARK: - SmartContractMethod
 
 extension ApproveERC20TokenMethod: SmartContractMethod {
-    public var prefix: String { "0x095ea7b3" }
+    public var methodId: String { "0x095ea7b3" }
 
     public var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let spenderData = Data(hexString: spender).leadingZeroPadding(toLength: 32)
         let amountData = amount.serialize().leadingZeroPadding(toLength: 32)
         return prefixData + spenderData + amountData
