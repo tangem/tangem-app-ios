@@ -115,13 +115,13 @@ extension WCConnectionSheetViewModel {
                         tokenIconInfoBuilder: viewModel.tokenIconInfoBuilder
                     )
                 }.sorted(by: { $0.name < $1.name })
-                
+
                 viewModel.requiredBlockchainNames = viewModel.blockchains.compactMap {
                     $0.state == .requiredToAdd ? $0.name : nil
                 }
-                
+
                 viewModel.tokenIconsInfo = viewModel.blockchains.compactMap(\.tokenIconInfo)
-                
+
                 viewModel.request = request
             }
             .store(in: &bag)
@@ -171,7 +171,7 @@ private extension WCConnectionSheetViewModel {
                 try await request?.connect?()
 
                 presentationState = .connectionDetails
-                
+
                 Task { @MainActor in
                     self.floatingSheetPresenter.removeActiveSheet()
                 }
@@ -204,7 +204,7 @@ private extension WCConnectionSheetViewModel {
     func showUserWallets() {
         guard
             isConnectionDetailsPresented,
-            userWalletRepository.models.filter ({
+            userWalletRepository.models.filter({
                 !$0.isUserWalletLocked && $0.config.hasFeature(.walletConnect)
             })
             .count > 1
@@ -264,7 +264,7 @@ extension WCConnectionSheetViewModel {
                 type: .temporary()
             )
     }
-    
+
     private func makeTokenItemMapper(for userWalletModelId: String) -> TokenItemMapper? {
         guard
             let selectedUserWalletModel = userWalletRepository.models.first(where: {
@@ -273,7 +273,7 @@ extension WCConnectionSheetViewModel {
         else {
             return nil
         }
-        
+
         return TokenItemMapper(supportedBlockchains: selectedUserWalletModel.config.supportedBlockchains)
     }
 }
@@ -326,7 +326,7 @@ extension WCConnectionSheetViewModel {
 
         return state.contains(presentationState)
     }
-    
+
     var isNetworksPreviewPresented: Bool {
         let state: [PresentationState] = [.connecting, .connectionDetails]
 
