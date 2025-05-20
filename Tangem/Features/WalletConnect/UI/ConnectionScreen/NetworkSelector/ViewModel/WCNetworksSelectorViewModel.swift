@@ -15,11 +15,11 @@ final class WCNetworksSelectorViewModel: ObservableObject {
     let requiredBlockchainNames: [String]
 
     var isDoneButtonDisabled: Bool {
-        blockchains.contains { $0.state == .requiredToAdd2 }
+        blockchains.contains { $0.state == .requiredToAdd }
     }
 
     var isAllRequiredChainsAdded: Bool {
-        !blockchains.contains { $0.state == .requiredToAdd2 }
+        !blockchains.contains { $0.state == .requiredToAdd }
     }
 
     private let onSelectCompete: ([BlockchainNetwork]) -> Void
@@ -31,7 +31,7 @@ final class WCNetworksSelectorViewModel: ObservableObject {
         backAction = input.backAction
         requiredBlockchainNames = input.requiredBlockchainNames
 
-        selectedBlockchains.formUnion(blockchains.filter { $0.state == .selected2 })
+        selectedBlockchains.formUnion(blockchains.filter { $0.state == .selected })
     }
 
     func handleViewAction(_ action: ViewAction) {
@@ -51,9 +51,9 @@ final class WCNetworksSelectorViewModel: ObservableObject {
 
     func checkBlockchainItemDisabled(_ blockchain: WCSelectedBlockchainItem) -> Bool {
         switch blockchain.state {
-        case .notAdded2, .requiredToAdd2:
+        case .notAdded, .requiredToAdd:
             true
-        case .selected2, .notSelected2, .required2:
+        case .selected, .notSelected, .required:
             false
         }
     }
