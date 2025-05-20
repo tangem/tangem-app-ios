@@ -22,10 +22,10 @@ public struct AllowanceERC20TokenMethod {
 // MARK: - SmartContractMethod
 
 extension AllowanceERC20TokenMethod: SmartContractMethod {
-    public var prefix: String { "0xdd62ed3e" }
+    public var methodId: String { "0xdd62ed3e" }
 
     public var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let ownerData = Data(hexString: owner).leadingZeroPadding(toLength: 32)
         let spenderData = Data(hexString: spender).leadingZeroPadding(toLength: 32)
 
