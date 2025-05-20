@@ -71,6 +71,7 @@ class ReferralViewModel: ObservableObject {
                 okAction: coordinator?.dismiss ?? {}
             )
             isProcessingRequest = false
+            Analytics.log(.referralError)
             return
         }
 
@@ -84,12 +85,14 @@ class ReferralViewModel: ObservableObject {
                 return try await tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
+            Analytics.log(.referralParticipateSuccessfull)
         } catch {
             if !error.toTangemSdkError().isUserCancelled {
                 let referralError = ReferralError(error)
                 let message = Localization.referralErrorFailedToParticipate(referralError.code)
                 errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
                 AppLogger.error(error: referralError)
+                Analytics.log(event: .referralError, params: [.errorCode: "\(referralError.code)"])
             }
         }
 
@@ -130,6 +133,7 @@ class ReferralViewModel: ObservableObject {
             let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
             AppLogger.error(error: referralError)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator?.dismiss ?? {})
+            Analytics.log(event: .referralError, params: [.errorCode: "\(referralError.code)"])
         }
     }
 }
