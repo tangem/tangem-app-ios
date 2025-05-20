@@ -191,7 +191,8 @@ final class CommonNFTManager: NFTManager {
         bind()
     }
 
-    func update() {
+    func update(cachePolicy: NFTCachePolicy) {
+        // [REDACTED_TODO_COMMENT]
         updateSubject.send()
     }
 
