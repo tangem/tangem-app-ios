@@ -31,9 +31,9 @@ struct WCNetworksSelectorView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     requiredBlockchainsSection
 
-                    blockchainsSection(title: "Available networks", state: [.selected2, .notSelected2, .required2])
+                    blockchainsSection(title: "Available networks", state: [.selected, .notSelected, .required])
 
-                    blockchainsSection(title: "Not added", state: [.notAdded2])
+                    blockchainsSection(title: "Not added", state: [.notAdded])
                 }
                 .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
             }
@@ -72,7 +72,7 @@ private extension WCNetworksSelectorView {
 private extension WCNetworksSelectorView {
     @ViewBuilder
     var requiredBlockchainsSection: some View {
-        let blockchains = viewModel.filterBlockchain(by: [.requiredToAdd2])
+        let blockchains = viewModel.filterBlockchain(by: [.requiredToAdd])
 
         if blockchains.isNotEmpty {
             VStack(alignment: .leading, spacing: 8) {
@@ -134,11 +134,11 @@ private extension WCNetworksSelectorView {
             Text(blockchain.name)
                 .style(
                     Fonts.Bold.subheadline,
-                    color: blockchain.state != .requiredToAdd2 ? Colors.Text.primary1 : Colors.Text.tertiary
+                    color: blockchain.state != .requiredToAdd ? Colors.Text.primary1 : Colors.Text.tertiary
                 )
                 .padding(.trailing, 4)
 
-            Text(blockchain.state == .requiredToAdd2 ? blockchain.tokenTypeName : blockchain.currencySymbol)
+            Text(blockchain.state == .requiredToAdd ? blockchain.tokenTypeName : blockchain.currencySymbol)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
             Spacer()
@@ -159,9 +159,9 @@ private extension WCNetworksSelectorView {
     @ViewBuilder
     func rightContent(for blockchain: WCSelectedBlockchainItem) -> some View {
         switch blockchain.state {
-        case .notAdded2:
+        case .notAdded:
             EmptyView()
-        case .selected2, .notSelected2:
+        case .selected, .notSelected:
             if viewModel.isAllRequiredChainsAdded {
                 Toggle(
                     "",
@@ -175,12 +175,12 @@ private extension WCNetworksSelectorView {
                 .toggleStyle(.switch)
                 .tint(Colors.Control.checked)
             }
-        case .required2:
+        case .required:
             Toggle("", isOn: .constant(true))
                 .toggleStyle(.switch)
                 .tint(Colors.Control.checked)
                 .disabled(true)
-        case .requiredToAdd2:
+        case .requiredToAdd:
             Text("Required")
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
