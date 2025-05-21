@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
 import Foundation
 
 struct MoralisSolanaNetworkMapper {
@@ -31,9 +32,9 @@ struct MoralisSolanaNetworkMapper {
             chain: .solana,
             contractType: .unknown,
             ownerAddress: ownerAddress,
-            name: collectionId,
+            name: collection.name ?? Localization.nftUntitledCollection,
             description: collection.description,
-            // Moralis doesn't send collection URL, so we assigning first asset's image as discussed
+            // Moralis doesn't send collection image URL, so we are assigning first asset's image as discussed
             // [REDACTED_INFO]
             media: domainAssets.first?.media,
             assetsCount: domainAssets.count,
