@@ -81,6 +81,6 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
             approveAction: {}
         ))
 
-        return RPCResult.response(AnyCodable(result.hash))
+        return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }
 }
