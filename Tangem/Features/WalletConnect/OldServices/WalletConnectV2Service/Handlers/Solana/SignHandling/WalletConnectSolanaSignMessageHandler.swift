@@ -55,7 +55,7 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
         do {
             let signature = try await signer.sign(data: message.base58DecodedData, using: walletModel)
             return .response(
-                AnyCodable(WalletConnectSolanaSignMessageDTO.Body(signature: signature.base58EncodedString))
+                AnyCodable(WalletConnectSolanaSignMessageDTO.Body(signature: signature.base58EncodedString.lowercased()))
             )
         } catch {
             WCLogger.error("Failed to sign message", error: error)
