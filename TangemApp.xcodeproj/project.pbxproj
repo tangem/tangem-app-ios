@@ -299,6 +299,7 @@
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
+		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
 		300E06BF2D7736EC006317EC /* KaspaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */; };
@@ -3800,6 +3801,7 @@
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
+		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
 		300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressTests.swift; sourceTree = "<group>"; };
 		300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressTests.swift; sourceTree = "<group>"; };
@@ -12170,6 +12172,7 @@
 		B62D3F742CBC79D900C2460E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */,
 				EF197B032D8C8C410004B575 /* UTXOPreImageTransactionBuilder */,
 				EF197B062D8C8C410004B575 /* UTXOTransactionSizeCalculator */,
 				EFBAC30E2D89D15300024E38 /* LockingScriptBuilder */,
@@ -21538,6 +21541,7 @@
 				B62D428C2CBC79DB00C2460E /* UTXOTransactionHistoryProvider.swift in Sources */,
 				B62D40F82CBC79DA00C2460E /* ICPNetworkService.swift in Sources */,
 				B62D40D92CBC79DA00C2460E /* FilecoinWalletManager.swift in Sources */,
+				300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */,
 				B62D41052CBC79DA00C2460E /* KaspaAPIResolver.swift in Sources */,
 				B62D41802CBC79DA00C2460E /* RavencoinNetworkProvider.swift in Sources */,
 				EFBAC3122D89EAA000024E38 /* SegWitBech32.swift in Sources */,

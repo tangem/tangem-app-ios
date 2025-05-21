@@ -12,20 +12,19 @@ import TangemNFT
 import TangemFoundation
 
 struct NFTExplorerLinkProvider {
-    func provide(for asset: NFTAsset) -> URL? {
+    func provide(for assetID: NFTAsset.NFTAssetId) -> URL? {
         // [REDACTED_TODO_COMMENT]
         // The dummy hardcoded `version` is used here since it has no effect on the external URL generation
-        let blockchain = NFTChainConverter.convert(asset.id.chain, version: .v2)
+        let blockchain = NFTChainConverter.convert(assetID.chain, version: .v2)
 
-        let isTestnet = AppEnvironment.current.isTestnet
+        guard let provider = ExternalLinkProviderFactory().makeNFTProvider(for: blockchain) else {
+            return nil
+        }
 
-        let provider = ExternalLinkProviderFactory().makeProvider(
-            for: blockchain.isEvm ? .ethereum(testnet: isTestnet) : blockchain
-        )
-
-        let exploreURL = provider.nftURL(
-            tokenAddress: asset.id.contractAddress,
-            tokenID: asset.id.identifier
+        let exploreURL = provider.url(
+            tokenAddress: assetID.contractAddress,
+            tokenID: assetID.contractAddress,
+            contractType: assetID.contractType.description
         )
 
         return exploreURL
