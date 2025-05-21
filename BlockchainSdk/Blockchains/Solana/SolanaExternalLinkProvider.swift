@@ -36,3 +36,11 @@ extension SolanaExternalLinkProvider: ExternalLinkProvider {
         return URL(string: urlString)
     }
 }
+
+// MARK: - NFTExternalLinksProvider
+
+extension SolanaExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: baseUrl + "token/\(tokenAddress)" + cluster)
+    }
+}
