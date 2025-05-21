@@ -147,7 +147,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     private func makeInfoKeyPairs() -> [KeyValuePairViewData] {
         let tokenStandard = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsTokenStandard,
-            value: makeTokenStandard(from: asset.contractType),
+            value: makeTokenStandard(from: asset.id.contractType),
             action: { [weak self] in
                 self?.openAssetExtendedInfo(
                     title: Localization.nftDetailsTokenStandard,
