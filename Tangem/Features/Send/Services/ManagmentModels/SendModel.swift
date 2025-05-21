@@ -201,9 +201,10 @@ private extension SendModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
+        case .sendTxError(_, let error):
             Analytics.log(event: .sendErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)"
             ])
         }
     }
