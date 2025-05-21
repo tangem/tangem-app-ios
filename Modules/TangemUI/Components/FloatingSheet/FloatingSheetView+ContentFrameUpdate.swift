@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-extension View {
-    public func floatingSheetContentFrameUpdateTrigger(_ trigger: some Hashable) -> some View {
-        self.preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger.hashValue)
+public extension View {
+    func floatingSheetContentFrameUpdateTrigger(_ trigger: some Hashable) -> some View {
+        preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger.hashValue)
     }
 
-    public func floatingSheetContentFrameUpdateTrigger(_ trigger: Int) -> some View {
-        self.preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger)
+    func floatingSheetContentFrameUpdateTrigger(_ trigger: Int) -> some View {
+        preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger)
     }
 
-    public func floatingSheetContentFrameUpdateAnimation<TState>(for state: TState, animationForState: (TState) -> Animation) -> some View {
-        self.preference(key: FloatingSheetFrameUpdateAnimationPreferenceKey.self, value: animationForState(state))
+    func floatingSheetContentFrameUpdateAnimation<TState>(for state: TState, animationForState: (TState) -> Animation) -> some View {
+        preference(key: FloatingSheetFrameUpdateAnimationPreferenceKey.self, value: animationForState(state))
     }
 }
 
