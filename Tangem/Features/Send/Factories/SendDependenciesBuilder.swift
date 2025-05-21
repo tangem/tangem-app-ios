@@ -122,13 +122,17 @@ struct SendDependenciesBuilder {
         IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
     }
 
+    func possibleToChangeAmountType() -> Bool {
+        walletModel.quote != nil
+    }
+
     func makeCurrencyPickerData() -> SendCurrencyPickerData {
         SendCurrencyPickerData(
             cryptoIconURL: makeTokenIconInfo().imageURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
             fiatIconURL: makeFiatIconURL(),
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-            disabled: walletModel.quote == nil
+            disabled: !possibleToChangeAmountType()
         )
     }
 
