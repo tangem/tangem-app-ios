@@ -125,9 +125,16 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
         rowExpanded.toggle()
 
-        if isExpanded {
+        if shouldLoadAssets(for: collection, isExpanded: isExpanded) {
             nftManager.updateAssets(inCollectionWithIdentifier: collection.id)
         }
+    }
+
+    private func shouldLoadAssets(for collection: NFTCollection, isExpanded: Bool) -> Bool {
+        let noAssetsLoaded = collection.assets.isEmpty
+        let hasAssets = collection.assetsCount != 0
+
+        return noAssetsLoaded && hasAssets && isExpanded
     }
 
     private func makeNotificationViewData() -> NFTNotificationViewData {
