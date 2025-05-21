@@ -17,7 +17,7 @@ protocol SendAmountInteractor {
 
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
-    func updateToMaxAmount() -> SendAmount?
+    func updateToMaxAmount() -> SendAmount
 
     /// Use this method if have to updated from notification
     func externalUpdate(amount: Decimal?)
@@ -111,6 +111,10 @@ class CommonSendAmountInteractor {
         }
 
         let mapper = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        if case .string(let title) = mapper.mapToValidationErrorEvent(validationError).title {
+            return title
+        }
+
         let description = mapper.mapToValidationErrorEvent(validationError).description
         return description
     }
@@ -206,7 +210,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         return sendAmount
     }
 
-    func updateToMaxAmount() -> SendAmount? {
+    func updateToMaxAmount() -> SendAmount {
         switch type {
         case .crypto:
             let fiat = convertToFiat(cryptoValue: maxAmount)
