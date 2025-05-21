@@ -16,6 +16,8 @@ public struct FloatingSheetView<HostContent: View>: View {
     private let dismissSheetAction: () -> Void
 
     @State private var contentFrameAnimationSyncToken = 0
+    @State private var contentFrameAnimationSyncToken2 = 0
+
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
     @GestureState private var isDragging = false
@@ -61,6 +63,9 @@ public struct FloatingSheetView<HostContent: View>: View {
             guard stoppedDraggingAndOffsetHasNotBeenReset else { return }
             verticalDragAmount = .zero
         }
+//        .onPreferenceChange(FloatingSheetFrameUpdateAnimationPreferenceKey.self) { contentFrameUpdateAnimation in
+//            self.contentFrameUpdateAnimation = contentFrameUpdateAnimation
+//        }
     }
 
     private var backgroundView: some View {
@@ -103,13 +108,17 @@ public struct FloatingSheetView<HostContent: View>: View {
                 }
                 .animation(.floatingSheet, value: viewModel.id)
                 .transition(.slideFromBottom)
-                .onReceive(viewModel.frameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
+                .onPreferenceChange(FloatingSheetFrameUpdateTriggerPreferenceKey.self) { contentFrameAnimationSyncToken2 in
+                    print(contentFrameAnimationSyncToken2)
+                    updateContentFrameAnimationSyncToken2()
+                }
+//                .onReceive(viewModel.frameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
             }
         }
         .offset(y: -keyboardHeight)
         .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
-        .animation(viewModel?.frameUpdateAnimation, value: contentFrameAnimationSyncToken)
+        .animation(viewModel?.frameUpdateAnimation, value: contentFrameAnimationSyncToken2)
     }
 
     private var verticalSwipeGesture: some Gesture {
@@ -142,6 +151,10 @@ public struct FloatingSheetView<HostContent: View>: View {
 
     private func updateContentFrameAnimationSyncToken() {
         contentFrameAnimationSyncToken = contentFrameAnimationSyncToken &+ 1
+    }
+
+    private func updateContentFrameAnimationSyncToken2() {
+        contentFrameAnimationSyncToken2 = contentFrameAnimationSyncToken2 &+ 1
     }
 }
 
