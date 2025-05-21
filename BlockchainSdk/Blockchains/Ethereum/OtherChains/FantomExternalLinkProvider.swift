@@ -36,3 +36,11 @@ extension FantomExternalLinkProvider: ExternalLinkProvider {
         return URL(string: urlString)
     }
 }
+
+// MARK: - NFTExternalLinksProvider
+
+extension FantomExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: baseUrl + "assets/\(tokenAddress)/\(tokenID)")
+    }
+}
