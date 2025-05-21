@@ -65,12 +65,9 @@ enum WalletConnectModuleFactory {
         let selectedUserWalletName = Self.userWalletRepository.selectedModel?.name ?? ""
         let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
 
-        weak var futureCoordinator: WalletConnectDAppConnectionProposalRoutable?
-
-        let connectionRequestViewModel = WalletConnectConnectionRequestViewModel(
+        let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
             state: .loading(walletName: selectedUserWalletName, walletSelectionIsAvailable: walletSelectionIsAvailable),
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
-            coordinator: futureCoordinator
         )
 
         let viewModel = WalletConnectDAppConnectionProposalViewModel(
@@ -78,7 +75,7 @@ enum WalletConnectModuleFactory {
             connectionRequestViewModel: connectionRequestViewModel
         )
 
-        futureCoordinator = viewModel
+        connectionRequestViewModel.coordinator = viewModel
 
         return viewModel
     }
