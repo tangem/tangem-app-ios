@@ -101,4 +101,8 @@ extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {
 
 extension WalletConnectDAppConnectionProposalViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { "WalletConnectDAppConnectionProposalViewModel" }
+
+    nonisolated var frameUpdateAnimation: Animation? {
+        Animation.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.5)
+    }
 }
