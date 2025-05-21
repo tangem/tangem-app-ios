@@ -9,6 +9,8 @@
 import Foundation
 
 struct CronosExternalLinkProvider: ExternalLinkProvider {
+    let baseURL = "https://cronoscan.com/"
+
     var testnetFaucetURL: URL? { nil }
 
     func url(transaction hash: String) -> URL? {
@@ -16,14 +18,20 @@ struct CronosExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = "https://cronoscan.com/"
-
         if let contractAddress {
-            let url = baseUrl + "token/\(contractAddress)?a=\(address)"
+            let url = baseURL + "token/\(contractAddress)?a=\(address)"
             return URL(string: url)
         }
 
-        let url = baseUrl + "address/\(address)"
+        let url = baseURL + "address/\(address)"
         return URL(string: url)
+    }
+}
+
+// MARK: - NFTExternalLinksProvider
+
+extension CronosExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: baseURL + "nft/\(tokenAddress)/\(tokenID)")
     }
 }
