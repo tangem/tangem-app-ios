@@ -11,6 +11,7 @@ import Foundation
 enum SendStepType {
     case destination(SendDestinationViewModel)
     case amount(SendAmountViewModel)
+    case newAmount(SendNewAmountViewModel)
     case fee(SendFeeViewModel)
     case summary(SendSummaryViewModel)
     case finish(SendFinishViewModel)
@@ -38,6 +39,7 @@ extension SendStepType: Hashable {
     func hash(into hasher: inout Hasher) {
         switch self {
         case .amount(let viewModel): hasher.combine(viewModel.id)
+        case .newAmount(let viewModel): hasher.combine(viewModel.id)
         case .destination(let viewModel): hasher.combine(viewModel.id)
         case .fee(let viewModel): hasher.combine(viewModel.id)
         case .validators(let viewModel): hasher.combine(viewModel.id)
@@ -55,7 +57,7 @@ extension SendStepType: Hashable {
 extension SendStepType {
     var analyticsSourceParameterValue: Analytics.ParameterValue {
         switch self {
-        case .amount: .amount
+        case .newAmount, .amount: .amount
         case .destination: .address
         case .fee: .fee
         case .validators: .stakeSourceValidators
