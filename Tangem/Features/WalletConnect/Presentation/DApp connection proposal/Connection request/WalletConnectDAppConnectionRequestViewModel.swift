@@ -1,5 +1,5 @@
 //
-//  WalletConnectConnectionRequestViewModel.swift
+//  WalletConnectDAppConnectionRequestViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,22 +9,19 @@
 import Combine
 
 @MainActor
-final class WalletConnectConnectionRequestViewModel: ObservableObject {
+final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase
-    private weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
-
     private var dAppLoadingTask: Task<Void, Never>?
 
-    @Published private(set) var state: WalletConnectConnectionRequestViewState
+    @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
+    weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
     init(
-        state: WalletConnectConnectionRequestViewState,
+        state: WalletConnectDAppConnectionRequestViewState,
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
-        coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
     ) {
         self.state = state
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
-        self.coordinator = coordinator
     }
 
     deinit {
@@ -34,14 +31,14 @@ final class WalletConnectConnectionRequestViewModel: ObservableObject {
 
 // MARK: - View events handling
 
-extension WalletConnectConnectionRequestViewModel {
-    func handle(viewEvent: WalletConnectConnectionRequestViewEvent) {
+extension WalletConnectDAppConnectionRequestViewModel {
+    func handle(viewEvent: WalletConnectDAppConnectionRequestViewEvent) {
         switch viewEvent {
         case .navigationCloseButtonTapped:
             handleNavigationCloseButtonTapped()
 
-        case .viewDidAppear:
-            handleViewDidAppear()
+        case .dAppProposalLoadingRequested:
+            handleDAppProposalLoadingRequested()
 
         case .verifiedDomainIconTapped:
             handleVerifiedDomainIconTapped()
@@ -67,7 +64,7 @@ extension WalletConnectConnectionRequestViewModel {
         coordinator?.dismiss()
     }
 
-    private func handleViewDidAppear() {
+    private func handleDAppProposalLoadingRequested() {
         dAppLoadingTask?.cancel()
 
         dAppLoadingTask = Task { [weak self, getDAppConnectionProposalUseCase] in
