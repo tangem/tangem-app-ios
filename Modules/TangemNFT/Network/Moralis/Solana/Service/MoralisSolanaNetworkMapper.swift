@@ -84,7 +84,7 @@ struct MoralisSolanaNetworkMapper {
             return nil
         }
 
-        guard let rank = rarityAttribute.value as? Int else {
+        guard let rank = rarityAttribute.value?.value as? Int else {
             NFTLogger.warning(
                 String(
                     format: "Rarity missing required fields: value %@",
@@ -133,7 +133,7 @@ struct MoralisSolanaNetworkMapper {
 
             guard
                 let name = attribute.type,
-                let value = attribute.value as? String
+                let value = attribute.value?.value as? String
             else {
                 NFTLogger.warning(
                     String(
