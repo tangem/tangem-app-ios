@@ -10,9 +10,11 @@ import Foundation
 
 struct OptimismExternalLinkProvider {
     private let isTestnet: Bool
+    private let baseURL: String
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        baseURL = isTestnet ? "https://goerli-optimism.etherscan.io/" : "https://optimistic.etherscan.io/"
     }
 }
 
@@ -23,21 +25,24 @@ extension OptimismExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        if isTestnet {
-            return URL(string: "https://goerli-optimism.etherscan.io/tx/\(hash)")
-        }
-
-        return URL(string: "https://optimistic.etherscan.io/tx/\(hash)")
+        URL(string: baseURL + "tx/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = isTestnet ? "https://goerli-optimism.etherscan.io/" : "https://optimistic.etherscan.io/"
         if let contractAddress {
-            let url = baseUrl + "token/\(contractAddress)?a=\(address)"
+            let url = baseURL + "token/\(contractAddress)?a=\(address)"
             return URL(string: url)
         }
 
-        let url = baseUrl + "address/\(address)"
+        let url = baseURL + "address/\(address)"
         return URL(string: url)
+    }
+}
+
+// MARK: - NFTExternalLinksProvider
+
+extension OptimismExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: baseURL + "nft/\(tokenAddress)/\(tokenID)")
     }
 }
