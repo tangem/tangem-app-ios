@@ -10,17 +10,21 @@ import Combine
 
 @MainActor
 final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
-    private let connectionRequestViewModel: WalletConnectConnectionRequestViewModel
+    private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
 
     @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
 
-    init(state: WalletConnectDAppConnectionProposalViewState, connectionRequestViewModel: WalletConnectConnectionRequestViewModel) {
+    init(state: WalletConnectDAppConnectionProposalViewState, connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel) {
         self.state = state
         self.connectionRequestViewModel = connectionRequestViewModel
     }
 
     func loadDAppProposal() {
-        connectionRequestViewModel.handle(viewEvent: .viewDidAppear)
+        connectionRequestViewModel.handle(viewEvent: .dAppProposalLoadingRequested)
+    }
+
+    func switchToConnectionRequest() {
+        state = .connectionRequest(connectionRequestViewModel)
     }
 }
 
