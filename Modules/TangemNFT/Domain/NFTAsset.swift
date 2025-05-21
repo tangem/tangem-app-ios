@@ -10,7 +10,6 @@ import Foundation
 
 public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let id: NFTAssetId
-    let contractType: NFTContractType
     let decimalCount: Int
     let name: String
     let description: String?
@@ -35,10 +34,10 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
             identifier: assetIdentifier,
             contractAddress: assetContractAddress,
             ownerAddress: ownerAddress,
-            chain: chain
+            chain: chain,
+            contractType: contractType
         )
 
-        self.contractType = contractType
         self.decimalCount = decimalCount
         self.name = name
         self.description = description
@@ -60,6 +59,7 @@ public extension NFTAsset {
         /// to distinguish between identical assets but with different derivations.
         public let ownerAddress: String
         public let chain: NFTChain
+        public let contractType: NFTContractType
     }
 
     struct Rarity: Hashable, Sendable {
