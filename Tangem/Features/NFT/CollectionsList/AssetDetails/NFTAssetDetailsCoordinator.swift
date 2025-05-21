@@ -87,10 +87,8 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
     }
 
     func openExplorer(for asset: NFTAsset) {
-        guard let exploreURL = NFTExplorerLinkProvider().provide(for: asset) else {
-            assertionFailure(
-                "NFT Explorer link for '\(asset.id.contractAddress)' '\(asset.id.identifier)' on '\(asset.id.chain)' cannot be built"
-            )
+        guard let exploreURL = NFTExplorerLinkProvider().provide(for: asset.id) else {
+            assertionFailure("NFT Explorer link for \(asset.id.contractAddress) on \(asset.id.chain) cannot be built")
             return
         }
 
