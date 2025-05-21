@@ -6,8 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import struct ReownWalletKit.Session
 import struct ReownWalletKit.ProposalNamespace
+import struct ReownWalletKit.Session
+import struct ReownWalletKit.SessionNamespace
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectSessionProposalMapper {

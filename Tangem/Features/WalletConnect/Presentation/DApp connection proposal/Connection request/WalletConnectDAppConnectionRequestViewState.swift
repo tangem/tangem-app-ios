@@ -1,5 +1,5 @@
 //
-//  WalletConnectConnectionRequestViewState.swift
+//  WalletConnectDAppConnectionRequestViewState.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
-struct WalletConnectConnectionRequestViewState {
+struct WalletConnectDAppConnectionRequestViewState {
     let navigationTitle = Localization.wcWalletConnect
 
     var dAppDescriptionSection: DAppDescriptionSection
@@ -23,8 +23,8 @@ struct WalletConnectConnectionRequestViewState {
     let cancelButtonTitle = Localization.commonCancel
     let connectButtonTitle = Localization.wcCommonConnect
 
-    static func loading(walletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectConnectionRequestViewState {
-        WalletConnectConnectionRequestViewState(
+    static func loading(walletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
+        WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: DAppDescriptionSection(state: .loading),
             connectionRequestSection: ConnectionRequestSection(state: .loading(.init())),
             walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
@@ -36,8 +36,8 @@ struct WalletConnectConnectionRequestViewState {
         dAppData: WalletConnectDAppData,
         walletName: String,
         walletSelectionIsAvailable: Bool
-    ) -> WalletConnectConnectionRequestViewState {
-        WalletConnectConnectionRequestViewState(
+    ) -> WalletConnectDAppConnectionRequestViewState {
+        WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: DAppDescriptionSection(
                 state: .content(
                     DAppDescriptionSection.ContentState(
@@ -62,14 +62,14 @@ struct WalletConnectConnectionRequestViewState {
 
 // MARK: - DApp description section
 
-extension WalletConnectConnectionRequestViewState {
+extension WalletConnectDAppConnectionRequestViewState {
     struct DAppDescriptionSection {
         enum State {
             case loading
             case content(ContentState)
         }
 
-        struct ContentState {
+        struct ContentState: Hashable {
             let iconURL: URL?
             let fallbackIconAsset = Assets.Glyphs.explore
             let name: String
@@ -82,19 +82,19 @@ extension WalletConnectConnectionRequestViewState {
 
 // MARK: - Connection request section
 
-extension WalletConnectConnectionRequestViewState {
-    struct ConnectionRequestSection {
-        enum State {
+extension WalletConnectDAppConnectionRequestViewState {
+    struct ConnectionRequestSection: Hashable {
+        enum State: Hashable {
             case loading(LoadingState)
             case content(ContentState)
         }
 
-        struct LoadingState {
+        struct LoadingState: Hashable {
             let iconAsset = Assets.Glyphs.load
             let label = "Connecting"
         }
 
-        struct ContentState {
+        struct ContentState: Hashable {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
             var isExpanded: Bool
@@ -119,13 +119,13 @@ extension WalletConnectConnectionRequestViewState {
     }
 }
 
-extension WalletConnectConnectionRequestViewState.ConnectionRequestSection {
-    struct BulletGroup {
+extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
+    struct BulletGroup: Hashable {
         let label: String
         let points: [BulletPoint]
     }
 
-    struct BulletPoint {
+    struct BulletPoint: Hashable {
         let sfSymbol: String
         let iconColor: SwiftUI.Color
         let title: String
@@ -140,7 +140,7 @@ extension WalletConnectConnectionRequestViewState.ConnectionRequestSection {
 
 // MARK: - Wallet section
 
-extension WalletConnectConnectionRequestViewState {
+extension WalletConnectDAppConnectionRequestViewState {
     struct WalletSection {
         let iconAsset = Assets.Glyphs.walletNew
         let label = Localization.wcCommonWallet
@@ -151,7 +151,7 @@ extension WalletConnectConnectionRequestViewState {
 
 // MARK: - Networks section
 
-extension WalletConnectConnectionRequestViewState {
+extension WalletConnectDAppConnectionRequestViewState {
     struct NetworksSection {
         enum State {
             case loading
@@ -179,7 +179,7 @@ extension WalletConnectConnectionRequestViewState {
     }
 }
 
-extension WalletConnectConnectionRequestViewState.NetworksSection {
+extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
     enum SelectionMode {
         case available(AvailableSelectionMode)
         case requiredNetworksAreMissing
