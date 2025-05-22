@@ -56,12 +56,11 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let context = Context(changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
+        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
 
-        let startDate = Date()
-        logger.debug(self, "Start selection")
+        logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
         let bestVariant = try select(in: context, sorted: sorted)
-        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(startDate)) sec")
+        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(context.startDate)) sec with bestVariant: \(String(describing: bestVariant))")
 
         guard let bestVariant, !bestVariant.outputs.isEmpty else {
             throw Error.unableToFindSuitableUTXOs
@@ -84,6 +83,12 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             // Check cancellation every cycle
             try Task.checkCancellation()
 
+            // Check timeout
+            if Date.now.timeIntervalSince(context.startDate) > Constants.timeout {
+                logger.debug(self, "Stop selection by timeout")
+                break
+            }
+
             let state = stack.removeLast()
             tries += 1
 
@@ -100,7 +105,6 @@ private extension BranchAndBoundPreImageTransactionBuilder {
                 // If variant is better then use it as the best
                 if bestVariant == nil || variant.better(than: bestVariant!) {
                     bestVariant = variant
-                    logger.debug(self, "The best variant was updated to \(variant)")
                 }
 
                 // Skip further processing for this branch
@@ -185,16 +189,18 @@ private extension UTXOPreImageTransaction {
 extension UTXOPreImageTransaction: CustomStringConvertible {
     var description: String {
         [
-            "outputs": "\(outputs.map { $0.amount })",
             "destination": destination.description,
             "change": change.description,
             "fee": fee.description,
+            "outputs_count": outputs.count,
+            "outputs_sum": outputs.sum(by: \.amount),
         ].sorted(by: { $0.key > $1.key }).description
     }
 }
 
 private extension BranchAndBoundPreImageTransactionBuilder {
     struct Context {
+        let startDate: Date
         let changeScript: UTXOScriptType
         let destination: UTXOPreImageDestination
         let fee: UTXOPreImageTransactionBuilderFee
@@ -203,6 +209,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
     private enum Constants {
         static let maxTries: Int = 100_000
+        static let timeout: TimeInterval = 5
     }
 
     private enum VariantError: LocalizedError {

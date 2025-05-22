@@ -44,8 +44,14 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
         let assets = try await provider.asyncRequest(apiTarget)
             .map([MoralisSolanaNetworkResult.Asset].self)
 
-        let groupedAssets = Dictionary(grouping: assets, by: \.collection?.collectionAddress)
-        let keys = assets.map(\.collection?.collectionAddress).unique()
+        let groupedAssets = Dictionary(
+            grouping: assets,
+            by: { makeAssetsGroupingKeys(from: $0.collection) }
+        )
+
+        let keys = assets
+            .map { makeAssetsGroupingKeys(from: $0.collection) }
+            .unique()
 
         let collections = keys.map { key in
             let assets = groupedAssets[key, default: []]
@@ -76,5 +82,25 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
 
     public func getSalePrice(assetIdentifier: NFTAsset.ID) async throws -> NFTSalePrice? {
         throw MoralisSolanaServiceError.unsupportedMethod("This method is not supported in Moralis' Solana API")
+    }
+}
+
+// MARK: - Private implementation
+
+private extension MoralisSolanaNetworkService {
+    func makeAssetsGroupingKeys(from collection: MoralisSolanaNetworkResult.Collection?) -> AssetsGroupingKey {
+        AssetsGroupingKey(
+            collectionAddress: collection?.collectionAddress,
+            collectionName: collection?.name
+        )
+    }
+}
+
+// MARK: - Helpers
+
+private extension MoralisSolanaNetworkService {
+    struct AssetsGroupingKey: Hashable {
+        let collectionAddress: String?
+        let collectionName: String?
     }
 }
