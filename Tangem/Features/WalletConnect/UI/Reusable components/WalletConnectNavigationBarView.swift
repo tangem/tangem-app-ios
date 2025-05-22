@@ -10,9 +10,14 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
+import HotSwiftUI
+
 struct WalletConnectNavigationBarView: View {
+    @ObserveInjection var io
+
     var title: String?
     var subtitle: String?
+    var bottomSeparatorLineIsVisible = false
     var backButtonAction: (() -> Void)?
     var closeButtonAction: (() -> Void)?
 
@@ -36,7 +41,15 @@ struct WalletConnectNavigationBarView: View {
         .frame(height: Layout.height)
         .padding(.top, Layout.topPadding)
         .padding(.horizontal, 16)
+        .background(Colors.Background.tertiary)
+        .overlay(alignment: .bottom) {
+            Divider()
+                .frame(height: 1)
+                .overlay(Colors.Stroke.secondary)
+                .opacity(bottomSeparatorLineIsVisible ? 0.3 : 0)
+        }
         .contentShape(.rect)
+        .enableInjection()
     }
 
     private var buttons: some View {

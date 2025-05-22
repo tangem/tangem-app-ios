@@ -15,7 +15,7 @@ import TangemLocalization
 struct WalletConnectDAppConnectionRequestViewState {
     let navigationTitle = Localization.wcWalletConnect
 
-    var dAppDescriptionSection: DAppDescriptionSection
+    var dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
     var connectionRequestSection: ConnectionRequestSection
     var walletSection: WalletSection
     var networksSection: NetworksSection
@@ -25,8 +25,8 @@ struct WalletConnectDAppConnectionRequestViewState {
 
     static func loading(walletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: DAppDescriptionSection(state: .loading),
-            connectionRequestSection: ConnectionRequestSection(state: .loading(.init())),
+            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.loading,
+            connectionRequestSection: ConnectionRequestSection.loading,
             walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(state: .loading)
         )
@@ -38,16 +38,10 @@ struct WalletConnectDAppConnectionRequestViewState {
         walletSelectionIsAvailable: Bool
     ) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: DAppDescriptionSection(
-                state: .content(
-                    DAppDescriptionSection.ContentState(
-                        iconURL: proposal.dApp.icon,
-                        name: proposal.dApp.name,
-                        domain: proposal.dApp.domain.host
-                    )
-                )
+            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
+                WalletConnectDAppDescriptionViewModel.ContentState(dAppData: proposal.dApp)
             ),
-            connectionRequestSection: ConnectionRequestSection(state: .content(ConnectionRequestSection.ContentState(isExpanded: false))),
+            connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
             walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(
                 state: .content(
@@ -60,35 +54,10 @@ struct WalletConnectDAppConnectionRequestViewState {
     }
 }
 
-// MARK: - DApp description section
-
-extension WalletConnectDAppConnectionRequestViewState {
-    struct DAppDescriptionSection {
-        enum State {
-            case loading
-            case content(ContentState)
-        }
-
-        struct ContentState: Hashable {
-            let iconURL: URL?
-            let fallbackIconAsset = Assets.Glyphs.explore
-            let name: String
-            let domain: String?
-        }
-
-        let state: Self.State
-    }
-}
-
 // MARK: - Connection request section
 
 extension WalletConnectDAppConnectionRequestViewState {
-    struct ConnectionRequestSection {
-        enum State {
-            case loading(LoadingState)
-            case content(ContentState)
-        }
-
+    enum ConnectionRequestSection {
         struct LoadingState {
             let iconAsset = Assets.Glyphs.load
             let label = "Connecting"
@@ -97,6 +66,7 @@ extension WalletConnectDAppConnectionRequestViewState {
         struct ContentState {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
+            let trailingIconAsset = Assets.Glyphs.chevronDownNew
             var isExpanded: Bool
 
             let wouldLikeToGroup = BulletGroup(
@@ -115,7 +85,42 @@ extension WalletConnectDAppConnectionRequestViewState {
             )
         }
 
-        let state: Self.State
+        case loading(LoadingState)
+        case content(ContentState)
+
+        var id: String {
+            switch self {
+            case .loading: "loading"
+            case .content: "content"
+            }
+        }
+
+        var iconAsset: ImageType {
+            switch self {
+            case .loading(let loadingState):
+                loadingState.iconAsset
+            case .content(let contentState):
+                contentState.iconAsset
+            }
+        }
+
+        var isLoading: Bool {
+            if case .loading = self {
+                return true
+            }
+            return false
+        }
+
+        var label: String {
+            switch self {
+            case .loading(let loadingState):
+                loadingState.label
+            case .content(let contentState):
+                contentState.label
+            }
+        }
+
+        static let loading = ConnectionRequestSection.loading(LoadingState())
     }
 }
 
@@ -145,7 +150,14 @@ extension WalletConnectDAppConnectionRequestViewState {
         let iconAsset = Assets.Glyphs.walletNew
         let label = Localization.wcCommonWallet
         var walletName: String
-        let selectionIsAvailable: Bool
+        var selectionIsAvailable: Bool
+        var trailingIconAsset: ImageType?
+
+        init(walletName: String, selectionIsAvailable: Bool) {
+            self.walletName = walletName
+            self.selectionIsAvailable = selectionIsAvailable
+            trailingIconAsset = selectionIsAvailable ? Assets.Glyphs.selectIcon : nil
+        }
     }
 }
 
