@@ -60,8 +60,7 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common)
-    private var refreshDataTimerBag: AnyCancellable?
+    private var refreshDataTimer: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -824,17 +823,14 @@ private extension ExpressViewModel {
 
     func stopTimer() {
         ExpressLogger.info("Stop timer")
-        refreshDataTimerBag?.cancel()
-        refreshDataTimer
-            .connect()
-            .cancel()
+        refreshDataTimer?.cancel()
     }
 
     func startTimer() {
         ExpressLogger.info("Start timer")
-        refreshDataTimerBag = refreshDataTimer
-            .autoconnect()
-            .sink { [weak self] date in
+        refreshDataTimer = Just(())
+            .delay(for: 10, scheduler: RunLoop.main)
+            .sink { [weak self] in
                 ExpressLogger.info("Timer call autoupdate")
                 self?.interactor.refresh(type: .refreshRates)
             }
