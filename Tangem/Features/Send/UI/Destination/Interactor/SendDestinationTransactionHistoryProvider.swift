@@ -15,16 +15,16 @@ protocol SendDestinationTransactionHistoryProvider {
 }
 
 class CommonSendDestinationTransactionHistoryProvider {
-    private let walletModel: any WalletModel
+    private let transactionHistoryProvider: any WalletModelTransactionHistoryProvider
 
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
+    init(transactionHistoryProvider: any WalletModelTransactionHistoryProvider) {
+        self.transactionHistoryProvider = transactionHistoryProvider
     }
 }
 
 extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider {
     var transactionHistoryPublisher: AnyPublisher<[TransactionRecord], Never> {
-        walletModel.transactionHistoryPublisher.map { state in
+        transactionHistoryProvider.transactionHistoryPublisher.map { state in
             guard case .loaded(let items) = state else {
                 return []
             }
