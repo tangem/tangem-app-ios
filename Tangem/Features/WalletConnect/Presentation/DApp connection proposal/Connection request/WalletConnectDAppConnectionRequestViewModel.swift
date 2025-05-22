@@ -71,6 +71,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             do {
                 let dAppProposal = try await getDAppConnectionProposalUseCase()
                 // [REDACTED_TODO_COMMENT]
+                self?.state = .content(proposal: dAppProposal, walletName: "Dummy wallet", walletSelectionIsAvailable: false)
             } catch {}
         }
     }
