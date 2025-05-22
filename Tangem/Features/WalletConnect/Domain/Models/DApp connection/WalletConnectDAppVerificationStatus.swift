@@ -2,11 +2,7 @@
 //  WalletConnectDAppVerificationStatus.swift
 //  TangemApp
 //
-<<<<<<<< HEAD:Tangem/Features/WalletConnect/Domain/Models/DApp connection/WalletConnectDAppVerificationStatus.swift
 //  Created by [REDACTED_AUTHOR]
-========
-//  Created by [REDACTED_AUTHOR]
->>>>>>>> 010e73131 ([REDACTED_INFO] DApp information fetch refactoring WIP.):Tangem/Features/WalletConnect/Domain/Models/WalletConnectDAppVerificationStatus.swift
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
