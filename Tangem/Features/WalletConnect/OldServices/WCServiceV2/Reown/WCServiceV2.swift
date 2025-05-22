@@ -22,12 +22,6 @@ final class WCServiceV2 {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
-    // MARK: - Refac
-
-    // [REDACTED_TODO_COMMENT]
-
-    private var sessionProposalContinuation: CheckedContinuation<Session.Proposal, Never>?
-
     // MARK: - Public properties
 
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
@@ -532,9 +526,7 @@ extension WCServiceV2 {
         }
     }
 
-    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {
-        
-    }
+    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {}
 
     private func subscribeToWalletKit() {
         WalletKit.instance.sessionProposalPublisher
