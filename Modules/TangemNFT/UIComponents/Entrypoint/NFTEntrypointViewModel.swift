@@ -47,6 +47,11 @@ public final class NFTEntrypointViewModel: ObservableObject {
         return Localization.nftWalletCount(totalNFTs, collections.count)
     }
 
+    @MainActor
+    func openCollections() {
+        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+    }
+
     private func bind() {
         nftManager
             .collectionsPublisher
@@ -91,11 +96,6 @@ public final class NFTEntrypointViewModel: ObservableObject {
         default:
             .multipleCollections(collectionsURLs: collections.map(\.media))
         }
-    }
-
-    @MainActor
-    func openCollections() {
-        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
     }
 }
 
