@@ -2702,6 +2702,8 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA81E8572DDE0434006B3339 /* PushNotificationsHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8552DDE0434006B3339 /* PushNotificationsHandling.swift */; };
+		EAF12BBD2DDF26D500A7D4BF /* CommonPushNotificationsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF12BBC2DDF26D500A7D4BF /* CommonPushNotificationsHandler.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6175,6 +6177,8 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA81E8552DDE0434006B3339 /* PushNotificationsHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsHandling.swift; sourceTree = "<group>"; };
+		EAF12BBC2DDF26D500A7D4BF /* CommonPushNotificationsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsHandler.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -10216,6 +10220,7 @@
 		B62C65C62C38D04F00189AD4 /* PushNotifications */ = {
 			isa = PBXGroup;
 			children = (
+				EA81E8562DDE0434006B3339 /* PushNotificationsHandling */,
 				B62C65CB2C38D06B00189AD4 /* PushNotificationsPermissionRequestFlow.swift */,
 				B62C65CC2C38D06B00189AD4 /* PushNotificationsInteractor.swift */,
 				B62C65CD2C38D06B00189AD4 /* CommonPushNotificationsInteractor.swift */,
@@ -15588,6 +15593,15 @@
 			path = ActionButtonsSwap;
 			sourceTree = "<group>";
 		};
+		EA81E8562DDE0434006B3339 /* PushNotificationsHandling */ = {
+			isa = PBXGroup;
+			children = (
+				EA81E8552DDE0434006B3339 /* PushNotificationsHandling.swift */,
+				EAF12BBC2DDF26D500A7D4BF /* CommonPushNotificationsHandler.swift */,
+			);
+			path = PushNotificationsHandling;
+			sourceTree = "<group>";
+		};
 		EF031A262C08E64F001535C9 /* StakingCalculator */ = {
 			isa = PBXGroup;
 			children = (
@@ -19625,6 +19639,7 @@
 				EFEE22BC2BFCE44B0099917E /* ValidationErrorEvent.swift in Sources */,
 				B02E11B92A41DB0900776290 /* TokenMocks.swift in Sources */,
 				EF8DBD4A2C07317B009072CF /* RewardView.swift in Sources */,
+				EAF12BBD2DDF26D500A7D4BF /* CommonPushNotificationsHandler.swift in Sources */,
 				B05449D22CCF8F2D00983C78 /* VisaOnboardingStep.swift in Sources */,
 				DA7444242A27889600F926A9 /* PromotionService.swift in Sources */,
 				EF5F54672C875D8F00B7D1E7 /* StakingDetailsStakeView.swift in Sources */,
@@ -19933,6 +19948,7 @@
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				B06C083B2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift in Sources */,
 				DA11F9852B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift in Sources */,
+				EA81E8572DDE0434006B3339 /* PushNotificationsHandling.swift in Sources */,
 				DC038ECE2CF621C700AC5B45 /* ActionButtonsBuyFlowRoutable.swift in Sources */,
 				EF5D83DD2B0BBE3000516B5F /* LoadingProvidersRow.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
