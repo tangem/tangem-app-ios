@@ -36,8 +36,6 @@ final class PushNotificationsService: NSObject {
         .ephemeral,
     ]
 
-    private var respondedNotificationIds: Set<String> = []
-
     private let userNotificationCenter = UNUserNotificationCenter.current()
     private let application: UIApplication
 
