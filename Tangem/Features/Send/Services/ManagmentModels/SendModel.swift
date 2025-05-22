@@ -204,7 +204,7 @@ private extension SendModel {
         case .sendTxError(_, let error):
             Analytics.log(event: .sendErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)"
+                .errorCode: "\(error.universalErrorCode)",
             ])
         }
     }
