@@ -111,5 +111,7 @@ extension SendTransitionService {
 
         /// Just x2 faster
         static let auxiliaryViewAnimation: Animation = defaultAnimation.speed(2)
+
+        static let newAnimation: Animation = .linear(duration: animationDuration)
     }
 }
