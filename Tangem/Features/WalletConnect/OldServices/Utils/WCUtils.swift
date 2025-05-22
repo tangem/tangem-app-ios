@@ -17,7 +17,7 @@ struct WCUtils {
             let unsupportedBlockchains = blockchains.compactMap { blockchain in
                 let blockсhainMeta = WCUtils.makeBlockchain(from: blockchain)
 
-                if WCSupportedNamespaces(rawValue: namespace.key) != nil {
+                if WCSupportedNamespaces(rawValue: namespace.key.lowercased()) != nil {
                     return blockсhainMeta == nil ? blockchain.absoluteString : nil
                 } else {
                     return blockсhainMeta?.displayName ?? namespace.key.capitalizingFirstLetter()
@@ -30,7 +30,7 @@ struct WCUtils {
 
     func allChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
         for (namespace, proposals) in namespaces {
-            guard WCSupportedNamespaces(rawValue: namespace) != nil else { return false }
+            guard WCSupportedNamespaces(rawValue: namespace.lowercased()) != nil else { return false }
 
             let blockchains = proposals.chains?.compactMap(WCUtils.makeBlockchain(from:))
 
@@ -49,7 +49,6 @@ extension WCUtils {
     func createSessionRequest(
         proposal: Session.Proposal,
         selectedWalletModelProvider: WalletConnectWalletModelProvider,
-        selectedUserWalletModelId: String,
         selectedOptionalNetworks: [BlockchainNetwork] = []
     ) throws -> (SessionNamespace: [String: SessionNamespace], requestData: [WCConnectionRequestDataItem]) {
         let builder = WCSessionNamespacesBuilder()
@@ -69,19 +68,15 @@ extension WCUtils {
         do {
             let sessionNamespaces = try AutoNamespaces.build(
                 sessionProposal: proposal,
-                chains: Array(builder.supportedChains),
+                chains: Array(builder.selectedChains),
                 methods: proposal.namespaceMethods,
                 events: proposal.namespaceEvents,
                 accounts: requestData.compactMap(\.accounts).reduce([], +)
             )
 
             return (sessionNamespaces, requestData)
-        } catch let error as AutoNamespacesError {
-            if case .requiredChainsNotSatisfied = error {
-                throw WalletConnectV2Error.requiredChainsNotSatisfied(requestData)
-            }
-
-            throw error
+        } catch AutoNamespacesError.requiredChainsNotSatisfied {
+            throw WalletConnectV2Error.requiredChainsNotSatisfied(requestData)
         }
     }
 
@@ -96,19 +91,12 @@ extension WCUtils {
 
 extension WCUtils {
     static func makeBlockchainMeta(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainMeta? {
-        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
-            return nil
-        }
-
-        let blockchains = SupportedBlockchains.all
-        let wcChainId = wcBlockchain.reference
-        let blockchain = blockchains.first { $0.wcChainID?.contains(wcChainId) ?? false }
-
-        return .init(from: blockchain)
+        guard let blockchain = makeBlockchain(from: wcBlockchain) else { return nil }
+        return BlockchainMeta(from: blockchain)
     }
 
     static func makeBlockchain(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainSdk.Blockchain? {
-        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
+        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace.lowercased()) != nil else {
             return nil
         }
 
@@ -136,7 +124,7 @@ extension WCUtils {
         walletModelProvider: WalletConnectWalletModelProvider
     ) -> BlockchainNetwork? {
         guard
-            WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil,
+            WCSupportedNamespaces(rawValue: wcBlockchain.namespace.lowercased()) != nil,
             let blockchain = WCUtils.makeBlockchainMeta(from: wcBlockchain),
             let walletModel = try? walletModelProvider.getModel(with: address, blockchainId: blockchain.id)
         else {

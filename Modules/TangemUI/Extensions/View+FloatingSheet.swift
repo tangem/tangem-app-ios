@@ -24,10 +24,6 @@ public extension View {
 // MARK: - FloatingSheetConfiguration setters
 
 public extension View {
-    func floatingSheetMinHeightFraction(_ minHeightFraction: CGFloat) -> some View {
-        environment(\.floatingSheetConfiguration.minHeightFraction, minHeightFraction)
-    }
-
     func floatingSheetMaxHeightFraction(_ maxHeightFraction: CGFloat) -> some View {
         environment(\.floatingSheetConfiguration.maxHeightFraction, maxHeightFraction)
     }

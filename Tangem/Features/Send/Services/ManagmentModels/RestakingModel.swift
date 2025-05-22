@@ -247,7 +247,7 @@ private extension RestakingModel {
         case .sendTxError(_, let error):
             Analytics.log(event: .stakingErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)"
+                .errorCode: "\(error.universalErrorCode)",
             ])
         }
     }
