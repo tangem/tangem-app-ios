@@ -14029,7 +14029,6 @@
 		DC0002722DC2090600305FB6 /* Blockaid */ = {
 			isa = PBXGroup;
 			children = (
-				C2E921392DD7AFEC00ACE654 /* Mappers */,
 				DC0002652DC2090600305FB6 /* Domain */,
 				DC00026C2DC2090600305FB6 /* DTOs */,
 				DC00026D2DC2090600305FB6 /* BlockaidAPIService.swift */,
@@ -20001,7 +20000,6 @@
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
-				C2E921282DD76E6400ACE654 /* WalletConnectDAppData.swift in Sources */,
 				B62C65D32C38D06B00189AD4 /* PushNotificationsInteractor.swift in Sources */,
 				B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
@@ -20103,7 +20101,6 @@
 				B6F995F72D91D68F00F83C4D /* WalletModelFeaturesManagerMock.swift in Sources */,
 				B6E725E42CCACFE100318447 /* UnstakingAmountValidator.swift in Sources */,
 				DA406C1C2BD0D84200D1FC5E /* AddressTextView.swift in Sources */,
-				C2E921302DD7AA4B00ACE654 /* WalletConnectDAppVerificationStatus.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DA559C4D2B02622600F59584 /* SendDestinationInputOutputMock.swift in Sources */,
 				0A0DB6E82C479A6900003450 /* ActiveStakingView.swift in Sources */,
