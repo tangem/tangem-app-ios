@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUI
 import TangemUIUtils
 
 public struct ArrowBack: View {
