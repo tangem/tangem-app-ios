@@ -71,3 +71,4 @@ extension SendDestinationStep: SendStep {
         sendFeeInteractor.updateFees()
     }
 }
+
