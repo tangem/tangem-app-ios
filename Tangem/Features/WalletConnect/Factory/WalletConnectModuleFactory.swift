@@ -101,11 +101,13 @@ enum WalletConnectModuleFactory {
 
         let state = WalletConnectConnectedDAppDetailsViewState(
             navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: Self.connectedTime(from: dApp)),
-            dAppDescriptionSection: WalletConnectConnectedDAppDetailsViewState.DAppDescriptionSection(
-                id: dApp.id,
-                iconURL: nil,
-                name: dApp.sessionInfo.dAppInfo.name,
-                domain: dApp.sessionInfo.dAppInfo.url
+            dAppDescriptionSection: .content(
+                WalletConnectDAppDescriptionViewModel.ContentState(
+                    // [REDACTED_TODO_COMMENT]
+                    iconURL: nil,
+                    name: dApp.sessionInfo.dAppInfo.name,
+                    domain: URL(string: dApp.sessionInfo.dAppInfo.url)
+                )
             ),
             walletSection: WalletConnectConnectedDAppDetailsViewState.WalletSection(walletName: userWallet?.name),
             connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.ConnectedNetworksSection(
@@ -122,6 +124,7 @@ enum WalletConnectModuleFactory {
 
         return WalletConnectConnectedDAppDetailsViewModel(
             state: state,
+            dAppID: dApp.id,
             walletConnectService: walletConnectService,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
