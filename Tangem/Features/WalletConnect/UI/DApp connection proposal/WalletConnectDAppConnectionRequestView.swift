@@ -82,9 +82,9 @@ struct WalletConnectDAppConnectionRequestView: View {
                     .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundStyle(Colors.Icon.accent)
-                    .id(viewModel.state.connectionRequestSection.id)
                     .rotationEffect(.degrees(connectionRequestIconIsRotating ? 360 : 0))
-                    .animation(connectionRequestIconAnimation, value: viewModel.state.connectionRequestSection.isLoading)
+                    .id(viewModel.state.connectionRequestSection.id)
+                    .animation(connectionRequestIconAnimation, value: connectionRequestIconIsRotating)
                     .transition(.opacity)
 
                 Text(viewModel.state.connectionRequestSection.label)
@@ -107,6 +107,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .animation(.linear(duration: 0.2), value: viewModel.state.connectionRequestSection)
         .onAppear {
             connectionRequestIconIsRotating = viewModel.state.connectionRequestSection.isLoading
         }
@@ -116,8 +117,8 @@ struct WalletConnectDAppConnectionRequestView: View {
     }
 
     private var connectionRequestIconAnimation: Animation? {
-        viewModel.state.connectionRequestSection.isLoading
-            ? .linear(duration: 0.5).repeatForever(autoreverses: false)
+        connectionRequestIconIsRotating
+            ? .linear(duration: 1).repeatForever(autoreverses: false)
             : nil
     }
 
