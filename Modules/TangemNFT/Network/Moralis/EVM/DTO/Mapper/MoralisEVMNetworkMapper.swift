@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 
 struct MoralisEVMNetworkMapper {
     let chain: NFTChain
@@ -16,14 +17,12 @@ struct MoralisEVMNetworkMapper {
         return collections.compactMap { collection in
             guard
                 let collectionIdentifier = collection.tokenAddress,
-                let name = collection.name,
                 let assetsCount = collection.count
             else {
                 NFTLogger.warning(
                     String(
-                        format: "Collection missing required fields: token_address %@, name %@, count %@",
+                        format: "Collection missing required fields: token_address %@, count %@",
                         String(describing: collection.tokenAddress),
-                        String(describing: collection.name),
                         String(describing: collection.count)
                     )
                 )
@@ -37,7 +36,7 @@ struct MoralisEVMNetworkMapper {
                 chain: chain,
                 contractType: contractType,
                 ownerAddress: ownerAddress,
-                name: name,
+                name: collection.name ?? Localization.nftUntitledCollection,
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
                 media: map(collection.collectionLogo),
                 assetsCount: assetsCount,

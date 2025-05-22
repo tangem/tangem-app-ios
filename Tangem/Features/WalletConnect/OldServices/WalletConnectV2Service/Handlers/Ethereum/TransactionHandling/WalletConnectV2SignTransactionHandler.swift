@@ -68,6 +68,6 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
 
         async let signedHash = ethSigner.sign(transaction, signer: signer).async()
 
-        return try await .response(AnyCodable(signedHash))
+        return try await .response(AnyCodable(signedHash.lowercased()))
     }
 }
