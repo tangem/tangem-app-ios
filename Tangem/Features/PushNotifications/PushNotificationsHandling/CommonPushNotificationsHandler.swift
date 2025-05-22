@@ -8,7 +8,7 @@
 
 import UserNotifications
 
-final class CommonPushNotificationsHandler: NSObject {
+public final class CommonPushNotificationsHandler: NSObject {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     private var respondedNotificationIds: Set<String> = []
     private let deeplinkKey = "deeplink"
@@ -24,7 +24,7 @@ final class CommonPushNotificationsHandler: NSObject {
 
 extension CommonPushNotificationsHandler: PushNotificationsHandling {
     @MainActor
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let identifier = response.notification.request.identifier
         handleDeeplinkIfNeeded(response: response)
         
