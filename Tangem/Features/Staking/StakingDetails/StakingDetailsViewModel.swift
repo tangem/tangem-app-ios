@@ -136,12 +136,13 @@ final class StakingDetailsViewModel: ObservableObject {
 
 private extension StakingDetailsViewModel {
     func bind() {
-        stakingManager
-            .statePublisher
+        tokenBalanceProvider.balanceTypePublisher
+            .combineLatest(stakingManager.statePublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
-            .sink { viewModel, state in
-                viewModel.setupView(state: state)
+            .sink { state in
+                let (viewModel, (_, stakingManagerState)) = state
+                viewModel.setupView(state: stakingManagerState)
             }
             .store(in: &bag)
 
