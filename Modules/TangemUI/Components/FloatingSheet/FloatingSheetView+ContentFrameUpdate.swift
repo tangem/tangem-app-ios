@@ -52,6 +52,6 @@ public struct EquatablePublisherProxy: Equatable {
 public struct FloatingSheetFrameUpdateTriggerPreferenceKey: PreferenceKey {
     public static let defaultValue = EquatablePublisherProxy.initialDummyValue
 
-    // [REDACTED_USERNAME], this empty implementation will keep the very first publisher, and ignore the rest.
+    /// [REDACTED_USERNAME], this empty implementation will keep the very first publisher, and ignore the rest.
     public static func reduce(value: inout EquatablePublisherProxy, nextValue: () -> EquatablePublisherProxy) {}
 }
