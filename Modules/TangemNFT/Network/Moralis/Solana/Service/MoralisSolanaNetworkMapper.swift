@@ -6,8 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemLocalization
 import Foundation
+import TangemFoundation
+import TangemLocalization
 
 struct MoralisSolanaNetworkMapper {
     func map(
@@ -32,7 +33,7 @@ struct MoralisSolanaNetworkMapper {
             chain: .solana,
             contractType: .unknown,
             ownerAddress: ownerAddress,
-            name: collection.name ?? Localization.nftUntitledCollection,
+            name: collection.name ?? Constants.collectionNameFallback,
             description: collection.description,
             // Moralis doesn't send collection image URL, so we are assigning first asset's image as discussed
             // [REDACTED_INFO]
@@ -46,14 +47,11 @@ struct MoralisSolanaNetworkMapper {
         asset: MoralisSolanaNetworkResult.Asset,
         ownerAddress: String
     ) -> NFTAsset? {
-        guard
-            let name = asset.name,
-            let contractAddress = asset.mint // `mint` field is the actual contract address for Solana NFTs
-        else {
+        // `mint` field is the actual contract address for Solana NFTs
+        guard let contractAddress = asset.mint else {
             NFTLogger.warning(
                 String(
-                    format: "Asset missing required fields: name %@, mint %@",
-                    String(describing: asset.name),
+                    format: "Asset missing required fields: mint %@",
                     String(describing: asset.mint)
                 )
             )
@@ -72,7 +70,7 @@ struct MoralisSolanaNetworkMapper {
             contractType: .unknown,
             decimalCount: decimalCount,
             ownerAddress: ownerAddress,
-            name: name,
+            name: asset.name ?? Constants.assetNameFallback,
             description: nil, // Moralis doesn't send description for Solana
             media: media,
             rarity: rarity,
@@ -159,5 +157,7 @@ private extension MoralisSolanaNetworkMapper {
         /// Moralis provides descriptions for Solana NFT collections, so this value is used only as a fallback.
         static let decimalCountFallback = 0
         static let rarityRankTitle = "Rarity Rank"
+        static var collectionNameFallback: String { Localization.nftUntitledCollection }
+        static var assetNameFallback: String { .enDashSign }
     }
 }
