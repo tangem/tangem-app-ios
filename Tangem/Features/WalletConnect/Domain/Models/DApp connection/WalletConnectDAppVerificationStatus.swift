@@ -1,17 +1,18 @@
 //
-//  BlockaidSiteScanResult.swift
-//  Tangem
+//  WalletConnectDAppVerificationStatus.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
+enum WalletConnectDAppVerificationStatus {
+    case verified
+    case unknownDomain
+    case malicious([AttackType])
+}
 
-struct BlockaidSiteScanResult {
-    let isMalicious: Bool?
-    let attackTypes: [AttackType]
-
+extension WalletConnectDAppVerificationStatus {
     enum AttackType {
         case signatureFarming
         case approvalFarming
