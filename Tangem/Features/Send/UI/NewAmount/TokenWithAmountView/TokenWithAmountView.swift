@@ -55,16 +55,7 @@ struct TokenWithAmountView: View {
         case .loading:
             ProgressView()
         case .max(let action):
-            Button(action: action) {
-                Text(Localization.sendMaxAmount)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Colors.Button.secondary)
-                    }
-            }
+            RoundedButton(title: Localization.sendMaxAmount, action: action)
         case .amount(let amount):
             Text(amount)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
