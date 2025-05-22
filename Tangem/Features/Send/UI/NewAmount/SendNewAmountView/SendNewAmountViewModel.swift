@@ -26,16 +26,14 @@ class SendNewAmountViewModel: ObservableObject {
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
 
-    lazy var tokenWithAmountViewData: TokenWithAmountViewData = {
-        .init(
-            tokenIconInfo: tokenIconInfo,
-            title: tokenItem.name,
-            subtitle: balanceFormatted,
-            detailsType: .max { [weak self] in
-                self?.userDidTapMaxAmount()
-            }
-        )
-    }()
+    lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
+        tokenIconInfo: tokenIconInfo,
+        title: tokenItem.name,
+        subtitle: balanceFormatted,
+        detailsType: .max { [weak self] in
+            self?.userDidTapMaxAmount()
+        }
+    )
 
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
