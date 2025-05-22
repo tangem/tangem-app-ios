@@ -12,8 +12,8 @@ import UserNotifications
 import TangemFoundation
 
 final class PushNotificationsService: NSObject {
-    @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
-
+    @Injected(\.pushNotificationsHandler) private var pushNotificationsHandler: PushNotificationsHandling
+    
     /// - Note: Checks only explicit authorization (`UNAuthorizationStatus.authorized`) and ignores implicit
     /// authorization statuses such as `UNAuthorizationStatus.provisional` or `UNAuthorizationStatus.ephemeral`.
     @MainActor
@@ -44,7 +44,7 @@ final class PushNotificationsService: NSObject {
     init(application: UIApplication) {
         self.application = application
         super.init()
-        userNotificationCenter.delegate = self
+        userNotificationCenter.delegate = pushNotificationsHandler
     }
 
     func requestAuthorizationAndRegister() async {
@@ -73,43 +73,5 @@ final class PushNotificationsService: NSObject {
         if !AppEnvironment.current.isDebug {
             application.registerForRemoteNotifications()
         }
-    }
-
-    @MainActor
-    private func handleDeeplinkIfNeeded(response: UNNotificationResponse) {
-        guard let deeplinkURL = response.notification.request.content.userInfo[Constants.deeplinkKey] as? String,
-              let url = URL(string: deeplinkURL) else { return }
-
-        _ = incomingActionHandler.handleDeeplink(url)
-    }
-}
-
-// MARK: - UNUserNotificationCenterDelegate protocol conformance
-
-extension PushNotificationsService: UNUserNotificationCenterDelegate {
-    /// Without `@MainActor` provoke crash on iOS 18.2
-    /// With exception:
-    /// *** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'Call must be made on main thread'
-    @MainActor
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        let identifier = response.notification.request.identifier
-
-        handleDeeplinkIfNeeded(response: response)
-
-        guard
-            response.actionIdentifier == UNNotificationDefaultActionIdentifier,
-            !respondedNotificationIds.contains(identifier)
-        else {
-            return
-        }
-
-        respondedNotificationIds.insert(identifier)
-        Analytics.log(.pushNotificationOpened)
-    }
-}
-
-private extension PushNotificationsService {
-    enum Constants {
-        static let deeplinkKey = "deeplink"
     }
 }
