@@ -32,7 +32,7 @@ struct NFTNetworkSelectionListDataSourceMock: NFTNetworkSelectionListDataSource 
                 underlyingIdentifier: nil
             ),
             .init(
-                nftChain: .arbitrum,
+                nftChain: .arbitrum(isTestnet: false),
                 isCustom: false,
                 underlyingIdentifier: nil
             ),
@@ -40,6 +40,6 @@ struct NFTNetworkSelectionListDataSourceMock: NFTNetworkSelectionListDataSource 
     }
 
     func isSupportedChainAvailable(_ nftChainItem: NFTChainItem) -> Bool {
-        return nftChainItem.nftChain != .arbitrum
+        return nftChainItem.nftChain != .arbitrum(isTestnet: false)
     }
 }
