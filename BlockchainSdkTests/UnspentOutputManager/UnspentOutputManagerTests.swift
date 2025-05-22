@@ -25,7 +25,7 @@ class UnspentOutputManagerTests {
 
         // when
         let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
-        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 423, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
 
         // then
         #expect(preImage.inputs.count == 1, "Selected only one input")
@@ -33,13 +33,13 @@ class UnspentOutputManagerTests {
         #expect(preImage.inputs.first?.txId == "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb")
 
         #expect(preImage.outputs.count == 2)
-        #expect(preImage.fee == 423)
+        #expect(preImage.fee == 429)
 
         preImage.outputs.forEach { output in
             switch output {
             case .change(let script, let value):
                 #expect(script.type == .p2wpkh)
-                #expect(value == 577)
+                #expect(value == 571)
             case .destination(let script, let value):
                 #expect(script.type == .p2wpkh)
                 #expect(value == 2000)
@@ -70,7 +70,7 @@ class UnspentOutputManagerTests {
         #expect(preImage.outputs.count == 1)
         #expect(preImage.outputs.contains(where: { $0.isDestination }))
         #expect(preImage.outputs.first?.value == 1577)
-        #expect(preImage.fee == 356)
+        #expect(preImage.fee == 360)
     }
 
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
