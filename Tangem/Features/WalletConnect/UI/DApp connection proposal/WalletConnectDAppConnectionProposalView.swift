@@ -13,11 +13,13 @@ import TangemUI
 struct WalletConnectDAppConnectionProposalView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
 
+    @State var dummyState = 1
+
     var body: some View {
         contentStateView
             .frame(maxWidth: .infinity)
             .background(Colors.Background.tertiary)
-            .floatingSheetContentFrameUpdateTrigger(animationTriggerForState(viewModel.state))
+            .floatingSheetContentFrameUpdatePublisher(viewModel.$state)
 //            .floatingSheetContentFrameUpdateAnimation(for: viewModel.state, animationForState: animationForState)
     }
 
