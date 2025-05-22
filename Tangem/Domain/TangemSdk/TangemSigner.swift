@@ -44,7 +44,7 @@ struct TangemSigner: TransactionSigner {
                 case .success(let response):
                     latestSigner.send(response.card)
                     let signatures = zip(hashes, response.signatures).map { hash, signature in
-                        SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
+                        SignatureInfo(signature: signature, publicKey: response.publicKey, hash: hash)
                     }
                     promise(.success(signatures))
                 case .failure(let error):
