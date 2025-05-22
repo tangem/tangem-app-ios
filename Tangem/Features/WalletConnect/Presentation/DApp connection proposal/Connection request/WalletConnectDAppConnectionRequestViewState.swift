@@ -57,13 +57,13 @@ struct WalletConnectDAppConnectionRequestViewState {
 // MARK: - Connection request section
 
 extension WalletConnectDAppConnectionRequestViewState {
-    enum ConnectionRequestSection {
-        struct LoadingState {
+    enum ConnectionRequestSection: Equatable {
+        struct LoadingState: Equatable {
             let iconAsset = Assets.Glyphs.load
             let label = "Connecting"
         }
 
-        struct ContentState {
+        struct ContentState: Equatable {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
             let trailingIconAsset = Assets.Glyphs.chevronDownNew
@@ -125,12 +125,12 @@ extension WalletConnectDAppConnectionRequestViewState {
 }
 
 extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
-    struct BulletGroup {
+    struct BulletGroup: Equatable {
         let label: String
         let points: [BulletPoint]
     }
 
-    struct BulletPoint {
+    struct BulletPoint: Equatable {
         let sfSymbol: String
         let iconColor: SwiftUI.Color
         let title: String
