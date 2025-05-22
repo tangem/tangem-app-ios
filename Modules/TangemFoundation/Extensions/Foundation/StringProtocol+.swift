@@ -9,6 +9,15 @@
 import Foundation
 
 public extension StringProtocol {
+    /// MINUS SIGN, Unicode U+2212.
+    static var minusSign: Self { "−" }
+
+    /// EN DASH, Unicode U+2013.
+    static var enDashSign: Self { "–" }
+
+    /// EM DASH, Unicode U+2014.
+    static var emDashSign: Self { "—" }
+
     func caseInsensitiveContains(_ other: some StringProtocol) -> Bool {
         return range(of: other, options: .caseInsensitive) != nil
     }
@@ -17,7 +26,18 @@ public extension StringProtocol {
         return range(of: prefix, options: [.anchored, .caseInsensitive]) != nil
     }
 
+    /// I.e. `.orderedSame`.
     func caseInsensitiveEquals(to other: some StringProtocol) -> Bool {
         return caseInsensitiveCompare(other) == .orderedSame
+    }
+
+    /// I.e. `.orderedAscending`.
+    func caseInsensitiveSmaller(than other: some StringProtocol) -> Bool {
+        return caseInsensitiveCompare(other) == .orderedAscending
+    }
+
+    /// I.e. `.orderedDescending`.
+    func caseInsensitiveGreater(than other: some StringProtocol) -> Bool {
+        return caseInsensitiveCompare(other) == .orderedDescending
     }
 }
