@@ -33,7 +33,7 @@ struct WalletConnectDAppConnectionRequestViewState {
     }
 
     static func content(
-        dAppData: WalletConnectDAppData,
+        proposal: WalletConnectDAppConnectionProposal,
         walletName: String,
         walletSelectionIsAvailable: Bool
     ) -> WalletConnectDAppConnectionRequestViewState {
@@ -41,9 +41,9 @@ struct WalletConnectDAppConnectionRequestViewState {
             dAppDescriptionSection: DAppDescriptionSection(
                 state: .content(
                     DAppDescriptionSection.ContentState(
-                        iconURL: dAppData.icon,
-                        name: dAppData.name,
-                        domain: dAppData.domain.host
+                        iconURL: proposal.dApp.icon,
+                        name: proposal.dApp.name,
+                        domain: proposal.dApp.domain.host
                     )
                 )
             ),
@@ -83,18 +83,18 @@ extension WalletConnectDAppConnectionRequestViewState {
 // MARK: - Connection request section
 
 extension WalletConnectDAppConnectionRequestViewState {
-    struct ConnectionRequestSection: Hashable {
-        enum State: Hashable {
+    struct ConnectionRequestSection {
+        enum State {
             case loading(LoadingState)
             case content(ContentState)
         }
 
-        struct LoadingState: Hashable {
+        struct LoadingState {
             let iconAsset = Assets.Glyphs.load
             let label = "Connecting"
         }
 
-        struct ContentState: Hashable {
+        struct ContentState {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
             var isExpanded: Bool
@@ -120,12 +120,12 @@ extension WalletConnectDAppConnectionRequestViewState {
 }
 
 extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
-    struct BulletGroup: Hashable {
+    struct BulletGroup {
         let label: String
         let points: [BulletPoint]
     }
 
-    struct BulletPoint: Hashable {
+    struct BulletPoint {
         let sfSymbol: String
         let iconColor: SwiftUI.Color
         let title: String
