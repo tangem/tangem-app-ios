@@ -12,7 +12,7 @@ struct NewSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
-    let sendAmountStepBuilder: SendAmountStepBuilder
+    let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
     let sendSummaryStepBuilder: SendSummaryStepBuilder
@@ -31,11 +31,10 @@ struct NewSendFlowBaseBuilder {
             router: router
         )
 
-        let amount = sendAmountStepBuilder.makeSendAmountStep(
+        let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
             sendFeeLoader: fee.interactor,
-            sendQRCodeService: sendQRCodeService,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
             source: .send
