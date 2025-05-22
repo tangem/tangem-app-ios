@@ -13,7 +13,7 @@ struct NewSendFlowBaseBuilder {
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
-    let sendDestinationStepBuilder: SendDestinationStepBuilder
+    let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
     let sendSummaryStepBuilder: SendSummaryStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
