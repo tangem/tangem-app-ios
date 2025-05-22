@@ -191,7 +191,7 @@ private extension StakingSingleActionModel {
         case .sendTxError(_, let error):
             Analytics.log(event: .stakingErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)"
+                .errorCode: "\(error.universalErrorCode)",
             ])
         }
     }
