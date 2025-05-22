@@ -248,6 +248,29 @@ struct SendDependenciesBuilder {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 
+    func makeSendDestinationValidator() -> SendDestinationValidator {
+        let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
+        let validator = CommonSendDestinationValidator(
+            walletAddresses: walletModel.addresses.map { $0.value },
+            addressService: addressService,
+            supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
+        )
+
+        return validator
+    }
+
+    func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
+        CommonSendDestinationTransactionHistoryProvider(transactionHistoryProvider: walletModel)
+    }
+
+    func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
+        TransactionHistoryMapper(
+            currencySymbol: walletModel.tokenItem.currencySymbol,
+            walletAddresses: walletModel.addresses.map { $0.value },
+            showSign: false
+        )
+    }
+
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         switch walletModel.tokenItem.blockchain {
         case .koinos:
