@@ -1,21 +1,23 @@
 //
-//  SendDestinationStepBuilder.swift
-//  Tangem
+//  SendNewDestinationStepBuilder.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import BlockchainSdk
 
-struct SendDestinationStepBuilder {
+struct SendNewDestinationStepBuilder {
     typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
-    typealias ReturnValue = (step: SendDestinationStep, interactor: SendDestinationInteractor, compact: SendDestinationCompactViewModel)
+    typealias ReturnValue = (step: SendNewDestinationStep, interactor: SendDestinationInteractor, compact: SendDestinationCompactViewModel)
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let walletModel: any WalletModel
+    let tokenItem: TokenItem
+    let ignoredAddresses: [String]
+    let addressResolver: AddressResolver?
     let builder: SendDependenciesBuilder
 
     func makeSendDestinationStep(
@@ -27,18 +29,18 @@ struct SendDestinationStepBuilder {
         let addressTextViewHeightModel = AddressTextViewHeightModel()
         let interactor = makeSendDestinationInteractor(io: io)
 
-        let viewModel = makeSendDestinationViewModel(
+        let viewModel = makeSendNewDestinationViewModel(
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
             addressTextViewHeightModel: addressTextViewHeightModel,
             router: router
         )
 
-        let step = SendDestinationStep(
+        let step = SendNewDestinationStep(
             viewModel: viewModel,
             interactor: interactor,
             sendFeeInteractor: sendFeeInteractor,
-            tokenItem: walletModel.tokenItem
+            tokenItem: tokenItem
         )
 
         let compact = makeSendDestinationCompactViewModel(
@@ -57,24 +59,23 @@ struct SendDestinationStepBuilder {
     }
 }
 
-private extension SendDestinationStepBuilder {
-    func makeSendDestinationViewModel(
+private extension SendNewDestinationStepBuilder {
+    func makeSendNewDestinationViewModel(
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         router: SendDestinationRoutable
-    ) -> SendDestinationViewModel {
-        let tokenItem = walletModel.tokenItem
+    ) -> SendNewDestinationViewModel {
         let suggestedWallets = makeSuggestedWallets()
         let additionalFieldType = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain)
 
-        let settings = SendDestinationViewModel.Settings(
+        let settings = SendNewDestinationViewModel.Settings(
             networkName: tokenItem.networkName,
             additionalFieldType: additionalFieldType,
             suggestedWallets: suggestedWallets
         )
 
-        let viewModel = SendDestinationViewModel(
+        let viewModel = SendNewDestinationViewModel(
             settings: settings,
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
@@ -92,8 +93,8 @@ private extension SendDestinationStepBuilder {
             validator: builder.makeSendDestinationValidator(),
             transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
             transactionHistoryMapper: builder.makeTransactionHistoryMapper(),
-            addressResolver: walletModel.addressResolver,
-            additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
+            addressResolver: addressResolver,
+            additionalFieldType: .type(for: tokenItem.blockchain),
             parametersBuilder: builder.makeSendTransactionParametersBuilder()
         )
     }
@@ -103,13 +104,10 @@ private extension SendDestinationStepBuilder {
             let walletModels = userWalletModel.walletModelsManager.walletModels
             return result + walletModels
                 .filter { walletModel in
-                    let ignoredAddresses = self.walletModel.addresses.map { $0.value }
+                    let shouldBeIncluded = tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
+                    let sameNetwork = walletModel.tokenItem.blockchain.networkId == tokenItem.blockchain.networkId
 
-                    let shouldBeIncluded = walletModel.tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
-
-                    return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
-                        && walletModel.isMainToken
-                        && shouldBeIncluded
+                    return sameNetwork && walletModel.isMainToken && shouldBeIncluded
                 }
                 .map { walletModel in
                     (name: userWalletModel.name, address: walletModel.defaultAddressString)
