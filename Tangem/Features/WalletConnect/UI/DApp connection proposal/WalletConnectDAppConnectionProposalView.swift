@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-
 import HotSwiftUI
 
 struct WalletConnectDAppConnectionProposalView: View {
