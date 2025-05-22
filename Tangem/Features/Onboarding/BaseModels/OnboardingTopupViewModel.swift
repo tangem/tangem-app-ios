@@ -96,7 +96,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     func updateCardBalanceText(for model: any WalletModel) {
         if case .failed = model.state {
-            cardBalance = "–"
+            cardBalance = AppConstants.enDashSign
             return
         }
 
