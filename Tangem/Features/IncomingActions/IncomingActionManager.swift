@@ -11,7 +11,7 @@ import Foundation
 typealias IncomingActionManager = IncomingActionHandler & IncomingActionManaging
 
 public protocol IncomingActionHandler {
-    func handleDeeplink(_ url: URL) -> Bool
+    @discardableResult func handleDeeplink(_ url: URL) -> Bool
     func handleIntent(_ intent: String) -> Bool
 }
 
