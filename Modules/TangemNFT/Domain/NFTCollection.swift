@@ -80,7 +80,7 @@ public extension NFTCollection {
         public static let dummy = Self(
             collectionIdentifier: UUID().uuidString,
             ownerAddress: UUID().uuidString,
-            chain: .arbitrum
+            chain: .solana
         )
     }
 }
