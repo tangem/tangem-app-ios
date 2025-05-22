@@ -54,7 +54,7 @@ private extension WCConnectionRequestDescriptionView {
             connectionRequestHeaderStub
         } else {
             HStack(alignment: .center, spacing: 8) {
-                Assets.connectNew.image
+                Assets.Glyphs.connectNew.image
                     .renderingMode(.template)
                     .foregroundStyle(Colors.Icon.accent)
 
@@ -62,7 +62,7 @@ private extension WCConnectionRequestDescriptionView {
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Assets.WalletConnect.chevronRight.image
+                Assets.Glyphs.chevronRightNew.image
                     .renderingMode(.template)
                     .foregroundStyle(Colors.Icon.informative)
                     .rotationEffect(connectionRequestChevronAngle)
@@ -73,7 +73,7 @@ private extension WCConnectionRequestDescriptionView {
 
     var connectionRequestHeaderStub: some View {
         HStack(alignment: .center, spacing: 8) {
-            Assets.WalletConnect.load.image
+            Assets.Glyphs.load.image
                 .renderingMode(.template)
                 .resizable()
                 .frame(size: .init(bothDimensions: 24))
