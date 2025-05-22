@@ -136,7 +136,7 @@ public struct AddressServiceFactory {
         case .bittensor(let curve):
             return PolkadotAddressService(network: .bittensor(curve: curve))
         case .koinos:
-            let network: UTXONetworkParams = isTestnet ? BitcoinNetworkParams() : BitcoinTestnetNetworkParams()
+            let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
             return KoinosAddressService(networkParams: network)
         case .sui:
             return SuiAddressService()
