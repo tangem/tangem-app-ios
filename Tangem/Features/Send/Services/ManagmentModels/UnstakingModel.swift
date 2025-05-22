@@ -117,7 +117,10 @@ private extension UnstakingModel {
             return error
         }
 
-        return .ready(fee: estimateFee, stakesCount: stakingManager.state.stakesCount)
+        return .ready(
+            fee: estimateFee,
+            stakesCount: stakingAction.validatorInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
+        )
     }
 
     func validate(amount: Decimal, fee: Decimal) -> UnstakingModel.State? {
