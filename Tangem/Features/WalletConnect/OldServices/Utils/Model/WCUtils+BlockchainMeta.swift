@@ -13,17 +13,11 @@ extension WCUtils {
         let id: String
         let currencySymbol: String
         let displayName: String
-    }
-}
 
-extension WCUtils.BlockchainMeta {
-    init?(from blockchain: BlockchainSdk.Blockchain?) {
-        if let blockchain {
+        init(from blockchain: BlockchainSdk.Blockchain) {
             id = blockchain.networkId
             currencySymbol = blockchain.currencySymbol
             displayName = blockchain.displayName
-        } else {
-            return nil
         }
     }
 }
