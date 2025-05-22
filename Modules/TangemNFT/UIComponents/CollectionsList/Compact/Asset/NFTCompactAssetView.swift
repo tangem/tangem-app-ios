@@ -31,35 +31,34 @@ struct NFTCompactAssetView: View {
             makeIcon(media: asset.media)
             makeTexts(title: asset.name, subtitle: "0.15 ETH") // Price should be taken from somewhere
         }
-        .frame(maxWidth: .infinity)
     }
 
     private var skeleton: some View {
         VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
             Color.clear
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
                 .skeletonable(
                     isShown: true,
-                    size: Constants.imageSize,
                     radius: SquaredOrRectangleImageView.Constants.cornerRadius
                 )
 
             VStack(alignment: .leading, spacing: 10) {
                 Color.clear
+                    .frame(size: .init(width: 70, height: Constants.textSkeletonsHeight))
                     .skeletonable(
                         isShown: true,
-                        size: .init(width: 70, height: Constants.textSkeletonsHeight),
                         radius: Constants.textSkeletonsCornerRadius
                     )
 
                 Color.clear
+                    .frame(size: .init(width: 52, height: Constants.textSkeletonsHeight))
                     .skeletonable(
                         isShown: true,
-                        size: .init(width: 52, height: Constants.textSkeletonsHeight),
                         radius: Constants.textSkeletonsCornerRadius
                     )
             }
         }
-        .frame(width: Constants.imageSize.width)
     }
 
     private func makeIcon(media: NFTMedia?) -> some View {
@@ -79,7 +78,6 @@ struct NFTCompactAssetView: View {
 
 extension NFTCompactAssetView {
     enum Constants {
-        static let imageSize: CGSize = .init(bothDimensions: 152)
         static let textSkeletonsCornerRadius: CGFloat = 4
         static let textSkeletonsHeight: CGFloat = 12
 
