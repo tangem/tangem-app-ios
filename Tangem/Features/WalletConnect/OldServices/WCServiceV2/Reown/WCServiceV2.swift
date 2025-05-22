@@ -43,6 +43,8 @@ final class WCServiceV2 {
     private var selectedWalletId: String?
     private var currentConnectionProposal: Session.Proposal?
 
+    private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
+
     // MARK: - Subjects
 
     private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
@@ -121,10 +123,19 @@ private extension WCServiceV2 {
         WalletKit.instance.sessionProposalPublisher
             .sink { [weak self] sessionProposal, context in
                 WCLogger.info(LoggerStrings.sessionProposal(sessionProposal, context))
-                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(name: sessionProposal.proposer.name, dAppURL: sessionProposal.proposer.url))
+                Analytics.debugLog(
+                    eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(
+                        name: sessionProposal.proposer.name,
+                        dAppURL: sessionProposal.proposer.url
+                    )
+                )
 
-                guard let selectedWCModelProvider = self?.userWalletRepository.models.first(where: { $0.userWalletId.stringValue == self?.selectedWalletId }
-                )?.wcWalletModelProvider else { return }
+                guard let selectedWCModelProvider = self?.userWalletRepository.models
+                    .first(where: { $0.userWalletId.stringValue == self?.selectedWalletId })?
+                    .wcWalletModelProvider
+                else {
+                    return
+                }
 
                 self?.validateProposal(sessionProposal, with: selectedWCModelProvider)
                 self?.currentConnectionProposal = sessionProposal
@@ -247,7 +258,6 @@ private extension WCServiceV2 {
             let (sessionsNamespaces, requestData) = try utils.createSessionRequest(
                 proposal: proposal,
                 selectedWalletModelProvider: wcModelProvider,
-                selectedUserWalletModelId: selectedWalletId,
                 selectedOptionalNetworks: selectedNetworks
             )
 
@@ -267,8 +277,6 @@ private extension WCServiceV2 {
                     cancel: { self.reject(with: proposal) }
                 )
             )
-
-            dappInfoLoadingSubject.send(false)
             //            log request
         } catch WalletConnectV2Error.requiredChainsNotSatisfied(let requestData) {
             proposalSubject.send(proposal)
@@ -279,6 +287,7 @@ private extension WCServiceV2 {
             WCLogger.error(error: error)
             errorsSubject.send((.unknown(error.localizedDescription), proposal.proposer.name))
         }
+        dappInfoLoadingSubject.send(false)
         canEstablishNewSessionSubject.send(true)
     }
 }
@@ -333,7 +342,6 @@ extension WCServiceV2 {
 
             // Hack to delete the topic from the user default storage inside the WC 2.0 SDK
             await disconnect(topic: url.topic)
-            dappInfoLoadingSubject.send(false)
         }
         canEstablishNewSessionSubject.send(true)
     }
@@ -539,6 +547,35 @@ private extension WCServiceV2 {
         DispatchQueue.main.async {
             Toast(view: WarningToast(text: message))
                 .present(layout: .top(padding: 20), type: .temporary(interval: 3))
+        }
+    }
+}
+
+// MARK: - Refac
+
+extension WCServiceV2 {
+    private actor SessionProposalContinuationsStorage {
+        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<Session.Proposal, Never>?]()
+
+        func store(continuation: CheckedContinuation<Session.Proposal, Never>, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic] = continuation
+        }
+
+        func resume(proposal: Session.Proposal, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: proposal)
+            pairingTopicToSessionProposalContinuation[topic] = nil
+        }
+    }
+
+    func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
+        await pairClient(with: uri, source: source)
+
+        try Task.checkCancellation()
+
+        return await withCheckedContinuation { [weak self] continuation in
+            Task {
+                await self?.sessionProposalContinuationStorage.store(continuation: continuation, for: uri.topic)
+            }
         }
     }
 }

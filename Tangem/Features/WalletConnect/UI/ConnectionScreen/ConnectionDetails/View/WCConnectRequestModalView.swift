@@ -167,7 +167,7 @@ private extension WCConnectRequestModalView {
                 .padding(.trailing, 2)
 
             if viewModel.isOtherWalletSelectorVisible {
-                Assets.WalletConnect.selectIcon.image
+                Assets.Glyphs.selectIcon.image
             }
         }
         .onTapGesture {
@@ -211,10 +211,10 @@ private extension WCConnectRequestModalView {
     @ViewBuilder
     var networkSelectionIcon: some View {
         if viewModel.isNetworksPreviewPresented {
-            Assets.WalletConnect.selectIcon.image
+            Assets.Glyphs.selectIcon.image
                 .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))
         } else if viewModel.presentationState == .noRequiredChains {
-            Assets.WalletConnect.chevronRight.image
+            Assets.Glyphs.chevronRightNew.image
                 .renderingMode(.template)
                 .foregroundStyle(Colors.Icon.informative)
                 .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))

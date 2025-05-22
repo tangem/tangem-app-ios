@@ -74,7 +74,7 @@ struct TokenWithAmountView: View {
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
                 Button(action: action) {
-                    Assets.WalletConnect.selectIcon.image
+                    Assets.Glyphs.selectIcon.image
                 }
             }
         case .select(.none, let action):
@@ -83,7 +83,7 @@ struct TokenWithAmountView: View {
                     // Expand tappable area
                     FixedSpacer(width: 20)
 
-                    Assets.WalletConnect.selectIcon.image
+                    Assets.Glyphs.selectIcon.image
                 }
             }
         }
