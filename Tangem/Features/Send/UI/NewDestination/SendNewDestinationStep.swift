@@ -1,9 +1,9 @@
 //
-//  SendDestinationStep.swift
-//  Tangem
+//  SendNewDestinationStep.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -11,14 +11,14 @@ import TangemLocalization
 import Combine
 import SwiftUI
 
-class SendDestinationStep {
-    private let viewModel: SendDestinationViewModel
+class SendNewDestinationStep {
+    private let viewModel: SendNewDestinationViewModel
     private let interactor: SendDestinationInteractor
     private let sendFeeInteractor: SendFeeInteractor
     private let tokenItem: TokenItem
 
     init(
-        viewModel: SendDestinationViewModel,
+        viewModel: SendNewDestinationViewModel,
         interactor: any SendDestinationInteractor,
         sendFeeInteractor: any SendFeeInteractor,
         tokenItem: TokenItem
@@ -36,18 +36,12 @@ class SendDestinationStep {
 
 // MARK: - SendStep
 
-extension SendDestinationStep: SendStep {
+extension SendNewDestinationStep: SendStep {
     var title: String? { Localization.sendRecipientLabel }
 
-    var type: SendStepType { .destination(viewModel) }
+    var type: SendStepType { .newDestination(viewModel) }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
-
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
-        .qrCodeButton { [weak self] in
-            self?.viewModel.scanQRCode()
-        }
-    }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
@@ -71,4 +65,3 @@ extension SendDestinationStep: SendStep {
         sendFeeInteractor.updateFees()
     }
 }
-
