@@ -38,14 +38,7 @@ struct SendSuggestedDestinationView: View {
     private func cellView(for type: SendSuggestedDestinationViewModel.CellModel.`Type`, index: Int) -> some View {
         switch type {
         case .header(let title):
-            if index == 0 {
-                headerView(for: title)
-                    .padding(.vertical, 16)
-            } else {
-                headerView(for: title)
-                    .padding(.top, 22)
-                    .padding(.bottom, 10)
-            }
+            headerView(for: title)
         case .wallet(let wallet, let addressIconViewModel):
             walletView(for: wallet, addressIconViewModel: addressIconViewModel)
         case .recentTransaction(let record, let addressIconViewModel):
@@ -57,6 +50,7 @@ struct SendSuggestedDestinationView: View {
     private func headerView(for title: String) -> some View {
         Text(title)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .padding(.top, 16)
     }
 
     @ViewBuilder

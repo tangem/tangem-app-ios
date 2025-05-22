@@ -10,7 +10,7 @@ import Foundation
 
 class CommonNewSendStepsManager {
     private let amountStep: SendNewAmountStep
-    private let destinationStep: SendDestinationStep
+    private let destinationStep: SendNewDestinationStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
 
@@ -23,7 +23,7 @@ class CommonNewSendStepsManager {
 
     init(
         amountStep: SendNewAmountStep,
-        destinationStep: SendDestinationStep,
+        destinationStep: SendNewDestinationStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep
     ) {
@@ -42,11 +42,11 @@ class CommonNewSendStepsManager {
 
     private func getNextStep() -> (SendStep)? {
         switch currentStep().type {
-        case .destination:
+        case .newDestination:
             return summaryStep
         case .newAmount:
             return destinationStep
-        case .fee, .validators, .summary, .finish, .onramp, .amount:
+        case .fee, .validators, .summary, .finish, .onramp, .amount, .destination:
             assertionFailure("There is no next step")
             return nil
         }
@@ -61,12 +61,12 @@ class CommonNewSendStepsManager {
         case .finish:
             output?.update(state: .init(step: step, action: .close))
         case .newAmount where isEditAction,
-             .destination where isEditAction,
+             .newDestination where isEditAction,
              .fee where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
-        case .newAmount, .destination:
+        case .newAmount, .newDestination:
             output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
-        case .amount, .fee, .validators, .onramp:
+        case .amount, .fee, .validators, .onramp, .destination:
             assertionFailure("There is no next step")
         }
     }
