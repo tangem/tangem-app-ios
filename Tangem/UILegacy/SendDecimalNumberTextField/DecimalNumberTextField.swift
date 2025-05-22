@@ -81,9 +81,12 @@ struct DecimalNumberTextField: View {
 
     private func updateValues(decimalValue: ViewModel.DecimalValue?) {
         switch decimalValue {
-        case .none, .internal:
+        case .internal:
             // Do nothing. Because all internal values already updated
             break
+        case .none:
+            // Update `textFieldText` to empty
+            updateValues(with: "")
         case .external(let value):
             // If the decimalValue did updated from external place
             // We have to update the private values
