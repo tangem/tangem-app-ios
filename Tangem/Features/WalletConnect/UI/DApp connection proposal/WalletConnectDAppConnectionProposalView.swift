@@ -10,17 +10,18 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct WalletConnectDAppConnectionProposalView: View {
-    @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
+import HotSwiftUI
 
-    @State var dummyState = 1
+struct WalletConnectDAppConnectionProposalView: View {
+    @ObserveInjection var io
+    @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
 
     var body: some View {
         contentStateView
             .frame(maxWidth: .infinity)
             .background(Colors.Background.tertiary)
             .floatingSheetContentFrameUpdatePublisher(viewModel.$state)
-//            .floatingSheetContentFrameUpdateAnimation(for: viewModel.state, animationForState: animationForState)
+            .enableInjection()
     }
 
     @ViewBuilder
@@ -55,33 +56,6 @@ struct WalletConnectDAppConnectionProposalView: View {
                 .background(.red)
                 .transition(.networkSelector)
             }
-        }
-    }
-
-    private func animationForState(_ state: WalletConnectDAppConnectionProposalViewState) -> Animation {
-        switch state {
-        case .connectionRequest:
-            Animation.contentStateSwitch(duration: 0.5, delay: 0)
-        case .verifiedDomain:
-            Animation.contentStateSwitch(duration: 0.3, delay: 0)
-        case .walletSelector:
-            Animation.contentStateSwitch(duration: 0.3, delay: 0)
-        case .networkSelector:
-            Animation.contentStateSwitch(duration: 0.3, delay: 0)
-        }
-
-    }
-
-    private func animationTriggerForState(_ state: WalletConnectDAppConnectionProposalViewState) -> Int {
-        switch state {
-        case .connectionRequest(let viewModel):
-            viewModel.animationTrigger
-        case .verifiedDomain:
-            2
-        case .walletSelector:
-            3
-        case .networkSelector:
-            4
         }
     }
 }
@@ -120,11 +94,4 @@ private extension AnyTransition {
     )
 
     static let networkSelector = Self.connectionRequest
-}
-
-private extension WalletConnectDAppConnectionRequestViewModel {
-    @MainActor
-    var animationTrigger: Int {
-        state.connectionRequestSection.hashValue
-    }
 }
