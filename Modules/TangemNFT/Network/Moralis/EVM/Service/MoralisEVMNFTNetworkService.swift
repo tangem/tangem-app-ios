@@ -237,9 +237,9 @@ public extension MoralisEVMNFTNetworkService {
         public var errorDescription: String? {
             switch self {
             case .unsupportedNFTChain(let chain):
-                return "Unsupported NFT chain: '\(chain)'"
+                "Unsupported NFT chain: '\(chain)'"
             case .apiError(let message):
-                return message
+                message
             }
         }
     }
