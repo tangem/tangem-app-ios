@@ -42,8 +42,8 @@ struct BitcoinTransactionTests {
 
         let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
         let transaction = Transaction(
-            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00001703")!),
-            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00000297")!), parameters: BitcoinFeeParameters(rate: 1)),
+            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00001730")!),
+            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00000270")!), parameters: BitcoinFeeParameters(rate: 1)),
             sourceAddress: defaultAddress.value,
             destinationAddress: "bc1qtsuu4zgsgstnem5hqhuem4707w7tswq25uzml86ffgj57xttc3uqptg999",
             changeAddress: defaultAddress.value
@@ -94,8 +94,8 @@ struct BitcoinTransactionTests {
 
         let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
         let transaction = Transaction(
-            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000162")!),
-            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000011")!), parameters: BitcoinFeeParameters(rate: 1)),
+            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000161")!),
+            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000012")!), parameters: BitcoinFeeParameters(rate: 1)),
             sourceAddress: defaultAddress.value,
             destinationAddress: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh",
             changeAddress: defaultAddress.value
