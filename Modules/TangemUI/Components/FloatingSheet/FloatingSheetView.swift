@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemAssets
 
@@ -14,6 +15,7 @@ public struct FloatingSheetView<HostContent: View>: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
     private let dismissSheetAction: () -> Void
 
+    @State private var contentFrameAnimationSyncToken = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
     @GestureState private var isDragging = false
@@ -31,9 +33,7 @@ public struct FloatingSheetView<HostContent: View>: View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
                 hostContent
-
                 backgroundView
-
                 sheetContent(proxy)
             }
             .if(configuration.isBackgroundAndSheetSwipeEnabled) {
@@ -83,7 +83,6 @@ public struct FloatingSheetView<HostContent: View>: View {
             if let viewModel, let sheetContent = registry.view(for: viewModel) {
                 ZStack {
                     sheetContent
-                        .frame(minHeight: proxy.size.height * configuration.minHeightFraction, alignment: .top)
                         .background(configuration.sheetBackgroundColor)
                         .clipShape(roundedRectangle)
                         .contentShape(roundedRectangle)
@@ -104,11 +103,13 @@ public struct FloatingSheetView<HostContent: View>: View {
                 }
                 .animation(.floatingSheet, value: viewModel.id)
                 .transition(.slideFromBottom)
+                .onReceive(viewModel.frameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
             }
         }
         .offset(y: -keyboardHeight)
         .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
+        .animation(viewModel?.frameUpdateAnimation, value: contentFrameAnimationSyncToken)
     }
 
     private var verticalSwipeGesture: some Gesture {
@@ -137,6 +138,10 @@ public struct FloatingSheetView<HostContent: View>: View {
         return keyboardIsVisible
             ? 12
             : 32
+    }
+
+    private func updateContentFrameAnimationSyncToken() {
+        contentFrameAnimationSyncToken = contentFrameAnimationSyncToken &+ 1
     }
 }
 
