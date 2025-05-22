@@ -159,13 +159,8 @@ struct WalletConnectConnectedDAppDetailsView: View {
     private var disconnectButton: some View {
         MainButton(
             title: viewModel.state.disconnectButton.title,
-            subtitle: nil,
-            icon: nil,
             style: .secondary,
-            size: .default,
             isLoading: viewModel.state.disconnectButton.isLoading,
-            isDisabled: false,
-            handleActionWhenDisabled: false,
             action: {
                 viewModel.handle(viewEvent: .disconnectButtonTapped)
             }
