@@ -32,7 +32,7 @@ struct WCDappTitleView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     if let dappName = proposal?.proposer.name, !dappName.isEmpty {
-                        Text(proposal?.proposer.name ?? "")
+                        Text(dappName)
                             .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     }
 
