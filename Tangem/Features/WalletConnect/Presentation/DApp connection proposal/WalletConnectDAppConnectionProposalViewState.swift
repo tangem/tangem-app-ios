@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum WalletConnectDAppConnectionProposalViewState: Equatable {
+enum WalletConnectDAppConnectionProposalViewState: Hashable {
     case connectionRequest(WalletConnectDAppConnectionRequestViewModel)
     case verifiedDomain
     case walletSelector
@@ -24,6 +24,19 @@ enum WalletConnectDAppConnectionProposalViewState: Equatable {
             true
         default:
             false
+        }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .connectionRequest:
+            hasher.combine(111)
+        case .verifiedDomain:
+            hasher.combine(222)
+        case .walletSelector:
+            hasher.combine(333)
+        case .networkSelector:
+            hasher.combine(444)
         }
     }
 }

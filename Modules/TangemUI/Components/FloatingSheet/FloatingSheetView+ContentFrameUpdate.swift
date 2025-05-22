@@ -7,18 +7,21 @@
 //
 
 import SwiftUI
+import Combine
 
 public extension View {
-    func floatingSheetContentFrameUpdateTrigger(_ trigger: some Hashable) -> some View {
-        preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger.hashValue)
-    }
-
-    func floatingSheetContentFrameUpdateTrigger(_ trigger: Int) -> some View {
-        preference(key: FloatingSheetFrameUpdateTriggerPreferenceKey.self, value: trigger)
-    }
-
-    func floatingSheetContentFrameUpdateAnimation<TState>(for state: TState, animationForState: (TState) -> Animation) -> some View {
-        preference(key: FloatingSheetFrameUpdateAnimationPreferenceKey.self, value: animationForState(state))
+    func floatingSheetContentFrameUpdatePublisher<Value>(_ publisher: Published<Value>.Publisher) -> some View {
+        preference(
+            key: FloatingSheetFrameUpdateTriggerPreferenceKey.self,
+            value: .init(
+                id: 1,
+                publisher: publisher
+                    .map { _ in
+                        return ()
+                    }
+                    .eraseToAnyPublisher()
+            )
+        )
     }
 }
 
@@ -30,10 +33,25 @@ public struct FloatingSheetFrameUpdateAnimationPreferenceKey: PreferenceKey {
     }
 }
 
-public struct FloatingSheetFrameUpdateTriggerPreferenceKey: PreferenceKey {
-    public static let defaultValue: Int = 0
+public struct EquatablePublisherProxy: Equatable {
+    let id: Int
+    let publisher: AnyPublisher<Void, Never>
 
-    public static func reduce(value: inout Int, nextValue: () -> Int) {
-        value = nextValue()
+    static let initialDummyValue = EquatablePublisherProxy(id: -1, publisher: Just(()).eraseToAnyPublisher())
+
+    init(id: Int, publisher: AnyPublisher<Void, Never>) {
+        self.id = id
+        self.publisher = publisher
     }
+
+    public static func == (lhs: EquatablePublisherProxy, rhs: EquatablePublisherProxy) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+public struct FloatingSheetFrameUpdateTriggerPreferenceKey: PreferenceKey {
+    public static let defaultValue = EquatablePublisherProxy.initialDummyValue
+
+    // [REDACTED_USERNAME], this empty implementation will keep the very first publisher, and ignore the rest.
+    public static func reduce(value: inout EquatablePublisherProxy, nextValue: () -> EquatablePublisherProxy) {}
 }
