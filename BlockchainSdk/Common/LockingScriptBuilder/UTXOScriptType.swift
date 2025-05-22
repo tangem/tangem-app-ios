@@ -18,4 +18,11 @@ public enum UTXOScriptType: Hashable {
     case p2wsh
 
     case p2tr
+
+    var isWitness: Bool {
+        switch self {
+        case .p2wsh, .p2wpkh, .p2tr: true
+        case .p2pk, .p2pkh, .p2sh: false
+        }
+    }
 }
