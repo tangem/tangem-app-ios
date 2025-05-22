@@ -105,13 +105,12 @@ private extension CommonStakingNotificationManager {
 
     func update(state: UnstakingModel.State, yield: YieldInfo, action: UnstakingModel.Action, stakedBalance: Decimal) {
         switch (state, action.type) {
-        case (.loading, .pending(.withdraw)), (.ready, .pending(.withdraw)),
+        case (.ready(_, let stakesCount), .pending(.withdraw)):
+            show(events: [.withdraw] + tonNotifications(yield: yield, action: action, stakesCount: stakesCount))
+            hideErrorNotifications()
+        case (.loading, .pending(.withdraw)),
              (.loading, .pending(.claimUnstaked)), (.ready, .pending(.claimUnstaked)):
-            var events: [StakingNotificationEvent] = [.withdraw]
-            if case .ton = tokenItem.blockchain {
-                events.append(.tonExtraReserveInfo)
-            }
-            show(events: events)
+            show(events: [.withdraw])
             hideErrorNotifications()
         case (.loading, .pending(.claimRewards)), (.ready, .pending(.claimRewards)):
             show(notification: .claimRewards)
@@ -133,7 +132,6 @@ private extension CommonStakingNotificationManager {
             )
             hideErrorNotifications()
         case (.loading, _):
-            showCommonUnstakingNotifications(for: yield, action: action, stakedBalance: stakedBalance)
             hideErrorNotifications()
         case (.validationError(let validationError, _), _):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
@@ -205,6 +203,19 @@ private extension CommonStakingNotificationManager {
             notifications.append(.lowStakedBalance)
         }
 
+        notifications.append(
+            contentsOf: tonNotifications(yield: yield, action: action, stakesCount: stakesCount)
+        )
+
+        show(events: notifications)
+    }
+
+    func tonNotifications(
+        yield: YieldInfo,
+        action: StakingAction,
+        stakesCount: Int? = nil
+    ) -> [StakingNotificationEvent] {
+        var notifications = [StakingNotificationEvent]()
         // unstaking / withdrawing ton affects all the stakes
         if let stakesCount, stakesCount > 1, case .ton = tokenItem.blockchain {
             switch action.type {
@@ -218,7 +229,7 @@ private extension CommonStakingNotificationManager {
             notifications.append(.tonExtraReserveInfo)
         }
 
-        show(events: notifications)
+        return notifications
     }
 }
 
