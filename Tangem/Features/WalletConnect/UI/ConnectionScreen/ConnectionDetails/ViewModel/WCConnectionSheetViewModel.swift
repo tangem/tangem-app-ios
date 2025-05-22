@@ -162,7 +162,7 @@ extension WCConnectionSheetViewModel {
 
 private extension WCConnectionSheetViewModel {
     func connect() {
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self else { return }
 
             do {
