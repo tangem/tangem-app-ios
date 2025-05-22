@@ -14,6 +14,10 @@ import TangemLocalization
 import TangemFoundation
 
 public final class NFTCollectionsListViewModel: ObservableObject {
+    typealias ViewState = LoadingValue<[NFTCompactCollectionViewModel]>
+
+    // MARK: State
+
     @Published private(set) var state: ViewState
     @Published var searchEntry: String = ""
     @Published private(set) var rowExpanded = false
@@ -25,9 +29,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private let chainIconProvider: NFTChainIconProvider
     private let navigationContext: NFTEntrypointNavigationContext
 
+    // MARK: Properties
+
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
     private var bag = Set<AnyCancellable>()
-
     private weak var coordinator: NFTCollectionsListRoutable?
 
     public init(
@@ -40,7 +45,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         self.coordinator = coordinator
         self.chainIconProvider = chainIconProvider
         self.navigationContext = navigationContext
-        state = .noCollections
+        state = .loading
 
         bind()
     }
@@ -49,36 +54,88 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         coordinator?.openReceive(navigationContext: navigationContext)
     }
 
+    func onRetryTap() {
+        nftManager.update(cachePolicy: .never)
+    }
+
     private func bind() {
         nftManager
-            .collectionsPublisher
+            .statePublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, collectionsResponse in
-                let collectionsViewModels = viewModel.buildCollections(from: collectionsResponse.value)
-                viewModel.collectionsViewModels = collectionsViewModels
-                let state = collectionsViewModels.isEmpty ? ViewState.noCollections : .collectionsAvailable(collectionsViewModels)
-
-                let loadingTroublesViewData = collectionsResponse.hasErrors ?
-                    viewModel.makeNotificationViewData()
-                    : nil
-
-                return (state: state, loadingTroublesViewData: loadingTroublesViewData)
+            .map { viewModel, managerState in
+                viewModel.map(managerState: managerState)
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
-                viewModel.state = result.state
-                viewModel.loadingTroublesViewData = result.loadingTroublesViewData
+                viewModel.updateState(with: result)
+                viewModel.loadingTroublesViewData = result.notificationViewData
             }
             .store(in: &bag)
 
         $searchEntry
             .withWeakCaptureOf(self)
+            .dropFirst()
             .sink { viewModel, entry in
                 let filteredCollections = viewModel.filteredCollections(entry: entry)
-                viewModel.state = .collectionsAvailable(filteredCollections)
+                viewModel.state = .loaded(filteredCollections)
             }
             .store(in: &bag)
+    }
+
+    private func map(managerState: NFTManagerState) -> ManagerStateMappingResult {
+        switch managerState {
+        case .failedToLoad(let error):
+            return .init(
+                viewState: .failedToLoad(error: error),
+                notificationViewData: nil
+            )
+
+        case .loading:
+            return .init(
+                viewState: .loading,
+                notificationViewData: nil
+            )
+
+        case .loaded(let collectionsResult):
+            let collectionsViewModels = buildCollections(from: collectionsResult.value)
+            self.collectionsViewModels = collectionsViewModels
+
+            let loadingTroublesViewData = collectionsResult.hasErrors ?
+                makeNotificationViewData()
+                : nil
+
+            return .init(
+                viewState: .loaded(collectionsViewModels),
+                notificationViewData: loadingTroublesViewData
+            )
+        }
+    }
+
+    private func updateState(with result: ManagerStateMappingResult) {
+        let hadErrorsWhileLoading = result.notificationViewData != nil
+        let currentCollections = state.value ?? []
+
+        switch result.viewState {
+        case .loaded(let collections) where hadErrorsWhileLoading && collections.isEmpty && state.isLoading:
+            // We don't need error here, NSError used to silence the compiler
+            state = .failedToLoad(error: NSError(domain: "", code: 0))
+
+        case .loaded(let collections) where hadErrorsWhileLoading && collections.isEmpty:
+            break  // Keep previous state (non-loading)
+
+        case .loaded(let collections):
+            state = .loaded(collections)
+
+        case .loading where currentCollections.isEmpty:
+            state = .loading
+
+        case .loading:
+            break // Keep previous state
+
+        case .failedToLoad(let error):
+            state = .failedToLoad(error: error)
+        }
     }
 
     private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
@@ -146,9 +203,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 }
 
-extension NFTCollectionsListViewModel {
-    enum ViewState {
-        case noCollections
-        case collectionsAvailable([NFTCompactCollectionViewModel])
+// MARK: - Helpers
+
+private extension NFTCollectionsListViewModel {
+    struct ManagerStateMappingResult {
+        let viewState: ViewState
+        let notificationViewData: NFTNotificationViewData?
     }
 }
