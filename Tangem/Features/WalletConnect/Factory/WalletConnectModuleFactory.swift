@@ -24,6 +24,11 @@ enum WalletConnectModuleFactory {
     // [REDACTED_TODO_COMMENT]
     private static let supportURL: URL = AppEnvironment.current.tangemComBaseUrl
 
+    private static let dAppDataService = ReownWalletConnectDAppDataService(walletConnectService: Self.walletConnectService)
+    private static let dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
+        apiService: BlockaidFactory().makeBlockaidAPIService()
+    )
+
     private static let dateFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .numeric
@@ -46,6 +51,38 @@ enum WalletConnectModuleFactory {
         )
     }
 
+    static func makeDAppConnectionProposalViewModel(
+        forURI uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) -> WalletConnectDAppConnectionProposalViewModel {
+        let getDAppConnectionProposalUseCase = WalletConnectGetDAppConnectionProposalUseCase(
+            dAppDataService: Self.dAppDataService,
+            verificationService: Self.dAppVerificationService,
+            uri: uri,
+            analyticsSource: source
+        )
+
+        let selectedUserWalletName = Self.userWalletRepository.selectedModel?.name ?? ""
+        let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
+
+        weak var futureCoordinator: WalletConnectDAppConnectionProposalRoutable?
+
+        let connectionRequestViewModel = WalletConnectConnectionRequestViewModel(
+            state: .loading(walletName: selectedUserWalletName, walletSelectionIsAvailable: walletSelectionIsAvailable),
+            getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
+            coordinator: futureCoordinator
+        )
+
+        let viewModel = WalletConnectDAppConnectionProposalViewModel(
+            state: .connectionRequest(connectionRequestViewModel),
+            connectionRequestViewModel: connectionRequestViewModel
+        )
+
+        futureCoordinator = viewModel
+
+        return viewModel
+    }
+
     static func makeQRScanFlow(
         clipboardURI: WalletConnectRequestURI?,
         dismissAction: @escaping (WalletConnectQRScanResult?) -> Void
@@ -63,6 +100,7 @@ enum WalletConnectModuleFactory {
 
     static func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectSavedSession) -> WalletConnectConnectedDAppDetailsViewModel {
         let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletId })
+        let imageProvider = NetworkImageProvider()
 
         let state = WalletConnectConnectedDAppDetailsViewState(
             navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: Self.connectedTime(from: dApp)),
@@ -77,7 +115,7 @@ enum WalletConnectModuleFactory {
                 blockchains: dApp.connectedBlockchains.map { blockchain in
                     WalletConnectConnectedDAppDetailsViewState.BlockchainRowItem(
                         id: blockchain.networkId,
-                        asset: NetworkImageProvider().provide(by: blockchain, filled: true),
+                        asset: imageProvider.provide(by: blockchain, filled: true),
                         name: blockchain.displayName,
                         currencySymbol: blockchain.currencySymbol
                     )
