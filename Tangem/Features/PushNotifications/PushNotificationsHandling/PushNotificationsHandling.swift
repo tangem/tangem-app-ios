@@ -8,7 +8,7 @@
 
 import UserNotifications
 
-protocol PushNotificationsHandling: UNUserNotificationCenterDelegate {}
+public protocol PushNotificationsHandling: UNUserNotificationCenterDelegate {}
 
 // MARK: - Dependencies
 
