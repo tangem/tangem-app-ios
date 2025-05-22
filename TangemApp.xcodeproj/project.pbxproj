@@ -2722,6 +2722,7 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6221,6 +6222,7 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -12554,6 +12556,7 @@
 			children = (
 				300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */,
 				B62D43322CBC79E400C2460E /* KaspaTransactionTests.swift */,
+				EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */,
 			);
 			path = Kaspa;
 			sourceTree = "<group>";
@@ -21826,6 +21829,7 @@
 				30410B412D7743FF0044C703 /* PolkadotAddressTests.swift in Sources */,
 				309938FE2D786A9A00DA3667 /* StellarAddressTests.swift in Sources */,
 				30145CF92D75D7DF00C1DA5D /* AlephiumAddressTests.swift in Sources */,
+				EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */,
 				B62D435D2CBC79E400C2460E /* KoinosMethodResponseDecodingTests.swift in Sources */,
 				EFAF7E432D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift in Sources */,
 				30C470162D7612D5003DFBFD /* CardanoAddressTests.swift in Sources */,
