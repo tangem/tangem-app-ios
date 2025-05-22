@@ -129,15 +129,19 @@ private extension BitcoinTransactionBuilder {
             $0.amount = Int64(destination.value)
 
             $0.changeAddress = transaction.changeAddress
-            $0.useMaxAmount = change == nil
 
             $0.byteFee = Int64(parameters.rate)
         }
 
-        input.plan = AnySigner.plan(input: input, coin: coinType)
-        if input.plan.error != .ok {
-            BSDKLogger.error("BitcoinSigningInput has a error", error: "\(input.plan.error)")
-            throw Error.walletCoreError("\(input.plan.error)")
+        input.plan = .with {
+            $0.amount = Int64(destination.value)
+            $0.availableAmount = utxo.sum(by: \.amount)
+            $0.fee = Int64(preImage.fee)
+            $0.utxos = utxo
+
+            if let change {
+                $0.change = Int64(change.value)
+            }
         }
 
         return input
@@ -146,11 +150,22 @@ private extension BitcoinTransactionBuilder {
 
 extension BitcoinTransactionBuilder {
     enum Error: LocalizedError {
-        case unsupportedBlockchain(String)
-        case unsupportedAddresses
-        case wrongType
+        case preImageFeeIsSmall
         case noBitcoinFeeParameters
         case noDestinationAmount
         case walletCoreError(String)
+
+        var errorDescription: String {
+            switch self {
+            case .preImageFeeIsSmall:
+                return "Fee is too small"
+            case .noBitcoinFeeParameters:
+                return "No Bitcoin fee parameters"
+            case .noDestinationAmount:
+                return "No destination amount"
+            case .walletCoreError(let message):
+                return message
+            }
+        }
     }
 }
