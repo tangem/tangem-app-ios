@@ -25,5 +25,12 @@ public extension UTXOLockingScript {
     enum SpendableType: Hashable {
         case publicKey(Data)
         case redeemScript(Data)
+
+        var data: Data {
+            switch self {
+            case .publicKey(let data): data
+            case .redeemScript(let data): data
+            }
+        }
     }
 }
