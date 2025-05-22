@@ -227,17 +227,11 @@ extension NFTEntrypointView {
             static let dotsImageSize: CGSize = .init(bothDimensions: 9)
         }
 
-        enum Skeleton {
-            static let titleSize: CGSize = .init(width: 112, height: 12)
-            static let subtitleSize: CGSize = .init(width: 80, height: 12)
-        }
-
         enum Failed {
             static let imageSize: CGSize = .init(bothDimensions: 20)
         }
 
         enum Texts {
-            static let loadingInteritemSpacing: CGFloat = 9
             static let interitemSpacing: CGFloat = 2
         }
 
