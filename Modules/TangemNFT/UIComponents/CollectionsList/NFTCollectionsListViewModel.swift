@@ -139,19 +139,21 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
-        collections.map { collection in
-            NFTCompactCollectionViewModel(
-                nftCollection: collection,
-                assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
-                nftChainIconProvider: chainIconProvider,
-                openAssetDetailsAction: { [weak self] asset in
-                    self?.openAssetDetails(asset)
-                },
-                onCollectionTap: { [weak self] collection, isExpanded in
-                    self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
-                }
-            )
-        }
+        collections
+            .sorted { $0.name.caseInsensitiveSmaller(than: $1.name) }
+            .map { collection in
+                NFTCompactCollectionViewModel(
+                    nftCollection: collection,
+                    assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
+                    nftChainIconProvider: chainIconProvider,
+                    openAssetDetailsAction: { [weak self] asset in
+                        self?.openAssetDetails(asset)
+                    },
+                    onCollectionTap: { [weak self] collection, isExpanded in
+                        self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
+                    }
+                )
+            }
     }
 
     private func filteredCollections(entry: String) -> [NFTCompactCollectionViewModel] {
