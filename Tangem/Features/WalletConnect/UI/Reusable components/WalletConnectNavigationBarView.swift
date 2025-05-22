@@ -10,11 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-import HotSwiftUI
-
 struct WalletConnectNavigationBarView: View {
-    @ObserveInjection var io
-
     var title: String?
     var subtitle: String?
     var bottomSeparatorLineIsVisible = false
@@ -49,14 +45,13 @@ struct WalletConnectNavigationBarView: View {
                 .opacity(bottomSeparatorLineIsVisible ? 0.3 : 0)
         }
         .contentShape(.rect)
-        .enableInjection()
     }
 
     private var buttons: some View {
         HStack(spacing: .zero) {
-            sfButton("chevron.left", action: backButtonAction)
+            sfButton(SFSymbol.chevronLeft, action: backButtonAction)
             Spacer()
-            sfButton("multiply", action: closeButtonAction)
+            sfButton(SFSymbol.multiply, action: closeButtonAction)
         }
     }
 
@@ -85,5 +80,10 @@ extension WalletConnectNavigationBarView {
         static let topPadding: CGFloat = 8
         /// 44
         static let height: CGFloat = 44
+    }
+
+    private enum SFSymbol {
+        static let chevronLeft = "chevron.left"
+        static let multiply = "multiply"
     }
 }
