@@ -95,14 +95,14 @@ struct VisaTransactionHistoryMapper {
             }
         } else {
             action = nil
-            hashToDisplay = AppConstants.dashSign
+            hashToDisplay = AppConstants.emDashSign
         }
 
         return .init(
             commonTransactionInfo: commonInfo,
             errorCode: "\(request.errorCode)",
             hash: hashToDisplay,
-            status: prepareSnakeCaseString(request.transactionStatus ?? AppConstants.dashSign),
+            status: prepareSnakeCaseString(request.transactionStatus ?? AppConstants.emDashSign),
             exploreAction: action
         )
     }
