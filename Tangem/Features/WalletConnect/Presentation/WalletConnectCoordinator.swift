@@ -54,6 +54,12 @@ extension WalletConnectCoordinator {
 }
 
 extension WalletConnectCoordinator: WalletConnectRoutable {
+    func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
+        let viewModel = WalletConnectModuleFactory.makeDAppConnectionProposalViewModel(forURI: uri, source: source)
+        viewModel.loadDAppProposal()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
     func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession) {
         floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
     }
@@ -91,4 +97,8 @@ extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewMo
 
 extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { "WalletConnectErrorViewModel" }
+}
+
+extension WalletConnectDAppConnectionProposalViewModel: FloatingSheetContentViewModel {
+    nonisolated var id: String { "WalletConnectDAppConnectionProposalViewModel" }
 }
