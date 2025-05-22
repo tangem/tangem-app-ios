@@ -27,6 +27,9 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     deinit {
         dAppLoadingTask?.cancel()
     }
+
+    private var debugLoadingState: WalletConnectDAppConnectionRequestViewState?
+    private var debugContentState: WalletConnectDAppConnectionRequestViewState?
 }
 
 // MARK: - View events handling
@@ -92,5 +95,21 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func handleCancelButtonTapped() {}
 
-    private func handleConnectButtonTapped() {}
+    private func handleConnectButtonTapped() {
+        if debugLoadingState == nil && state.connectionRequestSection.isLoading {
+            debugLoadingState = state
+        }
+
+        if debugContentState == nil && state.connectionRequestSection.isLoading == false {
+            debugContentState = state
+        }
+
+        guard let debugContentState, let debugLoadingState else { return }
+
+        if state.connectionRequestSection.isLoading {
+            state = debugContentState
+        } else {
+            state = debugLoadingState
+        }
+    }
 }
