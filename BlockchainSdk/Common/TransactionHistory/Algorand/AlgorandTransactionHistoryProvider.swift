@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemNetworkUtils
 
 final class AlgorandTransactionHistoryProvider<Mapper> where
