@@ -113,9 +113,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>NFT</string>
+        <key>few</key>
+        <string>NFT</string>
+        <key>many</key>
+        <string>NFT</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>NFT</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
