@@ -15,6 +15,7 @@ import TangemAssets
 enum WithdrawalNotificationEvent: Hashable {
     case reduceAmountBecauseFeeIsTooHigh(amount: Decimal, amountFormatted: String, blockchainName: String)
     case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
+    case tronWillBeSendTokenFeeDescription
 }
 
 extension WithdrawalNotificationEvent: NotificationEvent {
@@ -22,6 +23,7 @@ extension WithdrawalNotificationEvent: NotificationEvent {
         switch self {
         case .reduceAmountBecauseFeeIsTooHigh: "reduceAmountBecauseFeeIsTooHigh".hashValue
         case .cardanoWillBeSendAlongToken: "cardanoWillBeSendAlongToken".hashValue
+        case .tronWillBeSendTokenFeeDescription: "tronWillBeSendTokenFeeDescription".hashValue
         }
     }
 
@@ -31,6 +33,8 @@ extension WithdrawalNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .cardanoWillBeSendAlongToken:
             return .string(Localization.cardanoCoinWillBeSendWithTokenTitle)
+        case .tronWillBeSendTokenFeeDescription:
+            return .string(Localization.tronWillBeSendTokenFeeTitle)
         }
     }
 
@@ -40,6 +44,8 @@ extension WithdrawalNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(blockchainName, amount)
         case .cardanoWillBeSendAlongToken(let cardanoAmountFormatted, let tokenSymbol):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(cardanoAmountFormatted, tokenSymbol)
+        case .tronWillBeSendTokenFeeDescription:
+            return Localization.tronWillBeSendTokenFeeDescription
         }
     }
 
@@ -55,7 +61,8 @@ extension WithdrawalNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .reduceAmountBecauseFeeIsTooHigh,
-             .cardanoWillBeSendAlongToken:
+             .cardanoWillBeSendAlongToken,
+             .tronWillBeSendTokenFeeDescription:
             return .init(iconType: .image(Assets.attention.image))
         }
     }
@@ -63,7 +70,8 @@ extension WithdrawalNotificationEvent: NotificationEvent {
     var severity: NotificationView.Severity {
         switch self {
         case .reduceAmountBecauseFeeIsTooHigh,
-             .cardanoWillBeSendAlongToken:
+             .cardanoWillBeSendAlongToken,
+             .tronWillBeSendTokenFeeDescription:
             return .warning
         }
     }
@@ -80,7 +88,7 @@ extension WithdrawalNotificationEvent {
         switch self {
         case .reduceAmountBecauseFeeIsTooHigh(let amount, let amountFormatted, _):
             return .init(.reduceAmountBy(amount: amount, amountFormatted: amountFormatted))
-        case .cardanoWillBeSendAlongToken:
+        case .cardanoWillBeSendAlongToken, .tronWillBeSendTokenFeeDescription:
             return nil
         }
     }

@@ -18,6 +18,6 @@ class CurrencyTests: XCTestCase {
             unit: "A$"
         )
 
-        XCTAssertEqual(currency.description, "Australian Dollar (AUD) — A$")
+        XCTAssertEqual(currency.description, "Australian Dollar (AUD) \(AppConstants.emDashSign) A$")
     }
 }

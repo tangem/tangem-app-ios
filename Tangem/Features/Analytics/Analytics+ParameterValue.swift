@@ -216,6 +216,10 @@ extension Analytics {
         case onramp = "Onramp"
         case markets = "Markets"
 
+        // MARK: - NFT
+
+        case nft = "NFT"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
