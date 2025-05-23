@@ -36,7 +36,7 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
 
         let verificationStatus = try await verificationService.verify(dAppDomain: dAppData.domain)
 
-        return WalletConnectDAppConnectionProposal(dApp: dAppData, verificationStatus: verificationStatus, sessionProposal: sessionProposal)
+        return WalletConnectDAppConnectionProposal(dApp: dAppData, verificationStatus: .malicious([.blurFarming]), sessionProposal: sessionProposal)
     }
 }
 

@@ -12,12 +12,12 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
-struct WalletConnectDAppConnectionRequestViewState {
+struct WalletConnectDAppConnectionRequestViewState: Equatable {
     let navigationTitle = Localization.wcWalletConnect
 
     var dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
     var connectionRequestSection: ConnectionRequestSection
-    var dAppVerificationWarningSection: DAppVerificationWarningSection?
+    var dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
     var walletSection: WalletSection
     var networksSection: NetworksSection
 
@@ -44,7 +44,7 @@ struct WalletConnectDAppConnectionRequestViewState {
                 WalletConnectDAppDescriptionViewModel.ContentState(dAppData: proposal.dApp, verificationStatus: proposal.verificationStatus)
             ),
             connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
-            dAppVerificationWarningSection: DAppVerificationWarningSection(proposal.verificationStatus),
+            dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
             walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(
                 state: .content(
@@ -162,64 +162,17 @@ extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
 
 // MARK: - DApp verification warning section
 
-extension WalletConnectDAppConnectionRequestViewState {
-    struct DAppVerificationWarningSection {
-        enum Severity {
-            case warning
-            case critical
-        }
+extension WalletConnectWarningNotificationViewModel {
+    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
+        switch verificationStatus {
+        case .verified:
+            return nil
 
-        let severity: Severity
-        let iconAsset: ImageType
-        let title: String
-        let body: String
+        case .unknownDomain:
+            self = .dAppUnknownDomain
 
-        static let unknownDomain = DAppVerificationWarningSection(
-            severity: .warning,
-            iconAsset: Assets.attention20,
-            title: Localization.wcAlertAuditUnknownDomain,
-            body: Localization.wcAlertDomainIssuesDescription
-        )
-
-        static let knownSecurityRisk = DAppVerificationWarningSection(
-            severity: .critical,
-            iconAsset: Assets.redCircleWarning,
-            title: Localization.wcNotificationSecurityRiskTitle,
-            body: Localization.wcNotificationSecurityRiskSubtitle
-        )
-
-        static let domainMismatch = DAppVerificationWarningSection(
-            severity: .critical,
-            iconAsset: Assets.redCircleWarning,
-            title: "Domain mismatch",
-            body: "This website has a domain that does not match the sender or this request. Approving may lead to loss of funds"
-        )
-
-        static let scamDomain = DAppVerificationWarningSection(
-            severity: .critical,
-            iconAsset: Assets.redCircleWarning,
-            title: "Scam domain",
-            body: "We have noticed that this domain is SCAM. We don’t advise you to connect your wallet."
-        )
-
-        private init(severity: Severity, iconAsset: ImageType, title: String, body: String) {
-            self.severity = severity
-            self.iconAsset = iconAsset
-            self.title = title
-            self.body = body
-        }
-
-        init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
-            switch verificationStatus {
-            case .verified:
-                return nil
-
-            case .unknownDomain:
-                self = .unknownDomain
-
-            case .malicious:
-                self = .knownSecurityRisk
-            }
+        case .malicious:
+            self = .dAppKnownSecurityRisk
         }
     }
 }
