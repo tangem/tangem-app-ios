@@ -34,6 +34,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
     private var bag = Set<AnyCancellable>()
     private weak var coordinator: NFTCollectionsListRoutable?
+    private var pullToRefreshCompletion: (() -> Void)?
 
     public init(
         nftManager: NFTManager,
@@ -54,7 +55,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         coordinator?.openReceive(navigationContext: navigationContext)
     }
 
-    func onRetryTap() {
+    func update(completion: (() -> Void)? = nil) {
+        pullToRefreshCompletion = completion
+        guard !state.isLoading else { return }
         nftManager.update(cachePolicy: .never)
     }
 
@@ -63,11 +66,22 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .statePublisher
             .withWeakCaptureOf(self)
             .map { viewModel, managerState in
-                viewModel.map(managerState: managerState)
+                let result = viewModel.map(managerState: managerState)
+                viewModel.collectionsViewModels = result.viewState.value ?? []
+
+                return ManagerStateMappingResult(
+                    viewState: viewModel.processViewState(result.viewState),
+                    notificationViewData: result.notificationViewData
+                )
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
+                if let completion = viewModel.pullToRefreshCompletion {
+                    completion()
+                    viewModel.pullToRefreshCompletion = nil
+                }
+
                 viewModel.updateState(with: result)
                 viewModel.loadingTroublesViewData = result.notificationViewData
             }
@@ -77,8 +91,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .dropFirst()
             .sink { viewModel, entry in
-                let filteredCollections = viewModel.filteredCollections(entry: entry)
-                viewModel.state = .loaded(filteredCollections)
+                viewModel.filterAndAssignCollections(for: entry)
             }
             .store(in: &bag)
     }
@@ -98,17 +111,25 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             )
 
         case .loaded(let collectionsResult):
-            let collectionsViewModels = buildCollections(from: collectionsResult.value)
-            self.collectionsViewModels = collectionsViewModels
-
             let loadingTroublesViewData = collectionsResult.hasErrors ?
                 makeNotificationViewData()
                 : nil
 
             return .init(
-                viewState: .loaded(collectionsViewModels),
+                viewState: .loaded(buildCollections(from: collectionsResult.value)),
                 notificationViewData: loadingTroublesViewData
             )
+        }
+    }
+
+    private func processViewState(_ viewState: ViewState) -> ViewState {
+        switch viewState {
+        case .loading:
+            .loading
+        case .failedToLoad(let error):
+            .failedToLoad(error: error)
+        case .loaded(let collections):
+            .loaded(filteredCollections(entry: searchEntry))
         }
     }
 
@@ -154,6 +175,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     }
                 )
             }
+    }
+
+    private func filterAndAssignCollections(for entry: String) {
+        state = .loaded(filteredCollections(entry: entry))
     }
 
     private func filteredCollections(entry: String) -> [NFTCompactCollectionViewModel] {
