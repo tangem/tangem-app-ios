@@ -1,5 +1,5 @@
 //
-//  DefaultServerTrustManager.swift
+//  TangemTrustEvaluatorServerTrustManager.swift
 //  TangemNetworkUtils
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,9 @@
 
 import Alamofire
 
-public class DefaultServerTrustManager: ServerTrustManager {
+public class TangemTrustEvaluatorServerTrustManager: ServerTrustManager {
     public init() {
-        var evaluators: [ServerTrustEvaluating] = []
-        evaluators.append(DefaultTrustEvaluator())
-        evaluators.append(ForcedCTServerTrustEvaluatorWrapper())
-        let compositeEvaluator = CompositeTrustEvaluator(evaluators: evaluators)
-        super.init(allHostsMustBeEvaluated: true, evaluators: [Constants.wildcardMask: compositeEvaluator])
+        super.init(allHostsMustBeEvaluated: true, evaluators: [Constants.wildcardMask: TangemTrustEvaluatorUtil.makeEvaluator()])
     }
 
     override public func serverTrustEvaluator(forHost host: String) throws -> ServerTrustEvaluating? {
@@ -30,7 +26,7 @@ public class DefaultServerTrustManager: ServerTrustManager {
     }
 }
 
-private extension DefaultServerTrustManager {
+private extension TangemTrustEvaluatorServerTrustManager {
     enum Constants {
         static let wildcardMask = "*"
     }
