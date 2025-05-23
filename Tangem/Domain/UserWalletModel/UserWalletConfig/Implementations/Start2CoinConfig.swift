@@ -124,8 +124,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .hidden
         case .topup:

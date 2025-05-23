@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// A wrapper to work with `URLSessionWebSocketTask` through async/await method
 class URLSessionWebSocketTaskWrapper {

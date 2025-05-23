@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import TangemVisa
+import TangemNetworkUtils
 
 class VisaCustomerWalletApproveTask: CardSessionRunnable {
     typealias TaskResult = CompletionResult<VisaSignedApproveResponse>
@@ -157,7 +158,7 @@ private extension VisaCustomerWalletApproveTask {
     }
 
     func scanCard(signedResponse: VisaSignedApproveResponse, in session: CardSession, completion: @escaping TaskResult) {
-        let scanTask = ScanTask()
+        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession))
 
         scanTask.run(in: session) { result in
             switch result {

@@ -68,6 +68,16 @@ class MercuryoService {
 
     private let darkThemeName = "1inch"
 
+    private let session: URLSession
+
+    init() {
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+
+        session = TangemTrustEvaluatorUtil.makeSession(configuration: config)
+    }
+
     deinit {
         AppLogger.debug(self)
     }
@@ -134,14 +144,8 @@ extension MercuryoService: ExchangeService {
 
         let request = URLRequest(url: URL(string: "https://api.mercuryo.io/v1.6/lib/currencies")!)
 
-        let config = URLSessionConfiguration.default
-        config.requestCachePolicy = .reloadIgnoringLocalCacheData
-        config.urlCache = nil
-
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-        let session = TangemURLSessionBuilder.makeSession(configuration: config)
 
         session.dataTaskPublisher(for: request)
             .map(\.data)
