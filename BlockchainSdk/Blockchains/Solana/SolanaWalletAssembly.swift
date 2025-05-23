@@ -67,7 +67,7 @@ struct SolanaWalletAssembly: WalletManagerAssembly {
             }
 
             let apiLogger = SolanaApiLoggerUtil()
-            let session = TangemURLSessionBuilder.makeSession(configuration: .ephemeralConfiguration)
+            let session = TangemTrustEvaluatorUtil.makeSession(configuration: .ephemeralConfiguration)
             let networkRouter = NetworkingRouter(endpoints: endpoints, session: session, apiLogger: apiLogger)
             let accountStorage = SolanaDummyAccountStorage()
 

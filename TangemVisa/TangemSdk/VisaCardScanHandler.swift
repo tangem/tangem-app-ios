@@ -32,7 +32,9 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         cardActivationStateProvider: VisaCardActivationStatusService,
         refreshTokenRepository: VisaRefreshTokenRepository
     ) {
-        visaUtilities = .init(isTestnet: isTestnet)
+        // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
+        // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
+        visaUtilities = .init(isTestnet: false)
         self.authorizationService = authorizationService
         self.cardActivationStateProvider = cardActivationStateProvider
         visaRefreshTokenRepository = refreshTokenRepository
@@ -133,13 +135,12 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         do {
             let challengeResponse = try await authorizationService.getWalletAuthorizationChallenge(
                 cardId: card.cardId,
-                walletAddress: walletAddress
+                derivedPublicKey: extendedPublicKey.publicKey.hexString
             )
 
             let signedChallengeResponse = try await signChallengeWithWallet(
                 walletPublicKey: wallet.publicKey,
                 derivationPath: derivationPath,
-                // Will be changed later after backend implementation
                 challenge: Data(hexString: challengeResponse.nonce),
                 in: session
             )
@@ -178,6 +179,8 @@ public final class VisaCardScanHandler: CardSessionRunnable {
                     session: session,
                     completion: completion
                 )
+            } else {
+                completion(.failure(.underlying(error: error)))
             }
         } catch {
             VisaLogger.info("Error during Wallet authorization process. Error: \(error)")
@@ -256,7 +259,12 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         in session: CardSession
     ) async throws -> AttestWalletKeyResponse {
         try await withCheckedThrowingContinuation { [session] continuation in
-            let signHashCommand = AttestWalletKeyCommand(publicKey: walletPublicKey, challenge: challenge, confirmationMode: .dynamic)
+            let signHashCommand = AttestWalletKeyTask(
+                walletPublicKey: walletPublicKey,
+                derivationPath: derivationPath,
+                challenge: challenge,
+                confirmationMode: .dynamic
+            )
             signHashCommand.run(in: session) { result in
                 switch result {
                 case .success(let signHashResponse):
