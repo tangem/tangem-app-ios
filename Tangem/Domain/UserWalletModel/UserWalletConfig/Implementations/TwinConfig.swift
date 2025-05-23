@@ -150,8 +150,6 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return .available
         case .staking:
             return .hidden
         case .topup:

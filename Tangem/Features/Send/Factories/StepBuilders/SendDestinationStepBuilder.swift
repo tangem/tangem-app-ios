@@ -89,35 +89,12 @@ private extension SendDestinationStepBuilder {
         CommonSendDestinationInteractor(
             input: io.input,
             output: io.output,
-            validator: makeSendDestinationValidator(),
-            transactionHistoryProvider: makeSendDestinationTransactionHistoryProvider(),
-            transactionHistoryMapper: makeTransactionHistoryMapper(),
+            validator: builder.makeSendDestinationValidator(),
+            transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
+            transactionHistoryMapper: builder.makeTransactionHistoryMapper(),
             addressResolver: walletModel.addressResolver,
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
             parametersBuilder: builder.makeSendTransactionParametersBuilder()
-        )
-    }
-
-    func makeSendDestinationValidator() -> SendDestinationValidator {
-        let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
-        let validator = CommonSendDestinationValidator(
-            walletAddresses: walletModel.addresses.map { $0.value },
-            addressService: addressService,
-            supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
-        )
-
-        return validator
-    }
-
-    func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(walletModel: walletModel)
-    }
-
-    func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
-        TransactionHistoryMapper(
-            currencySymbol: walletModel.tokenItem.currencySymbol,
-            walletAddresses: walletModel.addresses.map { $0.value },
-            showSign: false
         )
     }
 
