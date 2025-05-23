@@ -11,6 +11,9 @@ import Combine
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase
+    private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
+    private let selectedUserWallet: any UserWalletModel
+
     private var dAppLoadingTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
@@ -19,9 +22,13 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     init(
         state: WalletConnectDAppConnectionRequestViewState,
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
+        resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase,
+        selectedUserWallet: some UserWalletModel
     ) {
         self.state = state
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
+        self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
+        self.selectedUserWallet = selectedUserWallet
     }
 
     deinit {
@@ -70,9 +77,14 @@ extension WalletConnectDAppConnectionRequestViewModel {
     private func handleDAppProposalLoadingRequested() {
         dAppLoadingTask?.cancel()
 
-        dAppLoadingTask = Task { [weak self, getDAppConnectionProposalUseCase] in
+        dAppLoadingTask = Task { [weak self, getDAppConnectionProposalUseCase, resolveAvailableBlockchainsUseCase, selectedUserWallet] in
             do {
                 let dAppProposal = try await getDAppConnectionProposalUseCase()
+                let availableBlockchainsResult = resolveAvailableBlockchainsUseCase(
+                    connectionProposal: dAppProposal,
+                    selectedBlockchains: [],
+                    userWallet: selectedUserWallet
+                )
                 // [REDACTED_TODO_COMMENT]
                 self?.state = .content(proposal: dAppProposal, walletName: "Dummy wallet", walletSelectionIsAvailable: false)
             } catch {
