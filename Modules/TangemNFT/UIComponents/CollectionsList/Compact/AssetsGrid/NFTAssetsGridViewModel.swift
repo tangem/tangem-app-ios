@@ -8,14 +8,17 @@
 
 struct NFTAssetsGridViewModel {
     let assetsViewModels: [NFTCompactAssetViewModel]
+}
 
-    init(assetsViewModels: [NFTCompactAssetViewModel]) {
-        self.assetsViewModels = assetsViewModels
-    }
+// MARK: - Convenience extensions
 
+extension NFTAssetsGridViewModel {
+    /// Use this convenience init to create a view model with the specified number of loading assets.
     init(assetsCount: Int) {
-        assetsViewModels = (0 ..< assetsCount).map {
+        let assetsViewModels = (0 ..< assetsCount).map {
             NFTCompactAssetViewModel(state: .loading(id: "\($0)"), openAssetDetailsAction: { _ in })
         }
+
+        self.init(assetsViewModels: assetsViewModels)
     }
 }
