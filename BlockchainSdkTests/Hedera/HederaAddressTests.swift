@@ -104,8 +104,11 @@ struct HederaAddressTests {
         #expect(addressService.validate("0.0.123"))
         #expect(addressService.validate("0.0.123-vfmkw"))
         #expect(addressService.validate("0.0.1234567890-zbhlt"))
-        #expect(addressService.validate("0.0.18446744073709551615")) // Max length of the account number part is 8 bytes (2^64 - 1)
-        #expect(addressService.validate("0xf3DbcEeedDC4BBd1B66492B66EC0B8eC317b511B")) // Hedera supports EVM addresses
+        #expect(addressService.validate("0.0.9223372036854775807")) // Account number part fits Int64
+        #expect(!addressService.validate("0.0.18446744073709551615")) // Account number part exceeds Int64
+        #expect(addressService.validate("0x000000000000000000000000000000000087da23")) // Hedera supports EVM addresses (but only hedera-compatible)
+        #expect(!addressService.validate("0xf3DbcEeedDC4BBd1B66492B66EC0B8eC317b511B"))
+
         #expect(addressService.validate("0.0.302d300706052b8104000a03220002d588ec1000770949ab77516c77ee729774de1c8fe058cab6d64f1b12ffc8ff07")) // Account Alias
 
         #expect(!addressService.validate("0.0.123-abcde"))
