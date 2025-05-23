@@ -48,11 +48,15 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating
     }
 
     func start(with options: Options) {
+        let dependencies = NFTAssetDetailsDependencies(
+            nftChainNameProvider: options.nftChainNameProvider,
+            priceFormatter: options.priceFormatter
+        )
         rootViewModel = NFTAssetDetailsViewModel(
             asset: options.asset,
             collection: options.collection,
             navigationContext: options.navigationContext,
-            nftChainNameProviding: options.nftChainNameProviding,
+            dependencies: dependencies,
             coordinator: self
         )
     }
@@ -72,8 +76,9 @@ extension NFTAssetDetailsCoordinator {
     struct Options {
         let asset: NFTAsset
         let collection: NFTCollection
+        let nftChainNameProvider: NFTChainNameProviding
+        let priceFormatter: NFTPriceFormatting
         let navigationContext: NFTNavigationContext
-        let nftChainNameProviding: NFTChainNameProviding
     }
 }
 
