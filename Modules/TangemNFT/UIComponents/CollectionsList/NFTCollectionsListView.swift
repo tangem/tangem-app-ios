@@ -15,8 +15,6 @@ import TangemLocalization
 public struct NFTCollectionsListView: View {
     @ObservedObject private var viewModel: NFTCollectionsListViewModel
 
-    @State private var hasBeenScrolledDown: Bool = false
-
     @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var shouldShowShadow: Bool = true
@@ -43,12 +41,12 @@ public struct NFTCollectionsListView: View {
             noCollectionsView
         case .loaded(let collections):
             nonEmptyContentView(collections: collections)
-                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledDown)
+                .nftListSearchable(text: $viewModel.searchEntry)
         case .loading:
             loadingView
-                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledDown)
+                .nftListSearchable(text: $viewModel.searchEntry)
         case .failedToLoad:
-            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetryTap)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
                 .infinityFrame()
         }
     }
@@ -98,7 +96,7 @@ public struct NFTCollectionsListView: View {
     }
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
-        ScrollView(showsIndicators: false) {
+        RefreshableScrollView(onRefresh: viewModel.update(completion:)) {
             VStack(spacing: 0) {
                 if let notificationViewData = viewModel.loadingTroublesViewData {
                     NFTNotificationView(viewData: notificationViewData)
@@ -138,14 +136,6 @@ public struct NFTCollectionsListView: View {
                 shouldShowShadow = contentMaxY > buttonMinY
             }
         }
-        .simultaneousGesture(
-            DragGesture()
-                .onChanged {
-                    if !hasBeenScrolledDown {
-                        hasBeenScrolledDown = $0.translation.height < 0
-                    }
-                }
-        )
     }
 
     private var receiveButtonContainer: some View {
@@ -221,11 +211,27 @@ public struct NFTCollectionsListView: View {
 }
 
 private extension View {
-    func nftListSearchable(text: Binding<String>, isAutomatic: Bool) -> some View {
-        searchable(
-            text: text,
-            placement: .navigationBarDrawer(displayMode: isAutomatic ? .automatic : .always)
-        )
+    func nftListSearchable(text: Binding<String>) -> some View {
+        modifier(SearchableModifier(text: text))
+    }
+}
+
+private struct SearchableModifier: ViewModifier {
+    @State private var showSearchInitially = true
+    let text: Binding<String>
+
+    func body(content: Content) -> some View {
+        content
+            .searchable(
+                text: text,
+                placement: .navigationBarDrawer(displayMode: showSearchInitially ? .always : .automatic)
+            )
+            .onAppear {
+                // Reset to automatic behavior after initial appearance
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    showSearchInitially = false
+                }
+            }
     }
 }
 
