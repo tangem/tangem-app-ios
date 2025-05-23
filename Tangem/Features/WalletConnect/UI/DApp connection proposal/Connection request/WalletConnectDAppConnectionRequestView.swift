@@ -31,7 +31,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             .padding(.top, Layout.contentTopPadding)
             .padding(.bottom, 8)
             .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .zero) { geometryInfo in
-                withAnimation(WalletConnectDAppConnectionRequestSectionView.Animations.sectionSlideInsertion) {
+                withAnimation(Animations.sectionSlideInsertion) {
                     updateScrollViewMaxHeight(geometryInfo.size.height)
                 }
 
@@ -73,7 +73,7 @@ struct WalletConnectDAppConnectionRequestView: View {
                 .frame(height: 1)
                 .overlay(Colors.Stroke.primary)
 
-            WalletConnectDAppConnectionRequestSectionView(
+            WalletConnectDAppConnectionRequestView.ConnectionRequestSection(
                 viewModel: viewModel.state.connectionRequestSection,
                 tapAction: { viewModel.handle(viewEvent: .connectionRequestSectionHeaderTapped) }
             )
@@ -86,25 +86,7 @@ struct WalletConnectDAppConnectionRequestView: View {
     @ViewBuilder
     private var dAppVerificationWarningSection: some View {
         if let dAppVerificationWarningSection = viewModel.state.dAppVerificationWarningSection {
-            HStack(alignment: .top, spacing: 12) {
-                dAppVerificationWarningSection.iconAsset.image
-                    .resizable()
-                    .frame(width: 20, height: 20)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(dAppVerificationWarningSection.title)
-                        .style(Fonts.Bold.footnote, color: dAppVerificationWarningSection.severity.tintColor)
-
-                    Text(dAppVerificationWarningSection.body)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.top, 12)
-            .padding(.horizontal, 14)
-            .padding(.bottom, 14)
-            .background(dAppVerificationWarningSection.severity.backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            WalletConnectWarningNotificationView(viewModel: dAppVerificationWarningSection)
         }
     }
 
@@ -119,8 +101,11 @@ struct WalletConnectDAppConnectionRequestView: View {
                 .padding(.leading, 46)
                 .padding(.trailing, 14)
 
-            networksSection
-                .padding(.horizontal, 14)
+            WalletConnectDAppConnectionRequestView.NetworksSection(
+                viewModel: viewModel.state.networksSection,
+                tapAction: { viewModel.handle(viewEvent: .networksRowTapped) }
+            )
+            .padding(.horizontal, 14)
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -155,52 +140,6 @@ struct WalletConnectDAppConnectionRequestView: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-    }
-
-    private var networksSection: some View {
-        Button(action: { viewModel.handle(viewEvent: .networksRowTapped) }) {
-            HStack(spacing: .zero) {
-                viewModel.state.networksSection.iconAsset.image
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Colors.Icon.accent)
-
-                Spacer()
-                    .frame(width: 8)
-
-                Text(viewModel.state.networksSection.label)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-
-                Spacer(minLength: .zero)
-
-                networksSectionTrailingView
-                    .transition(.opacity)
-
-                viewModel.state.networksSection.trailingIconAsset?.image
-                    .resizable()
-                    .frame(width: 18, height: 24)
-                    .foregroundStyle(Colors.Icon.informative)
-                    .transition(.opacity)
-            }
-            .frame(height: 46)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .animation(.linear(duration: 0.2), value: viewModel.state.networksSection)
-    }
-
-    @ViewBuilder
-    private var networksSectionTrailingView: some View {
-        switch viewModel.state.networksSection.state {
-        case .loading:
-            SkeletonView()
-                .frame(width: 88, height: 24)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-        case .content(let contentState):
-            RoundedRectangle(cornerRadius: 8)
-                .frame(width: 88, height: 24)
-        }
     }
 
     private var buttons: some View {
@@ -259,19 +198,32 @@ struct WalletConnectDAppConnectionRequestView: View {
     }
 }
 
-private extension WalletConnectDAppConnectionRequestViewState.DAppVerificationWarningSection.Severity {
-    var tintColor: Color {
-        switch self {
-        case .warning: Colors.Text.primary1
-        case .critical: Colors.Icon.warning
-        }
-    }
+extension WalletConnectDAppConnectionRequestView {
+    enum Animations {
+        struct Curve {
+            let p1x: Double
+            let p1y: Double
+            let p2x: Double
+            let p2y: Double
 
-    var backgroundColor: Color {
-        switch self {
-        case .warning: Colors.Button.disabled
-        case .critical: Colors.Icon.warning.opacity(0.1)
+            static let primary = Curve(p1x: 0.76, p1y: 0, p2x: 0.24, p2y: 1)
+            static let secondary = Curve(p1x: 0.65, p1y: 0, p2x: 0.35, p2y: 1)
         }
+
+        static let sectionSlideInsertion = Animation.make(curve: .primary, duration: 0.5)
+        static let sectionSlideRemoval = Animation.make(curve: .secondary, duration: 0.5)
+
+        static let sectionOpacityInsertion = Self.sectionOpacityRemoval.delay(0.2)
+        static let sectionOpacityRemoval = Animation.make(curve: .secondary, duration: 0.3)
+    }
+}
+
+extension Animation {
+    static func make(
+        curve: WalletConnectDAppConnectionRequestView.Animations.Curve,
+        duration: TimeInterval
+    ) -> Animation {
+        Animation.timingCurve(curve.p1x, curve.p1y, curve.p2x, curve.p2y, duration: duration)
     }
 }
 
