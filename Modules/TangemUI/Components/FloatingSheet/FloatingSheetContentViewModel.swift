@@ -11,4 +11,11 @@ import SwiftUI
 
 public protocol FloatingSheetContentViewModel: ObservableObject, Identifiable {
     var id: String { get }
+    var frameUpdatePublisher: AnyPublisher<Void, Never> { get }
+}
+
+public extension FloatingSheetContentViewModel {
+    var frameUpdatePublisher: AnyPublisher<Void, Never> {
+        objectWillChange.map { _ in }.eraseToAnyPublisher()
+    }
 }
