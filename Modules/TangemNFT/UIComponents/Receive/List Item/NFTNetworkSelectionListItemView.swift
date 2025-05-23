@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 
 struct NFTNetworkSelectionListItemView: View {
     let viewData: NFTNetworkSelectionListItemViewData
