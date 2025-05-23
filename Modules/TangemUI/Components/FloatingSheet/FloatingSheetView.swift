@@ -15,9 +15,7 @@ public struct FloatingSheetView<HostContent: View>: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
     private let dismissSheetAction: () -> Void
 
-    @State private var contentFrameUpdatePublisher = Just(()).eraseToAnyPublisher()
     @State private var contentFrameAnimationSyncToken = 0
-
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
     @GestureState private var isDragging = false
@@ -105,10 +103,6 @@ public struct FloatingSheetView<HostContent: View>: View {
                 }
                 .animation(.floatingSheet, value: viewModel.id)
                 .transition(.slideFromBottom)
-//                .onPreferenceChange(FloatingSheetFrameUpdateTriggerPreferenceKey.self) { publisherProxy in
-//                    contentFrameUpdatePublisher = publisherProxy.publisher
-//                }
-//                .onReceive(contentFrameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
                 .onReceive(viewModel.frameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
             }
         }
