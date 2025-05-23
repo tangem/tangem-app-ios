@@ -329,12 +329,12 @@ extension Analytics {
         case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
         case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
         case marketsStakingMoreInfo = "[Markets] Staking More Info"
-        case tokenSearch = "[Markets] Token Search"
+        case marketsTokenSearch = "[Markets] Token Search"
 
         // MARK: - Markets / Chart
 
         case marketsChartScreenOpened = "[Markets / Chart] Token Chart Screen Opened"
-        case openedLowCapTokenPage = "[Markets / Chart] <100k Market Cap Token Screen Opened"
+        case marketsChartShowedTokensBelowCapThreshold = "[Markets / Chart] Button - Show Tokens"
         case marketsChartButtonPeriod = "[Markets / Chart] Button - Period"
         case marketsChartButtonReadMore = "[Markets / Chart] Button - Read More"
         case marketsChartButtonLinks = "[Markets / Chart] Button - Links"
