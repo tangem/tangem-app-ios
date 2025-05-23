@@ -17,13 +17,19 @@ struct WalletConnectDAppDescriptionView: View {
     @ObserveInjection var io
 
     let viewModel: WalletConnectDAppDescriptionViewModel
+    var verifiedDomainTapAction: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 16) {
             iconView
 
             VStack(alignment: .leading, spacing: 4) {
-                nameView
+                HStack(spacing: 4) {
+                    nameView
+                    verifiedDomainIcon
+                    Spacer(minLength: .zero)
+                }
+
                 domainView
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -92,6 +98,23 @@ struct WalletConnectDAppDescriptionView: View {
                 .frame(width: 120, height: 26)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.textCornerRadius))
                 .transition(.opacity)
+        }
+    }
+
+    @ViewBuilder
+    private var verifiedDomainIcon: some View {
+        if case .content(let contentState) = viewModel,
+           let verifiedDomainIconAsset = contentState.verifiedDomainIconAsset,
+           let verifiedDomainTapAction {
+            Button(action: verifiedDomainTapAction) {
+                verifiedDomainIconAsset.image
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Colors.Icon.accent)
+                    .contentShape(.circle)
+            }
+            .buttonStyle(.plain)
+            .transition(.opacity)
         }
     }
 

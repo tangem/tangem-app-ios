@@ -80,6 +80,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleVerifiedDomainIconTapped() {
+        guard !state.dAppDescriptionSection.isLoading else { return }
         coordinator?.openDomainVerification()
     }
 
