@@ -73,7 +73,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
 
         let oldFee = sendFeeInteractor.selectedFee
 
-        // Catch the subscribtions
+        // Catch the subscriptions
         return sendFeeInteractor
             .feesPublisher
             // Skip the old values

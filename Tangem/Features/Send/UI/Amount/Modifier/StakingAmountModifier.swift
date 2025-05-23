@@ -1,5 +1,5 @@
 //
-//  SendAmountModifier.swift
+//  StakingAmountModifier.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,15 +7,8 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
-import TangemFoundation
-
-protocol SendAmountModifier {
-    var modifyingMessagePublisher: AnyPublisher<String?, Never> { get }
-
-    func modify(cryptoAmount: Decimal?) -> Decimal?
-}
+import TangemLocalization
 
 struct StakingAmountModifier: SendAmountModifier {
     private let tokenItem: TokenItem
@@ -33,7 +26,7 @@ struct StakingAmountModifier: SendAmountModifier {
     }
 
     func modify(cryptoAmount amount: Decimal?) -> Decimal? {
-        guard let crypto = amount, tokenItem.hasToBeRounded else {
+        guard let crypto = amount, crypto > 0, tokenItem.hasToBeRounded else {
             _message.send(.none)
             return amount
         }
