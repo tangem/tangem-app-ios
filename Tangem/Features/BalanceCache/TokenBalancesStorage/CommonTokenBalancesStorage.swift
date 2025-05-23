@@ -81,7 +81,7 @@ private extension CommonTokenBalancesStorage {
 
 extension CommonTokenBalancesStorage: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self, userInfo: [
+        objectDescription(self, userInfo: [
             "balancesCount": balances.value.flatMap(\.value).flatMap(\.value).count,
         ])
     }

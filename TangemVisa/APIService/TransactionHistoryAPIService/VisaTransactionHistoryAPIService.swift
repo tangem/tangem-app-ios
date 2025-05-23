@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol VisaTransactionHistoryAPIService {
-    func loadHistoryPage(offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO
+    func loadHistoryPage(productInstanceId: String, cardId: String, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO
 }
 
 struct CommonTransactionHistoryService {
@@ -31,18 +31,13 @@ struct CommonTransactionHistoryService {
 }
 
 extension CommonTransactionHistoryService: VisaTransactionHistoryAPIService {
-    func loadHistoryPage(offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO {
-        guard let accessToken = await authorizationTokensHandler.accessToken else {
-            throw VisaAuthorizationTokensHandlerError.missingAccessToken
-        }
-
-        let essentialBFFIds = try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
+    func loadHistoryPage(productInstanceId: String, cardId: String, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO {
         return try await apiService.request(
             .init(
                 authorizationHeader: authorizationTokensHandler.authorizationHeader,
                 target: .txHistoryPage(request: .init(
-                    customerId: essentialBFFIds.customerId,
-                    productInstanceId: essentialBFFIds.productInstanceId,
+                    cardId: cardId,
+                    productInstanceId: productInstanceId,
                     offset: offset,
                     numberOfItems: numberOfItemsPerPage
                 )),

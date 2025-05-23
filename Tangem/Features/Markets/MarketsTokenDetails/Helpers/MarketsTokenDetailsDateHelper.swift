@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemFoundation
 
 struct MarketsTokenDetailsDateHelper {
     private let initialDate: Date
@@ -38,7 +39,7 @@ struct MarketsTokenDetailsDateHelper {
     }
 
     private func makePriceDate(intervalBeginningDate: Date, dateFormatter: DateFormatter) -> String {
-        return "\(dateFormatter.string(from: intervalBeginningDate)) – \(Localization.commonNow)"
+        return "\(dateFormatter.string(from: intervalBeginningDate)) \(AppConstants.enDashSign) \(Localization.commonNow)"
     }
 
     private func makeIntervalBeginningDate(using selectedPriceChangeIntervalType: MarketsPriceIntervalType) -> Date {
