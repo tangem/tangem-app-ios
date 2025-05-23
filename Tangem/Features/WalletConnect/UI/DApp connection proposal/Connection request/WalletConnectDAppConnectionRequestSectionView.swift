@@ -23,7 +23,10 @@ struct WalletConnectDAppConnectionRequestSectionView: View {
 
             if case .content(let contentState) = viewModel, contentState.isExpanded {
                 expandableContent(contentState)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(
+                        .move(edge: .bottom).animation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5))
+                        .combined(with: .opacity.animation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.3).delay(0.2)))
+                    )
             }
         }
     }
