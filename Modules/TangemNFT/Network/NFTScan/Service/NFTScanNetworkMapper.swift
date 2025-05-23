@@ -88,6 +88,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits
