@@ -27,5 +27,6 @@ public enum VisaActivationError {
     case missingWalletAddressInInput
     case missingActivationInput
     case paymentologyPinError
+    case missingActivationOrder
     case underlyingError(Error)
 }

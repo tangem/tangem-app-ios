@@ -229,7 +229,7 @@ private extension CommonTokenQuotesRepository {
 
 extension CommonTokenQuotesRepository: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
