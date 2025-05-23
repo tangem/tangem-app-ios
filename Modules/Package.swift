@@ -102,6 +102,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
+                "TangemLocalization",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
