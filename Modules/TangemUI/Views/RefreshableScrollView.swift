@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-typealias RefreshCompletionHandler = () -> Void
-typealias OnRefresh = (_ completionHandler: @escaping RefreshCompletionHandler) -> Void
+public typealias RefreshCompletionHandler = () -> Void
+public typealias OnRefresh = (_ completionHandler: @escaping RefreshCompletionHandler) -> Void
 
 /// Author: The SwiftUI Lab.
 /// Full article: https://swiftui-lab.com/scrollview-pull-to-refresh/.
-struct RefreshableScrollView<Content: View>: View {
+public struct RefreshableScrollView<Content: View>: View {
     @StateObject private var refreshContainer: RefreshContainer
 
-    let content: Content
+    private let content: Content
 
-    init(
+    public init(
         onRefresh: @escaping OnRefresh,
         @ViewBuilder content: () -> Content
     ) {
@@ -26,7 +26,7 @@ struct RefreshableScrollView<Content: View>: View {
         _refreshContainer = StateObject(wrappedValue: RefreshContainer(onRefresh: onRefresh))
     }
 
-    var body: some View {
+    public var body: some View {
         if #available(iOS 16, *) {
             ScrollView(.vertical, showsIndicators: false) {
                 content
