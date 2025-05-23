@@ -13,7 +13,8 @@ struct CloreWalletAssembly: WalletManagerAssembly {
         let unspentOutputManager: UnspentOutputManager = .clore(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: CloreMainNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .custom
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
