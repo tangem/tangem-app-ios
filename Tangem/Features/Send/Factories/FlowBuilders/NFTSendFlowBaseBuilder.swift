@@ -1,14 +1,14 @@
 //
-//  SendFlowBaseBuilder.swift
+//  NFTSendFlowBaseBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 
-struct SendFlowBaseBuilder {
+struct NFTSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
@@ -36,8 +36,8 @@ struct SendFlowBaseBuilder {
             actionType: .send,
             sendFeeLoader: fee.interactor,
             sendQRCodeService: sendQRCodeService,
-            sendAmountValidator: builder.makeSendAmountValidator(),
-            amountModifier: .none,
+            sendAmountValidator: builder.makeNFTSendAmountValidator(),
+            amountModifier: builder.makeNFTSendAmountModifier(),
             source: .send
         )
 
@@ -51,7 +51,7 @@ struct SendFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
+            descriptionBuilder: builder.makeNFTSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             editableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
@@ -84,9 +84,8 @@ struct SendFlowBaseBuilder {
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
 
-        let stepsManager = CommonSendStepsManager(
+        let stepsManager = NFTSendStepsManager(
             destinationStep: destination.step,
-            amountStep: amount.step,
             feeStep: fee.step,
             summaryStep: summary.step,
             finishStep: finish
