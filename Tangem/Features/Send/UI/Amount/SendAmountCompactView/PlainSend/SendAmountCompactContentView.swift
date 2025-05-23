@@ -1,5 +1,5 @@
 //
-//  SendAmountCompactView.swift
+//  SendAmountCompactContentView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,33 +10,16 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct SendAmountCompactView: View {
-    @ObservedObject var viewModel: SendAmountCompactViewModel
-    let type: SendCompactViewEditableType
+struct SendAmountCompactContentView: View {
+    @ObservedObject var viewModel: SendAmountCompactContentViewModel
     let namespace: SendAmountView.Namespace
 
     var body: some View {
-        GroupedSection(viewModel) { _ in
-            amountContent
-        }
-        .innerContentPadding(16)
-        .backgroundColor(type.background)
-        .geometryEffect(.init(id: namespace.names.amountContainer, namespace: namespace.id))
-        .readGeometry(\.size, bindTo: $viewModel.viewSize)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if case .enabled(.some(let action)) = type {
-                action()
-            }
-        }
-    }
-
-    private var amountContent: some View {
         VStack(spacing: 18) {
             TokenIcon(
                 tokenIconInfo: viewModel.tokenIconInfo,
                 size: CGSize(width: 36, height: 36),
-                // Kingfisher shows a gray background even if there has a cached image
+                // Kingfisher shows a grey background even if there has a cached image
                 forceKingfisher: false
             )
             .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)

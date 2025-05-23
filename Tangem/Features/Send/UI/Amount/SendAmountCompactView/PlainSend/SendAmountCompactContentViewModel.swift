@@ -1,5 +1,5 @@
 //
-//  SendAmountCompactViewModel.swift
+//  SendAmountCompactContentViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,9 +10,7 @@ import Foundation
 import Combine
 import struct TangemUI.TokenIconInfo
 
-class SendAmountCompactViewModel: ObservableObject, Identifiable {
-    // Use the estimated size as initial value
-    @Published var viewSize: CGSize = .init(width: 361, height: 143)
+final class SendAmountCompactContentViewModel: ObservableObject, Identifiable {
     @Published private(set) var alternativeAmount: String?
     @Published private(set) var amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
