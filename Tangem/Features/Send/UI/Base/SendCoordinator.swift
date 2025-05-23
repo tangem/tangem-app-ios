@@ -65,7 +65,7 @@ class SendCoordinator: CoordinatorObject {
         case .send where FeatureProvider.isAvailable(.newSendUI):
             rootViewModel = factory.makeNewSendViewModel(router: self)
         case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
-            rootViewModel = factory.makeNFTSendViewModel(sendParameters: parameters, router: self)
+            rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
         case .sell(let parameters):
