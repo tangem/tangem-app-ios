@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 
 struct NFTCompactAssetView: View {
     var viewModel: NFTCompactAssetViewModel
@@ -40,7 +41,7 @@ struct NFTCompactAssetView: View {
                 .aspectRatio(1, contentMode: .fit)
                 .skeletonable(
                     isShown: true,
-                    radius: SquaredOrRectangleImageView.Constants.cornerRadius
+                    radius: SquaredOrRectangleImageView.Constants.defaultCornerRadius
                 )
 
             VStack(alignment: .leading, spacing: 10) {
