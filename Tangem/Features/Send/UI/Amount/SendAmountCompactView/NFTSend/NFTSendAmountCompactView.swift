@@ -23,7 +23,7 @@ struct NFTSendAmountCompactContentView: View {
             }
 
             HStack(spacing: 12.0) {
-                NFTSendAssetImageViewFactory(nftChainIconProvider: viewModel.chainIconProvider)
+                NFTSendAssetImageViewFactory(nftChainIconProvider: viewModel.nftChainIconProvider)
                     .makeImageView(for: viewModel.asset, cornerRadius: 8.0)
                     .frame(size: .init(bothDimensions: 36.0))
 
