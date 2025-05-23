@@ -19,7 +19,7 @@ import Combine
 import TangemNFT
 import TangemUI
 
-final class NFTAssetDetailsCoordinator: CoordinatorObject {
+final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -32,6 +32,7 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var sendCoordinator: SendCoordinator?
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
 
     // MARK: - Child view models
 
@@ -88,16 +89,7 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
             return
         }
 
-        let coordinator = SendCoordinator(
-            dismissAction: { [weak self] navigationInfo in
-                self?.sendCoordinator = nil // [REDACTED_TODO_COMMENT]
-            },
-            popToRootAction: { [weak self] options in
-                self?.sendCoordinator = nil
-                self?.popToRoot(with: options)
-            }
-        )
-
+        let coordinator = makeSendCoordinator()
         let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
         let options = nftSendUtil.makeOptions(for: asset, in: collection)
         coordinator.start(with: options)
