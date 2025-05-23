@@ -23,7 +23,7 @@ struct NFTExplorerLinkProvider {
 
         let exploreURL = provider.url(
             tokenAddress: assetID.contractAddress,
-            tokenID: assetID.contractAddress,
+            tokenID: assetID.identifier,
             contractType: assetID.contractType.description
         )
 
