@@ -7,6 +7,7 @@
 //
 
 import Combine
+import struct ReownWalletKit.Session
 
 final class CommonWCService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
@@ -20,13 +21,17 @@ final class CommonWCService {
 
 extension CommonWCService: WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        v2Service.canEstablishNewSessionPublisher.eraseToAnyPublisher()
+        v2Service.canEstablishNewSessionPublisher
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
             await v2Service.newSessions
         }
+    }
+
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> {
+        v2Service.errorsPublisher
     }
 
     func initialize() {
@@ -42,6 +47,16 @@ extension CommonWCService: WCService {
         switch uri {
         case .v2(let v2URI):
             v2Service.openSession(with: v2URI, source: source)
+        }
+    }
+
+    func openSession(
+        with uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> Session.Proposal {
+        switch uri {
+        case .v2(let v2URI):
+            try await v2Service.openSession(with: v2URI, source: source)
         }
     }
 

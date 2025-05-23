@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
