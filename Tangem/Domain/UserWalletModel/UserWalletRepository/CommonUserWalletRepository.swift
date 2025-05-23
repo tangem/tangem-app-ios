@@ -16,7 +16,7 @@ import TangemVisa
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
+    @Injected(\.wcService) private var walletConnectService: WCService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -325,6 +325,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+
         sendEvent(.deleted(userWalletIds: [userWalletId]))
 
         if !models.contains(where: { !$0.isUserWalletLocked }) {
@@ -362,7 +363,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     func initializeServices(for userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
         tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
-        walletConnectService.initialize(with: userWalletModel)
+
+        walletConnectService.initialize()
     }
 
     /// we can initialize it right after scan for more accurate analytics
