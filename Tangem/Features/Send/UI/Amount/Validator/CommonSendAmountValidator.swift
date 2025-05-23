@@ -1,5 +1,5 @@
 //
-//  SendAmountValidator.swift
+//  CommonSendAmountValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,6 @@
 
 import Foundation
 import BlockchainSdk
-
-protocol SendAmountValidator {
-    func validate(amount: Decimal) throws
-}
 
 struct CommonSendAmountValidator {
     private let tokenItem: TokenItem
