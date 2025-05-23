@@ -99,6 +99,12 @@ extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { "WalletConnectErrorViewModel" }
 }
 
+import Combine
+
 extension WalletConnectDAppConnectionProposalViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { "WalletConnectDAppConnectionProposalViewModel" }
+
+//    nonisolated var frameUpdatePublisher: AnyPublisher<Void, Never> {
+//        objectWillChange.combineLatest(connectionRequestViewModel.objectWillChange).map { _ in }.eraseToAnyPublisher()
+//    }
 }
