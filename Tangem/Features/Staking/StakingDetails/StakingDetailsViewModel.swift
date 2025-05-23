@@ -69,7 +69,7 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func refresh(completion: @escaping () -> Void = {}) {
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             async let updateState: Void = viewModel.stakingManager.updateState(loadActions: true)
 
             guard let accountInitializedStateProvider = viewModel.accountInitializedStateProvider else {

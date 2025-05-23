@@ -35,21 +35,11 @@ struct WalletConnectConnectedDAppDetailsView: View {
     }
 
     private var navigationBar: some View {
-        ZStack {
-            navigationCloseButton
-
-            VStack(spacing: .zero) {
-                Text(viewModel.state.navigationBar.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                if let connectedTime = viewModel.state.navigationBar.connectedTime {
-                    Text(connectedTime)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                }
-            }
-        }
-        .frame(height: Layout.NavigationBar.height)
-        .padding(.top, Layout.NavigationBar.topPadding)
+        WalletConnectNavigationBarView(
+            title: viewModel.state.navigationBar.title,
+            subtitle: viewModel.state.navigationBar.connectedTime,
+            closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) }
+        )
         .padding(.bottom, Layout.NavigationBar.bottomPadding)
         .background {
             ListFooterOverlayShadowView(
@@ -60,27 +50,6 @@ struct WalletConnectConnectedDAppDetailsView: View {
                     Colors.Background.tertiary.opacity(0.0),
                 ]
             )
-        }
-        .padding(.horizontal, 16)
-        .contentShape(.rect)
-    }
-
-    private var navigationCloseButton: some View {
-        HStack(spacing: .zero) {
-            Spacer()
-
-            Button(action: { viewModel.handle(viewEvent: .closeButtonTapped) }) {
-                Image(systemName: "multiply")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Colors.Icon.secondary)
-                    .frame(width: 28, height: 28)
-                    .background {
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    }
-                    .contentShape(.circle)
-            }
-            .buttonStyle(.plain)
         }
     }
 
@@ -252,11 +221,11 @@ extension WalletConnectConnectedDAppDetailsView {
     private enum Layout {
         enum NavigationBar {
             /// 8
-            static let topPadding: CGFloat = 8
+            static let topPadding = WalletConnectNavigationBarView.Layout.topPadding
             /// 12
             static let bottomPadding: CGFloat = 12
             /// 44
-            static let height: CGFloat = 44
+            static let height = WalletConnectNavigationBarView.Layout.height
         }
 
         enum DAppAndWalletSection {
