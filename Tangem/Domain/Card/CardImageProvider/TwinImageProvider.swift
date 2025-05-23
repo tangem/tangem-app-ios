@@ -15,6 +15,7 @@ import TangemNetworkUtils
 struct TwinImageProvider {
     private let imageCache = CardImageProviderCache()
     private let defaultImage = Assets.Onboarding.darkCard.uiImage
+    private static let session = TangemTrustEvaluatorUtil.makeSession(configuration: .imageFetchingConfiguration)
 
     func loadTwinImage(cardNumber: Int) async -> UIImage {
         let image = try? await loadTwinImagePublisher(cardNumber: cardNumber).async()
@@ -40,9 +41,7 @@ struct TwinImageProvider {
     }
 
     private func loadImage(name: String) -> AnyPublisher<UIImage?, URLError> {
-        let session = TangemURLSessionBuilder.makeSession(configuration: .imageFetchingConfiguration)
-
-        return session
+        return TwinImageProvider.session
             .dataTaskPublisher(for: URL(string: "https://app.tangem.com/cards/\(name).png")!)
             .subscribe(on: DispatchQueue.global())
             .map { UIImage(data: $0.0) }
