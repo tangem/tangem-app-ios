@@ -176,7 +176,7 @@ private extension MarketsListDataProvider {
             AppLogger.tag("Markets").info("Loaded new items for market list. New total tokens count: \(items.count + response.tokens.count)")
 
             if isSearchCleared == false {
-                Analytics.log(event: .tokenSearch, params: [.tokenFound: response.tokens.isNotEmpty ? "Yes" : "No"])
+                Analytics.log(event: .marketsTokenSearch, params: [.tokenFound: response.tokens.isNotEmpty ? "Yes" : "No"])
             }
 
             items.append(contentsOf: response.tokens)
