@@ -27,7 +27,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private let nftManager: NFTManager
     private let chainIconProvider: NFTChainIconProvider
-    private let navigationContext: NFTEntrypointNavigationContext
+    private let navigationContext: NFTNavigationContext
 
     // MARK: Properties
 
@@ -39,7 +39,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     public init(
         nftManager: NFTManager,
         chainIconProvider: NFTChainIconProvider,
-        navigationContext: NFTEntrypointNavigationContext,
+        navigationContext: NFTNavigationContext,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
@@ -168,7 +168,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
                     nftChainIconProvider: chainIconProvider,
                     openAssetDetailsAction: { [weak self] asset in
-                        self?.openAssetDetails(asset)
+                        self?.openAssetDetails(for: asset, in: collection)
                     },
                     onCollectionTap: { [weak self] collection, isExpanded in
                         self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
@@ -202,8 +202,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         return filteredCollections
     }
 
-    private func openAssetDetails(_ asset: NFTAsset) {
-        coordinator?.openAssetDetails(asset: asset)
+    private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
+        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
     }
 
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
