@@ -34,6 +34,7 @@ public struct NFTAssetDetailsView: View {
             .navigationTitle(viewModel.name)
             .navigationBarTitleDisplayMode(.inline)
             .background(Colors.Background.tertiary)
+            .onAppear(perform: viewModel.onViewAppear)
     }
 
     private var content: some View {
@@ -123,6 +124,7 @@ private extension NFTAssetDetailsView {
                     ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     name: "My awesone asset",
                     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
+                    salePrice: nil,
                     media: NFTMedia(kind: .image, url: URL(
                         string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
                     )!),
@@ -149,7 +151,10 @@ private extension NFTAssetDetailsView {
                     assets: []
                 ),
                 navigationContext: NFTNavigationContextMock(),
-                nftChainNameProviding: NFTChainNameProviderMock(),
+                dependencies: NFTAssetDetailsDependencies(
+                    nftChainNameProvider: NFTChainNameProviderMock(),
+                    priceFormatter: NFTPriceFormatterMock()
+                ),
                 coordinator: nil
             )
         )
