@@ -11,7 +11,6 @@ import Testing
 @testable import BlockchainSdk
 
 struct KaspaTransactionHistoryTests {
-
     private func decode(_ json: String) throws -> KaspaTransactionHistoryResponse.Transaction {
         let decoder = JSONDecoder()
         return try decoder.decode(KaspaTransactionHistoryResponse.Transaction.self, from: Data(json.utf8))
