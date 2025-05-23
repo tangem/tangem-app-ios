@@ -19,7 +19,6 @@ struct WalletConnectDAppConnectionProposalView: View {
 
     var body: some View {
         contentStateView
-//            .frame(maxHeight: .infinity, alignment: .bottom)
             .frame(maxWidth: .infinity)
             .background(Colors.Background.tertiary)
             .enableInjection()
