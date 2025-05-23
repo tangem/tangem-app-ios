@@ -22,13 +22,14 @@ struct WalletConnectDAppConnectionRequestView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(spacing: Layout.contentSectionsSpacing) {
+            VStack(spacing: 14) {
                 dAppAndConnectionRequestSections
+                dAppVerificationWarningSection
                 walletAndNetworksSections
             }
             .padding(.horizontal, 16)
             .padding(.top, Layout.contentTopPadding)
-            .padding(.bottom, Layout.contentBottomPadding)
+            .padding(.bottom, 8)
             .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .zero) { geometryInfo in
                 withAnimation(WalletConnectDAppConnectionRequestSectionView.Animations.sectionSlideInsertion) {
                     updateScrollViewMaxHeight(geometryInfo.size.height)
@@ -61,9 +62,12 @@ struct WalletConnectDAppConnectionRequestView: View {
 
     private var dAppAndConnectionRequestSections: some View {
         VStack(spacing: .zero) {
-            WalletConnectDAppDescriptionView(viewModel: viewModel.state.dAppDescriptionSection)
-                .padding(.vertical, 16)
-                .padding(.horizontal, 14)
+            WalletConnectDAppDescriptionView(
+                viewModel: viewModel.state.dAppDescriptionSection,
+                verifiedDomainTapAction: { viewModel.handle(viewEvent: .verifiedDomainIconTapped) }
+            )
+            .padding(.vertical, 16)
+            .padding(.horizontal, 14)
 
             Divider()
                 .frame(height: 1)
@@ -77,6 +81,31 @@ struct WalletConnectDAppConnectionRequestView: View {
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    @ViewBuilder
+    private var dAppVerificationWarningSection: some View {
+        if let dAppVerificationWarningSection = viewModel.state.dAppVerificationWarningSection {
+            HStack(alignment: .top, spacing: 12) {
+                dAppVerificationWarningSection.iconAsset.image
+                    .resizable()
+                    .frame(width: 20, height: 20)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(dAppVerificationWarningSection.title)
+                        .style(Fonts.Bold.footnote, color: dAppVerificationWarningSection.severity.tintColor)
+
+                    Text(dAppVerificationWarningSection.body)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.top, 12)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
+            .background(dAppVerificationWarningSection.severity.backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
     }
 
     private var walletAndNetworksSections: some View {
@@ -206,16 +235,28 @@ struct WalletConnectDAppConnectionRequestView: View {
     }
 }
 
+private extension WalletConnectDAppConnectionRequestViewState.DAppVerificationWarningSection.Severity {
+    var tintColor: Color {
+        switch self {
+        case .warning: Colors.Text.primary1
+        case .critical: Colors.Icon.warning
+        }
+    }
+
+    var backgroundColor: Color {
+        switch self {
+        case .warning: Colors.Button.disabled
+        case .critical: Colors.Icon.warning.opacity(0.1)
+        }
+    }
+}
+
 extension WalletConnectDAppConnectionRequestView {
     private enum Layout {
         /// 52
         static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
         /// 12
         static let contentTopPadding: CGFloat = 12
-        /// 14
-        static let contentSectionsSpacing: CGFloat = 14
-        /// 8
-        static let contentBottomPadding: CGFloat = 8
         /// 16
         static let buttonsPadding: CGFloat = 16
 
