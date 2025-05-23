@@ -399,8 +399,6 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .available
         case .topup:
