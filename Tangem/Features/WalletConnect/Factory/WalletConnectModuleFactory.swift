@@ -68,6 +68,8 @@ enum WalletConnectModuleFactory {
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
             state: .loading(walletName: selectedUserWalletName, walletSelectionIsAvailable: walletSelectionIsAvailable),
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
+            resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
+            selectedUserWallet: Self.userWalletRepository.selectedModel! // [REDACTED_TODO_COMMENT]
         )
 
         let viewModel = WalletConnectDAppConnectionProposalViewModel(
