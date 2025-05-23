@@ -26,8 +26,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Dependencies
 
     private let nftManager: NFTManager
-    private let chainIconProvider: NFTChainIconProvider
     private let navigationContext: NFTNavigationContext
+    private let dependencies: NFTCollectionsListDependencies
 
     // MARK: Properties
 
@@ -38,13 +38,13 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     public init(
         nftManager: NFTManager,
-        chainIconProvider: NFTChainIconProvider,
         navigationContext: NFTNavigationContext,
+        dependencies: NFTCollectionsListDependencies,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
         self.coordinator = coordinator
-        self.chainIconProvider = chainIconProvider
+        self.dependencies = dependencies
         self.navigationContext = navigationContext
         state = .loading
 
@@ -166,7 +166,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                 NFTCompactCollectionViewModel(
                     nftCollection: collection,
                     assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
-                    nftChainIconProvider: chainIconProvider,
+                    dependencies: dependencies,
                     openAssetDetailsAction: { [weak self] asset in
                         self?.openAssetDetails(for: asset, in: collection)
                     },
@@ -191,8 +191,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             var someAssetsNamesMatch: Bool {
                 let assetsViewModels = collection.viewState.value?.assetsViewModels ?? []
 
-                return assetsViewModels.contains {
-                    $0.state.asset?.name.localizedStandardContains(entry) ?? false
+                return assetsViewModels.contains { assetsViewModel in
+                    return assetsViewModel.state.viewData?.name.localizedStandardContains(entry) ?? false
                 }
             }
 
