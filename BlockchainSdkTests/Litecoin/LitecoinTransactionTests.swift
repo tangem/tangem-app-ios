@@ -11,8 +11,8 @@ import Testing
 
 final class LitecoinTransactionTests {
     /// https://blockchair.com/litecoin/transaction/e137c6b47d2553104897a2bb769c638a019c838f84d69d729b879f7568ab0fd5
-    @Test
-    func legacyAndDefaultAddressTransaction() async throws {
+    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.litecoin), .custom])
+    func legacyAndDefaultAddressTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = LitecoinNetworkParams()
         let pubKey = Data(hexString: "0252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa")
@@ -31,7 +31,7 @@ final class LitecoinTransactionTests {
             for: legacyAddress
         )
 
-        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
+        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager, builderType: builderType, sequence: .final)
         let transaction = Transaction(
             amount: Amount(with: .litecoin, value: .init(stringValue: "0.1")!),
             fee: Fee(.init(with: .litecoin, value: .init(stringValue: "0.00000289")!), parameters: BitcoinFeeParameters(rate: 1)),
