@@ -10,9 +10,16 @@ import Foundation
 
 struct AvalancheExternalLinkProvider {
     private let isTestnet: Bool
+    private let baseURL: String
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        // The official network explorer ('subnets.avax.network') simply won't load in any browser on iOS 15 and earlier versions
+        baseURL = if #available(iOS 16.0, *) {
+            "https://subnets.avax.network/c-chain/"
+        } else {
+            "https://avascan.info/blockchain/c/"
+        }
     }
 }
 
@@ -26,12 +33,7 @@ extension AvalancheExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://testnet.avascan.info/blockchain/c/tx/\(hash)")
         }
 
-        // The official network explorer ('subnets.avax.network') simply won't load in any browser on iOS 15 and earlier versions
-        if #available(iOS 16.0, *) {
-            return URL(string: "https://subnets.avax.network/c-chain/tx/\(hash)")
-        }
-
-        return URL(string: "https://avascan.info/blockchain/c/tx/\(hash)")
+        return URL(string: baseURL + "tx/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
@@ -39,11 +41,14 @@ extension AvalancheExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://testnet.avascan.info/blockchain/c/address/\(address)")
         }
 
-        // The official network explorer ('subnets.avax.network') simply won't load in any browser on iOS 15 and earlier versions
-        if #available(iOS 16.0, *) {
-            return URL(string: "https://subnets.avax.network/c-chain/address/\(address)")
-        }
+        return URL(string: baseURL + "address/\(address)")
+    }
+}
 
-        return URL(string: "https://avascan.info/blockchain/c/address/\(address)")
+// MARK: - NFTExternalLinksProvider
+
+extension AvalancheExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: "https://avascan.info/blockchain/c/\(contractType)/\(tokenAddress)/nft/\(tokenID)")
     }
 }

@@ -9,7 +9,7 @@
 import SwiftUI
 
 public extension View {
-    func floatingSheet(viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void) -> some View {
+    func floatingSheet(viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void = {}) -> some View {
         FloatingSheetView(hostContent: self, viewModel: viewModel, dismissSheetAction: dismissSheetAction)
     }
 
@@ -24,10 +24,6 @@ public extension View {
 // MARK: - FloatingSheetConfiguration setters
 
 public extension View {
-    func floatingSheetMinHeightFraction(_ minHeightFraction: CGFloat) -> some View {
-        environment(\.floatingSheetConfiguration.minHeightFraction, minHeightFraction)
-    }
-
     func floatingSheetMaxHeightFraction(_ maxHeightFraction: CGFloat) -> some View {
         environment(\.floatingSheetConfiguration.maxHeightFraction, maxHeightFraction)
     }
