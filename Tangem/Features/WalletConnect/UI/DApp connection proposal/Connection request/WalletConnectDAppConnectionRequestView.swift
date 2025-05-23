@@ -171,12 +171,36 @@ struct WalletConnectDAppConnectionRequestView: View {
                 Text(viewModel.state.networksSection.label)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
-                Spacer()
+                Spacer(minLength: .zero)
+
+                networksSectionTrailingView
+                    .transition(.opacity)
+
+                viewModel.state.networksSection.trailingIconAsset?.image
+                    .resizable()
+                    .frame(width: 18, height: 24)
+                    .foregroundStyle(Colors.Icon.informative)
+                    .transition(.opacity)
             }
             .frame(height: 46)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .animation(.linear(duration: 0.2), value: viewModel.state.networksSection)
+    }
+
+    @ViewBuilder
+    private var networksSectionTrailingView: some View {
+        switch viewModel.state.networksSection.state {
+        case .loading:
+            SkeletonView()
+                .frame(width: 88, height: 24)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+        case .content(let contentState):
+            RoundedRectangle(cornerRadius: 8)
+                .frame(width: 88, height: 24)
+        }
     }
 
     private var buttons: some View {
