@@ -70,7 +70,7 @@ struct NewSendFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendAmountInteractor = amount.interactor
         sendModel.sendFeeInteractor = fee.interactor
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
