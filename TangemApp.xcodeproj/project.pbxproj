@@ -28085,7 +28085,7 @@
 			repositoryURL = "git@github.com:tangem-developments/stellar-ios-mac-sdk.git";
 			requirement = {
 				kind = exactVersion;
-				version = "3.0.7-tangem1";
+				version = "3.0.7-tangem2";
 			};
 		};
 		B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
@@ -28101,7 +28101,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 3.15.0;
+				version = 3.16.0;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
