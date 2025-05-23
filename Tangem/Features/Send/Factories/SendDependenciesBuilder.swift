@@ -216,7 +216,7 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
+    private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
         let source: SendModel.PredefinedValues.Source = sellParameters == nil ? .send : .sell
         let destination = sellParameters.map { SendAddress(value: $0.destination, source: .sellProvider) }
         let amount = sellParameters.map { sellParameters in
@@ -305,6 +305,24 @@ struct SendDependenciesBuilder {
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
             sendFeeInput: sendFeeInput
         )
+    }
+
+    // MARK: - NFT support
+
+    func makeNFTSendAmountValidator() -> SendAmountValidator {
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        return NFTSendAmountValidator(expectedAmount: nftSendUtil.amountToSend)
+    }
+
+    func makeNFTSendAmountModifier() -> SendAmountModifier {
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        return NFTSendAmountModifier(amount: nftSendUtil.amountToSend)
+    }
+
+    func makeNFTSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: walletModel.feeTokenItem)
     }
 
     // MARK: - Staking
