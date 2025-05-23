@@ -19,18 +19,19 @@ struct NFTCompactAssetView: View {
         case .loading:
             skeleton
 
-        case .loaded(let nftAsset):
+        case .loaded(let viewData):
             Button(action: viewModel.didClick) {
-                makeContent(from: nftAsset)
+                makeContent(from: viewData)
             }
             .buttonStyle(.defaultScaled)
         }
     }
 
-    private func makeContent(from asset: NFTAsset) -> some View {
+    private func makeContent(from viewData: NFTCompactAssetViewModel.ViewData) -> some View {
         VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
-            makeIcon(media: asset.media)
-            makeTexts(title: asset.name, subtitle: "0.15 ETH") // Price should be taken from somewhere
+            makeIcon(media: viewData.media)
+
+            makeTexts(title: viewData.name, subtitle: viewData.price)
         }
     }
 
@@ -66,13 +67,15 @@ struct NFTCompactAssetView: View {
         SquaredOrRectangleImageView(media: media)
     }
 
-    private func makeTexts(title: String, subtitle: String) -> some View {
+    private func makeTexts(title: String, subtitle: String?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-            Text(subtitle)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+            if let subtitle {
+                Text(subtitle)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+            }
         }
     }
 }
@@ -81,7 +84,6 @@ extension NFTCompactAssetView {
     enum Constants {
         static let textSkeletonsCornerRadius: CGFloat = 4
         static let textSkeletonsHeight: CGFloat = 12
-
         static let iconTextsSpacing: CGFloat = 12
     }
 }
@@ -91,18 +93,22 @@ extension NFTCompactAssetView {
     NFTCompactAssetView(
         viewModel: NFTCompactAssetViewModel(
             state: .loaded(
-                NFTAsset(
-                    assetIdentifier: "some",
-                    assetContractAddress: "some1",
-                    chain: .solana,
-                    contractType: .unknown,
-                    decimalCount: 0,
-                    ownerAddress: "",
-                    name: "My asset",
-                    description: "",
-                    media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                    rarity: nil,
-                    traits: []
+                .init(
+                    asset: NFTAsset(
+                        assetIdentifier: "some",
+                        assetContractAddress: "some1",
+                        chain: .solana,
+                        contractType: .unknown,
+                        decimalCount: 0,
+                        ownerAddress: "",
+                        name: "My asset",
+                        description: "",
+                        salePrice: nil,
+                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        rarity: nil,
+                        traits: []
+                    ),
+                    priceFormatter: NFTPriceFormatterMock()
                 )
             ),
             openAssetDetailsAction: { _ in }
