@@ -1,0 +1,43 @@
+//
+//  WalletConnectDAppConnectionProposalViewModel.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Combine
+
+@MainActor
+final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
+    private let connectionRequestViewModel: WalletConnectConnectionRequestViewModel
+
+    @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
+
+    init(state: WalletConnectDAppConnectionProposalViewState, connectionRequestViewModel: WalletConnectConnectionRequestViewModel) {
+        self.state = state
+        self.connectionRequestViewModel = connectionRequestViewModel
+    }
+
+    func loadDAppProposal() {
+        connectionRequestViewModel.handle(viewEvent: .viewDidAppear)
+    }
+}
+
+extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnectionProposalRoutable {
+    func openDomainVerification() {
+        state = .verifiedDomain
+    }
+
+    func openWalletSelector() {
+        state = .walletSelector
+    }
+
+    func openNetworksSelector() {
+        state = .networkSelector
+    }
+
+    func dismiss() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
