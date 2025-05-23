@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemNFT
 
-class MainCoordinator: CoordinatorObject {
+class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -276,17 +276,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -302,17 +292,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -370,24 +350,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openInSafari(url: URL) {
         safariManager.openURL(url)
-    }
-
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        #warning("[REDACTED_TODO_COMMENT]")
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenDetailsCoordinator = nil
-        }
-
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager
-            )
-        )
-
-        tokenDetailsCoordinator = coordinator
     }
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
@@ -590,7 +552,7 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTEntrypointNavigationContext) {
+    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = NFTCollectionsCoordinator(
@@ -607,7 +569,9 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                chainIconProvider: NetworkImageProvider(),
+                nftChainIconProvider: NetworkImageProvider(),
+                nftChainNameProvider: NFTChainNameProvider(),
+                priceFormatter: NFTPriceFormatter(),
                 navigationContext: navigationContext
             )
         )
