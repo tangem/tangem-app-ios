@@ -128,6 +128,7 @@ struct DummyProvider: NFTChainIconProvider {
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
+                        salePrice: nil,
                         media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                         rarity: nil,
                         traits: []
@@ -135,7 +136,10 @@ struct DummyProvider: NFTChainIconProvider {
                 }
             ),
             assetsState: .loading,
-            nftChainIconProvider: DummyProvider(),
+            dependencies: NFTCollectionsListDependencies(
+                nftChainIconProvider: DummyProvider(),
+                priceFormatter: NFTPriceFormatterMock()
+            ),
             openAssetDetailsAction: { _ in },
             onCollectionTap: { _, _ in }
         )
