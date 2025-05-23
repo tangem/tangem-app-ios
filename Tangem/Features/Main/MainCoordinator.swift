@@ -569,8 +569,9 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                chainIconProvider: NetworkImageProvider(),
-                nftChainNameProviding: NFTChainNameProvider(),
+                nftChainIconProvider: NetworkImageProvider(),
+                nftChainNameProvider: NFTChainNameProvider(),
+                priceFormatter: NFTPriceFormatter(),
                 navigationContext: navigationContext
             )
         )
