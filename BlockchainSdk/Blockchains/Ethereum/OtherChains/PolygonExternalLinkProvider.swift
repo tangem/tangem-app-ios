@@ -10,9 +10,11 @@ import Foundation
 
 struct PolygonExternalLinkProvider {
     private let isTestnet: Bool
+    private let baseURL: String
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        baseURL = isTestnet ? "https://mumbai.polygonscan.com/" : "https://polygonscan.com/"
     }
 }
 
@@ -30,13 +32,20 @@ extension PolygonExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = isTestnet ? "https://mumbai.polygonscan.com/" : "https://polygonscan.com/"
         if let contractAddress {
-            let url = baseUrl + "token/\(contractAddress)?a=\(address)"
+            let url = baseURL + "token/\(contractAddress)?a=\(address)"
             return URL(string: url)
         }
 
-        let url = baseUrl + "address/\(address)"
+        let url = baseURL + "address/\(address)"
         return URL(string: url)
+    }
+}
+
+// MARK: - NFTExternalLinksProvider
+
+extension PolygonExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: baseURL + "nft/\(tokenAddress)/\(tokenID)")
     }
 }
