@@ -20,7 +20,8 @@ struct SendSummaryStepBuilder {
         actionType: SendFlowActionType,
         descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
         notificationManager: NotificationManager,
-        editableType: SendSummaryViewModel.EditableType,
+        destinationEditableType: SendSummaryViewModel.EditableType,
+        amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
@@ -35,7 +36,8 @@ struct SendSummaryStepBuilder {
             interactor: interactor,
             actionType: actionType,
             notificationManager: notificationManager,
-            editableType: editableType,
+            destinationEditableType: destinationEditableType,
+            amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
@@ -60,7 +62,8 @@ private extension SendSummaryStepBuilder {
         interactor: SendSummaryInteractor,
         actionType: SendFlowActionType,
         notificationManager: NotificationManager,
-        editableType: SendSummaryViewModel.EditableType,
+        destinationEditableType: SendSummaryViewModel.EditableType,
+        amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
@@ -68,7 +71,8 @@ private extension SendSummaryStepBuilder {
     ) -> SendSummaryViewModel {
         let settings = SendSummaryViewModel.Settings(
             tokenItem: walletModel.tokenItem,
-            editableType: editableType,
+            destinationEditableType: destinationEditableType,
+            amountEditableType: amountEditableType,
             actionType: actionType
         )
 
