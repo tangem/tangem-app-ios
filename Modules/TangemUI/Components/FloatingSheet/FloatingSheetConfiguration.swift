@@ -9,7 +9,6 @@
 import SwiftUI
 
 public struct FloatingSheetConfiguration {
-    public var minHeightFraction: CGFloat
     public var maxHeightFraction: CGFloat
     public var sheetBackgroundColor: Color
     public var backgroundInteractionBehavior: BackgroundInteractionBehavior
@@ -67,7 +66,6 @@ public extension FloatingSheetConfiguration {
 
 extension EnvironmentValues {
     @Entry var floatingSheetConfiguration = FloatingSheetConfiguration(
-        minHeightFraction: 0.3,
         maxHeightFraction: 0.8,
         sheetBackgroundColor: Color(.systemBackground),
         backgroundInteractionBehavior: FloatingSheetConfiguration.BackgroundInteractionBehavior.tapToDismiss,

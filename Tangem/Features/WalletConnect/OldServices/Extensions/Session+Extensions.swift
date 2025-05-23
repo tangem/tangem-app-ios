@@ -14,10 +14,6 @@ extension Session.Proposal {
         Set(requiredNamespaces.values.compactMap(\.chains).flatMap { $0 })
     }
 
-    var nameSpaceOptionalChains: Set<WalletConnectUtils.Blockchain> {
-        Set(optionalNamespaces?.values.compactMap(\.chains).flatMap { $0 } ?? [])
-    }
-
     var namespaceChains: [WalletConnectUtils.Blockchain] {
         let requiredChains = requiredNamespaces.values.compactMap(\.chains).flatMap { $0.asArray }
         let optionalChains = optionalNamespaces?.values.compactMap(\.chains).flatMap { $0.asArray } ?? []

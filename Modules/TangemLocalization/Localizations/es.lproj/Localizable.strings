@@ -305,7 +305,7 @@
 "express_exchange_status_receiving_active" = "Esperando depósito";
 "express_exchange_status_receiving" = "Esperando depósito";
 "express_exchange_status_refunded" = "Reembolsado";
-"express_exchange_status_refunding" = "Refunding";
+"express_exchange_status_refunding" = "Waiting for refund";
 "express_exchange_status_sending_active" = "Enviando...";
 "express_exchange_status_sending" = "Transfiriendo a su cuenta";
 "express_exchange_status_sent" = "Enviado";
@@ -331,6 +331,7 @@
 "express_status_hide_button_text" = "Ocultar esta transacción";
 "express_status_hide_dialog_text" = "Una vez oculto, el estado de la transacción no se puede volver a ver. En su lugar, basta con deslizar el dedo para descartarla.";
 "express_status_hide_dialog_title" = "¿Ocultar el estado de la transacción?";
+"express_swap_with" = "Swap with";
 "express_token_list_empty_search" = "No se encontraron fichas. Por favor intenta con otra solicitud";
 "express_transaction_id_copied" = "ID de transacción copiado";
 "express_transaction_id" = "ID : %@";
@@ -509,13 +510,13 @@
 "nft_details_base_information" = "Base information";
 "nft_details_chain" = "Chain";
 "nft_details_contract_address" = "Contract Address";
-"nft_details_info_chain" = "stub";
-"nft_details_info_contract_address" = "stub";
-"nft_details_info_rarity_label" = "stub";
-"nft_details_info_rarity_rank" = "stub";
-"nft_details_info_token_address" = "stub";
-"nft_details_info_token_id" = "stub";
-"nft_details_info_token_standard" = "stub";
+"nft_details_info_chain" = "Chain is the blockchain where the NFT exists.";
+"nft_details_info_contract_address" = "The contract address is a unique identifier for the smart contract that governs the tokens on the blockchain";
+"nft_details_info_rarity_label" = "A label that describes how rare the NFT is. The lower the value, the more unique the NFT.";
+"nft_details_info_rarity_rank" = "The position of an NFT in the rarity ranking among other tokens. The higher the rank, the rarer and more valuable the NFT.";
+"nft_details_info_token_address" = "The token address is a unique identifier for the token on the blockchain, allowing tracking of transactions and ownership";
+"nft_details_info_token_id" = "The token ID is a unique identifier assigned to each token, distinguishing it from others in the collection";
+"nft_details_info_token_standard" = "Token standard defines what type of token it is and how it works with different wallets and platforms";
 "nft_details_last_sale_price" = "Last sale price";
 "nft_details_rarity_label" = "Rarity label";
 "nft_details_rarity_rank" = "Rarity rank";
@@ -528,11 +529,12 @@
 "nft_receive_available_section_title" = "Available";
 "nft_receive_choose_network" = "Choose network";
 "nft_receive_title" = "Receive NFT";
-"nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To start receiving NFTs, add it to the main screen!";
+"nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To receive NFTs, add it to your portfolio.";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
 "nft_receive_unavailable_section_title" = "Not Added";
 "nft_send" = "Send NFT";
 "nft_traits_title" = "Traits";
+"nft_untitled_collection" = "Untitled collection";
 "nft_wallet_count" = "%1$li NFTs in %2$li collection";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
@@ -1078,7 +1080,7 @@
 "visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation.";
 "visa_onboarding_in_progress_title" = "Getting everything ready!";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code.  It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code.\nIt will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
@@ -1160,6 +1162,8 @@
 "wallet_promo_banner_button_title" = "Consíguelo ahora con un 10 %% de descuento";
 "wallet_promo_banner_description" = "Accede a más de 13 000 criptomonedas. Compra, vende, intercambia y realiza staking con un solo toque.\nVincula hasta tres tarjetas para hacer copias de seguridad.";
 "wallet_promo_banner_title" = "Descubre Tangem Wallet";
+"wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
+"wallet_settings_push_notifications_title" = "Push Notifications";
 "wallet_settings_title" = "Ajustes de la wallet";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Use %@ o escanee una tarjeta/anillo para desbloquear el acceso a su billetera";
@@ -1253,7 +1257,7 @@
 "wc_alert_connection_timeout_description" = "Timeout error. Please, try again later.";
 "wc_alert_connection_timeout_title" = "Failed to establish WalletConnect";
 "wc_alert_domain_issues_description" = "This domain cannot be verified. Check the request carefully approving.";
-"wc_alert_session_disconnected_description" = "Go back to your browser and connect via WalletConnect again.";
+"wc_alert_session_disconnected_description" = "Please return to your browser and reconnect via WalletConnect.";
 "wc_alert_session_disconnected_title" = "WalletConnect session was disconnected";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
@@ -1261,8 +1265,9 @@
 "wc_alert_unsupported_networks_title" = "Unsuported networks";
 "wc_alert_verified_domain_description" = "Tangem support a required network by %@.";
 "wc_alert_verified_domain_title" = "Verified domain";
-"wc_alert_wrong_card_description" = "Wrong card or ring selected in Tangem App";
+"wc_alert_wrong_card_description" = "Wrong card or ring selected in the App";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
+"wc_allow_to_spend" = "Allow to spend";
 "wc_common_address" = "Address";
 "wc_common_connect" = "Connect";
 "wc_common_network" = "Network";
@@ -1278,9 +1283,12 @@
 "wc_connections" = "Connections";
 "wc_contents" = "Contents";
 "wc_copy_data_button_text" = "Copy data";
+"wc_custom_allowance_title" = "Custom allowance";
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
 "wc_disconnect_all_alert_title" = "Disconect All dApps";
 "wc_disconnect_all" = "Disconnect all";
+"wc_estimated_wallet_changes" = "Estimated wallet changes";
+"wc_malicious_transaction" = "Malicious transaction";
 "wc_missing_required_network_description" = "Add the %@ network to your profile for this wallet";
 "wc_missing_required_network_title" = "The wallet has no required networks";
 "wc_new_connection" = "New connection";
@@ -1289,10 +1297,13 @@
 "wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
 "wc_notification_security_risk_title" = "Known security risk";
 "wc_request_from" = "Request from";
+"wc_show_less" = "Show less";
+"wc_show_more" = "Show more";
 "wc_signature_type" = "Signature Type";
 "wc_transaction_info_to_title" = "To";
 "wc_transaction_request_title" = "Transaction request";
 "wc_transaction_request" = "Transaction request";
+"wc_unlimited_amount" = "Unlimited Amount";
 "wc_wallet_connect" = "Wallet connect";
 "welcome_interrupted_backup_alert_discard" = "Ignorar";
 "welcome_interrupted_backup_alert_message" = "Tiene un backup interrumpido. ¿Quiere reanudarlo?";
