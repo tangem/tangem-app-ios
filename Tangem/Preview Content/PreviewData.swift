@@ -14,7 +14,7 @@ import BlockchainSdk
 enum PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared)),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
@@ -26,7 +26,7 @@ enum PreviewData {
 
     static var previewTwinOnboardingInput: OnboardingInput {
         .init(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared)),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
@@ -45,7 +45,7 @@ enum PreviewData {
 
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared)),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
