@@ -37,10 +37,7 @@ struct TangemLoggerConfiguration: Logger.Configuration {
 
     /// Write to file
     func isWritable() -> Bool {
-        switch AppEnvironment.current {
-        case .alpha, .beta: return true
-        case .production: return false
-        }
+        FeatureProvider.isAvailable(.logs)
     }
 }
 
