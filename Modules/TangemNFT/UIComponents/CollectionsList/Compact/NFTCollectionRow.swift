@@ -51,18 +51,10 @@ struct NFTCollectionRow: View {
     private var icon: some View {
         if let media {
             makeMedia(media)
-                .background(Colors.Background.primary)
-                .overlay(alignment: .topTrailing) {
-                    iconOverlayImage.image
-                        .resizable()
-                        .frame(size: Constants.Icon.Overlay.size)
-                        .stroked(
-                            color: Colors.Background.primary,
-                            cornerRadius: Constants.Icon.Overlay.size.width / 2,
-                            lineWidth: Constants.Icon.Overlay.strokeLineWidth
-                        )
-                        .offset(Constants.Icon.Overlay.offset)
-                }
+                .networkOverlay(
+                    image: iconOverlayImage.image,
+                    offset: Constants.Icon.Overlay.offset
+                )
         } else {
             placeholder
         }
@@ -102,8 +94,6 @@ extension NFTCollectionRow {
             static let cornerRadius: CGFloat = 8
 
             enum Overlay {
-                static let size: CGSize = .init(bothDimensions: 16)
-                static let strokeLineWidth: CGFloat = 2
                 static let offset: CGSize = .init(width: 4, height: -4)
             }
         }

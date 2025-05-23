@@ -1,28 +1,30 @@
 //
-//  SendNewAmountStepBuilder.swift
-//  TangemApp
+//  NFTSendAmountStepBuilder.swift
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import TangemExpress
+import TangemNFT
 
-struct SendNewAmountStepBuilder {
+struct NFTSendAmountStepBuilder {
     typealias IO = (input: SendAmountInput, output: SendAmountOutput)
-    typealias ReturnValue = (step: SendNewAmountStep, interactor: SendAmountInteractor, compact: SendAmountCompactViewModel)
+    typealias ReturnValue = (interactor: SendAmountInteractor, compact: SendAmountCompactViewModel)
 
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
+    let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
+    let asset: NFTAsset
+    let collection: NFTCollection
 
-    func makeSendNewAmountStep(
+    func makeSendAmountStep(
         io: IO,
         actionType: SendFlowActionType,
         sendFeeLoader: any SendFeeLoader,
+        sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
-        amountModifier: SendAmountModifier?,
+        amountModifier: SendAmountModifier,
         source: SendModel.PredefinedValues.Source
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
@@ -32,54 +34,45 @@ struct SendNewAmountStepBuilder {
             type: .crypto,
             actionType: actionType
         )
-        let viewModel = makeSendAmountViewModel(
-            io: io,
-            interactor: interactor,
-            actionType: actionType
-        )
-
-        let step = SendNewAmountStep(
-            viewModel: viewModel,
-            interactor: interactor,
-            sendFeeLoader: sendFeeLoader,
-            source: source
-        )
 
         let compact = makeSendAmountCompactViewModel(input: io.input)
-        return (step: step, interactor: interactor, compact: compact)
+        return (interactor: interactor, compact: compact)
     }
 
     func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendAmountCompactViewModel {
-        let conventViewModel = SendAmountCompactContentViewModel(
-            input: input,
-            tokenIconInfo: builder.makeTokenIconInfo(),
-            tokenItem: tokenItem
+        let conventViewModel = NFTSendAmountCompactContentViewModel(
+            asset: asset,
+            collection: collection,
+            chainIconProvider: NetworkImageProvider()
         )
 
-        return SendAmountCompactViewModel(conventViewModel: .default(viewModel: conventViewModel))
+        return SendAmountCompactViewModel(conventViewModel: .nft(viewModel: conventViewModel))
     }
 }
 
 // MARK: - Private
 
-private extension SendNewAmountStepBuilder {
+private extension NFTSendAmountStepBuilder {
     func makeSendAmountViewModel(
         io: IO,
         interactor: SendAmountInteractor,
         actionType: SendFlowActionType,
-    ) -> SendNewAmountViewModel {
-        let initital = SendNewAmountViewModel.Settings(
+        sendQRCodeService: SendQRCodeService?
+    ) -> SendAmountViewModel {
+        let initial = SendAmountViewModel.Settings(
             walletHeaderText: builder.walletHeaderText(for: actionType),
-            tokenItem: tokenItem,
+            tokenItem: walletModel.tokenItem,
             tokenIconInfo: builder.makeTokenIconInfo(),
             balanceFormatted: builder.formattedBalance(for: io.input.amount, actionType: actionType),
-            fiatIconURL: builder.makeFiatIconURL(),
-            fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
-            possibleToChangeAmountType: builder.possibleToChangeAmountType(),
+            currencyPickerData: builder.makeCurrencyPickerData(),
             actionType: actionType
         )
 
-        return SendNewAmountViewModel(initial: initital, interactor: interactor)
+        return SendAmountViewModel(
+            initial: initial,
+            interactor: interactor,
+            sendQRCodeService: sendQRCodeService
+        )
     }
 
     private func makeSendAmountInteractor(
@@ -92,8 +85,8 @@ private extension SendNewAmountStepBuilder {
         CommonSendAmountInteractor(
             input: io.input,
             output: io.output,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
             validator: sendAmountValidator,
             amountModifier: amountModifier,
