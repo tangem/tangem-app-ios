@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-import TangemFoundation
+import TangemUIUtils
 
 struct OrganizeTokensView: View {
     // MARK: - Model
