@@ -127,10 +127,10 @@ final class CommonNFTManager: NFTManager {
                 return Just((collectionIdentifier, networkService))
                     .setFailureType(to: Error.self)
                     .asyncTryMap { collectionIdentifier, networkService in
-                        let address = collectionIdentifier.ownerAddress
-                        let assets = try await networkService.getAssets(address: address, collectionIdentifier: collectionIdentifier)
+                        let assets = try await Self.fetchAssets(inCollectionWithIdentifier: collectionIdentifier, using: networkService)
+                        let updatedAssets = await Self.updateAssets(assets, using: networkService)
 
-                        return (collectionIdentifier, assets)
+                        return (collectionIdentifier, updatedAssets)
                     }
                     .materialize()
             }
@@ -233,6 +233,36 @@ final class CommonNFTManager: NFTManager {
             value: enrichedCollections,
             hasErrors: collections.hasErrors || assetsHadErrors
         )
+    }
+
+    private static func fetchAssets(
+        inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID,
+        using networkService: NFTNetworkService
+    ) async throws -> NFTPartialResult<[NFTAsset]> {
+        return try await networkService.getAssets(address: collectionIdentifier.ownerAddress, collectionIdentifier: collectionIdentifier)
+    }
+
+    private static func updateAssets(
+        _ assets: NFTPartialResult<[NFTAsset]>,
+        using networkService: NFTNetworkService
+    ) async -> NFTPartialResult<[NFTAsset]> {
+        return await withTaskGroup(of: NFTAsset.self) { group in
+            for asset in assets.value {
+                group.addTask {
+                    // Errors are intentionally ignored since the last sale price is always optional
+                    let salePrice = try? await networkService.getSalePrice(assetIdentifier: asset.id)
+                    return asset.enriched(with: salePrice)
+                }
+            }
+
+            // Can't use `group.reduce` here due to https://forums.swift.org/t/60271
+            var updatedAssets: [NFTAsset] = []
+            for await asset in group {
+                updatedAssets.append(asset)
+            }
+
+            return NFTPartialResult(value: updatedAssets, hasErrors: assets.hasErrors)
+        }
     }
 }
 
