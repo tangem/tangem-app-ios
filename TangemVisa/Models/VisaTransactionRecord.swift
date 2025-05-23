@@ -13,13 +13,13 @@ public struct VisaTransactionHistoryDTO: Decodable {
     public let transactions: [VisaTransactionRecord]
 
     public struct APIRequest: Encodable {
-        let customerId: String
+        let cardId: String
         let productInstanceId: String
         let offset: Int
         let numberOfItems: Int
 
-        public init(customerId: String, productInstanceId: String, offset: Int, numberOfItems: Int) {
-            self.customerId = customerId
+        public init(cardId: String, productInstanceId: String, offset: Int, numberOfItems: Int) {
+            self.cardId = cardId
             self.productInstanceId = productInstanceId
             self.offset = offset
             self.numberOfItems = numberOfItems

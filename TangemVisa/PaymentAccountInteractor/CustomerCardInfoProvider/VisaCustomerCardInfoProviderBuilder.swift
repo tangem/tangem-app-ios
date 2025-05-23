@@ -50,14 +50,18 @@ public struct VisaCustomerCardInfoProviderBuilder {
     ) -> VisaCustomerCardInfoProvider {
         var customerInfoManagementService: CustomerInfoManagementService?
         if let authorizationTokensHandler {
-            customerInfoManagementService = CommonCustomerInfoManagementService(
-                apiType: apiType,
-                authorizationTokenHandler: authorizationTokensHandler,
-                apiService: .init(
-                    provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                    decoder: JSONDecoderFactory().makeCIMDecoder()
+            if isMockedAPIEnabled {
+                customerInfoManagementService = CustomerInfoManagementServiceMock()
+            } else {
+                customerInfoManagementService = CommonCustomerInfoManagementService(
+                    apiType: apiType,
+                    authorizationTokenHandler: authorizationTokensHandler,
+                    apiService: .init(
+                        provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                        decoder: JSONDecoderFactory().makeCIMDecoder()
+                    )
                 )
-            )
+            }
         }
 
         return CommonCustomerCardInfoProvider(
