@@ -1,5 +1,5 @@
 //
-//  NFTEntrypointNavigationContextMock.swift
+//  NFTNavigationContextMock.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,4 @@
 
 import Foundation
 
-struct NFTEntrypointNavigationContextMock: NFTEntrypointNavigationContext {}
+struct NFTNavigationContextMock: NFTNavigationContext {}
