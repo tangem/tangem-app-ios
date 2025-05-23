@@ -1,81 +1,65 @@
 //
-//  CommonStakingStepsManager.swift
+//  NFTSendStepsManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import Combine
 
-class CommonStakingStepsManager {
-    private let provider: StakingModelStateProvider
-    private let amountStep: SendAmountStep
-    private let validatorsStep: StakingValidatorsStep?
+final class NFTSendStepsManager {
+    private let destinationStep: SendDestinationStep
+    private let feeStep: SendFeeStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
 
     private var stack: [SendStep]
-    private var bag: Set<AnyCancellable> = []
-
     private weak var output: SendStepsManagerOutput?
 
+    private var isEditAction: Bool {
+        stack.contains(where: { $0.type.isSummary })
+    }
+
     init(
-        provider: StakingModelStateProvider,
-        amountStep: SendAmountStep,
-        validatorsStep: StakingValidatorsStep?,
+        destinationStep: SendDestinationStep,
+        feeStep: SendFeeStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep
     ) {
-        self.provider = provider
-        self.amountStep = amountStep
-        self.validatorsStep = validatorsStep
+        self.destinationStep = destinationStep
+        self.feeStep = feeStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
 
-        stack = [amountStep]
-        bind()
-    }
-
-    private func bind() {
-        provider.state
-            .withWeakCaptureOf(self)
-            .sink { stepsManager, state in
-                switch state {
-                case .loading, .networkError, .validationError:
-                    break
-
-                case .readyToApprove:
-                    stepsManager.output?.update(flowActionType: .approve)
-
-                case .approveTransactionInProgress, .readyToStake:
-                    stepsManager.output?.update(flowActionType: .stake)
-                }
-            }
-            .store(in: &bag)
+        stack = [destinationStep]
     }
 
     private func currentStep() -> SendStep {
         let last = stack.last
-
-        assert(last != nil, "Stack is empty")
-
         return last ?? initialState.step
     }
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
-        case .amount:
+        case .destination:
             return summaryStep
-        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination:
+        case .amount,
+             .newAmount,
+             .newDestination:
+            assertionFailure("Invalid step for this flow: '\(currentStep().type)'")
+            return summaryStep
+        case .fee,
+             .validators,
+             .summary,
+             .finish,
+             .onramp:
             assertionFailure("There is no next step")
             return nil
         }
     }
 
     private func next(step: SendStep) {
-        let isEditAction = stack.contains(where: { $0.type.isSummary })
         stack.append(step)
 
         switch step.type {
@@ -83,9 +67,18 @@ class CommonStakingStepsManager {
             output?.update(state: .init(step: step, action: .action))
         case .finish:
             output?.update(state: .init(step: step, action: .close))
-        case .amount where isEditAction, .validators where isEditAction:
+        case .destination where isEditAction,
+             .fee where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .validators, .fee, .onramp, .newAmount, .newDestination:
+        case .destination:
+            output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
+        case .amount,
+             .newAmount,
+             .newDestination:
+            assertionFailure("Invalid step for this flow: '\(step.type)'")
+        case .fee,
+             .validators,
+             .onramp:
             assertionFailure("There is no next step")
         }
     }
@@ -103,20 +96,20 @@ class CommonStakingStepsManager {
         case .summary:
             output?.update(state: .init(step: step, action: .action))
         default:
-            assertionFailure("There is no back step")
+            output?.update(state: .init(step: step, action: .next))
         }
     }
 }
 
 // MARK: - SendStepsManager
 
-extension CommonStakingStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { true }
+extension NFTSendStepsManager: SendStepsManager {
+    var initialKeyboardState: Bool { false }
 
-    var initialFlowActionType: SendFlowActionType { .stake }
+    var initialFlowActionType: SendFlowActionType { .send }
 
     var initialState: SendStepsManagerViewState {
-        .init(step: amountStep, action: .next, backButtonVisible: false)
+        .init(step: destinationStep, action: .next, backButtonVisible: false)
     }
 
     var shouldShowDismissAlert: Bool {
@@ -128,7 +121,7 @@ extension CommonStakingStepsManager: SendStepsManager {
     }
 
     func performBack() {
-        back()
+        assertionFailure("There's no back action in this flow")
     }
 
     func performNext() {
@@ -154,40 +147,52 @@ extension CommonStakingStepsManager: SendStepsManager {
     func performContinue() {
         assert(stack.contains(where: { $0.type.isSummary }), "Continue is possible only after summary")
 
+        guard currentStep().canBeClosed(continueAction: back) else {
+            return
+        }
+
         back()
     }
 }
 
 // MARK: - SendSummaryStepsRoutable
 
-extension CommonStakingStepsManager: SendSummaryStepsRoutable {
+extension NFTSendStepsManager: SendSummaryStepsRoutable {
     func summaryStepRequestEditValidators() {
-        guard case .summary = currentStep().type else {
-            assertionFailure("This code should only be called from summary")
-            return
-        }
-
-        guard let validatorsStep else {
-            return
-        }
-
-        next(step: validatorsStep)
-    }
-
-    func summaryStepRequestEditAmount() {
-        guard case .summary = currentStep().type else {
-            assertionFailure("This code should only be called from summary")
-            return
-        }
-
-        next(step: amountStep)
+        assertionFailure("This steps is not tappable in this flow")
     }
 
     func summaryStepRequestEditDestination() {
+        guard case .summary = currentStep().type else {
+            assertionFailure("This code should only be called from summary")
+            return
+        }
+
+        next(step: destinationStep)
+    }
+
+    func summaryStepRequestEditAmount() {
         assertionFailure("This steps is not tappable in this flow")
     }
 
     func summaryStepRequestEditFee() {
-        assertionFailure("This steps is not tappable in this flow")
+        guard case .summary = currentStep().type else {
+            assertionFailure("This code should only be called from summary")
+            return
+        }
+
+        next(step: feeStep)
+    }
+}
+
+// MARK: - SendDestinationStepRoutable
+
+extension NFTSendStepsManager: SendDestinationStepRoutable {
+    func destinationStepFulfilled() {
+        if isEditAction {
+            performContinue()
+        } else {
+            performNext()
+        }
     }
 }
