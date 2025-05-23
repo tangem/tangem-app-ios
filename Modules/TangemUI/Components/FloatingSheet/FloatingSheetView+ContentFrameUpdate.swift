@@ -23,6 +23,20 @@ public extension View {
             )
         )
     }
+
+//    func floatingSheetContentFrameUpdatePublisher<Value>(_ publisher: AnyPublisher<Value, Never>) -> some View {
+//        preference(
+//            key: FloatingSheetFrameUpdateTriggerPreferenceKey.self,
+//            value: .init(
+//                id: 1,
+//                publisher: publisher
+//                    .map { _ in
+//                        return ()
+//                    }
+//                    .eraseToAnyPublisher()
+//            )
+//        )
+//    }
 }
 
 public struct FloatingSheetFrameUpdateAnimationPreferenceKey: PreferenceKey {

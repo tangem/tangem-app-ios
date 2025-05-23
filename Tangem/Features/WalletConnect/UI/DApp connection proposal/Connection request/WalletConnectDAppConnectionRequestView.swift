@@ -15,7 +15,6 @@ import HotSwiftUI
 struct WalletConnectDAppConnectionRequestView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionRequestViewModel
 
-    @State private var connectionRequestIconIsRotating = false
     @State private var navigationBarBottomSeparatorIsVisible = false
     @State private var scrollViewMaxHeight: CGFloat = 0
 
@@ -31,7 +30,10 @@ struct WalletConnectDAppConnectionRequestView: View {
             .padding(.top, Layout.contentTopPadding)
             .padding(.bottom, Layout.contentBottomPadding)
             .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .proMotion) { geometryInfo in
-                updateScrollViewMaxHeight(geometryInfo.size.height)
+                withAnimation {
+                    updateScrollViewMaxHeight(geometryInfo.size.height)
+                }
+
                 updateNavigationBarBottomSeparatorVisibility(geometryInfo.frame.minY)
             }
         }
@@ -44,6 +46,7 @@ struct WalletConnectDAppConnectionRequestView: View {
         .scrollBounceBehaviorBackport(.basedOnSize)
         .frame(maxWidth: .infinity)
         .frame(maxHeight: scrollViewMaxHeight)
+        .animation(.linear, value: scrollViewMaxHeight)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .enableInjection()
     }
@@ -68,58 +71,14 @@ struct WalletConnectDAppConnectionRequestView: View {
                 .frame(height: 1)
                 .overlay(Colors.Stroke.primary)
 
-            connectionRequestSection
-                .padding(.horizontal, 14)
+            WalletConnectDAppConnectionRequestSectionView(
+                viewModel: viewModel.state.connectionRequestSection,
+                tapAction: { viewModel.handle(viewEvent: .connectionRequestSectionHeaderTapped)}
+            )
+            .padding(.horizontal, 14)
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var connectionRequestSection: some View {
-        Button(action: { viewModel.handle(viewEvent: .connectionRequestSectionHeaderTapped) }) {
-            HStack(spacing: 8) {
-                viewModel.state.connectionRequestSection.iconAsset.image
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Colors.Icon.accent)
-                    .rotationEffect(.degrees(connectionRequestIconIsRotating ? 360 : 0))
-                    .id(viewModel.state.connectionRequestSection.id)
-                    .animation(connectionRequestIconAnimation, value: connectionRequestIconIsRotating)
-                    .transition(.opacity)
-
-                Text(viewModel.state.connectionRequestSection.label)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    .id(viewModel.state.connectionRequestSection.id)
-                    .transition(.opacity)
-
-                Spacer(minLength: 4)
-
-                if case .content(let contentState) = viewModel.state.connectionRequestSection {
-                    contentState.trailingIconAsset.image
-                        .resizable()
-                        .frame(width: 18, height: 24)
-                        .foregroundStyle(Colors.Icon.informative)
-                        .rotationEffect(.degrees(contentState.isExpanded ? -90 : 0))
-                        .animation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.3).delay(0.2), value: contentState.isExpanded)
-                }
-            }
-            .frame(height: 46)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .animation(.linear(duration: 0.2), value: viewModel.state.connectionRequestSection)
-        .onAppear {
-            connectionRequestIconIsRotating = viewModel.state.connectionRequestSection.isLoading
-        }
-        .onChange(of: viewModel.state.connectionRequestSection.isLoading) { isLoading in
-            connectionRequestIconIsRotating = isLoading
-        }
-    }
-
-    private var connectionRequestIconAnimation: Animation? {
-        connectionRequestIconIsRotating
-            ? .linear(duration: 1).repeatForever(autoreverses: false)
-            : nil
     }
 
     private var walletAndNetworksSections: some View {

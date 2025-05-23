@@ -83,7 +83,9 @@ extension WalletConnectDAppConnectionRequestViewModel {
         coordinator?.openDomainVerification()
     }
 
-    private func handleConnectionRequestSectionHeaderTapped() {}
+    private func handleConnectionRequestSectionHeaderTapped() {
+        state.connectionRequestSection.toggleIsExpanded()
+    }
 
     private func handleWalletRowTapped() {
         coordinator?.openWalletSelector()

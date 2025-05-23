@@ -105,17 +105,18 @@ public struct FloatingSheetView<HostContent: View>: View {
                 }
                 .animation(.floatingSheet, value: viewModel.id)
                 .transition(.slideFromBottom)
-                .onPreferenceChange(FloatingSheetFrameUpdateTriggerPreferenceKey.self) { publisherProxy in
-                    contentFrameUpdatePublisher = publisherProxy.publisher
-                }
-                .onReceive(contentFrameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
+//                .onPreferenceChange(FloatingSheetFrameUpdateTriggerPreferenceKey.self) { publisherProxy in
+//                    contentFrameUpdatePublisher = publisherProxy.publisher
+//                }
+//                .onReceive(contentFrameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
+                .onReceive(viewModel.frameUpdatePublisher, perform: updateContentFrameAnimationSyncToken)
             }
         }
         .offset(y: -keyboardHeight)
         .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
         // [REDACTED_TODO_COMMENT]
-        .animation(.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.5), value: contentFrameAnimationSyncToken)
+        .animation(.linear, value: contentFrameAnimationSyncToken)
     }
 
     private var verticalSwipeGesture: some Gesture {
