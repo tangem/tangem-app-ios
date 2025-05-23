@@ -73,7 +73,7 @@ public class ProviderItem {
 
 extension ProviderItem: CustomDebugStringConvertible {
     public var debugDescription: String {
-        TangemFoundation.objectDescription(self, userInfo: [
+        objectDescription(self, userInfo: [
             "paymentMethod": paymentMethod.name,
             "providers": providers.map {
                 "providerName: \($0.provider.name), state: \($0.state)"
