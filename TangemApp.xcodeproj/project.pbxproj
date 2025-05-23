@@ -2011,6 +2011,7 @@
 		B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */; };
 		B6CA91372BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */; };
 		B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6CAC1CB2CC336220001A427 /* SolanaSwift */; };
+		B6CC6F602DD77301005D78DD /* FeeCurrencyNavigating.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */; };
 		B6D1139C2D91756800B2F17C /* CommonNFTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113972D91756800B2F17C /* CommonNFTManager.swift */; };
 		B6D274E82C38318900FEFCDC /* OnboardingLayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */; };
 		B6D274EB2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */; };
@@ -5545,6 +5546,7 @@
 		B6C9C82D2DCC061400F2757C /* TokenMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenMetadata.swift; sourceTree = "<group>"; };
 		B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthCheckBackgroundTask.swift; sourceTree = "<group>"; };
+		B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeCurrencyNavigating.swift; sourceTree = "<group>"; };
 		B6D113972D91756800B2F17C /* CommonNFTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTManager.swift; sourceTree = "<group>"; };
 		B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLayoutConstants.swift; sourceTree = "<group>"; };
 		B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsBottomSheetView.swift; sourceTree = "<group>"; };
@@ -8931,7 +8933,6 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				30ACF1DA2D943FC300ED26C6 /* NetworkImageProvider.swift */,
 				B0E1C2402C2430B2005309E1 /* AlertBuilders */,
 				B0ED3F022C3D6EC800311DE2 /* AmountFormatters */,
 				B0ED3F052C3D6FA900311DE2 /* DecimalRoundingUtility */,
@@ -8949,6 +8950,7 @@
 				B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */,
 				DC5DBBC8289B951600C21E35 /* DemoUtil.swift */,
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
+				B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 				B034785F2B0F6C08004FECA0 /* HighPriceImpactCalculator.swift */,
 				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
@@ -8956,6 +8958,7 @@
 				B0DE006B2A431BA6005A77D4 /* LocalizationIconParser.swift */,
 				B041C9662C3FF5BB00CE027A /* Math.swift */,
 				DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */,
+				30ACF1DA2D943FC300ED26C6 /* NetworkImageProvider.swift */,
 				EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */,
 				B643B8062B1965EA002DE401 /* PerformanceMonitorConfigurator.swift */,
 				B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */,
@@ -19989,6 +19992,7 @@
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
 				B0A0E7972BF48CAF0059FD5C /* VisaAppUtilities.swift in Sources */,
 				2DC567812B0E047700B0244F /* MainBottomSheetUIManager.swift in Sources */,
+				B6CC6F602DD77301005D78DD /* FeeCurrencyNavigating.swift in Sources */,
 				EFEE22BA2BFCE3D10099917E /* WithdrawalNotificationEvent.swift in Sources */,
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
 				EF6883122CF8B6C400658644 /* OnrampStatusCompactView.swift in Sources */,
