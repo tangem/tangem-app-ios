@@ -118,7 +118,7 @@ public extension ProvidersList {
             }
 
             let supportedMethods = flatMap { $0.providers }
-                .filter { $0.provider == provider.provider && $0.isSuccessfullyLoaded }
+                .filter { $0.provider == provider.provider && $0.isLoaded }
                 .map(\.paymentMethod)
 
             provider.update(supportedMethods: supportedMethods)
