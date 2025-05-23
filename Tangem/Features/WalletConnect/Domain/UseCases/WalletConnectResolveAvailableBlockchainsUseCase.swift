@@ -13,7 +13,7 @@ final class WalletConnectResolveAvailableBlockchainsUseCase {
         connectionProposal: WalletConnectDAppConnectionProposal,
         selectedBlockchains: Set<Blockchain>,
         userWallet: some UserWalletModel
-    ) throws -> WalletConnectDAppBlockchainsAvailabilityResult {
+    ) -> WalletConnectDAppBlockchainsAvailabilityResult {
         let (availableRequiredBlockchains, unavailableRequiredBlockchains) = Self.resolveRequiredBlockchains(
             requiredBlockchains: connectionProposal.requiredBlockchains,
             userWallet: userWallet
