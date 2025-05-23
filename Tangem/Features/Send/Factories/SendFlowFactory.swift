@@ -43,6 +43,29 @@ struct SendFlowFactory {
         return baseBuilder.makeSendViewModel(router: router)
     }
 
+    func makeNFTSendViewModel(sendParameters: SendParameters, router: SendRoutable) -> SendViewModel {
+        let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
+        let sendDestinationStepBuilder = SendDestinationStepBuilder(walletModel: walletModel, builder: builder)
+        let sendAmountStepBuilder = SendAmountStepBuilder(walletModel: walletModel, builder: builder) // [REDACTED_TODO_COMMENT]
+        let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
+        let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+
+        let baseBuilder = NFTSendFlowBaseBuilder(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            source: source,
+            sendAmountStepBuilder: sendAmountStepBuilder,
+            sendDestinationStepBuilder: sendDestinationStepBuilder,
+            sendFeeStepBuilder: sendFeeStepBuilder,
+            sendSummaryStepBuilder: sendSummaryStepBuilder,
+            sendFinishStepBuilder: sendFinishStepBuilder,
+            builder: builder
+        )
+
+        return baseBuilder.makeSendViewModel(router: router)
+    }
+
     func makeNewSendViewModel(router: SendRoutable) -> SendViewModel {
         let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
         let sendDestinationStepBuilder = SendNewDestinationStepBuilder(

@@ -10,8 +10,8 @@ import Foundation
 
 public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let id: NFTAssetId
-    let decimalCount: Int
-    let name: String
+    public let decimalCount: Int
+    public let name: String
     let description: String?
     let media: NFTMedia?
     let rarity: Rarity?
