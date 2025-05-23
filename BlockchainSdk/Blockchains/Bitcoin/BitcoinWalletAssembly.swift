@@ -17,7 +17,8 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
 
         let txBuilder = BitcoinTransactionBuilder(
             network: input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.bitcoin)
         )
 
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
