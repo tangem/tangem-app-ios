@@ -24,8 +24,12 @@ struct WalletConnectDAppConnectionRequestSectionView: View {
             if case .content(let contentState) = viewModel, contentState.isExpanded {
                 expandableContent(contentState)
                     .transition(
-                        .move(edge: .bottom).animation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5))
-                        .combined(with: .opacity.animation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.3).delay(0.2)))
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).animation(Animations.sectionSlideInsertion)
+                                .combined(with: .opacity.animation(Animations.sectionOpacityInsertion)),
+                            removal: .opacity.animation(Animations.sectionOpacityRemoval)
+                                .combined(with: .move(edge: .bottom).animation(Animations.sectionSlideRemoval))
+                        )
                     )
             }
         }
@@ -56,7 +60,7 @@ struct WalletConnectDAppConnectionRequestSectionView: View {
                         .frame(width: 18, height: 24)
                         .foregroundStyle(Colors.Icon.informative)
                         .rotationEffect(.degrees(contentState.isExpanded ? 90 : 0))
-                        .animation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.3).delay(0.2), value: contentState.isExpanded)
+                        .animation(Animations.sectionOpacityInsertion, value: contentState.isExpanded)
                 }
             }
             .frame(height: 46)
@@ -127,4 +131,33 @@ struct WalletConnectDAppConnectionRequestSectionView: View {
             : nil
     }
 
+}
+
+extension WalletConnectDAppConnectionRequestSectionView {
+    enum Animations {
+        fileprivate struct Curve {
+            let p1x: Double
+            let p1y: Double
+            let p2x: Double
+            let p2y: Double
+
+            static let primary = Curve(p1x: 0.76, p1y: 0, p2x: 0.24, p2y: 1)
+            static let secondary = Curve(p1x: 0.65, p1y: 0, p2x: 0.35, p2y: 1)
+        }
+
+        static let sectionSlideInsertion = Animation.make(curve: .primary, duration: 0.5)
+        static let sectionSlideRemoval = Animation.make(curve: .secondary, duration: 0.5)
+
+        static let sectionOpacityInsertion = Self.sectionOpacityRemoval.delay(0.2)
+        static let sectionOpacityRemoval = Animation.make(curve: .secondary, duration: 0.3)
+    }
+}
+
+extension Animation {
+    fileprivate static func make(
+        curve: WalletConnectDAppConnectionRequestSectionView.Animations.Curve,
+        duration: TimeInterval
+    ) -> Animation {
+        Animation.timingCurve(curve.p1x, curve.p1y, curve.p2x, curve.p2y, duration: duration)
+    }
 }

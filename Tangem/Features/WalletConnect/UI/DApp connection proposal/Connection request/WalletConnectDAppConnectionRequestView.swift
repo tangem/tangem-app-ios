@@ -30,7 +30,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             .padding(.top, Layout.contentTopPadding)
             .padding(.bottom, Layout.contentBottomPadding)
             .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .zero) { geometryInfo in
-                withAnimation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5)) {
+                withAnimation(WalletConnectDAppConnectionRequestSectionView.Animations.sectionSlideInsertion) {
                     updateScrollViewMaxHeight(geometryInfo.size.height)
                 }
 
