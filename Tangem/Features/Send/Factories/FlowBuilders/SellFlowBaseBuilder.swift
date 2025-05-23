@@ -43,7 +43,8 @@ struct SellFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .disable,
+            destinationEditableType: .disable,
+            amountEditableType: .disable,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: nil,
@@ -61,7 +62,7 @@ struct SellFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendFeeInteractor = fee.interactor
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             sendFeeInteractor: fee.interactor
