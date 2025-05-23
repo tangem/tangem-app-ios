@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  TangemModules
+//  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -17,6 +17,7 @@ struct SquaredOrRectangleImageView: View {
     private typealias LoadingState = LoadingValue<Void>
 
     private let media: NFTMedia?
+    private var cornerRadius = Constants.defaultCornerRadius
 
     @State private var containerSize: CGSize = .zero
     @State private var originalSize: CGSize = .zero
@@ -38,7 +39,7 @@ struct SquaredOrRectangleImageView: View {
         Colors.Field.focused
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
-            .cornerRadiusContinuous(Constants.cornerRadius)
+            .cornerRadiusContinuous(cornerRadius)
     }
 
     @ViewBuilder
@@ -46,7 +47,7 @@ struct SquaredOrRectangleImageView: View {
         if let media, loadingState.error == nil {
             makeMedia(media)
                 .if(isSquare) {
-                    $0.cornerRadius(Constants.cornerRadius, corners: .allCorners)
+                    $0.cornerRadius(cornerRadius, corners: .allCorners)
                 }
         } else {
             downloadFailedPlaceholder
@@ -89,16 +90,28 @@ struct SquaredOrRectangleImageView: View {
             }
             .skeletonable(
                 isShown: loadingState.isLoading,
-                radius: Constants.cornerRadius
+                radius: cornerRadius
             )
     }
 }
 
+// MARK: - Constants
+
 extension SquaredOrRectangleImageView {
     enum Constants {
-        static let cornerRadius: CGFloat = 14
+        static let defaultCornerRadius: CGFloat = 14.0
     }
 }
+
+// MARK: - Setupable protocol conformance
+
+extension SquaredOrRectangleImageView: Setupable {
+    func cornerRadius(_ cornerRadius: CGFloat) -> Self {
+        map { $0.cornerRadius = cornerRadius }
+    }
+}
+
+// MARK: - Previews
 
 #if DEBUG
 #Preview("Gif") {
