@@ -100,7 +100,7 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func loadAndSave(currencies: CurrenciesSet) {
-        TangemFoundation.runTask(in: self) { provider in
+        runTask(in: self) { provider in
             do {
                 let availabilityStates = try await provider.loadAvailabilityStates(currencies: currencies)
                 provider.save(states: availabilityStates)
