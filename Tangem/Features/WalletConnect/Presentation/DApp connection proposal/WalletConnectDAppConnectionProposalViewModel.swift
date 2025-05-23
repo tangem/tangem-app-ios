@@ -10,13 +10,19 @@ import Combine
 
 @MainActor
 final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
-    private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
+    let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
 
     @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
+
+    private var cancellable: AnyCancellable?
 
     init(state: WalletConnectDAppConnectionProposalViewState, connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel) {
         self.state = state
         self.connectionRequestViewModel = connectionRequestViewModel
+
+        cancellable = connectionRequestViewModel.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        }
     }
 
     func loadDAppProposal() {
