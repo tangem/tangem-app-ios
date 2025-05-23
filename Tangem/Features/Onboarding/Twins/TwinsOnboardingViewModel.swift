@@ -139,6 +139,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private var twinCardSeries: TwinCardSeries
     private var stepUpdatesSubscription: AnyCancellable?
     private let twinsService: TwinsWalletCreationUtil
+    private let imageProvider = TwinImageProvider()
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
@@ -379,16 +380,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     }
 
     private func loadSecondTwinImage() {
-        CardImageProvider()
-            .loadTwinImage(for: twinCardSeries.pair.number)
-            .map { $0.image }
+        imageProvider
+            .loadTwinImagePublisher(cardNumber: twinCardSeries.pair.number)
             .zip($mainImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] paired, main in
                 guard let self = self else { return }
 
                 firstTwinImage = main
-                secondTwinImage = paired
+                secondTwinImage = Image(uiImage: paired)
             }
             .store(in: &bag)
     }
