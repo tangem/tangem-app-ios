@@ -16,17 +16,17 @@ struct NFTSendAmountCompactContentViewModel {
     var assetTitle: String { asset.name }
     var assetSubtitle: String { collection.name }
     let asset: NFTAsset
-    let chainIconProvider: NFTChainIconProvider
+    let nftChainIconProvider: NFTChainIconProvider
 
     private let collection: NFTCollection
 
     init(
         asset: NFTAsset,
         collection: NFTCollection,
-        chainIconProvider: NFTChainIconProvider
+        nftChainIconProvider: NFTChainIconProvider
     ) {
         self.asset = asset
         self.collection = collection
-        self.chainIconProvider = chainIconProvider
+        self.nftChainIconProvider = nftChainIconProvider
     }
 }
