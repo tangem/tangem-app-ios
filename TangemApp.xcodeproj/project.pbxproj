@@ -1810,6 +1810,7 @@
 		B62D43AD2CBC7FCE00C2460E /* APIListUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43952CBC7FCD00C2460E /* APIListUtils.swift */; };
 		B62D43BD2CBC7FCE00C2460E /* SimpleAccountCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43A92CBC7FCE00C2460E /* SimpleAccountCreator.swift */; };
 		B62D43C22CBC823A00C2460E /* TangemWalletCoreBinariesWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */; };
+		B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E1C252DDC0FD400CE8049 /* NFTPriceFormatter.swift */; };
 		B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31B2B28977B006BA412 /* RateAppResponse.swift */; };
 		B62EE31E2B28A0FE006BA412 /* AppStoreReviewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */; };
 		B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */; };
@@ -5372,6 +5373,7 @@
 		B62D43952CBC7FCD00C2460E /* APIListUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIListUtils.swift; sourceTree = "<group>"; };
 		B62D43962CBC7FCD00C2460E /* BlockchainSdkExample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = BlockchainSdkExample.entitlements; sourceTree = "<group>"; };
 		B62D43A92CBC7FCE00C2460E /* SimpleAccountCreator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleAccountCreator.swift; sourceTree = "<group>"; };
+		B62E1C252DDC0FD400CE8049 /* NFTPriceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTPriceFormatter.swift; sourceTree = "<group>"; };
 		B62EE31B2B28977B006BA412 /* RateAppResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppResponse.swift; sourceTree = "<group>"; };
 		B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreReviewModifier.swift; sourceTree = "<group>"; };
 		B63127D32A2F52E2007C124C /* OrganizeTokensListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSection.swift; sourceTree = "<group>"; };
@@ -12763,11 +12765,12 @@
 			isa = PBXGroup;
 			children = (
 				B6BEF9D92DB9C6D500B186C6 /* CommonNFTTokenIconInfoProvider.swift */,
+				B62E1C252DDC0FD400CE8049 /* NFTPriceFormatter.swift */,
 				B63A5F052D95D849001A61C1 /* NFTChainConverter.swift */,
 				30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */,
+				B6A0893F2DD7AB9B005CBBA2 /* NFTNavigationInput.swift */,
 				B63A5F022D95D7B9001A61C1 /* NFTNetworkServiceFactory.swift */,
 				B689700B2DC3075400AFF9EB /* NFTWalletModelFinder.swift */,
-				B6A0893F2DD7AB9B005CBBA2 /* NFTNavigationInput.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -19608,6 +19611,7 @@
 				B65DB33E2BB4101000BE0501 /* AccountHealthChecker.swift in Sources */,
 				2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */,
 				B002654C2CE1F50000D969E0 /* OnboardingPinStackView.swift in Sources */,
+				B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */,
 				B0B86CFF2A1B594000AB1475 /* MainHeaderSupplementInfoProvider.swift in Sources */,
 				B0B335DC29FA948F00E2082E /* FakeTokenItemInfoProvider.swift in Sources */,
 				B0A1BC112C296B5700DECCFD /* MarketsTokenDetailsView.swift in Sources */,
