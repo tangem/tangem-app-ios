@@ -11,15 +11,17 @@ import TangemAssets
 import TangemUI
 import HotSwiftUI
 
+import Combine
+
 struct WalletConnectDAppConnectionProposalView: View {
     @ObserveInjection var io
     @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
 
     var body: some View {
         contentStateView
+//            .frame(maxHeight: .infinity, alignment: .bottom)
             .frame(maxWidth: .infinity)
             .background(Colors.Background.tertiary)
-            .floatingSheetContentFrameUpdatePublisher(viewModel.$state)
             .enableInjection()
     }
 
@@ -51,7 +53,7 @@ struct WalletConnectDAppConnectionProposalView: View {
                 VStack {
                     Button("back") { viewModel.switchToConnectionRequest() }
                 }
-                .frame(height: 200)
+                .frame(height: 700)
                 .background(.red)
                 .transition(.networkSelector)
             }
