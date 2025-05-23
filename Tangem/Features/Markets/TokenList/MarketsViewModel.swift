@@ -146,6 +146,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
     }
 
     func onShowUnderCapAction() {
+        Analytics.log(.marketsChartShowedTokensBelowCapThreshold)
         showItemsBelowCapThreshold = true
 
         if tokenViewModels.count == dataProvider.items.count, dataProvider.canFetchMore {
@@ -465,12 +466,6 @@ private extension MarketsViewModel {
         ]
 
         Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
-
-        guard let marketCap, marketCap < 100_000 else {
-            return
-        }
-
-        Analytics.log(.openedLowCapTokenPage)
     }
 }
 
