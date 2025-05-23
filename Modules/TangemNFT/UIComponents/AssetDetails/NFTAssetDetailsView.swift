@@ -39,6 +39,7 @@ public struct NFTAssetDetailsView: View {
     private var content: some View {
         ZStack {
             scrollView
+
             sendButtonContainer
         }
         .coordinateSpace(name: coordinateSpaceName)
@@ -77,14 +78,15 @@ public struct NFTAssetDetailsView: View {
     private var sendButtonContainer: some View {
         VStack(spacing: 0) {
             Spacer()
-            sendButton(souldAddShadow: shouldShowShadow)
+
+            sendButton(shouldShowShadow: shouldShowShadow)
         }
     }
 
-    private func sendButton(souldAddShadow: Bool) -> some View {
-        MainButton(title: Localization.commonSend, action: {})
+    private func sendButton(shouldShowShadow: Bool) -> some View {
+        MainButton(title: Localization.commonSend, action: viewModel.onSendButtonTap)
             .padding(.bottom, Constants.mainButtonBottomPadding)
-            .if(souldAddShadow) { view in
+            .if(shouldShowShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
                 )
@@ -135,8 +137,20 @@ private extension NFTAssetDetailsView {
                         NFTAsset.Trait(name: "Sneakers", value: "Boots"),
                     ]
                 ),
-                coordinator: nil,
-                nftChainNameProviding: NFTChainNameProviderMock()
+                collection: NFTCollection(
+                    collectionIdentifier: "0x071126cbec1c5562530ab85fd80dd3e3a42a70b8",
+                    chain: .arbitrum(isTestnet: false),
+                    contractType: .erc721,
+                    ownerAddress: "0xf686cc42c39e942d5b4a237286c5a55b451bd6f0",
+                    name: "Arbzukiswap coll",
+                    description: nil,
+                    media: nil,
+                    assetsCount: nil,
+                    assets: []
+                ),
+                navigationContext: NFTNavigationContextMock(),
+                nftChainNameProviding: NFTChainNameProviderMock(),
+                coordinator: nil
             )
         )
         .navigationTitle("My awesome asset")
