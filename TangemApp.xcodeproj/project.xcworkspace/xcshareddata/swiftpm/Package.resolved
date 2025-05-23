@@ -393,8 +393,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/stellar-ios-mac-sdk.git",
       "state" : {
-        "revision" : "281ae43d415ab5460c84cd6e7b5734397afb09c3",
-        "version" : "3.0.7-tangem1"
+        "revision" : "5f2544d8a09006e1dff036f87a1ede1a4a903436",
+        "version" : "3.0.7-tangem2"
       }
     },
     {
@@ -600,8 +600,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "8fabdda1aba53ba2caa1348fc39570147bcafa94",
-        "version" : "3.15.0"
+        "revision" : "3f5e645771e423d3717ff06f40970ced4a970077",
+        "version" : "3.16.0"
       }
     },
     {
