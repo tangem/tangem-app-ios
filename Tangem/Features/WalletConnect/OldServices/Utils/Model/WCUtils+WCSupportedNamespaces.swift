@@ -7,16 +7,8 @@
 //
 
 extension WCUtils {
-    enum WCSupportedNamespaces: String, CaseIterable {
+    enum WCSupportedNamespaces: String {
         case eip155
         case solana
-
-        init?(rawValue: String) {
-            switch rawValue.lowercased() {
-            case "eip155": self = .eip155
-            case "solana": self = .solana
-            default: return nil
-            }
-        }
     }
 }
