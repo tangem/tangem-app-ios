@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemNFT
 
 enum NFTWalletModelFinder {
-    static func isWalletModel(_ walletModel: any WalletModel, equalsTo collectionIdentifier: NFTCollection.ID) -> Bool {
+    static func isWalletModel(_ walletModel: some WalletModel, equalsTo collectionIdentifier: NFTCollection.ID) -> Bool {
         return isWalletModel(
             walletModel,
             equalsToNFTChain: collectionIdentifier.chain,
@@ -19,7 +19,7 @@ enum NFTWalletModelFinder {
         )
     }
 
-    static func isWalletModel(_ walletModel: any WalletModel, equalsTo assetIdentifier: NFTAsset.ID) -> Bool {
+    static func isWalletModel(_ walletModel: some WalletModel, equalsTo assetIdentifier: NFTAsset.ID) -> Bool {
         return isWalletModel(
             walletModel,
             equalsToNFTChain: assetIdentifier.chain,
@@ -44,7 +44,7 @@ enum NFTWalletModelFinder {
     // MARK: - Private implementation
 
     private static func isWalletModel(
-        _ walletModel: any WalletModel,
+        _ walletModel: some WalletModel,
         equalsToNFTChain nftChain: NFTChain,
         andOwnerAddress ownerAddress: String
     ) -> Bool {
@@ -56,5 +56,31 @@ enum NFTWalletModelFinder {
         }
 
         return walletModelNFTChain == nftChain && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: ownerAddress) }
+    }
+}
+
+// MARK: - Convenience extensions
+
+extension NFTWalletModelFinder {
+    static func isWalletModel(_ walletModel: some WalletModel, equalsTo collection: NFTCollection) -> Bool {
+        return isWalletModel(walletModel, equalsTo: collection.id)
+    }
+
+    static func isWalletModel(_ walletModel: some WalletModel, equalsTo asset: NFTAsset) -> Bool {
+        return isWalletModel(walletModel, equalsTo: asset.id)
+    }
+
+    static func findWalletModel(
+        for collection: NFTCollection,
+        in walletModels: [any WalletModel]
+    ) -> (any WalletModel)? {
+        return findWalletModel(for: collection.id, in: walletModels)
+    }
+
+    static func findWalletModel(
+        for asset: NFTAsset,
+        in walletModels: [any WalletModel]
+    ) -> (any WalletModel)? {
+        return findWalletModel(for: asset.id, in: walletModels)
     }
 }
