@@ -13,6 +13,7 @@ import CombineExt
 import TangemStaking
 import TangemNFT
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
