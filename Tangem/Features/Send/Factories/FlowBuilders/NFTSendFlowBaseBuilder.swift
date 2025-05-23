@@ -12,7 +12,7 @@ struct NFTSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
-    let sendAmountStepBuilder: SendAmountStepBuilder
+    let sendAmountStepBuilder: NFTSendAmountStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
     let sendSummaryStepBuilder: SendSummaryStepBuilder
@@ -53,7 +53,8 @@ struct NFTSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeNFTSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            destinationEditableType: .editable,
+            amountEditableType: .noEditable, // Amount is fixed for NFTs
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,

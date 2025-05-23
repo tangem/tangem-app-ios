@@ -44,7 +44,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published var transactionDescriptionIsVisible: Bool = false
 
     var destinationCompactViewType: SendCompactViewEditableType {
-        switch editableType {
+        switch destinationEditableType {
         case .disable: .disabled
         case .editable: .enabled(action: userDidTapDestination)
         case .noEditable: .enabled()
@@ -52,7 +52,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     var amountCompactViewType: SendCompactViewEditableType {
-        switch editableType {
+        switch amountEditableType {
         case .disable: .disabled
         case .editable: .enabled(action: userDidTapAmount)
         case .noEditable: .enabled()
@@ -60,7 +60,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     private let tokenItem: TokenItem
-    private let editableType: EditableType
+    private let destinationEditableType: EditableType
+    private let amountEditableType: EditableType
     private let interactor: SendSummaryInteractor
     private let notificationManager: NotificationManager
     private let actionType: SendFlowActionType
@@ -77,7 +78,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
-        editableType = settings.editableType
+        destinationEditableType = settings.destinationEditableType
+        amountEditableType = settings.amountEditableType
         tokenItem = settings.tokenItem
         actionType = settings.actionType
 
@@ -276,10 +278,12 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
 extension SendSummaryViewModel {
     struct Settings {
         let tokenItem: TokenItem
-        let editableType: EditableType
+        let destinationEditableType: EditableType
+        let amountEditableType: EditableType
         let actionType: SendFlowActionType
     }
 
+    /// - Note: The only difference between `.disable` and `.noEditable` is the background color in the UI.
     enum EditableType: Hashable {
         case disable
         case editable
