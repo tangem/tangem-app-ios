@@ -110,7 +110,7 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
 
                 return status ? .confirmed : .unconfirmed
             }
-            
+
             guard let transactonId = transaction.transactionId?.nilIfEmpty else {
                 return nil
             }

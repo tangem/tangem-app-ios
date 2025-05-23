@@ -195,9 +195,9 @@ extension StellarWalletManager: RequiredMemoRestrictable {
         if let transactionParams = transactionParams as? StellarTransactionParams, transactionParams.memo != nil {
             return
         }
-        
+
         let isMemoRequired = try await networkService.checkIsMemoRequired(for: destination).async()
-        
+
         if isMemoRequired {
             throw ValidationError.destinationMemoRequired
         }
