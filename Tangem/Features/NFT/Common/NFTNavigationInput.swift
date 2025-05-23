@@ -1,5 +1,5 @@
 //
-//  NFTReceiveInput.swift
+//  NFTNavigationInput.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,7 @@
 import Foundation
 import TangemNFT
 
-struct NFTReceiveInput: NFTEntrypointNavigationContext {
-    let userWalletName: String
-    let userWalletConfig: UserWalletConfig
+struct NFTNavigationInput: NFTNavigationContext {
+    let userWalletModel: UserWalletModel
     let walletModelsManager: WalletModelsManager
 }
