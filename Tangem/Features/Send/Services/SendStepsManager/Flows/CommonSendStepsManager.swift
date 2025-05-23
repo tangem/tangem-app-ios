@@ -43,7 +43,7 @@ class CommonSendStepsManager {
         return last ?? initialState.step
     }
 
-    private func getNextStep() -> (SendStep)? {
+    private func getNextStep() -> SendStep? {
         switch currentStep().type {
         case .destination:
             return amountStep
