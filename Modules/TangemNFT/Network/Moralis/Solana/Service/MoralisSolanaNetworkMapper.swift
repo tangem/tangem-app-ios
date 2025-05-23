@@ -72,6 +72,7 @@ struct MoralisSolanaNetworkMapper {
             ownerAddress: ownerAddress,
             name: asset.name ?? Constants.assetNameFallback,
             description: nil, // Moralis doesn't send description for Solana
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits

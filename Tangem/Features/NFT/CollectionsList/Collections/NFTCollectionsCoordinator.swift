@@ -37,10 +37,15 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
+
+        let dependencies = NFTCollectionsListDependencies(
+            nftChainIconProvider: options.nftChainIconProvider,
+            priceFormatter: options.priceFormatter
+        )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
-            chainIconProvider: options.chainIconProvider,
             navigationContext: options.navigationContext,
+            dependencies: dependencies,
             coordinator: self
         )
     }
@@ -51,13 +56,14 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
-        let chainIconProvider: NFTChainIconProvider
-        let nftChainNameProviding: NFTChainNameProviding
+        let nftChainIconProvider: NFTChainIconProvider
+        let nftChainNameProvider: NFTChainNameProviding
+        let priceFormatter: NFTPriceFormatting
         let navigationContext: NFTNavigationContext
     }
 }
 
-// MARK: - NFTReceive_Routable
+// MARK: - NFTCollectionsListRoutable
 
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
     func openReceive(navigationContext: NFTNavigationContext) {
@@ -78,7 +84,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             }
         )
 
-        coordinator.start(with: .init(input: input, nftChainNameProviding: options.nftChainNameProviding))
+        coordinator.start(with: .init(input: input, nftChainNameProvider: options.nftChainNameProvider))
         receiveCoordinator = coordinator
     }
 
@@ -99,8 +105,9 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             with: .init(
                 asset: asset,
                 collection: collection,
+                nftChainNameProvider: options.nftChainNameProvider,
+                priceFormatter: options.priceFormatter,
                 navigationContext: navigationContext,
-                nftChainNameProviding: options.nftChainNameProviding
             )
         )
         assetDetailsCoordinator = coordinator

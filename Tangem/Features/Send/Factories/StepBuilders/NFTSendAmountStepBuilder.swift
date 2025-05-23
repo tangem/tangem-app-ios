@@ -43,7 +43,7 @@ struct NFTSendAmountStepBuilder {
         let conventViewModel = NFTSendAmountCompactContentViewModel(
             asset: asset,
             collection: collection,
-            chainIconProvider: NetworkImageProvider()
+            nftChainIconProvider: NetworkImageProvider()
         )
 
         return SendAmountCompactViewModel(conventViewModel: .nft(viewModel: conventViewModel))

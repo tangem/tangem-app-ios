@@ -13,6 +13,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let decimalCount: Int
     public let name: String
     let description: String?
+    let salePrice: NFTSalePrice?
     let media: NFTMedia?
     let rarity: Rarity?
     let traits: [Trait]
@@ -26,6 +27,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
         ownerAddress: String,
         name: String,
         description: String?,
+        salePrice: NFTSalePrice?,
         media: NFTMedia?,
         rarity: NFTAsset.Rarity?,
         traits: [NFTAsset.Trait]
@@ -41,6 +43,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
         self.decimalCount = decimalCount
         self.name = name
         self.description = description
+        self.salePrice = salePrice
         self.media = media
         self.rarity = rarity
         self.traits = traits
@@ -71,5 +74,28 @@ public extension NFTAsset {
     struct Trait: Hashable, Sendable {
         let name: String
         let value: String
+    }
+}
+
+// MARK: - Convenience extensions
+
+public extension NFTAsset {
+    /// - Note: Some providers provide sale prices as a separate request,
+    /// so this helper method can be used to enrich the asset domain model with sale price data.
+    func enriched(with salePrice: NFTSalePrice?) -> Self {
+        return .init(
+            assetIdentifier: id.identifier,
+            assetContractAddress: id.contractAddress,
+            chain: id.chain,
+            contractType: id.contractType,
+            decimalCount: decimalCount,
+            ownerAddress: id.ownerAddress,
+            name: name,
+            description: description,
+            salePrice: salePrice,
+            media: media,
+            rarity: rarity,
+            traits: traits
+        )
     }
 }
