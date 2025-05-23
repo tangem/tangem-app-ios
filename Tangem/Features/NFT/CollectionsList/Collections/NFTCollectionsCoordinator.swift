@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemNFT
 
@@ -25,8 +26,6 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
     @Published var receiveCoordinator: NFTReceiveCoordinator?
     @Published var assetDetailsCoordinator: NFTAssetDetailsCoordinator?
-
-    // MARK: - Child view models
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -54,16 +53,16 @@ extension NFTCollectionsCoordinator {
         let nftManager: NFTManager
         let chainIconProvider: NFTChainIconProvider
         let nftChainNameProviding: NFTChainNameProviding
-        let navigationContext: NFTEntrypointNavigationContext
+        let navigationContext: NFTNavigationContext
     }
 }
 
 // MARK: - NFTReceive_Routable
 
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
-    func openReceive(navigationContext: NFTEntrypointNavigationContext) {
+    func openReceive(navigationContext: NFTNavigationContext) {
         guard
-            let receiveInput = navigationContext as? NFTReceiveInput,
+            let input = navigationContext as? NFTNavigationInput,
             let options
         else {
             return
@@ -79,12 +78,12 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             }
         )
 
+        coordinator.start(with: .init(input: input, nftChainNameProviding: options.nftChainNameProviding))
         receiveCoordinator = coordinator
-        coordinator.start(with: .init(input: receiveInput, nftChainNameProviding: options.nftChainNameProviding))
     }
 
-    func openAssetDetails(asset: NFTAsset) {
-        let assetDetailsCoordinator = NFTAssetDetailsCoordinator(
+    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
+        let coordinator = NFTAssetDetailsCoordinator(
             dismissAction: { [weak self] in
                 self?.assetDetailsCoordinator = nil
             },
@@ -96,13 +95,14 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
 
         guard let options else { return }
 
-        assetDetailsCoordinator.start(
-            with: NFTAssetDetailsCoordinator.Options(
+        coordinator.start(
+            with: .init(
                 asset: asset,
+                collection: collection,
+                navigationContext: navigationContext,
                 nftChainNameProviding: options.nftChainNameProviding
             )
         )
-
-        self.assetDetailsCoordinator = assetDetailsCoordinator
+        assetDetailsCoordinator = coordinator
     }
 }
