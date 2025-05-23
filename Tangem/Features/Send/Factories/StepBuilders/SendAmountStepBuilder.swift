@@ -68,7 +68,7 @@ private extension SendAmountStepBuilder {
         actionType: SendFlowActionType,
         sendQRCodeService: SendQRCodeService?
     ) -> SendAmountViewModel {
-        let initital = SendAmountViewModel.Settings(
+        let initial = SendAmountViewModel.Settings(
             walletHeaderText: builder.walletHeaderText(for: actionType),
             tokenItem: walletModel.tokenItem,
             tokenIconInfo: builder.makeTokenIconInfo(),
@@ -78,7 +78,7 @@ private extension SendAmountStepBuilder {
         )
 
         return SendAmountViewModel(
-            initial: initital,
+            initial: initial,
             interactor: interactor,
             sendQRCodeService: sendQRCodeService
         )
