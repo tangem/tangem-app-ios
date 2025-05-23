@@ -13,7 +13,8 @@ struct DucatusWalletAssembly: WalletManagerAssembly {
         let unspentOutputManager: UnspentOutputManager = .ducatus(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: DucatusNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .custom
         )
         let networkService = BitcoreNetworkProvider(configuration: input.networkInput.tangemProviderConfig)
         return DucatusWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)

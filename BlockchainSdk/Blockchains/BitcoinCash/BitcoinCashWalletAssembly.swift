@@ -19,7 +19,8 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
 
         let txBuilder = BitcoinTransactionBuilder(
             network: networkParams,
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.bitcoinCash)
         )
 
         // [REDACTED_TODO_COMMENT]
