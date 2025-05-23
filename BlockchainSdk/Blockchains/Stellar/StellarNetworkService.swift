@@ -41,7 +41,7 @@ class StellarNetworkService: MultiNetworkProvider {
             $0.getFee()
         }
     }
-    
+
     func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
         providerPublisher { provider in
             provider.checkIsMemoRequired(for: address)
