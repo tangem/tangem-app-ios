@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 class AptosNetworkService: MultiNetworkProvider {
     // MARK: - Protperties
@@ -35,7 +36,7 @@ class AptosNetworkService: MultiNetworkProvider {
                         let accountJson = response.first(where: { $0.type == Constants.accountKeyPrefix }),
                         let coinJson = response.first(where: { $0.type == Constants.coinStoreKeyPrefix })
                     else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw WalletError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
                     }
 
                     guard
