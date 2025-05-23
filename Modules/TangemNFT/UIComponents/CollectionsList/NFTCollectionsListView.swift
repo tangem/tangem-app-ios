@@ -329,7 +329,7 @@ let collections = (0 ... 20).map {
                     )
                 ),
                 chainIconProvider: DummyProvider(),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -347,7 +347,7 @@ let collections = (0 ... 20).map {
                         state: .loaded(.init(value: collections, hasErrors: true))
                     ),
                     chainIconProvider: DummyProvider(),
-                    navigationContext: NFTEntrypointNavigationContextMock(),
+                    navigationContext: NFTNavigationContextMock(),
                     coordinator: nil
                 )
             )
@@ -366,7 +366,7 @@ let collections = (0 ... 20).map {
                         state: .loading
                     ),
                     chainIconProvider: DummyProvider(),
-                    navigationContext: NFTEntrypointNavigationContextMock(),
+                    navigationContext: NFTNavigationContextMock(),
                     coordinator: nil
                 )
             )
@@ -385,7 +385,7 @@ let collections = (0 ... 20).map {
                         state: .failedToLoad(error: NSError())
                     ),
                     chainIconProvider: DummyProvider(),
-                    navigationContext: NFTEntrypointNavigationContextMock(),
+                    navigationContext: NFTNavigationContextMock(),
                     coordinator: nil
                 )
             )
@@ -402,7 +402,7 @@ let collections = (0 ... 20).map {
                 viewModel: .init(
                     nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
                     chainIconProvider: DummyProvider(),
-                    navigationContext: NFTEntrypointNavigationContextMock(),
+                    navigationContext: NFTNavigationContextMock(),
                     coordinator: nil
                 )
             )
