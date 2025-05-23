@@ -13,7 +13,8 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
         let unspentOutputManager: UnspentOutputManager = .litecoin(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: LitecoinNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.litecoin)
         )
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
