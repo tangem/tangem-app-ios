@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemNetworkUtils
 
 class GenericBackupServiceFactory: BackupServiceFactory {
     private let isAccessCodeSet: Bool
@@ -19,6 +20,6 @@ class GenericBackupServiceFactory: BackupServiceFactory {
     func makeBackupService() -> BackupService {
         let factory = GenericTangemSdkFactory(isAccessCodeSet: isAccessCodeSet)
         let sdk = factory.makeTangemSdk()
-        return BackupService(sdk: sdk)
+        return BackupService(sdk: sdk, networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession))
     }
 }
