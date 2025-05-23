@@ -269,6 +269,14 @@ extension WalletConnectDAppConnectionRequestViewState {
         let iconAsset = Assets.Glyphs.networkNew
         let label = Localization.wcCommonNetworks
         let state: Self.State
+
+        var trailingIconAsset: ImageType? {
+            if case .content(let contentState) = state, case .available = contentState.selectionMode {
+                return Assets.Glyphs.selectIcon
+            }
+
+            return nil
+        }
     }
 }
 
