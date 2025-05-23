@@ -99,6 +99,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.startWalletUsageDate)
     var startWalletUsageDate: Date? = nil
 
+    @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
+    var tronWarningWithdrawTokenDisplayed: Int = 0
+
     static let shared: AppSettings = .init()
 
     private init() {}
