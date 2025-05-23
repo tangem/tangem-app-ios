@@ -7,7 +7,7 @@
 //
 
 import struct Foundation.URL
-import enum TangemAssets.Assets
+import TangemAssets
 
 enum WalletConnectDAppDescriptionViewModel: Equatable {
     case loading
@@ -27,15 +27,24 @@ extension WalletConnectDAppDescriptionViewModel {
         let fallbackIconAsset = Assets.Glyphs.explore
         let name: String
         let domain: String
+        let verifiedDomainIconAsset: ImageType?
 
-        init(dAppData: WalletConnectDAppData) {
-            self.init(iconURL: dAppData.icon, name: dAppData.name, domain: dAppData.domain)
+        init(dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus) {
+            self.init(
+                iconURL: dAppData.icon,
+                name: dAppData.name,
+                domain: dAppData.domain,
+                domainIsVerified: verificationStatus.isVerified
+            )
         }
 
-        init(iconURL: URL?, name: String, domain: URL?) {
+        init(iconURL: URL?, name: String, domain: URL?, domainIsVerified: Bool? = nil) {
             self.iconURL = iconURL
             self.name = name
             self.domain = domain?.host ?? ""
+            self.verifiedDomainIconAsset = domainIsVerified == true
+                ? Assets.Glyphs.verified
+                : nil
         }
     }
 }
