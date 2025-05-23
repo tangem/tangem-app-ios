@@ -81,6 +81,7 @@ struct MoralisEVMNetworkMapper {
             ownerAddress: asset.ownerOf ?? ownerAddress(),
             name: asset.name ?? Constants.assetNameFallback,
             description: asset.normalizedMetadata?.description,
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits
