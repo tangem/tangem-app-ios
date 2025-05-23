@@ -34,9 +34,11 @@ struct TangemSigner: TransactionSigner {
         Future<[SignatureInfo], Error> { promise in
             let signCommand = SignAndReadTask(
                 hashes: hashes,
-                walletPublicKey: walletPublicKey.seedKey,
+                seedKey: walletPublicKey.seedKey,
                 pairWalletPublicKey: twinKey?.getPairKey(for: walletPublicKey.seedKey),
-                derivationPath: walletPublicKey.derivationPath
+                hdKey: walletPublicKey.derivationPath.map {
+                    .init(blockchainKey: walletPublicKey.blockchainKey, derivationPath: $0)
+                }
             )
 
             sdk.startSession(with: signCommand, filter: filter, initialMessage: initialMessage) { signResult in
