@@ -20,11 +20,21 @@ struct NFTAssetDetailsCoordinatorView: View {
                 NavigationView {
                     NFTAssetDetailsView(viewModel: rootViewModel)
                         .withCloseButton(action: coordinator.dismiss)
+                        .navigationLinks(links)
                 }
             }
 
             sheets
         }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
+            .emptyNavigationLink()
     }
 
     @ViewBuilder
