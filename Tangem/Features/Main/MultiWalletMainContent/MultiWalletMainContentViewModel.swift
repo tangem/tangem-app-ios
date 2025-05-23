@@ -13,6 +13,7 @@ import CombineExt
 import TangemStaking
 import TangemNFT
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -166,9 +167,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return nil
                 }
 
-                let navigationContext = NFTReceiveInput(
-                    userWalletName: userWalletModel.name,
-                    userWalletConfig: userWalletModel.config,
+                let navigationContext = NFTNavigationInput(
+                    userWalletModel: userWalletModel,
                     walletModelsManager: userWalletModel.walletModelsManager
                 )
 
