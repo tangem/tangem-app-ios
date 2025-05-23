@@ -13,7 +13,8 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
         let unspentOutputManager: UnspentOutputManager = .dogecoin(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: DogecoinNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.dogecoin)
         )
 
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
