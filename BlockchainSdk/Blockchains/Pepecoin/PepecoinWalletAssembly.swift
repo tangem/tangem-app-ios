@@ -18,7 +18,8 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
 
         let txBuilder = BitcoinTransactionBuilder(
             network: blockchain.isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .custom
         )
 
         let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
