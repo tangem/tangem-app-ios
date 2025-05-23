@@ -14,16 +14,22 @@ import TangemAssets
 
 public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     private let asset: NFTAsset
+    private let collection: NFTCollection
+    private let navigationContext: NFTNavigationContext
 
     private let nftChainNameProviding: NFTChainNameProviding
     private weak var coordinator: NFTAssetDetailsRoutable?
 
     public init(
         asset: NFTAsset,
-        coordinator: NFTAssetDetailsRoutable?,
-        nftChainNameProviding: NFTChainNameProviding
+        collection: NFTCollection,
+        navigationContext: NFTNavigationContext,
+        nftChainNameProviding: NFTChainNameProviding,
+        coordinator: NFTAssetDetailsRoutable?
     ) {
         self.asset = asset
+        self.collection = collection
+        self.navigationContext = navigationContext
         self.coordinator = coordinator
         self.nftChainNameProviding = nftChainNameProviding
     }
@@ -96,6 +102,10 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         )
 
         return KeyValuePanelViewData(header: header, keyValues: makeInfoKeyPairs())
+    }
+
+    func onSendButtonTap() {
+        coordinator?.openSend(for: asset, in: collection, navigationContext: navigationContext)
     }
 
     private func makeRarity(from rarity: NFTAsset.Rarity?) -> [KeyValuePairViewData] {
