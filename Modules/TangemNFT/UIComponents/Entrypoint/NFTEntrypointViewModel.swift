@@ -20,13 +20,13 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     private let nftManager: NFTManager
-    private let navigationContext: NFTEntrypointNavigationContext
+    private let navigationContext: NFTNavigationContext
     private var bag: Set<AnyCancellable> = []
     private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
         nftManager: NFTManager,
-        navigationContext: NFTEntrypointNavigationContext,
+        navigationContext: NFTNavigationContext,
         coordinator: NFTEntrypointRoutable?
     ) {
         self.nftManager = nftManager
