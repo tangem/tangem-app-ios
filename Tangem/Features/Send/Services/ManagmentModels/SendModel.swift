@@ -485,7 +485,6 @@ private extension SendModel {
 extension SendModel {
     struct PredefinedValues {
         let source: Source
-
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
