@@ -279,6 +279,7 @@ let collections = (0 ... 20).map {
                 ownerAddress: "",
                 name: "My asset",
                 description: "",
+                salePrice: .init(last: .init(value: 2), lowest: nil, highest: nil),
                 media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                 rarity: nil,
                 traits: []
@@ -318,6 +319,7 @@ let collections = (0 ... 20).map {
                                             ownerAddress: "",
                                             name: "My asset",
                                             description: "",
+                                            salePrice: nil,
                                             media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                                             rarity: nil,
                                             traits: []
@@ -328,8 +330,11 @@ let collections = (0 ... 20).map {
                         )
                     )
                 ),
-                chainIconProvider: DummyProvider(),
                 navigationContext: NFTNavigationContextMock(),
+                dependencies: NFTCollectionsListDependencies(
+                    nftChainIconProvider: DummyProvider(),
+                    priceFormatter: NFTPriceFormatterMock()
+                ),
                 coordinator: nil
             )
         )
@@ -346,8 +351,11 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .loaded(.init(value: collections, hasErrors: true))
                     ),
-                    chainIconProvider: DummyProvider(),
                     navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
                     coordinator: nil
                 )
             )
@@ -365,8 +373,11 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .loading
                     ),
-                    chainIconProvider: DummyProvider(),
                     navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
                     coordinator: nil
                 )
             )
@@ -384,8 +395,11 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .failedToLoad(error: NSError())
                     ),
-                    chainIconProvider: DummyProvider(),
                     navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
                     coordinator: nil
                 )
             )
@@ -401,8 +415,11 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
-                    chainIconProvider: DummyProvider(),
                     navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
                     coordinator: nil
                 )
             )
