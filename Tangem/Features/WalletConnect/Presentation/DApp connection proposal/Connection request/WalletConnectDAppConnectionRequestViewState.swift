@@ -12,7 +12,7 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
-struct WalletConnectDAppConnectionRequestViewState {
+struct WalletConnectDAppConnectionRequestViewState: Equatable {
     let navigationTitle = Localization.wcWalletConnect
 
     var dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
@@ -66,7 +66,7 @@ extension WalletConnectDAppConnectionRequestViewState {
         struct ContentState: Equatable {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
-            let trailingIconAsset = Assets.Glyphs.chevronDownNew
+            let trailingIconAsset = Assets.Glyphs.chevronRightNew
             var isExpanded: Bool
 
             let wouldLikeToGroup = BulletGroup(
@@ -120,6 +120,20 @@ extension WalletConnectDAppConnectionRequestViewState {
             }
         }
 
+        var isExpanded: Bool {
+            if case .content(let contentState) = self {
+                return contentState.isExpanded
+            }
+
+            return false
+        }
+
+        mutating func toggleIsExpanded() {
+            guard case .content(var contentState) = self else { return }
+            contentState.isExpanded.toggle()
+            self = .content(contentState)
+        }
+
         static let loading = ConnectionRequestSection.loading(LoadingState())
     }
 }
@@ -130,7 +144,7 @@ extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
         let points: [BulletPoint]
     }
 
-    struct BulletPoint: Equatable {
+    struct BulletPoint: Hashable {
         let sfSymbol: String
         let iconColor: SwiftUI.Color
         let title: String
@@ -146,7 +160,7 @@ extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
 // MARK: - Wallet section
 
 extension WalletConnectDAppConnectionRequestViewState {
-    struct WalletSection {
+    struct WalletSection: Equatable {
         let iconAsset = Assets.Glyphs.walletNew
         let label = Localization.wcCommonWallet
         var walletName: String
@@ -164,13 +178,13 @@ extension WalletConnectDAppConnectionRequestViewState {
 // MARK: - Networks section
 
 extension WalletConnectDAppConnectionRequestViewState {
-    struct NetworksSection {
-        enum State {
+    struct NetworksSection: Equatable {
+        enum State: Equatable {
             case loading
             case content(ContentState)
         }
 
-        struct ContentState {
+        struct ContentState: Equatable {
             let selectionMode: SelectionMode
             let trailingIcon: ImageType
 
@@ -192,12 +206,12 @@ extension WalletConnectDAppConnectionRequestViewState {
 }
 
 extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
-    enum SelectionMode {
+    enum SelectionMode: Equatable {
         case available(AvailableSelectionMode)
         case requiredNetworksAreMissing
     }
 
-    struct AvailableSelectionMode {
+    struct AvailableSelectionMode: Equatable {
         let blockchainLogoAssets: [ImageType]
         let remainingBlockchainsCount: UInt?
 
