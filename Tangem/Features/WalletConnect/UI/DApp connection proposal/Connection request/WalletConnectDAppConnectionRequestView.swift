@@ -29,8 +29,8 @@ struct WalletConnectDAppConnectionRequestView: View {
             .padding(.horizontal, 16)
             .padding(.top, Layout.contentTopPadding)
             .padding(.bottom, Layout.contentBottomPadding)
-            .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .proMotion) { geometryInfo in
-                withAnimation {
+            .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .zero) { geometryInfo in
+                withAnimation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5)) {
                     updateScrollViewMaxHeight(geometryInfo.size.height)
                 }
 
@@ -44,9 +44,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             buttons
         }
         .scrollBounceBehaviorBackport(.basedOnSize)
-        .frame(maxWidth: .infinity)
         .frame(maxHeight: scrollViewMaxHeight)
-        .animation(.linear, value: scrollViewMaxHeight)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .enableInjection()
     }
@@ -73,7 +71,7 @@ struct WalletConnectDAppConnectionRequestView: View {
 
             WalletConnectDAppConnectionRequestSectionView(
                 viewModel: viewModel.state.connectionRequestSection,
-                tapAction: { viewModel.handle(viewEvent: .connectionRequestSectionHeaderTapped)}
+                tapAction: { viewModel.handle(viewEvent: .connectionRequestSectionHeaderTapped) }
             )
             .padding(.horizontal, 14)
         }
