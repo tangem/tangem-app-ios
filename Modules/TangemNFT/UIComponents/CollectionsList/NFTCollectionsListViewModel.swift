@@ -122,7 +122,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             state = .failedToLoad(error: NSError(domain: "", code: 0))
 
         case .loaded(let collections) where hadErrorsWhileLoading && collections.isEmpty:
-            break  // Keep previous state (non-loading)
+            break // Keep previous state (non-loading)
 
         case .loaded(let collections):
             state = .loaded(collections)
