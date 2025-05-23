@@ -16,10 +16,10 @@ enum KaspaTransactionHistoryResponse {
         let hash: String?
         let blockTime: Date?
         let isAccepted: Bool?
-        
+
         @LossyArray private(set) var inputs: [Input]
         @LossyArray private(set) var outputs: [Output]
-        
+
         struct Input: Decodable {
             let previousOutpointAddress: String?
             let previousOutpointAmount: Int?
