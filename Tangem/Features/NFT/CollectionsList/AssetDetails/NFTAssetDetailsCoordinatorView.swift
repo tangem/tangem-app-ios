@@ -20,17 +20,11 @@ struct NFTAssetDetailsCoordinatorView: View {
                 NavigationView {
                     NFTAssetDetailsView(viewModel: rootViewModel)
                         .withCloseButton(action: coordinator.dismiss)
-                        .navigationLinks(links)
                 }
             }
 
             sheets
         }
-    }
-
-    @ViewBuilder
-    private var links: some View {
-        EmptyView()
     }
 
     @ViewBuilder
@@ -41,6 +35,9 @@ struct NFTAssetDetailsCoordinatorView: View {
                     NFTAssetExtendedTraitsView(viewData: viewData)
                         .withCloseButton(action: coordinator.closeTraits)
                 }
+            }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
             }
 
         NavHolder()
