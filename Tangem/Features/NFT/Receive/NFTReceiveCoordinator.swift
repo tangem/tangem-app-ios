@@ -38,12 +38,13 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let receiveInput = options.input
+        let userWalletModel = receiveInput.userWalletModel
         let dataSource = CommonNFTNetworkSelectionListDataSource(
             walletModelsManager: receiveInput.walletModelsManager,
-            userWalletConfig: receiveInput.userWalletConfig
+            userWalletConfig: userWalletModel.config
         )
         rootViewModel = NFTNetworkSelectionListViewModel(
-            userWalletName: receiveInput.userWalletName,
+            userWalletName: userWalletModel.name,
             dataSource: dataSource,
             tokenIconInfoProvider: CommonNFTTokenIconInfoProvider(),
             nftChainNameProviding: options.nftChainNameProviding,
@@ -57,7 +58,7 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
 extension NFTReceiveCoordinator {
     struct Options {
-        let input: NFTReceiveInput
+        let input: NFTNavigationInput
         let nftChainNameProviding: NFTChainNameProviding
     }
 }
