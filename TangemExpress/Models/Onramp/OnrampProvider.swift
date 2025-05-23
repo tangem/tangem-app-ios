@@ -89,6 +89,14 @@ extension OnrampProvider: OnrampProviderManager {
         }
     }
 
+    /// Successfully loaded or loaded with a limit error
+    public var isLoaded: Bool {
+        switch state {
+        case .restriction, .loaded: true
+        case .idle, .loading, .failed, .notSupported: false
+        }
+    }
+
     public var isSuccessfullyLoaded: Bool {
         switch state {
         case .loaded: true
