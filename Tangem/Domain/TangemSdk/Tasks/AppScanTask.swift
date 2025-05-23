@@ -11,6 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import SwiftUI
+import TangemNetworkUtils
 
 enum DefaultWalletData: Codable {
     case file(WalletData)
@@ -240,7 +241,7 @@ final class AppScanTask: CardSessionRunnable {
             apiType: featureStorage.visaAPIType,
             isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
         ).build(
-            isTestnet: featureStorage.isVisaTestnet,
+            isTestnet: featureStorage.visaAPIType.isTestnet,
             urlSessionConfiguration: .visaConfiguration,
             refreshTokenRepository: visaRefreshTokenRepository
         )
@@ -304,7 +305,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let scanTask = ScanTask()
+        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession))
         scanTask.run(in: session) { result in
             switch result {
             case .success:
