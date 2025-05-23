@@ -13,7 +13,8 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
         let unspentOutputManager: UnspentOutputManager = .fact0rn(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             network: Fact0rnMainNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .custom
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
