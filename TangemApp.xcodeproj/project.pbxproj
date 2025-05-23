@@ -2984,6 +2984,10 @@
 		EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */; };
 		EF842DEC2AFA58C5006E472E /* ExpressTokensListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */; };
 		EF842DEE2AFA6D07006E472E /* ProviderRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */; };
+		EF86AA132DDCBA0F00369392 /* UTXOTransactionSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF86AA122DDCBA0F00369392 /* UTXOTransactionSerializer.swift */; };
+		EF86AA152DDCBA1A00369392 /* CommonUTXOTransactionSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF86AA142DDCBA1A00369392 /* CommonUTXOTransactionSerializer.swift */; };
+		EF86AA172DDCBB9200369392 /* WalletCoreUTXOTransactionSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF86AA162DDCBB9200369392 /* WalletCoreUTXOTransactionSerializer.swift */; };
+		EF86AA1A2DDDCAC000369392 /* UTXOTransactionBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF86AA192DDDCAB900369392 /* UTXOTransactionBuilderTests.swift */; };
 		EF89FC1C2D492BFD00DF0B73 /* TangemLoggerConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF89FC1A2D492BFD00DF0B73 /* TangemLoggerConfigurator.swift */; };
 		EF89FC1D2D492BFD00DF0B73 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF89FC192D492BFD00DF0B73 /* AppLogger.swift */; };
 		EF8B59222D358D390052D0D5 /* LoadableTokenBalanceViewStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8B59212D358D390052D0D5 /* LoadableTokenBalanceViewStateBuilder.swift */; };
@@ -6443,6 +6447,10 @@
 		EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListViewModel.swift; sourceTree = "<group>"; };
 		EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutable.swift; sourceTree = "<group>"; };
 		EF842DED2AFA6D07006E472E /* ProviderRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderRowViewModel.swift; sourceTree = "<group>"; };
+		EF86AA122DDCBA0F00369392 /* UTXOTransactionSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOTransactionSerializer.swift; sourceTree = "<group>"; };
+		EF86AA142DDCBA1A00369392 /* CommonUTXOTransactionSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUTXOTransactionSerializer.swift; sourceTree = "<group>"; };
+		EF86AA162DDCBB9200369392 /* WalletCoreUTXOTransactionSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCoreUTXOTransactionSerializer.swift; sourceTree = "<group>"; };
+		EF86AA192DDDCAB900369392 /* UTXOTransactionBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOTransactionBuilderTests.swift; sourceTree = "<group>"; };
 		EF89FC192D492BFD00DF0B73 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		EF89FC1A2D492BFD00DF0B73 /* TangemLoggerConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemLoggerConfigurator.swift; sourceTree = "<group>"; };
 		EF8B59212D358D390052D0D5 /* LoadableTokenBalanceViewStateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTokenBalanceViewStateBuilder.swift; sourceTree = "<group>"; };
@@ -12264,6 +12272,7 @@
 		B62D3F742CBC79D900C2460E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				EF86AA112DDCBA0900369392 /* UTXOTransactionBuilder */,
 				EF197B032D8C8C410004B575 /* UTXOPreImageTransactionBuilder */,
 				EF197B062D8C8C410004B575 /* UTXOTransactionSizeCalculator */,
 				EFBAC30E2D89D15300024E38 /* LockingScriptBuilder */,
@@ -12917,6 +12926,7 @@
 			isa = PBXGroup;
 			children = (
 				EF42FC722D9571A3009CBB22 /* Mocks */,
+				EF86AA182DDDCAAF00369392 /* UTXOTransactionBuilder */,
 				EF42FC6F2D95707D009CBB22 /* UnspentOutputManager */,
 				EF197B0E2D8C92F00004B575 /* UTXOPreImageTransactionBuilder */,
 				EFBAC31E2D8B159500024E38 /* LockingScript */,
@@ -16677,6 +16687,24 @@
 				EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */,
 			);
 			path = ExpressTokensList;
+			sourceTree = "<group>";
+		};
+		EF86AA112DDCBA0900369392 /* UTXOTransactionBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				EF86AA122DDCBA0F00369392 /* UTXOTransactionSerializer.swift */,
+				EF86AA142DDCBA1A00369392 /* CommonUTXOTransactionSerializer.swift */,
+				EF86AA162DDCBB9200369392 /* WalletCoreUTXOTransactionSerializer.swift */,
+			);
+			path = UTXOTransactionBuilder;
+			sourceTree = "<group>";
+		};
+		EF86AA182DDDCAAF00369392 /* UTXOTransactionBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				EF86AA192DDDCAB900369392 /* UTXOTransactionBuilderTests.swift */,
+			);
+			path = UTXOTransactionBuilder;
 			sourceTree = "<group>";
 		};
 		EF89FC1B2D492BFD00DF0B73 /* TangemLogger */ = {
@@ -20733,6 +20761,7 @@
 				B62D40E62CBC79DA00C2460E /* HederaNetworkResult.TransactionInfo.swift in Sources */,
 				2D665C212CDCA3FC00C9BA85 /* CLValueToJson.swift in Sources */,
 				2D665C222CDCA3FC00C9BA85 /* RuntimeArgs.swift in Sources */,
+				EF86AA152DDCBA1A00369392 /* CommonUTXOTransactionSerializer.swift in Sources */,
 				2D665C232CDCA3FC00C9BA85 /* ExecutableDeployItem.swift in Sources */,
 				2D665C242CDCA3FC00C9BA85 /* CSPRUtils.swift in Sources */,
 				2D665C252CDCA3FC00C9BA85 /* ProtocolVersion.swift in Sources */,
@@ -20794,6 +20823,7 @@
 				B62D421D2CBC79DB00C2460E /* XrpNetworkProvider.swift in Sources */,
 				B62D41C42CBC79DB00C2460E /* TONWalletInfo.swift in Sources */,
 				B62D41BB2CBC79DB00C2460E /* TONProviderTarget.swift in Sources */,
+				EF86AA172DDCBB9200369392 /* WalletCoreUTXOTransactionSerializer.swift in Sources */,
 				B62D42812CBC79DB00C2460E /* AlgorandTransactionHistoryProvider.swift in Sources */,
 				B62D41F92CBC79DB00C2460E /* VeChainFeeCalculator.swift in Sources */,
 				B62D417E2CBC79DA00C2460E /* RavencoinExternalLinkProvider.swift in Sources */,
@@ -20952,6 +20982,7 @@
 				B62D40C62CBC79DA00C2460E /* EthereumAddressService.swift in Sources */,
 				B62D40722CBC79DA00C2460E /* CosmosWalletAssembly.swift in Sources */,
 				B62D41B22CBC79DB00C2460E /* TezosPrefix.swift in Sources */,
+				EF86AA132DDCBA0F00369392 /* UTXOTransactionSerializer.swift in Sources */,
 				B62D41892CBC79DA00C2460E /* SolanaDummyAccountStorage.swift in Sources */,
 				B62D40762CBC79DA00C2460E /* DashTestNetworkParams.swift in Sources */,
 				F9F62C842CBFE21E008A3EE6 /* (null) in Sources */,
@@ -21347,6 +21378,7 @@
 				B62D436E2CBC79E400C2460E /* KaspaTransactionTests.swift in Sources */,
 				30C470102D760568003DFBFD /* AlgorandAddressTests.swift in Sources */,
 				DC0CEB3C2D83602600403A9A /* DucatusAddressTests.swift in Sources */,
+				EF86AA1A2DDDCAC000369392 /* UTXOTransactionBuilderTests.swift in Sources */,
 				2D92E6542D0C1E9D008FDECF /* SolanaSignerTestUtility.swift in Sources */,
 				B62D436F2CBC79E400C2460E /* FilecoinAddressTests.swift in Sources */,
 				EFAF7E412D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift in Sources */,
