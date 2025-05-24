@@ -11,17 +11,26 @@ import Combine
 @MainActor
 final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
+    private let dismissFlowAction: () -> Void
+
     private var connectionRequestViewModelCancellable: AnyCancellable?
 
     @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
 
-    init(state: WalletConnectDAppConnectionProposalViewState, connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel) {
+    init(
+        state: WalletConnectDAppConnectionProposalViewState,
+        connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel,
+        dismissFlowAction: @escaping () -> Void
+    ) {
         self.state = state
         self.connectionRequestViewModel = connectionRequestViewModel
+        self.dismissFlowAction = dismissFlowAction
 
-        connectionRequestViewModelCancellable = connectionRequestViewModel.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
-        }
+        connectionRequestViewModelCancellable = connectionRequestViewModel
+            .objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
     }
 
     func beginDAppProposalLoading() {
@@ -47,6 +56,6 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
     }
 
     func dismiss() {
-        // [REDACTED_TODO_COMMENT]
+        dismissFlowAction()
     }
 }
