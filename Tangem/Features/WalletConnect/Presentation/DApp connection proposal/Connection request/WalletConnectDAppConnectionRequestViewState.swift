@@ -53,7 +53,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
             connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
             dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
-            networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult)
+            networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
+            networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult)
         )
     }
 }
@@ -158,23 +159,6 @@ extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
     private enum SFSymbol {
         static let checkmark = "checkmark"
         static let multiply = "multiply"
-    }
-}
-
-// MARK: - DApp verification warning section
-
-extension WalletConnectWarningNotificationViewModel {
-    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
-        switch verificationStatus {
-        case .verified:
-            return nil
-
-        case .unknownDomain:
-            self = .dAppUnknownDomain
-
-        case .malicious:
-            self = .dAppKnownSecurityRisk
-        }
     }
 }
 
@@ -289,5 +273,40 @@ extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
                 imageProvider.provide(by: blockchain, filled: true)
             }
         }
+    }
+}
+
+// MARK: - WalletConnectWarningNotificationViewModel convenience initializers
+
+extension WalletConnectWarningNotificationViewModel {
+    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
+        switch verificationStatus {
+        case .verified:
+            return nil
+
+        case .unknownDomain:
+            self = .dAppUnknownDomain
+
+        case .malicious:
+            self = .dAppKnownSecurityRisk
+        }
+    }
+
+    init?(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
+        guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
+            self = .requiredNetworksAreUnavailableForSelectedWallet(
+                blockchainsAvailabilityResult.unavailableRequiredBlockchains.map(\.displayName)
+            )
+            return
+        }
+
+        let atLeastOneBlockchainIsSelected = !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
+
+        guard atLeastOneBlockchainIsSelected else {
+            self = .noBlockchainsAreSelected
+            return
+        }
+
+        return nil
     }
 }
