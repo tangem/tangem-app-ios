@@ -32,5 +32,14 @@ extension WalletConnectDAppBlockchainsAvailabilityResult {
                 optionalBlockchain.blockchain
             }
         }
+
+        var isSelected: Bool {
+            switch self {
+            case .required:
+                true
+            case .optional(let optionalBlockchain):
+                optionalBlockchain.isSelected
+            }
+        }
     }
 }
