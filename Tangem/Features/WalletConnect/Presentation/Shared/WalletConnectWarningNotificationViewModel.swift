@@ -9,27 +9,13 @@
 import TangemAssets
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
 struct WalletConnectWarningNotificationViewModel: Equatable {
     let containerStyle: ContainerStyle
     let severity: Severity
     let iconAsset: ImageType
     let title: String
     let body: String
-
-    init(containerStyle: ContainerStyle, severity: Severity, title: String, body: String) {
-        self.containerStyle = containerStyle
-        self.severity = severity
-
-        self.iconAsset = switch severity {
-        case .attention:
-            Assets.attention20
-        case .critical:
-            Assets.redCircleWarning
-        }
-
-        self.title = title
-        self.body = body
-    }
 }
 
 extension WalletConnectWarningNotificationViewModel {
@@ -50,6 +36,7 @@ extension WalletConnectWarningNotificationViewModel {
     static let dAppUnknownDomain = WalletConnectWarningNotificationViewModel(
         containerStyle: .standAloneSection,
         severity: .attention,
+        iconAsset: Assets.attention20,
         title: Localization.wcAlertAuditUnknownDomain,
         body: Localization.wcAlertDomainIssuesDescription
     )
@@ -57,6 +44,7 @@ extension WalletConnectWarningNotificationViewModel {
     static let dAppKnownSecurityRisk = WalletConnectWarningNotificationViewModel(
         containerStyle: .standAloneSection,
         severity: .critical,
+        iconAsset: Assets.redCircleWarning,
         title: Localization.wcNotificationSecurityRiskTitle,
         body: Localization.wcNotificationSecurityRiskSubtitle
     )
@@ -64,6 +52,7 @@ extension WalletConnectWarningNotificationViewModel {
     static let dAppDomainMismatch = WalletConnectWarningNotificationViewModel(
         containerStyle: .standAloneSection,
         severity: .critical,
+        iconAsset: Assets.redCircleWarning,
         title: "Domain mismatch",
         body: "This website has a domain that does not match the sender or this request. Approving may lead to loss of funds"
     )
@@ -71,6 +60,7 @@ extension WalletConnectWarningNotificationViewModel {
     static let dAppScamDomain = WalletConnectWarningNotificationViewModel(
         containerStyle: .standAloneSection,
         severity: .critical,
+        iconAsset: Assets.redCircleWarning,
         title: "Scam domain",
         body: "We have noticed that this domain is SCAM. We don’t advise you to connect your wallet."
     )
@@ -79,10 +69,19 @@ extension WalletConnectWarningNotificationViewModel {
 // MARK: - DApp networks warnings
 
 extension WalletConnectWarningNotificationViewModel {
+    static var noBlockchainsAreSelected = WalletConnectWarningNotificationViewModel(
+        containerStyle: .embedded,
+        severity: .attention,
+        iconAsset: Assets.WalletConnect.yellowWarningCircle,
+        title: "Specify selected networks",
+        body: "At least one network is required for dApp connection"
+    )
+
     static func requiredNetworksAreUnavailableForSelectedWallet(_ blockchainNames: [String]) -> WalletConnectWarningNotificationViewModel {
         WalletConnectWarningNotificationViewModel(
             containerStyle: .embedded,
             severity: .attention,
+            iconAsset: Assets.WalletConnect.yellowWarningCircle,
             title: Localization.wcMissingRequiredNetworkTitle,
             body: Localization.wcMissingRequiredNetworkDescription(blockchainNames.joined(separator: ", "))
         )

@@ -106,6 +106,14 @@ struct WalletConnectDAppConnectionRequestView: View {
                 tapAction: { viewModel.handle(viewEvent: .networksRowTapped) }
             )
             .padding(.horizontal, 14)
+
+            if let networksWarningSection = viewModel.state.networksWarningSection {
+                Divider()
+                    .frame(height: 1)
+                    .overlay(Colors.Stroke.primary)
+
+                WalletConnectWarningNotificationView(viewModel: networksWarningSection)
+            }
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
