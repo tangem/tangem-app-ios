@@ -12,7 +12,9 @@ import Combine
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase
     private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
-    private let selectedUserWallet: any UserWalletModel
+
+    private var selectedUserWallet: any UserWalletModel
+    private let walletSelectionIsAvailable: Bool
 
     private var dAppLoadingTask: Task<Void, Never>?
 
@@ -29,6 +31,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
         self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
         self.selectedUserWallet = selectedUserWallet
+        self.walletSelectionIsAvailable = false
     }
 
     deinit {
@@ -80,12 +83,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
         dAppLoadingTask = Task { [weak self, getDAppConnectionProposalUseCase, resolveAvailableBlockchainsUseCase, selectedUserWallet] in
             do {
                 let dAppProposal = try await getDAppConnectionProposalUseCase()
-                let availableBlockchainsResult = resolveAvailableBlockchainsUseCase(
+                let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
                     connectionProposal: dAppProposal,
                     selectedBlockchains: [],
                     userWallet: selectedUserWallet
                 )
-                self?.state = .content(proposal: dAppProposal, walletName: "Dummy wallet", walletSelectionIsAvailable: false)
+                self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
             } catch {
                 print(error)
             }
@@ -133,5 +136,15 @@ extension WalletConnectDAppConnectionRequestViewModel {
 // MARK: - State update and mapping
 
 extension WalletConnectDAppConnectionRequestViewModel {
-
+    private func updateState(
+        dAppProposal: WalletConnectDAppConnectionProposal,
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
+    ) {
+        state = .content(
+            proposal: dAppProposal,
+            selectedUserWalletName: selectedUserWallet.name,
+            walletSelectionIsAvailable: false,
+            blockchainsAvailabilityResult: blockchainsAvailabilityResult
+        )
+    }
 }
