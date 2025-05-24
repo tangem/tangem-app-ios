@@ -18,41 +18,42 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
     var connectionRequestSection: ConnectionRequestSection
     var dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
+
     var walletSection: WalletSection
     var networksSection: NetworksSection
+    var networksWarningSection: WalletConnectWarningNotificationViewModel?
 
     let cancelButtonTitle = Localization.commonCancel
     let connectButtonTitle = Localization.wcCommonConnect
 
-    static func loading(walletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
+    static func loading(selectedUserWalletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.loading,
             connectionRequestSection: ConnectionRequestSection.loading,
             dAppVerificationWarningSection: nil,
-            walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
-            networksSection: NetworksSection(state: .loading)
+            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
+            networksSection: NetworksSection(state: .loading),
+            networksWarningSection: nil
         )
     }
 
     static func content(
         proposal: WalletConnectDAppConnectionProposal,
-        walletName: String,
-        walletSelectionIsAvailable: Bool
+        selectedUserWalletName: String,
+        walletSelectionIsAvailable: Bool,
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
     ) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
-                WalletConnectDAppDescriptionViewModel.ContentState(dAppData: proposal.dApp, verificationStatus: proposal.verificationStatus)
+                WalletConnectDAppDescriptionViewModel.ContentState(
+                    dAppData: proposal.dApp,
+                    verificationStatus: proposal.verificationStatus
+                )
             ),
             connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
             dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
-            walletSection: WalletSection(walletName: walletName, selectionIsAvailable: walletSelectionIsAvailable),
-            networksSection: NetworksSection(
-                state: .content(
-                    NetworksSection.ContentState(
-                        selectionMode: .requiredNetworksAreMissing // [REDACTED_TODO_COMMENT]
-                    )
-                )
-            )
+            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
+            networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult)
         )
     }
 }
@@ -183,12 +184,12 @@ extension WalletConnectDAppConnectionRequestViewState {
     struct WalletSection: Equatable {
         let iconAsset = Assets.Glyphs.walletNew
         let label = Localization.wcCommonWallet
-        var walletName: String
+        var selectedUserWalletName: String
         var selectionIsAvailable: Bool
         var trailingIconAsset: ImageType?
 
-        init(walletName: String, selectionIsAvailable: Bool) {
-            self.walletName = walletName
+        init(selectedUserWalletName: String, selectionIsAvailable: Bool) {
+            self.selectedUserWalletName = selectedUserWalletName
             self.selectionIsAvailable = selectionIsAvailable
             trailingIconAsset = selectionIsAvailable ? Assets.Glyphs.selectIcon : nil
         }
@@ -224,11 +225,36 @@ extension WalletConnectDAppConnectionRequestViewState {
         let state: Self.State
 
         var trailingIconAsset: ImageType? {
-            if case .content(let contentState) = state, case .available = contentState.selectionMode {
-                return Assets.Glyphs.selectIcon
+            switch state {
+            case .loading:
+                return nil
+
+            case .content(let contentState):
+                switch contentState.selectionMode {
+                case .requiredNetworksAreMissing:
+                    return Assets.Glyphs.chevronRightNew
+
+                case .available:
+                    return Assets.Glyphs.selectIcon
+                }
+            }
+        }
+
+        init(state: Self.State) {
+            self.state = state
+        }
+
+        init(blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
+            guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
+                self.init(state: .content(.init(selectionMode: .requiredNetworksAreMissing)))
+                return
             }
 
-            return nil
+            let availableSelectionMode = AvailableSelectionMode(
+                blockchains: blockchainsAvailabilityResult.availableBlockchains.map(\.blockchain)
+            )
+            let contentState = ContentState(selectionMode: .available(availableSelectionMode))
+            self.init(state: .content(contentState))
         }
     }
 }
@@ -241,21 +267,27 @@ extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
 
     struct AvailableSelectionMode: Equatable {
         let blockchainLogoAssets: [ImageType]
-        let remainingBlockchainsCount: UInt?
+        let remainingBlockchainsCounter: String?
 
         init(blockchains: [BlockchainSdk.Blockchain]) {
-            let maximumAmountOfIconsToShow = 4
+            let maximumIconsCount = 4
             let imageProvider = NetworkImageProvider()
+            let prefixedBlockchains: [BlockchainSdk.Blockchain]
 
-            blockchainLogoAssets = blockchains.prefix(4).map { blockchain in
-                imageProvider.provide(by: blockchain, filled: true)
+            let shouldShowRemainingBlockchainsCounter = blockchains.count > maximumIconsCount
+
+            if shouldShowRemainingBlockchainsCounter {
+                let blockchainsCountToTake = maximumIconsCount - 1
+                prefixedBlockchains = Array(blockchains.prefix(blockchainsCountToTake))
+                remainingBlockchainsCounter = "+\(blockchains.count - blockchainsCountToTake)"
+            } else {
+                prefixedBlockchains = blockchains
+                remainingBlockchainsCounter = nil
             }
 
-            let leftBlockchains = blockchains.count - maximumAmountOfIconsToShow
-
-            remainingBlockchainsCount = leftBlockchains > 0
-                ? UInt(leftBlockchains)
-                : 0
+            blockchainLogoAssets = prefixedBlockchains.map { blockchain in
+                imageProvider.provide(by: blockchain, filled: true)
+            }
         }
     }
 }

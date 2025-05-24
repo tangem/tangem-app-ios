@@ -127,7 +127,7 @@ struct WalletConnectDAppConnectionRequestView: View {
 
                 Spacer(minLength: .zero)
 
-                Text(viewModel.state.walletSection.walletName)
+                Text(viewModel.state.walletSection.selectedUserWalletName)
                     .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                     .padding(.horizontal, 4)
 
