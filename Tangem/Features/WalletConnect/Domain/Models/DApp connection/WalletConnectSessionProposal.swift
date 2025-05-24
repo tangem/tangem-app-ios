@@ -19,5 +19,6 @@ struct WalletConnectSessionProposal {
     let requiredNamespaces: [String: Namespace]
     let optionalNamespaces: [String: Namespace]?
 
+    // [REDACTED_TODO_COMMENT]
     let unsupportedBlockchainNames: Set<String>
 }
