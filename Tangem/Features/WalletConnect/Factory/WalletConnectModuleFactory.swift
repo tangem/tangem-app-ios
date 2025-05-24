@@ -54,7 +54,12 @@ enum WalletConnectModuleFactory {
     static func makeDAppConnectionProposalViewModel(
         forURI uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
-    ) -> WalletConnectDAppConnectionProposalViewModel {
+    ) -> WalletConnectDAppConnectionProposalViewModel? {
+        guard let selectedUserWallet = Self.userWalletRepository.selectedModel else {
+            assertionFailure("UserWalletRepository did not have a selected user wallet. Developer mistake.")
+            return nil
+        }
+
         let getDAppConnectionProposalUseCase = WalletConnectGetDAppConnectionProposalUseCase(
             dAppDataService: Self.dAppDataService,
             verificationService: Self.dAppVerificationService,
@@ -62,14 +67,13 @@ enum WalletConnectModuleFactory {
             analyticsSource: source
         )
 
-        let selectedUserWalletName = Self.userWalletRepository.selectedModel?.name ?? ""
         let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(walletName: selectedUserWalletName, walletSelectionIsAvailable: walletSelectionIsAvailable),
+            state: .loading(walletName: selectedUserWallet.name, walletSelectionIsAvailable: walletSelectionIsAvailable),
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
-            selectedUserWallet: Self.userWalletRepository.selectedModel! // [REDACTED_TODO_COMMENT]
+            selectedUserWallet: selectedUserWallet
         )
 
         let viewModel = WalletConnectDAppConnectionProposalViewModel(

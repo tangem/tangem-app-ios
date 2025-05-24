@@ -24,7 +24,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
         }
     }
 
-    func loadDAppProposal() {
+    func beginDAppProposalLoading() {
         connectionRequestViewModel.handle(viewEvent: .dAppProposalLoadingRequested)
     }
 
