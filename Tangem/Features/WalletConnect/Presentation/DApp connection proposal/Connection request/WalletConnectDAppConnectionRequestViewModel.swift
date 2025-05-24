@@ -85,7 +85,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     selectedBlockchains: [],
                     userWallet: selectedUserWallet
                 )
-                // [REDACTED_TODO_COMMENT]
                 self?.state = .content(proposal: dAppProposal, walletName: "Dummy wallet", walletSelectionIsAvailable: false)
             } catch {
                 print(error)
@@ -129,4 +128,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
             state = debugLoadingState
         }
     }
+}
+
+// MARK: - State update and mapping
+
+extension WalletConnectDAppConnectionRequestViewModel {
+
 }
