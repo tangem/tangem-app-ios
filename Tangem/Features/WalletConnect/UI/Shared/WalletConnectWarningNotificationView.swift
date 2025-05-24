@@ -32,8 +32,19 @@ struct WalletConnectWarningNotificationView: View {
         .padding(.top, 12)
         .padding(.horizontal, 14)
         .padding(.bottom, 14)
-        .background(viewModel.severity.backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .background(background)
+        .if(viewModel.containerStyle == .standAloneSection) { view in
+            view.clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
+
+    private var background: some ShapeStyle {
+        switch viewModel.containerStyle {
+        case .standAloneSection:
+            viewModel.severity.backgroundColor
+        case .embedded:
+            Color.clear
+        }
     }
 }
 
