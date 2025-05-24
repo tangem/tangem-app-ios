@@ -25,7 +25,7 @@ struct WalletConnectWarningNotificationView: View {
                     .style(Fonts.Bold.footnote, color: viewModel.severity.tintColor)
 
                 Text(viewModel.body)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.footnote, color: bodyTextColor)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -35,6 +35,15 @@ struct WalletConnectWarningNotificationView: View {
         .background(background)
         .if(viewModel.containerStyle == .standAloneSection) { view in
             view.clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
+
+    private var bodyTextColor: Color {
+        switch viewModel.containerStyle {
+        case .standAloneSection:
+            Colors.Text.primary1
+        case .embedded:
+            Colors.Text.tertiary
         }
     }
 
