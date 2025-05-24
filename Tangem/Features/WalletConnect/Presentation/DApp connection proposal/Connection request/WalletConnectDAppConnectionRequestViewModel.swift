@@ -112,7 +112,9 @@ extension WalletConnectDAppConnectionRequestViewModel {
         coordinator?.openNetworksSelector()
     }
 
-    private func handleCancelButtonTapped() {}
+    private func handleCancelButtonTapped() {
+        coordinator?.dismiss()
+    }
 
     private func handleConnectButtonTapped() {
         if debugLoadingState == nil && state.connectionRequestSection.isLoading {
