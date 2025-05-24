@@ -78,7 +78,10 @@ enum WalletConnectModuleFactory {
 
         let viewModel = WalletConnectDAppConnectionProposalViewModel(
             state: .connectionRequest(connectionRequestViewModel),
-            connectionRequestViewModel: connectionRequestViewModel
+            connectionRequestViewModel: connectionRequestViewModel,
+            dismissFlowAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            }
         )
 
         connectionRequestViewModel.coordinator = viewModel
