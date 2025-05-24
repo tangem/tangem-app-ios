@@ -70,7 +70,7 @@ enum WalletConnectModuleFactory {
         let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(walletName: selectedUserWallet.name, walletSelectionIsAvailable: walletSelectionIsAvailable),
+            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: walletSelectionIsAvailable),
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
             selectedUserWallet: selectedUserWallet
