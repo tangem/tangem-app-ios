@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import enum BlockchainSdk.Blockchain
+
 final class WalletConnectConnectDAppUseCase {
     private let dAppConnectionService: any WalletConnectDAppConnectionService
 
@@ -13,7 +15,12 @@ final class WalletConnectConnectDAppUseCase {
         self.dAppConnectionService = dAppConnectionService
     }
 
-    func callAsFunction(_ request: WalletConnectDAppConnectionRequest) async throws {
+    func callAsFunction(
+        proposal: WalletConnectSessionProposal,
+        selectedBlockchains: [BlockchainSdk.Blockchain],
+        selectedUserWallet: some UserWalletModel
+    ) async throws {
+        let request = try proposal.dAppConnectionRequestFactory(selectedBlockchains, selectedUserWallet)
         try await dAppConnectionService.connectDApp(with: request)
     }
 }

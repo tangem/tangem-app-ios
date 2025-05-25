@@ -7,17 +7,23 @@
 //
 
 import Combine
+import enum BlockchainSdk.Blockchain
 
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase
     private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
+    private let connectDAppUseCase: WalletConnectConnectDAppUseCase
+
+    private var loadedSessionProposal: WalletConnectSessionProposal?
 
     private var dAppLoadingTask: Task<Void, Never>?
+    private var dAppConnectionTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
 
-    var selectedUserWallet: any UserWalletModel { didSet { state.walletSection.selectedUserWalletName = selectedUserWallet.name } }
+    private(set) var selectedUserWallet: any UserWalletModel
+    private(set) var selectedBlockchains: [Blockchain]
 
     weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
@@ -25,16 +31,26 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         state: WalletConnectDAppConnectionRequestViewState,
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
         resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase,
+        connectDAppUseCase: WalletConnectConnectDAppUseCase,
         selectedUserWallet: some UserWalletModel
     ) {
         self.state = state
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
         self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
+        self.connectDAppUseCase = connectDAppUseCase
         self.selectedUserWallet = selectedUserWallet
+        selectedBlockchains = []
     }
 
     deinit {
         dAppLoadingTask?.cancel()
+        dAppConnectionTask?.cancel()
+    }
+
+    func updateSelectedUserWallet(_ selectedUserWallet: some UserWalletModel) {
+        self.selectedUserWallet = selectedUserWallet
+        state.walletSection.selectedUserWalletName = selectedUserWallet.name
+        // [REDACTED_TODO_COMMENT]
     }
 
     private var debugLoadingState: WalletConnectDAppConnectionRequestViewState?
@@ -87,6 +103,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     selectedBlockchains: [],
                     userWallet: selectedUserWallet
                 )
+                self?.loadedSessionProposal = dAppProposal.sessionProposal
+                self?.selectedBlockchains = Array(dAppProposal.requiredBlockchains)
                 self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
             } catch {
                 self?.coordinator?.openErrorScreen(error: error)
@@ -117,20 +135,21 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleConnectButtonTapped() {
-        if debugLoadingState == nil && state.connectionRequestSection.isLoading {
-            debugLoadingState = state
-        }
+        guard let loadedSessionProposal else { return }
 
-        if debugContentState == nil && state.connectionRequestSection.isLoading == false {
-            debugContentState = state
-        }
+        dAppConnectionTask?.cancel()
 
-        guard let debugContentState, let debugLoadingState else { return }
-
-        if state.connectionRequestSection.isLoading {
-            state = debugContentState
-        } else {
-            state = debugLoadingState
+        dAppConnectionTask = Task { [selectedUserWallet, selectedBlockchains, connectDAppUseCase] in
+            do {
+                try await connectDAppUseCase(
+                    proposal: loadedSessionProposal,
+                    selectedBlockchains: selectedBlockchains,
+                    selectedUserWallet: selectedUserWallet
+                )
+                print("done")
+            } catch {
+                print(error)
+            }
         }
     }
 }
