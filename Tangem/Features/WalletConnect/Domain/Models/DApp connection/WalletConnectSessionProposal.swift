@@ -22,7 +22,6 @@ struct WalletConnectSessionProposal {
         let events: Set<String>
     }
 
-    let id: String
     let requiredNamespaces: [String: Namespace]
     let optionalNamespaces: [String: Namespace]?
 
