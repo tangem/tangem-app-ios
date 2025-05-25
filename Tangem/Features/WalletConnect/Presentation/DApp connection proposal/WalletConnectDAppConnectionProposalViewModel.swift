@@ -16,12 +16,13 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
 
     private lazy var walletSelectorViewModel = WalletConnectWalletSelectorViewModel(
         userWallets: userWallets,
-        selectedWallet: connectionRequestViewModel.selectedUserWallet,
+        selectedUserWallet: connectionRequestViewModel.selectedUserWallet,
         backAction: { [weak self] in
             self?.openConnectionRequest()
         },
-        userWalletSelectedAction: { [connectionRequestViewModel] selectedUserWallet in
-            connectionRequestViewModel.selectedUserWallet = selectedUserWallet
+        userWalletSelectedAction: { [weak self] selectedUserWallet in
+            self?.connectionRequestViewModel.selectedUserWallet = selectedUserWallet
+            self?.openConnectionRequest()
         }
     )
 
