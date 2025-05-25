@@ -23,8 +23,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var networksSection: NetworksSection
     var networksWarningSection: WalletConnectWarningNotificationViewModel?
 
-    let cancelButtonTitle = Localization.commonCancel
-    let connectButtonTitle = Localization.wcCommonConnect
+    let cancelButton = Button(title: Localization.commonCancel, isEnabled: true, isLoading: false)
+    var connectButton: Button
 
     static func loading(selectedUserWalletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
@@ -33,7 +33,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
             dAppVerificationWarningSection: nil,
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(state: .loading),
-            networksWarningSection: nil
+            networksWarningSection: nil,
+            connectButton: .connect(isEnabled: false, isLoading: false)
         )
     }
 
@@ -41,7 +42,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
         proposal: WalletConnectDAppConnectionProposal,
         selectedUserWalletName: String,
         walletSelectionIsAvailable: Bool,
-        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
+        connectButtonIsEnabled: Bool
     ) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
@@ -54,7 +56,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
             dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
-            networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult)
+            networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
+            connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
         )
     }
 }
@@ -272,6 +275,20 @@ extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
             blockchainLogoAssets = prefixedBlockchains.map { blockchain in
                 imageProvider.provide(by: blockchain, filled: true)
             }
+        }
+    }
+}
+
+// MARK: - Buttons
+
+extension WalletConnectDAppConnectionRequestViewState {
+    struct Button: Equatable {
+        let title: String
+        var isEnabled: Bool
+        var isLoading: Bool
+
+        static func connect(isEnabled: Bool, isLoading: Bool) -> Button {
+            Button(title: Localization.wcCommonConnect, isEnabled: isEnabled, isLoading: isLoading)
         }
     }
 }
