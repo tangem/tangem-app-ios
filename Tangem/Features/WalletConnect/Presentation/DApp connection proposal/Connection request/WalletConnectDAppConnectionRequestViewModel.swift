@@ -105,7 +105,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func handleWalletRowTapped() {
         guard state.walletSection.selectionIsAvailable else { return }
-        coordinator?.openWalletSelector(selectedUserWallet)
+        coordinator?.openWalletSelector()
     }
 
     private func handleNetworksRowTapped() {
