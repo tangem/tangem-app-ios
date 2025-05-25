@@ -80,7 +80,7 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
         state = .verifiedDomain
     }
 
-    func openWalletSelector(_ selectedUserWallet: some UserWalletModel) {
+    func openWalletSelector() {
         state = .walletSelector(walletSelectorViewModel)
     }
 

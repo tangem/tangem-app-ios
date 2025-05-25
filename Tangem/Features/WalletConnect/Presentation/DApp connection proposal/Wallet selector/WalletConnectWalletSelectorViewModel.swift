@@ -7,15 +7,19 @@
 //
 
 import Combine
-import typealias Foundation.TimeInterval
+import Foundation
 import struct SwiftUI.Image
+import TangemLocalization
 
 @MainActor
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
     private let backAction: () -> Void
     private let userWalletSelectedAction: (UserWalletModel) -> Void
 
+    private let balanceStateBuilder: LoadableTokenBalanceViewStateBuilder
+
     private var walletImagesLoadingTask: Task<Void, Never>?
+    private var cancellables: Set<AnyCancellable>
 
     let selectionAnimationDuration: TimeInterval = 0.3
 
@@ -32,7 +36,11 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
 
         state = .loading(userWallets: userWallets, selectedWallet: selectedUserWallet)
 
+        balanceStateBuilder = LoadableTokenBalanceViewStateBuilder()
+        cancellables = []
+
         loadImages(for: userWallets)
+        loadBalances(for: userWallets)
     }
 
     deinit {
@@ -54,6 +62,24 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    private func loadBalances(for userWallets: [any UserWalletModel]) {
+        userWallets
+            .enumerated()
+            .forEach { index, userWallet in
+                guard !userWallet.isUserWalletLocked else {
+                    state.wallets[index].description.balanceState = .loaded(text: Localization.commonLocked)
+                    return
+                }
+
+                userWallet.totalBalancePublisher
+                    .receive(on: DispatchQueue.main)
+                    .sink { [weak self] balanceState in
+                        self?.updateWalletBalance(index, balanceState: balanceState)
+                    }
+                    .store(in: &cancellables)
+            }
     }
 }
 
@@ -85,12 +111,16 @@ extension WalletConnectWalletSelectorViewModel {
             WalletConnectWalletSelectorViewState.UserWallet(
                 domainModel: $0.domainModel,
                 imageState: $0.imageState,
-                descriptionState: $0.descriptionState,
+                description: $0.description,
                 isSelected: $0.id == selectedUserWallet.userWalletId
             )
         }
 
         state.wallets = updatedWallets
+    }
+
+    func updateWalletBalance(_ walletIndex: Int, balanceState: TotalBalanceState) {
+        state.wallets[walletIndex].description.balanceState = balanceStateBuilder.buildTotalBalance(state: balanceState)
     }
 }
 
@@ -101,7 +131,10 @@ private extension WalletConnectWalletSelectorViewState {
                 UserWallet(
                     domainModel: userWallet,
                     imageState: .loading,
-                    descriptionState: .loading,
+                    description: .init(
+                        tokensCount: "\(userWallet.userTokenListManager.userTokens.count) tokens",
+                        balanceState: .loading(cached: nil)
+                    ),
                     isSelected: userWallet.userWalletId == selectedWallet.userWalletId
                 )
             }
