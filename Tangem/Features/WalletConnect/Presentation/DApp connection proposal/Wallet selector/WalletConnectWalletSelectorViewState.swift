@@ -22,25 +22,31 @@ extension WalletConnectWalletSelectorViewState {
         let id: UserWalletId
         let name: String
         let isLocked: Bool
-        var imageState: ContentState<SwiftUI.Image>
-        var descriptionState: ContentState<String>
+        var imageState: ImageState
+        var description: Description
         var isSelected: Bool
 
-        init(domainModel: some UserWalletModel, imageState: ContentState<SwiftUI.Image>, descriptionState: ContentState<String>, isSelected: Bool) {
+        init(domainModel: some UserWalletModel, imageState: ImageState, description: Description, isSelected: Bool) {
             self.domainModel = domainModel
             id = domainModel.userWalletId
             name = domainModel.name
             isLocked = domainModel.isUserWalletLocked
             self.imageState = imageState
-            self.descriptionState = descriptionState
+            self.description = description
             self.isSelected = isSelected
         }
     }
 }
 
 extension WalletConnectWalletSelectorViewState.UserWallet {
-    enum ContentState<Content> {
+    enum ImageState {
         case loading
-        case content(Content)
+        case content(SwiftUI.Image)
+    }
+
+    struct Description {
+        let tokensCount: String
+        let delimiter = AppConstants.dotSign
+        var balanceState: LoadableTokenBalanceView.State
     }
 }
