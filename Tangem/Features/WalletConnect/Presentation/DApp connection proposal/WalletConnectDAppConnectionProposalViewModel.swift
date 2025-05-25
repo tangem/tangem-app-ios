@@ -10,7 +10,21 @@ import Combine
 
 @MainActor
 final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
+    private let userWallets: [any UserWalletModel]
+
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
+
+    private lazy var walletSelectorViewModel = WalletConnectWalletSelectorViewModel(
+        userWallets: userWallets,
+        selectedWallet: connectionRequestViewModel.selectedUserWallet,
+        backAction: { [weak self] in
+            self?.openConnectionRequest()
+        },
+        userWalletSelectedAction: { [connectionRequestViewModel] selectedUserWallet in
+            connectionRequestViewModel.selectedUserWallet = selectedUserWallet
+        }
+    )
+
     private let dismissFlowAction: () -> Void
 
     private var connectionRequestViewModelCancellable: AnyCancellable?
@@ -18,19 +32,23 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
 
     init(
-        state: WalletConnectDAppConnectionProposalViewState,
-        connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel,
+        getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
+        userWallets: [any UserWalletModel],
+        selectedUserWallet: some UserWalletModel,
         dismissFlowAction: @escaping () -> Void
     ) {
-        self.state = state
-        self.connectionRequestViewModel = connectionRequestViewModel
+        connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
+            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: userWallets.count > 1),
+            getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
+            resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
+            selectedUserWallet: selectedUserWallet
+        )
+        state = .connectionRequest(connectionRequestViewModel)
+
+        self.userWallets = userWallets
         self.dismissFlowAction = dismissFlowAction
 
-        connectionRequestViewModelCancellable = connectionRequestViewModel
-            .objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
+        setupConnectionRequestViewModel()
     }
 
     func beginDAppProposalLoading() {
@@ -40,15 +58,29 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     func switchToConnectionRequest() {
         state = .connectionRequest(connectionRequestViewModel)
     }
+
+    private func setupConnectionRequestViewModel() {
+        connectionRequestViewModel.coordinator = self
+
+        connectionRequestViewModelCancellable = connectionRequestViewModel
+            .objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+    }
 }
 
 extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnectionProposalRoutable {
+    func openConnectionRequest() {
+        state = .connectionRequest(connectionRequestViewModel)
+    }
+    
     func openDomainVerification() {
         state = .verifiedDomain
     }
 
-    func openWalletSelector() {
-        state = .walletSelector
+    func openWalletSelector(_ selectedUserWallet: some UserWalletModel) {
+        state = .walletSelector(walletSelectorViewModel)
     }
 
     func openNetworksSelector() {
