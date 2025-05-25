@@ -55,6 +55,10 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
         state = .networkSelector
     }
 
+    func openErrorScreen(error: some Error) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     func dismiss() {
         dismissFlowAction()
     }
