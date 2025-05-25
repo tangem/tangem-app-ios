@@ -13,12 +13,12 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase
     private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
 
-    private var selectedUserWallet: any UserWalletModel
-    private let walletSelectionIsAvailable: Bool
-
     private var dAppLoadingTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
+
+    var selectedUserWallet: any UserWalletModel
+
     weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
     init(
@@ -31,7 +31,6 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
         self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
         self.selectedUserWallet = selectedUserWallet
-        self.walletSelectionIsAvailable = false
     }
 
     deinit {
@@ -105,7 +104,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleWalletRowTapped() {
-        coordinator?.openWalletSelector()
+//        guard state.walletSection.selectionIsAvailable else { return }
+        coordinator?.openWalletSelector(selectedUserWallet)
     }
 
     private func handleNetworksRowTapped() {
