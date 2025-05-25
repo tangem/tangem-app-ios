@@ -25,6 +25,8 @@ enum WalletConnectModuleFactory {
     private static let supportURL: URL = AppEnvironment.current.tangemComBaseUrl
 
     private static let dAppDataService = ReownWalletConnectDAppDataService(walletConnectService: Self.walletConnectService)
+    private static let dAppConnectionService = ReownWalletConnectDAppConnectionService(walletConnectService: Self.walletConnectService)
+
     private static let dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
         apiService: BlockaidFactory().makeBlockaidAPIService()
     )
@@ -76,9 +78,11 @@ enum WalletConnectModuleFactory {
             uri: uri,
             analyticsSource: source
         )
+        let connectDAppUseCase = WalletConnectConnectDAppUseCase(dAppConnectionService: dAppConnectionService)
 
         return WalletConnectDAppConnectionProposalViewModel(
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
+            connectDAppUseCase: connectDAppUseCase,
             userWallets: filteredUserWallets,
             selectedUserWallet: selectedUserWallet,
             dismissFlowAction: { [weak floatingSheetPresenter] in
