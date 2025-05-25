@@ -16,22 +16,8 @@ final class ReownWalletConnectDAppConnectionService: WalletConnectDAppConnection
     }
 
     func connectDApp(with request: WalletConnectDAppConnectionRequest) async throws {
-//        do {
-//            let sessionNamespaces = try AutoNamespaces.build(
-//                sessionProposal: Session.Proposal,
-//                chains: [Blockchain("eip155:1")!],
-//                methods: [""],
-//                events: [""],
-//                accounts: [
-//                    .init(blockchain: Blockchain("eip155:1")!, accountAddress: ""),
-//                ]
-//            )
-//
-//            try await walletConnectService.acceptSessionProposal(with: request.proposalID, namespaces: sessionNamespaces)
-//        } catch {
-//            print(error)
-//            throw error
-//        }
+        let reownNamespaces = WalletConnectSessionNamespaceMapper.mapFromDomain(request.namespaces)
+        try await walletConnectService.acceptSessionProposal(with: request.proposalID, namespaces: reownNamespaces)
     }
 
     func disconnectDApp(with request: WalletConnectDAppConnectionRequest) async throws {}
