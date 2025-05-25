@@ -70,7 +70,7 @@ private extension CommonTokenBalancesStorage {
 
     private func save(balances: Balances) {
         do {
-            try storage.store(value: balances)
+            try storage.storeAndWait(value: balances)
         } catch {
             AppLogger.error("Storage save error", error: error)
         }
