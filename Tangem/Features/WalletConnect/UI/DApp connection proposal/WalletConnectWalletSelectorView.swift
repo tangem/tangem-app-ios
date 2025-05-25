@@ -140,13 +140,12 @@ struct WalletConnectWalletSelectorView: View {
 
     @ViewBuilder
     private func walletImage(_ walletViewModel: WalletConnectWalletSelectorViewState.UserWallet) -> some View {
-        switch walletViewModel.state {
+        switch walletViewModel.imageState {
         case .loading:
             SkeletonView()
 
-        case .content(let contentState):
-            contentState.image
-                .resizable()
+        case .content(let image):
+            image.resizable()
         }
     }
 
@@ -158,14 +157,14 @@ struct WalletConnectWalletSelectorView: View {
 
     @ViewBuilder
     private func walletDescription(_ walletViewModel: WalletConnectWalletSelectorViewState.UserWallet) -> some View {
-        switch walletViewModel.state {
+        switch walletViewModel.descriptionState {
         case .loading:
             SkeletonView()
                 .frame(width: 130, height: 16)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
-        case .content(let contentState):
-            Text(contentState.description)
+        case .content(let description):
+            Text(description)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 .lineLimit(1)
         }
