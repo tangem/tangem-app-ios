@@ -29,6 +29,7 @@ enum WalletConnectSessionProposalMapper {
 
                 return WalletConnectSessionProposal.Namespace(
                     blockchains: uniqueBlockchains,
+                    accounts: nil,
                     methods: reownProposalNamespace.methods,
                     events: reownProposalNamespace.events
                 )
@@ -42,8 +43,8 @@ enum WalletConnectSessionProposalMapper {
         return Self.mapToDomainNamespaces(from: reownNamespaces)
     }
 
-    static func mapUnsupportedBlockchainNames(from proposal: ReownWalletKit.Session.Proposal) -> Set<String> {
-        let unsupportedBlockchainNames: [String] = proposal.requiredNamespaces.reduce([]) { partialResult, reownSessionNamespace in
+    static func mapUnsupportedBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
+        let unsupportedBlockchainNames: [String] = reownSessionProposal.requiredNamespaces.reduce([]) { partialResult, reownSessionNamespace in
             guard let reownBlockchains = reownSessionNamespace.value.chains else { return partialResult }
 
             let unsupportedBlockchainNames = reownBlockchains.compactMap { reownBlockchain in
@@ -65,5 +66,29 @@ enum WalletConnectSessionProposalMapper {
         }
 
         return Set(unsupportedBlockchainNames)
+    }
+
+    static func mapAllMethods(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> [String] {
+        let requiredMethods = reownSessionProposal.requiredNamespaces.values.reduce(into: Set<String>()) { result, namespace in
+            result.formUnion(namespace.methods)
+        }
+
+        let optionalMethods = reownSessionProposal.optionalNamespaces?.values.reduce(into: Set<String>()) { result, namespace in
+            result.formUnion(namespace.methods)
+        } ?? []
+
+        return Array(requiredMethods.union(optionalMethods))
+    }
+
+    static func mapAllEvents(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> [String] {
+        let requiredEvents = reownSessionProposal.requiredNamespaces.values.reduce(into: Set<String>()) { result, namespace in
+            result.formUnion(namespace.events)
+        }
+
+        let optionalEvents = reownSessionProposal.optionalNamespaces?.values.reduce(into: Set<String>()) { result, namespace in
+            result.formUnion(namespace.events)
+        } ?? []
+        
+        return Array(requiredEvents.union(optionalEvents))
     }
 }
