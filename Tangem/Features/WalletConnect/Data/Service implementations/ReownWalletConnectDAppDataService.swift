@@ -28,7 +28,6 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         )
 
         let proposal = WalletConnectSessionProposal(
-            id: reownSessionProposal.id,
             requiredNamespaces: WalletConnectSessionProposalMapper.mapToDomainNamespaces(from: reownSessionProposal.requiredNamespaces),
             optionalNamespaces: WalletConnectSessionProposalMapper.mapToOptionalDomainNamespaces(from: reownSessionProposal.optionalNamespaces),
             unsupportedBlockchainNames: WalletConnectSessionProposalMapper.mapUnsupportedBlockchainNames(from: reownSessionProposal),
