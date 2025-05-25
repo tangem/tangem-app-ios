@@ -11,5 +11,6 @@ protocol WalletConnectDAppConnectionProposalRoutable: AnyObject {
     func openDomainVerification()
     func openWalletSelector()
     func openNetworksSelector()
+    func openErrorScreen(error: some Error)
     func dismiss()
 }

@@ -90,7 +90,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 )
                 self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
             } catch {
-                print(error)
+                self?.coordinator?.openErrorScreen(error: error)
             }
         }
     }
@@ -142,11 +142,15 @@ extension WalletConnectDAppConnectionRequestViewModel {
         dAppProposal: WalletConnectDAppConnectionProposal,
         blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
     ) {
+        let allRequiredBlockchainsAreAvailable = blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
+        let atLeastOneBlockchainIsSelected = !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
+
         state = .content(
             proposal: dAppProposal,
             selectedUserWalletName: selectedUserWallet.name,
             walletSelectionIsAvailable: false,
-            blockchainsAvailabilityResult: blockchainsAvailabilityResult
+            blockchainsAvailabilityResult: blockchainsAvailabilityResult,
+            connectButtonIsEnabled: allRequiredBlockchainsAreAvailable && atLeastOneBlockchainIsSelected
         )
     }
 }
