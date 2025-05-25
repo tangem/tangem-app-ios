@@ -8,8 +8,9 @@
 
 @MainActor
 protocol WalletConnectDAppConnectionProposalRoutable: AnyObject {
+    func openConnectionRequest()
     func openDomainVerification()
-    func openWalletSelector()
+    func openWalletSelector(_ selectedUserWallet: some UserWalletModel)
     func openNetworksSelector()
     func openErrorScreen(error: some Error)
     func dismiss()

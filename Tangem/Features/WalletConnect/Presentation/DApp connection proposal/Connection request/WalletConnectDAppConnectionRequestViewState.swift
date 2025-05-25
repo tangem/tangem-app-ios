@@ -171,8 +171,8 @@ extension WalletConnectDAppConnectionRequestViewState {
     struct WalletSection: Equatable {
         let iconAsset = Assets.Glyphs.walletNew
         let label = Localization.wcCommonWallet
+        let selectionIsAvailable: Bool
         var selectedUserWalletName: String
-        var selectionIsAvailable: Bool
         var trailingIconAsset: ImageType?
 
         init(selectedUserWalletName: String, selectionIsAvailable: Bool) {
