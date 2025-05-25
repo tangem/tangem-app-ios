@@ -55,9 +55,19 @@ enum WalletConnectModuleFactory {
         forURI uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
     ) -> WalletConnectDAppConnectionProposalViewModel? {
-        guard let selectedUserWallet = Self.userWalletRepository.selectedModel else {
-            assertionFailure("UserWalletRepository did not have a selected user wallet. Developer mistake.")
+        let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
+
+        guard !filteredUserWallets.isEmpty else {
+            assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")
             return nil
+        }
+
+        let selectedUserWallet: any UserWalletModel
+
+        if let selectedModel = Self.userWalletRepository.selectedModel, selectedModel.config.isFeatureVisible(.walletConnect) {
+            selectedUserWallet = selectedModel
+        } else {
+            selectedUserWallet = filteredUserWallets[0]
         }
 
         let getDAppConnectionProposalUseCase = WalletConnectGetDAppConnectionProposalUseCase(
@@ -67,26 +77,14 @@ enum WalletConnectModuleFactory {
             analyticsSource: source
         )
 
-        let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
-
-        let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: walletSelectionIsAvailable),
+        return WalletConnectDAppConnectionProposalViewModel(
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
-            resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
-            selectedUserWallet: selectedUserWallet
-        )
-
-        let viewModel = WalletConnectDAppConnectionProposalViewModel(
-            state: .connectionRequest(connectionRequestViewModel),
-            connectionRequestViewModel: connectionRequestViewModel,
+            userWallets: filteredUserWallets,
+            selectedUserWallet: selectedUserWallet,
             dismissFlowAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
             }
         )
-
-        connectionRequestViewModel.coordinator = viewModel
-
-        return viewModel
     }
 
     static func makeQRScanFlow(
