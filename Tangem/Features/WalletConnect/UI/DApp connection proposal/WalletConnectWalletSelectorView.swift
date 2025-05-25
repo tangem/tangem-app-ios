@@ -99,11 +99,14 @@ struct WalletConnectWalletSelectorView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 2))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    walletName(walletViewModel)
-                    walletDescription(walletViewModel)
+                    Text(walletViewModel.name)
+                        .style(Fonts.Bold.subheadline, color: walletViewModel.isSelected ? Colors.Text.primary1 : Colors.Text.secondary)
+
+                    walletDescription(walletViewModel.description)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .lineLimit(1)
             .padding(.horizontal, 14)
             .frame(height: Layout.walletRowHeight)
             .contentShape(.rect)
@@ -149,24 +152,21 @@ struct WalletConnectWalletSelectorView: View {
         }
     }
 
-    private func walletName(_ walletViewModel: WalletConnectWalletSelectorViewState.UserWallet) -> some View {
-        Text(walletViewModel.name)
-            .style(Fonts.Bold.subheadline, color: walletViewModel.isSelected ? Colors.Text.primary1 : Colors.Text.secondary)
-            .lineLimit(1)
-    }
-
-    @ViewBuilder
-    private func walletDescription(_ walletViewModel: WalletConnectWalletSelectorViewState.UserWallet) -> some View {
-        switch walletViewModel.descriptionState {
-        case .loading:
-            SkeletonView()
-                .frame(width: 130, height: 16)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-        case .content(let description):
-            Text(description)
+    private func walletDescription(_ descriptionViewModel: WalletConnectWalletSelectorViewState.UserWallet.Description) -> some View {
+        HStack(spacing: 2) {
+            Text(descriptionViewModel.tokensCount)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .lineLimit(1)
+
+            if descriptionViewModel.balanceState != .empty {
+                Text(descriptionViewModel.delimiter)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+                LoadableTokenBalanceView(
+                    state: descriptionViewModel.balanceState,
+                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    loader: .init(size: CGSize(width: 40, height: 12))
+                )
+            }
         }
     }
 
