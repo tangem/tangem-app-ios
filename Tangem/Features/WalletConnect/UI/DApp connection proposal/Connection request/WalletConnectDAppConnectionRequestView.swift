@@ -153,13 +153,12 @@ struct WalletConnectDAppConnectionRequestView: View {
     private var buttons: some View {
         HStack(spacing: 8) {
             MainButton(
-                title: viewModel.state.cancelButtonTitle,
+                title: viewModel.state.cancelButton.title,
                 subtitle: nil,
                 icon: nil,
                 style: .secondary,
                 size: .default,
-                isLoading: false,
-                isDisabled: false,
+                isLoading: viewModel.state.cancelButton.isLoading,
                 handleActionWhenDisabled: false,
                 action: {
                     viewModel.handle(viewEvent: .cancelButtonTapped)
@@ -167,13 +166,12 @@ struct WalletConnectDAppConnectionRequestView: View {
             )
 
             MainButton(
-                title: viewModel.state.connectButtonTitle,
+                title: viewModel.state.connectButton.title,
                 subtitle: nil,
                 icon: nil,
                 style: .primary,
                 size: .default,
-                isLoading: false,
-                isDisabled: false,
+                isLoading: viewModel.state.connectButton.isLoading,
                 handleActionWhenDisabled: false,
                 action: {
                     viewModel.handle(viewEvent: .connectButtonTapped)
