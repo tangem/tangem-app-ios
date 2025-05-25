@@ -532,8 +532,7 @@ extension WCServiceV2 {
     }
 
     func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {
-        print(proposalId)
-        print(namespaces)
+        WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
         let session = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
         print(session)
     }
