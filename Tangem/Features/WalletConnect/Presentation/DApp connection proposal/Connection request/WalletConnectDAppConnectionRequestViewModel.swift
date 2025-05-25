@@ -17,7 +17,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
 
-    var selectedUserWallet: any UserWalletModel
+    var selectedUserWallet: any UserWalletModel { didSet { state.walletSection.selectedUserWalletName = selectedUserWallet.name } }
 
     weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
@@ -104,7 +104,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleWalletRowTapped() {
-//        guard state.walletSection.selectionIsAvailable else { return }
+        guard state.walletSection.selectionIsAvailable else { return }
         coordinator?.openWalletSelector(selectedUserWallet)
     }
 
@@ -148,7 +148,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
         state = .content(
             proposal: dAppProposal,
             selectedUserWalletName: selectedUserWallet.name,
-            walletSelectionIsAvailable: false,
+            walletSelectionIsAvailable: state.walletSection.selectionIsAvailable,
             blockchainsAvailabilityResult: blockchainsAvailabilityResult,
             connectButtonIsEnabled: allRequiredBlockchainsAreAvailable && atLeastOneBlockchainIsSelected
         )
