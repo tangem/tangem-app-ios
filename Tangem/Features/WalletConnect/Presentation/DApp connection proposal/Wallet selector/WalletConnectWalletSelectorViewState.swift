@@ -13,14 +13,6 @@ import TangemLocalization
 struct WalletConnectWalletSelectorViewState {
     let navigationTitle = "Choose wallet"
     var wallets: [UserWallet]
-
-    static func loading(userWallets: [any UserWalletModel], selectedWallet: some UserWalletModel) -> WalletConnectWalletSelectorViewState {
-        return WalletConnectWalletSelectorViewState(
-            wallets: userWallets.map { userWallet in
-                UserWallet(domainModel: userWallet, state: .loading, isSelected: userWallet.userWalletId == selectedWallet.userWalletId)
-            }
-        )
-    }
 }
 
 extension WalletConnectWalletSelectorViewState {
