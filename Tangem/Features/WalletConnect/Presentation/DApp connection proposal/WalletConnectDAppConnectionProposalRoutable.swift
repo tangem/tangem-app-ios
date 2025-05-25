@@ -10,7 +10,7 @@
 protocol WalletConnectDAppConnectionProposalRoutable: AnyObject {
     func openConnectionRequest()
     func openDomainVerification()
-    func openWalletSelector(_ selectedUserWallet: some UserWalletModel)
+    func openWalletSelector()
     func openNetworksSelector()
     func openErrorScreen(error: some Error)
     func dismiss()
