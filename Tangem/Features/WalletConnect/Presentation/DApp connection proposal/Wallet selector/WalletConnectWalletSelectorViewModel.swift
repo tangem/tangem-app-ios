@@ -8,11 +8,14 @@
 
 import Combine
 import typealias Foundation.TimeInterval
+import struct SwiftUI.Image
 
 @MainActor
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
     private let backAction: () -> Void
     private let userWalletSelectedAction: (UserWalletModel) -> Void
+
+    private var walletImagesLoadingTask: Task<Void, Never>?
 
     let selectionAnimationDuration: TimeInterval = 0.3
 
@@ -24,9 +27,33 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
         backAction: @escaping () -> Void,
         userWalletSelectedAction: @escaping (UserWalletModel) -> Void
     ) {
-        state = .loading(userWallets: userWallets, selectedWallet: selectedUserWallet)
         self.backAction = backAction
         self.userWalletSelectedAction = userWalletSelectedAction
+
+        state = .loading(userWallets: userWallets, selectedWallet: selectedUserWallet)
+
+        loadImages(for: userWallets)
+    }
+
+    deinit {
+        walletImagesLoadingTask?.cancel()
+    }
+
+    private func loadImages(for userWallets: [any UserWalletModel]) {
+        walletImagesLoadingTask = Task {
+            await withTaskGroup(of: (Int, SwiftUI.Image).self) { [weak self] taskGroup in
+                for (index, userWallet) in userWallets.enumerated() {
+                    taskGroup.addTask {
+                        let image = await userWallet.cardImageProvider.loadSmallImage().image
+                        return (index, image)
+                    }
+                }
+
+                for await (index, image) in taskGroup {
+                    self?.state.wallets[index].imageState = .content(image)
+                }
+            }
+        }
     }
 }
 
@@ -57,7 +84,8 @@ extension WalletConnectWalletSelectorViewModel {
         let updatedWallets = state.wallets.map {
             WalletConnectWalletSelectorViewState.UserWallet(
                 domainModel: $0.domainModel,
-                state: $0.state,
+                imageState: $0.imageState,
+                descriptionState: $0.descriptionState,
                 isSelected: $0.id == selectedUserWallet.userWalletId
             )
         }
@@ -70,7 +98,12 @@ private extension WalletConnectWalletSelectorViewState {
     static func loading(userWallets: [any UserWalletModel], selectedWallet: some UserWalletModel) -> WalletConnectWalletSelectorViewState {
         WalletConnectWalletSelectorViewState(
             wallets: userWallets.map { userWallet in
-                UserWallet(domainModel: userWallet, state: .loading, isSelected: userWallet.userWalletId == selectedWallet.userWalletId)
+                UserWallet(
+                    domainModel: userWallet,
+                    imageState: .loading,
+                    descriptionState: .loading,
+                    isSelected: userWallet.userWalletId == selectedWallet.userWalletId
+                )
             }
         )
     }

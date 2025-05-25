@@ -517,6 +517,11 @@ extension WCServiceV2 {
     func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
         await pairClient(with: uri, source: source)
 
+        if Task.isCancelled {
+            // [REDACTED_TODO_COMMENT]
+            throw CancellationError()
+        }
+
         try Task.checkCancellation()
 
         return await withCheckedContinuation { [weak self] continuation in
