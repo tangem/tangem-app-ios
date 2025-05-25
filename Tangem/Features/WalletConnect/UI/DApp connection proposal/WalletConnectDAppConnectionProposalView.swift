@@ -40,13 +40,9 @@ struct WalletConnectDAppConnectionProposalView: View {
                 .background(.yellow)
                 .transition(.verifiedDomain)
 
-            case .walletSelector:
-                VStack {
-                    Button("back") { viewModel.switchToConnectionRequest() }
-                }
-                .frame(height: 600)
-                .background(.orange)
-                .transition(.walletSelector)
+            case .walletSelector(let viewModel):
+                WalletConnectWalletSelectorView(viewModel: viewModel)
+                    .transition(.walletSelector)
 
             case .networkSelector:
                 VStack {
