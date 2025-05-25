@@ -21,7 +21,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
             self?.openConnectionRequest()
         },
         userWalletSelectedAction: { [weak self] selectedUserWallet in
-            self?.connectionRequestViewModel.selectedUserWallet = selectedUserWallet
+            self?.connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
             self?.openConnectionRequest()
         }
     )
@@ -34,6 +34,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
 
     init(
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
+        connectDAppUseCase: WalletConnectConnectDAppUseCase,
         userWallets: [any UserWalletModel],
         selectedUserWallet: some UserWalletModel,
         dismissFlowAction: @escaping () -> Void
@@ -42,6 +43,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
             state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: userWallets.count > 1),
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
+            connectDAppUseCase: connectDAppUseCase,
             selectedUserWallet: selectedUserWallet
         )
         state = .connectionRequest(connectionRequestViewModel)
