@@ -179,7 +179,7 @@ enum WalletConnectModuleFactory {
             state = WalletConnectErrorViewState(
                 icon: .warning,
                 title: Localization.wcAlertUnknownErrorTitle,
-                subtitle: "Error code: \(error.code). If the problem persists — feel free [to contact our support.](\(Self.supportURL))",
+                subtitle: "Error code: \(error.code). If the problem persists \(AppConstants.emDashSign) feel free [to contact our support.](\(Self.supportURL))",
                 buttonStyle: .secondary
             )
 

@@ -17,8 +17,8 @@ extension AccountService {
                 promise(.failure(WalletError.empty))
                 return
             }
-            
-            self.getAccountDetails(accountId: address) { response in
+
+            getAccountDetails(accountId: address) { response in
                 switch response {
                 case .success(let accountDetails):
                     let memoRequired = accountDetails.data["config.memo_required"] == "MQ=="
@@ -30,7 +30,7 @@ extension AccountService {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func getAccountDetails(accountId: String) -> AnyPublisher<AccountResponse, Error> {
         let future = Future<AccountResponse, Error> { [weak self] promise in
             guard let self = self else {
