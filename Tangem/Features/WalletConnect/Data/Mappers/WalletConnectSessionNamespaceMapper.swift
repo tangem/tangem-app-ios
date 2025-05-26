@@ -9,12 +9,14 @@
 import struct ReownWalletKit.SessionNamespace
 
 enum WalletConnectSessionNamespaceMapper {
-    static func mapToDomain(_ reownNamespaces: [String: ReownWalletKit.SessionNamespace]) -> [String: WalletConnectSessionProposal.Namespace] {
+    static func mapToDomain(
+        _ reownNamespaces: [String: ReownWalletKit.SessionNamespace]
+    ) -> [String: WalletConnectDAppConnectionRequest.SessionNamespace] {
         reownNamespaces
             .mapValues { reownSessionNamespace in
                 let blockchains = Set((reownSessionNamespace.chains ?? []).compactMap(WalletConnectBlockchainMapper.mapToDomain))
 
-                return WalletConnectSessionProposal.Namespace(
+                return WalletConnectDAppConnectionRequest.SessionNamespace(
                     blockchains: blockchains,
                     accounts: reownSessionNamespace.accounts.map(WalletConnectAccountsMapper.mapToDomain),
                     methods: reownSessionNamespace.methods,
@@ -23,12 +25,14 @@ enum WalletConnectSessionNamespaceMapper {
             }
     }
 
-    static func mapFromDomain(_ namespaces: [String: WalletConnectSessionProposal.Namespace]) -> [String: ReownWalletKit.SessionNamespace] {
+    static func mapFromDomain(
+        _ namespaces: [String: WalletConnectDAppConnectionRequest.SessionNamespace]
+    ) -> [String: ReownWalletKit.SessionNamespace] {
         namespaces
             .mapValues { domainNamespace in
                 return ReownWalletKit.SessionNamespace(
                     chains: domainNamespace.blockchains?.compactMap(WalletConnectBlockchainMapper.mapFromDomain),
-                    accounts: domainNamespace.accounts?.compactMap(WalletConnectAccountsMapper.mapFromDomain) ?? [],
+                    accounts: domainNamespace.accounts.compactMap(WalletConnectAccountsMapper.mapFromDomain),
                     methods: domainNamespace.methods,
                     events: domainNamespace.events
                 )

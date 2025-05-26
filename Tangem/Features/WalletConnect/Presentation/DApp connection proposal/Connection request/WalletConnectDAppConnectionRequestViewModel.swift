@@ -99,12 +99,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
             do {
                 let dAppProposal = try await getDAppConnectionProposalUseCase()
                 let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
-                    connectionProposal: dAppProposal,
+                    sessionProposal: dAppProposal.sessionProposal,
                     selectedBlockchains: [],
                     userWallet: selectedUserWallet
                 )
                 self?.loadedSessionProposal = dAppProposal.sessionProposal
-                self?.selectedBlockchains = Array(dAppProposal.requiredBlockchains)
+                self?.selectedBlockchains = Array(dAppProposal.sessionProposal.requiredBlockchains)
                 self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
             } catch {
                 self?.coordinator?.openErrorScreen(error: error)
