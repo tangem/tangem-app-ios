@@ -10,10 +10,10 @@ import Foundation
 
 /// Namespace for storing all types related to persistable NFT models
 public enum NFTStorableModels {
-    // Versioning namespace
+    /// Versioning namespace
     public enum V1 {}
-    
-    // Error types
+
+    /// Error types
     enum _Error: Error {
         case decodingError(String)
     }
@@ -110,7 +110,7 @@ extension NFTStorableModels {
                 return value
             }
         }
-        
+
         /// Deserialize contract type from string representation
         static func deserialize(contractTypeIdentifier: String) -> NFTContractType {
             switch contractTypeIdentifier {
@@ -135,7 +135,7 @@ extension NFTStorableModels {
         /// Convert NFTMedia.Kind to string representation
         static func serialize(_ mediaKind: NFTMedia.Kind?) -> String? {
             guard let mediaKind else { return nil }
-            
+
             switch mediaKind {
             case .image:
                 return "image"
@@ -149,7 +149,7 @@ extension NFTStorableModels {
                 return "unknown"
             }
         }
-        
+
         /// Deserialize media kind from string representation
         static func deserialize(mediaKindName: String) -> NFTMedia.Kind {
             switch mediaKindName {
@@ -165,7 +165,7 @@ extension NFTStorableModels {
                 return .unknown
             }
         }
-        
+
         /// Create NFTMedia from URL and kind name if available
         static func createMedia(url: URL?, kindName: String?) -> NFTMedia? {
             guard let url, let kindName else { return nil }
