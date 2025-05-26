@@ -1,5 +1,5 @@
 //
-//  NFTStorableModelsUtils.swift
+//  NFTCachedModelsUtils.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Namespace for storing all types related to persistable NFT models
-public enum NFTStorableModels {
+public enum NFTCachedModels {
     /// Versioning namespace
     public enum V1 {}
 
@@ -21,7 +21,7 @@ public enum NFTStorableModels {
 
 // MARK: - Shared Chain Serialization/Deserialization
 
-extension NFTStorableModels {
+extension NFTCachedModels {
     /// Helper utilities for serializing and deserializing NFT chain information
     enum ChainUtils {
         /// Convert NFTChain to string representation and isTestnet flag
@@ -86,7 +86,7 @@ extension NFTStorableModels {
             case "solana":
                 return .solana
             default:
-                throw NFTStorableModels._Error.decodingError("Unknown chain name: \(chainName)")
+                throw NFTCachedModels._Error.decodingError("Unknown chain name: \(chainName)")
             }
         }
     }
@@ -94,7 +94,7 @@ extension NFTStorableModels {
 
 // MARK: - Shared Contract Type Serialization/Deserialization
 
-extension NFTStorableModels {
+extension NFTCachedModels {
     /// Helper utilities for serializing and deserializing NFT contract types
     enum ContractTypeUtils {
         /// Convert NFTContractType to string representation
@@ -129,7 +129,7 @@ extension NFTStorableModels {
 
 // MARK: - Shared Media Serialization/Deserialization
 
-extension NFTStorableModels {
+extension NFTCachedModels {
     /// Helper utilities for serializing and deserializing NFT media information
     enum MediaUtils {
         /// Convert NFTMedia.Kind to string representation
