@@ -12,19 +12,20 @@ import CombineExt
 import TangemFoundation
 import TangemNFT
 
-// [REDACTED_TODO_COMMENT]
 final class CommonNFTManager: NFTManager {
     private(set) var collections: [NFTCollection] = []
 
     var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
-        return collectionsPublisherInternal
+        return collectionsPublisherRemote
             .values()
+            .merge(with: collectionsPublisherCached)
             .eraseToAnyPublisher()
     }
 
     var statePublisher: AnyPublisher<NFTManagerState, Never> {
         let aggregatedUpdatePublisher = [
             updatePublisher
+                .mapToVoid()
                 .eraseToAnyPublisher(),
             updateAssetsPublisher
                 .mapToVoid()
@@ -35,21 +36,25 @@ final class CommonNFTManager: NFTManager {
         ].merge()
 
         let statePublishers = [
-            aggregatedUpdatePublisher
-                .mapToValue(NFTManagerState.loading)
+            collectionsPublisherCached
+                .map(NFTManagerState.loaded)
                 .eraseToAnyPublisher(),
-            collectionsPublisherInternal
+            collectionsPublisherRemote
                 .values()
                 .map(NFTManagerState.loaded)
                 .eraseToAnyPublisher(),
-            collectionsPublisherInternal
+            collectionsPublisherRemote
                 .failures()
                 .map(NFTManagerState.failedToLoad)
                 .eraseToAnyPublisher(),
-        ]
+        ].merge()
 
-        return statePublishers
-            .merge()
+        // Append is used to ensure that each update cycle starts with loading
+        return aggregatedUpdatePublisher
+            .flatMap { _ in
+                Just(NFTManagerState.loading)
+                    .append(statePublishers)
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -84,13 +89,26 @@ final class CommonNFTManager: NFTManager {
             .share(replay: 1)
     }()
 
-    private lazy var collectionsPublisherInternal: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
+    private lazy var collectionsPublisherCached: some Publisher<NFTPartialResult<[NFTCollection]>, Never> = updatePublisher
+        .filter(\.isCacheEnabled)
+        .withWeakCaptureOf(self)
+        .map { nftManager, _ in
+            let collections = nftManager.cache.getCollections()
+            return .init(value: collections)
+        }
+        .share(replay: 1)
+
+    private lazy var collectionsPublisherRemote: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
         let aggregatedNetworkServicesPublisher = [
             updatePublisher
+                .filter(\.isCacheDisabled)
                 .withLatestFrom(networkServicesPublisher)
                 .map { ($0, true) } // An explicit update (due to a `update` call) always ignores the cache
                 .eraseToAnyPublisher(),
             networkServicesPublisher
+                // Change in wallet models and/or user wallets can't request an update until
+                // an explicit update (by calling `update(cachePolicy:)`) has been done at least once
+                .drop(untilOutputFrom: updatePublisher.filter(\.isCacheDisabled))
                 .map { ($0, false) } // An update caused by changes in wallet models always uses the cache if it exists
                 .eraseToAnyPublisher(),
         ].merge()
@@ -143,6 +161,7 @@ final class CommonNFTManager: NFTManager {
             .failures()
             .mapToMaterializedFailure(outputType: NFTPartialResult<[NFTCollection]>.self)
 
+        // Prepend is used to ensure that `assetsValuesPublisher` won't prevent the merged publisher from emitting values
         let assetsValuesPublisher = assetsPublisher
             .values()
             .prepend((NFTCollection.ID.dummy, NFTPartialResult(value: [])))
@@ -174,15 +193,17 @@ final class CommonNFTManager: NFTManager {
         .share(replay: 1)
     }()
 
-    private var updatePublisher: some Publisher<Void, Never> { updateSubject }
-    private let updateSubject: some Subject<Void, Never> = PassthroughSubject()
+    private var updatePublisher: some Publisher<NFTCachePolicy, Never> { updateSubject }
+    private let updateSubject: some Subject<NFTCachePolicy, Never> = PassthroughSubject()
 
     private var updateAssetsPublisher: some Publisher<NFTCollection.ID, Never> { updateAssetsSubject }
     private let updateAssetsSubject: some Subject<NFTCollection.ID, Never> = PassthroughSubject()
 
     private let walletModelsManager: WalletModelsManager
     private let updater = Updater()
-    private var collectionsSubscription: AnyCancellable?
+    private let cache = NFTCache(cacheFileName: .cachedNFTAssets)
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         walletModelsManager: WalletModelsManager
@@ -192,8 +213,7 @@ final class CommonNFTManager: NFTManager {
     }
 
     func update(cachePolicy: NFTCachePolicy) {
-        // [REDACTED_TODO_COMMENT]
-        updateSubject.send()
+        updateSubject.send(cachePolicy)
     }
 
     func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {
@@ -202,11 +222,20 @@ final class CommonNFTManager: NFTManager {
 
     private func bind() {
         // Not pure, but we still need some state in this manager
-        collectionsSubscription = collectionsPublisherInternal
+        collectionsPublisherRemote
             .values()
+            .map(\.value)
+            .withWeakCaptureOf(self)
+            .sink { nftManager, collections in
+                nftManager.cache.save(collections)
+            }
+            .store(in: &bag)
+
+        collectionsPublisher
             .map(\.value)
             .receiveOnMain()
             .assign(to: \.collections, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func updateInternal(
