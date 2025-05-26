@@ -36,14 +36,6 @@ struct DetailsView: View {
         }
         .interContentPadding(8)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .background(
-            ScanTroubleshootingView(
-                isPresented: $viewModel.showTroubleshootingView,
-                tryAgainAction: viewModel.tryAgain,
-                requestSupportAction: viewModel.requestSupport,
-                openScanCardManualAction: viewModel.openScanCardManual
-            )
-        )
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
         .navigationTitle(Localization.detailsTitle)
