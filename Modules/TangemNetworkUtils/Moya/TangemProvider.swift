@@ -15,7 +15,7 @@ public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
         plugins: [PluginType] = [],
         sessionConfiguration: URLSessionConfiguration = .defaultConfiguration
     ) {
-        let serverTrustManager = DefaultServerTrustManager()
+        let serverTrustManager = TangemTrustEvaluatorServerTrustManager()
         let session = Session(configuration: sessionConfiguration, serverTrustManager: serverTrustManager)
 
         super.init(stubClosure: stubClosure, session: session, plugins: plugins)
