@@ -56,6 +56,8 @@ class ServicesManager {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
+
+        pushNotificationsInteractor.register(subscriber: PushNotificationDeepLinkHandler())
     }
 
     private func configureFirebase() {

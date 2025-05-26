@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol PushNotificationsInteractor: Initializable {
+protocol PushNotificationsInteractor: Initializable, NotificationResponseDispatching {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool
     func allowRequest(in flow: PushNotificationsPermissionRequestFlow) async
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow)
@@ -24,7 +24,8 @@ extension InjectedValues {
 
     private struct Key: InjectionKey {
         static var currentValue: PushNotificationsInteractor = CommonPushNotificationsInteractor(
-            pushNotificationsService: PushNotificationsService(application: .shared)
+            pushNotificationsService: PushNotificationsService(application: .shared),
+            notificationResponseDispatcher: CommonNotificationResponseDispatcher()
         )
     }
 }
