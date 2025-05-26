@@ -10,7 +10,6 @@ import Foundation
 
 extension NFTCachedModels.V1 {
     struct Collection: Codable {
-
         // MARK: - NFTCollectionId
 
         let collectionIdentifier: String
