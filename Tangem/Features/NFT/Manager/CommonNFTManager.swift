@@ -87,27 +87,16 @@ final class CommonNFTManager: NFTManager {
     .share(replay: 1)
 
     private lazy var collectionsPublisherRemote: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
-        let aggregatedNetworkServicesPublisher = Publishers.Merge(
-            updatePublisher
-                .filter(\.isCacheDisabled)
-                .withLatestFrom(networkServicesPublisher)
-                .map { ($0, true) }, // An explicit update (due to a `update` call) always ignores the cache
-            // Change in wallet models and/or user wallets can't request an update until an explicit update (by calling
-            // `update(cachePolicy:)`) has been done at least once, therefore `drop(untilOutputFrom:)` is used here
-            networkServicesPublisher
-                .drop(untilOutputFrom: updatePublisher.filter(\.isCacheDisabled))
-                .map { ($0, false) }, // An update caused by changes in wallet models always uses the cache if it exists
-        )
-
-        let collectionsPublisher = aggregatedNetworkServicesPublisher
+        let collectionsPublisher = updatePublisher
+            .filter(\.isCacheDisabled)
+            .withLatestFrom(networkServicesPublisher)
             .withWeakCaptureOf(self)
-            .flatMapLatest { nftManager, input in
-                let (networkServices, ignoreCache) = input
-
-                return Just((nftManager, networkServices, ignoreCache))
+            .flatMapLatest { nftManager, networkServices in
+                return Just((nftManager, networkServices))
                     .setFailureType(to: Error.self)
-                    .asyncTryMap { nftManager, networkServices, ignoreCache in
-                        return try await nftManager.updateInternal(networkServices: networkServices, ignoreCache: ignoreCache)
+                    .asyncTryMap { nftManager, networkServices in
+                        // An explicit update (due to a `update` call) always ignores the cache
+                        return try await nftManager.updateInternal(networkServices: networkServices, ignoreCache: true)
                     }
                     .materialize()
             }
