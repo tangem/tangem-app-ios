@@ -2,7 +2,7 @@
 //  NFTStorableCollectionModels.swift
 //  TangemNFT
 //
-//  Created on 25.05.2025.
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 

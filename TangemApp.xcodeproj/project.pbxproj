@@ -25,14 +25,6 @@
 		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
 		0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */; };
 		0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */; };
-		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
-		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
-		0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */; };
-		0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */; };
-		0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */; };
-		0A3A53D72D9D8AE600E263E7 /* BlockaidChainScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */; };
-		0A3A53D92D9E743500E263E7 /* BlockaidMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */; };
-		0A3A53DB2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -3593,14 +3585,6 @@
 		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
 		0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
-		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
-		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
-		0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
-		0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaScan.swift; sourceTree = "<group>"; };
-		0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidFactory.swift; sourceTree = "<group>"; };
-		0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidChainScanResult.swift; sourceTree = "<group>"; };
-		0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidMapper.swift; sourceTree = "<group>"; };
-		0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidSiteScanResult.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -7132,33 +7116,6 @@
 			path = DTOs;
 			sourceTree = "<group>";
 		};
-		0A2261862D9AC61F004DC848 /* Blockaid */ = {
-			isa = PBXGroup;
-			children = (
-				0A3A53D52D9D88BA00E263E7 /* Domain */,
-				0A2261892D9AC66F004DC848 /* DTOs */,
-				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
-				0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */,
-				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
-				0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */,
-				0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */,
-			);
-			path = Blockaid;
-			sourceTree = "<group>";
-		};
-		0A2261892D9AC66F004DC848 /* DTOs */ = {
-			isa = PBXGroup;
-			children = (
-				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
-				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
-				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
-				0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */,
-				0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */,
-				0A3A53C92D9D276B00E263E7 /* Common.swift */,
-			);
-			path = DTOs;
-			sourceTree = "<group>";
-		};
 		0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -7168,15 +7125,6 @@
 				0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */,
 			);
 			path = StakingPendingActions;
-			sourceTree = "<group>";
-		};
-		0A3A53D52D9D88BA00E263E7 /* Domain */ = {
-			isa = PBXGroup;
-			children = (
-				0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */,
-				0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */,
-			);
-			path = Domain;
 			sourceTree = "<group>";
 		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
