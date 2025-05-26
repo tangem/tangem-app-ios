@@ -47,14 +47,16 @@ public extension CachesDirectoryStorage {
         }
     }
 
-    /// Save the value in asynchronous fashion, ignoring errors.
-    func store<T>(value: T) where T: Encodable {
+    /// Save the value in asynchronous fashion, providing a completion handler for error handling.
+    func store<T>(value: T, completion: ((_ error: Error?) -> Void)? = nil) where T: Encodable {
         queue.async(flags: .barrier) {
-            guard let data = try? encoder.encode(value) else {
-                return
+            do {
+                let data = try encoder.encode(value)
+                try writeToFile(data: data)
+                completion?(nil)
+            } catch {
+                completion?(error)
             }
-
-            try? writeToFile(data: data)
         }
     }
 
