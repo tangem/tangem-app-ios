@@ -10,3 +10,21 @@ public enum NFTCachePolicy {
     case always
     case never
 }
+
+// MARK: - Convenience extensions
+
+public extension NFTCachePolicy {
+    var isCacheEnabled: Bool {
+        if case .always = self {
+            return true
+        }
+        return false
+    }
+
+    var isCacheDisabled: Bool {
+        if case .never = self {
+            return true
+        }
+        return false
+    }
+}
