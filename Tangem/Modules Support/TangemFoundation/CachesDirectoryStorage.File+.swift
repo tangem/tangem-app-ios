@@ -14,8 +14,8 @@ extension CachesDirectoryStorage.File where Self == CachesDirectoryFile {
     static var cachedQuotes: Self { CachesDirectoryFile.cachedQuotesFile }
     static var cachedExpressAvailability: Self { CachesDirectoryFile.cachedExpressAvailabilityFile }
 
-    static func cachedNFTAssets(userWalletId: UserWalletId) -> Self {
-        return .cachedNFTAssetsFile(userWalletIdStringValue: userWalletId.stringValue)
+    static func cachedNFTAssets(userWalletIdStringValue: String) -> Self {
+        return .cachedNFTAssetsFile(userWalletIdStringValue: userWalletIdStringValue)
     }
 }
 
