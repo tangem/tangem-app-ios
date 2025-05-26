@@ -256,7 +256,7 @@ private extension EthereumTransactionBuilder {
     func makeTokenTransferSmartContractMethod(
         destination: String,
         amount: BigUInt,
-        token: Token,
+        token: Token
     ) throws -> SmartContractMethod {
         switch token.metadata.kind {
         case .fungible:

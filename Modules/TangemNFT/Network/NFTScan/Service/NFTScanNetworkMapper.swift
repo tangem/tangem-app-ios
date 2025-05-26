@@ -29,12 +29,6 @@ final class NFTScanNetworkMapper {
         let assets = collection.assets.compactMap { mapAsset($0, chain: chain) }
         let ownerAddress = assets.first?.id.ownerAddress ?? ownerAddress
 
-        let logoURL = collection
-            .logoUrl?
-            .nilIfEmpty
-            .flatMap(URL.init(string:))
-            .map(NFTIPFSURLConverter.convert(_:))
-
         return NFTCollection(
             collectionIdentifier: collectionIdentifier,
             chain: chain,
@@ -94,6 +88,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits

@@ -19,17 +19,15 @@ struct TonStakingPendingActionsHandler: StakingPendingActionsHandler {
         guard let actions, !actions.isEmpty else { return balances }
         var result = [StakingBalance]()
 
-        if let stakeAction = actions.first(where: { $0.type == .stake }) {
-            result.append(mapToStakingBalance(action: stakeAction, yield: yield, balanceType: .active))
-        }
+        var matchingActions = [PendingAction]()
 
         // make all the balances matching validator active
         balances.forEach { balance in
-            let validatorMatch: Bool = actions.contains(where: {
-                $0.type != .stake && $0.validatorAddress == balance.validatorType.validator?.address
+            let matchingAction = actions.first(where: {
+                $0.validatorAddress != nil && $0.validatorAddress == balance.validatorType.validator?.address
             })
 
-            if validatorMatch {
+            if let matchingAction {
                 let updatedBalance = StakingBalance(
                     item: balance.item,
                     amount: balance.amount,
@@ -40,7 +38,16 @@ struct TonStakingPendingActionsHandler: StakingPendingActionsHandler {
                     actions: balance.actions
                 )
                 result.append(updatedBalance)
+                matchingActions.append(matchingAction)
             } else {
+                result.append(balance)
+            }
+        }
+
+        // if we didn't find any balance to modify add dummy balance
+        for action in actions {
+            if !matchingActions.contains(where: { $0.id == action.id }) {
+                let balance = mapToStakingBalance(action: action, yield: yield, balanceType: .active)
                 result.append(balance)
             }
         }

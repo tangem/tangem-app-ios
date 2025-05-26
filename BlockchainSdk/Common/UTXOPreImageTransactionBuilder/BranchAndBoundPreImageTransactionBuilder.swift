@@ -56,7 +56,7 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
+        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, total: Int(total))
 
         logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
         let bestVariant = try select(in: context, sorted: sorted)
@@ -204,7 +204,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         let changeScript: UTXOScriptType
         let destination: UTXOPreImageDestination
         let fee: UTXOPreImageTransactionBuilderFee
-        let allOutputsCount: Int
+        let total: Int
     }
 
     private enum Constants {
@@ -286,11 +286,14 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             case .exactly(let fee): fee
             }
 
-            // Skip validation it's isCalculation and
-            // We spend all outputs and fee calculation
-            if context.fee.isCalculation, inputs.count == context.allOutputsCount {
+            // Skip validation if we spend full balance and fee calculation
+            if context.fee.isCalculation, recipientValue == context.total {
                 // The change may be negative value
                 change -= fee
+
+                guard change <= 0 else {
+                    throw VariantError.changeIsEnough
+                }
 
                 return UTXOPreImageTransaction(outputs: inputs, destination: recipientValue, change: change, fee: fee, size: size)
             }

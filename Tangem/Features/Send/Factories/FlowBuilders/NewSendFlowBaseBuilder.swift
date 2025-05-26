@@ -13,7 +13,7 @@ struct NewSendFlowBaseBuilder {
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
-    let sendDestinationStepBuilder: SendDestinationStepBuilder
+    let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
     let sendSummaryStepBuilder: SendSummaryStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
@@ -52,7 +52,8 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            destinationEditableType: .editable,
+            amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
@@ -70,7 +71,7 @@ struct NewSendFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendAmountInteractor = amount.interactor
         sendModel.sendFeeInteractor = fee.interactor
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
