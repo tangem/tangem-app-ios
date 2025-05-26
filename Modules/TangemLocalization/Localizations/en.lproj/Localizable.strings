@@ -186,6 +186,8 @@
 "common_server_unavailable" = "The server is not available, please try again later";
 "common_share_link" = "Share Link";
 "common_share" = "Share";
+"common_show_less" = "Show less";
+"common_show_more" = "Show more";
 "common_sign_and_send" = "Sign and send";
 "common_sign" = "Sign";
 "common_stake" = "Stake";
@@ -439,7 +441,6 @@
 "markets_sort_by_top_losers_title" = "Top Losers";
 "markets_sort_by_trending_title" = "Trending";
 "markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
-"markets_staking_banner_description_show_more" = "Show more";
 "markets_staking_banner_title" = "Earn up to %@ APY";
 "markets_token_details_about_token_title" = "About %@";
 "markets_token_details_blockchain_site" = "Website";
@@ -535,7 +536,7 @@
 "nft_send" = "Send NFT";
 "nft_traits_title" = "Traits";
 "nft_untitled_collection" = "Untitled collection";
-"nft_wallet_count" = "%1$li NFTs in %2$li collection";
+"nft_wallet_count" = "%1$li NFTs in %2$li collections";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
 "nft_wallet_unable_to_load" = "Unable to load the data";
@@ -664,6 +665,13 @@
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
+"push_notifications_more_info" = "More info";
+"push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
+"push_notifications_permission_alert_negative_button" = "Enable Later";
+"push_notifications_permission_alert_positive_button" = "Settings";
+"push_notifications_permission_alert_title" = "Enable Notifications";
+"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
+"push_transactions_notifications_title" = "Transaction Notifications";
 "qr_scanner_camera_denied_gallery_button" = "Select from the gallery";
 "qr_scanner_camera_denied_settings_button" = "Settings";
 "qr_scanner_camera_denied_text" = "You have not given access to your camera";
@@ -875,7 +883,7 @@
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "You’re about to stake your entire balance. We recommend leaving a small amount to cover network fees for unstaking or claiming rewards.";
 "staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
-"staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
 "staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
@@ -1163,7 +1171,7 @@
 "wallet_promo_banner_description" = "Access 13,000+ cryptocurrencies. Buy, sell, swap, and stake with a single tap.\nLink up to three cards for a backup.";
 "wallet_promo_banner_title" = "Discover Tangem Wallet";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Push Notifications";
+"wallet_settings_push_notifications_title" = "Transaction Notifications";
 "wallet_settings_title" = "Wallet settings";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Use %@ or scan a card/ring to unlock access to your wallet";
@@ -1261,6 +1269,8 @@
 "wc_alert_session_disconnected_title" = "WalletConnect session was disconnected";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
+"wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
+"wc_alert_unsupported_method_title" = "We've encountered unknown error";
 "wc_alert_unsupported_networks_description" = "Tangem does not currently support a required network by %@.";
 "wc_alert_unsupported_networks_title" = "Unsuported networks";
 "wc_alert_verified_domain_description" = "Tangem support a required network by %@.";
@@ -1297,8 +1307,6 @@
 "wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
 "wc_notification_security_risk_title" = "Known security risk";
 "wc_request_from" = "Request from";
-"wc_show_less" = "Show less";
-"wc_show_more" = "Show more";
 "wc_signature_type" = "Signature Type";
 "wc_transaction_info_to_title" = "To";
 "wc_transaction_request_title" = "Transaction request";
