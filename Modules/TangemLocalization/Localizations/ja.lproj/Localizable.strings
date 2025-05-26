@@ -186,6 +186,8 @@
 "common_server_unavailable" = "サーバーが利用できません。しばらくしてからもう一度お試しください。";
 "common_share_link" = "リンクを共有";
 "common_share" = "共有";
+"common_show_less" = "詳細を非表示";
+"common_show_more" = "もっと見る";
 "common_sign_and_send" = "署名して送信";
 "common_sign" = "署名";
 "common_stake" = "ステーキング";
@@ -439,7 +441,6 @@
 "markets_sort_by_top_losers_title" = "下落率上位";
 "markets_sort_by_trending_title" = "トレンド";
 "markets_staking_banner_description_placeholder" = "ステーキングは暗号資産で報酬を受け取る最も簡単な方法です。 %@";
-"markets_staking_banner_description_show_more" = "もっと見る";
 "markets_staking_banner_title" = "最大%@ APYを獲得";
 "markets_token_details_about_token_title" = "%@について";
 "markets_token_details_blockchain_site" = "ウェブサイト";
@@ -534,7 +535,7 @@
 "nft_receive_unavailable_section_title" = "未追加";
 "nft_send" = "NFTを送信する";
 "nft_traits_title" = "特徴";
-"nft_untitled_collection" = "Untitled collection";
+"nft_untitled_collection" = "無題のコレクション";
 "nft_wallet_count" = "%1$liコレクションの%2$liNFT";
 "nft_wallet_receive_nft" = "ここをタップして最初のNFTを受け取ります";
 "nft_wallet_title" = "NFTコレクション";
@@ -664,6 +665,13 @@
 "organize_tokens_sort_by_balance" = "残高順";
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
+"push_notifications_more_info" = "詳細はこちら";
+"push_notifications_permission_alert_description" = "Tangemの通知は設定で有効にできます。";
+"push_notifications_permission_alert_negative_button" = "後で有効にする";
+"push_notifications_permission_alert_positive_button" = "設定";
+"push_notifications_permission_alert_title" = "通知を有効にする";
+"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
+"push_transactions_notifications_title" = "Transaction Notifications";
 "qr_scanner_camera_denied_gallery_button" = "ギャラリーから選択";
 "qr_scanner_camera_denied_settings_button" = "設定";
 "qr_scanner_camera_denied_text" = "カメラへのアクセスを許可していません。";
@@ -875,7 +883,7 @@
 "staking_notification_restake_text" = "再ステーキングを使うと、ステーキングを解除することなく、あるバリデータから別のバリデータに資金を移動できます。";
 "staking_notification_stake_entire_balance_text" = "残高のすべてをステーキングしようとしています。ステーキング解除や報酬請求にかかるネットワーク手数料をカバーするために、少額を残しておくことをお勧めします。";
 "staking_notification_ton_activate_account" = "TONでステーキングを開始するには、まず任意の金額の送金を行ってください。これにより、ウォレットがアクティブになります。";
-"staking_notification_ton_extra_reserve_info" = "ネットワーク手数料に加え、取引の全ステップを完了するには最大0.2 TONが必要です。未使用分は取引完了後に返金されます。";
+"staking_notification_ton_extra_reserve_info" = "取引を完了するには、ネットワーク手数料に加えて最大0.2TONが必要になる場合があります。未使用分は返金されます。";
 "staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
 "staking_notification_ton_extra_reserve_title" = "0.2 TON保留済み";
 "staking_notification_ton_have_to_unstake_all_text" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
@@ -1162,8 +1170,8 @@
 "wallet_promo_banner_button_title" = "今すぐ10 %% オフで購入";
 "wallet_promo_banner_description" = "1.3万種類以上の暗号資産にアクセス。ワンタップで買付、売却、スワップ、ステーキングが可能です。\nバックアップ用に最大3枚のカードを連携できます。";
 "wallet_promo_banner_title" = "Tangemウォレットを見る";
-"wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Push Notifications";
+"wallet_settings_push_notifications_description" = "ウォレットの受信取引とTangemの更新について通知を受け取る。";
+"wallet_settings_push_notifications_title" = "プッシュ通知";
 "wallet_settings_title" = "ウォレット設定";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
@@ -1261,6 +1269,8 @@
 "wc_alert_session_disconnected_title" = "WalletConnectセッションが接続解除されました";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
+"wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
+"wc_alert_unsupported_method_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_networks_description" = "Tangemは現在%@で必要なネットワークをサポートしていません。";
 "wc_alert_unsupported_networks_title" = "サポートされていないネットワーク";
 "wc_alert_verified_domain_description" = "Tangemは%@で必要なネットワークをサポートします。";
@@ -1288,7 +1298,7 @@
 "wc_disconnect_all_alert_title" = "すべてのdAppを接続解除する";
 "wc_disconnect_all" = "すべての接続を解除する";
 "wc_estimated_wallet_changes" = "ウォレットの変更の予測";
-"wc_malicious_transaction" = "Malicious transaction";
+"wc_malicious_transaction" = "悪意のある取引";
 "wc_missing_required_network_description" = "このウォレットのプロフィールに%@ネットワークを追加する";
 "wc_missing_required_network_title" = "ウォレットに必要なネットワークはありません";
 "wc_new_connection" = "新しい接続";
@@ -1297,8 +1307,6 @@
 "wc_notification_security_risk_subtitle" = "このドメインは複数のセキュリティプロバイダーから安全でないとの警告を受けています。あなたの資産を守るため、直ちにアクセスを中止してください。";
 "wc_notification_security_risk_title" = "既知のセキュリティリスク";
 "wc_request_from" = "リクエスト元";
-"wc_show_less" = "詳細を非表示";
-"wc_show_more" = "もっと見る";
 "wc_signature_type" = "署名タイプ";
 "wc_transaction_info_to_title" = "宛先";
 "wc_transaction_request_title" = "取引リクエスト";
