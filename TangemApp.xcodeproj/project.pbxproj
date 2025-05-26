@@ -2748,7 +2748,6 @@
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA53DA312DE0C0BE00449AC9 /* PushNotificationDeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA53DA302DE0C0BE00449AC9 /* PushNotificationDeepLinkHandler.swift */; };
 		EA6639D32DDF302700235741 /* CommonNotificationResponseDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6639D02DDF302700235741 /* CommonNotificationResponseDispatcher.swift */; };
-		EA6639D72DDF37E200235741 /* CommonIncomingActionURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6639D62DDF37E200235741 /* CommonIncomingActionURLParser.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EA81EE5A2DE458AC00AD3D4A /* PushNotificationSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */; };
 		EA81EE5C2DE458F600AD3D4A /* NotificationResponseDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */; };
@@ -6290,7 +6289,6 @@
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA53DA302DE0C0BE00449AC9 /* PushNotificationDeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationDeepLinkHandler.swift; sourceTree = "<group>"; };
 		EA6639D02DDF302700235741 /* CommonNotificationResponseDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNotificationResponseDispatcher.swift; sourceTree = "<group>"; };
-		EA6639D62DDF37E200235741 /* CommonIncomingActionURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonIncomingActionURLParser.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSubscriber.swift; sourceTree = "<group>"; };
 		EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponseDispatching.swift; sourceTree = "<group>"; };
@@ -15920,14 +15918,6 @@
 			path = PushNotificationSubscribers;
 			sourceTree = "<group>";
 		};
-		EA6639D52DDF37D000235741 /* URLParsing */ = {
-			isa = PBXGroup;
-			children = (
-				EA6639D62DDF37E200235741 /* CommonIncomingActionURLParser.swift */,
-			);
-			path = URLParsing;
-			sourceTree = "<group>";
-		};
 		EA81E8562DDE0434006B3339 /* NotificationResponseDispatching */ = {
 			isa = PBXGroup;
 			children = (
@@ -19884,7 +19874,6 @@
 				EF2FE4992C6B80560015940A /* AllowanceChecker.swift in Sources */,
 				EF8BE6C42CCB95D7001FBA2B /* OnrampRoutable.swift in Sources */,
 				B01B2D7A2BD2935000D8A6A1 /* APIType.swift in Sources */,
-				EA6639D72DDF37E200235741 /* CommonIncomingActionURLParser.swift in Sources */,
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
