@@ -22,7 +22,7 @@ public class NFTCache {
 
     public func getCollections() -> [NFTCollection] {
         do {
-            let storedCollections: [NFTStorableModels.V1.NFTCollectionPOSS] = try storage.value()
+            let storedCollections: [NFTCachedModels.V1.NFTCollectionPOSS] = try storage.value()
             let collections = try storedCollections.map { try $0.toNFTCollection() }
 
             return filteredCollections(from: collections)
@@ -35,7 +35,7 @@ public class NFTCache {
     }
 
     public func save(_ collections: [NFTCollection]) {
-        let storableCollections = collections.map { NFTStorableModels.V1.NFTCollectionPOSS(from: $0) }
+        let storableCollections = collections.map { NFTCachedModels.V1.NFTCollectionPOSS(from: $0) }
         storage.store(value: storableCollections)
     }
 
