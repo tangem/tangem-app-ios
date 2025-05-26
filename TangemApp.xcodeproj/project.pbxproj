@@ -27608,8 +27608,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
-				kind = exactVersion;
-				version = 3.13.13;
+				kind = revision;
+				revision = b321586dd6b3bfa4cb02bc452326e1e0eebcead0;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
