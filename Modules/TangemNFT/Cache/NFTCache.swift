@@ -36,7 +36,14 @@ public class NFTCache {
 
     public func save(_ collections: [NFTCollection]) {
         let storableCollections = collections.map { NFTCachedModels.V1.Collection(from: $0) }
-        storage.store(value: storableCollections)
+        storage.store(value: storableCollections) { error in
+            guard let error else {
+                return
+            }
+
+            // All errors are intentionally ignored, since the cache is not critical for the app's functionality
+            NFTLogger.error("Failed to save cached collections", error: error)
+        }
     }
 
     public func clear() {
