@@ -9,6 +9,10 @@
 import Foundation
 
 class PushNotificationsInteractorMock: PushNotificationsInteractor {
+    func register(subscriber: any PushNotificationSubscriber) {}
+
+    func unregister(subscriber: any PushNotificationSubscriber) {}
+
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
         true
     }
