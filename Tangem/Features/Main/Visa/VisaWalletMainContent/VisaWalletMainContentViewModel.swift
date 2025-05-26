@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 protocol VisaWalletRoutable: AnyObject {

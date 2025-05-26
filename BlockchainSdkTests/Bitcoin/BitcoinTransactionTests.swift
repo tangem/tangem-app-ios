@@ -20,8 +20,8 @@ struct BitcoinTransactionTests {
     }
 
     /// https://www.blockchair.com/bitcoin/transaction/1df3c8aa649e1c1b3760685a0fc1ac7b3dd9be7e0ab35f7accf8195737e6caac
-    @Test
-    func legacyAndDefaultAddressTransaction() async throws {
+    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
+    func legacyAndDefaultAddressTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = BitcoinNetworkParams()
         let pubKey = Data(hexString: "0256e4711ea6bf3309e039ee30b203b18783a8c7c78c68ff2e36acec3c6f51c884")
@@ -40,10 +40,10 @@ struct BitcoinTransactionTests {
             for: legacyAddress
         )
 
-        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
+        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager, builderType: builderType, sequence: .final)
         let transaction = Transaction(
-            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00001703")!),
-            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00000297")!), parameters: BitcoinFeeParameters(rate: 1)),
+            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00001730")!),
+            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.00000270")!), parameters: BitcoinFeeParameters(rate: 1)),
             sourceAddress: defaultAddress.value,
             destinationAddress: "bc1qtsuu4zgsgstnem5hqhuem4707w7tswq25uzml86ffgj57xttc3uqptg999",
             changeAddress: defaultAddress.value
@@ -75,8 +75,8 @@ struct BitcoinTransactionTests {
 
     /// https://www.blockchair.com/bitcoin/transaction/b197d829e5eba01cab1800a813c9c94629c97fbfac4307f3f0fb51b1fbe2e5f3
     /// Twin cards
-    @Test
-    func p2msTransaction() async throws {
+    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
+    func p2msTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = BitcoinNetworkParams()
         let pubKey = Data(hexString: "0498bf2d8ebc710c1dece61ed077c10a08cc915a8757b42ace86c05443a96fe3f30488e234c426d01e1c10296e0dd9db3176a24e78bc30375428f5f363d79942aa")
@@ -92,10 +92,10 @@ struct BitcoinTransactionTests {
             for: defaultAddress
         )
 
-        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
+        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager, builderType: builderType, sequence: .final)
         let transaction = Transaction(
-            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000162")!),
-            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000011")!), parameters: BitcoinFeeParameters(rate: 1)),
+            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000161")!),
+            fee: Fee(.init(with: .bitcoin(testnet: false), value: .init(stringValue: "0.0000012")!), parameters: BitcoinFeeParameters(rate: 1)),
             sourceAddress: defaultAddress.value,
             destinationAddress: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh",
             changeAddress: defaultAddress.value
