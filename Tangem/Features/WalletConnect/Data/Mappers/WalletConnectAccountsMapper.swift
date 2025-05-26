@@ -10,15 +10,15 @@ import struct ReownWalletKit.Account
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectAccountsMapper {
-    static func mapToDomain(_ reownAccount: ReownWalletKit.Account) -> WalletConnectSessionProposal.Account {
-        WalletConnectSessionProposal.Account(
+    static func mapToDomain(_ reownAccount: ReownWalletKit.Account) -> WalletConnectDAppConnectionRequest.Account {
+        WalletConnectDAppConnectionRequest.Account(
             namespace: reownAccount.namespace,
             reference: reownAccount.reference,
             address: reownAccount.address
         )
     }
 
-    static func mapFromDomain(_ domainAccount: WalletConnectSessionProposal.Account) -> ReownWalletKit.Account? {
+    static func mapFromDomain(_ domainAccount: WalletConnectDAppConnectionRequest.Account) -> ReownWalletKit.Account? {
         ReownWalletKit.Account(
             chainIdentifier: "\(domainAccount.namespace):\(domainAccount.reference)",
             address: domainAccount.address
@@ -37,7 +37,7 @@ enum WalletConnectAccountsMapper {
         }
 
         return wallets.compactMap { wallet in
-            Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.defaultAddressString)
+            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.defaultAddressString)
         }
     }
 }
