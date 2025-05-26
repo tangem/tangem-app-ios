@@ -12,35 +12,16 @@ import struct ReownWalletKit.SessionNamespace
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectSessionProposalMapper {
-    static func mapToDomainNamespaces(
-        from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]
-    ) -> [String: WalletConnectSessionProposal.Namespace] {
-        reownNamespaces
-            .mapValues { reownProposalNamespace in
-                // [REDACTED_USERNAME], Set is used to remove potential duplicates that may happen with solana.
-                // DApp may have 2 different ReownWalletKit.Blockchain objects, both representing BlockchainSdk.Blockchain.solana.
-                let uniqueBlockchains: Set<BlockchainSdk.Blockchain>?
-
-                if let blockchains = reownProposalNamespace.chains?.compactMap(WalletConnectBlockchainMapper.mapToDomain) {
-                    uniqueBlockchains = Set(blockchains)
-                } else {
-                    uniqueBlockchains = nil
-                }
-
-                return WalletConnectSessionProposal.Namespace(
-                    blockchains: uniqueBlockchains,
-                    accounts: nil,
-                    methods: reownProposalNamespace.methods,
-                    events: reownProposalNamespace.events
-                )
-            }
+    static func mapRequiredBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
+        Self.mapDomainBlockchains(from: reownSessionProposal.requiredNamespaces)
     }
 
-    static func mapToOptionalDomainNamespaces(
-        from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]?
-    ) -> [String: WalletConnectSessionProposal.Namespace]? {
-        guard let reownNamespaces else { return nil }
-        return Self.mapToDomainNamespaces(from: reownNamespaces)
+    static func mapOptionalBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
+        guard let optionalNamespaces = reownSessionProposal.optionalNamespaces else {
+            return []
+        }
+
+        return Self.mapDomainBlockchains(from: optionalNamespaces)
     }
 
     static func mapUnsupportedBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
@@ -90,5 +71,19 @@ enum WalletConnectSessionProposalMapper {
         } ?? []
         
         return Array(requiredEvents.union(optionalEvents))
+    }
+
+    // MARK: - Private methods
+
+    private static func mapDomainBlockchains(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]) -> Set<BlockchainSdk.Blockchain> {
+        reownNamespaces
+            .values
+            .reduce(into: Set<BlockchainSdk.Blockchain>()) { result, reownProposalNamespace in
+                let blockchains = reownProposalNamespace.chains?.compactMap(WalletConnectBlockchainMapper.mapToDomain) ?? []
+
+                // [REDACTED_USERNAME], Set is used to remove potential duplicates that may happen with solana.
+                // DApp may have 2 different ReownWalletKit.Blockchain objects, both representing BlockchainSdk.Blockchain.solana.
+                result.formUnion(blockchains)
+            }
     }
 }

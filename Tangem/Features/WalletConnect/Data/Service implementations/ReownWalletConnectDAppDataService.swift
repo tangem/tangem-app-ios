@@ -21,6 +21,12 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     ) async throws -> (WalletConnectDAppData, WalletConnectSessionProposal) {
         let reownSessionProposal = try await walletConnectService.openSession(with: uri, source: source)
 
+        let unsupportedBlockchainNames = WalletConnectSessionProposalMapper.mapUnsupportedBlockchainNames(from: reownSessionProposal)
+
+        guard unsupportedBlockchainNames.isEmpty else {
+            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedBlockchainNames.sorted())
+        }
+
         let dAppData = WalletConnectDAppData(
             name: reownSessionProposal.proposer.name,
             domain: try WalletConnectDAppDataMapper.mapDomainURL(from: reownSessionProposal),
@@ -28,9 +34,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         )
 
         let proposal = WalletConnectSessionProposal(
-            requiredNamespaces: WalletConnectSessionProposalMapper.mapToDomainNamespaces(from: reownSessionProposal.requiredNamespaces),
-            optionalNamespaces: WalletConnectSessionProposalMapper.mapToOptionalDomainNamespaces(from: reownSessionProposal.optionalNamespaces),
-            unsupportedBlockchainNames: WalletConnectSessionProposalMapper.mapUnsupportedBlockchainNames(from: reownSessionProposal),
+            requiredBlockchains: WalletConnectSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal),
+            optionalBlockchains: WalletConnectSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal),
             dAppConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet in
                 let reownSessionNamespaces = try AutoNamespaces.build(
                     sessionProposal: reownSessionProposal,
