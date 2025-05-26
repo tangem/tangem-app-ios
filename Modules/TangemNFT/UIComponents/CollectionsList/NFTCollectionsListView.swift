@@ -15,8 +15,6 @@ import TangemLocalization
 public struct NFTCollectionsListView: View {
     @ObservedObject private var viewModel: NFTCollectionsListViewModel
 
-    @State private var hasBeenScrolledDown: Bool = false
-
     @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var shouldShowShadow: Bool = true
@@ -39,11 +37,17 @@ public struct NFTCollectionsListView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .noCollections:
+        case .loaded(let collections) where collections.isEmpty:
             noCollectionsView
-        case .collectionsAvailable(let collections):
+        case .loaded(let collections):
             nonEmptyContentView(collections: collections)
-                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledDown)
+                .nftListSearchable(text: $viewModel.searchEntry)
+        case .loading:
+            loadingView
+                .nftListSearchable(text: $viewModel.searchEntry)
+        case .failedToLoad:
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
+                .infinityFrame()
         }
     }
 
@@ -92,22 +96,22 @@ public struct NFTCollectionsListView: View {
     }
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
-        ScrollView(showsIndicators: false) {
+        RefreshableScrollView(onRefresh: viewModel.update(completion:)) {
             VStack(spacing: 0) {
                 if let notificationViewData = viewModel.loadingTroublesViewData {
                     NFTNotificationView(viewData: notificationViewData)
                         .padding(.bottom, 12)
                 }
 
-                LazyVStack(spacing: 30) {
+                LazyVStack(spacing: Constants.collectionRowsSpacing) {
                     ForEach(collections, id: \.id) { collectionViewModel in
                         NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
                     }
                 }
                 .roundedBackground(
-                    with: Colors.Background.primary,
-                    padding: 14,
-                    radius: 14
+                    with: Constants.RoundedBackground.color,
+                    padding: Constants.RoundedBackground.padding,
+                    radius: Constants.RoundedBackground.radius
                 )
                 .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
                 // We need this code to track view's heigh when row expands
@@ -132,14 +136,6 @@ public struct NFTCollectionsListView: View {
                 shouldShowShadow = contentMaxY > buttonMinY
             }
         }
-        .simultaneousGesture(
-            DragGesture()
-                .onChanged {
-                    if !hasBeenScrolledDown {
-                        hasBeenScrolledDown = $0.translation.height < 0
-                    }
-                }
-        )
     }
 
     private var receiveButtonContainer: some View {
@@ -163,6 +159,46 @@ public struct NFTCollectionsListView: View {
             }
     }
 
+    private var loadingView: some View {
+        VStack(spacing: 0) {
+            LazyVStack(spacing: Constants.collectionRowsSpacing) {
+                ForEach(0 ..< 5) { _ in
+                    collectionSkeleton
+                }
+            }
+            .roundedBackground(
+                with: Constants.RoundedBackground.color,
+                padding: Constants.RoundedBackground.padding,
+                radius: Constants.RoundedBackground.radius
+            )
+
+            Spacer()
+        }
+    }
+
+    private var collectionSkeleton: some View {
+        HStack(spacing: 12) {
+            Color.clear
+                .frame(size: NFTCollectionRow.Constants.Icon.size)
+                .skeletonable(
+                    isShown: true,
+                    radius: NFTCollectionRow.Constants.Icon.cornerRadius
+                )
+
+            VStack(alignment: .leading, spacing: 10) {
+                Color.clear
+                    .frame(width: 70, height: 12)
+                    .skeletonable(isShown: true, radius: 4)
+
+                Color.clear
+                    .frame(width: 54, height: 12)
+                    .skeletonable(isShown: true, radius: 4)
+            }
+        }
+        .drawingGroup()
+        .infinityFrame(alignment: .leading)
+    }
+
     private var coordinateSpace: CoordinateSpace {
         .named(coordinateSpaceName)
     }
@@ -175,11 +211,27 @@ public struct NFTCollectionsListView: View {
 }
 
 private extension View {
-    func nftListSearchable(text: Binding<String>, isAutomatic: Bool) -> some View {
-        searchable(
-            text: text,
-            placement: .navigationBarDrawer(displayMode: isAutomatic ? .automatic : .always)
-        )
+    func nftListSearchable(text: Binding<String>) -> some View {
+        modifier(SearchableModifier(text: text))
+    }
+}
+
+private struct SearchableModifier: ViewModifier {
+    @State private var showSearchInitially = true
+    let text: Binding<String>
+
+    func body(content: Content) -> some View {
+        content
+            .searchable(
+                text: text,
+                placement: .navigationBarDrawer(displayMode: showSearchInitially ? .always : .automatic)
+            )
+            .onAppear {
+                // Reset to automatic behavior after initial appearance
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    showSearchInitially = false
+                }
+            }
     }
 }
 
@@ -192,11 +244,50 @@ extension NFTCollectionsListView {
             static let buttonHPaddingInsideContainer: CGFloat = 40
         }
 
+        enum RoundedBackground {
+            static let color = Colors.Background.primary
+            static let padding: CGFloat = 14
+            static let radius: CGFloat = 14
+        }
+
         static let contentButtonSpacing: CGFloat = 16
+        static let collectionRowsSpacing: CGFloat = 30
     }
 }
 
 #if DEBUG
+let collections = (0 ... 20).map {
+    NFTCollection(
+        collectionIdentifier: "some-\($0)",
+        chain: .solana,
+        contractType: .erc1155,
+        ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
+        name: "My awesome collection",
+        description: "",
+        media: .init(
+            kind: .image,
+            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+        ),
+        assetsCount: nil,
+        assets: (0 ... 3).map {
+            NFTAsset(
+                assetIdentifier: "some-\($0)",
+                assetContractAddress: "",
+                chain: .solana,
+                contractType: .unknown,
+                decimalCount: 0,
+                ownerAddress: "",
+                name: "My asset",
+                description: "",
+                salePrice: .init(last: .init(value: 2), lowest: nil, highest: nil),
+                media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                rarity: nil,
+                traits: []
+            )
+        }
+    )
+}
+
 #Preview("Multiple collections") {
     ZStack {
         Colors.Background.secondary
@@ -228,6 +319,7 @@ extension NFTCollectionsListView {
                                             ownerAddress: "",
                                             name: "My asset",
                                             description: "",
+                                            salePrice: nil,
                                             media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                                             rarity: nil,
                                             traits: []
@@ -238,27 +330,101 @@ extension NFTCollectionsListView {
                         )
                     )
                 ),
-                chainIconProvider: DummyProvider(),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                dependencies: NFTCollectionsListDependencies(
+                    nftChainIconProvider: DummyProvider(),
+                    priceFormatter: NFTPriceFormatterMock()
+                ),
                 coordinator: nil
             )
         )
-        .padding(.horizontal, 16)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+#Preview("Multiple collections with loading error") {
+    ZStack {
+        Colors.Background.secondary
+        NavigationView {
+            NFTCollectionsListView(
+                viewModel: .init(
+                    nftManager: NFTManagerMock(
+                        state: .loaded(.init(value: collections, hasErrors: true))
+                    ),
+                    navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
+                    coordinator: nil
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+#Preview("Loading collections") {
+    ZStack {
+        Colors.Background.secondary
+        NavigationView {
+            NFTCollectionsListView(
+                viewModel: .init(
+                    nftManager: NFTManagerMock(
+                        state: .loading
+                    ),
+                    navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
+                    coordinator: nil
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+#Preview("Failed to load collections") {
+    ZStack {
+        Colors.Background.secondary
+        NavigationView {
+            NFTCollectionsListView(
+                viewModel: .init(
+                    nftManager: NFTManagerMock(
+                        state: .failedToLoad(error: NSError())
+                    ),
+                    navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
+                    coordinator: nil
+                )
+            )
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 
 #Preview("No Collections") {
     ZStack {
         Colors.Background.secondary
-        NFTCollectionsListView(
-            viewModel: .init(
-                nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
-                chainIconProvider: DummyProvider(),
-                navigationContext: NFTEntrypointNavigationContextMock(),
-                coordinator: nil
+        NavigationView {
+            NFTCollectionsListView(
+                viewModel: .init(
+                    nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                    navigationContext: NFTNavigationContextMock(),
+                    dependencies: NFTCollectionsListDependencies(
+                        nftChainIconProvider: DummyProvider(),
+                        priceFormatter: NFTPriceFormatterMock()
+                    ),
+                    coordinator: nil
+                )
             )
-        )
-        .padding(.horizontal, 16)
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 #endif

@@ -12,6 +12,7 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 
 final class MainViewModel: ObservableObject {

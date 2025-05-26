@@ -22,7 +22,7 @@ struct ExpressProviderFormatter {
     ) -> ProviderRowViewModel.Subtitle {
         switch state {
         case .error(_, .none):
-            return .text(AppConstants.dashSign)
+            return .text(AppConstants.emDashSign)
         case .restriction(.tooSmallAmount(let minAmount), .none):
             guard let senderCurrencyCode else {
                 return .text(CommonError.noData.localizedDescription)
@@ -39,7 +39,7 @@ struct ExpressProviderFormatter {
             return .text(Localization.expressProviderMaxAmount(formatted))
         default:
             guard let quote = state.quote else {
-                return .text(AppConstants.dashSign)
+                return .text(AppConstants.emDashSign)
             }
 
             return mapToRateSubtitle(
