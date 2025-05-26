@@ -10,17 +10,17 @@ import enum BlockchainSdk.Blockchain
 
 final class WalletConnectResolveAvailableBlockchainsUseCase {
     func callAsFunction(
-        connectionProposal: WalletConnectDAppConnectionProposal,
+        sessionProposal: WalletConnectSessionProposal,
         selectedBlockchains: Set<Blockchain>,
         userWallet: some UserWalletModel
     ) -> WalletConnectDAppBlockchainsAvailabilityResult {
         let (availableRequiredBlockchains, unavailableRequiredBlockchains) = Self.resolveRequiredBlockchains(
-            requiredBlockchains: connectionProposal.requiredBlockchains,
+            requiredBlockchains: sessionProposal.requiredBlockchains,
             userWallet: userWallet
         )
 
         let (availableOptionalBlockchains, unavailableOptionalBlockchains) = resolveOptionalBlockchains(
-            optionalBlockchains: connectionProposal.optionalBlockchains,
+            optionalBlockchains: sessionProposal.optionalBlockchains,
             userWallet: userWallet
         )
 
