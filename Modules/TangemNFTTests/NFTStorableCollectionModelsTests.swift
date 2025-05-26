@@ -49,7 +49,7 @@ struct NFTStorableCollectionModelsTests {
         )
 
         // Test serialization and deserialization
-        let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+        let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
         let restoredCollection = try storableModel.toNFTCollection()
 
         // Verify that the restored collection matches the original using Equatable conformance
@@ -66,11 +66,11 @@ struct NFTStorableCollectionModelsTests {
         )
 
         // First round-trip
-        let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+        let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
         let restoredCollection = try storableModel.toNFTCollection()
 
         // Second round-trip
-        let secondStorableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: restoredCollection)
+        let secondStorableModel = NFTCachedModels.V1.Collection(from: restoredCollection)
         let secondRestoredCollection = try secondStorableModel.toNFTCollection()
 
         // Verify that data remains consistent after multiple conversions
@@ -87,7 +87,7 @@ struct NFTStorableCollectionModelsTests {
                 assetCount: 1
             )
 
-            let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+            let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
             let restoredCollection = try storableModel.toNFTCollection()
 
             // Use direct equality comparison
@@ -104,7 +104,7 @@ struct NFTStorableCollectionModelsTests {
             assetCount: 2
         )
 
-        let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+        let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
 
         // Encode to Data
         let encoder = JSONEncoder()
@@ -112,7 +112,7 @@ struct NFTStorableCollectionModelsTests {
 
         // Decode back to storable model
         let decoder = JSONDecoder()
-        let decodedStorableModel = try decoder.decode(NFTCachedModels.V1.NFTCollectionPOSS.self, from: encodedData)
+        let decodedStorableModel = try decoder.decode(NFTCachedModels.V1.Collection.self, from: encodedData)
 
         // Convert back to NFT collection
         let restoredCollection = try decodedStorableModel.toNFTCollection()
@@ -132,7 +132,7 @@ struct NFTStorableCollectionModelsTests {
         )
 
         // Test serialization and deserialization
-        let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+        let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
 
         // Verify that the nested assets were properly serialized
         #expect(storableModel.assets.count == assetCount)
@@ -160,7 +160,7 @@ struct NFTStorableCollectionModelsTests {
         )
 
         // Convert to storable model
-        let storableModel = NFTCachedModels.V1.NFTCollectionPOSS(from: originalCollection)
+        let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
 
         // Convert back to NFT collection
         let restoredCollection = try storableModel.toNFTCollection()
