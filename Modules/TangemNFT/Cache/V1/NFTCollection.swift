@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension NFTStorableModels.V1 {
+extension NFTCachedModels.V1 {
     struct NFTCollectionPOSS: Codable, Hashable, Identifiable, Sendable {
         // From NFTCollectionId
         let id: String // Combination of identifier and other fields to ensure uniqueness
@@ -34,14 +34,14 @@ extension NFTStorableModels.V1 {
     }
 }
 
-extension NFTStorableModels.V1.NFTCollectionPOSS {
+extension NFTCachedModels.V1.NFTCollectionPOSS {
     init(from collection: NFTCollection) {
         // From NFTCollectionId
         collectionIdentifier = collection.id.collectionIdentifier
         ownerAddress = collection.id.ownerAddress
 
         // Extract chain info using shared utility
-        let (chainNameValue, isTestnetValue) = NFTStorableModels.ChainUtils.serialize(collection.id.chain)
+        let (chainNameValue, isTestnetValue) = NFTCachedModels.ChainUtils.serialize(collection.id.chain)
         chainName = chainNameValue
         isTestnet = isTestnetValue
 
@@ -49,7 +49,7 @@ extension NFTStorableModels.V1.NFTCollectionPOSS {
         id = "\(chainName)\(isTestnet ? "-testnet" : "")_\(collectionIdentifier)_\(ownerAddress)"
 
         // From NFTContractType using shared utility
-        contractTypeIdentifier = NFTStorableModels.ContractTypeUtils.serialize(collection.contractType)
+        contractTypeIdentifier = NFTCachedModels.ContractTypeUtils.serialize(collection.contractType)
 
         // From main NFTCollection
         name = collection.name
@@ -58,21 +58,21 @@ extension NFTStorableModels.V1.NFTCollectionPOSS {
 
         // From NFTMedia using shared utility
         mediaURL = collection.media?.url
-        mediaKindName = NFTStorableModels.MediaUtils.serialize(collection.media?.kind)
+        mediaKindName = NFTCachedModels.MediaUtils.serialize(collection.media?.kind)
 
         // Store assets as NFTAssetPOSS objects
-        assets = collection.assets.map { NFTStorableModels.V1.NFTAssetPOSS(from: $0) }
+        assets = collection.assets.map { NFTCachedModels.V1.NFTAssetPOSS(from: $0) }
     }
 
     func toNFTCollection() throws -> NFTCollection {
         // Reconstruct chain using shared utility
-        let chain = try NFTStorableModels.ChainUtils.deserialize(chainName: chainName, isTestnet: isTestnet)
+        let chain = try NFTCachedModels.ChainUtils.deserialize(chainName: chainName, isTestnet: isTestnet)
 
         // Reconstruct contract type using shared utility
-        let contractType = NFTStorableModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
+        let contractType = NFTCachedModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
 
         // Reconstruct media using shared utility
-        let media = NFTStorableModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+        let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
 
         // Convert stored NFTAssetPOSS objects to NFTAsset domain objects
         let assetsArray = try assets.map { try $0.toNFTAsset() }
