@@ -123,7 +123,9 @@ extension NFTCachedModels {
     enum MediaUtils {
         /// Convert NFTMedia.Kind to string representation
         static func serialize(_ mediaKind: NFTMedia.Kind?) -> String? {
-            guard let mediaKind else { return nil }
+            guard let mediaKind else {
+                return nil
+            }
 
             switch mediaKind {
             case .image:
@@ -157,8 +159,15 @@ extension NFTCachedModels {
 
         /// Create NFTMedia from URL and kind name if available
         static func createMedia(url: URL?, kindName: String?) -> NFTMedia? {
-            guard let url, let kindName else { return nil }
+            guard
+                let url,
+                let kindName
+            else {
+                return nil
+            }
+
             let kind = deserialize(mediaKindName: kindName)
+
             return NFTMedia(kind: kind, url: url)
         }
     }
