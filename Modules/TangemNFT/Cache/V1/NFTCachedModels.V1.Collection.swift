@@ -1,5 +1,5 @@
 //
-//  NFTStorableCollectionModels.swift
+//  NFTCachedModels.V1.Collection.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 extension NFTCachedModels.V1 {
-    struct NFTCollectionPOSS: Codable, Hashable, Identifiable, Sendable {
+    struct Collection: Codable, Hashable, Identifiable, Sendable {
         // From NFTCollectionId
         let id: String // Combination of identifier and other fields to ensure uniqueness
         let collectionIdentifier: String
@@ -29,12 +29,12 @@ extension NFTCachedModels.V1 {
         /// Collection stats
         let assetsCount: Int
 
-        /// Nested array of NFTAssetPOSS objects
-        let assets: [NFTAssetPOSS]
+        /// Nested array of Asset objects
+        let assets: [Asset]
     }
 }
 
-extension NFTCachedModels.V1.NFTCollectionPOSS {
+extension NFTCachedModels.V1.Collection {
     init(from collection: NFTCollection) {
         // From NFTCollectionId
         collectionIdentifier = collection.id.collectionIdentifier
@@ -60,8 +60,8 @@ extension NFTCachedModels.V1.NFTCollectionPOSS {
         mediaURL = collection.media?.url
         mediaKindName = NFTCachedModels.MediaUtils.serialize(collection.media?.kind)
 
-        // Store assets as NFTAssetPOSS objects
-        assets = collection.assets.map { NFTCachedModels.V1.NFTAssetPOSS(from: $0) }
+        // Store assets as Asset objects
+        assets = collection.assets.map { NFTCachedModels.V1.Asset(from: $0) }
     }
 
     func toNFTCollection() throws -> NFTCollection {
@@ -74,7 +74,7 @@ extension NFTCachedModels.V1.NFTCollectionPOSS {
         // Reconstruct media using shared utility
         let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
 
-        // Convert stored NFTAssetPOSS objects to NFTAsset domain objects
+        // Convert stored Asset objects to NFTAsset domain objects
         let assetsArray = try assets.map { try $0.toNFTAsset() }
 
         // Create the NFTCollection with all reconstructed components
