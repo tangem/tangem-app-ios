@@ -197,7 +197,7 @@ final class CommonNFTManager: NFTManager {
         walletModelsManager: WalletModelsManager
     ) {
         self.walletModelsManager = walletModelsManager
-        let cache = NFTCache(cacheFileName: .cachedNFTAssets(userWalletId: userWalletId))
+        let cache = NFTCache(userWalletId: userWalletId)
         let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
         cache.delegate = cacheDelegate
         self.cache = cache
