@@ -50,11 +50,13 @@ struct SendNewAmountStepBuilder {
     }
 
     func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendAmountCompactViewModel {
-        .init(
+        let conventViewModel = SendAmountCompactContentViewModel(
             input: input,
             tokenIconInfo: builder.makeTokenIconInfo(),
             tokenItem: tokenItem
         )
+
+        return SendAmountCompactViewModel(conventViewModel: .default(viewModel: conventViewModel))
     }
 }
 

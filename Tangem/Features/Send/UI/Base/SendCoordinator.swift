@@ -64,6 +64,8 @@ class SendCoordinator: CoordinatorObject {
         switch options.type {
         case .send where FeatureProvider.isAvailable(.newSendUI):
             rootViewModel = factory.makeNewSendViewModel(router: self)
+        case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
+            rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
         case .sell(let parameters):
@@ -100,6 +102,7 @@ extension SendCoordinator {
         case stakingDetails
         case markets
         case actionButtons
+        case nft
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -108,6 +111,7 @@ extension SendCoordinator {
             case .stakingDetails: .token
             case .markets: .markets
             case .actionButtons: .main
+            case .nft: .nft
             }
         }
     }
