@@ -227,17 +227,11 @@ extension NFTEntrypointView {
             static let dotsImageSize: CGSize = .init(bothDimensions: 9)
         }
 
-        enum Skeleton {
-            static let titleSize: CGSize = .init(width: 112, height: 12)
-            static let subtitleSize: CGSize = .init(width: 80, height: 12)
-        }
-
         enum Failed {
             static let imageSize: CGSize = .init(bothDimensions: 20)
         }
 
         enum Texts {
-            static let loadingInteritemSpacing: CGFloat = 9
             static let interitemSpacing: CGFloat = 2
         }
 
@@ -259,7 +253,7 @@ extension NFTEntrypointView {
                 nftManager: NFTManagerMock(
                     state: .loading
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -273,7 +267,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -287,7 +281,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -322,7 +316,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -357,7 +351,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -392,7 +386,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -427,7 +421,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -462,7 +456,7 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
                 coordinator: nil
             )
         )

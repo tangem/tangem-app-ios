@@ -36,7 +36,7 @@ struct MoralisEVMNetworkMapper {
                 chain: chain,
                 contractType: contractType,
                 ownerAddress: ownerAddress,
-                name: collection.name ?? Localization.nftUntitledCollection,
+                name: collection.name ?? Constants.collectionNameFallback,
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
                 media: map(collection.collectionLogo),
                 assetsCount: assetsCount,
@@ -55,15 +55,13 @@ struct MoralisEVMNetworkMapper {
         guard
             let asset,
             let assetIdentifier = asset.tokenId,
-            let assetContractAddress = asset.tokenAddress,
-            let name = asset.name
+            let assetContractAddress = asset.tokenAddress
         else {
             NFTLogger.warning(
                 String(
-                    format: "Asset missing required fields: token_id %@, token_address %@, name %@",
+                    format: "Asset missing required fields: token_id %@, token_address %@",
                     String(describing: asset?.tokenId),
-                    String(describing: asset?.tokenAddress),
-                    String(describing: asset?.name)
+                    String(describing: asset?.tokenAddress)
                 )
             )
             return nil
@@ -81,8 +79,9 @@ struct MoralisEVMNetworkMapper {
             contractType: contractType,
             decimalCount: Constants.decimalCount,
             ownerAddress: asset.ownerOf ?? ownerAddress(),
-            name: name,
+            name: asset.name ?? Constants.assetNameFallback,
             description: asset.normalizedMetadata?.description,
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits
@@ -198,5 +197,7 @@ private extension MoralisEVMNetworkMapper {
         /// Moralis doesn't provide decimal count for EVM NFT collections,
         /// so we're using this default value instead.
         static let decimalCount = 0
+        static var collectionNameFallback: String { Localization.nftUntitledCollection }
+        static var assetNameFallback: String { .enDashSign }
     }
 }

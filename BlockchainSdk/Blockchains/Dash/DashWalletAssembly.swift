@@ -17,7 +17,8 @@ struct DashWalletAssembly: WalletManagerAssembly {
 
         let txBuilder = BitcoinTransactionBuilder(
             network: input.isTestnet ? DashTestNetworkParams() : DashMainNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.dash)
         )
 
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
