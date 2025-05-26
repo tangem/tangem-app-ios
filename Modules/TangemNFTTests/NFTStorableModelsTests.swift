@@ -12,7 +12,6 @@ import Testing
 
 @Suite("NFT Storable Models")
 struct NFTStorableModelsTests {
-
     // MARK: - Tests
 
     @Test("Asset serialization and deserialization for all chains")
@@ -184,7 +183,7 @@ struct NFTStorableModelsTests {
         let traits = [
             NFTAsset.Trait(name: "Background", value: "Blue"),
             NFTAsset.Trait(name: "Eyes", value: "Green"),
-            NFTAsset.Trait(name: "Mouth", value: "Smile")
+            NFTAsset.Trait(name: "Mouth", value: "Smile"),
         ]
 
         let salePrice = NFTSalePrice(
@@ -232,8 +231,6 @@ struct NFTStorableModelsTests {
             return "mp3"
         case .unknown:
             return "bin"
-        case .azaza:
-            return "azaza"
         }
     }
 }
