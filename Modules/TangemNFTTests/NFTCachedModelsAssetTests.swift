@@ -16,7 +16,6 @@ struct NFTCachedModelsAssetTests {
 
     @Test("Asset serialization and deserialization for all chains")
     func testAssetSerializationAndDeserialization() throws {
-        #expect(false)
         // Test serialization and deserialization for all possible chain types
         for chain in NFTChain.allCases(isTestnet: false) {
             try testAssetSerializationAndDeserialization(for: chain)
