@@ -13,12 +13,14 @@ extension CachesDirectoryStorage.File where Self == CachesDirectoryFile {
     static var cachedBalances: Self { CachesDirectoryFile.cachedBalancesFile }
     static var cachedQuotes: Self { CachesDirectoryFile.cachedQuotesFile }
     static var cachedExpressAvailability: Self { CachesDirectoryFile.cachedExpressAvailabilityFile }
+    static var cachedNFTAssets: Self { CachesDirectoryFile.cachedNFTAssetsFile }
 }
 
 enum CachesDirectoryFile: CachesDirectoryStorage.File {
     case cachedBalancesFile
     case cachedQuotesFile
     case cachedExpressAvailabilityFile
+    case cachedNFTAssetsFile
 
     var name: String {
         switch self {
@@ -28,6 +30,8 @@ enum CachesDirectoryFile: CachesDirectoryStorage.File {
             return "cached_quotes"
         case .cachedExpressAvailabilityFile:
             return "cached_express_availability"
+        case .cachedNFTAssetsFile:
+            return "nft_assets_cache"
         }
     }
 }
