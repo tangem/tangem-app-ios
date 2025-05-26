@@ -51,11 +51,13 @@ struct SendAmountStepBuilder {
     }
 
     func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendAmountCompactViewModel {
-        .init(
+        let conventViewModel = SendAmountCompactContentViewModel(
             input: input,
             tokenIconInfo: builder.makeTokenIconInfo(),
             tokenItem: walletModel.tokenItem
         )
+
+        return SendAmountCompactViewModel(conventViewModel: .default(viewModel: conventViewModel))
     }
 }
 
@@ -68,7 +70,7 @@ private extension SendAmountStepBuilder {
         actionType: SendFlowActionType,
         sendQRCodeService: SendQRCodeService?
     ) -> SendAmountViewModel {
-        let initital = SendAmountViewModel.Settings(
+        let initial = SendAmountViewModel.Settings(
             walletHeaderText: builder.walletHeaderText(for: actionType),
             tokenItem: walletModel.tokenItem,
             tokenIconInfo: builder.makeTokenIconInfo(),
@@ -78,7 +80,7 @@ private extension SendAmountStepBuilder {
         )
 
         return SendAmountViewModel(
-            initial: initital,
+            initial: initial,
             interactor: interactor,
             sendQRCodeService: sendQRCodeService
         )
