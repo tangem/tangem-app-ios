@@ -161,6 +161,12 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
             ]
         ),
+        .tangemTestTarget(
+            name: "TangemNFTTests",
+            dependencies: [
+                "TangemNFT",
+            ]
+        ),
     ]
 }
 
