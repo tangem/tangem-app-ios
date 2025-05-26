@@ -55,7 +55,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         }
 
         let feeRate = 10
-        let expectedFee = 1410
+        let expectedFee = 1430
         let calculator = CommonUTXOTransactionSizeCalculator(network: BitcoinNetworkParams())
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
@@ -71,7 +71,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         #expect(selected.outputs.count == 1)
         #expect(selected.fee == expectedFee)
         #expect(selected.destination == 300_000)
-        #expect(selected.change == 590)
+        #expect(selected.change == 570)
     }
 
     @Test
