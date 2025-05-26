@@ -23,16 +23,9 @@ struct AuthView: View {
     var body: some View {
         unlockView
             .alert(item: $viewModel.error, content: { $0.alert })
+            .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
-            .background(
-                ScanTroubleshootingView(
-                    isPresented: $viewModel.showTroubleshootingView,
-                    tryAgainAction: viewModel.tryAgain,
-                    requestSupportAction: viewModel.requestSupport,
-                    openScanCardManualAction: viewModel.openScanCardManual
-                )
-            )
             .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
     }
 
