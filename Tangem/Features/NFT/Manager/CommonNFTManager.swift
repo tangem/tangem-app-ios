@@ -75,16 +75,16 @@ final class CommonNFTManager: NFTManager {
             .share(replay: 1)
     }()
 
-    private lazy var collectionsPublisherCached: some Publisher<NFTPartialResult<[NFTCollection]>, Never> = updatePublisher
-        .filter(\.isCacheEnabled)
-        .mapToVoid()
-        .merge(with: networkServicesPublisher.mapToVoid())
-        .withWeakCaptureOf(self)
-        .map { nftManager, _ in
-            let collections = nftManager.cache.getCollections()
-            return .init(value: collections)
-        }
-        .share(replay: 1)
+    private lazy var collectionsPublisherCached: some Publisher<NFTPartialResult<[NFTCollection]>, Never> = Publishers.Merge(
+        updatePublisher.filter(\.isCacheEnabled).mapToVoid(),
+        networkServicesPublisher.mapToVoid(),
+    )
+    .withWeakCaptureOf(self)
+    .map { nftManager, _ in
+        let collections = nftManager.cache.getCollections()
+        return .init(value: collections)
+    }
+    .share(replay: 1)
 
     private lazy var collectionsPublisherRemote: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
         let aggregatedNetworkServicesPublisher = Publishers.Merge(
