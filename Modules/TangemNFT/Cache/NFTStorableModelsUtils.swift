@@ -145,8 +145,6 @@ extension NFTStorableModels {
                 return "video"
             case .audio:
                 return "audio"
-            case .azaza:
-                return "azaza"
             case .unknown:
                 return "unknown"
             }
@@ -163,8 +161,6 @@ extension NFTStorableModels {
                 return .video
             case "audio":
                 return .audio
-            case "azaza":
-                return .azaza
             default:
                 return .unknown
             }
