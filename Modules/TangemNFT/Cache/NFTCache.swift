@@ -39,8 +39,8 @@ public class NFTCache {
         storage.store(value: storableCollections)
     }
 
-    public func delete(_ collections: [NFTCollection]) {
-        // [REDACTED_TODO_COMMENT]
+    public func clear() {
+        save([])
     }
 
     private func filteredCollections(from collections: [NFTCollection]) -> [NFTCollection] {
