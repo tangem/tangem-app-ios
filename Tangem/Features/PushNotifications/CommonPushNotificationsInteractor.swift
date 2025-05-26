@@ -29,11 +29,14 @@ final class CommonPushNotificationsInteractor {
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
 
     private let pushNotificationsService: PushNotificationsService
+    private let notificationResponseDispatcher: NotificationResponseDispatching
 
     init(
-        pushNotificationsService: PushNotificationsService
+        pushNotificationsService: PushNotificationsService,
+        notificationResponseDispatcher: NotificationResponseDispatching
     ) {
         self.pushNotificationsService = pushNotificationsService
+        self.notificationResponseDispatcher = notificationResponseDispatcher
     }
 
     private func updateSavedWalletsStatusIfNeeded() {
@@ -81,6 +84,14 @@ final class CommonPushNotificationsInteractor {
 // MARK: - PushNotificationsInteractor protocol conformance
 
 extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
+    func register(subscriber: any PushNotificationSubscriber) {
+        notificationResponseDispatcher.register(subscriber: subscriber)
+    }
+
+    func unregister(subscriber: any PushNotificationSubscriber) {
+        notificationResponseDispatcher.unregister(subscriber: subscriber)
+    }
+
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
         guard
             canRequestAuthorization

@@ -12,8 +12,6 @@ import UserNotifications
 import TangemFoundation
 
 final class PushNotificationsService: NSObject {
-    @Injected(\.pushNotificationsHandler) private var pushNotificationsHandler: PushNotificationsHandling
-    
     /// - Note: Checks only explicit authorization (`UNAuthorizationStatus.authorized`) and ignores implicit
     /// authorization statuses such as `UNAuthorizationStatus.provisional` or `UNAuthorizationStatus.ephemeral`.
     @MainActor
@@ -42,7 +40,6 @@ final class PushNotificationsService: NSObject {
     init(application: UIApplication) {
         self.application = application
         super.init()
-        userNotificationCenter.delegate = pushNotificationsHandler
     }
 
     func requestAuthorizationAndRegister() async {
