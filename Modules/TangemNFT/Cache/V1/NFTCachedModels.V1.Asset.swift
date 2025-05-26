@@ -9,36 +9,42 @@
 import Foundation
 
 extension NFTCachedModels.V1 {
-    struct Asset: Codable, Hashable, Identifiable, Sendable {
-        // From NFTAssetId
-        let id: String // Combination of identifier and other fields to ensure uniqueness
+    struct Asset: Codable {
+
+        // MARK: - NFTAssetId
+
         let identifier: String
         let contractAddress: String
         let ownerAddress: String
-        let chainName: String // String representation of NFTChain
-        let isTestnet: Bool // Whether the chain is testnet
-        let contractTypeIdentifier: String // String representation of NFTContractType
+        let chainName: String
+        let isTestnet: Bool
+        let contractTypeIdentifier: String
 
-        // From main NFTAsset
+        // MARK: - NFTAsset
+
         let decimalCount: Int
         let name: String
         let description: String?
 
-        // From NFTSalePrice
+        // MARK: - NFTSalePrice
+
         let lastPriceValue: Decimal?
         let lowestPriceValue: Decimal?
         let highestPriceValue: Decimal?
 
-        // From NFTMedia
+        // MARK: - NFTMedia
+
         let mediaURL: URL?
         let mediaKindName: String?
 
-        // From Rarity
+        // MARK: - Rarity
+
         let rarityLabel: String?
         let rarityPercentage: Double?
         let rarityRank: Int?
 
-        // Traits flattened to arrays
+        // MARK: - Traits (flattened to arrays)
+
         let traitNames: [String]
         let traitValues: [String]
     }
@@ -55,9 +61,6 @@ extension NFTCachedModels.V1.Asset {
         let (chainNameValue, isTestnetValue) = NFTCachedModels.ChainUtils.serialize(asset.id.chain)
         chainName = chainNameValue
         isTestnet = isTestnetValue
-
-        // Create unique ID by combining key fields
-        id = "\(chainName)\(isTestnet ? "-testnet" : "")_\(contractAddress)_\(identifier)_\(ownerAddress)"
 
         // From NFTContractType using shared utility
         contractTypeIdentifier = NFTCachedModels.ContractTypeUtils.serialize(asset.id.contractType)
@@ -105,7 +108,7 @@ extension NFTCachedModels.V1.Asset {
             salePrice = NFTSalePrice(last: last, lowest: lowest, highest: highest)
         }
 
-        // Reconstruct rarity
+        // Reconstruct rarity - only create if at least one field exists
         let rarity: NFTAsset.Rarity?
         if rarityLabel != nil || rarityPercentage != nil || rarityRank != nil {
             rarity = NFTAsset.Rarity(
@@ -118,11 +121,8 @@ extension NFTCachedModels.V1.Asset {
         }
 
         // Recreate traits from parallel arrays
-        var traits: [NFTAsset.Trait] = []
-        if traitNames.count == traitValues.count {
-            traits = zip(traitNames, traitValues).map {
-                NFTAsset.Trait(name: $0.0, value: $0.1)
-            }
+        let traits = zip(traitNames, traitValues).map {
+            NFTAsset.Trait(name: $0.0, value: $0.1)
         }
 
         // Create the NFTAsset with all reconstructed components

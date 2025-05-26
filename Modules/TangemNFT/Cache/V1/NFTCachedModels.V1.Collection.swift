@@ -9,27 +9,29 @@
 import Foundation
 
 extension NFTCachedModels.V1 {
-    struct Collection: Codable, Hashable, Identifiable, Sendable {
-        // From NFTCollectionId
-        let id: String // Combination of identifier and other fields to ensure uniqueness
+    struct Collection: Codable {
+
+        // MARK: - NFTCollectionId
+
         let collectionIdentifier: String
         let ownerAddress: String
-        let chainName: String // String representation of NFTChain
-        let isTestnet: Bool // Whether the chain is testnet
+        let chainName: String
+        let isTestnet: Bool
 
-        // From main NFTCollection
-        let contractTypeIdentifier: String // String representation of NFTContractType
+        // MARK: - NFTCollection
+
+        let contractTypeIdentifier: String
         let name: String
         let description: String?
+        let assetsCount: Int
 
-        // From NFTMedia
+        // MARK: - NFTMedia
+
         let mediaURL: URL?
         let mediaKindName: String?
 
-        /// Collection stats
-        let assetsCount: Int
+        // MARK: - Assets (nested array)
 
-        /// Nested array of Asset objects
         let assets: [Asset]
     }
 }
@@ -44,9 +46,6 @@ extension NFTCachedModels.V1.Collection {
         let (chainNameValue, isTestnetValue) = NFTCachedModels.ChainUtils.serialize(collection.id.chain)
         chainName = chainNameValue
         isTestnet = isTestnetValue
-
-        // Create unique ID by combining key fields
-        id = "\(chainName)\(isTestnet ? "-testnet" : "")_\(collectionIdentifier)_\(ownerAddress)"
 
         // From NFTContractType using shared utility
         contractTypeIdentifier = NFTCachedModels.ContractTypeUtils.serialize(collection.contractType)
