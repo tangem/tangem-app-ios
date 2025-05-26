@@ -236,7 +236,7 @@ private extension Hedera.Transaction {
     }
 }
 
-private extension Hedera.EntityId {
+extension Hedera.EntityId {
     /// A dumb convenience factory method for parsing entity IDs in both `<shard>.<realm>.<last>` (Hedera native)
     /// and `[0x]40*HEXDIG` (Solidity/EVM) forms.
     static func fromSolidityAddressOrString<S: StringProtocol>(_ input: S) throws -> Self {

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import Moya
 import UIKit
 import SwiftUI
 import BlockchainSdk
@@ -60,17 +61,18 @@ class ReferralViewModel: ObservableObject {
         isProcessingRequest = true
         Analytics.log(.referralButtonParticipate)
 
-        guard
-            let award = referralProgramInfo?.conditions.awards.first,
-            let blockchain = supportedBlockchains[award.token.networkId],
-            let token = award.token.storageToken
-        else {
-            AppLogger.error(error: Localization.referralErrorFailedToLoadInfo)
-            errorAlert = AlertBuilder.makeOkErrorAlert(
-                message: Localization.referralErrorFailedToLoadInfo,
-                okAction: coordinator?.dismiss ?? {}
-            )
-            isProcessingRequest = false
+        guard let award = referralProgramInfo?.conditions.awards.first else {
+            processReferralError(.awardNotLoaded)
+            return
+        }
+
+        guard let blockchain = supportedBlockchains[award.token.networkId] else {
+            processReferralError(.blockchainNotSupported)
+            return
+        }
+
+        guard let token = award.token.storageToken else {
+            processReferralError(.invalidToken)
             return
         }
 
@@ -84,12 +86,14 @@ class ReferralViewModel: ObservableObject {
                 return try await tangemApiService.participateInReferralProgram(using: award.token, for: address, with: userWalletId.hexString)
             }
             self.referralProgramInfo = referralProgramInfo
+            Analytics.log(.referralParticipateSuccessfull)
         } catch {
             if !error.toTangemSdkError().isUserCancelled {
                 let referralError = ReferralError(error)
-                let message = Localization.referralErrorFailedToParticipate(referralError.code)
+                let message = Localization.referralErrorFailedToParticipate(referralError.errorCode)
                 errorAlert = AlertBuilder.makeOkErrorAlert(message: message)
                 AppLogger.error(error: referralError)
+                Analytics.log(event: .referralError, params: [.errorCode: "\(referralError.errorCode)"])
             }
         }
 
@@ -127,9 +131,42 @@ class ReferralViewModel: ObservableObject {
             self.referralProgramInfo = referralProgramInfo
         } catch {
             let referralError = ReferralError(error)
-            let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.code)
+            let message = Localization.referralErrorFailedToLoadInfoWithReason(referralError.errorCode)
             AppLogger.error(error: referralError)
             errorAlert = AlertBuilder.makeOkErrorAlert(message: message, okAction: coordinator?.dismiss ?? {})
+            Analytics.log(event: .referralError, params: [.errorCode: "\(referralError.errorCode)"])
+        }
+    }
+
+    private func processReferralError(_ error: ReferralError) {
+        AppLogger.error(error: Localization.referralErrorFailedToLoadInfo)
+        errorAlert = AlertBuilder.makeOkErrorAlert(
+            message: Localization.referralErrorFailedToLoadInfo,
+            okAction: coordinator?.dismiss ?? {}
+        )
+        isProcessingRequest = false
+        Analytics.log(event: .referralError, params: [.errorCode: "\(error.errorCode)"])
+    }
+}
+
+extension ReferralViewModel {
+    enum ReferralError: Error {
+        case awardNotLoaded
+        case blockchainNotSupported
+        case invalidToken
+        case decodingError(DecodingError)
+        case moyaError(MoyaError)
+        case unknown(Error)
+
+        init(_ error: Error) {
+            switch error {
+            case let moyaError as MoyaError:
+                self = .moyaError(moyaError)
+            case let decodingError as DecodingError:
+                self = .decodingError(decodingError)
+            default:
+                self = .unknown(error)
+            }
         }
     }
 }

@@ -9,7 +9,6 @@
 import TangemAssets
 import SwiftUI
 import TangemUIUtils
-import TangemFoundation
 
 /// NOTE: This is a raw duplicate of `NotificationView` from main project
 /// It is not possible to extract it to TangemUI at the moment
