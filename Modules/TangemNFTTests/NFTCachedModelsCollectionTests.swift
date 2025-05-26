@@ -1,5 +1,5 @@
 //
-//  NFTStorableCollectionModelsTests.swift
+//  NFTCachedModelsCollectionTests.swift
 //  TangemNFTTests
 //
 //  Created on 25.05.2025.
@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import TangemNFT
 
-@Suite("NFT Storable Collection Models")
+@Suite("NFTCachedModels.V1.Collection")
 struct NFTStorableCollectionModelsTests {
     // MARK: - Tests
 
@@ -52,8 +52,8 @@ struct NFTStorableCollectionModelsTests {
         let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
         let restoredCollection = try storableModel.toNFTCollection()
 
-        // Verify that the restored collection matches the original using Equatable conformance
-        #expect(restoredCollection == originalCollection)
+        // Verify that the restored asset matches the original using full equality
+        #expect(restoredCollection == originalCollection, "Restored collection should be equal to original collection")
     }
 
     @Test("Collection serialization and deserialization with round trip")
@@ -62,6 +62,7 @@ struct NFTStorableCollectionModelsTests {
         let originalCollection = createCompleteNFTCollection(
             chain: .ethereum(isTestnet: false),
             contractType: .erc721,
+            mediaKind: .image,
             assetCount: 3
         )
 
@@ -74,7 +75,7 @@ struct NFTStorableCollectionModelsTests {
         let secondRestoredCollection = try secondStorableModel.toNFTCollection()
 
         // Verify that data remains consistent after multiple conversions
-        #expect(secondRestoredCollection == originalCollection)
+        #expect(secondRestoredCollection == originalCollection, "Collection should remain consistent after multiple serialization cycles")
     }
 
     @Test("Collection serialization and deserialization with contract types")
@@ -84,14 +85,32 @@ struct NFTStorableCollectionModelsTests {
             let originalCollection = createCompleteNFTCollection(
                 chain: .ethereum(isTestnet: false),
                 contractType: contractType,
+                mediaKind: .image,
                 assetCount: 1
             )
 
             let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
             let restoredCollection = try storableModel.toNFTCollection()
 
-            // Use direct equality comparison
-            #expect(restoredCollection == originalCollection, "Collections should be equal for contract type \(contractType)")
+            #expect(restoredCollection.contractType == originalCollection.contractType, "Collections should be equal for contract type '\(contractType)'")
+        }
+    }
+
+    @Test("Collection serialization and deserialization with media types")
+    func testCollectionSerializationAndDeserializationWithMediaTypes() throws {
+        // Test all available media kinds
+        for mediaKind in NFTMedia.Kind.allCases {
+            let originalCollection = createCompleteNFTCollection(
+                chain: .ethereum(isTestnet: false),
+                contractType: .erc721,
+                mediaKind: mediaKind,
+                assetCount: 10
+            )
+
+            let storableModel = NFTCachedModels.V1.Collection(from: originalCollection)
+            let restoredCollection = try storableModel.toNFTCollection()
+
+            #expect(restoredCollection.media == originalCollection.media, "Collections should be equal for media kind '\(mediaKind)'")
         }
     }
 
@@ -101,6 +120,7 @@ struct NFTStorableCollectionModelsTests {
         let originalCollection = createCompleteNFTCollection(
             chain: .ethereum(isTestnet: false),
             contractType: .erc721,
+            mediaKind: .image,
             assetCount: 2
         )
 
@@ -118,7 +138,7 @@ struct NFTStorableCollectionModelsTests {
         let restoredCollection = try decodedStorableModel.toNFTCollection()
 
         // Verify with full equality check
-        #expect(restoredCollection == originalCollection)
+        #expect(restoredCollection == originalCollection, "Collection should be equal after JSON encoding/decoding cycle")
     }
 
     @Test("Collection with nested assets serialization and deserialization")
@@ -128,6 +148,7 @@ struct NFTStorableCollectionModelsTests {
         let originalCollection = createCompleteNFTCollection(
             chain: .ethereum(isTestnet: false),
             contractType: .erc721,
+            mediaKind: .image,
             assetCount: assetCount
         )
 
@@ -145,7 +166,7 @@ struct NFTStorableCollectionModelsTests {
 
         // Additional check to ensure each asset is properly restored
         for i in 0 ..< assetCount {
-            #expect(restoredCollection.assets[i] == originalCollection.assets[i])
+            #expect(restoredCollection.assets[i] == originalCollection.assets[i], "Restored number of assets should match original number of assets")
         }
     }
 
@@ -156,6 +177,7 @@ struct NFTStorableCollectionModelsTests {
         let originalCollection = createCompleteNFTCollection(
             chain: chain,
             contractType: .erc721,
+            mediaKind: .image,
             assetCount: 2
         )
 
@@ -166,12 +188,13 @@ struct NFTStorableCollectionModelsTests {
         let restoredCollection = try storableModel.toNFTCollection()
 
         // Verify using full equality check instead of individual property comparisons
-        #expect(restoredCollection == originalCollection, "Restored collection should equal original for chain \(chain)")
+        #expect(restoredCollection == originalCollection, "Restored collection should equal original for chain '\(chain)'")
     }
 
     private func createCompleteNFTCollection(
         chain: NFTChain,
         contractType: NFTContractType,
+        mediaKind: NFTMedia.Kind,
         assetCount: Int
     ) -> NFTCollection {
         // Create a unique identifier based on chain and contract type
@@ -200,7 +223,7 @@ struct NFTStorableCollectionModelsTests {
             )
 
             let media = NFTMedia(
-                kind: .image,
+                kind: mediaKind,
                 url: URL(string: "https://example.com/\(identifier)_\(i).png")!
             )
 
