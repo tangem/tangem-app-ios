@@ -26,7 +26,7 @@ struct NFTCollectionDisclosureGroupView: View {
             transition: .opacity,
             actionOnClick: onTap,
             alignment: .leading,
-            // Implemetation details. DrawingGroup ruins display of GIFs due
+            // Implementation details. DrawingGroup ruins display of GIFs due
             // to flattening subtree of views into single view before rendering it
             // From the docs:
             // Views backed by native platform views may not render into the image. Instead, they log a warning and display a placeholder image to highlight the error.
@@ -128,6 +128,7 @@ struct DummyProvider: NFTChainIconProvider {
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
+                        salePrice: nil,
                         media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                         rarity: nil,
                         traits: []
@@ -135,7 +136,10 @@ struct DummyProvider: NFTChainIconProvider {
                 }
             ),
             assetsState: .loading,
-            nftChainIconProvider: DummyProvider(),
+            dependencies: NFTCollectionsListDependencies(
+                nftChainIconProvider: DummyProvider(),
+                priceFormatter: NFTPriceFormatterMock()
+            ),
             openAssetDetailsAction: { _ in },
             onCollectionTap: { _, _ in }
         )
