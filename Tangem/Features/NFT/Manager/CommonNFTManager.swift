@@ -200,15 +200,17 @@ final class CommonNFTManager: NFTManager {
     private let updateAssetsSubject: some Subject<NFTCollection.ID, Never> = PassthroughSubject()
 
     private let walletModelsManager: WalletModelsManager
+    private let cache: NFTCache
     private let updater = Updater()
-    private let cache = NFTCache(cacheFileName: .cachedNFTAssets)
 
     private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager
     ) {
         self.walletModelsManager = walletModelsManager
+        cache = NFTCache(cacheFileName: .cachedNFTAssets(userWalletId: userWalletId))
         bind()
     }
 
