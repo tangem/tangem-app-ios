@@ -1,5 +1,5 @@
 //
-//  NFTStorableModels.swift
+//  NFTCachedModels.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension NFTStorableModels.V1 {
+extension NFTCachedModels.V1 {
     struct NFTAssetPOSS: Codable, Hashable, Identifiable, Sendable {
         // From NFTAssetId
         let id: String // Combination of identifier and other fields to ensure uniqueness
@@ -44,7 +44,7 @@ extension NFTStorableModels.V1 {
     }
 }
 
-extension NFTStorableModels.V1.NFTAssetPOSS {
+extension NFTCachedModels.V1.NFTAssetPOSS {
     init(from asset: NFTAsset) {
         // From NFTAssetId
         identifier = asset.id.identifier
@@ -52,7 +52,7 @@ extension NFTStorableModels.V1.NFTAssetPOSS {
         ownerAddress = asset.id.ownerAddress
 
         // Extract chain info using shared utility
-        let (chainNameValue, isTestnetValue) = NFTStorableModels.ChainUtils.serialize(asset.id.chain)
+        let (chainNameValue, isTestnetValue) = NFTCachedModels.ChainUtils.serialize(asset.id.chain)
         chainName = chainNameValue
         isTestnet = isTestnetValue
 
@@ -60,7 +60,7 @@ extension NFTStorableModels.V1.NFTAssetPOSS {
         id = "\(chainName)\(isTestnet ? "-testnet" : "")_\(contractAddress)_\(identifier)_\(ownerAddress)"
 
         // From NFTContractType using shared utility
-        contractTypeIdentifier = NFTStorableModels.ContractTypeUtils.serialize(asset.id.contractType)
+        contractTypeIdentifier = NFTCachedModels.ContractTypeUtils.serialize(asset.id.contractType)
 
         // From main NFTAsset
         decimalCount = asset.decimalCount
@@ -74,7 +74,7 @@ extension NFTStorableModels.V1.NFTAssetPOSS {
 
         // From NFTMedia
         mediaURL = asset.media?.url
-        mediaKindName = NFTStorableModels.MediaUtils.serialize(asset.media?.kind)
+        mediaKindName = NFTCachedModels.MediaUtils.serialize(asset.media?.kind)
 
         // From Rarity
         rarityLabel = asset.rarity?.label
@@ -88,13 +88,13 @@ extension NFTStorableModels.V1.NFTAssetPOSS {
 
     func toNFTAsset() throws -> NFTAsset {
         // Reconstruct chain using shared utility
-        let chain = try NFTStorableModels.ChainUtils.deserialize(chainName: chainName, isTestnet: isTestnet)
+        let chain = try NFTCachedModels.ChainUtils.deserialize(chainName: chainName, isTestnet: isTestnet)
 
         // Reconstruct contract type using shared utility
-        let contractType = NFTStorableModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
+        let contractType = NFTCachedModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
 
         // Reconstruct media using shared utility
-        let media = NFTStorableModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+        let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
 
         // Reconstruct sale price - only create if at least one price exists
         var salePrice: NFTSalePrice?
