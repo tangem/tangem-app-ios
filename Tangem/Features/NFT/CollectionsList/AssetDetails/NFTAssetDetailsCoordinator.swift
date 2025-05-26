@@ -14,13 +14,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemNFT
 import TangemUI
-import Foundation
-import BlockchainSdk
 
-class NFTAssetDetailsCoordinator: CoordinatorObject {
+final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -32,7 +31,10 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    // MARK: - Childs
+    @Published var sendCoordinator: SendCoordinator?
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
+
+    // MARK: - Child view models
 
     @Published var traitsViewData: KeyValuePanelViewData?
     @Published var extendedInfoViewData: NFTAssetExtendedInfoViewData?
@@ -46,10 +48,16 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let dependencies = NFTAssetDetailsDependencies(
+            nftChainNameProvider: options.nftChainNameProvider,
+            priceFormatter: options.priceFormatter
+        )
         rootViewModel = NFTAssetDetailsViewModel(
             asset: options.asset,
-            coordinator: self,
-            nftChainNameProviding: options.nftChainNameProviding
+            collection: options.collection,
+            navigationContext: options.navigationContext,
+            dependencies: dependencies,
+            coordinator: self
         )
     }
 
@@ -67,15 +75,30 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
 extension NFTAssetDetailsCoordinator {
     struct Options {
         let asset: NFTAsset
-        let nftChainNameProviding: NFTChainNameProviding
+        let collection: NFTCollection
+        let nftChainNameProvider: NFTChainNameProviding
+        let priceFormatter: NFTPriceFormatting
+        let navigationContext: NFTNavigationContext
     }
 }
 
 // MARK: - NFTAssetDetailsRoutable
 
 extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
-    func openSend() {
-        // [REDACTED_TODO_COMMENT]
+    func openSend(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
+        guard
+            SendFeatureProvider.shared.isAvailable,
+            let input = navigationContext as? NFTNavigationInput,
+            let walletModel = NFTWalletModelFinder.findWalletModel(for: asset, in: input.walletModelsManager.walletModels)
+        else {
+            return
+        }
+
+        let coordinator = makeSendCoordinator()
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
+        let options = nftSendUtil.makeOptions(for: asset, in: collection)
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 
     func openInfo(with viewData: NFTAssetExtendedInfoViewData) {

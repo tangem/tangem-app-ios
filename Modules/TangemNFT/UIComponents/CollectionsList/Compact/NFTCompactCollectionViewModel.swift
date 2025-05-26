@@ -40,18 +40,24 @@ struct NFTCompactCollectionViewModel: Identifiable {
     init(
         nftCollection: NFTCollection,
         assetsState: AssetsState,
-        nftChainIconProvider: NFTChainIconProvider,
+        dependencies: NFTCollectionsListDependencies,
         openAssetDetailsAction: @escaping (_ asset: NFTAsset) -> Void,
         onCollectionTap: @escaping (_ collection: NFTCollection, _ isExpanded: Bool) -> Void
     ) {
         self.nftCollection = nftCollection
-        self.nftChainIconProvider = nftChainIconProvider
+        nftChainIconProvider = dependencies.nftChainIconProvider
         self.onCollectionTap = onCollectionTap
 
         viewState = assetsState.mapValue { _ in
             let assetsViewModels = nftCollection
                 .assets
-                .map { NFTCompactAssetViewModel(state: .loaded($0), openAssetDetailsAction: openAssetDetailsAction) }
+                .sorted { $0.name.caseInsensitiveSmaller(than: $1.name) }
+                .map { asset in
+                    return NFTCompactAssetViewModel(
+                        state: .loaded(.init(asset: asset, priceFormatter: dependencies.priceFormatter)),
+                        openAssetDetailsAction: openAssetDetailsAction
+                    )
+                }
 
             return NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
         }
