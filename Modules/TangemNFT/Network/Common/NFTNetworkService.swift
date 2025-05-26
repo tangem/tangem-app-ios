@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 public protocol NFTNetworkService {
     func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]>
     func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]>
