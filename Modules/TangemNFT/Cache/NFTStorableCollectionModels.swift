@@ -26,10 +26,10 @@ extension NFTStorableModels.V1 {
         let mediaURL: URL?
         let mediaKindName: String?
 
-        // Collection stats
+        /// Collection stats
         let assetsCount: Int
 
-        // Nested array of NFTAssetPOSS objects
+        /// Nested array of NFTAssetPOSS objects
         let assets: [NFTAssetPOSS]
     }
 }
