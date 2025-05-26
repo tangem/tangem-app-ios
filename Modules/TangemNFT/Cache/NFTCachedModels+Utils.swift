@@ -8,17 +8,6 @@
 
 import Foundation
 
-/// Namespace for storing all types related to persistable NFT models
-public enum NFTCachedModels {
-    /// Versioning namespace
-    public enum V1 {}
-
-    /// Error types
-    enum _Error: Error {
-        case decodingError(String)
-    }
-}
-
 // MARK: - Shared Chain Serialization/Deserialization
 
 extension NFTCachedModels {
@@ -86,7 +75,7 @@ extension NFTCachedModels {
             case "solana":
                 return .solana
             default:
-                throw NFTCachedModels._Error.decodingError("Unknown chain name: \(chainName)")
+                throw NFTCachedModels.Error.decodingError("Unknown chain name: \(chainName)")
             }
         }
     }

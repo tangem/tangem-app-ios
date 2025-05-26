@@ -1,5 +1,5 @@
 //
-//  NFTCachedModels.swift
+//  NFTCachedModels.V1.Asset.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 extension NFTCachedModels.V1 {
-    struct NFTAssetPOSS: Codable, Hashable, Identifiable, Sendable {
+    struct Asset: Codable, Hashable, Identifiable, Sendable {
         // From NFTAssetId
         let id: String // Combination of identifier and other fields to ensure uniqueness
         let identifier: String
@@ -44,7 +44,7 @@ extension NFTCachedModels.V1 {
     }
 }
 
-extension NFTCachedModels.V1.NFTAssetPOSS {
+extension NFTCachedModels.V1.Asset {
     init(from asset: NFTAsset) {
         // From NFTAssetId
         identifier = asset.id.identifier
