@@ -12,6 +12,8 @@ import TangemFoundation
 public class NFTCache {
     private let storage: CachesDirectoryStorage
 
+    public weak var delegate: NFTCacheDelegate?
+
     public init(
         cacheFileName: CachesDirectoryStorage.File
     ) {
@@ -20,10 +22,14 @@ public class NFTCache {
 
     public func getCollections() -> [NFTCollection] {
         do {
-            let value: [NFTStorableModels.V1.NFTCollectionPOSS] = try storage.value()
-            return try value.map { try $0.toNFTCollection() }
+            let storedCollections: [NFTStorableModels.V1.NFTCollectionPOSS] = try storage.value()
+            let collections = try storedCollections.map { try $0.toNFTCollection() }
+
+            return filteredCollections(from: collections)
         } catch {
+            // All errors are intentionally ignored, since the cache is not critical for the app's functionality
             NFTLogger.error("Failed to load cached collections", error: error)
+
             return []
         }
     }
@@ -35,5 +41,13 @@ public class NFTCache {
 
     public func delete(_ collections: [NFTCollection]) {
         // [REDACTED_TODO_COMMENT]
+    }
+
+    private func filteredCollections(from collections: [NFTCollection]) -> [NFTCollection] {
+        guard let delegate else {
+            return collections
+        }
+
+        return collections.filter { delegate.cache(self, shouldRetrieveCollection: $0) }
     }
 }

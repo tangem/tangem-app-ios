@@ -91,6 +91,8 @@ final class CommonNFTManager: NFTManager {
 
     private lazy var collectionsPublisherCached: some Publisher<NFTPartialResult<[NFTCollection]>, Never> = updatePublisher
         .filter(\.isCacheEnabled)
+        .mapToVoid()
+        .merge(with: networkServicesPublisher.mapToVoid())
         .withWeakCaptureOf(self)
         .map { nftManager, _ in
             let collections = nftManager.cache.getCollections()
@@ -201,6 +203,7 @@ final class CommonNFTManager: NFTManager {
 
     private let walletModelsManager: WalletModelsManager
     private let cache: NFTCache
+    private let cacheDelegate: NFTCacheDelegate
     private let updater = Updater()
 
     private var bag: Set<AnyCancellable> = []
@@ -210,7 +213,11 @@ final class CommonNFTManager: NFTManager {
         walletModelsManager: WalletModelsManager
     ) {
         self.walletModelsManager = walletModelsManager
-        cache = NFTCache(cacheFileName: .cachedNFTAssets(userWalletId: userWalletId))
+        let cache = NFTCache(cacheFileName: .cachedNFTAssets(userWalletId: userWalletId))
+        let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
+        cache.delegate = cacheDelegate
+        self.cache = cache
+        self.cacheDelegate = cacheDelegate
         bind()
     }
 
