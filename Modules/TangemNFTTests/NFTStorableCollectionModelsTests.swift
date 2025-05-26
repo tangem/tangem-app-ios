@@ -12,7 +12,6 @@ import Testing
 
 @Suite("NFT Storable Collection Models")
 struct NFTStorableCollectionModelsTests {
-
     // MARK: - Tests
 
     @Test("Collection serialization and deserialization for all chains")
@@ -145,7 +144,7 @@ struct NFTStorableCollectionModelsTests {
         #expect(restoredCollection == originalCollection)
 
         // Additional check to ensure each asset is properly restored
-        for i in 0..<assetCount {
+        for i in 0 ..< assetCount {
             #expect(restoredCollection.assets[i] == originalCollection.assets[i])
         }
     }
@@ -180,7 +179,7 @@ struct NFTStorableCollectionModelsTests {
 
         // Create assets for this collection
         var assets = [NFTAsset]()
-        for i in 0..<assetCount {
+        for i in 0 ..< assetCount {
             let assetId = NFTAsset.NFTAssetId(
                 identifier: "asset_\(i)_\(identifier)",
                 contractAddress: "0x\(identifier)_contract",
@@ -191,7 +190,7 @@ struct NFTStorableCollectionModelsTests {
 
             let traits = [
                 NFTAsset.Trait(name: "Background", value: "Blue"),
-                NFTAsset.Trait(name: "Eyes", value: "Green")
+                NFTAsset.Trait(name: "Eyes", value: "Green"),
             ]
 
             let salePrice = NFTSalePrice(
