@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 public struct NFTSalePrice: Sendable, Hashable {
     let last: Price
     let lowest: Price?
