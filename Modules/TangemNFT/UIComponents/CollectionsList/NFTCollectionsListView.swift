@@ -32,6 +32,7 @@ public struct NFTCollectionsListView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 16)
             .background(Colors.Background.tertiary)
+            .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
