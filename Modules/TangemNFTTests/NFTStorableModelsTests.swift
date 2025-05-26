@@ -54,7 +54,7 @@ struct NFTCachedModelsTests {
         )
 
         // Test serialization and deserialization
-        let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+        let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
         let restoredAsset = try storableModel.toNFTAsset()
 
         // Verify that the restored asset matches the original using full equality
@@ -71,11 +71,11 @@ struct NFTCachedModelsTests {
         )
 
         // First round-trip
-        let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+        let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
         let restoredAsset = try storableModel.toNFTAsset()
 
         // Second round-trip
-        let secondStorableModel = NFTCachedModels.V1.NFTAssetPOSS(from: restoredAsset)
+        let secondStorableModel = NFTCachedModels.V1.Asset(from: restoredAsset)
         let secondRestoredAsset = try secondStorableModel.toNFTAsset()
 
         // Verify that data remains consistent after multiple conversions
@@ -92,7 +92,7 @@ struct NFTCachedModelsTests {
                 mediaKind: .image
             )
 
-            let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+            let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
             let restoredAsset = try storableModel.toNFTAsset()
 
             // Use direct equality comparison where possible
@@ -110,7 +110,7 @@ struct NFTCachedModelsTests {
                 mediaKind: mediaKind
             )
 
-            let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+            let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
             let restoredAsset = try storableModel.toNFTAsset()
 
             // Verify using full equality check
@@ -130,7 +130,7 @@ struct NFTCachedModelsTests {
             mediaKind: .image
         )
 
-        let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+        let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
 
         // Encode to Data
         let encoder = JSONEncoder()
@@ -138,7 +138,7 @@ struct NFTCachedModelsTests {
 
         // Decode back to storable model
         let decoder = JSONDecoder()
-        let decodedStorableModel = try decoder.decode(NFTCachedModels.V1.NFTAssetPOSS.self, from: encodedData)
+        let decodedStorableModel = try decoder.decode(NFTCachedModels.V1.Asset.self, from: encodedData)
 
         // Convert back to NFT asset
         let restoredAsset = try decodedStorableModel.toNFTAsset()
@@ -154,7 +154,7 @@ struct NFTCachedModelsTests {
         let originalAsset = createCompleteNFTAsset(chain: chain, contractType: .erc721, mediaKind: .image)
 
         // Convert to storable model
-        let storableModel = NFTCachedModels.V1.NFTAssetPOSS(from: originalAsset)
+        let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
 
         // Convert back to NFT asset
         let restoredAsset = try storableModel.toNFTAsset()
