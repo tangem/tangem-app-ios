@@ -14,7 +14,7 @@ struct BalanceConverter {
     /// Converts from crypto to fiat using `RatesProvider`. If values doesn't loaded will wait for loading info from backend and return converted value
     /// Will throw error if failed to load quotes or failed to find currency with specified code
     /// - Parameters:
-    ///   - value: Amout of crypto to convert to fiat
+    ///   - value: Amount of crypto to convert to fiat
     ///   - currencyId: ID of the crypto currency
     /// - Returns: Converted decimal value in specified fiat currency
     func convertToFiat(_ value: Decimal, currencyId: String) async throws -> Decimal {
