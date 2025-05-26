@@ -43,9 +43,42 @@ struct SendFlowFactory {
         return baseBuilder.makeSendViewModel(router: router)
     }
 
-    func makeNewSendViewModel(router: SendRoutable) -> SendViewModel {
+    func makeNFTSendViewModel(parameters: SendParameters.NonFungibleTokenParameters, router: SendRoutable) -> SendViewModel {
         let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
         let sendDestinationStepBuilder = SendDestinationStepBuilder(walletModel: walletModel, builder: builder)
+        let sendAmountStepBuilder = NFTSendAmountStepBuilder(
+            walletModel: walletModel,
+            builder: builder,
+            asset: parameters.asset,
+            collection: parameters.collection
+        )
+        let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
+        let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+
+        let baseBuilder = NFTSendFlowBaseBuilder(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            source: source,
+            sendAmountStepBuilder: sendAmountStepBuilder,
+            sendDestinationStepBuilder: sendDestinationStepBuilder,
+            sendFeeStepBuilder: sendFeeStepBuilder,
+            sendSummaryStepBuilder: sendSummaryStepBuilder,
+            sendFinishStepBuilder: sendFinishStepBuilder,
+            builder: builder
+        )
+
+        return baseBuilder.makeSendViewModel(router: router)
+    }
+
+    func makeNewSendViewModel(router: SendRoutable) -> SendViewModel {
+        let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
+        let sendDestinationStepBuilder = SendNewDestinationStepBuilder(
+            tokenItem: walletModel.tokenItem,
+            ignoredAddresses: walletModel.addresses.map(\.value),
+            addressResolver: walletModel.addressResolver,
+            builder: builder
+        )
         let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
         let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)

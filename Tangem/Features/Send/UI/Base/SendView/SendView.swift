@@ -124,6 +124,14 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newDestination(let sendDestinationViewModel):
+            SendNewDestinationView(
+                viewModel: sendDestinationViewModel,
+                transitionService: transitionService,
+                namespace: .init(id: namespace, names: SendGeometryEffectNames())
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .amount(let sendAmountViewModel):
             SendAmountView(
                 viewModel: sendAmountViewModel,
