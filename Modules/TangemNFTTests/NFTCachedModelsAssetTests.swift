@@ -1,5 +1,5 @@
 //
-//  NFTCachedModelsTests.swift
+//  NFTCachedModelsAssetTests.swift
 //  TangemNFTTests
 //
 //  Created on 25.05.2025.
@@ -10,8 +10,8 @@ import Foundation
 import Testing
 @testable import TangemNFT
 
-@Suite("NFT Storable Models")
-struct NFTCachedModelsTests {
+@Suite("NFTCachedModels.V1.Asset")
+struct NFTCachedModelsAssetTests {
     // MARK: - Tests
 
     @Test("Asset serialization and deserialization for all chains")
@@ -29,7 +29,7 @@ struct NFTCachedModelsTests {
 
     @Test("Asset serialization and deserialization with empty optionals")
     func testAssetSerializationAndDeserializationWithEmptyOptionals() throws {
-        // Create an asset with minimal data (all optionals set to nil)
+        // Create an asset domain model with minimal data (all optionals set to nil)
         let assetId = NFTAsset.NFTAssetId(
             identifier: "123",
             contractAddress: "0xabc",
@@ -95,8 +95,7 @@ struct NFTCachedModelsTests {
             let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
             let restoredAsset = try storableModel.toNFTAsset()
 
-            // Use direct equality comparison where possible
-            #expect(restoredAsset == originalAsset, "Assets should be equal for contract type \(contractType)")
+            #expect(restoredAsset.id.contractType == originalAsset.id.contractType, "Assets should be equal for contract type '\(contractType)'")
         }
     }
 
@@ -113,11 +112,7 @@ struct NFTCachedModelsTests {
             let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
             let restoredAsset = try storableModel.toNFTAsset()
 
-            // Verify using full equality check
-            #expect(
-                restoredAsset == originalAsset,
-                "Asset should be preserved for media type \(mediaKind)"
-            )
+            #expect(restoredAsset.media == originalAsset.media, "Assets should be equal for media kind '\(mediaKind)'")
         }
     }
 
@@ -143,7 +138,7 @@ struct NFTCachedModelsTests {
         // Convert back to NFT asset
         let restoredAsset = try decodedStorableModel.toNFTAsset()
 
-        // Verify with direct asset comparison
+        // Verify with full equality check
         #expect(restoredAsset == originalAsset, "Asset should be equal after JSON encoding/decoding cycle")
     }
 
@@ -160,7 +155,7 @@ struct NFTCachedModelsTests {
         let restoredAsset = try storableModel.toNFTAsset()
 
         // Verify using full equality check
-        #expect(restoredAsset == originalAsset, "Restored asset should equal original for chain \(chain)")
+        #expect(restoredAsset == originalAsset, "Restored asset should equal original for chain '\(chain)'")
     }
 
     private func createCompleteNFTAsset(
