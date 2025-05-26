@@ -23,31 +23,17 @@ final class CommonNFTManager: NFTManager {
     }
 
     var statePublisher: AnyPublisher<NFTManagerState, Never> {
-        let aggregatedUpdatePublisher = [
-            updatePublisher
-                .mapToVoid()
-                .eraseToAnyPublisher(),
-            updateAssetsPublisher
-                .mapToVoid()
-                .eraseToAnyPublisher(),
-            networkServicesPublisher
-                .mapToVoid()
-                .eraseToAnyPublisher(),
-        ].merge()
+        let aggregatedUpdatePublisher = Publishers.Merge3(
+            updatePublisher.mapToVoid(),
+            updateAssetsPublisher.mapToVoid(),
+            networkServicesPublisher.mapToVoid(),
+        )
 
-        let statePublishers = [
-            collectionsPublisherCached
-                .map(NFTManagerState.loaded)
-                .eraseToAnyPublisher(),
-            collectionsPublisherRemote
-                .values()
-                .map(NFTManagerState.loaded)
-                .eraseToAnyPublisher(),
-            collectionsPublisherRemote
-                .failures()
-                .map(NFTManagerState.failedToLoad)
-                .eraseToAnyPublisher(),
-        ].merge()
+        let statePublishers = Publishers.Merge3(
+            collectionsPublisherCached.map(NFTManagerState.loaded),
+            collectionsPublisherRemote.values().map(NFTManagerState.loaded),
+            collectionsPublisherRemote.failures().map(NFTManagerState.failedToLoad),
+        )
 
         // Append is used to ensure that each update cycle starts with loading
         return aggregatedUpdatePublisher
@@ -101,19 +87,17 @@ final class CommonNFTManager: NFTManager {
         .share(replay: 1)
 
     private lazy var collectionsPublisherRemote: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
-        let aggregatedNetworkServicesPublisher = [
+        let aggregatedNetworkServicesPublisher = Publishers.Merge(
             updatePublisher
                 .filter(\.isCacheDisabled)
                 .withLatestFrom(networkServicesPublisher)
-                .map { ($0, true) } // An explicit update (due to a `update` call) always ignores the cache
-                .eraseToAnyPublisher(),
+                .map { ($0, true) }, // An explicit update (due to a `update` call) always ignores the cache
+            // Change in wallet models and/or user wallets can't request an update until an explicit update (by calling
+            // `update(cachePolicy:)`) has been done at least once, therefore `drop(untilOutputFrom:)` is used here
             networkServicesPublisher
-                // Change in wallet models and/or user wallets can't request an update until
-                // an explicit update (by calling `update(cachePolicy:)`) has been done at least once
                 .drop(untilOutputFrom: updatePublisher.filter(\.isCacheDisabled))
-                .map { ($0, false) } // An update caused by changes in wallet models always uses the cache if it exists
-                .eraseToAnyPublisher(),
-        ].merge()
+                .map { ($0, false) }, // An update caused by changes in wallet models always uses the cache if it exists
+        )
 
         let collectionsPublisher = aggregatedNetworkServicesPublisher
             .withWeakCaptureOf(self)
