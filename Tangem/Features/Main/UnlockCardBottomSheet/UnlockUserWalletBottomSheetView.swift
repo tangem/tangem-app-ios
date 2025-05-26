@@ -49,14 +49,7 @@ struct UnlockUserWalletBottomSheetView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
         .alert(item: $viewModel.error) { $0.alert }
-        .background(
-            ScanTroubleshootingView(
-                isPresented: $viewModel.showTroubleshootingView,
-                tryAgainAction: viewModel.unlockWithCard,
-                requestSupportAction: viewModel.requestSupport,
-                openScanCardManualAction: viewModel.openScanCardManual
-            )
-        )
+        .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
     }
 }
 
