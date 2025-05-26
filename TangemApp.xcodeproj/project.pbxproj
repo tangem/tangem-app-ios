@@ -25,6 +25,14 @@
 		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
 		0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */; };
 		0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */; };
+		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
+		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
+		0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */; };
+		0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */; };
+		0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */; };
+		0A3A53D72D9D8AE600E263E7 /* BlockaidChainScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */; };
+		0A3A53D92D9E743500E263E7 /* BlockaidMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */; };
+		0A3A53DB2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -581,7 +589,6 @@
 		B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */; };
 		B05A3DE42D00376600595A1E /* VisaOnboardingTangemWalletDeployApproveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A3DE32D00376600595A1E /* VisaOnboardingTangemWalletDeployApproveView.swift */; };
 		B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A3DE52D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift */; };
-		B05A645625E0F57B00F154B7 /* ScanTroubleshootingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A645525E0F57B00F154B7 /* ScanTroubleshootingView.swift */; };
 		B05A859729937E2400E87C6E /* TransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05A859629937E2400E87C6E /* TransactionView.swift */; };
 		B05D063229DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063129DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift */; };
 		B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */; };
@@ -3585,6 +3592,14 @@
 		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
 		0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
+		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
+		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
+		0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaScan.swift; sourceTree = "<group>"; };
+		0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidFactory.swift; sourceTree = "<group>"; };
+		0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidChainScanResult.swift; sourceTree = "<group>"; };
+		0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidMapper.swift; sourceTree = "<group>"; };
+		0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidSiteScanResult.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -4154,7 +4169,6 @@
 		B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableButtonsView.swift; sourceTree = "<group>"; };
 		B05A3DE32D00376600595A1E /* VisaOnboardingTangemWalletDeployApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingTangemWalletDeployApproveView.swift; sourceTree = "<group>"; };
 		B05A3DE52D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingTangemWalletDeployApproveViewModel.swift; sourceTree = "<group>"; };
-		B05A645525E0F57B00F154B7 /* ScanTroubleshootingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTroubleshootingView.swift; sourceTree = "<group>"; };
 		B05A859629937E2400E87C6E /* TransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionView.swift; sourceTree = "<group>"; };
 		B05D063129DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsView.swift; sourceTree = "<group>"; };
 		B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsViewModel.swift; sourceTree = "<group>"; };
@@ -7116,6 +7130,33 @@
 			path = DTOs;
 			sourceTree = "<group>";
 		};
+		0A2261862D9AC61F004DC848 /* Blockaid */ = {
+			isa = PBXGroup;
+			children = (
+				0A3A53D52D9D88BA00E263E7 /* Domain */,
+				0A2261892D9AC66F004DC848 /* DTOs */,
+				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
+				0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */,
+				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
+				0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */,
+				0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */,
+			);
+			path = Blockaid;
+			sourceTree = "<group>";
+		};
+		0A2261892D9AC66F004DC848 /* DTOs */ = {
+			isa = PBXGroup;
+			children = (
+				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
+				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
+				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
+				0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */,
+				0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */,
+				0A3A53C92D9D276B00E263E7 /* Common.swift */,
+			);
+			path = DTOs;
+			sourceTree = "<group>";
+		};
 		0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -7125,6 +7166,15 @@
 				0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */,
 			);
 			path = StakingPendingActions;
+			sourceTree = "<group>";
+		};
+		0A3A53D52D9D88BA00E263E7 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */,
+				0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */,
+			);
+			path = Domain;
 			sourceTree = "<group>";
 		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
@@ -8167,7 +8217,6 @@
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
 				5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */,
-				B05A645525E0F57B00F154B7 /* ScanTroubleshootingView.swift */,
 				DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */,
 				B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */,
 				5D4B8BB827EDB327002CE87C /* ArrowView.swift */,
@@ -20597,7 +20646,6 @@
 				B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */,
 				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,
-				B05A645625E0F57B00F154B7 /* ScanTroubleshootingView.swift in Sources */,
 				EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */,
 				EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */,
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
