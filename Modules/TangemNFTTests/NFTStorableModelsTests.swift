@@ -86,14 +86,7 @@ struct NFTStorableModelsTests {
     @Test("Asset serialization and deserialization with contract types")
     func testAssetSerializationAndDeserializationWithContractTypes() throws {
         // Test all available contract types
-        let contractTypes: [NFTContractType] = [
-            .erc721,
-            .erc1155,
-            .other("custom"),
-            .unknown
-        ]
-
-        for contractType in contractTypes {
+        for contractType in NFTContractType.allCases {
             let originalAsset = createCompleteNFTAsset(
                 chain: .ethereum(isTestnet: false),
                 contractType: contractType,
