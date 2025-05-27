@@ -212,26 +212,10 @@ public struct NFTCollectionsListView: View {
 
 private extension View {
     func nftListSearchable(text: Binding<String>) -> some View {
-        modifier(SearchableModifier(text: text))
-    }
-}
-
-private struct SearchableModifier: ViewModifier {
-    @State private var showSearchInitially = true
-    let text: Binding<String>
-
-    func body(content: Content) -> some View {
-        content
-            .searchable(
-                text: text,
-                placement: .navigationBarDrawer(displayMode: showSearchInitially ? .always : .automatic)
-            )
-            .onAppear {
-                // Reset to automatic behavior after initial appearance
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    showSearchInitially = false
-                }
-            }
+        searchable(
+            text: text,
+            placement: .navigationBarDrawer(displayMode: .always)
+        )
     }
 }
 
