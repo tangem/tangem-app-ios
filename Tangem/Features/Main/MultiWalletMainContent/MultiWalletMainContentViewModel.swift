@@ -175,6 +175,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 return NFTEntrypointViewModel(
                     nftManager: userWalletModel.nftManager,
                     navigationContext: navigationContext,
+                    analytics: NFTAnalytics.Entrypoint(
+                        logCollectionsOpen: { state, collectionsCount, nftsCount in
+                            Analytics.log(
+                                event: .nftCollectionsOpened,
+                                params: [
+                                    .state: state,
+                                    .nftCollectionsCount: "\(collectionsCount)",
+                                    .nftAssetsCount: "\(nftsCount)",
+                                ]
+                            )
+                        }
+                    ),
                     coordinator: coordinator
                 )
             }
