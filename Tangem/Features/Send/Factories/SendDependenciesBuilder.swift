@@ -78,6 +78,10 @@ struct SendDependenciesBuilder {
         }
     }
 
+    func makeDestinationAnalyticsLogger() -> SendDestinationAnalyticsLogger {
+        SendDestinationAnalyticsLogger(tokenItem: walletModel.tokenItem)
+    }
+
     func makeStakeAction() -> StakingAction {
         StakingAction(
             amount: (try? walletModel.getBalance()) ?? 0,
@@ -217,7 +221,7 @@ struct SendDependenciesBuilder {
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
-        let source: SendModel.PredefinedValues.Source = sellParameters == nil ? .send : .sell
+        let flowKind: SendModel.PredefinedValues.FlowKind = sellParameters == nil ? .send : .sell
         let destination = sellParameters.map { SendAddress(value: $0.destination, source: .sellProvider) }
         let amount = sellParameters.map { sellParameters in
             let fiatValue = walletModel.tokenItem.currencyId.flatMap { currencyId in
@@ -241,7 +245,12 @@ struct SendDependenciesBuilder {
             return .filled(type: type, value: tag, params: params)
         }()
 
-        return SendModel.PredefinedValues(source: source, destination: destination, tag: additionalField, amount: amount)
+        return SendModel.PredefinedValues(
+            flowKind: flowKind,
+            destination: destination,
+            tag: additionalField,
+            amount: amount
+        )
     }
 
     func makeSendAmountValidator() -> SendAmountValidator {
