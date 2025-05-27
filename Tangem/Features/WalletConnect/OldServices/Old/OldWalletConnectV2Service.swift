@@ -54,7 +54,7 @@ final class OldWalletConnectV2Service {
         self.uiDelegate = uiDelegate
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
-        
+
         guard !FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
         Networking.configure(
@@ -69,7 +69,7 @@ final class OldWalletConnectV2Service {
         } catch {
             WCLogger.error("WalletConnect redirect configure failure", error: error)
         }
-        
+
         setupSessionSubscriptions()
         setupMessagesSubscriptions()
     }

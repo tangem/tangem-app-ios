@@ -188,7 +188,7 @@ private extension CommonExpressAvailabilityProvider {
             .unique(by: \.currency)
 
         do {
-            try storage.store(value: models)
+            try storage.storeAndWait(value: models)
         } catch {
             ExpressLogger.error("Failed", error: error)
         }
