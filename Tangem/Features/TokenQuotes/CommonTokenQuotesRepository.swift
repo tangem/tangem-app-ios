@@ -97,7 +97,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
             }
 
             _quotes.send(current)
-            try? storage.store(value: current)
+            storage.store(value: current)
         }
     }
 }
