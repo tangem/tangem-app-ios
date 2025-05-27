@@ -36,6 +36,7 @@ class CommonSendDestinationInteractor {
     private let addressResolver: AddressResolver?
     private let additionalFieldType: SendDestinationAdditionalFieldType?
     private let parametersBuilder: TransactionParamsBuilder
+    private let analyticsLogger: SendDestinationAnalyticsLogger
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -54,7 +55,8 @@ class CommonSendDestinationInteractor {
         transactionHistoryMapper: TransactionHistoryMapper,
         addressResolver: AddressResolver?,
         additionalFieldType: SendDestinationAdditionalFieldType?,
-        parametersBuilder: TransactionParamsBuilder
+        parametersBuilder: TransactionParamsBuilder,
+        analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.input = input
         self.output = output
@@ -64,6 +66,7 @@ class CommonSendDestinationInteractor {
         self.addressResolver = addressResolver
         self.additionalFieldType = additionalFieldType
         self.parametersBuilder = parametersBuilder
+        self.analyticsLogger = analyticsLogger
     }
 
     private func update(destination result: Result<String?, Error>, source: Analytics.DestinationAddressSource) {
@@ -78,13 +81,13 @@ class CommonSendDestinationInteractor {
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            Analytics.logDestinationAddress(isAddressValid: true, source: source)
+            analyticsLogger.log(isAddressValid: true, source: source)
             output?.destinationDidChanged(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
-            Analytics.logDestinationAddress(isAddressValid: false, source: source)
+            analyticsLogger.log(isAddressValid: false, source: source)
             output?.destinationDidChanged(.none)
         }
     }
