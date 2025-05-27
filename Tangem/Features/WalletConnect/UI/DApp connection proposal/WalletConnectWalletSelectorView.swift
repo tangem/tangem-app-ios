@@ -11,8 +11,6 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-import HotSwiftUI
-
 struct WalletConnectWalletSelectorView: View {
     @ObservedObject private var viewModel: WalletConnectWalletSelectorViewModel
 
@@ -20,8 +18,6 @@ struct WalletConnectWalletSelectorView: View {
     private let scrollViewMaxHeight: CGFloat
     @State private var navigationBarBottomSeparatorIsVisible = false
     @Namespace private var selectionNamespace
-
-    @ObserveInjection private var io
 
     init(viewModel: WalletConnectWalletSelectorViewModel) {
         self.viewModel = viewModel
@@ -78,16 +74,13 @@ struct WalletConnectWalletSelectorView: View {
                 scrollProxy.scrollTo(initialSelectedScrollID, anchor: .bottom)
             }
         }
-        .enableInjection()
     }
 
     private var navigationBar: some View {
         WalletConnectNavigationBarView(
             title: viewModel.state.navigationTitle,
-            subtitle: nil,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) },
-            closeButtonAction: nil
+            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
         )
     }
 
