@@ -13,7 +13,7 @@ import enum BlockchainSdk.Blockchain
 
 enum WalletConnectSessionProposalMapper {
     static func mapRequiredBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
-        Self.mapDomainBlockchains(from: reownSessionProposal.requiredNamespaces)
+        mapDomainBlockchains(from: reownSessionProposal.requiredNamespaces)
     }
 
     static func mapOptionalBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
@@ -69,7 +69,7 @@ enum WalletConnectSessionProposalMapper {
         let optionalEvents = reownSessionProposal.optionalNamespaces?.values.reduce(into: Set<String>()) { result, namespace in
             result.formUnion(namespace.events)
         } ?? []
-        
+
         return Array(requiredEvents.union(optionalEvents))
     }
 

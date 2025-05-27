@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
@@ -17,14 +18,17 @@ struct WalletConnectNetworksSelectorViewState {
     var availableSection: AvailableSection
     var notAddedSection: NotAddedSection
 
-    let doneButtonTitle = Localization.commonDone
+    var doneButton: DoneButton
 }
 
 extension WalletConnectNetworksSelectorViewState {
-    struct BlockchainViewState {
+    struct BlockchainViewState: Identifiable {
+        let domainModel: Blockchain
+
+        let id: String
         let iconAsset: ImageType
-        let blockchainName: String
-        let blockchainCurrency: String
+        let name: String
+        let currencySymbol: String
     }
 }
 
@@ -47,13 +51,37 @@ extension WalletConnectNetworksSelectorViewState {
 
 extension WalletConnectNetworksSelectorViewState.AvailableSection {
     struct OptionalBlockchain {
-        let blockchain: BlockchainViewState
+        let blockchain: WalletConnectNetworksSelectorViewState.BlockchainViewState
         var isSelected: Bool
     }
 
-    enum AvailableBlockchain {
-        case required(BlockchainViewState)
+    enum AvailableBlockchain: Identifiable {
+        case required(WalletConnectNetworksSelectorViewState.BlockchainViewState)
         case optional(OptionalBlockchain)
+
+        var id: String {
+            blockchainViewState.id
+        }
+
+        var blockchainViewState: WalletConnectNetworksSelectorViewState.BlockchainViewState {
+            switch self {
+            case .required(let blockchainViewState):
+                blockchainViewState
+
+            case .optional(let optionalBlockchain):
+                optionalBlockchain.blockchain
+            }
+        }
+
+        var isReadOnly: Bool {
+            switch self {
+            case .required:
+                true
+
+            case .optional:
+                false
+            }
+        }
     }
 }
 
@@ -63,5 +91,12 @@ extension WalletConnectNetworksSelectorViewState {
     struct NotAddedSection {
         let headerTitle = "Not Added"
         var blockchains: [BlockchainViewState]
+    }
+}
+
+extension WalletConnectNetworksSelectorViewState {
+    struct DoneButton {
+        let title = Localization.commonDone
+        var isEnabled: Bool
     }
 }

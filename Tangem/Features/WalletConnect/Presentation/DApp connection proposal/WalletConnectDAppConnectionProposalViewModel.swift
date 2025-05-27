@@ -13,18 +13,8 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     private let userWallets: [any UserWalletModel]
 
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
-
-    private lazy var walletSelectorViewModel = WalletConnectWalletSelectorViewModel(
-        userWallets: userWallets,
-        selectedUserWallet: connectionRequestViewModel.selectedUserWallet,
-        backAction: { [weak self] in
-            self?.openConnectionRequest()
-        },
-        userWalletSelectedAction: { [weak self] selectedUserWallet in
-            self?.connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
-            self?.openConnectionRequest()
-        }
-    )
+    private lazy var walletSelectorViewModel: WalletConnectWalletSelectorViewModel = makeWalletSelectorViewModel()
+    private lazy var networksSelectorViewModel: WalletConnectNetworksSelectorViewModel = makeNetworksSelectorViewModel()
 
     private let dismissFlowAction: () -> Void
 
@@ -73,11 +63,13 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     }
 }
 
+// MARK: - WalletConnectDAppConnectionProposalRoutable
+
 extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnectionProposalRoutable {
     func openConnectionRequest() {
         state = .connectionRequest(connectionRequestViewModel)
     }
-    
+
     func openDomainVerification() {
         state = .verifiedDomain
     }
@@ -87,7 +79,11 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
     }
 
     func openNetworksSelector() {
-        state = .networkSelector
+        guard let blockchainsAvailabilityResult = connectionRequestViewModel.cachedBlockchainsAvailabilityResult else {
+            return
+        }
+        networksSelectorViewModel.update(with: blockchainsAvailabilityResult)
+        state = .networkSelector(networksSelectorViewModel)
     }
 
     func openErrorScreen(error: some Error) {
@@ -96,5 +92,35 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
 
     func dismiss() {
         dismissFlowAction()
+    }
+}
+
+// MARK: - Factory methods
+
+extension WalletConnectDAppConnectionProposalViewModel {
+    private func makeWalletSelectorViewModel() -> WalletConnectWalletSelectorViewModel {
+        WalletConnectWalletSelectorViewModel(
+            userWallets: userWallets,
+            selectedUserWallet: connectionRequestViewModel.selectedUserWallet,
+            backAction: { [weak self] in
+                self?.openConnectionRequest()
+            },
+            userWalletSelectedAction: { [weak self] selectedUserWallet in
+                self?.connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
+                self?.openConnectionRequest()
+            }
+        )
+    }
+
+    private func makeNetworksSelectorViewModel() -> WalletConnectNetworksSelectorViewModel {
+        WalletConnectNetworksSelectorViewModel(
+            backAction: { [weak self] in
+                self?.openConnectionRequest()
+            },
+            doneAction: { [weak self] selectedBlockchains in
+                self?.connectionRequestViewModel.updateSelectedBlockchains(selectedBlockchains)
+                self?.openConnectionRequest()
+            }
+        )
     }
 }
