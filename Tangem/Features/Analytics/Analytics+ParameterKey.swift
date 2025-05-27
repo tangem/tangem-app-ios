@@ -101,5 +101,10 @@ extension Analytics {
         case paymentMethod = "Payment Method"
 
         case watched = "Watched"
+
+        // MARK: - NFT
+
+        case nftCollectionsCount = "Collections"
+        case nftAssetsCount = "Nft"
     }
 }
