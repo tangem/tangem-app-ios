@@ -11,7 +11,7 @@ import Foundation
 struct SellFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -20,6 +20,8 @@ struct SellFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
+        let flowKind = SendModel.PredefinedValues.FlowKind.sell
+
         let notificationManager = builder.makeSendNotificationManager()
         let sendModel = builder.makeSendModel(predefinedSellParameters: sellParameters)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
@@ -48,7 +50,8 @@ struct SellFlowBaseBuilder {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
@@ -95,7 +98,7 @@ struct SellFlowBaseBuilder {
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
         stepsManager.set(output: viewModel)
