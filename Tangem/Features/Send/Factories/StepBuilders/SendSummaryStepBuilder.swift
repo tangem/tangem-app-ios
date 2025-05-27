@@ -25,7 +25,8 @@ struct SendSummaryStepBuilder {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = makeSendSummaryInteractor(
             io: io,
@@ -41,7 +42,8 @@ struct SendSummaryStepBuilder {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
 
         let step = SendSummaryStep(
@@ -67,7 +69,8 @@ private extension SendSummaryStepBuilder {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) -> SendSummaryViewModel {
         let settings = SendSummaryViewModel.Settings(
             tokenItem: walletModel.tokenItem,
@@ -83,7 +86,8 @@ private extension SendSummaryStepBuilder {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
     }
 
