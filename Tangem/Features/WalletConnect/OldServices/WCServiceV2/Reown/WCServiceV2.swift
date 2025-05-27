@@ -38,6 +38,10 @@ final class WCServiceV2 {
         errorsSubject.eraseToAnyPublisher()
     }
 
+    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
+        transactionRequestSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Private properties
 
     private var selectedWalletId: String?
@@ -54,14 +58,17 @@ final class WCServiceV2 {
     private let selectedNetworksToConnectSubject: CurrentValueSubject<[BlockchainNetwork], Never> = .init([])
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
     private let errorsSubject = PassthroughSubject<(error: WalletConnectV2Error, dAppName: String), Never>()
+    private let transactionRequestSubject = PassthroughSubject<WCHandleTransactionData, WalletConnectV2Error>()
     private var bag = Set<AnyCancellable>()
 
     private let utils = WCUtils()
     private let factory = WalletConnectV2DefaultSocketFactory()
-    private let wcHandlersService: WalletConnectV2HandlersServicing
+    private let wcHandlersService: WCHandlersService
 
-    init(wcHandlersService: WalletConnectV2HandlersServicing) {
+    init(wcHandlersService: WCHandlersService) {
         self.wcHandlersService = wcHandlersService
+        
+        guard FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
         Networking.configure(
             groupIdentifier: AppEnvironment.current.suiteName,
@@ -117,6 +124,7 @@ private extension WCServiceV2 {
         subscribeToSelectedWalletId()
         subscribeToSelectedNetwork()
         subscribeToWCPublishers()
+        setupMessagesSubscriptions()
     }
 
     func subscribeToWCPublishers() {
@@ -224,6 +232,40 @@ private extension WCServiceV2 {
                 }
                 wcService.selectedWalletId = updatedId
                 wcService.validateProposal(currentConnectionProposal, with: wcModelProvider)
+            }
+            .store(in: &bag)
+    }
+
+    func setupMessagesSubscriptions() {
+        WalletKit.instance.sessionRequestPublisher
+            .receiveOnMain()
+            .sink { [weak self] request, context in
+                guard let self else { return }
+
+                WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
+
+                Task {
+                    do {
+                        let validatedRequest = try await self.wcHandlersService.validate(request)
+                        let transactionDTO = try await self.wcHandlersService.makeHandleTransactionDTO(
+                            from: validatedRequest
+                        )
+
+                        self.transactionRequestSubject.send(
+                            .init(
+                                from: transactionDTO,
+                                validatedRequest: validatedRequest,
+                                respond: WalletKit.instance.respond
+                            )
+                        )
+                    } catch {
+                        try? await WalletKit.instance.respond(
+                            topic: request.topic,
+                            requestId: request.id,
+                            response: .error(.init(code: 0, message: error.localizedDescription))
+                        )
+                    }
+                }
             }
             .store(in: &bag)
     }
@@ -426,101 +468,6 @@ private extension WCServiceV2 {
                 WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
             }
             strongSelf.canEstablishNewSessionSubject.send(true)
-        }
-    }
-}
-
-// MARK: - Handlers
-
-private extension WCServiceV2 {
-    func handle(_ request: Request) async {
-        func respond(with error: WalletConnectV2Error, session: WalletConnectSavedSession?) async {
-            WCLogger.error(error: error)
-
-//            logSignatureRequestEvent(
-//                .walletConnectSignatureRequestFailed,
-//                request: request,
-//                session: session,
-//                error: error
-//            )
-
-            try? await WalletKit.instance.respond(
-                topic: request.topic,
-                requestId: request.id,
-                response: .error(.init(code: 0, message: error.localizedDescription))
-            )
-        }
-
-        let session = await sessionsStorage.session(with: request.topic)
-
-//        logSignatureRequestEvent(
-//            .walletConnectSignatureRequestReceived,
-//            request: request,
-//            session: session,
-//            error: nil
-//        )
-
-        let logSuffix = " for request: \(request.id)"
-        let utils = OldWalletConnectV2Utils()
-
-        guard let session else {
-            WCLogger.warning("Failed to find session in storage \(logSuffix)")
-            await respond(with: .wrongCardSelected, session: nil)
-            return
-        }
-
-        guard let targetBlockchain = utils.createBlockchain(for: request.chainId) else {
-            WCLogger.warning("Failed to create blockchain \(logSuffix)")
-            await respond(with: .missingBlockchains([request.chainId.absoluteString]), session: session)
-            return
-        }
-
-        if userWalletRepository.models.isEmpty {
-            WCLogger.warning("User wallet repository is locked")
-            await respond(with: .userWalletRepositoryIsLocked, session: session)
-            return
-        }
-
-        guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId }) else {
-            WCLogger.warning("Failed to find target user wallet")
-            await respond(with: .missingActiveUserWalletModel, session: session)
-            return
-        }
-
-        if userWallet.isUserWalletLocked {
-            WCLogger.warning("Attempt to handle message with locked user wallet")
-            await respond(with: .userWalletIsLocked, session: session)
-            return
-        }
-
-        do {
-            let result = try await wcHandlersService.handle(
-                request,
-                from: session.sessionInfo.dAppInfo,
-                blockchainId: targetBlockchain.id,
-                signer: userWallet.signer,
-                walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager)
-            )
-
-            WCLogger.info("Receive result from user \(result) for \(logSuffix)")
-            try await WalletKit.instance.respond(topic: session.topic, requestId: request.id, response: result)
-
-//            logSignatureRequestEvent(
-//                .walletConnectSignatureRequestHandled,
-//                request: request,
-//                session: session,
-//                error: nil
-//            )
-
-        } catch let error as WalletConnectV2Error {
-            if case .unsupportedWCMethod = error {} else {
-                errorsSubject.send((error, session.sessionInfo.dAppInfo.name))
-            }
-            await respond(with: error, session: session)
-        } catch {
-            let wcError = WalletConnectV2Error.unknown(error.localizedDescription)
-            errorsSubject.send((wcError, session.sessionInfo.dAppInfo.name))
-            await respond(with: wcError, session: session)
         }
     }
 }
