@@ -114,7 +114,7 @@ final class AuthViewModel: ObservableObject {
                 return
             }
 
-            Analytics.tryLogCardVerificationError(error, source: .signIn)
+            Analytics.logScanError(error, source: .signIn)
             Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
             self.error = error.alertBinder
         case .success(let model), .partial(let model, _):
