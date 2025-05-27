@@ -536,19 +536,6 @@ extension WCServiceV2 {
         let session = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
         print(session)
     }
-
-    private func subscribeToWalletKit() {
-        WalletKit.instance.sessionProposalPublisher
-            .sink { [weak self] sessionProposal, _ in
-                Task {
-                    await self?.sessionProposalContinuationStorage.resume(
-                        proposal: sessionProposal,
-                        for: sessionProposal.pairingTopic
-                    )
-                }
-            }
-            .store(in: &bag)
-    }
 }
 
 // MARK: - Unsupported dApps
