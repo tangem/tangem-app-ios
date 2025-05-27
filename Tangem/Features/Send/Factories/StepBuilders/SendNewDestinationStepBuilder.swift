@@ -95,7 +95,8 @@ private extension SendNewDestinationStepBuilder {
             transactionHistoryMapper: builder.makeTransactionHistoryMapper(),
             addressResolver: addressResolver,
             additionalFieldType: .type(for: tokenItem.blockchain),
-            parametersBuilder: builder.makeSendTransactionParametersBuilder()
+            parametersBuilder: builder.makeSendTransactionParametersBuilder(),
+            analyticsLogger: builder.makeDestinationAnalyticsLogger()
         )
     }
 

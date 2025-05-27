@@ -111,7 +111,8 @@ public struct NFTNetworkSelectionListView: View {
                 userWalletName: "Test Wallet",
                 dataSource: NFTNetworkSelectionListDataSourceMock(),
                 tokenIconInfoProvider: NFTTokenIconInfoProviderMock(),
-                nftChainNameProvider: NFTChainNameProviderMock(),
+                nftChainNameProviding: NFTChainNameProviderMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
