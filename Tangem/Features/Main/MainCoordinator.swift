@@ -573,7 +573,12 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
-                navigationContext: navigationContext
+                navigationContext: navigationContext,
+                blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
+                    logBlockchainChosen: { blockchain in
+                        Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])
+                    }
+                )
             )
         )
     }

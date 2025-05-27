@@ -20,6 +20,8 @@ struct UnstakingFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, action: UnstakingModel.Action, router: SendRoutable) -> SendViewModel {
+        let flowKind = SendModel.PredefinedValues.FlowKind.staking
+
         let unstakingModel = builder.makeUnstakingModel(stakingManager: manager, action: action)
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
@@ -43,7 +45,7 @@ struct UnstakingFlowBaseBuilder {
                 stakedAmount: action.amount
             ),
             amountModifier: builder.makeStakingAmountModifier(actionType: actionType),
-            source: .staking
+            flowKind: flowKind
         )
 
         amount.interactor.externalUpdate(amount: action.amount)
@@ -63,7 +65,8 @@ struct UnstakingFlowBaseBuilder {
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: .none,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
