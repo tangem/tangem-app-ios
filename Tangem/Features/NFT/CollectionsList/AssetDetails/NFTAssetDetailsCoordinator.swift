@@ -50,7 +50,21 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating
     func start(with options: Options) {
         let dependencies = NFTAssetDetailsDependencies(
             nftChainNameProvider: options.nftChainNameProvider,
-            priceFormatter: options.priceFormatter
+            priceFormatter: options.priceFormatter,
+            analytics: NFTAnalytics.Details(
+                logReadMoreTapped: {
+                    Analytics.log(.nftAssetReadMore)
+                },
+                logSeeAllTapped: {
+                    Analytics.log(.nftAssetSeeAll)
+                },
+                logExploreTapped: {
+                    Analytics.log(.nftAssetExplore)
+                },
+                logSendTapped: {
+                    Analytics.log(.nftAssetSend)
+                }
+            )
         )
         rootViewModel = NFTAssetDetailsViewModel(
             asset: options.asset,

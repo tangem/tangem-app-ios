@@ -11,7 +11,7 @@ import Testing
 @testable import TangemNFT
 
 @Suite("NFTCachedModels.V1.Collection")
-struct NFTStorableCollectionModelsTests {
+struct NFTCachedModelsCollectionTests {
     // MARK: - Tests
 
     @Test("Collection serialization and deserialization for all chains")
