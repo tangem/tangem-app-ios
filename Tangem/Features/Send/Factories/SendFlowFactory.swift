@@ -31,7 +31,7 @@ struct SendFlowFactory {
         let baseBuilder = SendFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
@@ -59,7 +59,7 @@ struct SendFlowFactory {
         let baseBuilder = NFTSendFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
@@ -87,7 +87,7 @@ struct SendFlowFactory {
         let baseBuilder = NewSendFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
@@ -110,7 +110,7 @@ struct SendFlowFactory {
         let baseBuilder = SellFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
