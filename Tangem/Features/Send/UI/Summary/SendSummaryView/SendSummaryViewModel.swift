@@ -65,6 +65,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     private let interactor: SendSummaryInteractor
     private let notificationManager: NotificationManager
     private let actionType: SendFlowActionType
+    private let flowKind: SendModel.PredefinedValues.FlowKind
     weak var router: SendSummaryStepsRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -76,7 +77,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         destinationEditableType = settings.destinationEditableType
         amountEditableType = settings.amountEditableType
@@ -89,6 +91,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
+        self.flowKind = flowKind
 
         bind()
     }
@@ -100,15 +103,26 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         feeVisible = true
         transactionDescriptionIsVisible = true
 
-        if actionType == .send {
-            Analytics.log(.sendConfirmScreenOpened)
-        } else {
+        switch flowKind {
+        case .send:
+            switch tokenItem.token?.metadata.kind {
+            case .fungible, .none:
+                Analytics.log(.sendConfirmScreenOpened)
+            case .nonFungible:
+                Analytics.log(
+                    event: .nftConfirmScreenOpened,
+                    params: [.blockchain: tokenItem.blockchain.displayName]
+                )
+            }
+
+        case .sell, .staking:
             Analytics.log(
                 event: .stakingConfirmationScreenOpened,
                 params: [
                     .validator: stakingValidatorsCompactViewModel?.selectedValidator?.address ?? "",
                     .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
                     .token: tokenItem.currencySymbol,
+                    .blockchain: tokenItem.blockchain.displayName,
                 ]
             )
         }
