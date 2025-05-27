@@ -20,7 +20,7 @@ import TangemNFT
 import TangemUI
 
 final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<NFTAsset?>
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -40,7 +40,7 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating
     @Published var extendedInfoViewData: NFTAssetExtendedInfoViewData?
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<NFTAsset?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -68,6 +68,23 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating
     func closeInfo() {
         extendedInfoViewData = nil
     }
+
+    private func makeSendCoordinatorDismissActionInternal(for asset: NFTAsset) -> Action<SendCoordinator.DismissOptions?> {
+        // Original action from `FeeCurrencyNavigating.makeSendCoordinatorDismissAction()`
+        let originalAction = makeSendCoordinatorDismissAction()
+
+        return { [weak self] dismissOptions in
+            originalAction(dismissOptions)
+
+            switch dismissOptions {
+            case .closeButtonTap:
+                self?.dismiss(with: asset)
+            default:
+                // No programmatic dismiss for other options
+                break
+            }
+        }
+    }
 }
 
 // MARK: - Options
@@ -94,7 +111,10 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
             return
         }
 
-        let coordinator = makeSendCoordinator()
+        let coordinator = SendCoordinator(
+            dismissAction: makeSendCoordinatorDismissActionInternal(for: asset),
+            popToRootAction: makeSendCoordinatorPopToRootAction()
+        )
         let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
         let options = nftSendUtil.makeOptions(for: asset, in: collection)
         coordinator.start(with: options)
