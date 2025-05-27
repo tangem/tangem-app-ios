@@ -85,15 +85,18 @@ class Analytics {
             let clientType: ParameterValue = newClient ? .new : .old
             params[.clientType] = clientType.rawValue
         }
+
         Analytics.log(event: event, params: params)
     }
 
-    static func tryLogCardVerificationError(_ error: Error, source: Analytics.CardVerificationErrorSource) {
-        guard case .cardVerificationFailed = error.toTangemSdkError() else {
-            return
-        }
+    static func logScanError(_ error: Error, source: Analytics.ScanErrorsSource) {
+        let error = error.toTangemSdkError()
 
-        Analytics.log(.errorOfflineAttestationFailed, params: [.source: source.parameterValue])
+        Analytics.log(event: .scanErrors, params: [
+            .errorCode: "\(error.code)",
+            .errorMessage: error.localizedDescription,
+            .source: source.parameterValue.rawValue,
+        ])
     }
 
     // MARK: - Common
