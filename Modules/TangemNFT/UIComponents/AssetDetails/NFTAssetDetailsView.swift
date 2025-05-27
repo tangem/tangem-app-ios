@@ -153,7 +153,8 @@ private extension NFTAssetDetailsView {
                 navigationContext: NFTNavigationContextMock(),
                 dependencies: NFTAssetDetailsDependencies(
                     nftChainNameProvider: NFTChainNameProviderMock(),
-                    priceFormatter: NFTPriceFormatterMock()
+                    priceFormatter: NFTPriceFormatterMock(),
+                    analytics: .empty,
                 ),
                 coordinator: nil
             )
