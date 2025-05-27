@@ -42,12 +42,17 @@ class BitcoinTransactionBuilder {
 
     func buildForSign(transaction: Transaction) async throws -> [Data] {
         let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let hasExtendedKey = preImage.inputs.contains { $0.script.spendable?.isExtendedPublicKey ?? false }
+
         let hashes: [Data] = try {
             switch builderType {
-            case .walletCore(let coinType):
+            // The WalletCore build supported only compressed publicKey
+            // Make WalletCore support extended publicKey
+            // [REDACTED_TODO_COMMENT]
+            case .walletCore(let coinType) where !hasExtendedKey:
                 let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
                 return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
-            case .custom:
+            case .custom, .walletCore:
                 let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
                 return try builderType.preImageHashes(transaction: preImage)
             }
@@ -59,12 +64,17 @@ class BitcoinTransactionBuilder {
     func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
         let signatures = try map(signatures: signatures)
         let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let hasExtendedKey = preImage.inputs.contains { $0.script.spendable?.isExtendedPublicKey ?? false }
+
         let encoded: Data = try {
             switch builderType {
-            case .walletCore(let coinType):
+            // The WalletCore build supported only compressed publicKey
+            // Make WalletCore support extended publicKey
+            // [REDACTED_TODO_COMMENT]
+            case .walletCore(let coinType) where !hasExtendedKey:
                 let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
                 return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
-            case .custom:
+            case .custom, .walletCore:
                 let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
                 return try builderType.compile(transaction: preImage, signatures: signatures)
             }
