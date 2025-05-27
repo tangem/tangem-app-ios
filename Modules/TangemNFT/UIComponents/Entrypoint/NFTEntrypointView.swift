@@ -34,6 +34,7 @@ public struct NFTEntrypointView: View {
             .cornerRadius(Constants.cornerRadius, corners: .allCorners)
         }
         .buttonStyle(.defaultScaled)
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
