@@ -82,6 +82,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     private let navigationContext: NFTNavigationContext
     private let nftChainNameProvider: NFTChainNameProviding
     private let priceFormatter: NFTPriceFormatting
+    private let analytics: NFTAnalytics.Details
 
     @Published private var fiatPrice: LoadingValue<String> = .loading
     private var didAppear = false
@@ -100,6 +101,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         self.navigationContext = navigationContext
         nftChainNameProvider = dependencies.nftChainNameProvider
         priceFormatter = dependencies.priceFormatter
+        analytics = dependencies.analytics
         self.coordinator = coordinator
     }
 
@@ -115,7 +117,10 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
     func onSendButtonTap() {
         coordinator?.openSend(for: asset, in: collection, navigationContext: navigationContext)
+        analytics.logSendTapped()
     }
+
+    // MARK: Private implementation
 
     private func makeDescription() -> NFTDetailsHeaderState.DescriptionConfig? {
         guard let description = asset.description?.nilIfEmpty else {
@@ -275,13 +280,17 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         )
     }
 
+    // MARK: Actions
+
     private func openAllTraits() {
         let traitsKeyValuePairs = makeTraits(from: asset.traits)
         coordinator?.openTraits(with: KeyValuePanelViewData(header: nil, keyValues: traitsKeyValuePairs))
+        analytics.logSeeAllTapped()
     }
 
     private func explore() {
         coordinator?.openExplorer(for: asset)
+        analytics.logExploreTapped()
     }
 
     private func openDescription() {
@@ -293,6 +302,8 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
                 text: description
             )
         )
+
+        analytics.logReadMoreTapped()
     }
 
     private func openAssetExtendedInfo(title: String, text: String) {
