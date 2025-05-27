@@ -197,7 +197,12 @@ private extension WCConnectionSheetViewModel {
     }
 
     func updateSelectedNetworks(_ selectedNetworks: [BlockchainNetwork]) {
-        returnToConnectionDetails()
+        if selectedNetworks.isNotEmpty, presentationState == .noRequiredChains {
+            presentationState = .connectionDetails
+        } else {
+            returnToConnectionDetails()
+        }
+
         wcService.updateSelectedNetworks(selectedNetworks)
     }
 

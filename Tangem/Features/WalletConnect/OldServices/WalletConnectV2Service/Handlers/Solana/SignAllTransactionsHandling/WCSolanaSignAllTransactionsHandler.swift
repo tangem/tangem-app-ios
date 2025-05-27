@@ -48,6 +48,12 @@ final class WCSolanaSignAllTransactionsHandler {
 }
 
 extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .solanaSignAllTransactions }
+
+    var requestData: Data {
+        Data()
+    }
+
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
