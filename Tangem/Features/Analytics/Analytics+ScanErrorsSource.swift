@@ -1,5 +1,5 @@
 //
-//  Analytics+CardVerificationErrorSource.swift
+//  Analytics+ScanErrorsSource.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,11 +7,15 @@
 //
 
 extension Analytics {
-    enum CardVerificationErrorSource {
+    enum ScanErrorsSource {
         case signIn
         case backup
         case onboarding
         case settings
+        case main
+        case deviceSettings
+        case introduction
+        case sign
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
@@ -23,6 +27,14 @@ extension Analytics {
                 return .onboarding
             case .settings:
                 return .settings
+            case .introduction:
+                return .introduction
+            case .main:
+                return .main
+            case .deviceSettings:
+                return .deviceSettings
+            case .sign:
+                return .sign
             }
         }
     }
