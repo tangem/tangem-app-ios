@@ -44,7 +44,16 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
         let dependencies = NFTCollectionsListDependencies(
             nftChainIconProvider: options.nftChainIconProvider,
-            priceFormatter: options.priceFormatter
+            nftChainNameProviding: options.nftChainNameProvider,
+            priceFormatter: options.priceFormatter,
+            analytics: NFTAnalytics.Collections(
+                logReceiveOpen: {
+                    Analytics.log(.nftAssetReceiveOpened)
+                },
+                logDetailsOpen: { blockchain in
+                    Analytics.log(event: .nftAssetDetailsOpened, params: [.blockchain: blockchain])
+                }
+            )
         )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
@@ -65,6 +74,7 @@ extension NFTCollectionsCoordinator {
         let nftChainNameProvider: NFTChainNameProviding
         let priceFormatter: NFTPriceFormatting
         let navigationContext: NFTNavigationContext
+        let blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection
     }
 }
 
@@ -89,7 +99,13 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             }
         )
 
-        coordinator.start(with: .init(input: input, nftChainNameProvider: options.nftChainNameProvider))
+        coordinator.start(
+            with: .init(
+                input: input,
+                nftChainNameProviding: options.nftChainNameProvider,
+                analytics: options.blockchainSelectionAnalytics
+            )
+        )
         receiveCoordinator = coordinator
     }
 
@@ -116,7 +132,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
                 collection: collection,
                 nftChainNameProvider: options.nftChainNameProvider,
                 priceFormatter: options.priceFormatter,
-                navigationContext: navigationContext,
+                navigationContext: navigationContext
             )
         )
         assetDetailsCoordinator = coordinator

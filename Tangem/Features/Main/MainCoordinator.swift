@@ -24,6 +24,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -572,8 +573,29 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
-                navigationContext: navigationContext
+                navigationContext: navigationContext,
+                blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
+                    logBlockchainChosen: { blockchain in
+                        Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])
+                    }
+                )
             )
         )
+    }
+}
+
+// MARK: - WCTransactionRoutable
+
+extension MainCoordinator: WCTransactionRoutable {
+    func showWCTransactionRequest(with data: WCHandleTransactionData) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: WCTransactionViewModel(dappInfo: data.dappInfo, transactionData: data)
+            )
+        }
+    }
+
+    func showWCTransactionRequest(with error: Error) {
+        // make error view model
     }
 }
