@@ -42,7 +42,7 @@ extension WalletConnectDAppDescriptionViewModel {
             self.iconURL = iconURL
             self.name = name
             self.domain = domain?.host ?? ""
-            self.verifiedDomainIconAsset = domainIsVerified == true
+            verifiedDomainIconAsset = domainIsVerified == true
                 ? Assets.Glyphs.verified
                 : nil
         }
