@@ -140,6 +140,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
+"common_got_it" = "Got it";
 "common_hide" = "Скрыть";
 "common_hour" = "час";
 "common_import" = "Импортировать";
@@ -187,7 +188,7 @@
 "common_share_link" = "Поделиться ссылкой";
 "common_share" = "Поделиться";
 "common_show_less" = "Show less";
-"common_show_more" = "Показать больше";
+"common_show_more" = "Подробнее";
 "common_sign_and_send" = "Подписать и отправить";
 "common_sign" = "Подписать";
 "common_stake" = "Застейкать";
@@ -196,6 +197,7 @@
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
 "common_support" = "Поддержка";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "Обменять";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "условия участия";
