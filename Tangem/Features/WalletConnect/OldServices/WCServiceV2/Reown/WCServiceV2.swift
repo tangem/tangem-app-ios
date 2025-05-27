@@ -67,7 +67,7 @@ final class WCServiceV2 {
 
     init(wcHandlersService: WCHandlersService) {
         self.wcHandlersService = wcHandlersService
-        
+
         guard FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
         Networking.configure(
