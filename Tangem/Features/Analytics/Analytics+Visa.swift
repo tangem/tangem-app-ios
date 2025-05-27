@@ -11,7 +11,7 @@ import TangemSdk
 import TangemVisa
 
 extension Analytics {
-    static func logVisaCardScanErrorIfNeeded(_ error: Error, source: Analytics.CardVerificationErrorSource) {
+    static func logVisaCardScanErrorIfNeeded(_ error: Error, source: Analytics.ScanErrorsSource) {
         let visaError: VisaError
         if let baseVisaError = error as? VisaError {
             visaError = baseVisaError
