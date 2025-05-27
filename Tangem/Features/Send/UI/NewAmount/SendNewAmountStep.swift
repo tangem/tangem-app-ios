@@ -15,18 +15,18 @@ class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendAmountInteractor
     private let sendFeeLoader: SendFeeLoader
-    private let source: SendModel.PredefinedValues.Source
+    private let flowKind: SendModel.PredefinedValues.FlowKind
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendAmountInteractor,
         sendFeeLoader: SendFeeLoader,
-        source: SendModel.PredefinedValues.Source
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.sendFeeLoader = sendFeeLoader
-        self.source = source
+        self.flowKind = flowKind
     }
 }
 
@@ -44,13 +44,14 @@ extension SendNewAmountStep: SendStep {
     }
 
     func initialAppear() {
-        if case .staking = source {
+        if case .staking = flowKind {
             Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     func willAppear(previous step: any SendStep) {
-        switch (source, step.type.isSummary) {
+        switch (flowKind, step.type.isSummary) {
         case (.staking, false):
             // Event has been sent in `initialAppear()`
             break

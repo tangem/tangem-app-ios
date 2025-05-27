@@ -11,7 +11,7 @@ import Foundation
 struct NewSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -20,6 +20,8 @@ struct NewSendFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
+        let flowKind = SendModel.PredefinedValues.FlowKind.send
+
         let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
         let sendModel = builder.makeSendModel()
@@ -37,7 +39,7 @@ struct NewSendFlowBaseBuilder {
             sendFeeLoader: fee.interactor,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
-            source: .send
+            flowKind: flowKind
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
@@ -57,7 +59,8 @@ struct NewSendFlowBaseBuilder {
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
@@ -104,7 +107,7 @@ struct NewSendFlowBaseBuilder {
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
 
