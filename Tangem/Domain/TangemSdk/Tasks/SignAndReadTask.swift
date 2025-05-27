@@ -49,11 +49,11 @@ class SignAndReadTask: CardSessionRunnable {
     }
 
     private func sign(in session: CardSession, key: Data, hdKey: HDKey?, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
-        let publicKey = hdKey?.blockchainKey ?? seedKey
         signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: key, derivationPath: hdKey?.derivationPath)
         signCommand!.run(in: session) { signResult in
             switch signResult {
             case .success(let signResponse):
+                let publicKey = hdKey?.blockchainKey ?? key
                 completion(.success(SignAndReadTaskResponse(publicKey: publicKey, signatures: signResponse.signatures, card: session.environment.card!)))
             case .failure(let error):
                 completion(.failure(error))
