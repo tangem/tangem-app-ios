@@ -66,12 +66,12 @@ extension ScanCardSettingsViewModel {
 
             switch result {
             case .failure(let error):
-                guard !error.isUserCancelled else {
+                if error.isUserCancelled {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .settings)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
+                Analytics.logScanError(error, source: .deviceSettings)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .deviceSettings)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
