@@ -59,7 +59,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         let signedHash = try await signer.sign(data: unsignedHash, using: walletModel)
 
         return .response(
-            AnyCodable(WalletConnectSolanaSignTransactionDTO.Body(signature: signedHash.base58EncodedString.lowercased()))
+            AnyCodable(WalletConnectSolanaSignTransactionDTO.Body(signature: signedHash.base58EncodedString))
         )
     }
 }
