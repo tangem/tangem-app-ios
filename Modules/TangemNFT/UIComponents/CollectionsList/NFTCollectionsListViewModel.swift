@@ -33,9 +33,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Properties
 
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
-    private var bag = Set<AnyCancellable>()
+    private var bag: Set<AnyCancellable> = []
     private weak var coordinator: NFTCollectionsListRoutable?
     private var pullToRefreshCompletion: (() -> Void)?
+    private var didAppear = false
 
     public init(
         nftManager: NFTManager,
@@ -50,8 +51,16 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         self.assetSendPublisher = assetSendPublisher
         self.navigationContext = navigationContext
         state = .loading
+    }
 
+    func onViewAppear() {
+        if didAppear {
+            return
+        }
+
+        didAppear = true
         bind()
+        updateInternal()
     }
 
     func onReceiveButtonTap() {
@@ -61,6 +70,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     func update(completion: (() -> Void)? = nil) {
         pullToRefreshCompletion = completion
         guard !state.isLoading else { return }
+        updateInternal()
+    }
+
+    private func updateInternal() {
         nftManager.update(cachePolicy: .never)
     }
 
@@ -253,7 +266,7 @@ private extension NFTCollectionsListViewModel {
 // MARK: - Constants
 
 private extension NFTCollectionsListViewModel {
-    struct Constants {
+    enum Constants {
         /// Delay (in seconds) before updating the list of NFT collections after sending an NFT asset.
         static let assetSendUpdateDelay: DispatchQueue.SchedulerTimeType.Stride = 1.0
     }
