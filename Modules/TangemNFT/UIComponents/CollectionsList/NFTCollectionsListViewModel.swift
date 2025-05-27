@@ -28,6 +28,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private let nftManager: NFTManager
     private let navigationContext: NFTNavigationContext
     private let dependencies: NFTCollectionsListDependencies
+    private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
 
     // MARK: Properties
 
@@ -41,11 +42,13 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         nftManager: NFTManager,
         navigationContext: NFTNavigationContext,
         dependencies: NFTCollectionsListDependencies,
+        assetSendPublisher: AnyPublisher<NFTAsset, Never>,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
         self.coordinator = coordinator
         self.dependencies = dependencies
+        self.assetSendPublisher = assetSendPublisher
         self.navigationContext = navigationContext
         state = .loading
     }
@@ -105,6 +108,14 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .dropFirst()
             .sink { viewModel, entry in
                 viewModel.filterAndAssignCollections(for: entry)
+            }
+            .store(in: &bag)
+
+        assetSendPublisher
+            .delay(for: Constants.assetSendUpdateDelay, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.update()
             }
             .store(in: &bag)
     }
@@ -249,5 +260,14 @@ private extension NFTCollectionsListViewModel {
     struct ManagerStateMappingResult {
         let viewState: ViewState
         let notificationViewData: NFTNotificationViewData?
+    }
+}
+
+// MARK: - Constants
+
+private extension NFTCollectionsListViewModel {
+    struct Constants {
+        /// Delay (in seconds) before updating the list of NFT collections after sending an NFT asset.
+        static let assetSendUpdateDelay: DispatchQueue.SchedulerTimeType.Stride = 1.0
     }
 }

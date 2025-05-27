@@ -19,7 +19,7 @@ struct NFTAssetDetailsCoordinatorView: View {
             if let rootViewModel = coordinator.rootViewModel {
                 NavigationView {
                     NFTAssetDetailsView(viewModel: rootViewModel)
-                        .withCloseButton(action: coordinator.dismiss)
+                        .withCloseButton { coordinator.dismiss(with: nil) }
                         .navigationLinks(links)
                 }
             }
