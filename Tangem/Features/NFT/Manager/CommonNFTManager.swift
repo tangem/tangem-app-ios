@@ -14,6 +14,7 @@ import TangemNFT
 
 final class CommonNFTManager: NFTManager {
     private(set) var collections: [NFTCollection] = []
+    private let analytics: NFTAnalytics.Error
 
     var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
         return collectionsPublisherRemote
@@ -177,20 +178,25 @@ final class CommonNFTManager: NFTManager {
     private let walletModelsManager: WalletModelsManager
     private let cache: NFTCache
     private let cacheDelegate: NFTCacheDelegate
-    private let updater = Updater()
-
+    private let updater: Updater
     private var bag: Set<AnyCancellable> = []
 
     init(
         userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        analytics: NFTAnalytics.Error
     ) {
         self.walletModelsManager = walletModelsManager
+        self.analytics = analytics
+
         let cache = NFTCache(userWalletId: userWalletId)
         let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
         cache.delegate = cacheDelegate
         self.cache = cache
         self.cacheDelegate = cacheDelegate
+
+        updater = Updater(analytics: analytics)
+
         bind()
     }
 
@@ -239,10 +245,10 @@ final class CommonNFTManager: NFTManager {
             return collection.enriched(with: assets.value)
         }
 
-        let assetsHadErrors = assetsCache.values.contains(where: { $0.hasErrors })
+        let assetsErrors = assetsCache.values.flatMap(\.errors)
         return NFTPartialResult(
             value: enrichedCollections,
-            hasErrors: collections.hasErrors || assetsHadErrors
+            errors: collections.errors + assetsErrors
         )
     }
 
@@ -272,7 +278,7 @@ final class CommonNFTManager: NFTManager {
                 updatedAssets.append(asset)
             }
 
-            return NFTPartialResult(value: updatedAssets, hasErrors: assets.hasErrors)
+            return NFTPartialResult(value: updatedAssets, errors: assets.errors)
         }
     }
 }
@@ -289,6 +295,11 @@ private extension CommonNFTManager {
         }
 
         private var updateTasks: [WalletModelId: UpdateTask] = [:]
+        private let analytics: NFTAnalytics.Error
+
+        init(analytics: NFTAnalytics.Error) {
+            self.analytics = analytics
+        }
 
         nonisolated func update(
             networkServices: [(any WalletModel, NFTNetworkService)],
@@ -310,17 +321,31 @@ private extension CommonNFTManager {
 
                 // Can't use `group.reduce` here due to https://forums.swift.org/t/60271
                 var mergedCollections: [NFTCollection] = []
-                var mergedHadErrors = false
+                var mergedErrors: [NFTErrorDescriptor] = []
 
                 for try await result in group {
                     mergedCollections += result.value
-                    mergedHadErrors = mergedHadErrors || result.hasErrors
+                    mergedErrors += result.errors
                 }
+
+                logErrors(mergedErrors)
 
                 return NFTPartialResult(
                     value: mergedCollections,
-                    hasErrors: mergedHadErrors
+                    errors: mergedErrors
                 )
+            }
+        }
+
+        nonisolated func logErrors(_ errors: [NFTErrorDescriptor]) {
+            _Concurrency.Task.detached {
+                await withTaskGroup(of: Void.self) { group in
+                    for error in errors {
+                        group.addTask {
+                            await self.analytics.logError("\(error.code)", error.description)
+                        }
+                    }
+                }
             }
         }
 
@@ -350,6 +375,7 @@ private extension CommonNFTManager {
                 return value
             } catch {
                 updateTasks[walletModelId] = nil
+                analytics.logError("\(error.universalErrorCode)", error.localizedDescription)
                 throw error
             }
         }
