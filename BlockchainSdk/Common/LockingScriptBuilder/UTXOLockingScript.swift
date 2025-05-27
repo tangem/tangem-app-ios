@@ -32,5 +32,12 @@ public extension UTXOLockingScript {
             case .redeemScript(let data): data
             }
         }
+
+        var isExtendedPublicKey: Bool {
+            switch self {
+            case .publicKey(let data): data.count == 65
+            case .redeemScript(let data): false
+            }
+        }
     }
 }
