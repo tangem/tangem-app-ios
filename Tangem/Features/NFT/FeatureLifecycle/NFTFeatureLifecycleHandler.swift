@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemNFT
 
 protocol NFTFeatureLifecycleHandling {
     var walletsWithNFTEnabledPublisher: AnyPublisher<Set<UserWalletId>, Never> { get }
@@ -56,12 +57,22 @@ final class NFTFeatureLifecycleHandler: NFTFeatureLifecycleHandling {
         switch event {
         case .deleted(let userWalletIds):
             for userWalletId in userWalletIds {
-                nftAvailabilityProvider.setNFTEnabled(false, forUserWalletWithId: userWalletId)
+                clearNFTCache(forUserWalletWithId: userWalletId)
+                disableNFTAvailability(forUserWalletWithId: userWalletId)
             }
         default:
             break
         }
 
         userWallets = userWalletRepository.models
+    }
+
+    private func clearNFTCache(forUserWalletWithId userWalletId: UserWalletId) {
+        let cache = NFTCache(userWalletId: userWalletId)
+        cache.clear()
+    }
+
+    private func disableNFTAvailability(forUserWalletWithId userWalletId: UserWalletId) {
+        nftAvailabilityProvider.setNFTEnabled(false, forUserWalletWithId: userWalletId)
     }
 }

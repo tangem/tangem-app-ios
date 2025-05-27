@@ -22,6 +22,8 @@ public final class NFTEntrypointViewModel: ObservableObject {
     private let nftManager: NFTManager
     private let navigationContext: NFTNavigationContext
     private var bag: Set<AnyCancellable> = []
+    private var didAppear = false
+
     private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
@@ -33,9 +35,6 @@ public final class NFTEntrypointViewModel: ObservableObject {
         self.navigationContext = navigationContext
         self.coordinator = coordinator
         state = .noCollections
-
-        nftManager.update(cachePolicy: .always)
-        bind()
     }
 
     var title: String {
@@ -47,7 +46,16 @@ public final class NFTEntrypointViewModel: ObservableObject {
         return Localization.nftWalletCount(totalNFTs, collections.count)
     }
 
-    @MainActor
+    func onViewAppear() {
+        if didAppear {
+            return
+        }
+
+        didAppear = true
+        bind()
+        updateInternal()
+    }
+
     func openCollections() {
         coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
     }
@@ -62,6 +70,10 @@ public final class NFTEntrypointViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: \.state, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func updateInternal() {
+        nftManager.update(cachePolicy: .always)
     }
 
     private func makeCollectionsViewState(from collections: [NFTCollection]) -> CollectionsViewState {
