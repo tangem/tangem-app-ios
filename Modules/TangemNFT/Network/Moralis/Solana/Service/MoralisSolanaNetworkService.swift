@@ -58,7 +58,7 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
             return mapper.map(collection: assets.first?.collection, assets: assets, ownerAddress: address)
         }
 
-        return NFTPartialResult(value: collections, hasErrors: false)
+        return NFTPartialResult(value: collections, errors: [])
     }
 
     public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
@@ -73,7 +73,7 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
             loadedResponse.value.flatMap(\.assets)
         }
 
-        return NFTPartialResult(value: assets, hasErrors: false)
+        return NFTPartialResult(value: assets, errors: [])
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
