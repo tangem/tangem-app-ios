@@ -16,7 +16,8 @@ import TangemVisa
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.wcService) private var walletConnectService: WCService
+    @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.walletConnectService) private var walletConnectService: any OldWalletConnectService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -324,7 +325,11 @@ class CommonUserWalletRepository: UserWalletRepository {
             AppSettings.shared.startWalletUsageDate = nil
         }
 
-        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        } else {
+            walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        }
 
         sendEvent(.deleted(userWalletIds: [userWalletId]))
 
@@ -364,7 +369,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
         tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
 
-        walletConnectService.initialize()
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        } else {
+            walletConnectService.initialize(with: userWalletModel)
+        }
     }
 
     /// we can initialize it right after scan for more accurate analytics
