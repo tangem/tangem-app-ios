@@ -11,6 +11,7 @@ import struct ReownWalletKit.Session
 
 protocol WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
+    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
     var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> { get }
 
