@@ -13,14 +13,10 @@ struct WalletConnectDAppBlockchainsAvailabilityResult {
     let availableBlockchains: [AvailableBlockchain]
     let notAddedBlockchains: [Blockchain]
 
-    func retrieveSelectedBlockchains() -> Set<Blockchain> {
-        var selectedBlockchains = Set<Blockchain>()
-
-        for availableBlockchain in availableBlockchains where availableBlockchain.isSelected {
-            selectedBlockchains.insert(availableBlockchain.blockchain)
-        }
-
-        return selectedBlockchains
+    func retrieveSelectedBlockchains() -> [Blockchain] {
+        availableBlockchains
+            .filter(\.isSelected)
+            .map(\.blockchain)
     }
 }
 
