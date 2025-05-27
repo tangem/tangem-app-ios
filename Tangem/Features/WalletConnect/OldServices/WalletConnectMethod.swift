@@ -1,5 +1,5 @@
 //
-//  WalletConnectAction.swift
+//  WalletConnectMethod.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum WalletConnectAction: String {
+enum WalletConnectMethod: String, Equatable {
     case personalSign = "personal_sign"
     case switchChain = "wallet_switchEthereumChain"
 
