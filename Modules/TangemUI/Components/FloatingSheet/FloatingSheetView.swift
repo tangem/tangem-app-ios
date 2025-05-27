@@ -110,7 +110,7 @@ public struct FloatingSheetView<HostContent: View>: View {
         .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
         // [REDACTED_TODO_COMMENT]
-        .animation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5), value: contentFrameAnimationSyncToken)
+        .animation(viewModel?.frameUpdateAnimation, value: contentFrameAnimationSyncToken)
     }
 
     private var verticalSwipeGesture: some Gesture {

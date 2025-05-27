@@ -38,7 +38,7 @@ extension WalletConnectNetworksSelectorViewModel {
         case .navigationBackButtonTapped:
             backAction()
 
-        case let .optionalBlockchainSelectionChanged(index, isSelected):
+        case .optionalBlockchainSelectionChanged(let index, let isSelected):
             state.availableSection.blockchains[index].updateSelection(isSelected)
 
         case .doneButtonTapped:
@@ -101,7 +101,7 @@ private extension WalletConnectNetworksSelectorViewState.AvailableSection {
     }
 
     var selectedBlockchains: [Blockchain] {
-        self.blockchains.compactMap(\.selectedBlockchain)
+        blockchains.compactMap(\.selectedBlockchain)
     }
 }
 
@@ -170,7 +170,7 @@ private extension WalletConnectNetworksSelectorViewState.NotAddedSection {
 
 private extension WalletConnectNetworksSelectorViewState.BlockchainViewState {
     init(domainBlockchain: Blockchain, isFilled: Bool) {
-        self.domainModel = domainBlockchain
+        domainModel = domainBlockchain
         iconAsset = NetworkImageProvider().provide(by: domainBlockchain, filled: isFilled)
         id = domainBlockchain.networkId
         name = domainBlockchain.displayName

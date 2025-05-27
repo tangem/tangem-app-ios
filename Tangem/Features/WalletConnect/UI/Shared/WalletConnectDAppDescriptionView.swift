@@ -11,11 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-import HotSwiftUI
-
 struct WalletConnectDAppDescriptionView: View {
-    @ObserveInjection var io
-
     let viewModel: WalletConnectDAppDescriptionViewModel
     var verifiedDomainTapAction: (() -> Void)?
 
@@ -36,7 +32,6 @@ struct WalletConnectDAppDescriptionView: View {
         }
         .frame(height: Layout.height)
         .animation(.linear(duration: 0.2), value: viewModel)
-        .enableInjection()
     }
 
     // MARK: - Icon
