@@ -24,6 +24,10 @@ extension CommonWCService: WCService {
         v2Service.canEstablishNewSessionPublisher
     }
 
+    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
+        v2Service.transactionRequestPublisher
+    }
+
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
             await v2Service.newSessions
