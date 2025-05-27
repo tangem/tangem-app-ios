@@ -46,19 +46,19 @@ extension FeeCurrencyNavigating {
             popToRootAction: makeSendCoordinatorPopToRootAction()
         )
     }
-}
 
-// MARK: - Private implementation
-
-private extension FeeCurrencyNavigating {
-    func makeSendCoordinatorDismissAction() -> Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> {
-        return { [weak self] navigationInfo in
+    func makeSendCoordinatorDismissAction() -> Action<SendCoordinator.DismissOptions?> {
+        return { [weak self] dismissOptions in
             self?.sendCoordinator = nil
 
-            if let navigationInfo {
+            switch dismissOptions {
+            case .openFeeCurrency(let walletModel, let userWalletModel):
                 DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
+                    self?.openFeeCurrency(for: walletModel, userWalletModel: userWalletModel)
                 }
+            case .closeButtonTap,
+                 .none:
+                break
             }
         }
     }
