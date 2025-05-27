@@ -21,6 +21,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     private let nftManager: NFTManager
     private let navigationContext: NFTNavigationContext
+    private let analytics: NFTAnalytics.Entrypoint
     private var bag: Set<AnyCancellable> = []
     private var didAppear = false
 
@@ -29,11 +30,14 @@ public final class NFTEntrypointViewModel: ObservableObject {
     public init(
         nftManager: NFTManager,
         navigationContext: NFTNavigationContext,
+        analytics: NFTAnalytics.Entrypoint,
         coordinator: NFTEntrypointRoutable?
     ) {
         self.nftManager = nftManager
         self.navigationContext = navigationContext
         self.coordinator = coordinator
+        self.analytics = analytics
+
         state = .noCollections
     }
 
@@ -58,6 +62,11 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     func openCollections() {
         coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+        analytics.logCollectionsOpen(
+            collections.isEmpty ? "Empty" : "Full",
+            collections.count,
+            collections.map(\.assetsCount).reduce(0, +)
+        )
     }
 
     private func bind() {

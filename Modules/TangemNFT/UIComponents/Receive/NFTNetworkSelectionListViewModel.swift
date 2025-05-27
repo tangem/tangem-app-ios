@@ -35,7 +35,8 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
     private let userWalletName: String
     private let dataSource: NFTNetworkSelectionListDataSource
     private let tokenIconInfoProvider: NFTTokenIconInfoProvider
-    private let nftChainNameProvider: NFTChainNameProviding
+    private let nftChainNameProviding: NFTChainNameProviding
+    private let analytics: NFTAnalytics.BlockchainSelection
     private weak var coordinator: NFTNetworkSelectionListRoutable?
 
     /// - Note: Retains data source.
@@ -43,14 +44,17 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
         userWalletName: String,
         dataSource: NFTNetworkSelectionListDataSource,
         tokenIconInfoProvider: NFTTokenIconInfoProvider,
-        nftChainNameProvider: NFTChainNameProviding,
+        nftChainNameProviding: NFTChainNameProviding,
+        analytics: NFTAnalytics.BlockchainSelection,
         coordinator: NFTNetworkSelectionListRoutable?
     ) {
         self.userWalletName = userWalletName
         self.dataSource = dataSource
         self.tokenIconInfoProvider = tokenIconInfoProvider
-        self.nftChainNameProvider = nftChainNameProvider
+        self.nftChainNameProviding = nftChainNameProviding
         self.coordinator = coordinator
+        self.analytics = analytics
+
         allItems = []
         availableItems = []
         unavailableItems = []
@@ -96,7 +100,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
             // If there are no unavailable items - we put all available items into the `allItems` section
             allItems = allSupportedChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
-                    title: nftChainNameProvider.provide(for: chain.nftChain),
+                    title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
                     isAvailable: true,
                     tapAction: { [weak self] in
@@ -108,7 +112,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
             // Otherwise all items are divided into `available` and `unavailable` sections
             availableItems = availableChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
-                    title: nftChainNameProvider.provide(for: chain.nftChain),
+                    title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
                     isAvailable: true,
                     tapAction: { [weak self] in
@@ -118,7 +122,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
             }
             unavailableItems = unavailableChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
-                    title: nftChainNameProvider.provide(for: chain.nftChain),
+                    title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
                     isAvailable: false,
                     tapAction: { [weak self] in
@@ -154,6 +158,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
 
     private func onAvailableItemTap(_ nftChainItem: NFTChainItem) {
         coordinator?.openReceive(for: nftChainItem)
+        analytics.logBlockchainChosen(nftChainNameProviding.provide(for: nftChainItem.nftChain))
     }
 
     private func onUnavailableItemTap(_ nftChainItem: NFTChainItem) {
