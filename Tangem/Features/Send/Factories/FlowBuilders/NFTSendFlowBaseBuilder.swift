@@ -11,7 +11,7 @@ import Foundation
 struct NFTSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: NFTSendAmountStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -37,8 +37,7 @@ struct NFTSendFlowBaseBuilder {
             sendFeeLoader: fee.interactor,
             sendQRCodeService: sendQRCodeService,
             sendAmountValidator: builder.makeNFTSendAmountValidator(),
-            amountModifier: builder.makeNFTSendAmountModifier(),
-            source: .send
+            amountModifier: builder.makeNFTSendAmountModifier()
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
@@ -58,7 +57,8 @@ struct NFTSendFlowBaseBuilder {
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            flowKind: .send
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
@@ -105,7 +105,7 @@ struct NFTSendFlowBaseBuilder {
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
 
