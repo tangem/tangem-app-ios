@@ -318,7 +318,9 @@ let collections = (0 ... 20).map {
                 navigationContext: NFTNavigationContextMock(),
                 dependencies: NFTCollectionsListDependencies(
                     nftChainIconProvider: DummyProvider(),
-                    priceFormatter: NFTPriceFormatterMock()
+                    nftChainNameProviding: NFTChainNameProviderMock(),
+                    priceFormatter: NFTPriceFormatterMock(),
+                    analytics: .empty,
                 ),
                 assetSendPublisher: .empty,
                 coordinator: nil
@@ -335,12 +337,14 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
-                        state: .loaded(.init(value: collections, hasErrors: true))
+                        state: .loaded(.init(value: collections, errors: []))
                     ),
                     navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
-                        priceFormatter: NFTPriceFormatterMock()
+                        nftChainNameProviding: NFTChainNameProviderMock(),
+                        priceFormatter: NFTPriceFormatterMock(),
+                        analytics: .empty,
                     ),
                     assetSendPublisher: .empty,
                     coordinator: nil
@@ -363,7 +367,9 @@ let collections = (0 ... 20).map {
                     navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
-                        priceFormatter: NFTPriceFormatterMock()
+                        nftChainNameProviding: NFTChainNameProviderMock(),
+                        priceFormatter: NFTPriceFormatterMock(),
+                        analytics: .empty,
                     ),
                     assetSendPublisher: .empty,
                     coordinator: nil
@@ -386,7 +392,9 @@ let collections = (0 ... 20).map {
                     navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
-                        priceFormatter: NFTPriceFormatterMock()
+                        nftChainNameProviding: NFTChainNameProviderMock(),
+                        priceFormatter: NFTPriceFormatterMock(),
+                        analytics: .empty,
                     ),
                     assetSendPublisher: .empty,
                     coordinator: nil
@@ -407,7 +415,9 @@ let collections = (0 ... 20).map {
                     navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
-                        priceFormatter: NFTPriceFormatterMock()
+                        nftChainNameProviding: NFTChainNameProviderMock(),
+                        priceFormatter: NFTPriceFormatterMock(),
+                        analytics: .empty,
                     ),
                     assetSendPublisher: .empty,
                     coordinator: nil
