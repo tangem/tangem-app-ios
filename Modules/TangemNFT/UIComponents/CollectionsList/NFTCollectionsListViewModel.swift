@@ -23,6 +23,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var rowExpanded = false
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
+    private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
+    private var bag = Set<AnyCancellable>()
+
     // MARK: Dependencies
 
     private let nftManager: NFTManager
@@ -30,10 +33,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
 
-    // MARK: Properties
-
-    private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
-    private var bag: Set<AnyCancellable> = []
     private weak var coordinator: NFTCollectionsListRoutable?
     private var pullToRefreshCompletion: (() -> Void)?
     private var didAppear = false
@@ -65,6 +64,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     func onReceiveButtonTap() {
         coordinator?.openReceive(navigationContext: navigationContext)
+        dependencies.analytics.logReceiveOpen()
     }
 
     func update(completion: (() -> Void)? = nil) {
@@ -93,7 +93,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
-                if let completion = viewModel.pullToRefreshCompletion {
+                if let completion = viewModel.pullToRefreshCompletion, !result.viewState.isLoading {
                     completion()
                     viewModel.pullToRefreshCompletion = nil
                 }
@@ -131,7 +131,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         case .loading:
             return .init(
                 viewState: .loading,
-                notificationViewData: nil
+                notificationViewData: loadingTroublesViewData
             )
 
         case .loaded(let collectionsResult):
@@ -152,7 +152,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .loading
         case .failedToLoad(let error):
             .failedToLoad(error: error)
-        case .loaded(let collections):
+        case .loaded:
             .loaded(filteredCollections(entry: searchEntry))
         }
     }
@@ -228,6 +228,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
         coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
+        dependencies.analytics.logDetailsOpen(dependencies.nftChainNameProviding.provide(for: asset.id.chain))
     }
 
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
@@ -266,7 +267,7 @@ private extension NFTCollectionsListViewModel {
 // MARK: - Constants
 
 private extension NFTCollectionsListViewModel {
-    struct Constants {
+    enum Constants {
         /// Delay (in seconds) before updating the list of NFT collections after sending an NFT asset.
         static let assetSendUpdateDelay: DispatchQueue.SchedulerTimeType.Stride = 1.0
     }

@@ -140,6 +140,7 @@
 "common_generate_addresses" = "Синхронізувати адреси";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
+"common_got_it" = "Got it";
 "common_hide" = "Приховати";
 "common_hour" = "година";
 "common_import" = "Імпортувати";
@@ -187,7 +188,7 @@
 "common_share_link" = "Поділитися посиланням";
 "common_share" = "Поширити";
 "common_show_less" = "Show less";
-"common_show_more" = "Show more";
+"common_show_more" = "Показати більше";
 "common_sign_and_send" = "Підписати та надіслати";
 "common_sign" = "Підписати";
 "common_stake" = "Застейкати";
@@ -196,6 +197,7 @@
 "common_submit" = "Продовжити";
 "common_success" = "Успіх";
 "common_support" = "Підтримка";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "Обмін";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "умови участі";
@@ -440,8 +442,8 @@
 "markets_sort_by_top_gainers_title" = "Лідери росту";
 "markets_sort_by_top_losers_title" = "Лідери падіння";
 "markets_sort_by_trending_title" = "В тренді";
-"markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
-"markets_staking_banner_title" = "Earn up to %@ APY";
+"markets_staking_banner_description_placeholder" = "Стейкінг — простий спосіб отримувати дохід з вашої криптовалюти. %@";
+"markets_staking_banner_title" = "Отримуйте до %@ APY";
 "markets_token_details_about_token_title" = "Про %@";
 "markets_token_details_blockchain_site" = "Веб-сайт";
 "markets_token_details_buy_pressure_description" = "Різниця між обсягом покупців та обсягом продавців";
@@ -665,11 +667,11 @@
 "organize_tokens_sort_by_balance" = "За балансом";
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
-"push_notifications_more_info" = "More info";
+"push_notifications_more_info" = "Більше";
 "push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
 "push_notifications_permission_alert_negative_button" = "Enable Later";
 "push_notifications_permission_alert_positive_button" = "Settings";
-"push_notifications_permission_alert_title" = "Enable Notifications";
+"push_notifications_permission_alert_title" = "Увімкнути сповіщення";
 "push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
 "push_transactions_notifications_title" = "Transaction Notifications";
 "qr_scanner_camera_denied_gallery_button" = "Виберіть з галереї";
@@ -883,11 +885,11 @@
 "staking_notification_restake_text" = "Рестейк дозволяє вам перемістити ваші кошти від одного валідатора до іншого без необхідності виводити кошти зі стейкінгу";
 "staking_notification_stake_entire_balance_text" = "Ви збираєтеся застейкати весь свій баланс. Ми рекомендуємо залишити невелику суму, щоб покрити комісію мережі за зняття коштів або отримання винагороди.";
 "staking_notification_ton_activate_account" = "Щоб почати стейкінг в TON, спочатку здійсніть вихідну транзакцію на будь-яку суму — це активує ваш гаманець.";
-"staking_notification_ton_extra_reserve_info" = "Up to 0.2 TON may be required in addition to the network fee to complete the transaction. Any unused amount will be refunded.";
-"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
-"staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
-"staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
-"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
+"staking_notification_ton_extra_reserve_info" = "До 0.2 TON може знадобитися додатково мережевої комісії для завершення транзакції. Невикористана частина буде повернута.";
+"staking_notification_ton_extra_reserve_is_required" = "Для виконання операції потребується додатково 0.2 TON, крім мережевої комісії. Будь ласка, поповніть баланс.";
+"staking_notification_ton_extra_reserve_title" = "Зарезервовано 0.2 TON";
+"staking_notification_ton_have_to_unstake_all_text" = "Ця дія закриє інші позиції або переведе їх у статус виведення, відповідно до правил мережі.";
+"staking_notification_ton_have_to_unstake_all_title" = "Статус позицій";
 "staking_notification_unlock_text" = "Розблокуйте свої кошти, щоб вивести їх зі стейкінгу. Розблокування займе %@.";
 "staking_notification_unstake_cosmos_text" = "Ваші кошти будуть доступні для використання після закінчення 21-денного періоду розблокування. Винагорода буде отримана разом з вашими незастейканими коштами.";
 "staking_notification_unstake_text" = "Ваші кошти будуть доступні після %@ періоду розблокування.";
@@ -1171,7 +1173,7 @@
 "wallet_promo_banner_description" = "Доступ до 13,000+ криптовалют. Купуйте, продавайте, обмінюйте та стейкайте одним дотиком.\nЗ’єднайте до трьох карток для бекапу.";
 "wallet_promo_banner_title" = "Відкрийте Tangem Wallet";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Transaction Notifications";
+"wallet_settings_push_notifications_title" = "Сповіщення про транзакції";
 "wallet_settings_title" = "Налаштування гаманця";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Використовуйте %@ або відскануйте картку/кільце, щоб розблокувати доступ до вашого гаманця";
@@ -1278,7 +1280,7 @@
 "wc_alert_wrong_card_description" = "Wrong card or ring selected in the App";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
 "wc_allow_to_spend" = "Allow to spend";
-"wc_common_address" = "Address";
+"wc_common_address" = "Адреса";
 "wc_common_connect" = "Connect";
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
@@ -1291,7 +1293,7 @@
 "wc_connection_reqeust_would_like" = "Would like to";
 "wc_connection_request" = "Connection request";
 "wc_connections" = "Connections";
-"wc_contents" = "Contents";
+"wc_contents" = "Вміст";
 "wc_copy_data_button_text" = "Copy data";
 "wc_custom_allowance_title" = "Custom allowance";
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";

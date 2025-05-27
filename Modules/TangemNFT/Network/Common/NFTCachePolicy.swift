@@ -15,16 +15,20 @@ public enum NFTCachePolicy {
 
 public extension NFTCachePolicy {
     var isCacheEnabled: Bool {
-        if case .always = self {
+        switch self {
+        case .always:
             return true
+        case .never:
+            return false
         }
-        return false
     }
 
     var isCacheDisabled: Bool {
-        if case .never = self {
+        switch self {
+        case .always:
+            return false
+        case .never:
             return true
         }
-        return false
     }
 }

@@ -50,6 +50,9 @@ struct TangemSigner: TransactionSigner {
                     }
                     promise(.success(signatures))
                 case .failure(let error):
+                    if !error.isCancellationError {
+                        Analytics.logScanError(error, source: .sign)
+                    }
                     promise(.failure(error))
                 }
 

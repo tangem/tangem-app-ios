@@ -24,8 +24,7 @@ struct NFTSendAmountStepBuilder {
         sendFeeLoader: any SendFeeLoader,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
-        amountModifier: SendAmountModifier,
-        source: SendModel.PredefinedValues.Source
+        amountModifier: SendAmountModifier
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
             io: io,
