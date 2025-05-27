@@ -8,6 +8,7 @@
 
 struct WCFactory {
     func createWCService() -> WCServiceV2 {
+        // [REDACTED_TODO_COMMENT]
         let uiDelegate = WalletConnectAlertUIDelegate()
         let messageComposer = WalletConnectV2MessageComposer()
         let ethTransactionBuilder = CommonWalletConnectEthTransactionBuilder()
@@ -17,10 +18,8 @@ struct WCFactory {
             uiDelegate: uiDelegate,
             ethTransactionBuilder: ethTransactionBuilder
         )
-        let wcHandlersService = OldWalletConnectV2HandlersService(
-            uiDelegate: uiDelegate,
-            handlersCreator: handlersFactory
-        )
+        let wcHandlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
+
         let v2Service = WCServiceV2(wcHandlersService: wcHandlersService)
 
         return v2Service
