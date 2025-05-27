@@ -8,6 +8,7 @@
 
 import Combine
 import enum BlockchainSdk.Blockchain
+import TangemLocalization
 
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
@@ -143,7 +144,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleWalletRowTapped() {
-//        guard state.walletSection.selectionIsAvailable else { return }
+        guard state.walletSection.selectionIsAvailable else { return }
         coordinator?.openWalletSelector()
     }
 
@@ -156,21 +157,32 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleConnectButtonTapped() {
-        guard let cachedDAppProposal, let cachedBlockchainsAvailabilityResult else { return }
+        guard
+            !state.connectButton.isLoading,
+            let cachedDAppProposal,
+            let cachedBlockchainsAvailabilityResult
+        else {
+            return
+        }
+
+        state.connectButton.isLoading = true
 
         dAppConnectionTask?.cancel()
-
-        dAppConnectionTask = Task { [selectedUserWallet, connectDAppUseCase] in
+        dAppConnectionTask = Task { [weak self, selectedUserWallet, connectDAppUseCase] in
             do {
                 try await connectDAppUseCase(
                     proposal: cachedDAppProposal.sessionProposal,
                     selectedBlockchains: cachedBlockchainsAvailabilityResult.retrieveSelectedBlockchains(),
                     selectedUserWallet: selectedUserWallet
                 )
-                print("done")
+                self?.coordinator?.showSuccessToast(with: "\(cachedDAppProposal.dApp.name) has been connected")
+                self?.coordinator?.dismiss()
             } catch {
-                print(error)
+                // [REDACTED_TODO_COMMENT]
+                self?.coordinator?.showErrorToast(with: error.localizedDescription)
             }
+
+            self?.state.connectButton.isLoading = false
         }
     }
 }
@@ -195,8 +207,20 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 }
 
-private extension WalletConnectDAppConnectionRequestViewState {
-    static func content(
+extension WalletConnectDAppConnectionRequestViewState {
+    static func loading(selectedUserWalletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
+        WalletConnectDAppConnectionRequestViewState(
+            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.loading,
+            connectionRequestSection: ConnectionRequestSection.loading,
+            dAppVerificationWarningSection: nil,
+            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
+            networksSection: NetworksSection(state: .loading),
+            networksWarningSection: nil,
+            connectButton: .connect(isEnabled: false, isLoading: false)
+        )
+    }
+
+    fileprivate static func content(
         proposal: WalletConnectDAppConnectionProposal,
         selectedUserWalletName: String,
         walletSelectionIsAvailable: Bool,
@@ -217,6 +241,14 @@ private extension WalletConnectDAppConnectionRequestViewState {
             networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
             connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
         )
+    }
+}
+
+private extension WalletConnectDAppConnectionRequestViewState.ConnectionRequestSection {
+    mutating func toggleIsExpanded() {
+        guard case .content(var contentState) = self else { return }
+        contentState.isExpanded.toggle()
+        self = .content(contentState)
     }
 }
 
@@ -260,5 +292,38 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection.Av
             },
             remainingBlockchainsCounter: remainingBlockchainsCounter
         )
+    }
+}
+
+private extension WalletConnectWarningNotificationViewModel {
+    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
+        switch verificationStatus {
+        case .verified:
+            return nil
+
+        case .unknownDomain:
+            self = .dAppUnknownDomain
+
+        case .malicious:
+            self = .dAppKnownSecurityRisk
+        }
+    }
+
+    init?(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
+        guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
+            self = .requiredNetworksAreUnavailableForSelectedWallet(
+                blockchainsAvailabilityResult.unavailableRequiredBlockchains.map(\.displayName)
+            )
+            return
+        }
+
+        let atLeastOneBlockchainIsSelected = !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
+
+        guard atLeastOneBlockchainIsSelected else {
+            self = .noBlockchainsAreSelected
+            return
+        }
+
+        return nil
     }
 }

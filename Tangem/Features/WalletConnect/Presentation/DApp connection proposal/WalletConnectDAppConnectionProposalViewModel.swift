@@ -93,6 +93,16 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
     func dismiss() {
         dismissFlowAction()
     }
+
+    func showErrorToast(with message: String) {
+        Toast(view: WarningToast(text: message))
+            .present(layout: .top(padding: 20), type: .temporary())
+    }
+
+    func showSuccessToast(with message: String) {
+        Toast(view: SuccessToast(text: message))
+            .present(layout: .top(padding: 20), type: .temporary())
+    }
 }
 
 // MARK: - Factory methods
