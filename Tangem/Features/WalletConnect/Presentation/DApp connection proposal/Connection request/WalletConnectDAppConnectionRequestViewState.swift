@@ -12,6 +12,7 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
 struct WalletConnectDAppConnectionRequestViewState: Equatable {
     let navigationTitle = Localization.wcWalletConnect
 
@@ -23,20 +24,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var networksSection: NetworksSection
     var networksWarningSection: WalletConnectWarningNotificationViewModel?
 
-    let cancelButton = Button(title: Localization.commonCancel, isEnabled: true, isLoading: false)
-    var connectButton: Button
-
-    static func loading(selectedUserWalletName: String, walletSelectionIsAvailable: Bool) -> WalletConnectDAppConnectionRequestViewState {
-        WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.loading,
-            connectionRequestSection: ConnectionRequestSection.loading,
-            dAppVerificationWarningSection: nil,
-            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
-            networksSection: NetworksSection(state: .loading),
-            networksWarningSection: nil,
-            connectButton: .connect(isEnabled: false, isLoading: false)
-        )
-    }
+    let cancelButton = Self.Button(title: Localization.commonCancel, isEnabled: true, isLoading: false)
+    var connectButton: Self.Button
 }
 
 // MARK: - Connection request section
@@ -111,12 +100,6 @@ extension WalletConnectDAppConnectionRequestViewState {
             }
 
             return false
-        }
-
-        mutating func toggleIsExpanded() {
-            guard case .content(var contentState) = self else { return }
-            contentState.isExpanded.toggle()
-            self = .content(contentState)
         }
 
         static let loading = ConnectionRequestSection.loading(LoadingState())
@@ -230,43 +213,12 @@ extension WalletConnectDAppConnectionRequestViewState {
         var isEnabled: Bool
         var isLoading: Bool
 
-        static func connect(isEnabled: Bool, isLoading: Bool) -> Button {
-            Button(title: Localization.wcCommonConnect, isEnabled: isEnabled, isLoading: isLoading)
-        }
-    }
-}
-
-// MARK: - WalletConnectWarningNotificationViewModel convenience initializers
-
-extension WalletConnectWarningNotificationViewModel {
-    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
-        switch verificationStatus {
-        case .verified:
-            return nil
-
-        case .unknownDomain:
-            self = .dAppUnknownDomain
-
-        case .malicious:
-            self = .dAppKnownSecurityRisk
-        }
-    }
-
-    init?(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
-        guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
-            self = .requiredNetworksAreUnavailableForSelectedWallet(
-                blockchainsAvailabilityResult.unavailableRequiredBlockchains.map(\.displayName)
+        static func connect(isEnabled: Bool, isLoading: Bool) -> WalletConnectDAppConnectionRequestViewState.Button {
+            WalletConnectDAppConnectionRequestViewState.Button(
+                title: Localization.wcCommonConnect,
+                isEnabled: isEnabled,
+                isLoading: isLoading
             )
-            return
         }
-
-        let atLeastOneBlockchainIsSelected = !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
-
-        guard atLeastOneBlockchainIsSelected else {
-            self = .noBlockchainsAreSelected
-            return
-        }
-
-        return nil
     }
 }
