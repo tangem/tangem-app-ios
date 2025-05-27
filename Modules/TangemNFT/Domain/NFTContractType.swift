@@ -31,3 +31,31 @@ public enum NFTContractType: Hashable, Sendable, CustomStringConvertible {
         }
     }
 }
+
+// MARK: - CaseIterable protocol conformance
+
+extension NFTContractType: CaseIterable {
+    /// Poor man's `CaseIterable`.
+    public static var allCases: [NFTContractType] {
+        switch NFTContractType.unknown {
+        case .erc721:
+            break
+        case .erc1155:
+            break
+        case .unknown:
+            break
+        case .other:
+            break
+        }
+        // READ BELOW:
+        //
+        // Did you get a compilation error here? If so, add your new chain to the array below
+
+        return [
+            .erc721,
+            .erc1155,
+            .unknown,
+            .other(""),
+        ]
+    }
+}
