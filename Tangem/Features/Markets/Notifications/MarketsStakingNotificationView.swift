@@ -67,7 +67,7 @@ struct MarketsStakingNotificationView: View {
     }
 
     private var showMoreText: AttributedString {
-        var result = AttributedString(Localization.marketsStakingBannerDescriptionShowMore)
+        var result = AttributedString(Localization.commonShowMore)
         result.font = Fonts.Bold.caption1
         result.foregroundColor = Colors.Text.accent
         return result
