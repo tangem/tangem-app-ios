@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-
 import HotSwiftUI
 
 extension WalletConnectDAppConnectionRequestView {
