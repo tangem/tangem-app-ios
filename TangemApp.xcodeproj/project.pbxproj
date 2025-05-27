@@ -327,6 +327,7 @@
 		305B22422D78A1FC009BCC73 /* RavencoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305B22412D78A1ED009BCC73 /* RavencoinAddressTests.swift */; };
 		305B22462D78A2B7009BCC73 /* DecimalAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305B22452D78A2B0009BCC73 /* DecimalAddressTests.swift */; };
 		305F5AF02D63797C00AB90EC /* ZKLinkNovaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */; };
+		30608C852DE085D700E96AA0 /* SendDestinationAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30608C842DE085CB00E96AA0 /* SendDestinationAnalyticsLogger.swift */; };
 		306EA0572D803EC9003489C1 /* BittensorAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306EA0562D803EC2003489C1 /* BittensorAddressTests.swift */; };
 		306EA05A2D803F26003489C1 /* PolkadotNetwork+testSubstrateNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306EA0592D803F0D003489C1 /* PolkadotNetwork+testSubstrateNetwork.swift */; };
 		3074E1D62D943C28008235E6 /* OptionalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3074E1D52D943C28008235E6 /* OptionalProtocol.swift */; };
@@ -3902,6 +3903,7 @@
 		305B22412D78A1ED009BCC73 /* RavencoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinAddressTests.swift; sourceTree = "<group>"; };
 		305B22452D78A2B0009BCC73 /* DecimalAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalAddressTests.swift; sourceTree = "<group>"; };
 		305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZKLinkNovaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		30608C842DE085CB00E96AA0 /* SendDestinationAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAnalyticsLogger.swift; sourceTree = "<group>"; };
 		306EA0562D803EC2003489C1 /* BittensorAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BittensorAddressTests.swift; sourceTree = "<group>"; };
 		306EA0592D803F0D003489C1 /* PolkadotNetwork+testSubstrateNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PolkadotNetwork+testSubstrateNetwork.swift"; sourceTree = "<group>"; };
 		3074E1D52D943C28008235E6 /* OptionalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalProtocol.swift; sourceTree = "<group>"; };
@@ -13693,6 +13695,7 @@
 		DA559C2E2B0261F400F59584 /* Destination */ = {
 			isa = PBXGroup;
 			children = (
+				30608C842DE085CB00E96AA0 /* SendDestinationAnalyticsLogger.swift */,
 				EFC84B212C37FBB200546882 /* SendDestinationStep.swift */,
 				EF665E3F2CBD23A900F79B87 /* SendDestinationView */,
 				EF0FBB682C53BE1E0095A6BD /* SendDestinationCompactView */,
@@ -20940,6 +20943,7 @@
 				B0AF2DF42B1DF29F001A8696 /* PendingExpressTransactionsConverter.swift in Sources */,
 				EF0E1DA62CE3A222003D47AA /* OnrampRedirectingInputOutput.swift in Sources */,
 				EF5D83DB2B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift in Sources */,
+				30608C852DE085D700E96AA0 /* SendDestinationAnalyticsLogger.swift in Sources */,
 				EFA6B044295334AF0090A92F /* ResetToFactoryView.swift in Sources */,
 				EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */,
 				DC3DCADB2A40AACF00F72554 /* DemoWalletModelsFactory.swift in Sources */,
