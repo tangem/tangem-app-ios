@@ -62,7 +62,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
-    func updateSelectedBlockchains(_ selectedBlockchains: Set<Blockchain>) {
+    func updateSelectedBlockchains(_ selectedBlockchains: [Blockchain]) {
         guard let cachedDAppProposal else { return }
 
         let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
@@ -228,7 +228,7 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
         }
 
         let availableSelectionMode = AvailableSelectionMode(
-            blockchains: blockchainsAvailabilityResult.availableBlockchains.map(\.blockchain)
+            blockchains: blockchainsAvailabilityResult.retrieveSelectedBlockchains()
         )
         let contentState = ContentState(selectionMode: .available(availableSelectionMode))
         self.init(state: .content(contentState))
@@ -236,7 +236,7 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
 }
 
 private extension WalletConnectDAppConnectionRequestViewState.NetworksSection.AvailableSelectionMode {
-    init(blockchains: [BlockchainSdk.Blockchain]) {
+    init(blockchains: [Blockchain]) {
         let remainingBlockchainsCounter: String?
 
         let maximumIconsCount = 4
