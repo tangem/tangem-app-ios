@@ -24,6 +24,8 @@ struct RestakingFlowBaseBuilder {
         // no pending action == full balance staking
         let action = action ?? builder.makeStakeAction()
 
+        let flowKind: SendModel.PredefinedValues.FlowKind = .staking
+
         let restakingModel = builder.makeRestakingModel(stakingManager: manager, action: action)
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: restakingModel, input: restakingModel)
@@ -62,7 +64,8 @@ struct RestakingFlowBaseBuilder {
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: validatorsCompact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
