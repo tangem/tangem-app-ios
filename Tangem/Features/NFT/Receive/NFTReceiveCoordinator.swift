@@ -47,7 +47,8 @@ final class NFTReceiveCoordinator: CoordinatorObject {
             userWalletName: userWalletModel.name,
             dataSource: dataSource,
             tokenIconInfoProvider: CommonNFTTokenIconInfoProvider(),
-            nftChainNameProvider: options.nftChainNameProvider,
+            nftChainNameProviding: options.nftChainNameProviding,
+            analytics: options.analytics,
             coordinator: self
         )
         walletModelFinder = NFTReceiveWalletModelFinder(walletModelsManager: receiveInput.walletModelsManager)
@@ -59,7 +60,8 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 extension NFTReceiveCoordinator {
     struct Options {
         let input: NFTNavigationInput
-        let nftChainNameProvider: NFTChainNameProviding
+        let nftChainNameProviding: NFTChainNameProviding
+        let analytics: NFTAnalytics.BlockchainSelection
     }
 }
 
@@ -71,6 +73,7 @@ extension NFTReceiveCoordinator: NFTNetworkSelectionListRoutable {
             return
         }
 
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .nft).makeViewModel(for: walletModel)
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .nft)
+            .makeViewModel(for: walletModel)
     }
 }

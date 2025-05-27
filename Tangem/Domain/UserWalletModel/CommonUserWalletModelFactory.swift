@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNFT
 
 struct CommonUserWalletModelFactory {
     func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
@@ -75,7 +76,15 @@ struct CommonUserWalletModelFactory {
             longHashesSupported: config.hasFeature(.longHashes)
         )
 
-        let nftManager = CommonNFTManager(userWalletId: userWalletId, walletModelsManager: walletModelsManager)
+        let nftManager = CommonNFTManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            analytics: NFTAnalytics.Error(
+                logError: { errorCode, description in
+                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
+                }
+            )
+        )
 
         let model = CommonUserWalletModel(
             cardInfo: cardInfo,
