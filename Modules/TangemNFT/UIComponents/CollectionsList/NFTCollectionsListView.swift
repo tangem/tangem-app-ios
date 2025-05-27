@@ -336,6 +336,7 @@ let collections = (0 ... 20).map {
                     nftChainIconProvider: DummyProvider(),
                     priceFormatter: NFTPriceFormatterMock()
                 ),
+                assetSendPublisher: .empty,
                 coordinator: nil
             )
         )
@@ -357,6 +358,7 @@ let collections = (0 ... 20).map {
                         nftChainIconProvider: DummyProvider(),
                         priceFormatter: NFTPriceFormatterMock()
                     ),
+                    assetSendPublisher: .empty,
                     coordinator: nil
                 )
             )
@@ -379,6 +381,7 @@ let collections = (0 ... 20).map {
                         nftChainIconProvider: DummyProvider(),
                         priceFormatter: NFTPriceFormatterMock()
                     ),
+                    assetSendPublisher: .empty,
                     coordinator: nil
                 )
             )
@@ -401,6 +404,7 @@ let collections = (0 ... 20).map {
                         nftChainIconProvider: DummyProvider(),
                         priceFormatter: NFTPriceFormatterMock()
                     ),
+                    assetSendPublisher: .empty,
                     coordinator: nil
                 )
             )
@@ -421,6 +425,7 @@ let collections = (0 ... 20).map {
                         nftChainIconProvider: DummyProvider(),
                         priceFormatter: NFTPriceFormatterMock()
                     ),
+                    assetSendPublisher: .empty,
                     coordinator: nil
                 )
             )
