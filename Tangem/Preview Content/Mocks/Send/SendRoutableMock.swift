@@ -11,7 +11,7 @@ import SwiftUI
 import TangemExpress
 
 class SendRoutableMock: SendRoutable {
-    func dismiss() {}
+    func dismiss(reason: SendDismissReason) {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
     func openExplorer(url: URL) {}
