@@ -20,6 +20,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.wcService) private var wcService: WCService
 
     // MARK: - ViewState
 
@@ -447,6 +448,24 @@ final class MainViewModel: ObservableObject {
 
                     viewModel.pages = currentPages
                 }
+                .store(in: &bag)
+        }
+
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.transactionRequestPublisher
+                .receiveOnMain()
+                .sink(
+                    receiveCompletion: { [weak self] result in
+                        if case .failure(let error) = result, let self {
+                            coordinator?.showWCTransactionRequest(with: error)
+                        }
+                    },
+                    receiveValue: { [weak self] transactionData in
+                        guard let self else { return }
+
+                        coordinator?.showWCTransactionRequest(with: transactionData)
+                    }
+                )
                 .store(in: &bag)
         }
     }

@@ -66,7 +66,7 @@ private extension SendNewAmountStepBuilder {
     func makeSendAmountViewModel(
         io: IO,
         interactor: SendAmountInteractor,
-        actionType: SendFlowActionType,
+        actionType: SendFlowActionType
     ) -> SendNewAmountViewModel {
         let initital = SendNewAmountViewModel.Settings(
             walletHeaderText: builder.walletHeaderText(for: actionType),
