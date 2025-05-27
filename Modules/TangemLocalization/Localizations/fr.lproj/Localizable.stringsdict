@@ -114,22 +114,6 @@
         <string>%li items</string>
       </dict>
     </dict>
-    <key>nft_wallet_count</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%1$li NFTs in %2$li collection</string>
-        <key>other</key>
-        <string>%1$li NFT dans la collection %2$li</string>
-      </dict>
-    </dict>
     <key>onboarding_seed_generate_message_words_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
