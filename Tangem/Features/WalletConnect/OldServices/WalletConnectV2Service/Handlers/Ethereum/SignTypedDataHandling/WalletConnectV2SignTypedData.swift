@@ -47,6 +47,12 @@ struct WalletConnectV2SignTypedDataHandler {
 }
 
 extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .signTypedData }
+
+    var requestData: Data {
+        Data()
+    }
+
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
