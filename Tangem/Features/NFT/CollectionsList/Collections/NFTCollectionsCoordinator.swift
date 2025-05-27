@@ -116,7 +116,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
                 collection: collection,
                 nftChainNameProvider: options.nftChainNameProvider,
                 priceFormatter: options.priceFormatter,
-                navigationContext: navigationContext,
+                navigationContext: navigationContext
             )
         )
         assetDetailsCoordinator = coordinator
