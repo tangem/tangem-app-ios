@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import HotSwiftUI
-
 import Combine
 
 struct WalletConnectDAppConnectionProposalView: View {
@@ -44,13 +43,9 @@ struct WalletConnectDAppConnectionProposalView: View {
                 WalletConnectWalletSelectorView(viewModel: viewModel)
                     .transition(.walletSelector)
 
-            case .networkSelector:
-                VStack {
-                    Button("back") { viewModel.switchToConnectionRequest() }
-                }
-                .frame(height: 700)
-                .background(.red)
-                .transition(.networkSelector)
+            case .networkSelector(let viewModel):
+                WalletConnectNetworksSelectorView(viewModel: viewModel)
+                    .transition(.walletSelector)
             }
         }
     }
