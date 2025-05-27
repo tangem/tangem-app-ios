@@ -253,7 +253,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
