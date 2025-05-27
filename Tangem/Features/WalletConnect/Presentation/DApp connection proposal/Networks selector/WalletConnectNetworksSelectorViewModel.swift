@@ -12,13 +12,13 @@ import enum BlockchainSdk.Blockchain
 @MainActor
 final class WalletConnectNetworksSelectorViewModel: ObservableObject {
     private let backAction: () -> Void
-    private let doneAction: (Set<Blockchain>) -> Void
+    private let doneAction: ([Blockchain]) -> Void
 
     @Published private(set) var state: WalletConnectNetworksSelectorViewState
 
     init(
         backAction: @escaping () -> Void,
-        doneAction: @escaping (Set<Blockchain>) -> Void
+        doneAction: @escaping ([Blockchain]) -> Void
     ) {
         state = .initial
         self.backAction = backAction
@@ -55,7 +55,10 @@ private extension WalletConnectNetworksSelectorViewState {
             requiredNetworksAreUnavailableSection: .init(blockchainsAvailabilityResult),
             availableSection: .init(blockchainsAvailabilityResult),
             notAddedSection: .init(blockchainsAvailabilityResult),
-            doneButton: .init(isEnabled: blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty)
+            doneButton: .init(
+                isEnabled: blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
+                    && !blockchainsAvailabilityResult.availableBlockchains.isEmpty
+            )
         )
     }
 
@@ -67,7 +70,7 @@ private extension WalletConnectNetworksSelectorViewState {
     )
 
     func retrieveSelectedBlockchains() -> [Blockchain] {
-        Set(availableSection.blockchains.compactMap(\.selectedBlockchain))
+        availableSection.blockchains.compactMap(\.selectedBlockchain)
     }
 }
 
