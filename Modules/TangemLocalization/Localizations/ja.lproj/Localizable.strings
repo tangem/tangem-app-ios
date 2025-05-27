@@ -140,6 +140,7 @@
 "common_generate_addresses" = "アドレスを同期する";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
+"common_got_it" = "Got it";
 "common_hide" = "非表示";
 "common_hour" = "時間";
 "common_import" = "インポート";
@@ -196,6 +197,7 @@
 "common_submit" = "送信";
 "common_success" = "成功";
 "common_support" = "サポート";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "スワップ";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "利用規約";
