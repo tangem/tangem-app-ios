@@ -59,7 +59,11 @@ struct WCConnectRequestModalView: View {
                     .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
             }
             .readGeometry(\.size.height) { updatedHeight in
-                withAnimation(scrollContentHeighAnimation(updatedHeight)) {
+                if viewModel.contentHeight != 0 {
+                    withAnimation(scrollContentHeighAnimation(updatedHeight)) {
+                        viewModel.contentHeight = updatedHeight
+                    }
+                } else {
                     viewModel.contentHeight = updatedHeight
                 }
             }
@@ -78,7 +82,6 @@ struct WCConnectRequestModalView: View {
                 settings: .init(
                     title: "Connect",
                     isLoading: viewModel.isConnecting,
-                    isDisabled: viewModel.isConnectionButtonDisabled,
                     action: { viewModel.handleViewAction(.connect) }
                 )
             )
@@ -176,7 +179,7 @@ private extension WCConnectRequestModalView {
     }
 
     var selectedNetworks: some View {
-        return HStack(spacing: 0) {
+        HStack(spacing: 0) {
             Assets.Glyphs.networkNew.image
                 .resizable()
                 .frame(width: 24, height: 24)

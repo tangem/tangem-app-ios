@@ -12,8 +12,40 @@ import TangemUI
 import ReownWalletKit
 
 struct WCDappTitleView: View {
-    let isLoading: Bool
-    let proposal: Session.Proposal?
+    private let isLoading: Bool
+    private let icons: [String]
+    private let dappName: String
+    private let dappUrl: String
+    private let iconSideLength: CGFloat
+    private let placeholderIconSideLength: CGFloat
+
+    init(
+        isLoading: Bool,
+        proposal: Session.Proposal?,
+        iconSideLength: CGFloat = 56,
+        placeholderIconSideLength: CGFloat = 26
+    ) {
+        self.isLoading = isLoading
+        icons = proposal?.proposer.icons ?? []
+        dappName = proposal?.proposer.name ?? ""
+        dappUrl = proposal?.proposer.url ?? ""
+        self.iconSideLength = iconSideLength
+        self.placeholderIconSideLength = placeholderIconSideLength
+    }
+
+    init(
+        isLoading: Bool,
+        sessionDappInfo: WalletConnectSavedSession.DAppInfo,
+        iconSideLength: CGFloat = 56,
+        placeholderIconSideLength: CGFloat = 26
+    ) {
+        self.isLoading = isLoading
+        icons = sessionDappInfo.iconLinks
+        dappName = sessionDappInfo.name
+        dappUrl = sessionDappInfo.url
+        self.iconSideLength = iconSideLength
+        self.placeholderIconSideLength = placeholderIconSideLength
+    }
 
     var body: some View {
         content
@@ -26,17 +58,27 @@ struct WCDappTitleView: View {
                 .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
         } else {
             HStack(spacing: 16) {
-                if let urlString = proposal?.proposer.icons.last, let iconURL = URL(string: urlString) {
-                    IconView(url: iconURL, size: .init(bothDimensions: 56))
+                if let urlString = icons.last, let iconURL = URL(string: urlString) {
+                    IconView(url: iconURL, size: .init(bothDimensions: iconSideLength))
+                } else {
+                    ZStack {
+                        Colors.Icon.accent.opacity(0.1)
+                            .frame(size: .init(bothDimensions: iconSideLength))
+                            .cornerRadius(8, corners: .allCorners)
+                        Assets.Glyphs.explore.image
+                            .renderingMode(.template)
+                            .foregroundStyle(Colors.Icon.accent)
+                            .frame(size: .init(bothDimensions: placeholderIconSideLength))
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    if let dappName = proposal?.proposer.name, !dappName.isEmpty {
+                    if !dappName.isEmpty {
                         Text(dappName)
                             .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     }
 
-                    if let dappUrl = proposal?.proposer.url, !dappUrl.isEmpty {
+                    if dappUrl.isEmpty {
                         Text(dappUrl)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
