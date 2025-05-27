@@ -536,6 +536,7 @@
 "nft_send" = "Send NFT";
 "nft_traits_title" = "Traits";
 "nft_untitled_collection" = "Untitled collection";
+"nft_wallet_count" = "%1$li NFT dans la collection %2$li";
 "nft_wallet_receive_nft" = "Appuyez ici pour recevoir le premier NFT";
 "nft_wallet_title" = "Collections NFT";
 "nft_wallet_unable_to_load" = "Impossible de charger les données";
