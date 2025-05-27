@@ -37,29 +37,6 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
             connectButton: .connect(isEnabled: false, isLoading: false)
         )
     }
-
-    static func content(
-        proposal: WalletConnectDAppConnectionProposal,
-        selectedUserWalletName: String,
-        walletSelectionIsAvailable: Bool,
-        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
-        connectButtonIsEnabled: Bool
-    ) -> WalletConnectDAppConnectionRequestViewState {
-        WalletConnectDAppConnectionRequestViewState(
-            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
-                WalletConnectDAppDescriptionViewModel.ContentState(
-                    dAppData: proposal.dApp,
-                    verificationStatus: proposal.verificationStatus
-                )
-            ),
-            connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
-            dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
-            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
-            networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
-            networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
-            connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
-        )
-    }
 }
 
 // MARK: - Connection request section
@@ -230,19 +207,6 @@ extension WalletConnectDAppConnectionRequestViewState {
         init(state: Self.State) {
             self.state = state
         }
-
-        init(blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
-            guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
-                self.init(state: .content(.init(selectionMode: .requiredNetworksAreMissing)))
-                return
-            }
-
-            let availableSelectionMode = AvailableSelectionMode(
-                blockchains: blockchainsAvailabilityResult.availableBlockchains.map(\.blockchain)
-            )
-            let contentState = ContentState(selectionMode: .available(availableSelectionMode))
-            self.init(state: .content(contentState))
-        }
     }
 }
 
@@ -255,27 +219,6 @@ extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
     struct AvailableSelectionMode: Equatable {
         let blockchainLogoAssets: [ImageType]
         let remainingBlockchainsCounter: String?
-
-        init(blockchains: [BlockchainSdk.Blockchain]) {
-            let maximumIconsCount = 4
-            let imageProvider = NetworkImageProvider()
-            let prefixedBlockchains: [BlockchainSdk.Blockchain]
-
-            let shouldShowRemainingBlockchainsCounter = blockchains.count > maximumIconsCount
-
-            if shouldShowRemainingBlockchainsCounter {
-                let blockchainsCountToTake = maximumIconsCount - 1
-                prefixedBlockchains = Array(blockchains.prefix(blockchainsCountToTake))
-                remainingBlockchainsCounter = "+\(blockchains.count - blockchainsCountToTake)"
-            } else {
-                prefixedBlockchains = blockchains
-                remainingBlockchainsCounter = nil
-            }
-
-            blockchainLogoAssets = prefixedBlockchains.map { blockchain in
-                imageProvider.provide(by: blockchain, filled: true)
-            }
-        }
     }
 }
 
