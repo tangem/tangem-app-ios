@@ -11,15 +11,11 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-import HotSwiftUI
-
 struct WalletConnectNetworksSelectorView: View {
     @ObservedObject var viewModel: WalletConnectNetworksSelectorViewModel
 
     @State private var scrollViewMaxHeight: CGFloat = 0
     @State private var navigationBarBottomSeparatorIsVisible = false
-
-    @ObserveInjection private var io
 
     var body: some View {
         ScrollView(.vertical) {
@@ -48,29 +44,21 @@ struct WalletConnectNetworksSelectorView: View {
         .scrollBounceBehaviorBackport(.basedOnSize)
         .frame(maxHeight: scrollViewMaxHeight)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
-        .enableInjection()
     }
 
     private var navigationBar: some View {
         WalletConnectNavigationBarView(
             title: viewModel.state.navigationBarTitle,
-            subtitle: nil,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) },
-            closeButtonAction: nil
+            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
         )
     }
 
     private var doneButton: some View {
         MainButton(
             title: viewModel.state.doneButton.title,
-            subtitle: nil,
-            icon: nil,
             style: .primary,
-            size: .default,
-            isLoading: false,
             isDisabled: !viewModel.state.doneButton.isEnabled,
-            handleActionWhenDisabled: false,
             action: { viewModel.handle(viewEvent: .doneButtonTapped) }
         )
         .padding(Layout.doneButtonPadding)

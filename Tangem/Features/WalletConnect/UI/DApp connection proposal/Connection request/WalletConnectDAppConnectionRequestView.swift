@@ -10,15 +10,12 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-import HotSwiftUI
 
 struct WalletConnectDAppConnectionRequestView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionRequestViewModel
 
     @State private var navigationBarBottomSeparatorIsVisible = false
     @State private var scrollViewMaxHeight: CGFloat = 0
-
-    @ObserveInjection var io
 
     var body: some View {
         ScrollView(.vertical) {
@@ -47,15 +44,12 @@ struct WalletConnectDAppConnectionRequestView: View {
         .scrollBounceBehaviorBackport(.basedOnSize)
         .frame(maxHeight: scrollViewMaxHeight)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
-        .enableInjection()
     }
 
     private var navigationBar: some View {
         WalletConnectNavigationBarView(
             title: viewModel.state.navigationTitle,
-            subtitle: nil,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            backButtonAction: nil,
             closeButtonAction: { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
         )
     }
@@ -154,12 +148,8 @@ struct WalletConnectDAppConnectionRequestView: View {
         HStack(spacing: 8) {
             MainButton(
                 title: viewModel.state.cancelButton.title,
-                subtitle: nil,
-                icon: nil,
                 style: .secondary,
-                size: .default,
                 isLoading: viewModel.state.cancelButton.isLoading,
-                handleActionWhenDisabled: false,
                 action: {
                     viewModel.handle(viewEvent: .cancelButtonTapped)
                 }
@@ -167,12 +157,8 @@ struct WalletConnectDAppConnectionRequestView: View {
 
             MainButton(
                 title: viewModel.state.connectButton.title,
-                subtitle: nil,
-                icon: nil,
                 style: .primary,
-                size: .default,
                 isLoading: viewModel.state.connectButton.isLoading,
-                handleActionWhenDisabled: false,
                 action: {
                     viewModel.handle(viewEvent: .connectButtonTapped)
                 }
