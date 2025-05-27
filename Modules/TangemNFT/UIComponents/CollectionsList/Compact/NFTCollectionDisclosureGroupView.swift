@@ -138,7 +138,9 @@ struct DummyProvider: NFTChainIconProvider {
             assetsState: .loading,
             dependencies: NFTCollectionsListDependencies(
                 nftChainIconProvider: DummyProvider(),
-                priceFormatter: NFTPriceFormatterMock()
+                nftChainNameProviding: NFTChainNameProviderMock(),
+                priceFormatter: NFTPriceFormatterMock(),
+                analytics: .empty
             ),
             openAssetDetailsAction: { _ in },
             onCollectionTap: { _, _ in }
