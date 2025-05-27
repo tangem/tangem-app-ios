@@ -74,6 +74,7 @@ struct NFTCollectionRow: View {
         case .animation:
             GIFImage(url: media.url, placeholder: placeholder)
                 .frame(size: Constants.Icon.size)
+                .cornerRadiusContinuous(Constants.Icon.cornerRadius)
 
         case .video, .audio, .unknown:
             placeholder
