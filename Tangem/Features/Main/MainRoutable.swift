@@ -9,12 +9,14 @@
 import Foundation
 import TangemNFT
 
-protocol MainRoutable: AnyObject {
+protocol MainRoutable: AnyObject & WCTransactionRoutable {
     func openDetails(for userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
     func openOnboardingModal(with input: OnboardingInput)
     func openScanCardManual()
     func openPushNotificationsAuthorization()
     func openReferral(input: ReferralInputModel)
+    func showWCTransactionRequest(with data: WCHandleTransactionData)
+    func showWCTransactionRequest(with error: Error)
     func popToRoot()
 }
