@@ -101,8 +101,8 @@ class WelcomeViewModel: ObservableObject {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .signIn)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+                Analytics.logScanError(error, source: .introduction)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
                 self.error = error.alertBinder
             case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
                 openMain(with: model)
