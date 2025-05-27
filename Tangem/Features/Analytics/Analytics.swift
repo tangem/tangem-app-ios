@@ -63,12 +63,12 @@ class Analytics {
         }
     }
 
-    static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
+    static func logDestinationAddress(event: Analytics.Event, isAddressValid: Bool, source: DestinationAddressSource) {
         let validationResult: Analytics.ParameterValue = isAddressValid ? .success : .fail
         guard let parameterValue = source.parameterValue else { return }
 
         Analytics.log(
-            .sendAddressEntered,
+            event,
             params: [
                 .source: parameterValue,
                 .validation: validationResult,
