@@ -10,14 +10,11 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
-import HotSwiftUI
 
 extension WalletConnectDAppConnectionRequestView {
     struct NetworksSection: View {
         let viewModel: WalletConnectDAppConnectionRequestViewState.NetworksSection
         let tapAction: () -> Void
-
-        @ObserveInjection var io
 
         var body: some View {
             Button(action: tapAction) {
@@ -46,7 +43,6 @@ extension WalletConnectDAppConnectionRequestView {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .enableInjection()
         }
 
         @ViewBuilder

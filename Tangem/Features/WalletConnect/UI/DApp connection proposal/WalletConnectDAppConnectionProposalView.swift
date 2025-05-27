@@ -9,18 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-import HotSwiftUI
-import Combine
 
 struct WalletConnectDAppConnectionProposalView: View {
-    @ObserveInjection var io
     @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
 
     var body: some View {
         contentStateView
             .frame(maxWidth: .infinity)
             .background(Colors.Background.tertiary)
-            .enableInjection()
     }
 
     @ViewBuilder
@@ -32,6 +28,7 @@ struct WalletConnectDAppConnectionProposalView: View {
                     .transition(.connectionRequest)
 
             case .verifiedDomain:
+                // [REDACTED_TODO_COMMENT]
                 VStack {
                     Button("back") { viewModel.switchToConnectionRequest() }
                 }
@@ -51,6 +48,7 @@ struct WalletConnectDAppConnectionProposalView: View {
     }
 }
 
+// [REDACTED_TODO_COMMENT]
 private extension Animation {
     static let contentStateSwitch = Self.contentStateSwitch(duration: 0.5, delay: 0)
 
