@@ -140,6 +140,7 @@
 "common_generate_addresses" = "Synchroniser les adresses";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
+"common_got_it" = "Got it";
 "common_hide" = "Cacher";
 "common_hour" = "heure";
 "common_import" = "Importez";
@@ -187,7 +188,7 @@
 "common_share_link" = "Partager le lien";
 "common_share" = "Partager";
 "common_show_less" = "Show less";
-"common_show_more" = "Show more";
+"common_show_more" = "Afficher plus";
 "common_sign_and_send" = "Signez et envoyez";
 "common_sign" = "Signez";
 "common_stake" = "Stake";
@@ -196,6 +197,7 @@
 "common_submit" = "Soumettre";
 "common_success" = "Avec succès";
 "common_support" = "Support";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "Échanger";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "termes et conditions";
