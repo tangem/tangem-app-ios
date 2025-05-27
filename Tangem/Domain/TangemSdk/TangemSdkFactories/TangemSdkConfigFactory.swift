@@ -36,7 +36,7 @@ struct TangemSdkConfigFactory {
         config.style.colors.tintUIColor = UIColor.textAccent
         config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
         Config.useDevApi = FeatureStorage.instance.useDevApi
-        config.newAttestaionService = FeatureProvider.isAvailable(.newAttestation)
+        config.newAttestationService = FeatureProvider.isAvailable(.newAttestation)
         return config
     }
 }
