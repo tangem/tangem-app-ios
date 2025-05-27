@@ -352,7 +352,7 @@ private extension DetailsViewModel {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .settings)
+                Analytics.logScanError(error, source: .settings)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
                 alert = error.alertBinder
             case .success, .partial:

@@ -140,6 +140,7 @@
 "common_generate_addresses" = "Synchronize addresses";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
+"common_got_it" = "Got it";
 "common_hide" = "Hide";
 "common_hour" = "hour";
 "common_import" = "Import";
@@ -196,6 +197,7 @@
 "common_submit" = "Submit";
 "common_success" = "Con successo";
 "common_support" = "Support";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "Swap";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "terms and conditions";
