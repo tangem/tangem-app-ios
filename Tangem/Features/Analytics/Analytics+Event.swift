@@ -457,5 +457,28 @@ extension Analytics {
         case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
+
+        // MARK: - NFT
+
+        case nftAssetReadMore = "[NFT] Button - Read More"
+        case nftAssetSeeAll = "[NFT] Button - See All"
+        case nftAssetExplore = "[NFT] Button - Explore"
+        case nftAssetSend = "[NFT] Button - Send"
+
+        case nftAssetDetailsOpened = "[NFT] NFT Details Screen Opened"
+        case nftAssetReceiveOpened = "[NFT] Receive NFT Screen Opened"
+        case nftCollectionsOpened = "[NFT] NFT List Screen Opened"
+
+        case nftReceiveBlockchainChosen = "[NFT] Blockchain Chosen"
+        case nftReceiveCopyAddressButtonClicked = "[NFT] Button - Copy Address"
+        case nftReceiveShareAddressButtonClicked = "[NFT] Button - Share Address"
+
+        case nftSendAddressEntered = "[NFT] Send Address Entered"
+        case nftComissionScreenOpened = "[NFT] Commission Screen Opened"
+        case nftFeeSelected = "[NFT] Fee Selected"
+        case nftConfirmScreenOpened = "[NFT] Confirm Screen Opened"
+        case nftSentScreenOpened = "[NFT] NFT Sent Screen Opened"
+
+        case nftErrors = "[NFT] NFT Errors"
     }
 }
