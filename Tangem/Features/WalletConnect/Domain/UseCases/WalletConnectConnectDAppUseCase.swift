@@ -17,7 +17,7 @@ final class WalletConnectConnectDAppUseCase {
 
     func callAsFunction(
         proposal: WalletConnectSessionProposal,
-        selectedBlockchains: [BlockchainSdk.Blockchain],
+        selectedBlockchains: Set<Blockchain>,
         selectedUserWallet: some UserWalletModel
     ) async throws {
         let request = try proposal.dAppConnectionRequestFactory(selectedBlockchains, selectedUserWallet)

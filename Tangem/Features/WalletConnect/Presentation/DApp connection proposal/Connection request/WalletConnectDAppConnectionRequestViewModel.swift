@@ -15,7 +15,8 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
     private let connectDAppUseCase: WalletConnectConnectDAppUseCase
 
-    private var loadedSessionProposal: WalletConnectSessionProposal?
+    private var cachedDAppProposal: WalletConnectDAppConnectionProposal?
+    private(set) var cachedBlockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult?
 
     private var dAppLoadingTask: Task<Void, Never>?
     private var dAppConnectionTask: Task<Void, Never>?
@@ -23,7 +24,6 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
 
     private(set) var selectedUserWallet: any UserWalletModel
-    private(set) var selectedBlockchains: [Blockchain]
 
     weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
@@ -39,7 +39,6 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
         self.connectDAppUseCase = connectDAppUseCase
         self.selectedUserWallet = selectedUserWallet
-        selectedBlockchains = []
     }
 
     deinit {
@@ -50,11 +49,31 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     func updateSelectedUserWallet(_ selectedUserWallet: some UserWalletModel) {
         self.selectedUserWallet = selectedUserWallet
         state.walletSection.selectedUserWalletName = selectedUserWallet.name
-        // [REDACTED_TODO_COMMENT]
+
+        guard let cachedDAppProposal else { return }
+
+        let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
+            sessionProposal: cachedDAppProposal.sessionProposal,
+            selectedBlockchains: cachedBlockchainsAvailabilityResult?.retrieveSelectedBlockchains() ?? [],
+            userWallet: selectedUserWallet
+        )
+
+        self.cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
+        updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
-    private var debugLoadingState: WalletConnectDAppConnectionRequestViewState?
-    private var debugContentState: WalletConnectDAppConnectionRequestViewState?
+    func updateSelectedBlockchains(_ selectedBlockchains: Set<Blockchain>) {
+        guard let cachedDAppProposal else { return }
+
+        let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
+            sessionProposal: cachedDAppProposal.sessionProposal,
+            selectedBlockchains: selectedBlockchains,
+            userWallet: selectedUserWallet
+        )
+
+        cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
+        updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
+    }
 }
 
 // MARK: - View events handling
@@ -103,8 +122,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     selectedBlockchains: [],
                     userWallet: selectedUserWallet
                 )
-                self?.loadedSessionProposal = dAppProposal.sessionProposal
-                self?.selectedBlockchains = Array(dAppProposal.sessionProposal.requiredBlockchains)
+
+                self?.cachedDAppProposal = dAppProposal
+                self?.cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
+
                 self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
             } catch {
                 self?.coordinator?.openErrorScreen(error: error)
@@ -122,7 +143,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleWalletRowTapped() {
-        guard state.walletSection.selectionIsAvailable else { return }
+//        guard state.walletSection.selectionIsAvailable else { return }
         coordinator?.openWalletSelector()
     }
 
@@ -135,15 +156,15 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleConnectButtonTapped() {
-        guard let loadedSessionProposal else { return }
+        guard let cachedDAppProposal, let cachedBlockchainsAvailabilityResult else { return }
 
         dAppConnectionTask?.cancel()
 
-        dAppConnectionTask = Task { [selectedUserWallet, selectedBlockchains, connectDAppUseCase] in
+        dAppConnectionTask = Task { [selectedUserWallet, connectDAppUseCase] in
             do {
                 try await connectDAppUseCase(
-                    proposal: loadedSessionProposal,
-                    selectedBlockchains: selectedBlockchains,
+                    proposal: cachedDAppProposal.sessionProposal,
+                    selectedBlockchains: cachedBlockchainsAvailabilityResult.retrieveSelectedBlockchains(),
                     selectedUserWallet: selectedUserWallet
                 )
                 print("done")
@@ -154,7 +175,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 }
 
-// MARK: - State update and mapping
+// MARK: - State updates and mapping
 
 extension WalletConnectDAppConnectionRequestViewModel {
     private func updateState(
@@ -170,6 +191,74 @@ extension WalletConnectDAppConnectionRequestViewModel {
             walletSelectionIsAvailable: state.walletSection.selectionIsAvailable,
             blockchainsAvailabilityResult: blockchainsAvailabilityResult,
             connectButtonIsEnabled: allRequiredBlockchainsAreAvailable && atLeastOneBlockchainIsSelected
+        )
+    }
+}
+
+private extension WalletConnectDAppConnectionRequestViewState {
+    static func content(
+        proposal: WalletConnectDAppConnectionProposal,
+        selectedUserWalletName: String,
+        walletSelectionIsAvailable: Bool,
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
+        connectButtonIsEnabled: Bool
+    ) -> WalletConnectDAppConnectionRequestViewState {
+        WalletConnectDAppConnectionRequestViewState(
+            dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
+                WalletConnectDAppDescriptionViewModel.ContentState(
+                    dAppData: proposal.dApp,
+                    verificationStatus: proposal.verificationStatus
+                )
+            ),
+            connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
+            dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
+            walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
+            networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
+            networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
+            connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
+        )
+    }
+}
+
+private extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
+    init(blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
+        guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
+            self.init(state: .content(.init(selectionMode: .requiredNetworksAreMissing)))
+            return
+        }
+
+        let availableSelectionMode = AvailableSelectionMode(
+            blockchains: blockchainsAvailabilityResult.availableBlockchains.map(\.blockchain)
+        )
+        let contentState = ContentState(selectionMode: .available(availableSelectionMode))
+        self.init(state: .content(contentState))
+    }
+}
+
+private extension WalletConnectDAppConnectionRequestViewState.NetworksSection.AvailableSelectionMode {
+    init(blockchains: [BlockchainSdk.Blockchain]) {
+        let remainingBlockchainsCounter: String?
+
+        let maximumIconsCount = 4
+        let imageProvider = NetworkImageProvider()
+        let prefixedBlockchains: [BlockchainSdk.Blockchain]
+
+        let shouldShowRemainingBlockchainsCounter = blockchains.count > maximumIconsCount
+
+        if shouldShowRemainingBlockchainsCounter {
+            let blockchainsCountToTake = maximumIconsCount - 1
+            prefixedBlockchains = Array(blockchains.prefix(blockchainsCountToTake))
+            remainingBlockchainsCounter = "+\(blockchains.count - blockchainsCountToTake)"
+        } else {
+            prefixedBlockchains = blockchains
+            remainingBlockchainsCounter = nil
+        }
+
+        self.init(
+            blockchainLogoAssets: prefixedBlockchains.map { blockchain in
+                imageProvider.provide(by: blockchain, filled: true)
+            },
+            remainingBlockchainsCounter: remainingBlockchainsCounter
         )
     }
 }
