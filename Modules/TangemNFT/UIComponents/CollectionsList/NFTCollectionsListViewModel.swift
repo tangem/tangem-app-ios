@@ -80,7 +80,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
-                if let completion = viewModel.pullToRefreshCompletion {
+                if let completion = viewModel.pullToRefreshCompletion, !result.viewState.isLoading {
                     completion()
                     viewModel.pullToRefreshCompletion = nil
                 }
@@ -118,7 +118,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         case .loading:
             return .init(
                 viewState: .loading,
-                notificationViewData: nil
+                notificationViewData: loadingTroublesViewData
             )
 
         case .loaded(let collectionsResult):
@@ -139,7 +139,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .loading
         case .failedToLoad(let error):
             .failedToLoad(error: error)
-        case .loaded(let collections):
+        case .loaded:
             .loaded(filteredCollections(entry: searchEntry))
         }
     }
