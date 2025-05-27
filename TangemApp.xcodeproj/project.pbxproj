@@ -2356,7 +2356,7 @@
 		DC0DE2762B616C7100E7247F /* IncomingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0DE2752B616C7100E7247F /* IncomingAction.swift */; };
 		DC0DE2782B61709D00E7247F /* IncomingActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0DE2772B61709D00E7247F /* IncomingActionURLHelper.swift */; };
 		DC0DE27A2B6175B100E7247F /* IncomingActionConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0DE2792B6175B100E7247F /* IncomingActionConstants.swift */; };
-		DC0DE7812D48005800492A0B /* Analytics+CardVerificationErrorSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0DE7802D48004000492A0B /* Analytics+CardVerificationErrorSource.swift */; };
+		DC0DE7812D48005800492A0B /* Analytics+ScanErrorsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0DE7802D48004000492A0B /* Analytics+ScanErrorsSource.swift */; };
 		DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A7C5295DED4E00367574 /* BindableError.swift */; };
 		DC10BFD92DA6703E00B089DA /* WCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD62DA6703E00B089DA /* WCService.swift */; };
 		DC10BFDA2DA6703E00B089DA /* Session+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFCC2DA6703E00B089DA /* Session+Extensions.swift */; };
@@ -5806,7 +5806,7 @@
 		DC0DE2752B616C7100E7247F /* IncomingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingAction.swift; sourceTree = "<group>"; };
 		DC0DE2772B61709D00E7247F /* IncomingActionURLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionURLHelper.swift; sourceTree = "<group>"; };
 		DC0DE2792B6175B100E7247F /* IncomingActionConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionConstants.swift; sourceTree = "<group>"; };
-		DC0DE7802D48004000492A0B /* Analytics+CardVerificationErrorSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+CardVerificationErrorSource.swift"; sourceTree = "<group>"; };
+		DC0DE7802D48004000492A0B /* Analytics+ScanErrorsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ScanErrorsSource.swift"; sourceTree = "<group>"; };
 		DC10A7C5295DED4E00367574 /* BindableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindableError.swift; sourceTree = "<group>"; };
 		DC10BFCC2DA6703E00B089DA /* Session+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Extensions.swift"; sourceTree = "<group>"; };
 		DC10BFCF2DA6703E00B089DA /* WCFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCFactory.swift; sourceTree = "<group>"; };
@@ -9839,7 +9839,7 @@
 				DCBC94502993FE9A0050BC35 /* Analytics+AnalyticsSystem.swift */,
 				2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */,
 				DCBC94522993FEC80050BC35 /* Analytics+CardScanSource.swift */,
-				DC0DE7802D48004000492A0B /* Analytics+CardVerificationErrorSource.swift */,
+				DC0DE7802D48004000492A0B /* Analytics+ScanErrorsSource.swift */,
 				DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */,
 				B0D1AC312906719300584E6C /* Analytics+Event.swift */,
 				DC8D72132BB1967D0077F241 /* Analytics+EventLimit.swift */,
@@ -19209,7 +19209,7 @@
 				B0CB73B72A82324200D530BA /* TokenWithoutDerivationInfoProvider.swift in Sources */,
 				EF9CA60E2D42405B009549E2 /* LogsViewModel.swift in Sources */,
 				0AC9EFF72CAE857C005F868F /* StakingSingleActionModel.swift in Sources */,
-				DC0DE7812D48005800492A0B /* Analytics+CardVerificationErrorSource.swift in Sources */,
+				DC0DE7812D48005800492A0B /* Analytics+ScanErrorsSource.swift in Sources */,
 				B058D2372A79668D008E79D2 /* TokenQuotesRepositoryMock.swift in Sources */,
 				EF914D502A604627001F00B2 /* QuotesMapper.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
