@@ -13,7 +13,7 @@ struct WalletConnectSessionProposal {
     let optionalBlockchains: Set<Blockchain>
 
     let dAppConnectionRequestFactory: (
-        _ selectedBlockchains: [Blockchain],
+        _ selectedBlockchains: Set<Blockchain>,
         _ selectedUserWallet: any UserWalletModel
     ) throws -> WalletConnectDAppConnectionRequest
 }
