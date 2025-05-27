@@ -536,6 +536,7 @@
 "nft_send" = "Отправить NFT";
 "nft_traits_title" = "Черты";
 "nft_untitled_collection" = "Untitled collection";
+"nft_wallet_count" = "%1$li NFTs в %2$li коллекциях";
 "nft_wallet_receive_nft" = "Нажмите здесь, чтобы получить первую NFT";
 "nft_wallet_title" = "NFT коллекции";
 "nft_wallet_unable_to_load" = "Невозможно загрузить данные";
