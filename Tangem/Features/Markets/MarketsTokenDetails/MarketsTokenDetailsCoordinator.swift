@@ -152,7 +152,7 @@ extension MarketsTokenDetailsCoordinator {
     }
 
     func openOnramp(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
