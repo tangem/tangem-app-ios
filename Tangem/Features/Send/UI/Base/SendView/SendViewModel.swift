@@ -127,7 +127,7 @@ final class SendViewModel: ObservableObject {
         case .action:
             performAction()
         case .close:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
@@ -199,10 +199,10 @@ final class SendViewModel: ObservableObject {
             stepsManager.performContinue()
         case _ where shouldShowDismissAlert:
             alert = alertBuilder.makeDismissAlert { [weak self] in
-                self?.coordinator?.dismiss()
+                self?.coordinator?.dismiss(reason: .other)
             }
         case _:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
@@ -306,7 +306,7 @@ private extension SendViewModel {
             }
         case .demoAlert:
             alert = AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
-                self?.coordinator?.dismiss()
+                self?.coordinator?.dismiss(reason: .other)
             }
         }
     }
