@@ -32,8 +32,11 @@ struct WalletConnectNetworksSelectorView: View {
             .padding(.top, Layout.contentTopPadding)
             .padding(.bottom, Layout.contentBottomPadding)
             .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .proMotion) { geometryInfo in
+                withAnimation(WalletConnectDAppConnectionRequestView.Animations.sectionSlideInsertion) {
+                    updateScrollViewMaxHeight(geometryInfo.size.height)
+                }
+
                 updateNavigationBarBottomSeparatorVisibility(geometryInfo.frame.minY)
-                updateScrollViewMaxHeight(geometryInfo.size.height)
             }
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
@@ -95,6 +98,7 @@ struct WalletConnectNetworksSelectorView: View {
 
                 ForEach(viewState.blockchains) { blockchainViewState in
                     missingRequiredBlockchainRow(blockchainViewState, requiredLabel: viewState.requiredLabel)
+                        .padding(.horizontal, 14)
                 }
             }
             .background(Colors.Background.action)
@@ -102,15 +106,21 @@ struct WalletConnectNetworksSelectorView: View {
         }
     }
 
+    @ViewBuilder
     private var availableSection: some View {
-        sectionContainer(viewModel.state.availableSection.headerTitle) {
-            ForEach(indexed: viewModel.state.availableSection.blockchains.indexed(), content: availableBlockchainRow)
+        if !viewModel.state.availableSection.blockchains.isEmpty {
+            sectionContainer(viewModel.state.availableSection.headerTitle) {
+                ForEach(indexed: viewModel.state.availableSection.blockchains.indexed(), content: availableBlockchainRow)
+            }
         }
     }
 
+    @ViewBuilder
     private var notAddedSection: some View {
-        sectionContainer(viewModel.state.notAddedSection.headerTitle) {
-            ForEach(viewModel.state.notAddedSection.blockchains, content: notAddedBlockchainRow)
+        if !viewModel.state.notAddedSection.blockchains.isEmpty {
+            sectionContainer(viewModel.state.notAddedSection.headerTitle) {
+                ForEach(viewModel.state.notAddedSection.blockchains, content: notAddedBlockchainRow)
+            }
         }
     }
 
