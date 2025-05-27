@@ -27,6 +27,10 @@ class NFTCollectionsCoordinator: CoordinatorObject {
     @Published var receiveCoordinator: NFTReceiveCoordinator?
     @Published var assetDetailsCoordinator: NFTAssetDetailsCoordinator?
 
+    // MARK: - Private
+
+    private let assetSendSubject = PassthroughSubject<NFTAsset, Never>()
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -46,6 +50,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
             nftManager: options.nftManager,
             navigationContext: options.navigationContext,
             dependencies: dependencies,
+            assetSendPublisher: assetSendSubject.eraseToAnyPublisher(),
             coordinator: self
         )
     }
@@ -90,8 +95,12 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
 
     func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
         let coordinator = NFTAssetDetailsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] asset in
                 self?.assetDetailsCoordinator = nil
+
+                if let asset {
+                    self?.assetSendSubject.send(asset)
+                }
             },
             popToRootAction: { [weak self] options in
                 self?.assetDetailsCoordinator = nil
