@@ -59,7 +59,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
             userWallet: selectedUserWallet
         )
 
-        self.cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
+        cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
         updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
