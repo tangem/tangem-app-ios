@@ -129,8 +129,7 @@ extension WalletConnectViewModel {
 
                 if let clipboardURI {
                     establishConnectionFromClipboardAction = { [weak self] in
-//                        self?.walletConnectService.openSession(with: clipboardURI, source: .clipboard)
-                        self?.coordinator?.openDAppConnectionProposal(forURI: clipboardURI, source: .clipboard)
+                        self?.walletConnectService.openSession(with: clipboardURI, source: .clipboard)
                     }
                 } else {
                     establishConnectionFromClipboardAction = nil
@@ -144,7 +143,7 @@ extension WalletConnectViewModel {
                 )
 
             case .canOpenQRScanner(let clipboardURI):
-                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [weak coordinator] result in
+                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [weak self] result in
                     let source: Analytics.WalletConnectSessionSource
                     let sessionURI: WalletConnectRequestURI
 
@@ -157,8 +156,7 @@ extension WalletConnectViewModel {
                         sessionURI = uri
                     }
 
-                    coordinator?.openDAppConnectionProposal(forURI: sessionURI, source: source)
-//                    walletConnectService.openSession(with: sessionURI, source: source)
+                    self?.walletConnectService.openSession(with: sessionURI, source: source)
                 }
             }
         } catch {
