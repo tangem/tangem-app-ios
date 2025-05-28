@@ -32,6 +32,7 @@ struct OnboardingCardView: View {
     var placeholderCardType: CardType
     var cardImage: Image?
     var cardScanned: Bool
+    var cardMock: CardMock? = nil
 
     var body: some View {
         GeometryReader { geom in
@@ -41,6 +42,7 @@ struct OnboardingCardView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(size: geom.size)
                     .opacity(cardScanned ? 1.0 : 0.0)
+                    .accessibilityIdentifier(cardMock?.accessibilityIdentifier ?? "onboarding_card_scanned")
             } else {
                 placeholderCardType.imageType.image
                     .resizable()
@@ -48,6 +50,7 @@ struct OnboardingCardView: View {
                     .frame(size: geom.size)
                     .opacity(cardScanned ? 0.0 : 1.0)
                     .transition(.opacity.animation(.easeOut.delay(0.3)))
+                    .accessibilityIdentifier(cardMock?.accessibilityIdentifier ?? "onboarding_card_placeholder_\(placeholderCardType)")
             }
         }
     }

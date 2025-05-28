@@ -35,6 +35,17 @@ enum ActionButtonModel: Hashable {
             Assets.dollarMini
         }
     }
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .buy:
+            "Buy"
+        case .swap:
+            "Exchange"
+        case .sell:
+            "Sell"
+        }
+    }
 }
 
 enum ActionButtonState: Equatable {
