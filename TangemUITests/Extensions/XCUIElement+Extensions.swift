@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import Foundation
 
 // MARK: - WaitForState
 
@@ -31,7 +32,7 @@ extension XCUIElement {
     func scrollToElement(_ element: XCUIElement, startPoint: Double = 0.8, attempts: SwipeAttempts = .standard) {
         for attempt in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
-                log.debug("Swiping - attempt \(attempt)")
+//                log.debug("Swiping - attempt \(attempt)")
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
                 startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
@@ -42,7 +43,7 @@ extension XCUIElement {
     func scrollHorizontallyToElement(_ element: XCUIElement, startPoint: Double = 0.5, attempts: SwipeAttempts = .standard) {
         for attempt in 0 ..< attempts.rawValue {
             if !element.isHittable || !element.isEnabled {
-                log.debug("Swiping - attempt \(attempt)")
+//                log.debug("Swiping - attempt \(attempt)")
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: startPoint))
                 startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
@@ -69,7 +70,7 @@ extension XCUIElement {
             tap()
         }
 
-        guard let value = value as? String, value.isNotEmpty else {
+        guard let value = value as? String, !value.isEmpty else {
             return
         }
 
@@ -92,7 +93,7 @@ extension XCUIElement {
     }
 
     func getValue() -> String {
-        guard let value = value as? String, value.isNotEmpty else {
+        guard let value = value as? String, !value.isEmpty else {
             return ""
         }
         return value
@@ -136,7 +137,7 @@ extension XCUIElement {
         let staticTextElements = staticTexts.containing(predicate).allElementsBoundByIndex
         let textViewElements = textViews.containing(predicate).allElementsBoundByIndex
         let links = links.containing(predicate).allElementsBoundByIndex
-        return staticTextElements.isNotEmpty textViewElements.isNotEmpty links.isNotEmpty
+        return !staticTextElements.isEmpty || !textViewElements.isEmpty || !links.isEmpty
     }
 
     func containsIdentifier(id: String) -> Bool {
@@ -145,11 +146,11 @@ extension XCUIElement {
         let staticTexts = staticTexts.matching(predicate).allElementsBoundByIndex
         let selfContainsIdentifier = identifier.contains(id)
         let buttons = buttons.matching(predicate).allElementsBoundByIndex
-        return otherElements.isNotEmpty buttons.isNotEmpty staticTexts.isNotEmpty || selfContainsIdentifier
+        return !otherElements.isEmpty || !buttons.isEmpty || !staticTexts.isEmpty || selfContainsIdentifier
     }
 
     func isVisible() -> Bool {
-        app.scrollToElement(self, attempts: .serp)
+        app.scrollToElement(self, attempts: .lazy)
         return isHittable
     }
 }
