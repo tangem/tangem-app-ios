@@ -10,10 +10,10 @@ import Foundation
 import TangemSdk
 
 struct KoinosAddressService {
-    private let bitcoinLegacyAddressService: BitcoinLegacyAddressService
+    private let base58LockingScriptBuilder: Base58LockingScriptBuilder
 
     init(networkParams: UTXONetworkParams) {
-        bitcoinLegacyAddressService = BitcoinLegacyAddressService(networkParams: networkParams)
+        base58LockingScriptBuilder = .init(network: networkParams)
     }
 }
 
@@ -22,8 +22,8 @@ struct KoinosAddressService {
 extension KoinosAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-        let address = try bitcoinLegacyAddressService.makeAddress(from: compressedKey).value
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        let (address, script) = try base58LockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
+        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: script)
     }
 }
 
@@ -31,6 +31,6 @@ extension KoinosAddressService: AddressProvider {
 
 extension KoinosAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        bitcoinLegacyAddressService.validate(address)
+        (try? base58LockingScriptBuilder.decode(address: address)) != nil
     }
 }
