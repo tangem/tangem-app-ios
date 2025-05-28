@@ -14,5 +14,4 @@ struct RadiantNetworkParams: UTXONetworkParams {
     let dustRelayTxFee = 3000
     let coinType: UInt32 = 512
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }
