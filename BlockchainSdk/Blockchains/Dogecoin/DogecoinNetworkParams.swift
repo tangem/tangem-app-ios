@@ -15,5 +15,4 @@ struct DogecoinNetworkParams: UTXONetworkParams {
     let coinType: UInt32 = 3
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustRelayTxFee: Int = 1_000_000 // 0.01 DOGE
-    var publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 }
