@@ -14,7 +14,6 @@ struct BitcoinNetworkParams: UTXONetworkParams {
     let bech32Prefix: String = "bc"
     let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
     let coinType: UInt32 = 0
-    var publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 }
 
@@ -24,6 +23,5 @@ struct BitcoinTestnetNetworkParams: UTXONetworkParams {
     let bech32Prefix: String = "tb"
     let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
     let coinType: UInt32 = 0
-    var publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 }
