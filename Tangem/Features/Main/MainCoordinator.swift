@@ -577,3 +577,20 @@ extension MainCoordinator: NFTEntrypointRoutable {
         )
     }
 }
+
+extension MainCoordinator {
+    var isOnMainView: Bool {
+        detailsCoordinator == nil &&
+            tokenDetailsCoordinator == nil &&
+            marketsTokenDetailsCoordinator == nil &&
+            stakingDetailsCoordinator == nil &&
+            referralCoordinator == nil &&
+            nftCollectionsCoordinator == nil &&
+            modalOnboardingCoordinator == nil &&
+            sendCoordinator == nil &&
+            expressCoordinator == nil &&
+            actionButtonsBuyCoordinator == nil &&
+            actionButtonsSellCoordinator == nil &&
+            actionButtonsSwapCoordinator == nil
+    }
+}
