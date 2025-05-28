@@ -23,7 +23,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7982E5C52DE6EA08003B9607"
+               BlueprintIdentifier = "5D3F77E224BF56DC00E8695B"
                BuildableName = "TangemUITests.xctest"
                BlueprintName = "TangemUITests"
                ReferencedContainer = "container:TangemApp.xcodeproj">
