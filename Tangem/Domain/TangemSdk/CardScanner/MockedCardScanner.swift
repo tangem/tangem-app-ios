@@ -34,6 +34,7 @@ class MockedCardScanner {
             style: .default,
             handler: { [weak self] _ in self?.scan(handler) }
         )
+        action.accessibilityIdentifier = "scan_card_action"
         vc.addAction(action)
 
         for mock in CardMock.allCases {
@@ -42,6 +43,7 @@ class MockedCardScanner {
                 style: .default,
                 handler: { _ in handler(.success(.cardMock(mock))) }
             )
+            action.accessibilityIdentifier = mock.accessibilityIdentifier
             vc.addAction(action)
         }
 
@@ -50,6 +52,7 @@ class MockedCardScanner {
             style: .default,
             handler: { [weak self] _ in self?.promptJSON(handler) }
         )
+        jsonOption.accessibilityIdentifier = "custom_json_action"
         vc.addAction(jsonOption)
 
         vc.addAction(
