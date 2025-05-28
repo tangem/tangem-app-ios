@@ -37,7 +37,9 @@ final class MainViewModel: ObservableObject {
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    private let handler: MainViewModelNavigationActionHandler
     private weak var coordinator: MainRoutable?
+    
 
     // MARK: - Internal state
 
@@ -50,6 +52,17 @@ final class MainViewModel: ObservableObject {
     private var isLoggingOut = false
 
     private var bag: Set<AnyCancellable> = []
+    
+    
+    
+    
+//    let handler = MainViewModelNavigationActionHandler(
+//        userWalletModel: userWalletRepository.selectedModel,
+//        coordinator: coordinator,
+//        incomingActionManager: incomingActionManager
+//    )
+//
+//    handler.routeIncommingAction(action)
 
     // MARK: - Initializers
 
@@ -63,6 +76,13 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        
+        self.handler = MainViewModelNavigationActionHandler(
+            userWalletModel: userWalletRepository.selectedModel,
+            coordinator: coordinator,
+            incomingActionManager: incomingActionManager
+        )
+        
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -136,16 +156,16 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        if isReferralProgramSupported() {
-            let hasReferralNavigationAction = incomingActionManager.hasReferralNavigationAction()
-
-            incomingActionManager.becomeFirstResponder(self)
-
-            // skip bottom sheet display in case of referral navigation
-            guard !hasReferralNavigationAction else {
-                return
-            }
-        }
+//        if isReferralProgramSupported() {
+//            let hasReferralNavigationAction = incomingActionManager.hasReferralNavigationAction()
+//
+//            incomingActionManager.becomeFirstResponder(self)
+//
+//            // skip bottom sheet display in case of referral navigation
+//            guard !hasReferralNavigationAction else {
+//                return
+//            }
+//        }
 
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
@@ -341,8 +361,17 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
+    
 
     private func bind() {
+        incomingActionManager.didReceiveNavigationActionPublisher
+            .delay(for: .seconds(0.6), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                incomingActionManager.becomeFirstResponder(self)
+            }
+            .store(in: &bag)
+        
         $selectedCardIndex
             .dropFirst()
             .withWeakCaptureOf(self)
@@ -548,24 +577,36 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
 extension MainViewModel: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard case .referralProgram = action, let userWalletModel = userWalletRepository.selectedModel else {
-            return false
-        }
+//        let handler = MainViewModelNavigationActionHandler(
+//            userWalletModel: userWalletRepository.selectedModel,
+//            coordinator: coordinator,
+//            incomingActionManager: incomingActionManager
+//        )
 
-        guard isReferralProgramSupported() else {
-            incomingActionManager.discardIncomingAction()
-            return false
-        }
+        handler.routeIncommingAction(action)
 
-        let input = ReferralInputModel(
-            userWalletId: userWalletModel.userWalletId.value,
-            supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
-        )
+//        guard case .referralProgram = action, let userWalletModel = userWalletRepository.selectedModel else {
+//            return false
+//        }
 
-        coordinator?.openReferral(input: input)
+//        guard case .navigation(let navigationAction) = action else {
+//            return false
+//        }
 
-        return true
+//        guard isReferralProgramSupported() else {
+//            incomingActionManager.discardIncomingAction()
+//            return false
+//        }
+//
+//        let input = ReferralInputModel(
+//            userWalletId: userWalletModel.userWalletId.value,
+//            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+//            userTokensManager: userWalletModel.userTokensManager
+//        )
+//
+//        coordinator?.openReferral(input: input)
+
+//        return true
     }
 }
 
@@ -579,5 +620,98 @@ private extension MainViewModel {
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
+    }
+}
+
+extension MainViewModel {
+    struct MainViewModelNavigationActionHandler {
+        let userWalletModel: (any UserWalletModel)?
+        let coordinator: MainRoutable!
+        let incomingActionManager: IncomingActionManaging
+
+        func routeIncommingAction(_ action: IncomingAction) -> Bool {
+            guard case .navigation(let navigationAction) = action,
+                  coordinator != nil,
+                  coordinator.isOnMainView
+            else {
+                return false
+            }
+
+            switch navigationAction {
+            case .referral:
+                return routeReferralAction()
+
+            case .token(let symbol, let network):
+                return routeTokenAction(tokenName: symbol, network: network)
+
+            case .buy:
+                return routeBuyAction()
+
+            case .sell:
+                return routeSellAction()
+
+            default:
+                return false
+            }
+        }
+
+        private func routeSellAction() -> Bool {
+            guard let userWalletModel = userWalletModel else {
+                return false
+            }
+
+            coordinator.openSell(userWalletModel: userWalletModel)
+            return true
+        }
+
+        private func routeBuyAction() -> Bool {
+            guard let userWalletModel = userWalletModel else {
+                return false
+            }
+
+            coordinator.openBuy(userWalletModel: userWalletModel)
+            return true
+        }
+
+        private func routeTokenAction(tokenName: String, network: String?) -> Bool {
+            guard let userWalletModel = userWalletModel,
+                  let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.name.lowercased() == tokenName.lowercased() }),
+                  TokenActionAvailabilityProvider(
+                      userWalletConfig: userWalletModel.config, walletModel: walletModel
+                  ).isTokenInteractionAvailable()
+            else {
+                return false
+            }
+
+            coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+            return true
+        }
+
+        private func routeReferralAction() -> Bool {
+            guard isReferralProgramSupported(),
+                  let userWalletModel = userWalletModel
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let input = ReferralInputModel(
+                userWalletId: userWalletModel.userWalletId.value,
+                supportedBlockchains: userWalletModel.config.supportedBlockchains,
+                userTokensManager: userWalletModel.userTokensManager
+            )
+
+            coordinator.openReferral(input: input)
+            return true
+        }
+
+        private func isReferralProgramSupported() -> Bool {
+            guard let userWalletModel,
+                  !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
+                return false
+            }
+
+            return true
+        }
     }
 }
