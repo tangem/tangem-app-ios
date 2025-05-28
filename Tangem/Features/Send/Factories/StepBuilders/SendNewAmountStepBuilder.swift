@@ -74,7 +74,7 @@ private extension SendNewAmountStepBuilder {
             tokenIconInfo: builder.makeTokenIconInfo(),
             balanceFormatted: builder.formattedBalance(for: io.input.amount, actionType: actionType),
             fiatIconURL: builder.makeFiatIconURL(),
-            fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
+            fiatItem: builder.makeFiatItem(),
             possibleToChangeAmountType: builder.possibleToChangeAmountType(),
             actionType: actionType
         )

@@ -11,7 +11,7 @@ import Foundation
 class CommonNewSendStepsManager {
     private let amountStep: SendNewAmountStep
     private let destinationStep: SendNewDestinationStep
-    private let summaryStep: SendSummaryStep
+    private let summaryStep: SendNewSummaryStep
     private let finishStep: SendFinishStep
 
     private var stack: [SendStep]
@@ -24,7 +24,7 @@ class CommonNewSendStepsManager {
     init(
         amountStep: SendNewAmountStep,
         destinationStep: SendNewDestinationStep,
-        summaryStep: SendSummaryStep,
+        summaryStep: SendNewSummaryStep,
         finishStep: SendFinishStep
     ) {
         self.amountStep = amountStep
@@ -46,7 +46,7 @@ class CommonNewSendStepsManager {
             return summaryStep
         case .newAmount:
             return destinationStep
-        case .fee, .validators, .summary, .finish, .onramp, .amount, .destination:
+        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination:
             assertionFailure("There is no next step")
             return nil
         }
@@ -56,7 +56,7 @@ class CommonNewSendStepsManager {
         stack.append(step)
 
         switch step.type {
-        case .summary:
+        case .summary, .newSummary:
             output?.update(state: .init(step: step, action: .action))
         case .finish:
             output?.update(state: .init(step: step, action: .close))
@@ -151,7 +151,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditDestination() {
-        guard case .summary = currentStep().type else {
+        guard case .newSummary = currentStep().type else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -160,7 +160,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditAmount() {
-        guard case .summary = currentStep().type else {
+        guard case .newSummary = currentStep().type else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -169,7 +169,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
     }
 
     func summaryStepRequestEditFee() {
-        guard case .summary = currentStep().type else {
+        guard case .newSummary = currentStep().type else {
             assertionFailure("This code should only be called from summary")
             return
         }
