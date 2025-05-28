@@ -52,6 +52,7 @@ final class NFTSendStepsManager {
         case .fee,
              .validators,
              .summary,
+             .newSummary,
              .finish,
              .onramp:
             assertionFailure("There is no next step")
@@ -74,7 +75,8 @@ final class NFTSendStepsManager {
             output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
         case .amount,
              .newAmount,
-             .newDestination:
+             .newDestination,
+             .newSummary:
             assertionFailure("Invalid step for this flow: '\(step.type)'")
         case .fee,
              .validators,
