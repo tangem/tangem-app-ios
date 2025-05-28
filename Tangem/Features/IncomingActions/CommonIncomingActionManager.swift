@@ -24,7 +24,7 @@ public class CommonIncomingActionManager {
 // MARK: - IncomingActionManaging
 
 extension CommonIncomingActionManager: IncomingActionManaging {
-    public var _didReceiveNavigationAction: AnyPublisher<Void, Never> {
+    public var didReceiveNavigationAction: AnyPublisher<Void, Never> {
         _didReceiveNavigationAction.eraseToAnyPublisher()
     }
 
@@ -91,7 +91,7 @@ extension CommonIncomingActionManager: IncomingActionHandler {
         pendingAction = action
         tryHandleLastAction()
 
-        didReceiveNavigationActionSubject.send()
+        _didReceiveNavigationAction.send()
         return true
     }
 }
