@@ -12,12 +12,13 @@ import TangemFoundation
 
 public class IncomingActionParser {
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
+        DeepLinkURLParser(),
         NDEFURLParser(),
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
-        ReferralProgramURLParser(),
+//        ReferralProgramURLParser(),
         OnrampIncomingActionURLParser(),
     ]
 
