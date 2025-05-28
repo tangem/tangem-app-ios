@@ -48,7 +48,7 @@ class CommonUnstakingStepsManager {
         switch currentStep().type {
         case .amount:
             return summaryStep
-        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination:
+        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination, .newSummary:
             assertionFailure("There is no next step")
             return nil
         }
@@ -65,7 +65,7 @@ class CommonUnstakingStepsManager {
             output?.update(state: .init(step: step, action: .close))
         case .summary:
             output?.update(state: .init(step: step, action: .action))
-        case .amount, .destination, .fee, .validators, .onramp, .newAmount, .newDestination:
+        case .amount, .destination, .fee, .validators, .onramp, .newAmount, .newDestination, .newSummary:
             assertionFailure("There is no next step")
         }
     }
