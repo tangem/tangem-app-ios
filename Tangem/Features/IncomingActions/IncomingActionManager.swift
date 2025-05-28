@@ -19,8 +19,8 @@ public protocol IncomingActionHandler {
 
 /// Object's interface for encapsulating logic of deeplink handling
 public protocol IncomingActionManaging: AnyObject {
-    var didReceiveNavigationActionPublisher: AnyPublisher<Void, Never> { get }
-    
+    var didReceiveNavigationAction: AnyPublisher<Void, Never> { get }
+
     func hasReferralNavigationAction() -> Bool
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
