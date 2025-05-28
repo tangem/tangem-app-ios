@@ -19,6 +19,7 @@ public struct MainButton: View {
     private let isDisabled: Bool
     private let action: () -> Void
     private let handleActionWhenDisabled: Bool
+    private let accessibilityIdentifier: String?
 
     private var isLoading: Bool
 
@@ -31,6 +32,7 @@ public struct MainButton: View {
         isLoading: Bool = false,
         isDisabled: Bool = false,
         handleActionWhenDisabled: Bool = false,
+        accessibilityIdentifier: String? = nil,
         action: @escaping (() -> Void)
     ) {
         self.title = title
@@ -41,6 +43,7 @@ public struct MainButton: View {
         self.isLoading = isLoading
         self.isDisabled = isDisabled
         self.handleActionWhenDisabled = handleActionWhenDisabled
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 
@@ -53,6 +56,7 @@ public struct MainButton: View {
             size: settings.size,
             isLoading: settings.isLoading,
             isDisabled: settings.isDisabled,
+            accessibilityIdentifier: settings.accessibilityIdentifier,
             action: settings.action
         )
     }
@@ -72,6 +76,7 @@ public struct MainButton: View {
                 .cornerRadiusContinuous(style.cornerRadius(for: size))
         )
         .disabled(isInternalButtonDisabled)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "Edik Test")
     }
 
     var isInternalButtonDisabled: Bool {
@@ -259,6 +264,7 @@ public extension MainButton {
         public let size: Size
         public let isLoading: Bool
         public var isDisabled: Bool
+        public let accessibilityIdentifier: String?
         public let action: () -> Void
 
         public var id: Int { hashValue }
@@ -271,6 +277,7 @@ public extension MainButton {
             size: Size = .default,
             isLoading: Bool = false,
             isDisabled: Bool = false,
+            accessibilityIdentifier: String? = nil,
             action: @escaping (() -> Void)
         ) {
             self.title = title
@@ -280,6 +287,7 @@ public extension MainButton {
             self.size = size
             self.isLoading = isLoading
             self.isDisabled = isDisabled
+            self.accessibilityIdentifier = accessibilityIdentifier
             self.action = action
         }
 
