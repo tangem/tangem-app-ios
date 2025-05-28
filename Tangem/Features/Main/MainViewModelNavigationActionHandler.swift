@@ -12,13 +12,12 @@ protocol NavigationActionHandling {
 
 extension MainViewModel {
     struct MainViewModelNavigationActionHandler: NavigationActionHandling {
+        @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
         let userWalletModel: (any UserWalletModel)?
-        let coordinator: MainRoutable!
-        let incomingActionManager: IncomingActionManaging
+        let coordinator: MainRoutable
         
         func routeIncommingAction(_ action: IncomingAction) -> Bool {
             guard case .navigation(let navigationAction) = action,
-                  coordinator != nil,
                   coordinator.isOnMainView
             else {
                 return false

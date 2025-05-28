@@ -27,6 +27,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManager
 
     // MARK: - Properties
 
@@ -57,15 +58,15 @@ final class MarketsViewModel: MarketsBaseViewModel {
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let imageCache = KingfisherManager.shared.cache
     private let marketsNotificationsManager: MarketsNotificationsManager
-
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
+    private(set) var navigationActionHandler: NavigationActionHandling?
 
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
     private var currentSearchValue: String = ""
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
-    private var showItemsBelowCapThreshold: Bool = false
+    private(set) var showItemsBelowCapThreshold: Bool = false
 
     private var filterItemsBelowMarketCapThreshold: Bool {
         isSearching && !showItemsBelowCapThreshold
@@ -105,6 +106,8 @@ final class MarketsViewModel: MarketsBaseViewModel {
         dataProviderBind()
         bindToMainBottomSheetUIManager()
         bindToHotArea()
+        bindToIncomingActionManager()
+        createNavigationActionHandler()
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
@@ -283,6 +286,30 @@ private extension MarketsViewModel {
                 self?.stakingNotificationState = state
             }
             .store(in: &bag)
+    }
+
+    private func bindToIncomingActionManager() {
+        incomingActionManager.didReceiveNavigationAction
+            .sink { [weak self] _ in
+                guard let self else { return }
+                incomingActionManager.becomeFirstResponder(self)
+            }
+            .store(in: &bag)
+    }
+
+    private func createNavigationActionHandler() {
+        if let coordinator {
+            navigationActionHandler = MarketsNavigationActionHandler(
+                coordinator: coordinator,
+                bottomSheetPosition: { [weak self] in
+                    guard let self else {
+                        return .unknown
+                    }
+
+                    return isBottomSheetExpanded ? .expanded : .collapsed
+                }
+            )
+        }
     }
 
     func requestMiniCharts(forRange range: ClosedRange<Int>, interval: MarketsPriceIntervalType) {
