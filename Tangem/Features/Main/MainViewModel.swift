@@ -140,17 +140,6 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-//        if isReferralProgramSupported() {
-//            let hasReferralNavigationAction = incomingActionManager.hasReferralNavigationAction()
-//
-//            incomingActionManager.becomeFirstResponder(self)
-//
-//            // skip bottom sheet display in case of referral navigation
-//            guard !hasReferralNavigationAction else {
-//                return
-//            }
-//        }
-
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
@@ -355,8 +344,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func bind() {
-        incomingActionManager.didReceiveNavigationActionPublisher
-            .delay(for: .seconds(0.6), scheduler: DispatchQueue.main)
+        incomingActionManager.didReceiveNavigationAction
             .sink { [weak self] _ in
                 guard let self else { return }
                 incomingActionManager.becomeFirstResponder(self)
@@ -478,15 +466,6 @@ final class MainViewModel: ObservableObject {
             }
         }
     }
-
-    private func isReferralProgramSupported() -> Bool {
-        guard let userWalletModel = userWalletRepository.selectedModel,
-              !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
-            return false
-        }
-
-        return true
-    }
 }
 
 // MARK: - Navigation
@@ -590,4 +569,3 @@ private extension MainViewModel {
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }
-
