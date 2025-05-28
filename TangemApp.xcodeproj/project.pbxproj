@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -25,14 +25,6 @@
 		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
 		0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */; };
 		0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */; };
-		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
-		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
-		0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */; };
-		0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */; };
-		0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */; };
-		0A3A53D72D9D8AE600E263E7 /* BlockaidChainScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */; };
-		0A3A53D92D9E743500E263E7 /* BlockaidMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */; };
-		0A3A53DB2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -2751,6 +2743,7 @@
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EA81EE5A2DE458AC00AD3D4A /* PushNotificationSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */; };
 		EA81EE5C2DE458F600AD3D4A /* NotificationResponseDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */; };
+		EAD454E42DE5ACE7005A381D /* IncomingActionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -3596,14 +3589,6 @@
 		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
 		0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
-		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
-		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
-		0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
-		0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaScan.swift; sourceTree = "<group>"; };
-		0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidFactory.swift; sourceTree = "<group>"; };
-		0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidChainScanResult.swift; sourceTree = "<group>"; };
-		0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidMapper.swift; sourceTree = "<group>"; };
-		0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidSiteScanResult.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -6292,6 +6277,7 @@
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSubscriber.swift; sourceTree = "<group>"; };
 		EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponseDispatching.swift; sourceTree = "<group>"; };
+		EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionRoutable.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -6956,6 +6942,10 @@
 		F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EAD454E52DE5C209005A381D /* Features */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Features; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -7138,33 +7128,6 @@
 			path = DTOs;
 			sourceTree = "<group>";
 		};
-		0A2261862D9AC61F004DC848 /* Blockaid */ = {
-			isa = PBXGroup;
-			children = (
-				0A3A53D52D9D88BA00E263E7 /* Domain */,
-				0A2261892D9AC66F004DC848 /* DTOs */,
-				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
-				0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */,
-				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
-				0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */,
-				0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */,
-			);
-			path = Blockaid;
-			sourceTree = "<group>";
-		};
-		0A2261892D9AC66F004DC848 /* DTOs */ = {
-			isa = PBXGroup;
-			children = (
-				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
-				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
-				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
-				0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */,
-				0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */,
-				0A3A53C92D9D276B00E263E7 /* Common.swift */,
-			);
-			path = DTOs;
-			sourceTree = "<group>";
-		};
 		0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -7174,15 +7137,6 @@
 				0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */,
 			);
 			path = StakingPendingActions;
-			sourceTree = "<group>";
-		};
-		0A3A53D52D9D88BA00E263E7 /* Domain */ = {
-			isa = PBXGroup;
-			children = (
-				0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */,
-				0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */,
-			);
-			path = Domain;
 			sourceTree = "<group>";
 		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
@@ -8144,6 +8098,7 @@
 		5D3F77DB24BF56DC00E8695B /* TangemTests */ = {
 			isa = PBXGroup;
 			children = (
+				EAD454E52DE5C209005A381D /* Features */,
 				DA64DACA2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift */,
 				DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */,
 				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
@@ -15169,6 +15124,7 @@
 				DC66BBFB285A389000CDF765 /* View+Navigation.swift */,
 				DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */,
 				DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */,
+				EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -17019,7 +16975,6 @@
 		EF6EDD7B296C0D40001B21A3 /* IncomingActions */ = {
 			isa = PBXGroup;
 			children = (
-				EA6639D52DDF37D000235741 /* URLParsing */,
 				EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */,
 				EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */,
 				EF6EDD7C296C0D40001B21A3 /* CommonIncomingActionManager.swift */,
@@ -18497,6 +18452,9 @@
 			dependencies = (
 				5D3F77DA24BF56DC00E8695B /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				EAD454E52DE5C209005A381D /* Features */,
+			);
 			name = TangemTests;
 			packageProductDependencies = (
 				B67E38C62CC7259B00D660EB /* TangemSdk */,
@@ -19307,6 +19265,7 @@
 				DCBF4D112D8B4790002C2B8E /* ScanCardSettingsCoordinator.swift in Sources */,
 				0A0EC0BA2DD4D1D2009FD20F /* MarketsTokensSummary.swift in Sources */,
 				DCBF4D122D8B4790002C2B8E /* ScanCardSettingsCoordinatorView.swift in Sources */,
+				EAD454E42DE5ACE7005A381D /* IncomingActionRoutable.swift in Sources */,
 				DCBF4D132D8B4790002C2B8E /* ScanCardSettingsView.swift in Sources */,
 				DCBF4D142D8B4790002C2B8E /* ScanCardSettingsViewModel.swift in Sources */,
 				DCBF4D152D8B4790002C2B8E /* ScanCardSettingsRoutable.swift in Sources */,
