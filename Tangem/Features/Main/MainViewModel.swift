@@ -37,7 +37,7 @@ final class MainViewModel: ObservableObject {
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
-    private let handler: MainViewModelNavigationActionHandler
+    private var navigationActionHandler: NavigationActionHandling?
     private weak var coordinator: MainRoutable?
     
 
@@ -53,17 +53,6 @@ final class MainViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
     
-    
-    
-    
-//    let handler = MainViewModelNavigationActionHandler(
-//        userWalletModel: userWalletRepository.selectedModel,
-//        coordinator: coordinator,
-//        incomingActionManager: incomingActionManager
-//    )
-//
-//    handler.routeIncommingAction(action)
-
     // MARK: - Initializers
 
     init(
@@ -77,12 +66,6 @@ final class MainViewModel: ObservableObject {
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
         
-        self.handler = MainViewModelNavigationActionHandler(
-            userWalletModel: userWalletRepository.selectedModel,
-            coordinator: coordinator,
-            incomingActionManager: incomingActionManager
-        )
-        
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -94,7 +77,8 @@ final class MainViewModel: ObservableObject {
         )
 
         assert(pages.count == userWalletRepository.models.count, "Number of pages must be equal to number of UserWalletModels")
-
+        
+        createNavigationActionHandler()
         bind()
     }
 
@@ -362,6 +346,13 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
     
+    private func createNavigationActionHandler() {
+        navigationActionHandler = MainViewModelNavigationActionHandler(
+            userWalletModel: userWalletRepository.selectedModel,
+            coordinator: coordinator,
+            incomingActionManager: incomingActionManager
+        )
+    }
 
     private func bind() {
         incomingActionManager.didReceiveNavigationActionPublisher
@@ -577,36 +568,13 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
 extension MainViewModel: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-//        let handler = MainViewModelNavigationActionHandler(
-//            userWalletModel: userWalletRepository.selectedModel,
-//            coordinator: coordinator,
-//            incomingActionManager: incomingActionManager
-//        )
-
-        handler.routeIncommingAction(action)
-
-//        guard case .referralProgram = action, let userWalletModel = userWalletRepository.selectedModel else {
-//            return false
-//        }
-
-//        guard case .navigation(let navigationAction) = action else {
-//            return false
-//        }
-
-//        guard isReferralProgramSupported() else {
-//            incomingActionManager.discardIncomingAction()
-//            return false
-//        }
-//
-//        let input = ReferralInputModel(
-//            userWalletId: userWalletModel.userWalletId.value,
-//            supportedBlockchains: userWalletModel.config.supportedBlockchains,
-//            userTokensManager: userWalletModel.userTokensManager
-//        )
-//
-//        coordinator?.openReferral(input: input)
-
-//        return true
+        guard !isLoggingOut,
+              let handler = navigationActionHandler
+        else {
+            return false
+        }
+        
+        return handler.routeIncommingAction(action)
     }
 }
 
@@ -623,95 +591,3 @@ private extension MainViewModel {
     }
 }
 
-extension MainViewModel {
-    struct MainViewModelNavigationActionHandler {
-        let userWalletModel: (any UserWalletModel)?
-        let coordinator: MainRoutable!
-        let incomingActionManager: IncomingActionManaging
-
-        func routeIncommingAction(_ action: IncomingAction) -> Bool {
-            guard case .navigation(let navigationAction) = action,
-                  coordinator != nil,
-                  coordinator.isOnMainView
-            else {
-                return false
-            }
-
-            switch navigationAction {
-            case .referral:
-                return routeReferralAction()
-
-            case .token(let symbol, let network):
-                return routeTokenAction(tokenName: symbol, network: network)
-
-            case .buy:
-                return routeBuyAction()
-
-            case .sell:
-                return routeSellAction()
-
-            default:
-                return false
-            }
-        }
-
-        private func routeSellAction() -> Bool {
-            guard let userWalletModel = userWalletModel else {
-                return false
-            }
-
-            coordinator.openSell(userWalletModel: userWalletModel)
-            return true
-        }
-
-        private func routeBuyAction() -> Bool {
-            guard let userWalletModel = userWalletModel else {
-                return false
-            }
-
-            coordinator.openBuy(userWalletModel: userWalletModel)
-            return true
-        }
-
-        private func routeTokenAction(tokenName: String, network: String?) -> Bool {
-            guard let userWalletModel = userWalletModel,
-                  let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.name.lowercased() == tokenName.lowercased() }),
-                  TokenActionAvailabilityProvider(
-                      userWalletConfig: userWalletModel.config, walletModel: walletModel
-                  ).isTokenInteractionAvailable()
-            else {
-                return false
-            }
-
-            coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-            return true
-        }
-
-        private func routeReferralAction() -> Bool {
-            guard isReferralProgramSupported(),
-                  let userWalletModel = userWalletModel
-            else {
-                incomingActionManager.discardIncomingAction()
-                return false
-            }
-
-            let input = ReferralInputModel(
-                userWalletId: userWalletModel.userWalletId.value,
-                supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager
-            )
-
-            coordinator.openReferral(input: input)
-            return true
-        }
-
-        private func isReferralProgramSupported() -> Bool {
-            guard let userWalletModel,
-                  !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
-                return false
-            }
-
-            return true
-        }
-    }
-}
