@@ -11,6 +11,8 @@ import Combine
 
 public class CommonIncomingActionManager {
     @Injected(\.appLockController) private var appLockController: AppLockController
+    
+    var didReceiveNavigationActionSubject = PassthroughSubject<Void, Never>()
 
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
@@ -22,6 +24,11 @@ public class CommonIncomingActionManager {
 // MARK: - IncomingActionManaging
 
 extension CommonIncomingActionManager: IncomingActionManaging {
+    
+    var didReceiveNavigationActionPublisher: AnyPublisher<Void, Never> {
+        didReceiveNavigationActionSubject.eraseToAnyPublisher()
+    }
+    
     public func hasReferralNavigationAction() -> Bool {
         pendingAction == .referralProgram
     }
