@@ -15,7 +15,7 @@ struct NewSendFlowBaseBuilder {
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
-    let sendSummaryStepBuilder: SendSummaryStepBuilder
+    let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
     let builder: SendDependenciesBuilder
 
