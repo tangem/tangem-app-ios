@@ -172,6 +172,13 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newSummary(let sendSummaryViewModel):
+            SendNewSummaryView(
+                viewModel: sendSummaryViewModel,
+                transitionService: transitionService
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .onramp(let onrampViewModel):
             OnrampView(
                 viewModel: onrampViewModel,
