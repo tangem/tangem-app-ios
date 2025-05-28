@@ -1,10 +1,12 @@
 //
-//    CommonTests.swift
+//  CommonTests.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
+
+import XCTest
 
 class CommonTests: XCTestCase {
     var app = XCUIApplication()
@@ -39,6 +41,8 @@ class CommonTests: XCTestCase {
     }
 
     func launchApp() {
+        app.launchArguments = ["--uitesting", "--alpha"]
+        app.launchEnvironment = ["UITEST": "1"]
         app.launch()
     }
 }
