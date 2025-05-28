@@ -3391,6 +3391,7 @@
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */; };
+		EFF09E8D2DE75378008E4FE0 /* Secp256k1Key+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF09E8C2DE75376008E4FE0 /* Secp256k1Key+.swift */; };
 		EFF2A52B2C60B70A007DB0C1 /* StakingNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF2A52A2C60B70A007DB0C1 /* StakingNotificationManager.swift */; };
 		EFF2A52D2C60BA0F007DB0C1 /* StakingNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF2A52C2C60BA0F007DB0C1 /* StakingNotificationEvent.swift */; };
 		EFF303892DA6A51400F3DC5E /* CashAddrBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF303882DA6A51400F3DC5E /* CashAddrBech32.swift */; };
@@ -6952,6 +6953,7 @@
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelsManager.swift; sourceTree = "<group>"; };
+		EFF09E8C2DE75376008E4FE0 /* Secp256k1Key+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Secp256k1Key+.swift"; sourceTree = "<group>"; };
 		EFF2A52A2C60B70A007DB0C1 /* StakingNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingNotificationManager.swift; sourceTree = "<group>"; };
 		EFF2A52C2C60BA0F007DB0C1 /* StakingNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingNotificationEvent.swift; sourceTree = "<group>"; };
 		EFF303882DA6A51400F3DC5E /* CashAddrBech32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashAddrBech32.swift; sourceTree = "<group>"; };
@@ -12443,6 +12445,7 @@
 				B62D3F8F2CBC79DA00C2460E /* ThenProcessable.swift */,
 				B62D3F902CBC79DA00C2460E /* TWCoin+.swift */,
 				B62D3F912CBC79DA00C2460E /* TWPublicKey+.swift */,
+				EFF09E8C2DE75376008E4FE0 /* Secp256k1Key+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -21754,6 +21757,7 @@
 				2DB1D6CF2D56978D00AD43A3 /* ALPH+TokenId.swift in Sources */,
 				2DB1D6D02D56978D00AD43A3 /* AlephiumFeeParameters.swift in Sources */,
 				EF1528E42D75F57A00AE9C40 /* BlockchairDTO.swift in Sources */,
+				EFF09E8D2DE75378008E4FE0 /* Secp256k1Key+.swift in Sources */,
 				2DB1D6D12D56978D00AD43A3 /* ALPH+Constants.swift in Sources */,
 				2DB1D6D22D56978D00AD43A3 /* ALPH+Serde.swift in Sources */,
 				2DB1D6D32D56978D00AD43A3 /* ALPH+Hint.swift in Sources */,
