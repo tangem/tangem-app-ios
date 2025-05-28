@@ -336,11 +336,12 @@ final class MainViewModel: ObservableObject {
     // MARK: - Private functions
     
     private func createNavigationActionHandler() {
-        navigationActionHandler = MainViewModelNavigationActionHandler(
-            userWalletModel: userWalletRepository.selectedModel,
-            coordinator: coordinator,
-            incomingActionManager: incomingActionManager
-        )
+        if let coordinator {
+            navigationActionHandler = MainViewModelNavigationActionHandler(
+                userWalletModel: userWalletRepository.selectedModel,
+                coordinator: coordinator
+            )
+        }
     }
 
     private func bind() {
