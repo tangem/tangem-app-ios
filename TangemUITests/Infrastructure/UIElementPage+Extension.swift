@@ -105,7 +105,7 @@ extension UIElementPage {
     }
 
     func gentleSwipeUp() {
-        log.debug("Gently swiping up...")
+//        log.debug("Gently swiping up...")
         let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
         let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
         startCoordinate.press(
