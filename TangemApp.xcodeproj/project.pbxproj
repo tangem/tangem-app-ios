@@ -2745,6 +2745,8 @@
 		EA81EE5C2DE458F600AD3D4A /* NotificationResponseDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */; };
 		EAD454E42DE5ACE7005A381D /* IncomingActionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */; };
 		EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */; };
+		EAD454F12DE7417B005A381D /* MarketsNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */; };
+		EAD454F32DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6280,6 +6282,8 @@
 		EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponseDispatching.swift; sourceTree = "<group>"; };
 		EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionRoutable.swift; sourceTree = "<group>"; };
 		EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelNavigationActionHandler.swift; sourceTree = "<group>"; };
+		EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationActionHandler.swift; sourceTree = "<group>"; };
+		EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarketsViewModel+IncomingActionResponder.swift"; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -13879,6 +13883,8 @@
 				2D5DCC2B2C3309F1000EE379 /* TokensNetworkSelector */,
 				2DB648812C35877000DA100D /* UIComponents */,
 				2D1BB3662C074207008392F7 /* Models */,
+				EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */,
+				EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */,
 			);
 			path = Markets;
 			sourceTree = "<group>";
@@ -20285,6 +20291,7 @@
 				EF0DC11B2A0CE29E007E3DA7 /* ExpressApproveView.swift in Sources */,
 				B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
+				EAD454F32DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift in Sources */,
 				EFA4E3752C3EE6ED008815AD /* StakingValidatorsInteractor.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				DC742C2F2BC85E5E00BECF09 /* CardInitializer.swift in Sources */,
@@ -20835,6 +20842,7 @@
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
 				DC2891AB2CDAE93C00F57F59 /* BuyActionButtonViewModel.swift in Sources */,
 				B690FC652C91CBA800D8683B /* MarketsBaseViewModel.swift in Sources */,
+				EAD454F12DE7417B005A381D /* MarketsNavigationActionHandler.swift in Sources */,
 				C2E9212A2DD7A50900ACE654 /* WalletConnectDAppDataService.swift in Sources */,
 				DCC05A602CD17DFD004CE6A4 /* TokenSelectorView.swift in Sources */,
 				2DBE29C42B3C4A8100109D5E /* View+DetentBottomSheet.swift in Sources */,
