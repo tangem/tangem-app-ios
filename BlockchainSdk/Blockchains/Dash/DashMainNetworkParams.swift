@@ -17,7 +17,6 @@ struct DashMainNetworkParams: UTXONetworkParams {
     let bech32Prefix: String = "bc"
 
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    var publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 
     /// https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L462
     let coinType: UInt32 = 5
