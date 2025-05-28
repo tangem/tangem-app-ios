@@ -2882,6 +2882,12 @@
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
 		EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */; };
 		EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */; };
+		EF4041302DE4670E002F996A /* SendNewSummaryStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40412F2DE4670E002F996A /* SendNewSummaryStep.swift */; };
+		EF4041322DE46749002F996A /* SendNewSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041312DE46749002F996A /* SendNewSummaryView.swift */; };
+		EF4041352DE46772002F996A /* SendNewSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */; };
+		EF4041372DE46B62002F996A /* SendNewSummaryStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */; };
+		EF4041432DE4819D002F996A /* FiatItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041422DE48198002F996A /* FiatItem.swift */; };
+		EF4041452DE4830E002F996A /* SendAmountFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041442DE4830E002F996A /* SendAmountFormatter.swift */; };
 		EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */; };
 		EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */; };
 		EF407E5F2C04D65B00366733 /* CommonStakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */; };
@@ -6432,6 +6438,12 @@
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactView.swift; sourceTree = "<group>"; };
 		EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactViewModel.swift; sourceTree = "<group>"; };
+		EF40412F2DE4670E002F996A /* SendNewSummaryStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryStep.swift; sourceTree = "<group>"; };
+		EF4041312DE46749002F996A /* SendNewSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryView.swift; sourceTree = "<group>"; };
+		EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryViewModel.swift; sourceTree = "<group>"; };
+		EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryStepBuilder.swift; sourceTree = "<group>"; };
+		EF4041422DE48198002F996A /* FiatItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatItem.swift; sourceTree = "<group>"; };
+		EF4041442DE4830E002F996A /* SendAmountFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountFormatter.swift; sourceTree = "<group>"; };
 		EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStakingFactory.swift; sourceTree = "<group>"; };
 		EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPIProvider.swift; sourceTree = "<group>"; };
 		EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAPIProvider.swift; sourceTree = "<group>"; };
@@ -16449,6 +16461,32 @@
 			path = Appearance;
 			sourceTree = "<group>";
 		};
+		EF40412E2DE466DA002F996A /* NewSummary */ = {
+			isa = PBXGroup;
+			children = (
+				EF40412F2DE4670E002F996A /* SendNewSummaryStep.swift */,
+				EF4041332DE4675A002F996A /* SendNewSummaryView */,
+			);
+			path = NewSummary;
+			sourceTree = "<group>";
+		};
+		EF4041332DE4675A002F996A /* SendNewSummaryView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4041312DE46749002F996A /* SendNewSummaryView.swift */,
+				EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */,
+			);
+			path = SendNewSummaryView;
+			sourceTree = "<group>";
+		};
+		EF4041462DE48316002F996A /* Formatter */ = {
+			isa = PBXGroup;
+			children = (
+				EF4041442DE4830E002F996A /* SendAmountFormatter.swift */,
+			);
+			path = Formatter;
+			sourceTree = "<group>";
+		};
 		EF407E332C04AF5C00366733 /* Factory */ = {
 			isa = PBXGroup;
 			children = (
@@ -16936,6 +16974,7 @@
 				EFB9320E2C3EC17800C999E9 /* Validators */,
 				DA559C202B0261F300F59584 /* Fee */,
 				DA559C272B0261F400F59584 /* Summary */,
+				EF40412E2DE466DA002F996A /* NewSummary */,
 				EFB23F2E2CBE7FA4005A6719 /* Onramp */,
 				EFA1547B2CD24B5300A0642C /* OnrampAmount */,
 				EF0E1D922CE37DA4003D47AA /* OnrampProviders */,
@@ -17240,6 +17279,7 @@
 		EF75A3D02B06418D0023A60A /* TokenItem */ = {
 			isa = PBXGroup;
 			children = (
+				EF4041422DE48198002F996A /* FiatItem.swift */,
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
 				EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */,
 				B06BB8E62BCD139500C0FBCF /* TokenItemSwapState.swift */,
@@ -18132,8 +18172,9 @@
 			isa = PBXGroup;
 			children = (
 				EFC7AD5C2DD4F44000AE78E1 /* SendNewAmountStep.swift */,
-				EFED25A52DD247D300C70863 /* TokenWithAmountView */,
 				EF3045F82DD3636700E14B3B /* SendNewAmountView */,
+				EFED25A52DD247D300C70863 /* TokenWithAmountView */,
+				EF4041462DE48316002F996A /* Formatter */,
 			);
 			path = NewAmount;
 			sourceTree = "<group>";
@@ -18190,6 +18231,7 @@
 		EFC84B052C37FAB500546882 /* StepBuilders */ = {
 			isa = PBXGroup;
 			children = (
+				EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */,
 				EFC7AD792DDB27D100AE78E1 /* SendNewDestinationStepBuilder.swift */,
 				EFC84B012C37FAB500546882 /* SendDestinationStepBuilder.swift */,
 				EFC84AFF2C37FAB500546882 /* SendAmountStepBuilder.swift */,
@@ -19156,6 +19198,7 @@
 				2DB4EADA2C41938E00F9E860 /* MarketsPortfolioContainerViewModel.swift in Sources */,
 				B0B712192A41639200A9479C /* TokenDetailsHeaderView.swift in Sources */,
 				DA9493E72B9978A900F2BE0F /* EmailDataProviderMock.swift in Sources */,
+				EF4041302DE4670E002F996A /* SendNewSummaryStep.swift in Sources */,
 				EFE7D57E2AA20E2B0047D93A /* TokenPriceChangeView.swift in Sources */,
 				B6ED083A2A7DB99D0090E51F /* UserTokensReorderingOptionsConverter.swift in Sources */,
 				EF6A8B002B2786F900CA3535 /* CommonExpressFeeProvider.swift in Sources */,
@@ -19372,6 +19415,7 @@
 				DCE2F7D72CE350F500BDE145 /* SellTokenSelectorStrings.swift in Sources */,
 				EFC7AD612DD6128500AE78E1 /* TokenWithAmountViewData.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
+				EF4041432DE4819D002F996A /* FiatItem.swift in Sources */,
 				DC9632612C5140DB009B250A /* CommonExpressRefundedTokenHandler.swift in Sources */,
 				EFC84B092C37FAB500546882 /* SendAmountStepBuilder.swift in Sources */,
 				EFB7521B2C985F1100CB614C /* CommonFeeIncludedCalculator.swift in Sources */,
@@ -19552,6 +19596,7 @@
 				DA10102B2CDA6A6200EE0D05 /* OnrampAmountRoutable.swift in Sources */,
 				B6FFADEA2C5D67E900B43A56 /* DGCharts.ChartViewBase+.swift in Sources */,
 				B0AF2DEF2B1D8FF9001A8696 /* PendingExpressTransactionsManager.swift in Sources */,
+				EF4041352DE46772002F996A /* SendNewSummaryViewModel.swift in Sources */,
 				B6C2D00B2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */,
 				B0290CD92CAED764008ABBD2 /* MarketsTokenDetailsExchangeItemInfo.swift in Sources */,
 				EF8DBD4C2C07318F009072CF /* RewardViewData.swift in Sources */,
@@ -20064,6 +20109,7 @@
 				DC9113632D6FAE7B002E17C5 /* AssetRequirementsAlertBuilder.swift in Sources */,
 				DA8C673E2B0B455700E1C9B8 /* DefaultTextWithTitleRowView.swift in Sources */,
 				B09536FE26D3D2460040A90D /* TOSView.swift in Sources */,
+				EF4041322DE46749002F996A /* SendNewSummaryView.swift in Sources */,
 				EF435A072C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift in Sources */,
 				B65671942DB2BBF40037CD33 /* CommonNFTNetworkSelectionListDataSource.swift in Sources */,
 				B69D0E802A3AEE8000A8B44D /* TokenListLoadingPlaceholderView.swift in Sources */,
@@ -20292,6 +20338,7 @@
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
 				2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */,
 				B69A48672C47BA2A003497E1 /* OverlayContentStateController.swift in Sources */,
+				EF4041372DE46B62002F996A /* SendNewSummaryStepBuilder.swift in Sources */,
 				DC70C0152B95EE20002205BA /* KeysDeriving.swift in Sources */,
 				EFD143872CC5524000B5BA57 /* CommonStakingBaseDataBuilder.swift in Sources */,
 				DA60DD7D2B34572300AC1B79 /* QRScanView.swift in Sources */,
@@ -21021,6 +21068,7 @@
 				DC9632662C51434C009B250A /* CommonTokenFinder.swift in Sources */,
 				B08E995A2D9E709E008F367F /* Analytics+Visa.swift in Sources */,
 				B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */,
+				EF4041452DE4830E002F996A /* SendAmountFormatter.swift in Sources */,
 				DC7D3A0729E06365007BCD23 /* GenericBackupServiceFactory.swift in Sources */,
 				B03662652B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift in Sources */,
 				2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */,
