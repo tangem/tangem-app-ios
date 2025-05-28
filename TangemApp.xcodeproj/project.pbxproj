@@ -2744,6 +2744,7 @@
 		EA81EE5A2DE458AC00AD3D4A /* PushNotificationSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */; };
 		EA81EE5C2DE458F600AD3D4A /* NotificationResponseDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */; };
 		EAD454E42DE5ACE7005A381D /* IncomingActionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */; };
+		EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6278,6 +6279,7 @@
 		EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSubscriber.swift; sourceTree = "<group>"; };
 		EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponseDispatching.swift; sourceTree = "<group>"; };
 		EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionRoutable.swift; sourceTree = "<group>"; };
+		EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -9050,6 +9052,7 @@
 				B06C084B2A73FB4D00D982BC /* MainRoutable.swift */,
 				B04EADE82A80D617009B5768 /* SingleTokenBase */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
+				EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -20847,6 +20850,7 @@
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
+				EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
 				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
