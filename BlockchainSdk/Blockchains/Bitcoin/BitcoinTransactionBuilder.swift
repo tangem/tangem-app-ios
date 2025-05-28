@@ -19,7 +19,6 @@ class BitcoinTransactionBuilder {
     private let builderType: BuilderType
     private let sequence: SequenceType
 
-    private var publicKeyType: UTXONetworkParamsPublicKeyType { network.publicKeyType }
     private var signHashType: UTXONetworkParamsSignHashType { network.signHashType }
 
     init(
@@ -42,14 +41,11 @@ class BitcoinTransactionBuilder {
 
     func buildForSign(transaction: Transaction) async throws -> [Data] {
         let preImage = try await unspentOutputManager.preImage(transaction: transaction)
-        let hasExtendedKey = preImage.inputs.contains { $0.script.spendable?.isExtendedPublicKey ?? false }
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
 
         let hashes: [Data] = try {
             switch builderType {
-            // The WalletCore build supported only compressed publicKey
-            // Make WalletCore support extended publicKey
-            // [REDACTED_TODO_COMMENT]
-            case .walletCore(let coinType) where !hasExtendedKey:
+            case .walletCore(let coinType) where possibleToUseWalletCore:
                 let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
                 return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
             case .custom, .walletCore:
@@ -62,16 +58,13 @@ class BitcoinTransactionBuilder {
     }
 
     func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
-        let signatures = try map(signatures: signatures)
         let preImage = try await unspentOutputManager.preImage(transaction: transaction)
-        let hasExtendedKey = preImage.inputs.contains { $0.script.spendable?.isExtendedPublicKey ?? false }
+        let signatures = try map(scripts: preImage.inputs.map { $0.script }, signatures: signatures)
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
 
         let encoded: Data = try {
             switch builderType {
-            // The WalletCore build supported only compressed publicKey
-            // Make WalletCore support extended publicKey
-            // [REDACTED_TODO_COMMENT]
-            case .walletCore(let coinType) where !hasExtendedKey:
+            case .walletCore(let coinType) where possibleToUseWalletCore:
                 let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
                 return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
             case .custom, .walletCore:
@@ -87,17 +80,59 @@ class BitcoinTransactionBuilder {
 // MARK: - Private
 
 private extension BitcoinTransactionBuilder {
-    func map(signatures: [SignatureInfo]) throws -> [SignatureInfo] {
-        try signatures.map { signature in
-            switch publicKeyType {
-            case .compressed:
-                try SignatureInfo(
-                    signature: signature.der(),
-                    publicKey: Secp256k1Key(with: signature.publicKey).compress(),
-                    hash: signature.hash
-                )
-            case .asIs:
-                try SignatureInfo(signature: signature.der(), publicKey: signature.publicKey, hash: signature.hash)
+    func map(scripts: [UTXOLockingScript], signatures: [SignatureInfo]) throws -> [SignatureInfo] {
+        guard scripts.count == signatures.count else {
+            throw Error.wrongSignaturesCount
+        }
+
+        return try zip(scripts, signatures).map { script, signature in
+            let publicKey: Data = try {
+                switch script.spendable {
+                // If we're spending an output which was received on address which was generated for the compressed public key,
+                // we need to `compress()` the public key that was used for signing
+                case .publicKey(let publicKey) where Secp256k1Key.isCompressed(publicKey: publicKey):
+                    return try Secp256k1Key(with: signature.publicKey).compress()
+
+                case .publicKey(let publicKey):
+                    return publicKey
+
+                // The redeemScript is used only for Twin cards
+                // We always use the compressed public key from `SignatureInfo`
+                // This is important to identify which of the two cards was used for signing
+                case .redeemScript:
+                    return try Secp256k1Key(with: signature.publicKey).compress()
+
+                case .none:
+                    throw UTXOTransactionSerializerError.spendableScriptNotFound
+                }
+            }()
+
+            return try SignatureInfo(signature: signature.der(), publicKey: publicKey, hash: signature.hash)
+        }
+    }
+
+    // The WalletCoreUTXOTransactionSerializer supports only compressed publicKey
+    // [REDACTED_TODO_COMMENT]
+    func possibleToUseWalletCore(for preImage: PreImageTransaction) throws -> Bool {
+        let hasExtendedPublicKey = try preImage.inputs.contains { input in
+            switch input.script.spendable {
+            case .none: throw UTXOTransactionSerializerError.spendableScriptNotFound
+            case .publicKey(let data): Secp256k1Key.isExtended(publicKey: data)
+            case .redeemScript: false
+            }
+        }
+
+        return !hasExtendedPublicKey
+    }
+}
+
+extension BitcoinTransactionBuilder {
+    enum Error: LocalizedError {
+        case wrongSignaturesCount
+
+        var errorDescription: String? {
+            switch self {
+            case .wrongSignaturesCount: "Wrong signatures count"
             }
         }
     }
