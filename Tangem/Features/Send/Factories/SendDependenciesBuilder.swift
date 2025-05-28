@@ -22,6 +22,10 @@ struct SendDependenciesBuilder {
         self.walletModel = walletModel
     }
 
+    func makeFiatItem() -> FiatItem {
+        .init(currencyCode: AppSettings.shared.selectedCurrencyCode)
+    }
+
     func sendFlowActionType(actionType: StakingAction.ActionType) -> SendFlowActionType {
         switch actionType {
         case .stake, .pending(.stake): .stake
@@ -251,6 +255,10 @@ struct SendDependenciesBuilder {
             tag: additionalField,
             amount: amount
         )
+    }
+
+    func makeTokenBalanceProvider() -> TokenBalanceProvider {
+        walletModel.availableBalanceProvider
     }
 
     func makeSendAmountValidator() -> SendAmountValidator {

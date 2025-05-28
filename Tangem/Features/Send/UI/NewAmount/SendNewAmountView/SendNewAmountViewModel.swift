@@ -69,7 +69,7 @@ class SendNewAmountViewModel: ObservableObject {
         balanceFormatted = initial.balanceFormatted
         tokenIconInfo = initial.tokenIconInfo
         fiatIconURL = initial.fiatIconURL
-        fiatCurrencyCode = initial.fiatCurrencyCode
+        fiatCurrencyCode = initial.fiatItem.currencyCode
         possibleToChangeAmountType = initial.possibleToChangeAmountType
         actionType = initial.actionType
 
@@ -78,9 +78,9 @@ class SendNewAmountViewModel: ObservableObject {
 
         let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
         cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: initial.tokenItem.currencySymbol)
-        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: initial.fiatCurrencyCode)
+        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: initial.fiatItem.currencyCode)
 
-        sendAmountFormatter = .init(tokenItem: initial.tokenItem, fiatCurrencyCode: initial.fiatCurrencyCode)
+        sendAmountFormatter = .init(tokenItem: initial.tokenItem, fiatItem: initial.fiatItem)
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
         self.interactor = interactor
@@ -214,55 +214,10 @@ extension SendNewAmountViewModel {
         let tokenIconInfo: TokenIconInfo
         let balanceFormatted: String
         let fiatIconURL: URL
-        let fiatCurrencyCode: String
+        let fiatItem: FiatItem
         let possibleToChangeAmountType: Bool
         let actionType: SendFlowActionType
     }
 
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
-
-    struct SendAmountFormatter {
-        let fiatCurrencyCode: String
-        let balanceFormatter: BalanceFormatter
-        let cryptoValueFormatter: SendCryptoValueFormatter
-
-        init(
-            tokenItem: TokenItem,
-            fiatCurrencyCode: String,
-            trimFractions: Bool = true,
-            balanceFormatter: BalanceFormatter = .init()
-        ) {
-            self.fiatCurrencyCode = fiatCurrencyCode
-            self.balanceFormatter = balanceFormatter
-
-            cryptoValueFormatter = .init(
-                decimals: tokenItem.decimalCount,
-                currencySymbol: tokenItem.currencySymbol,
-                trimFractions: trimFractions
-            )
-        }
-
-        /// 0,00 is value is nil
-        func formattedAlternative(sendAmount: SendAmount?, type: SendAmountCalculationType) -> String {
-            switch (sendAmount?.type, type) {
-            // Zero fiat formatted
-            case (.none, .crypto), (.typical(_, .none), _):
-                return balanceFormatter.formatFiatBalance(0, currencyCode: fiatCurrencyCode)
-
-            case (.typical(_, .some(let fiat)), _):
-                return balanceFormatter.formatFiatBalance(fiat, currencyCode: fiatCurrencyCode)
-
-            case (.alternative(_, .some(let crypto)), _):
-                if let string = cryptoValueFormatter.string(from: crypto) {
-                    return string
-                }
-
-                fallthrough
-
-            // Zero crypto formatted
-            case (.none, .fiat), (.alternative(_, .none), _):
-                return cryptoValueFormatter.string(from: 0) ?? "0"
-            }
-        }
-    }
 }

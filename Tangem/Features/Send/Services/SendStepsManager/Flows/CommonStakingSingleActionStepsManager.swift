@@ -36,7 +36,7 @@ class CommonStakingSingleActionStepsManager {
         switch step.type {
         case .finish:
             output?.update(state: .init(step: step, action: .close))
-        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination:
+        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination, .newSummary:
             assertionFailure("There is no next step")
         }
     }
