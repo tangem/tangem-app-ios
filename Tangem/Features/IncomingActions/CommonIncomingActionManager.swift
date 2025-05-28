@@ -25,7 +25,7 @@ public class CommonIncomingActionManager {
 
 extension CommonIncomingActionManager: IncomingActionManaging {
     
-    var didReceiveNavigationActionPublisher: AnyPublisher<Void, Never> {
+    public var didReceiveNavigationActionPublisher: AnyPublisher<Void, Never> {
         didReceiveNavigationActionSubject.eraseToAnyPublisher()
     }
     
