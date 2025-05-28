@@ -59,8 +59,7 @@ struct NewSendFlowBaseBuilder {
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            flowKind: flowKind
+            sendFeeCompactViewModel: fee.compact
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
