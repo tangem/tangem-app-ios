@@ -27,7 +27,9 @@ extension MainViewModel {
         }
         
         private func routeBuyAction() -> Bool {
-            guard let userWalletModel = userWalletModel else {
+            guard isMulticurrencySupported(),
+                  let userWalletModel = userWalletModel
+            else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
@@ -69,6 +71,14 @@ extension MainViewModel {
             return true
         }
         
+        private func isMulticurrencySupported() -> Bool {
+            guard let userWalletModel else {
+                return false
+            }
+            
+            return userWalletModel.config.hasFeature(.multiCurrency)
+        }
+    
         private func isReferralProgramSupported() -> Bool {
             guard let userWalletModel,
                   !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
