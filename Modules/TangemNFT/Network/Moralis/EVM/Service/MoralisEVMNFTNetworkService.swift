@@ -82,7 +82,6 @@ public final class MoralisEVMNFTNetworkService {
     private func paginableRequest<T>(
         targetFactory: MoralisPaginableResponse.TargetFactory
     ) async -> (value: [T], errors: [NFTErrorDescriptor]) where T: Decodable, T: MoralisPaginableResponse {
-        var hadError = false
         var results: [T] = []
         var errors: [NFTErrorDescriptor] = []
         var cursor: String? = nil
