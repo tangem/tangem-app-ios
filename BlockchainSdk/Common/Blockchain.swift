@@ -1267,6 +1267,10 @@ public extension Blockchain {
     var minimumValue: Decimal {
         1 / decimalValue
     }
+
+    var blockchainId: String {
+        id(type: .network)
+    }
 }
 
 // MARK: - Card's factory
