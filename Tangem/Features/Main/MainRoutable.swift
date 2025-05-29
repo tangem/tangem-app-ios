@@ -26,4 +26,5 @@ protocol MainDeepLinkRoutable {
     func openBuy(userWalletModel: some UserWalletModel)
     func openSell(userWalletModel: some UserWalletModel)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
+    func openStaking(options: StakingDetailsCoordinator.Options)
 }
