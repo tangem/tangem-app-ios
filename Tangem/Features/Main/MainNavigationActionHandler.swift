@@ -1,5 +1,5 @@
 //
-//  MainViewModelNavigationActionHandler.swift
+//  MainNavigationActionHandler.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,10 @@ protocol NavigationActionHandling {
 }
 
 extension MainViewModel {
-    struct MainViewModelNavigationActionHandler {
+    struct MainNavigationActionHandler {
         @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+        @Injected(\.appLockController) private var appLockController: AppLockController
+        
         let userWalletModel: (any UserWalletModel)?
         let coordinator: MainRoutable
         
@@ -21,11 +23,11 @@ extension MainViewModel {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
-            
+
             coordinator.openSell(userWalletModel: userWalletModel)
             return true
         }
-        
+
         private func routeBuyAction() -> Bool {
             guard isMulticurrencySupported(),
                   let userWalletModel = userWalletModel
@@ -33,11 +35,11 @@ extension MainViewModel {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
-            
+
             coordinator.openBuy(userWalletModel: userWalletModel)
             return true
         }
-                
+
         private func routeTokenAction(tokenSymbol: String, network: String?) -> Bool {
             guard
                 let uwm = userWalletModel,
@@ -47,11 +49,11 @@ extension MainViewModel {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
-            
+
             coordinator.openTokenDetails(for: walletModel, userWalletModel: uwm)
             return true
         }
-        
+
         private func routeReferralAction() -> Bool {
             guard isFeatureSupported(feature: .referralProgram),
                   let userWalletModel = userWalletModel
@@ -65,11 +67,11 @@ extension MainViewModel {
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 userTokensManager: userWalletModel.userTokensManager
             )
-            
+
             coordinator.openReferral(input: input)
             return true
         }
-        
+
         private func routeStaking(tokenSymbol: String) -> Bool {
             guard
                 isFeatureSupported(feature: .staking),
@@ -80,13 +82,13 @@ extension MainViewModel {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
-            
+
             let options = StakingDetailsCoordinator.Options(
                 userWalletModel: uwm,
                 walletModel: walletModel,
                 manager: stakingManager
             )
-            
+
             coordinator.openStaking(options: options)
             return true
         }
@@ -95,30 +97,31 @@ extension MainViewModel {
 
 // MARK: - NavigationActionHandling
 
-extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHandling {
+extension MainViewModel.MainNavigationActionHandler: NavigationActionHandling {
     func routeIncommingAction(_ action: IncomingAction) -> Bool {
         guard case .navigation(let navigationAction) = action,
+              !appLockController.isLocked,
               coordinator.isOnMainView
         else {
             return false
         }
-        
+
         switch navigationAction {
         case .referral:
             return routeReferralAction()
-            
+
         case .token(let symbol, let network):
             return routeTokenAction(tokenSymbol: symbol, network: network)
-            
+
         case .buy:
             return routeBuyAction()
-            
+
         case .sell:
             return routeSellAction()
-            
+
         case .staking(let symbol):
             return routeStaking(tokenSymbol: symbol)
-            
+
         default:
             return false
         }
@@ -127,30 +130,30 @@ extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHa
 
 // MARK: - Helpers
 
-extension MainViewModel.MainViewModelNavigationActionHandler {
+extension MainViewModel.MainNavigationActionHandler {
     private func isMulticurrencySupported() -> Bool {
         guard let userWalletModel else {
             return false
         }
-        
+
         return userWalletModel.config.hasFeature(.multiCurrency)
     }
-    
+
     private func isFeatureSupported(feature: UserWalletFeature) -> Bool {
         guard let userWalletModel,
               !userWalletModel.config.getFeatureAvailability(feature).isHidden else {
             return false
         }
-        
+
         return true
     }
-    
+
     private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
         let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
         let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
         return symbolMatches && networkMatches
     }
-    
+
     private func findWalletModel(in userWalletModel: any UserWalletModel, tokenSymbol: String, network: String?) -> (any WalletModel)? {
         userWalletModel
             .walletModelsManager
