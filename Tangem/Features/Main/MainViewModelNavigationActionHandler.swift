@@ -37,20 +37,7 @@ extension MainViewModel {
             coordinator.openBuy(userWalletModel: userWalletModel)
             return true
         }
-        
-        private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
-            let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
-            let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
-            return symbolMatches && networkMatches
-        }
-        
-        private func findWalletModel(in userWalletModel: any UserWalletModel, tokenSymbol: String, network: String?) -> (any WalletModel)? {
-            userWalletModel
-                .walletModelsManager
-                .walletModels
-                .first { isMatch($0, tokenSymbol: tokenSymbol, network: network) }
-        }
-        
+                
         private func routeTokenAction(tokenSymbol: String, network: String?) -> Bool {
             guard
                 let uwm = userWalletModel,
@@ -90,7 +77,7 @@ extension MainViewModel {
             
             return userWalletModel.config.hasFeature(.multiCurrency)
         }
-    
+        
         private func isReferralProgramSupported() -> Bool {
             guard let userWalletModel,
                   !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
@@ -128,5 +115,23 @@ extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHa
         default:
             return false
         }
+    }
+}
+
+
+// MARK: - Helpers
+
+extension MainViewModel.MainViewModelNavigationActionHandler {
+    private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
+        let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
+        let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
+        return symbolMatches && networkMatches
+    }
+    
+    private func findWalletModel(in userWalletModel: any UserWalletModel, tokenSymbol: String, network: String?) -> (any WalletModel)? {
+        userWalletModel
+            .walletModelsManager
+            .walletModels
+            .first { isMatch($0, tokenSymbol: tokenSymbol, network: network) }
     }
 }
