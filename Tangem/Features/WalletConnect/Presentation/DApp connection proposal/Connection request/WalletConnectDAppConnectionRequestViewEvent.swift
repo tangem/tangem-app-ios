@@ -1,15 +1,15 @@
 //
-//  WalletConnectConnectionRequestViewEvent.swift
+//  WalletConnectDAppConnectionRequestViewEvent.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum WalletConnectConnectionRequestViewEvent {
+enum WalletConnectDAppConnectionRequestViewEvent {
     case navigationCloseButtonTapped
 
-    case viewDidAppear
+    case dAppProposalLoadingRequested
 
     case verifiedDomainIconTapped
 
