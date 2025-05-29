@@ -237,6 +237,7 @@ struct MarketsTokenDetailsView: View {
     private var chart: some View {
         if let viewModel = viewModel.historyChartViewModel {
             MarketsHistoryChartView(viewModel: viewModel)
+                .id(viewModel.tokenSymbol)
         }
     }
 
