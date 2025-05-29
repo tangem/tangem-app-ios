@@ -211,6 +211,13 @@ extension Analytics {
         case marketsErrorTypeTimeout = "Timeout"
         case marketsErrorTypeNetwork = "Network"
 
+        // MARK: - Biometrics
+
+        case biometricsSourceTransaction = "Transaction"
+
+        case biometricsReasonAuthenticationLockout = "AuthenticationLockout"
+        case biometricsReasonAuthenticationCanceled = "AuthenticationCanceled"
+
         case unknown = "Unknown"
 
         // MARK: - Onramp
