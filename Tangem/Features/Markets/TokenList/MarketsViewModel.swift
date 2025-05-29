@@ -496,6 +496,7 @@ private extension MarketsViewModel {
            let firstToken = items.first,
            let tapAction = firstToken.didTapAction {
             tapAction()
+            fetch(with: "", by: filterProvider.currentFilterValue)
         }
         
         shouldOpenTokenDetailsAutomatically = false
