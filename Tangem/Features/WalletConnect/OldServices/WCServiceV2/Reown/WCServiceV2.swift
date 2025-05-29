@@ -517,6 +517,11 @@ extension WCServiceV2 {
     func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
         await pairClient(with: uri, source: source)
 
+        if Task.isCancelled {
+            // [REDACTED_TODO_COMMENT]
+            throw CancellationError()
+        }
+
         try Task.checkCancellation()
 
         return await withCheckedContinuation { [weak self] continuation in
@@ -524,6 +529,12 @@ extension WCServiceV2 {
                 await self?.sessionProposalContinuationStorage.store(continuation: continuation, for: uri.topic)
             }
         }
+    }
+
+    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {
+        WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
+        let session = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
+        print(session)
     }
 }
 
