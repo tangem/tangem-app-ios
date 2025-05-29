@@ -38,18 +38,30 @@ extension MainViewModel {
             return true
         }
         
-        private func routeTokenAction(tokenName: String, network: String?) -> Bool {
-            guard let userWalletModel = userWalletModel,
-                  let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.name.lowercased() == tokenName.lowercased() }),
-                  TokenActionAvailabilityProvider(
-                    userWalletConfig: userWalletModel.config, walletModel: walletModel
-                  ).isTokenInteractionAvailable()
+        private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
+            let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
+            let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
+            return symbolMatches && networkMatches
+        }
+        
+        private func findWalletModel(in userWalletModel: any UserWalletModel, tokenSymbol: String, network: String?) -> (any WalletModel)? {
+            userWalletModel
+                .walletModelsManager
+                .walletModels
+                .first { isMatch($0, tokenSymbol: tokenSymbol, network: network) }
+        }
+        
+        private func routeTokenAction(tokenSymbol: String, network: String?) -> Bool {
+            guard
+                let uwm = userWalletModel,
+                let walletModel = findWalletModel(in: uwm, tokenSymbol: tokenSymbol, network: network),
+                TokenActionAvailabilityProvider(userWalletConfig: uwm.config, walletModel: walletModel).isTokenInteractionAvailable()
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
             
-            coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
+            coordinator.openTokenDetails(for: walletModel, userWalletModel: uwm)
             return true
         }
         
@@ -105,7 +117,7 @@ extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHa
             return routeReferralAction()
             
         case .token(let symbol, let network):
-            return routeTokenAction(tokenName: symbol, network: network)
+            return routeTokenAction(tokenSymbol: symbol, network: network)
             
         case .buy:
             return routeBuyAction()
