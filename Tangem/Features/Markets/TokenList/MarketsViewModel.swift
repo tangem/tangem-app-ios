@@ -67,6 +67,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
     private(set) var showItemsBelowCapThreshold: Bool = false
+    private var shouldOpenTokenDetailsAutomatically: Bool = false
 
     private var filterItemsBelowMarketCapThreshold: Bool {
         isSearching && !showItemsBelowCapThreshold
@@ -305,8 +306,11 @@ private extension MarketsViewModel {
                     guard let self else {
                         return .unknown
                     }
-
                     return isBottomSheetExpanded ? .expanded : .collapsed
+                },
+                searchAction: { [weak self] tokenSymbol, performAutoNavigation in
+                    self?.fetch(with: tokenSymbol, by: .init())
+                    self?.shouldOpenTokenDetailsAutomatically = performAutoNavigation
                 }
             )
         }
@@ -417,6 +421,7 @@ private extension MarketsViewModel {
                 }
 
                 viewModel.tokenListLoadingState = .idle
+                self.openTokenDetailsAutomaticallyIfNecessary(items: items)
             }
             .store(in: &bag)
     }
@@ -484,6 +489,16 @@ private extension MarketsViewModel {
             lightAppearanceSnapshotImage: lightAppearanceSnapshotImage,
             darkAppearanceSnapshotImage: darkAppearanceSnapshotImage
         )
+    }
+    
+    private func openTokenDetailsAutomaticallyIfNecessary(items: [MarketsItemViewModel]) {
+        if shouldOpenTokenDetailsAutomatically,
+           let firstToken = items.first,
+           let tapAction = firstToken.didTapAction {
+            tapAction()
+        }
+        
+        shouldOpenTokenDetailsAutomatically = false
     }
 
     private func logAnalyticsOnMarketChartOpen(tokenSymbol: String, marketCap: Decimal?) {
