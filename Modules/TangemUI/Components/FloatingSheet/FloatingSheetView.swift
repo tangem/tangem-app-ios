@@ -109,6 +109,7 @@ public struct FloatingSheetView<HostContent: View>: View {
         .offset(y: -keyboardHeight)
         .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
+        // [REDACTED_TODO_COMMENT]
         .animation(viewModel?.frameUpdateAnimation, value: contentFrameAnimationSyncToken)
     }
 

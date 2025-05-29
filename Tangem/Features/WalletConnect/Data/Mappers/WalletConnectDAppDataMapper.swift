@@ -21,6 +21,6 @@ enum WalletConnectDAppDataMapper {
 
     static func mapIconURL(from proposal: Session.Proposal) -> URL? {
         // [REDACTED_TODO_COMMENT]
-        proposal.proposer.icons.first.flatMap(URL.init)
+        proposal.proposer.icons.first(where: { $0.hasSuffix("png") }).flatMap(URL.init)
     }
 }
