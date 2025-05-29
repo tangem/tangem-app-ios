@@ -61,13 +61,18 @@ extension MarketsCoordinator: MarketsRoutable {
     }
 
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
-        let tokenDetailsCoordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
-                self?.tokenDetailsCoordinator = nil
-            }
-        )
-        tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
+        let delay = tokenDetailsCoordinator == nil ? .zero : 0.6
+        tokenDetailsCoordinator = nil
 
-        self.tokenDetailsCoordinator = tokenDetailsCoordinator
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            let tokenDetailsCoordinator = MarketsTokenDetailsCoordinator(
+                dismissAction: { [weak self] in
+                    self?.tokenDetailsCoordinator = nil
+                }
+            )
+            tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
+
+            self.tokenDetailsCoordinator = tokenDetailsCoordinator
+        }
     }
 }
