@@ -13,6 +13,7 @@ import TangemUI
 struct WalletConnectNavigationBarView: View {
     var title: String?
     var subtitle: String?
+    var bottomSeparatorLineIsVisible = false
     var backButtonAction: (() -> Void)?
     var closeButtonAction: (() -> Void)?
 
@@ -36,14 +37,21 @@ struct WalletConnectNavigationBarView: View {
         .frame(height: Layout.height)
         .padding(.top, Layout.topPadding)
         .padding(.horizontal, 16)
+        .background(Colors.Background.tertiary)
+        .overlay(alignment: .bottom) {
+            Divider()
+                .frame(height: 1)
+                .overlay(Colors.Stroke.secondary)
+                .opacity(bottomSeparatorLineIsVisible ? 0.3 : 0)
+        }
         .contentShape(.rect)
     }
 
     private var buttons: some View {
         HStack(spacing: .zero) {
-            sfButton("chevron.left", action: backButtonAction)
+            sfButton(SFSymbol.chevronLeft, action: backButtonAction)
             Spacer()
-            sfButton("multiply", action: closeButtonAction)
+            sfButton(SFSymbol.multiply, action: closeButtonAction)
         }
     }
 
@@ -72,5 +80,10 @@ extension WalletConnectNavigationBarView {
         static let topPadding: CGFloat = 8
         /// 44
         static let height: CGFloat = 44
+    }
+
+    private enum SFSymbol {
+        static let chevronLeft = "chevron.left"
+        static let multiply = "multiply"
     }
 }
