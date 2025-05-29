@@ -9,15 +9,11 @@
 import enum BlockchainSdk.Blockchain
 
 struct WalletConnectSessionProposal {
-    struct Namespace {
-        let blockchains: Set<Blockchain>?
-        let methods: Set<String>
-        let events: Set<String>
-    }
+    let requiredBlockchains: Set<Blockchain>
+    let optionalBlockchains: Set<Blockchain>
 
-    let id: String
-    let requiredNamespaces: [String: Namespace]
-    let optionalNamespaces: [String: Namespace]?
-
-    let unsupportedBlockchainNames: Set<String>
+    let dAppConnectionRequestFactory: (
+        _ selectedBlockchains: any Sequence<Blockchain>,
+        _ selectedUserWallet: any UserWalletModel
+    ) throws -> WalletConnectDAppConnectionRequest
 }
