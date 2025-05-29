@@ -17,6 +17,7 @@ extension Analytics {
         case cardWasScanned = "[Basic] Card Was Scanned"
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
+        case biometryFailed = "[Basic] Biometry Failed"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
