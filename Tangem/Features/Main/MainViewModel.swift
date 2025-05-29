@@ -39,7 +39,6 @@ final class MainViewModel: ObservableObject {
     private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     private var navigationActionHandler: NavigationActionHandling?
     private weak var coordinator: MainRoutable?
-    
 
     // MARK: - Internal state
 
@@ -52,7 +51,7 @@ final class MainViewModel: ObservableObject {
     private var isLoggingOut = false
 
     private var bag: Set<AnyCancellable> = []
-    
+
     // MARK: - Initializers
 
     init(
@@ -65,7 +64,7 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
-        
+
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -77,7 +76,7 @@ final class MainViewModel: ObservableObject {
         )
 
         assert(pages.count == userWalletRepository.models.count, "Number of pages must be equal to number of UserWalletModels")
-        
+
         createNavigationActionHandler()
         bind()
     }
@@ -334,7 +333,7 @@ final class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
-    
+
     private func createNavigationActionHandler() {
         if let coordinator {
             navigationActionHandler = MainViewModelNavigationActionHandler(
@@ -553,7 +552,7 @@ extension MainViewModel: IncomingActionResponder {
         else {
             return false
         }
-        
+
         return handler.routeIncommingAction(action)
     }
 }

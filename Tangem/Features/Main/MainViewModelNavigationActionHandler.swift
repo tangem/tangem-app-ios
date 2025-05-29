@@ -11,35 +11,10 @@ protocol NavigationActionHandling {
 }
 
 extension MainViewModel {
-    struct MainViewModelNavigationActionHandler: NavigationActionHandling {
+    struct MainViewModelNavigationActionHandler {
         @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
         let userWalletModel: (any UserWalletModel)?
         let coordinator: MainRoutable
-        
-        func routeIncommingAction(_ action: IncomingAction) -> Bool {
-            guard case .navigation(let navigationAction) = action,
-                  coordinator.isOnMainView
-            else {
-                return false
-            }
-            
-            switch navigationAction {
-            case .referral:
-                return routeReferralAction()
-                
-            case .token(let symbol, let network):
-                return routeTokenAction(tokenName: symbol, network: network)
-                
-            case .buy:
-                return routeBuyAction()
-                
-            case .sell:
-                return routeSellAction()
-                
-            default:
-                return false
-            }
-        }
         
         private func routeSellAction() -> Bool {
             guard let userWalletModel = userWalletModel else {
@@ -101,6 +76,35 @@ extension MainViewModel {
             }
             
             return true
+        }
+    }
+}
+
+// MARK: - NavigationActionHandling
+
+extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHandling {
+    func routeIncommingAction(_ action: IncomingAction) -> Bool {
+        guard case .navigation(let navigationAction) = action,
+              coordinator.isOnMainView
+        else {
+            return false
+        }
+        
+        switch navigationAction {
+        case .referral:
+            return routeReferralAction()
+            
+        case .token(let symbol, let network):
+            return routeTokenAction(tokenName: symbol, network: network)
+            
+        case .buy:
+            return routeBuyAction()
+            
+        case .sell:
+            return routeSellAction()
+            
+        default:
+            return false
         }
     }
 }
