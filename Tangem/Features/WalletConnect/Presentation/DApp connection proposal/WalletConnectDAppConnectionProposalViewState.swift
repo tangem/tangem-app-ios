@@ -7,8 +7,8 @@
 //
 
 enum WalletConnectDAppConnectionProposalViewState {
-    case connectionRequest(WalletConnectConnectionRequestViewModel)
+    case connectionRequest(WalletConnectDAppConnectionRequestViewModel)
     case verifiedDomain
-    case walletSelector
-    case networkSelector
+    case walletSelector(WalletConnectWalletSelectorViewModel)
+    case networkSelector(WalletConnectNetworksSelectorViewModel)
 }
