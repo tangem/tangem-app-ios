@@ -12,6 +12,7 @@ extension MarketsViewModel {
     struct MarketsNavigationActionHandler {
         @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
         @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+        @Injected(\.appLockController) private var appLockController: AppLockController
         
         private let coordinator: MarketsRoutable
         private let bottomSheetPosition: () -> BottomSheetPosition
@@ -71,6 +72,7 @@ extension MarketsViewModel.MarketsNavigationActionHandler {
 extension MarketsViewModel.MarketsNavigationActionHandler: NavigationActionHandling {
     func routeIncommingAction(_ action: IncomingAction) -> Bool {
         guard case .navigation(let navigationAction) = action,
+              !appLockController.isLocked,
               mainBottomSheetUIManager.isShown
         else {
             return false

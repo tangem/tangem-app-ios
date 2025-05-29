@@ -43,7 +43,7 @@
 		0A94FAAB2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */; };
 		0A9AB28F2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9AB28E2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift */; };
 		0A9AB2912D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */; };
-		0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */; };
+		0AA6A79D2DBA6D83008F5D43 /* DeepLinkURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA6A79C2DBA6D83008F5D43 /* DeepLinkURLParser.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */; };
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
@@ -2744,7 +2744,7 @@
 		EA81EE5A2DE458AC00AD3D4A /* PushNotificationSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */; };
 		EA81EE5C2DE458F600AD3D4A /* NotificationResponseDispatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */; };
 		EAD454E42DE5ACE7005A381D /* IncomingActionRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */; };
-		EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */; };
+		EAD454EC2DE719A1005A381D /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454EB2DE719A1005A381D /* MainNavigationActionHandler.swift */; };
 		EAD454F12DE7417B005A381D /* MarketsNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */; };
 		EAD454F32DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */; };
 		EAD455002DE8D3AD005A381D /* DeepLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454FD2DE8D3AD005A381D /* DeepLinkParserTests.swift */; };
@@ -3610,7 +3610,7 @@
 		0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RentExtemptionRestrictable.swift; sourceTree = "<group>"; };
 		0A9AB28E2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryProvider.swift; sourceTree = "<group>"; };
 		0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTarget.swift; sourceTree = "<group>"; };
-		0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralProgramURLParser.swift; sourceTree = "<group>"; };
+		0AA6A79C2DBA6D83008F5D43 /* DeepLinkURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkURLParser.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
@@ -6282,7 +6282,7 @@
 		EA81EE592DE458AC00AD3D4A /* PushNotificationSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSubscriber.swift; sourceTree = "<group>"; };
 		EA81EE5B2DE458F600AD3D4A /* NotificationResponseDispatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponseDispatching.swift; sourceTree = "<group>"; };
 		EAD454E32DE5ACE7005A381D /* IncomingActionRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionRoutable.swift; sourceTree = "<group>"; };
-		EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelNavigationActionHandler.swift; sourceTree = "<group>"; };
+		EAD454EB2DE719A1005A381D /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarketsViewModel+IncomingActionResponder.swift"; sourceTree = "<group>"; };
 		EAD454FD2DE8D3AD005A381D /* DeepLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkParserTests.swift; sourceTree = "<group>"; };
@@ -9054,7 +9054,7 @@
 				B06C084B2A73FB4D00D982BC /* MainRoutable.swift */,
 				B04EADE82A80D617009B5768 /* SingleTokenBase */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
-				EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */,
+				EAD454EB2DE719A1005A381D /* MainNavigationActionHandler.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -17008,7 +17008,7 @@
 				DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */,
 				DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */,
 				0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */,
-				0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */,
+				0AA6A79C2DBA6D83008F5D43 /* DeepLinkURLParser.swift */,
 				EF5E08362DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift */,
 			);
 			path = IncomingActions;
@@ -20526,7 +20526,7 @@
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
-				0AA6A79D2DBA6D83008F5D43 /* ReferralProgramURLParser.swift in Sources */,
+				0AA6A79D2DBA6D83008F5D43 /* DeepLinkURLParser.swift in Sources */,
 				DC2891692CD4ADD400F57F59 /* CommonBuyTokenAvailabilitySorter.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				DC742C362BC8668600BECF09 /* CommonCardScanner.swift in Sources */,
@@ -20869,7 +20869,7 @@
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
-				EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */,
+				EAD454EC2DE719A1005A381D /* MainNavigationActionHandler.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
 				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
