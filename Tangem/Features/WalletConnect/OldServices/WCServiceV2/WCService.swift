@@ -7,7 +7,7 @@
 //
 
 import Combine
-import struct ReownWalletKit.Session
+import ReownWalletKit
 
 protocol WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
@@ -19,7 +19,9 @@ protocol WCService {
     func reset()
 
     func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource)
+
     func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal
+    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws
 
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
