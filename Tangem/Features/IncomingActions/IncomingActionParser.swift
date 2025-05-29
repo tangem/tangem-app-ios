@@ -18,7 +18,6 @@ public class IncomingActionParser {
         SellActionURLHelper(),
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
-//        ReferralProgramURLParser(),
         OnrampIncomingActionURLParser(),
     ]
 
