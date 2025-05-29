@@ -76,7 +76,7 @@ public struct MainButton: View {
                 .cornerRadiusContinuous(style.cornerRadius(for: size))
         )
         .disabled(isInternalButtonDisabled)
-        .accessibilityIdentifier(accessibilityIdentifier ?? "Edik Test")
+        .accessibilityIdentifier(accessibilityIdentifier ?? "MainButton")
     }
 
     var isInternalButtonDisabled: Bool {
