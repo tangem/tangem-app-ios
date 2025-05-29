@@ -101,7 +101,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         bind()
 
-        nftFeatureLifecycleHandler.startObserving()
         actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
@@ -157,7 +156,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
-        nftFeatureLifecycleHandler.walletsWithNFTEnabledPublisher
+        nftFeatureLifecycleHandler
+            .walletsWithNFTEnabledPublisher
             .map { [weak self] in
                 guard
                     let self,
