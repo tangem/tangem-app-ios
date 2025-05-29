@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2747,6 +2747,7 @@
 		EAD454EC2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */; };
 		EAD454F12DE7417B005A381D /* MarketsNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */; };
 		EAD454F32DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */; };
+		EAD455002DE8D3AD005A381D /* DeepLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD454FD2DE8D3AD005A381D /* DeepLinkParserTests.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6284,6 +6285,7 @@
 		EAD454EB2DE719A1005A381D /* MainViewModelNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAD454F02DE7417B005A381D /* MarketsNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAD454F22DE75C4C005A381D /* MarketsViewModel+IncomingActionResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarketsViewModel+IncomingActionResponder.swift"; sourceTree = "<group>"; };
+		EAD454FD2DE8D3AD005A381D /* DeepLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkParserTests.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -6947,10 +6949,6 @@
 		F99007052CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkProviderKRC20.swift; sourceTree = "<group>"; };
 		F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		EAD454E52DE5C209005A381D /* Features */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Features; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
@@ -8104,7 +8102,7 @@
 		5D3F77DB24BF56DC00E8695B /* TangemTests */ = {
 			isa = PBXGroup;
 			children = (
-				EAD454E52DE5C209005A381D /* Features */,
+				EAD454FF2DE8D3AD005A381D /* Features */,
 				DA64DACA2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift */,
 				DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */,
 				0A1992A52B5FBDF800344312 /* CurrencyTests.swift */,
@@ -15892,6 +15890,22 @@
 			path = NotificationResponseDispatching;
 			sourceTree = "<group>";
 		};
+		EAD454FE2DE8D3AD005A381D /* IncomingActions */ = {
+			isa = PBXGroup;
+			children = (
+				EAD454FD2DE8D3AD005A381D /* DeepLinkParserTests.swift */,
+			);
+			path = IncomingActions;
+			sourceTree = "<group>";
+		};
+		EAD454FF2DE8D3AD005A381D /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				EAD454FE2DE8D3AD005A381D /* IncomingActions */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		EF031A262C08E64F001535C9 /* StakingCalculator */ = {
 			isa = PBXGroup;
 			children = (
@@ -18461,9 +18475,6 @@
 			dependencies = (
 				5D3F77DA24BF56DC00E8695B /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				EAD454E52DE5C209005A381D /* Features */,
-			);
 			name = TangemTests;
 			packageProductDependencies = (
 				B67E38C62CC7259B00D660EB /* TangemSdk */,
@@ -20922,6 +20933,7 @@
 				DC19EB322C187192003DD903 /* CommonXPUBGeneratorTests.swift in Sources */,
 				DC32C2402C5BE36F007E8208 /* SendCryptoValueFormatterTests.swift in Sources */,
 				0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */,
+				EAD455002DE8D3AD005A381D /* DeepLinkParserTests.swift in Sources */,
 				EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */,
 				DC7AC96A292BE2C900580668 /* TangemTests.swift in Sources */,
 				DA64DACB2C08BE7B000CBC1E /* UserWalletNameIndexationTests.swift in Sources */,
