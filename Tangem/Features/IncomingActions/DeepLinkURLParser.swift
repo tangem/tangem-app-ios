@@ -1,5 +1,5 @@
 //
-//  ReferralProgramURLParser.swift
+//  DeepLinkURLParser.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ struct DeepLinkURLParser: IncomingActionURLParser {
         guard isValidSchemeAndHost(url) else {
             return nil
         }
-        
+
         switch url.host {
         case Constants.hostMain:
             return .navigation(.main)
@@ -47,7 +47,7 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return nil
         }
     }
-    
+
     private func isValidSchemeAndHost(_ url: URL) -> Bool {
         guard url.scheme == Constants.scheme,
               let host = url.host,
@@ -61,7 +61,7 @@ struct DeepLinkURLParser: IncomingActionURLParser {
 private extension DeepLinkURLParser {
     enum Constants {
         static let scheme = "tangem"
-        
+
         static let hostMain = "main"
         static let hostToken = "token"
         static let hostReferral = "referral"
@@ -70,7 +70,7 @@ private extension DeepLinkURLParser {
         static let hostMarkets = "markets"
         static let hostTokenChart = "token_chart"
         static let hostStaking = "staking"
-        
+
         static let allHosts: Set<String> = [
             hostMain,
             hostToken,
@@ -79,7 +79,7 @@ private extension DeepLinkURLParser {
             hostSell,
             hostMarkets,
             hostTokenChart,
-            hostStaking
+            hostStaking,
         ]
     }
 }
