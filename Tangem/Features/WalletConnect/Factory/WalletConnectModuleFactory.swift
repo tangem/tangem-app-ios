@@ -25,6 +25,8 @@ enum WalletConnectModuleFactory {
     private static let supportURL: URL = AppEnvironment.current.tangemComBaseUrl
 
     private static let dAppDataService = ReownWalletConnectDAppDataService(walletConnectService: Self.walletConnectService)
+    private static let dAppConnectionService = ReownWalletConnectDAppConnectionService(walletConnectService: Self.walletConnectService)
+
     private static let dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
         apiService: BlockaidFactory().makeBlockaidAPIService()
     )
@@ -54,33 +56,39 @@ enum WalletConnectModuleFactory {
     static func makeDAppConnectionProposalViewModel(
         forURI uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
-    ) -> WalletConnectDAppConnectionProposalViewModel {
+    ) -> WalletConnectDAppConnectionProposalViewModel? {
+        let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
+
+        guard filteredUserWallets.isNotEmpty else {
+            assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")
+            return nil
+        }
+
+        let selectedUserWallet: any UserWalletModel
+
+        if let selectedModel = Self.userWalletRepository.selectedModel, selectedModel.config.isFeatureVisible(.walletConnect) {
+            selectedUserWallet = selectedModel
+        } else {
+            selectedUserWallet = filteredUserWallets[0]
+        }
+
         let getDAppConnectionProposalUseCase = WalletConnectGetDAppConnectionProposalUseCase(
             dAppDataService: Self.dAppDataService,
             verificationService: Self.dAppVerificationService,
             uri: uri,
             analyticsSource: source
         )
+        let connectDAppUseCase = WalletConnectConnectDAppUseCase(dAppConnectionService: dAppConnectionService)
 
-        let selectedUserWalletName = Self.userWalletRepository.selectedModel?.name ?? ""
-        let walletSelectionIsAvailable = Self.userWalletRepository.models.count > 1
-
-        weak var futureCoordinator: WalletConnectDAppConnectionProposalRoutable?
-
-        let connectionRequestViewModel = WalletConnectConnectionRequestViewModel(
-            state: .loading(walletName: selectedUserWalletName, walletSelectionIsAvailable: walletSelectionIsAvailable),
+        return WalletConnectDAppConnectionProposalViewModel(
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
-            coordinator: futureCoordinator
+            connectDAppUseCase: connectDAppUseCase,
+            userWallets: filteredUserWallets,
+            selectedUserWallet: selectedUserWallet,
+            dismissFlowAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+            }
         )
-
-        let viewModel = WalletConnectDAppConnectionProposalViewModel(
-            state: .connectionRequest(connectionRequestViewModel),
-            connectionRequestViewModel: connectionRequestViewModel
-        )
-
-        futureCoordinator = viewModel
-
-        return viewModel
     }
 
     static func makeQRScanFlow(
@@ -104,11 +112,13 @@ enum WalletConnectModuleFactory {
 
         let state = WalletConnectConnectedDAppDetailsViewState(
             navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: Self.connectedTime(from: dApp)),
-            dAppDescriptionSection: WalletConnectConnectedDAppDetailsViewState.DAppDescriptionSection(
-                id: dApp.id,
-                iconURL: nil,
-                name: dApp.sessionInfo.dAppInfo.name,
-                domain: dApp.sessionInfo.dAppInfo.url
+            dAppDescriptionSection: .content(
+                WalletConnectDAppDescriptionViewModel.ContentState(
+                    // [REDACTED_TODO_COMMENT]
+                    iconURL: nil,
+                    name: dApp.sessionInfo.dAppInfo.name,
+                    domain: URL(string: dApp.sessionInfo.dAppInfo.url)
+                )
             ),
             walletSection: WalletConnectConnectedDAppDetailsViewState.WalletSection(walletName: userWallet?.name),
             connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.ConnectedNetworksSection(
@@ -125,6 +135,7 @@ enum WalletConnectModuleFactory {
 
         return WalletConnectConnectedDAppDetailsViewModel(
             state: state,
+            dAppID: dApp.id,
             walletConnectService: walletConnectService,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
