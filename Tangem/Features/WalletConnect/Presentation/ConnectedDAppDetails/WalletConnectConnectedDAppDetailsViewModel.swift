@@ -10,6 +10,7 @@ import Combine
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
+    private let dAppID: Int
     private let walletConnectService: any WCService
     private let closeAction: () -> Void
 
@@ -17,8 +18,14 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
 
     @Published private(set) var state: WalletConnectConnectedDAppDetailsViewState
 
-    init(state: WalletConnectConnectedDAppDetailsViewState, walletConnectService: some WCService, closeAction: @escaping () -> Void) {
+    init(
+        state: WalletConnectConnectedDAppDetailsViewState,
+        dAppID: Int,
+        walletConnectService: some WCService,
+        closeAction: @escaping () -> Void
+    ) {
         self.state = state
+        self.dAppID = dAppID
         self.walletConnectService = walletConnectService
         self.closeAction = closeAction
     }
@@ -45,10 +52,9 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         guard !state.disconnectButton.isLoading else { return }
 
         state.disconnectButton.isLoading = true
-        let dAppID = state.dAppDescriptionSection.id
 
         disconnectDAppTask?.cancel()
-        disconnectDAppTask = Task { [walletConnectService, closeAction] in
+        disconnectDAppTask = Task { [walletConnectService, closeAction, dAppID] in
             await walletConnectService.disconnectSession(with: dAppID)
             closeAction()
         }
