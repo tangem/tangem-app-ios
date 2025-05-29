@@ -38,7 +38,7 @@ final class MarketsHistoryChartViewModel: ObservableObject {
 
     // MARK: - Dependencies & internal state
 
-    private let tokenSymbol: String
+    private(set) var tokenSymbol: String
     private let historyChartProvider: MarketsHistoryChartProvider
     private var loadHistoryChartTask: Cancellable?
     private var delayedLoadingStateSubscription: Cancellable?
