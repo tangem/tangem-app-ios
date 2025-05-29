@@ -53,7 +53,7 @@ extension MainViewModel {
         }
         
         private func routeReferralAction() -> Bool {
-            guard isReferralProgramSupported(),
+            guard isFeatureSupported(feature: .referralProgram),
                   let userWalletModel = userWalletModel
             else {
                 incomingActionManager.discardIncomingAction()
@@ -70,20 +70,24 @@ extension MainViewModel {
             return true
         }
         
-        private func isMulticurrencySupported() -> Bool {
-            guard let userWalletModel else {
+        private func routeStaking(tokenSymbol: String) -> Bool {
+            guard
+                isFeatureSupported(feature: .staking),
+                let uwm = userWalletModel,
+                let walletModel = findWalletModel(in: uwm, tokenSymbol: tokenSymbol, network: nil),
+                let stakingManager = walletModel.stakingManager
+            else {
+                incomingActionManager.discardIncomingAction()
                 return false
             }
             
-            return userWalletModel.config.hasFeature(.multiCurrency)
-        }
-        
-        private func isReferralProgramSupported() -> Bool {
-            guard let userWalletModel,
-                  !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
-                return false
-            }
+            let options = StakingDetailsCoordinator.Options(
+                userWalletModel: uwm,
+                walletModel: walletModel,
+                manager: stakingManager
+            )
             
+            coordinator.openStaking(options: options)
             return true
         }
     }
@@ -112,16 +116,35 @@ extension MainViewModel.MainViewModelNavigationActionHandler: NavigationActionHa
         case .sell:
             return routeSellAction()
             
+        case .staking(let symbol):
+            return routeStaking(tokenSymbol: symbol)
+            
         default:
             return false
         }
     }
 }
 
-
 // MARK: - Helpers
 
 extension MainViewModel.MainViewModelNavigationActionHandler {
+    private func isMulticurrencySupported() -> Bool {
+        guard let userWalletModel else {
+            return false
+        }
+        
+        return userWalletModel.config.hasFeature(.multiCurrency)
+    }
+    
+    private func isFeatureSupported(feature: UserWalletFeature) -> Bool {
+        guard let userWalletModel,
+              !userWalletModel.config.getFeatureAvailability(feature).isHidden else {
+            return false
+        }
+        
+        return true
+    }
+    
     private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
         let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
         let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
