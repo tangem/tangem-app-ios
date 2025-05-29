@@ -143,7 +143,7 @@ extension WalletConnectViewModel {
                 )
 
             case .canOpenQRScanner(let clipboardURI):
-                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [walletConnectService] result in
+                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [weak self] result in
                     let source: Analytics.WalletConnectSessionSource
                     let sessionURI: WalletConnectRequestURI
 
@@ -156,7 +156,7 @@ extension WalletConnectViewModel {
                         sessionURI = uri
                     }
 
-                    walletConnectService.openSession(with: sessionURI, source: source)
+                    self?.walletConnectService.openSession(with: sessionURI, source: source)
                 }
             }
         } catch {

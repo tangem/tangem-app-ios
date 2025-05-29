@@ -7,7 +7,7 @@
 //
 
 import Combine
-import struct ReownWalletKit.Session
+import ReownWalletKit
 
 final class CommonWCService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
@@ -54,14 +54,15 @@ extension CommonWCService: WCService {
         }
     }
 
-    func openSession(
-        with uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
-    ) async throws -> Session.Proposal {
+    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
         switch uri {
         case .v2(let v2URI):
             try await v2Service.openSession(with: v2URI, source: source)
         }
+    }
+
+    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {
+        try await v2Service.acceptSessionProposal(with: proposalId, namespaces: namespaces)
     }
 
     func disconnectSession(with id: Int) async {
