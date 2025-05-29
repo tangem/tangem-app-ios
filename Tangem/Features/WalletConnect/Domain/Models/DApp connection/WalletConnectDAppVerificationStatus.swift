@@ -10,6 +10,15 @@ enum WalletConnectDAppVerificationStatus {
     case verified
     case unknownDomain
     case malicious([AttackType])
+
+    var isVerified: Bool {
+        switch self {
+        case .verified:
+            true
+        case .unknownDomain, .malicious:
+            false
+        }
+    }
 }
 
 extension WalletConnectDAppVerificationStatus {
