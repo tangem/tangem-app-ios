@@ -10,13 +10,10 @@ import Foundation
 import Combine
 
 public class CommonIncomingActionManager {
-    @Injected(\.appLockController) private var appLockController: AppLockController
-
-    var _didReceiveNavigationAction = PassthroughSubject<Void, Never>()
-
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
+    private let _didReceiveNavigationAction = PassthroughSubject<Void, Never>()
 
     public init() {}
 }
@@ -49,11 +46,8 @@ extension CommonIncomingActionManager: IncomingActionManaging {
     }
 
     private func tryHandleLastAction() {
-        guard let pendingAction else { return }
-
-        switch pendingAction {
-        case .referralProgram where appLockController.isLocked: return
-        default: break
+        guard let pendingAction else {
+            return
         }
 
         for responder in responders.allDelegates.reversed() {

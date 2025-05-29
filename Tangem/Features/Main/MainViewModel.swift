@@ -336,7 +336,7 @@ final class MainViewModel: ObservableObject {
 
     private func createNavigationActionHandler() {
         if let coordinator {
-            navigationActionHandler = MainViewModelNavigationActionHandler(
+            navigationActionHandler = MainNavigationActionHandler(
                 userWalletModel: userWalletRepository.selectedModel,
                 coordinator: coordinator
             )
@@ -350,7 +350,7 @@ final class MainViewModel: ObservableObject {
                 incomingActionManager.becomeFirstResponder(self)
             }
             .store(in: &bag)
-        
+
         $selectedCardIndex
             .dropFirst()
             .withWeakCaptureOf(self)
