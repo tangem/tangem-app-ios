@@ -10,7 +10,10 @@ import Foundation
 
 struct DeepLinkURLParser: IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction? {
-        guard url.scheme == "tangem" else { return nil }
+        guard isValidSchemeAndHost(url) else {
+            return nil
+        }
+        
         switch url.host {
         case Constants.hostMain:
             return .navigation(.main)
@@ -44,11 +47,21 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return nil
         }
     }
+    
+    private func isValidSchemeAndHost(_ url: URL) -> Bool {
+        guard url.scheme == Constants.scheme,
+              let host = url.host,
+              Constants.allHosts.contains(host) else {
+            return false
+        }
+        return true
+    }
 }
 
 private extension DeepLinkURLParser {
     enum Constants {
-        static let referralURLString = "tangem://referral"
+        static let scheme = "tangem"
+        
         static let hostMain = "main"
         static let hostToken = "token"
         static let hostReferral = "referral"
@@ -57,6 +70,17 @@ private extension DeepLinkURLParser {
         static let hostMarkets = "markets"
         static let hostTokenChart = "token_chart"
         static let hostStaking = "staking"
+        
+        static let allHosts: Set<String> = [
+            hostMain,
+            hostToken,
+            hostReferral,
+            hostBuy,
+            hostSell,
+            hostMarkets,
+            hostTokenChart,
+            hostStaking
+        ]
     }
 }
 
