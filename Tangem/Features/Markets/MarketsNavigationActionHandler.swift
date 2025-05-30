@@ -16,16 +16,10 @@ extension MarketsViewModel {
         
         private let coordinator: MarketsRoutable
         private let bottomSheetPosition: () -> BottomSheetPosition
-        private let searchAction: (String, Bool) -> Void
         
-        init(
-            coordinator: MarketsRoutable,
-            bottomSheetPosition: @escaping () -> BottomSheetPosition,
-            searchAction: @escaping (String, Bool) -> Void
-        ) {
+        init(coordinator: MarketsRoutable, bottomSheetPosition: @escaping () -> BottomSheetPosition) {
             self.coordinator = coordinator
             self.bottomSheetPosition = bottomSheetPosition
-            self.searchAction = searchAction
         }
     }
 }
@@ -39,22 +33,19 @@ extension MarketsViewModel.MarketsNavigationActionHandler {
 }
 
 extension MarketsViewModel.MarketsNavigationActionHandler {
-    private func routeTokenChartAction(tokenName: String) -> Bool {
-        let sheetPosition = bottomSheetPosition()
+    private func routeTokenChartAction(tokenSymbol: String, tokenId: String) -> Bool {
+        let position = bottomSheetPosition()
         
-        switch sheetPosition {
-        case .expanded:
-            searchAction(tokenName, true)
-            return true
-            
-        case .unknown:
+        guard position != .unknown else {
             return false
-            
-        case .collapsed:
-            bottomSheetStateController.expand()
-            searchAction(tokenName, true)
-            return true
         }
+        
+        if position == .collapsed {
+            bottomSheetStateController.expand()
+        }
+        
+        coordinator.openMarketsTokenDetails(tokenSymbol: tokenSymbol, tokenId: tokenId)
+        return true
     }
     
     private func routMarketsAction() -> Bool {
@@ -82,8 +73,8 @@ extension MarketsViewModel.MarketsNavigationActionHandler: NavigationActionHandl
         case .markets:
             return routMarketsAction()
             
-        case .tokenChart(let tokenName):
-            return routeTokenChartAction(tokenName: tokenName)
+        case .tokenChart(let tokenSymbol, let tokenId):
+            return routeTokenChartAction(tokenSymbol: tokenSymbol, tokenId: tokenId)
             
         default:
             return false

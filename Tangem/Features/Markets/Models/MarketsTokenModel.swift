@@ -28,3 +28,17 @@ struct MarketsTokenModel: Identifiable, Decodable, Equatable {
         let rewardType: String
     }
 }
+
+extension MarketsTokenModel {
+    init(tokenSymbol: String, tokenId: String) {
+        id = tokenId
+        symbol = tokenSymbol
+        name = ""
+        currentPrice = nil
+        priceChangePercentage = [:]
+        marketRating = nil
+        marketCap = nil
+        isUnderMarketCapLimit = nil
+        stakingOpportunities = nil
+    }
+}
