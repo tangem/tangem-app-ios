@@ -12,7 +12,7 @@ import SafariServices
 // MARK: - SafariManager
 
 protocol SafariManager {
-    /// You should retain the handle in the coordionator always
+    /// You should retain the handle in the coordinator always
     func openURL(
         _ url: URL,
         configuration: SafariConfiguration,

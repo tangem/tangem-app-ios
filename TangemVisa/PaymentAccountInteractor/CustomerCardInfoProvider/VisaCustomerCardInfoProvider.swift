@@ -54,46 +54,15 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         )
     }
 
-    private func getCustomerId() async throws -> String {
-        guard let authorizationTokensHandler else {
-            throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
-        }
-
-        if await !authorizationTokensHandler.containsAccessToken {
-            try await authorizationTokensHandler.forceRefreshToken()
-        }
-
-        guard let accessToken = await authorizationTokensHandler.accessToken else {
-            throw VisaAuthorizationTokensHandlerError.missingAccessToken
-        }
-
-        guard let customerId = JWTTokenHelper().getCustomerID(from: accessToken) else {
-            throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
-        }
-
-        return customerId
-    }
-
     private func loadPaymentAccountFromCIM(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
         guard let customerInfoManagementService else {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
 
-        let customerId = try await getCustomerId()
-        let customerInfo = try await customerInfoManagementService.loadCustomerInfo(customerId: customerId)
-
-        guard let productInstance = customerInfo.productInstances?.first(where: { $0.cid == cardId }) else {
-            throw VisaPaymentAccountAddressProviderError.missingProductInstanceForCardId
-        }
-
-        guard
-            let paymentAccount = customerInfo.paymentAccounts?.first(where: { $0.id == productInstance.paymentAccountId })
-        else {
-            throw VisaPaymentAccountAddressProviderError.missingPaymentAccountForCard
-        }
+        let customerInfo = try await customerInfoManagementService.loadCustomerInfo(cardId: cardId)
 
         return VisaCustomerCardInfo(
-            paymentAccount: paymentAccount.paymentAccountAddress,
+            paymentAccount: customerInfo.paymentAccount.address,
             cardId: cardId,
             cardWalletAddress: cardWalletAddress,
             customerInfo: customerInfo
