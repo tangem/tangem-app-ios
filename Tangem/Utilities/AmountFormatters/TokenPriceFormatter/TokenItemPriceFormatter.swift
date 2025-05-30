@@ -8,7 +8,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "Temporary solution for token list on the main screen only, do not use ([REDACTED_INFO])")
+@available(iOS, deprecated: 100000.0, message: "Temporary solution for token list on the main screen only, do not use ([REDACTED_INFO])")
 struct TokenItemPriceFormatter {
     private let balanceFormatter = BalanceFormatter()
 
