@@ -96,7 +96,7 @@ private extension UnstakingModel {
 
         estimatedFeeTask?.cancel()
 
-        estimatedFeeTask = TangemFoundation.runTask(in: self) { model in
+        estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
                 let state = try await model.state(amount: amount)
@@ -212,8 +212,11 @@ private extension UnstakingModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [.token: tokenItem.currencySymbol])
+        case .sendTxError(_, let error):
+            Analytics.log(event: .stakingErrorTransactionRejected, params: [
+                .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)",
+            ])
         }
     }
 }
