@@ -287,10 +287,10 @@ final class CommonNFTManager: NFTManager {
 
 private extension CommonNFTManager {
     actor Updater {
-        typealias Task = _Concurrency.Task<NFTPartialResult<[NFTCollection]>, Error>
+        typealias CollectionsTask = _Concurrency.Task<NFTPartialResult<[NFTCollection]>, Error>
 
         enum UpdateTask {
-            case inProgress(Task)
+            case inProgress(CollectionsTask)
             case loaded(NFTPartialResult<[NFTCollection]>)
         }
 
@@ -338,7 +338,7 @@ private extension CommonNFTManager {
         }
 
         nonisolated func logErrors(_ errors: [NFTErrorDescriptor]) {
-            _Concurrency.Task.detached {
+            Task.detached {
                 await withTaskGroup(of: Void.self) { group in
                     for error in errors {
                         group.addTask {
@@ -363,7 +363,7 @@ private extension CommonNFTManager {
                 return try await task.value
             }
 
-            let task = Task {
+            let task = CollectionsTask {
                 try await networkService.getCollections(address: address)
             }
 
