@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemFoundation
+import TangemUIUtils
 
 public enum IconViewSizeSettings {
     case tokenItem

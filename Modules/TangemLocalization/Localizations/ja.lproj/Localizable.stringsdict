@@ -26,8 +26,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li token</string>
         <key>other</key>
-        <string>%1$liトークン</string>
+        <string>%li tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>

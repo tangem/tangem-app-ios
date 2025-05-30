@@ -11,7 +11,7 @@ import Foundation
 struct SendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -20,6 +20,8 @@ struct SendFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
+        let flowKind = SendModel.PredefinedValues.FlowKind.send
+
         let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
         let sendModel = builder.makeSendModel()
@@ -38,7 +40,7 @@ struct SendFlowBaseBuilder {
             sendQRCodeService: sendQRCodeService,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
-            source: .send
+            flowKind: flowKind
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
@@ -53,11 +55,13 @@ struct SendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            destinationEditableType: .editable,
+            amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
@@ -71,7 +75,7 @@ struct SendFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendAmountInteractor = amount.interactor
         sendModel.sendFeeInteractor = fee.interactor
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
@@ -105,7 +109,7 @@ struct SendFlowBaseBuilder {
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
 
