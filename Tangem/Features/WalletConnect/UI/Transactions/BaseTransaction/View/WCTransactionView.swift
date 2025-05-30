@@ -149,6 +149,8 @@ private extension WCTransactionView {
             WCEthPersonalSignTransactionView(walletName: viewModel.userWalletName)
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(walletName: viewModel.userWalletName)
+        case .signTypedData, .signTypedDataV4:
+            WCEthPersonalSignTransactionView(walletName: viewModel.userWalletName)
         default:
             EmptyView()
         }
@@ -168,6 +170,8 @@ private extension WCTransactionView {
             bottomEdgeTransition
         case .solanaSignTransaction, .solanaSignAllTransactions:
             topEdgeTransition
+        case .signTypedData, .signTypedDataV4:
+            topEdgeTransition
         default:
             bottomEdgeTransition
         }
@@ -178,6 +182,8 @@ private extension WCTransactionView {
         case .personalSign, .solanaSignMessage:
             topEdgeTransition
         case .solanaSignTransaction, .solanaSignAllTransactions:
+            bottomEdgeTransition
+        case .signTypedData, .signTypedDataV4:
             bottomEdgeTransition
         default:
             topEdgeTransition
