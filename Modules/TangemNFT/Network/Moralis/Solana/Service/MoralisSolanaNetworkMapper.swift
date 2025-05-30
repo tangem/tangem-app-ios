@@ -18,13 +18,17 @@ struct MoralisSolanaNetworkMapper {
     ) -> NFTCollection {
         let domainAssets = assets.compactMap { map(asset: $0, ownerAddress: ownerAddress) }
 
+        // Moralis doesn't send collection image URL, so we are assigning first asset's image
+        let collectionMedia = domainAssets.first { $0.media != nil }?.media
+
         guard let collection, let collectionId = collection.collectionAddress else {
             return NFTDummyCollectionMapper.map(
                 chain: .solana,
                 assets: domainAssets,
                 assetsCount: domainAssets.count,
                 contractType: .unknown,
-                ownerAddress: ownerAddress
+                ownerAddress: ownerAddress,
+                media: collectionMedia
             )
         }
 
@@ -35,9 +39,7 @@ struct MoralisSolanaNetworkMapper {
             ownerAddress: ownerAddress,
             name: collection.name ?? Constants.collectionNameFallback,
             description: collection.description,
-            // Moralis doesn't send collection image URL, so we are assigning first asset's image as discussed
-            // [REDACTED_INFO]
-            media: domainAssets.first?.media,
+            media: collectionMedia,
             assetsCount: domainAssets.count,
             assets: domainAssets
         )
