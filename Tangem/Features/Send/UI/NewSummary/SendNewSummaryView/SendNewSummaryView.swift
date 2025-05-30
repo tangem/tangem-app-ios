@@ -18,7 +18,7 @@ struct SendNewSummaryView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 14) {
             GroupedScrollView(spacing: 14) {
-                // [REDACTED_TODO_COMMENT]
+                amountSectionView
             }
 
             descriptionView
@@ -26,6 +26,32 @@ struct SendNewSummaryView: View {
         .transition(transitionService.summaryViewTransition)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+    }
+
+    // MARK: - Description
+
+    @ViewBuilder
+    private var amountSectionView: some View {
+        ZStack(alignment: .center) {
+            VStack(spacing: .zero) {
+                if let amountCompactViewModel = viewModel.sendAmountCompactViewModel {
+                    Button(action: viewModel.userDidTapAmount) {
+                        SendNewAmountCompactView(viewModel: amountCompactViewModel)
+                    }
+                }
+
+                if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
+                    Button(action: viewModel.userDidTapReceiveTokenAmount) {
+                        SendNewAmountCompactView(viewModel: receiveTokenViewModel)
+                    }
+                }
+            }
+
+            if let separatorStyle = viewModel.sendAmountsSeparator {
+                SendNewAmountCompactViewSeparator(style: separatorStyle)
+            }
+        }
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
     }
 
     // MARK: - Description
