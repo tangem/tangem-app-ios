@@ -35,21 +35,11 @@ struct WalletConnectConnectedDAppDetailsView: View {
     }
 
     private var navigationBar: some View {
-        ZStack {
-            navigationCloseButton
-
-            VStack(spacing: .zero) {
-                Text(viewModel.state.navigationBar.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                if let connectedTime = viewModel.state.navigationBar.connectedTime {
-                    Text(connectedTime)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                }
-            }
-        }
-        .frame(height: Layout.NavigationBar.height)
-        .padding(.top, Layout.NavigationBar.topPadding)
+        WalletConnectNavigationBarView(
+            title: viewModel.state.navigationBar.title,
+            subtitle: viewModel.state.navigationBar.connectedTime,
+            closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) }
+        )
         .padding(.bottom, Layout.NavigationBar.bottomPadding)
         .background {
             ListFooterOverlayShadowView(
@@ -61,32 +51,13 @@ struct WalletConnectConnectedDAppDetailsView: View {
                 ]
             )
         }
-        .padding(.horizontal, 16)
-        .contentShape(.rect)
-    }
-
-    private var navigationCloseButton: some View {
-        HStack(spacing: .zero) {
-            Spacer()
-
-            Button(action: { viewModel.handle(viewEvent: .closeButtonTapped) }) {
-                Image(systemName: "multiply")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Colors.Icon.secondary)
-                    .frame(width: 28, height: 28)
-                    .background {
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    }
-                    .contentShape(.circle)
-            }
-            .buttonStyle(.plain)
-        }
     }
 
     private var dAppAndWalletSection: some View {
         VStack(spacing: .zero) {
-            dAppSection
+            WalletConnectDAppDescriptionView(viewModel: viewModel.state.dAppDescriptionSection)
+                .padding(.horizontal, 14)
+                .padding(.vertical, Layout.DAppAndWalletSection.dAppVerticalPadding)
 
             if let walletSectionState = viewModel.state.walletSection {
                 Divider()
@@ -98,32 +69,6 @@ struct WalletConnectConnectedDAppDetailsView: View {
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var dAppSection: some View {
-        HStack(spacing: 16) {
-            viewModel.state.dAppDescriptionSection.fallbackIconAsset.image
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-                .foregroundStyle(Colors.Icon.accent)
-                .frame(width: 56, height: 56)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.state.dAppDescriptionSection.name)
-                    .lineLimit(1)
-                    .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
-
-                Text(viewModel.state.dAppDescriptionSection.domain)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .frame(height: Layout.DAppAndWalletSection.dAppSectionHeight)
-        .padding(.horizontal, 14)
-        .padding(.vertical, Layout.DAppAndWalletSection.dAppVerticalPadding)
     }
 
     private func walletSection(_ walletSectionState: WalletConnectConnectedDAppDetailsViewState.WalletSection) -> some View {
@@ -190,13 +135,8 @@ struct WalletConnectConnectedDAppDetailsView: View {
     private var disconnectButton: some View {
         MainButton(
             title: viewModel.state.disconnectButton.title,
-            subtitle: nil,
-            icon: nil,
             style: .secondary,
-            size: .default,
             isLoading: viewModel.state.disconnectButton.isLoading,
-            isDisabled: false,
-            handleActionWhenDisabled: false,
             action: {
                 viewModel.handle(viewEvent: .disconnectButtonTapped)
             }
@@ -252,11 +192,11 @@ extension WalletConnectConnectedDAppDetailsView {
     private enum Layout {
         enum NavigationBar {
             /// 8
-            static let topPadding: CGFloat = 8
+            static let topPadding = WalletConnectNavigationBarView.Layout.topPadding
             /// 12
             static let bottomPadding: CGFloat = 12
             /// 44
-            static let height: CGFloat = 44
+            static let height = WalletConnectNavigationBarView.Layout.height
         }
 
         enum DAppAndWalletSection {
