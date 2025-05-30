@@ -27,13 +27,13 @@ enum MainPageUIElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .root:
-            return "MainPage"
+            "MainPage"
         case .buyTitle:
-            return "Buy"
+            "Buy"
         case .exchangeTitle:
-            return "Exchange"
+            "Exchange"
         case .sellTitle:
-            return "Sell"
+            "Sell"
         }
     }
 }
