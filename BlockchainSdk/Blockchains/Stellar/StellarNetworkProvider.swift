@@ -146,6 +146,10 @@ class StellarNetworkProvider: HostProvider {
             return error
         }
     }
+
+    func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
+        stellarSdk.accounts.checkIsMemoRequired(for: address)
+    }
 }
 
 extension StellarNetworkProvider {

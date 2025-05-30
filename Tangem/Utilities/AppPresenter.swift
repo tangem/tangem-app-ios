@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 import SwiftUI
 
-class AppPresenter {
+/// - Note: No mutable state, so this type is considered to be `Sendable` by definition.
+final class AppPresenter: @unchecked Sendable {
     static let shared = AppPresenter()
 
     private init() {}

@@ -89,6 +89,8 @@ struct BlockchainSDKNotificationMapper {
                 cardanoAmountFormatted: amount.value.description,
                 tokenSymbol: tokenItem.currencySymbol
             )
+        case .tronWillBeSendTokenFeeDescription:
+            return .tronWillBeSendTokenFeeDescription
         }
     }
 }
