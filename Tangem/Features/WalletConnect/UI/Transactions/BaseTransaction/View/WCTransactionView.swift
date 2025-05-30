@@ -70,16 +70,6 @@ struct WCTransactionView: View {
                 .padding(.top, -50)
         )
     }
-
-    @ViewBuilder
-    private var transactionDetailsContent: some View {
-        switch viewModel.transactionData.method {
-        case .personalSign:
-            WCEthPersonalSignTransactionView(userWalletName: viewModel.userWalletName)
-        default:
-            EmptyView()
-        }
-    }
 }
 
 // MARK: - Transaction default section
@@ -151,7 +141,19 @@ private extension WCTransactionView {
 
 // MARK: - Transactions request
 
-extension WCTransactionView {}
+private extension WCTransactionView {
+    @ViewBuilder
+    var transactionDetailsContent: some View {
+        switch viewModel.transactionData.method {
+        case .personalSign:
+            WCEthPersonalSignTransactionView(walletName: viewModel.userWalletName)
+        case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
+            WCSolanaDefaultTransactionDetailsView(walletName: viewModel.userWalletName)
+        default:
+            EmptyView()
+        }
+    }
+}
 
 // MARK: - UI Helpers
 
@@ -162,8 +164,10 @@ private extension WCTransactionView {
 
     var transactionDetailsTransition: AnyTransition {
         switch viewModel.transactionData.method {
-        case .personalSign:
+        case .personalSign, .solanaSignMessage:
             bottomEdgeTransition
+        case .solanaSignTransaction, .solanaSignAllTransactions:
+            topEdgeTransition
         default:
             bottomEdgeTransition
         }
@@ -171,8 +175,10 @@ private extension WCTransactionView {
 
     var requestDetailsTransition: AnyTransition {
         switch viewModel.transactionData.method {
-        case .personalSign:
+        case .personalSign, .solanaSignMessage:
             topEdgeTransition
+        case .solanaSignTransaction, .solanaSignAllTransactions:
+            bottomEdgeTransition
         default:
             topEdgeTransition
         }
