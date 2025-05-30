@@ -11,7 +11,7 @@ import Foundation
 struct SellFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -20,6 +20,8 @@ struct SellFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
+        let flowKind = SendModel.PredefinedValues.FlowKind.sell
+
         let notificationManager = builder.makeSendNotificationManager()
         let sendModel = builder.makeSendModel(predefinedSellParameters: sellParameters)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
@@ -43,11 +45,13 @@ struct SellFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .disable,
+            destinationEditableType: .disable,
+            amountEditableType: .disable,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
@@ -61,7 +65,7 @@ struct SellFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendFeeInteractor = fee.interactor
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             sendFeeInteractor: fee.interactor
@@ -94,7 +98,7 @@ struct SellFlowBaseBuilder {
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
         stepsManager.set(output: viewModel)

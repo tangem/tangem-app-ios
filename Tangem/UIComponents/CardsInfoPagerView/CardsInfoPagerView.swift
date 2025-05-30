@@ -124,9 +124,8 @@ struct CardsInfoPagerView<
     private let collapsedHeaderScrollTargetIdentifier = UUID()
     private let scrollViewFrameCoordinateSpaceName = UUID()
 
-    // [REDACTED_TODO_COMMENT]
     /// Different headers for different pages are expected to have the same height (otherwise visual glitches may occur).
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Replace with native `.safeAreaInset()` ([REDACTED_INFO])")
     @State private var headerHeight: CGFloat = .zero
     @State private var scrollViewBottomContentInset: CGFloat = .zero
 
