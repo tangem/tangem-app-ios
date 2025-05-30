@@ -7,10 +7,31 @@
 //
 
 import Foundation
-import Combine
+import UIKit
+import SwiftUI
 
 protocol CardImageProviding {
-    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardImageResult, Never>
-    func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never>
-    func loadTwinImage(for number: Int) -> AnyPublisher<CardImageResult, Never>
+    func loadLargeImage() async -> ImageValue
+    func loadSmallImage() async -> ImageValue
+
+    func loadLargeUIImage() async -> UIImage
+    func loadSmallUIImage() async -> UIImage
+}
+
+struct ImageValue {
+    let image: Image
+}
+
+extension CardImageProviding {
+    func loadLargeImage() async -> ImageValue {
+        let uiImage = await loadLargeUIImage()
+        let image = Image(uiImage: uiImage)
+        return ImageValue(image: image)
+    }
+
+    func loadSmallImage() async -> ImageValue {
+        let uiImage = await loadSmallUIImage()
+        let image = Image(uiImage: uiImage)
+        return ImageValue(image: image)
+    }
 }

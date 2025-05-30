@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct UserTokensReorderingLogger {
     let walletModels: [any WalletModel]
@@ -45,10 +46,9 @@ struct UserTokensReorderingLogger {
         walletModelsKeyedByIds: [WalletModelId: any WalletModel]
     ) -> String {
         let walletModel = walletModelsKeyedByIds[item.walletModelId]
-        let objectDescription = "Token: \(item.name)"
 
-        return ObjectDescriptionFormatter.format(
-            objectDescription: objectDescription,
+        return objectDescription(
+            "Token: \(item.name)",
             userInfo: [
                 "state": description(for: walletModel?.state),
                 "canUseQuotes": description(for: walletModel?.canUseQuotes),

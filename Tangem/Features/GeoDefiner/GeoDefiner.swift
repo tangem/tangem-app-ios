@@ -21,7 +21,7 @@ class GeoDefiner: Initializable {
     private var ipRegionCodeTask: Task<String, Error>?
 
     func initialize() {
-        TangemFoundation.runTask(in: self) {
+        runTask(in: self) {
             $0.geoIpRegionCode = try await $0.fetchGeoIpRegionCode()
         }
     }

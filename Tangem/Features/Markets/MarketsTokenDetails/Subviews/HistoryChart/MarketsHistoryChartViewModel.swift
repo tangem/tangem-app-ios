@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 final class MarketsHistoryChartViewModel: ObservableObject {
     // MARK: - View state

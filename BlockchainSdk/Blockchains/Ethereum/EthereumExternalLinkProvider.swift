@@ -10,8 +10,10 @@ import Foundation
 
 struct EthereumExternalLinkProvider {
     private let isTestnet: Bool
+    private let baseURL: String
 
     init(isTestnet: Bool) {
+        baseURL = isTestnet ? "https://goerli.etherscan.io/" : "https://etherscan.io/"
         self.isTestnet = isTestnet
     }
 }
@@ -30,14 +32,16 @@ extension EthereumExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = isTestnet ? "https://goerli.etherscan.io/" : "https://etherscan.io/"
-
         if let contractAddress {
-            let url = baseUrl + "token/\(contractAddress)?a=\(address)"
+            let url = baseURL + "token/\(contractAddress)?a=\(address)"
             return URL(string: url)
         }
 
-        let url = baseUrl + "address/\(address)"
+        let url = baseURL + "address/\(address)"
         return URL(string: url)
+    }
+
+    func nftURL(tokenAddress: String, tokenID: String) -> URL? {
+        URL(string: baseURL + "nft/\(tokenAddress)/\(tokenID)")
     }
 }

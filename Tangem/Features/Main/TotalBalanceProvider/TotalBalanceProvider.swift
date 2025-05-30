@@ -175,6 +175,6 @@ private extension TotalBalanceProvider {
 
 extension TotalBalanceProvider: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }

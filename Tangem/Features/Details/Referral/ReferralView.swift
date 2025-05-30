@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct ReferralView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -276,7 +278,7 @@ struct ReferralView: View {
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 action: {
-                    runTask(viewModel.participateInReferralProgram)
+                    runTask(code: viewModel.participateInReferralProgram)
                 }
             )
         }

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
     Mapper: TransactionHistoryMapper,

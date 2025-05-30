@@ -20,11 +20,13 @@ struct SendSummaryStepBuilder {
         actionType: SendFlowActionType,
         descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
         notificationManager: NotificationManager,
-        editableType: SendSummaryViewModel.EditableType,
+        destinationEditableType: SendSummaryViewModel.EditableType,
+        amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = makeSendSummaryInteractor(
             io: io,
@@ -35,11 +37,13 @@ struct SendSummaryStepBuilder {
             interactor: interactor,
             actionType: actionType,
             notificationManager: notificationManager,
-            editableType: editableType,
+            destinationEditableType: destinationEditableType,
+            amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
 
         let step = SendSummaryStep(
@@ -60,15 +64,18 @@ private extension SendSummaryStepBuilder {
         interactor: SendSummaryInteractor,
         actionType: SendFlowActionType,
         notificationManager: NotificationManager,
-        editableType: SendSummaryViewModel.EditableType,
+        destinationEditableType: SendSummaryViewModel.EditableType,
+        amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) -> SendSummaryViewModel {
         let settings = SendSummaryViewModel.Settings(
             tokenItem: walletModel.tokenItem,
-            editableType: editableType,
+            destinationEditableType: destinationEditableType,
+            amountEditableType: amountEditableType,
             actionType: actionType
         )
 
@@ -79,7 +86,8 @@ private extension SendSummaryStepBuilder {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
     }
 

@@ -118,7 +118,7 @@ extension JSONRPCWebSocketProvider: HostProvider {
 
 extension JSONRPCWebSocketProvider: CustomStringConvertible {
     nonisolated var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 

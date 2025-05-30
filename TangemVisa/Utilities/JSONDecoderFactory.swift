@@ -20,7 +20,7 @@ struct JSONDecoderFactory {
     func makeCIMDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")
+        let dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
         return decoder
     }
