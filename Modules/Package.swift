@@ -102,6 +102,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
+                "TangemLocalization",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -158,6 +159,12 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemNFTTests",
+            dependencies: [
+                "TangemNFT",
             ]
         ),
     ]

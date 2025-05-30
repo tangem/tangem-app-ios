@@ -382,6 +382,6 @@ private extension MarketsTokenDetailsView {
         presentationStyle: .marketsSheet,
         dataProvider: .init(),
         marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-        coordinator: nil,
+        coordinator: nil
     ))
 }

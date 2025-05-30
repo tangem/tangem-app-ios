@@ -10,9 +10,10 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemUIUtils
+import Kingfisher
 
 struct NFTCollectionRow: View {
-    let iconURL: URL?
+    let media: NFTMedia?
     let iconOverlayImage: ImageType
     let title: String
     let subtitle: String
@@ -46,25 +47,44 @@ struct NFTCollectionRow: View {
         }
     }
 
+    @ViewBuilder
     private var icon: some View {
-        IconView(
-            url: iconURL,
-            size: Constants.Icon.size,
-            cornerRadius: Constants.Icon.cornerRadius,
-            forceKingfisher: true
-        )
-        .background(Colors.Background.primary)
-        .overlay(alignment: .topTrailing) {
-            iconOverlayImage.image
-                .resizable()
-                .frame(size: Constants.Icon.Overlay.size)
-                .stroked(
-                    color: Colors.Background.primary,
-                    cornerRadius: Constants.Icon.Overlay.size.width / 2,
-                    lineWidth: Constants.Icon.Overlay.strokeLineWidth
+        if let media {
+            makeMedia(media)
+                .networkOverlay(
+                    image: iconOverlayImage.image,
+                    offset: Constants.Icon.Overlay.offset
                 )
-                .offset(Constants.Icon.Overlay.offset)
+        } else {
+            placeholder
         }
+    }
+
+    @ViewBuilder
+    private func makeMedia(_ media: NFTMedia) -> some View {
+        switch media.kind {
+        case .image:
+            IconView(
+                url: media.url,
+                size: Constants.Icon.size,
+                cornerRadius: Constants.Icon.cornerRadius,
+                forceKingfisher: true
+            )
+
+        case .animation:
+            GIFImage(url: media.url, placeholder: placeholder)
+                .frame(size: Constants.Icon.size)
+                .cornerRadiusContinuous(Constants.Icon.cornerRadius)
+
+        case .video, .audio, .unknown:
+            placeholder
+        }
+    }
+
+    private var placeholder: some View {
+        RoundedRectangle(cornerRadius: Constants.Icon.cornerRadius)
+            .fill(Colors.Field.primary)
+            .frame(size: Constants.Icon.size)
     }
 }
 
@@ -75,8 +95,6 @@ extension NFTCollectionRow {
             static let cornerRadius: CGFloat = 8
 
             enum Overlay {
-                static let size: CGSize = .init(bothDimensions: 16)
-                static let strokeLineWidth: CGFloat = 2
                 static let offset: CGSize = .init(width: 4, height: -4)
             }
         }
@@ -91,9 +109,12 @@ extension NFTCollectionRow {
 #if DEBUG
 #Preview {
     NFTCollectionRow(
-        iconURL: URL(
-            string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-        )!,
+        media: .init(
+            kind: .animation,
+            url: URL(
+                string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
+            )!
+        ),
         iconOverlayImage: Tokens.ethereumFill,
         title: "Nethers",
         subtitle: "2 items",
