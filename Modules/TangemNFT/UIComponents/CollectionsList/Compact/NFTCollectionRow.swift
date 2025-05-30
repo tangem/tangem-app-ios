@@ -21,7 +21,7 @@ struct NFTCollectionRow: View {
 
     var body: some View {
         HStack(spacing: Constants.iconTextsSpacing) {
-            icon
+            iconWitNetworkOverlay
             textsView
             Spacer()
             Assets.chevronDown24.image
@@ -47,14 +47,18 @@ struct NFTCollectionRow: View {
         }
     }
 
+    private var iconWitNetworkOverlay: some View {
+        icon
+            .networkOverlay(
+                image: iconOverlayImage.image,
+                offset: Constants.Icon.Overlay.offset
+            )
+    }
+
     @ViewBuilder
     private var icon: some View {
         if let media {
             makeMedia(media)
-                .networkOverlay(
-                    image: iconOverlayImage.image,
-                    offset: Constants.Icon.Overlay.offset
-                )
         } else {
             placeholder
         }
