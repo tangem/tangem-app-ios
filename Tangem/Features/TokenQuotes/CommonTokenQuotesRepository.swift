@@ -97,7 +97,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
             }
 
             _quotes.send(current)
-            try? storage.store(value: current)
+            storage.store(value: current)
         }
     }
 }
@@ -207,7 +207,7 @@ private extension CommonTokenQuotesRepository {
 
 extension CommonTokenQuotesRepository: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
