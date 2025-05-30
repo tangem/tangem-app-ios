@@ -307,10 +307,6 @@ private extension MarketsViewModel {
                         return .unknown
                     }
                     return isBottomSheetExpanded ? .expanded : .collapsed
-                },
-                searchAction: { [weak self] tokenSymbol, performAutoNavigation in
-                    self?.fetch(with: tokenSymbol, by: .init())
-                    self?.shouldOpenTokenDetailsAutomatically = performAutoNavigation
                 }
             )
         }

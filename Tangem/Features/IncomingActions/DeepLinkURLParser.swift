@@ -19,7 +19,7 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return .navigation(.main)
 
         case Constants.hostToken:
-            let tokenName = url.queryValue(named: "symbol") ?? ""
+            let tokenName = url.queryValue(named: "token_symbol") ?? ""
             let network = url.queryValue(named: "network") ?? ""
             return .navigation(.token(tokenName: tokenName, network: network))
 
@@ -36,11 +36,12 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return .navigation(.markets)
 
         case Constants.hostTokenChart:
-            let tokenName = url.queryValue(named: "symbol") ?? ""
-            return .navigation(.tokenChart(tokenName: tokenName))
+            let tokenSymbol = url.queryValue(named: "token_symbol") ?? ""
+            let tokenId = url.queryValue(named: "token_id") ?? ""
+            return .navigation(.tokenChart(tokenSymbol: tokenSymbol, tokenId: tokenId))
 
         case Constants.hostStaking:
-            let tokenName = url.queryValue(named: "symbol") ?? ""
+            let tokenName = url.queryValue(named: "token_symbol") ?? ""
             return .navigation(.staking(tokenName: tokenName))
 
         default:

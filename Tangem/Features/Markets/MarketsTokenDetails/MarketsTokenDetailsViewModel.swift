@@ -88,7 +88,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         )
     }
 
-    var tokenName: String { tokenInfo.name }
+    private(set) var tokenName: String = ""
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -148,6 +148,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.marketsQuotesUpdateHelper = marketsQuotesUpdateHelper
         self.coordinator = coordinator
         selectedPriceChangeIntervalType = .day
+
+        tokenName = tokenInfo.name.isEmpty ? "" : tokenInfo.name
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -282,6 +284,10 @@ private extension MarketsTokenDetailsViewModel {
     func setupUI(using model: MarketsTokenDetailsModel) {
         loadedTokenDetailsPriceChangeInfo = model.priceChangePercentage.compactMapValues { $0 }
         loadedInfo = model
+
+        if tokenName.isEmpty {
+            tokenName = model.name
+        }
 
         state = .loaded(model: model)
         numberOfExchangesListedOn = model.numberOfExchangesListedOn
