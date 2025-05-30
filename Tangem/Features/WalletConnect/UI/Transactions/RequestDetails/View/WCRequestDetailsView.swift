@@ -43,10 +43,11 @@ struct WCRequestDetailsView: View {
                 containerHeight = updatedHeight
             }
         }
+        .padding(.bottom, 16)
     }
 
     private func requestDataSection(_ section: WCTransactionDetailsSection) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 14) {
             if let sectionTitle = section.sectionTitle {
                 Text(sectionTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
@@ -55,6 +56,7 @@ struct WCRequestDetailsView: View {
 
             ForEach(section.items) {
                 requestDataSectionItem($0)
+                    .padding(.bottom, $0 == section.items.last ? 10 : 20)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
