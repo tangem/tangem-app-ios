@@ -2125,6 +2125,7 @@
 		C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFCB2DDE37D800B1D97B /* ReownWalletConnectDAppConnectionService.swift */; };
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
+		C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */; };
 		C2DB41942DCA2A640028E6B0 /* WalletConnectErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DB41932DCA2A5E0028E6B0 /* WalletConnectErrorViewModel.swift */; };
 		C2DB41972DCA2B270028E6B0 /* WalletConnectErrorViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DB41962DCA2B210028E6B0 /* WalletConnectErrorViewState.swift */; };
 		C2DB41992DCA2B300028E6B0 /* WalletConnectErrorViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DB41982DCA2B2B0028E6B0 /* WalletConnectErrorViewEvent.swift */; };
@@ -2324,7 +2325,6 @@
 		DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF59CC72ACC4E37004FCA86 /* AlertFieldValidator.swift */; };
 		DAF97FC92BAAF2CC006D9A44 /* Locale+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF97FC82BAAF2CC006D9A44 /* Locale+.swift */; };
 		DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */; };
-		DC0002F22DC2090600305FB6 /* WCConnectionRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002D42DC2090600305FB6 /* WCConnectionRequestModel.swift */; };
 		DC0002F32DC2090600305FB6 /* WalletConnectSessionsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B02DC2090600305FB6 /* WalletConnectSessionsStorage.swift */; };
 		DC0002F42DC2090600305FB6 /* WalletConnectServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002DF2DC2090600305FB6 /* WalletConnectServiceError.swift */; };
 		DC0002F72DC2090600305FB6 /* WCSolanaSignAllTransactionsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002BE2DC2090600305FB6 /* WCSolanaSignAllTransactionsDTO.swift */; };
@@ -2337,10 +2337,8 @@
 		DC0003002DC2090600305FB6 /* Session+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00028C2DC2090600305FB6 /* Session+Extensions.swift */; };
 		DC0003022DC2090600305FB6 /* OldWalletConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002862DC2090600305FB6 /* OldWalletConnectViewModel.swift */; };
 		DC0003032DC2090600305FB6 /* ABIValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002992DC2090600305FB6 /* ABIValue.swift */; };
-		DC0003042DC2090600305FB6 /* WCConnectionSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002772DC2090600305FB6 /* WCConnectionSheetViewModel.swift */; };
 		DC0003062DC2090600305FB6 /* WalletConnectV2PersonalSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B22DC2090600305FB6 /* WalletConnectV2PersonalSignHandler.swift */; };
 		DC0003072DC2090600305FB6 /* WalletConnectSolanaSignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002C52DC2090600305FB6 /* WalletConnectSolanaSignTransactionHandler.swift */; };
-		DC0003082DC2090600305FB6 /* WCConnectRequestModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002742DC2090600305FB6 /* WCConnectRequestModalView.swift */; };
 		DC0003092DC2090600305FB6 /* WalletConnectV2Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002CA2DC2090600305FB6 /* WalletConnectV2Error.swift */; };
 		DC00030A2DC2090600305FB6 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002682DC2090600305FB6 /* Common.swift */; };
 		DC00030C2DC2090600305FB6 /* SiteScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00026A2DC2090600305FB6 /* SiteScan.swift */; };
@@ -2351,20 +2349,17 @@
 		DC0003112DC2090600305FB6 /* WalletConnectV2SignTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B72DC2090600305FB6 /* WalletConnectV2SignTransactionHandler.swift */; };
 		DC0003132DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002802DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift */; };
 		DC0003142DC2090600305FB6 /* BlockchainSDK+WalletConnectChainId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002CC2DC2090600305FB6 /* BlockchainSDK+WalletConnectChainId.swift */; };
-		DC0003152DC2090600305FB6 /* WCConnectionRequestDescriptionVIew.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002732DC2090600305FB6 /* WCConnectionRequestDescriptionVIew.swift */; };
 		DC0003182DC2090600305FB6 /* WalletConnectV2SignTypedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B42DC2090600305FB6 /* WalletConnectV2SignTypedData.swift */; };
 		DC0003192DC2090600305FB6 /* WCSolanaSignAllTransactionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002BF2DC2090600305FB6 /* WCSolanaSignAllTransactionsHandler.swift */; };
 		DC00031A2DC2090600305FB6 /* WebSocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002EE2DC2090600305FB6 /* WebSocketError.swift */; };
 		DC00031B2DC2090600305FB6 /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002C92DC2090600305FB6 /* WalletConnectEthTransaction.swift */; };
 		DC00031C2DC2090600305FB6 /* WCUtils+WCSupportedNamespaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002AA2DC2090600305FB6 /* WCUtils+WCSupportedNamespaces.swift */; };
 		DC00031D2DC2090600305FB6 /* WalletConnectV2Utils+BlockchainMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002CF2DC2090600305FB6 /* WalletConnectV2Utils+BlockchainMeta.swift */; };
-		DC00031E2DC2090600305FB6 /* WCConnectionNetworksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00027A2DC2090600305FB6 /* WCConnectionNetworksView.swift */; };
 		DC00031F2DC2090600305FB6 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002EC2DC2090600305FB6 /* WebSocket.swift */; };
 		DC0003202DC2090600305FB6 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00026B2DC2090600305FB6 /* SolanaScan.swift */; };
 		DC0003212DC2090600305FB6 /* WCServiceV2+LoggerStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002DA2DC2090600305FB6 /* WCServiceV2+LoggerStrings.swift */; };
 		DC0003222DC2090600305FB6 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00026E2DC2090600305FB6 /* BlockaidFactory.swift */; };
 		DC0003232DC2090600305FB6 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002672DC2090600305FB6 /* Chain.swift */; };
-		DC0003242DC2090600305FB6 /* WCWalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00027D2DC2090600305FB6 /* WCWalletSelectorView.swift */; };
 		DC0003262DC2090600305FB6 /* BlockaidMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00026F2DC2090600305FB6 /* BlockaidMapper.swift */; };
 		DC0003272DC2090600305FB6 /* WalletConnectSessionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00028A2DC2090600305FB6 /* WalletConnectSessionItemView.swift */; };
 		DC0003282DC2090600305FB6 /* BlockaidTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002702DC2090600305FB6 /* BlockaidTarget.swift */; };
@@ -2386,10 +2381,8 @@
 		DC0003402DC2090600305FB6 /* WCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002D92DC2090600305FB6 /* WCService.swift */; };
 		DC0003412DC2090600305FB6 /* WalletConnectV2HandlersFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002BA2DC2090600305FB6 /* WalletConnectV2HandlersFactory.swift */; };
 		DC0003422DC2090600305FB6 /* WalletConnectSolanaSignMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002C22DC2090600305FB6 /* WalletConnectSolanaSignMessageHandler.swift */; };
-		DC0003432DC2090600305FB6 /* WCWalletRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00027C2DC2090600305FB6 /* WCWalletRowView.swift */; };
 		DC0003442DC2090600305FB6 /* WCUtils+BlockchainMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002A92DC2090600305FB6 /* WCUtils+BlockchainMeta.swift */; };
 		DC0003452DC2090600305FB6 /* WalletConnectSolanaSignMessageDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002C12DC2090600305FB6 /* WalletConnectSolanaSignMessageDTO.swift */; };
-		DC0003462DC2090600305FB6 /* WCDappTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002752DC2090600305FB6 /* WCDappTitleView.swift */; };
 		DC0003472DC2090600305FB6 /* WalletConnectEthTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002A22DC2090600305FB6 /* WalletConnectEthTransactionBuilder.swift */; };
 		DC0003482DC2090600305FB6 /* BlockaidDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002662DC2090600305FB6 /* BlockaidDTO.swift */; };
 		DC0003492DC2090600305FB6 /* WalletConnectURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002A62DC2090600305FB6 /* WalletConnectURLParser.swift */; };
@@ -2397,7 +2390,6 @@
 		DC00034C2DC2090600305FB6 /* WalletConnectV2SendTransactionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002B62DC2090600305FB6 /* WalletConnectV2SendTransactionHandler.swift */; };
 		DC00034D2DC2090600305FB6 /* WalletConnectSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002A02DC2090600305FB6 /* WalletConnectSigner.swift */; };
 		DC00034E2DC2090600305FB6 /* WCServiceV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002D62DC2090600305FB6 /* WCServiceV2.swift */; };
-		DC00034F2DC2090600305FB6 /* WCSessionNamespacesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002AC2DC2090600305FB6 /* WCSessionNamespacesBuilder.swift */; };
 		DC0003502DC2090600305FB6 /* WebSocketEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002EF2DC2090600305FB6 /* WebSocketEvent.swift */; };
 		DC0003512DC2090600305FB6 /* WalletConnectCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002DE2DC2090600305FB6 /* WalletConnectCryptoProvider.swift */; };
 		DC01329E299A786700B95145 /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
@@ -2534,8 +2526,6 @@
 		DC3ED8A52C1B489E00C89C62 /* DefaultPickerRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3ED8A42C1B489E00C89C62 /* DefaultPickerRowViewModel.swift */; };
 		DC3ED8A72C1B49F900C89C62 /* DefaultPickerRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3ED8A62C1B49F900C89C62 /* DefaultPickerRowView.swift */; };
 		DC4020F12CB039DC00002902 /* RingUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4020F02CB039DB00002902 /* RingUtil.swift */; };
-		DC4090032DD0172C00150E4C /* WCSelectedBlockchainItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4090022DD0172C00150E4C /* WCSelectedBlockchainItem.swift */; };
-		DC4090052DD0175B00150E4C /* WCSelectBlockchainItemState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4090042DD0175B00150E4C /* WCSelectBlockchainItemState.swift */; };
 		DC43E8662CE66DED00DD7B06 /* WalletPromoBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC43E8652CE66DED00DD7B06 /* WalletPromoBannerView.swift */; };
 		DC43E8682CE67AB400DD7B06 /* WalletPromoBannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC43E8672CE67AB300DD7B06 /* WalletPromoBannerViewModel.swift */; };
 		DC44C58C2B4DC59400888BED /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DC44C58A2B4DC41F00888BED /* PrivacyInfo.xcprivacy */; };
@@ -2579,10 +2569,6 @@
 		DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */; };
 		DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */; };
 		DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */; };
-		DC6811382DD4EDEE00D06010 /* WCNetworksSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6811372DD4EDEE00D06010 /* WCNetworksSelectorViewModel.swift */; };
-		DC68113C2DD5CD5500D06010 /* WCWalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68113B2DD5CD5500D06010 /* WCWalletSelectorViewModel.swift */; };
-		DC68113F2DD5D20600D06010 /* WCWalletSelectorInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68113E2DD5D20600D06010 /* WCWalletSelectorInput.swift */; };
-		DC6811412DD5D22E00D06010 /* WCNetworkSelectorInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6811402DD5D22E00D06010 /* WCNetworkSelectorInput.swift */; };
 		DC6D99FE2BAA2481001F620A /* NDEFURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */; };
 		DC6DACFF2A98DF1F00AEBB8C /* ReferralInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */; };
 		DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */; };
@@ -2700,10 +2686,6 @@
 		DCB14B182DC61FD40075F340 /* OldWalletConnectV2HandlersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002922DC2090600305FB6 /* OldWalletConnectV2HandlersService.swift */; };
 		DCB14B192DC61FD40075F340 /* OldWalletConnectV2Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002932DC2090600305FB6 /* OldWalletConnectV2Service.swift */; };
 		DCB14B1A2DC61FD40075F340 /* OldWalletConnectV2Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002942DC2090600305FB6 /* OldWalletConnectV2Utils.swift */; };
-		DCB14B1C2DC8BD7A0075F340 /* WCNetworksSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14B1B2DC8BD730075F340 /* WCNetworksSelectorView.swift */; };
-		DCB14B1E2DCFAA2C0075F340 /* WCConnectionRequestDataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14B1D2DCFAA2C0075F340 /* WCConnectionRequestDataItem.swift */; };
-		DCB14B202DCFAA360075F340 /* WCRequestBlockchainItemDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14B1F2DCFAA360075F340 /* WCRequestBlockchainItemDTO.swift */; };
-		DCB14B222DCFAA500075F340 /* WCRequestBlockchainItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14B212DCFAA500075F340 /* WCRequestBlockchainItem.swift */; };
 		DCB1D58A2DB0FCE9004E7DAB /* WarningToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1D5892DB0FCE8004E7DAB /* WarningToast.swift */; };
 		DCB385182D240AE100105DD4 /* SeedNotifyDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
@@ -2747,7 +2729,6 @@
 		DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */; };
 		DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */; };
 		DCD221F72B3EF6C100F4FF6A /* CurvesValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */; };
-		DCD88B8C2DD4980B0084314D /* WCRequiredNetworksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD88B8B2DD4980B0084314D /* WCRequiredNetworksView.swift */; };
 		DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */; };
 		DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */; };
 		DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */; };
@@ -5706,6 +5687,7 @@
 		C274DFCB2DDE37D800B1D97B /* ReownWalletConnectDAppConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppConnectionService.swift; sourceTree = "<group>"; };
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
+		C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDappTitleView.swift; sourceTree = "<group>"; };
 		C2DB41932DCA2A5E0028E6B0 /* WalletConnectErrorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectErrorViewModel.swift; sourceTree = "<group>"; };
 		C2DB41962DCA2B210028E6B0 /* WalletConnectErrorViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectErrorViewState.swift; sourceTree = "<group>"; };
 		C2DB41982DCA2B2B0028E6B0 /* WalletConnectErrorViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectErrorViewEvent.swift; sourceTree = "<group>"; };
@@ -5922,13 +5904,6 @@
 		DC00026F2DC2090600305FB6 /* BlockaidMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidMapper.swift; sourceTree = "<group>"; };
 		DC0002702DC2090600305FB6 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		DC0002712DC2090600305FB6 /* CommonBlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBlockaidAPIService.swift; sourceTree = "<group>"; };
-		DC0002732DC2090600305FB6 /* WCConnectionRequestDescriptionVIew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionRequestDescriptionVIew.swift; sourceTree = "<group>"; };
-		DC0002742DC2090600305FB6 /* WCConnectRequestModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectRequestModalView.swift; sourceTree = "<group>"; };
-		DC0002752DC2090600305FB6 /* WCDappTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDappTitleView.swift; sourceTree = "<group>"; };
-		DC0002772DC2090600305FB6 /* WCConnectionSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionSheetViewModel.swift; sourceTree = "<group>"; };
-		DC00027A2DC2090600305FB6 /* WCConnectionNetworksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionNetworksView.swift; sourceTree = "<group>"; };
-		DC00027C2DC2090600305FB6 /* WCWalletRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCWalletRowView.swift; sourceTree = "<group>"; };
-		DC00027D2DC2090600305FB6 /* WCWalletSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCWalletSelectorView.swift; sourceTree = "<group>"; };
 		DC0002802DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCameraAccessProvider.swift; sourceTree = "<group>"; };
 		DC0002822DC2090600305FB6 /* WalletConnectURIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectURIProvider.swift; sourceTree = "<group>"; };
 		DC0002852DC2090600305FB6 /* OldWalletConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldWalletConnectView.swift; sourceTree = "<group>"; };
@@ -5959,7 +5934,6 @@
 		DC0002A72DC2090600305FB6 /* WalletConnectWalletModelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectWalletModelProvider.swift; sourceTree = "<group>"; };
 		DC0002A92DC2090600305FB6 /* WCUtils+BlockchainMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WCUtils+BlockchainMeta.swift"; sourceTree = "<group>"; };
 		DC0002AA2DC2090600305FB6 /* WCUtils+WCSupportedNamespaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WCUtils+WCSupportedNamespaces.swift"; sourceTree = "<group>"; };
-		DC0002AC2DC2090600305FB6 /* WCSessionNamespacesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSessionNamespacesBuilder.swift; sourceTree = "<group>"; };
 		DC0002AD2DC2090600305FB6 /* WCUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCUtils.swift; sourceTree = "<group>"; };
 		DC0002AF2DC2090600305FB6 /* WalletConnectSavedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSavedSession.swift; sourceTree = "<group>"; };
 		DC0002B02DC2090600305FB6 /* WalletConnectSessionsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionsStorage.swift; sourceTree = "<group>"; };
@@ -5981,7 +5955,6 @@
 		DC0002CE2DC2090600305FB6 /* WalletConnectV2MessageComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2MessageComposer.swift; sourceTree = "<group>"; };
 		DC0002CF2DC2090600305FB6 /* WalletConnectV2Utils+BlockchainMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletConnectV2Utils+BlockchainMeta.swift"; sourceTree = "<group>"; };
 		DC0002D22DC2090600305FB6 /* WCFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCFactory.swift; sourceTree = "<group>"; };
-		DC0002D42DC2090600305FB6 /* WCConnectionRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionRequestModel.swift; sourceTree = "<group>"; };
 		DC0002D62DC2090600305FB6 /* WCServiceV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCServiceV2.swift; sourceTree = "<group>"; };
 		DC0002D82DC2090600305FB6 /* CommonWCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWCService.swift; sourceTree = "<group>"; };
 		DC0002D92DC2090600305FB6 /* WCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCService.swift; sourceTree = "<group>"; };
@@ -6124,8 +6097,6 @@
 		DC3ED8A42C1B489E00C89C62 /* DefaultPickerRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPickerRowViewModel.swift; sourceTree = "<group>"; };
 		DC3ED8A62C1B49F900C89C62 /* DefaultPickerRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPickerRowView.swift; sourceTree = "<group>"; };
 		DC4020F02CB039DB00002902 /* RingUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingUtil.swift; sourceTree = "<group>"; };
-		DC4090022DD0172C00150E4C /* WCSelectedBlockchainItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSelectedBlockchainItem.swift; sourceTree = "<group>"; };
-		DC4090042DD0175B00150E4C /* WCSelectBlockchainItemState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSelectBlockchainItemState.swift; sourceTree = "<group>"; };
 		DC43E8652CE66DED00DD7B06 /* WalletPromoBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPromoBannerView.swift; sourceTree = "<group>"; };
 		DC43E8672CE67AB300DD7B06 /* WalletPromoBannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPromoBannerViewModel.swift; sourceTree = "<group>"; };
 		DC44C58A2B4DC41F00888BED /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -6168,10 +6139,6 @@
 		DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletOnboardingRoutable.swift; sourceTree = "<group>"; };
 		DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsRoutable.swift; sourceTree = "<group>"; };
 		DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorObject.swift; sourceTree = "<group>"; };
-		DC6811372DD4EDEE00D06010 /* WCNetworksSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCNetworksSelectorViewModel.swift; sourceTree = "<group>"; };
-		DC68113B2DD5CD5500D06010 /* WCWalletSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCWalletSelectorViewModel.swift; sourceTree = "<group>"; };
-		DC68113E2DD5D20600D06010 /* WCWalletSelectorInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCWalletSelectorInput.swift; sourceTree = "<group>"; };
-		DC6811402DD5D22E00D06010 /* WCNetworkSelectorInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCNetworkSelectorInput.swift; sourceTree = "<group>"; };
 		DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDEFURLParser.swift; sourceTree = "<group>"; };
 		DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralInputModel.swift; sourceTree = "<group>"; };
 		DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChanging.swift; sourceTree = "<group>"; };
@@ -6283,10 +6250,6 @@
 		DCB14B092DC6173B0075F340 /* WalletConnectCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCoordinatorView.swift; sourceTree = "<group>"; };
 		DCB14B102DC6175A0075F340 /* WalletConnectCameraAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCameraAccess.swift; sourceTree = "<group>"; };
 		DCB14B132DC61C460075F340 /* WalletConnectModuleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectModuleFactory.swift; sourceTree = "<group>"; };
-		DCB14B1B2DC8BD730075F340 /* WCNetworksSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCNetworksSelectorView.swift; sourceTree = "<group>"; };
-		DCB14B1D2DCFAA2C0075F340 /* WCConnectionRequestDataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionRequestDataItem.swift; sourceTree = "<group>"; };
-		DCB14B1F2DCFAA360075F340 /* WCRequestBlockchainItemDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestBlockchainItemDTO.swift; sourceTree = "<group>"; };
-		DCB14B212DCFAA500075F340 /* WCRequestBlockchainItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestBlockchainItem.swift; sourceTree = "<group>"; };
 		DCB1D5892DB0FCE8004E7DAB /* WarningToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningToast.swift; sourceTree = "<group>"; };
 		DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedNotifyDTO.swift; sourceTree = "<group>"; };
 		DCBAF6A02A4C4F650029480A /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
@@ -6328,7 +6291,6 @@
 		DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestViewModel.swift; sourceTree = "<group>"; };
 		DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegate.swift; sourceTree = "<group>"; };
 		DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurvesValidator.swift; sourceTree = "<group>"; };
-		DCD88B8B2DD4980B0084314D /* WCRequiredNetworksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequiredNetworksView.swift; sourceTree = "<group>"; };
 		DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsComposer.swift; sourceTree = "<group>"; };
 		DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileProvider.swift; sourceTree = "<group>"; };
 		DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserWalletModel.swift; sourceTree = "<group>"; };
@@ -14151,63 +14113,6 @@
 			path = Blockaid;
 			sourceTree = "<group>";
 		};
-		DC0002762DC2090600305FB6 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				DC0002732DC2090600305FB6 /* WCConnectionRequestDescriptionVIew.swift */,
-				DC0002742DC2090600305FB6 /* WCConnectRequestModalView.swift */,
-				DC0002752DC2090600305FB6 /* WCDappTitleView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		DC0002782DC2090600305FB6 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				DC0002772DC2090600305FB6 /* WCConnectionSheetViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		DC0002792DC2090600305FB6 /* ConnectionDetails */ = {
-			isa = PBXGroup;
-			children = (
-				DC0002762DC2090600305FB6 /* View */,
-				DC0002782DC2090600305FB6 /* ViewModel */,
-			);
-			path = ConnectionDetails;
-			sourceTree = "<group>";
-		};
-		DC00027B2DC2090600305FB6 /* NetworkSelector */ = {
-			isa = PBXGroup;
-			children = (
-				DC4090012DD0171400150E4C /* ViewModel */,
-				DC4090002DD0170A00150E4C /* View */,
-				DC408FFF2DD0170500150E4C /* Model */,
-			);
-			path = NetworkSelector;
-			sourceTree = "<group>";
-		};
-		DC00027E2DC2090600305FB6 /* WalletSelector */ = {
-			isa = PBXGroup;
-			children = (
-				DC68113D2DD5D20300D06010 /* Model */,
-				DC68113A2DD5CC1E00D06010 /* ViewModel */,
-				DC6811392DD5CC1900D06010 /* View */,
-			);
-			path = WalletSelector;
-			sourceTree = "<group>";
-		};
-		DC00027F2DC2090600305FB6 /* ConnectionScreen */ = {
-			isa = PBXGroup;
-			children = (
-				DC0002792DC2090600305FB6 /* ConnectionDetails */,
-				DC00027B2DC2090600305FB6 /* NetworkSelector */,
-				DC00027E2DC2090600305FB6 /* WalletSelector */,
-			);
-			path = ConnectionScreen;
-			sourceTree = "<group>";
-		};
 		DC0002832DC2090600305FB6 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -14290,8 +14195,6 @@
 		DC0002AB2DC2090600305FB6 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				DCB14B1F2DCFAA360075F340 /* WCRequestBlockchainItemDTO.swift */,
-				DCB14B1D2DCFAA2C0075F340 /* WCConnectionRequestDataItem.swift */,
 				DC0002A92DC2090600305FB6 /* WCUtils+BlockchainMeta.swift */,
 				DC0002AA2DC2090600305FB6 /* WCUtils+WCSupportedNamespaces.swift */,
 			);
@@ -14302,7 +14205,6 @@
 			isa = PBXGroup;
 			children = (
 				DC0002AB2DC2090600305FB6 /* Model */,
-				DC0002AC2DC2090600305FB6 /* WCSessionNamespacesBuilder.swift */,
 				DC0002AD2DC2090600305FB6 /* WCUtils.swift */,
 			);
 			path = Utils;
@@ -14444,15 +14346,6 @@
 			path = Factory;
 			sourceTree = "<group>";
 		};
-		DC0002D52DC2090600305FB6 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				DCB14B212DCFAA500075F340 /* WCRequestBlockchainItem.swift */,
-				DC0002D42DC2090600305FB6 /* WCConnectionRequestModel.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		DC0002D72DC2090600305FB6 /* Reown */ = {
 			isa = PBXGroup;
 			children = (
@@ -14466,7 +14359,6 @@
 			children = (
 				DCA19BE82DDD60FD0057BDA5 /* TransactionHandlers */,
 				DC0002D32DC2090600305FB6 /* Factory */,
-				DC0002D52DC2090600305FB6 /* Model */,
 				DC0002D72DC2090600305FB6 /* Reown */,
 				DC0002D82DC2090600305FB6 /* CommonWCService.swift */,
 				DC0002D92DC2090600305FB6 /* WCService.swift */,
@@ -14500,7 +14392,6 @@
 				C274DFB52DDBE72D00B1D97B /* DApp connection proposal */,
 				C2DB419D2DCABE6A0028E6B0 /* Errors */,
 				DCB14B022DC6173B0075F340 /* ConnectedDAppDetails */,
-				DC00027F2DC2090600305FB6 /* ConnectionScreen */,
 				DCB14B062DC6173B0075F340 /* QRScan */,
 				DCB14B082DC6173B0075F340 /* Root */,
 				C207D5DF2DE60CA200A5FB2E /* Shared */,
@@ -15060,34 +14951,6 @@
 			path = DefaultPickerRowView;
 			sourceTree = "<group>";
 		};
-		DC408FFF2DD0170500150E4C /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				DC6811402DD5D22E00D06010 /* WCNetworkSelectorInput.swift */,
-				DC4090042DD0175B00150E4C /* WCSelectBlockchainItemState.swift */,
-				DC4090022DD0172C00150E4C /* WCSelectedBlockchainItem.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		DC4090002DD0170A00150E4C /* View */ = {
-			isa = PBXGroup;
-			children = (
-				DC00027A2DC2090600305FB6 /* WCConnectionNetworksView.swift */,
-				DCD88B8B2DD4980B0084314D /* WCRequiredNetworksView.swift */,
-				DCB14B1B2DC8BD730075F340 /* WCNetworksSelectorView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		DC4090012DD0171400150E4C /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				DC6811372DD4EDEE00D06010 /* WCNetworksSelectorViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
 		DC4328A62CF87FB1000BF72D /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -15215,31 +15078,6 @@
 				DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */,
 			);
 			path = Welcome;
-			sourceTree = "<group>";
-		};
-		DC6811392DD5CC1900D06010 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				DC00027C2DC2090600305FB6 /* WCWalletRowView.swift */,
-				DC00027D2DC2090600305FB6 /* WCWalletSelectorView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		DC68113A2DD5CC1E00D06010 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				DC68113B2DD5CD5500D06010 /* WCWalletSelectorViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		DC68113D2DD5D20300D06010 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				DC68113E2DD5D20600D06010 /* WCWalletSelectorInput.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		DC70BFD32B91057C002205BA /* SecurityOptionChanging */ = {
@@ -15578,6 +15416,7 @@
 			isa = PBXGroup;
 			children = (
 				DCA19BF02DDD95A10057BDA5 /* WCTransactionView.swift */,
+				C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -19720,7 +19559,6 @@
 				EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */,
-				DCB14B222DCFAA500075F340 /* WCRequestBlockchainItem.swift in Sources */,
 				0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */,
@@ -19880,7 +19718,6 @@
 				DC2AB6D92C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift in Sources */,
 				EFC84B0A2C37FAB500546882 /* SendFlowBaseBuilder.swift in Sources */,
 				DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */,
-				DCB14B1C2DC8BD7A0075F340 /* WCNetworksSelectorView.swift in Sources */,
 				DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */,
 				DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */,
 				DC2AB6DC2C08CF6C0050796C /* WelcomeOnboardingRoutable.swift in Sources */,
@@ -19892,7 +19729,6 @@
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
 				DC96325F2C5140CE009B250A /* ExpressRefundedTokenHandler.swift in Sources */,
 				B675C3762BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift in Sources */,
-				DC68113C2DD5CD5500D06010 /* WCWalletSelectorViewModel.swift in Sources */,
 				DA1010222CDA55D400EE0D05 /* OnrampCountryViewData.swift in Sources */,
 				C2075EFF2DE6238F009AD2F7 /* WalletConnectURIProvider.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
@@ -20173,7 +20009,6 @@
 				EFD68F282CC2993000693C97 /* OnrampInteractor.swift in Sources */,
 				DC7D39FD29E024A2007BCD23 /* TangemSdkFactory.swift in Sources */,
 				DA559C3E2B0261F400F59584 /* SendAmountView.swift in Sources */,
-				DC4090032DD0172C00150E4C /* WCSelectedBlockchainItem.swift in Sources */,
 				DC70C01D2B95F189002205BA /* FactorySettingsResettingMock.swift in Sources */,
 				B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */,
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
@@ -20282,7 +20117,6 @@
 				EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */,
 				B0D6B2542CB52B090068D310 /* NavigationBarHidingView.swift in Sources */,
 				DAE4BB042CD795A20020CE3F /* OnrampCountrySelectorViewModel.swift in Sources */,
-				DC6811382DD4EDEE00D06010 /* WCNetworksSelectorViewModel.swift in Sources */,
 				EFC84B0F2C37FAB500546882 /* SendFlowFactory.swift in Sources */,
 				EF4662222924DEEE00346B6C /* DefaultToggleRowView.swift in Sources */,
 				B09B19B92D8D5F5D008358C7 /* VisaWalletModel.swift in Sources */,
@@ -20300,7 +20134,6 @@
 				B07E07B22CD8E6F2007DEDA6 /* VisaOnboardingWelcomeViewModel.swift in Sources */,
 				0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */,
 				B01299452AA8560E00E7BA43 /* MultiWalletNotificationManager.swift in Sources */,
-				DC68113F2DD5D20600D06010 /* WCWalletSelectorInput.swift in Sources */,
 				B098F39A2C0474E700F79989 /* ManageTokensAdapter.swift in Sources */,
 				EF70A40A2C1753BC00805D9F /* SendDestinationInteractor.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
@@ -20473,7 +20306,6 @@
 				B66C8CC12D42F0F600A91763 /* PerformanceTracker+Metric.swift in Sources */,
 				EF6600532B6D187600B65449 /* PendingTransactionsListView.swift in Sources */,
 				DA1D3B772B56C8A000247393 /* PhotoSelectorViewModel.swift in Sources */,
-				DCB14B202DCFAA360075F340 /* WCRequestBlockchainItemDTO.swift in Sources */,
 				EFB999B42C3D9EC000F6A987 /* SellFlowBaseBuilder.swift in Sources */,
 				EFC692752D424FFD00A3CD44 /* BalanceFormatted.swift in Sources */,
 				EFCC878D2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift in Sources */,
@@ -20588,7 +20420,6 @@
 				B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
 				B6AA13702A2A377C00B53937 /* CardInfoPageWarningPreviewSectionItem.swift in Sources */,
-				DC6811412DD5D22E00D06010 /* WCNetworkSelectorInput.swift in Sources */,
 				B0BDFD1B2A8B685200479F53 /* NotificationView+Settings.swift in Sources */,
 				DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */,
 				2D1BB3A42C08B494008392F7 /* AwardToken.swift in Sources */,
@@ -20645,7 +20476,6 @@
 				B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */,
 				DAE4BB162CD7A0D30020CE3F /* SearchUtil.swift in Sources */,
 				EF1D1AE02C272055000CB941 /* InformationRelevanceService.swift in Sources */,
-				DCD88B8C2DD4980B0084314D /* WCRequiredNetworksView.swift in Sources */,
 				B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */,
 				B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */,
 				DC97C3102D8C77FA00953A0A /* PreviewData.swift in Sources */,
@@ -20850,6 +20680,7 @@
 				B0C6B4C826CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift in Sources */,
 				B09E518A298104670042998A /* DeprecationServicing.swift in Sources */,
 				B6E932C22A2F2D860068D466 /* OrganizeTokensView.swift in Sources */,
+				C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */,
 				DC8D72142BB1967D0077F241 /* Analytics+EventLimit.swift in Sources */,
 				C2DB419F2DCABE8D0028E6B0 /* WalletConnectErrorView.swift in Sources */,
 				B030B4DB2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift in Sources */,
@@ -20940,9 +20771,7 @@
 				EFB932182C3EC18300C999E9 /* StakingValidatorsView.swift in Sources */,
 				B0B335D229FA89EE00E2082E /* BalanceFormatter.swift in Sources */,
 				DCFEFE4A2CF081DD002DFE58 /* ActionButtonsSwapCoordinatorView.swift in Sources */,
-				DC4090052DD0175B00150E4C /* WCSelectBlockchainItemState.swift in Sources */,
 				DC288C002C06553300FF94A0 /* ResetToFactoryService.swift in Sources */,
-				DCB14B1E2DCFAA2C0075F340 /* WCConnectionRequestDataItem.swift in Sources */,
 				B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */,
@@ -21080,7 +20909,6 @@
 				2D5DCC302C3309F1000EE379 /* MarketsTokensNetworkSelectorView.swift in Sources */,
 				EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */,
 				B631469C2CDEA46400EA4D76 /* MarketsTokenDetailsSecurityScoreDetailsView.swift in Sources */,
-				DC0002F22DC2090600305FB6 /* WCConnectionRequestModel.swift in Sources */,
 				B618A6852DDA0927004043C9 /* NFTSendFixedBalanceProvider.swift in Sources */,
 				DC0002F32DC2090600305FB6 /* WalletConnectSessionsStorage.swift in Sources */,
 				DC0002F42DC2090600305FB6 /* WalletConnectServiceError.swift in Sources */,
@@ -21096,10 +20924,8 @@
 				DCB14B112DC6175A0075F340 /* WalletConnectCameraAccess.swift in Sources */,
 				DC075F8C2DE1A1F70092457A /* WCTransactionWalletRowViewModel.swift in Sources */,
 				DC0003032DC2090600305FB6 /* ABIValue.swift in Sources */,
-				DC0003042DC2090600305FB6 /* WCConnectionSheetViewModel.swift in Sources */,
 				DC0003062DC2090600305FB6 /* WalletConnectV2PersonalSignHandler.swift in Sources */,
 				DC0003072DC2090600305FB6 /* WalletConnectSolanaSignTransactionHandler.swift in Sources */,
-				DC0003082DC2090600305FB6 /* WCConnectRequestModalView.swift in Sources */,
 				DC0003092DC2090600305FB6 /* WalletConnectV2Error.swift in Sources */,
 				DC00030A2DC2090600305FB6 /* Common.swift in Sources */,
 				DC00030C2DC2090600305FB6 /* SiteScan.swift in Sources */,
@@ -21111,21 +20937,18 @@
 				DC0003132DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift in Sources */,
 				EFA696F72DD4971600370459 /* SendNewAmountViewModel.swift in Sources */,
 				DC0003142DC2090600305FB6 /* BlockchainSDK+WalletConnectChainId.swift in Sources */,
-				DC0003152DC2090600305FB6 /* WCConnectionRequestDescriptionVIew.swift in Sources */,
 				DC0003182DC2090600305FB6 /* WalletConnectV2SignTypedData.swift in Sources */,
 				DC0003192DC2090600305FB6 /* WCSolanaSignAllTransactionsHandler.swift in Sources */,
 				DC00031A2DC2090600305FB6 /* WebSocketError.swift in Sources */,
 				DC00031B2DC2090600305FB6 /* WalletConnectEthTransaction.swift in Sources */,
 				DC00031C2DC2090600305FB6 /* WCUtils+WCSupportedNamespaces.swift in Sources */,
 				DC00031D2DC2090600305FB6 /* WalletConnectV2Utils+BlockchainMeta.swift in Sources */,
-				DC00031E2DC2090600305FB6 /* WCConnectionNetworksView.swift in Sources */,
 				DC00031F2DC2090600305FB6 /* WebSocket.swift in Sources */,
 				DC0003202DC2090600305FB6 /* SolanaScan.swift in Sources */,
 				EF530D542DD4F00A00AE67EA /* CommonNewSendStepsManager.swift in Sources */,
 				DC0003212DC2090600305FB6 /* WCServiceV2+LoggerStrings.swift in Sources */,
 				DC0003222DC2090600305FB6 /* BlockaidFactory.swift in Sources */,
 				DC0003232DC2090600305FB6 /* Chain.swift in Sources */,
-				DC0003242DC2090600305FB6 /* WCWalletSelectorView.swift in Sources */,
 				DC0003262DC2090600305FB6 /* BlockaidMapper.swift in Sources */,
 				DC0003272DC2090600305FB6 /* WalletConnectSessionItemView.swift in Sources */,
 				DC0003282DC2090600305FB6 /* BlockaidTarget.swift in Sources */,
@@ -21148,12 +20971,10 @@
 				DC0003402DC2090600305FB6 /* WCService.swift in Sources */,
 				DC0003412DC2090600305FB6 /* WalletConnectV2HandlersFactory.swift in Sources */,
 				DC0003422DC2090600305FB6 /* WalletConnectSolanaSignMessageHandler.swift in Sources */,
-				DC0003432DC2090600305FB6 /* WCWalletRowView.swift in Sources */,
 				DC0003442DC2090600305FB6 /* WCUtils+BlockchainMeta.swift in Sources */,
 				C252157F2DDF342F003014C2 /* WalletConnectDAppDescriptionViewModel.swift in Sources */,
 				DCA19BEA2DDD611A0057BDA5 /* WCHandlersService.swift in Sources */,
 				DC0003452DC2090600305FB6 /* WalletConnectSolanaSignMessageDTO.swift in Sources */,
-				DC0003462DC2090600305FB6 /* WCDappTitleView.swift in Sources */,
 				DC0003472DC2090600305FB6 /* WalletConnectEthTransactionBuilder.swift in Sources */,
 				DC0003482DC2090600305FB6 /* BlockaidDTO.swift in Sources */,
 				DC0003492DC2090600305FB6 /* WalletConnectURLParser.swift in Sources */,
@@ -21161,7 +20982,6 @@
 				DC00034C2DC2090600305FB6 /* WalletConnectV2SendTransactionHandler.swift in Sources */,
 				DC00034D2DC2090600305FB6 /* WalletConnectSigner.swift in Sources */,
 				DC00034E2DC2090600305FB6 /* WCServiceV2.swift in Sources */,
-				DC00034F2DC2090600305FB6 /* WCSessionNamespacesBuilder.swift in Sources */,
 				DC0003502DC2090600305FB6 /* WebSocketEvent.swift in Sources */,
 				DC0003512DC2090600305FB6 /* WalletConnectCryptoProvider.swift in Sources */,
 				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,

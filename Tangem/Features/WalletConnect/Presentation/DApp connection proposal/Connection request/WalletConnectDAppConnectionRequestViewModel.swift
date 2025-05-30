@@ -199,6 +199,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
         state = .content(
             proposal: dAppProposal,
+            connectionRequestSectionIsExpanded: state.connectionRequestSection.isExpanded,
             selectedUserWalletName: selectedUserWallet.name,
             walletSelectionIsAvailable: state.walletSection.selectionIsAvailable,
             blockchainsAvailabilityResult: blockchainsAvailabilityResult,
@@ -222,6 +223,7 @@ extension WalletConnectDAppConnectionRequestViewState {
 
     fileprivate static func content(
         proposal: WalletConnectDAppConnectionProposal,
+        connectionRequestSectionIsExpanded: Bool,
         selectedUserWalletName: String,
         walletSelectionIsAvailable: Bool,
         blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
@@ -234,7 +236,11 @@ extension WalletConnectDAppConnectionRequestViewState {
                     verificationStatus: proposal.verificationStatus
                 )
             ),
-            connectionRequestSection: ConnectionRequestSection.content(ConnectionRequestSection.ContentState(isExpanded: false)),
+            connectionRequestSection: ConnectionRequestSection.content(
+                ConnectionRequestSection.ContentState(
+                    isExpanded: connectionRequestSectionIsExpanded
+                )
+            ),
             dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(proposal.verificationStatus),
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
