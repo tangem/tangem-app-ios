@@ -17,6 +17,7 @@ class LockedUserWalletModel: UserWalletModel {
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
+    let cardImageProvider: CardImageProviding
     let config: UserWalletConfig
     var signer: TangemSigner
 
@@ -45,22 +46,6 @@ class LockedUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
-    }
-
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
-        let artwork: CardArtwork
-
-        if let artworkInfo = userWallet.artwork {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
-
-        return cardImageProvider.loadImage(
-            cardId: userWallet.card.cardId,
-            cardPublicKey: userWallet.card.cardPublicKey,
-            artwork: artwork
-        )
     }
 
     var totalBalance: TotalBalanceState {
@@ -100,12 +85,12 @@ class LockedUserWalletModel: UserWalletModel {
     let backupInput: OnboardingInput? = nil
 
     private let userWallet: StoredUserWallet
-    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+        cardImageProvider = CardImageProvider(card: userWallet.card)
     }
 
     func updateWalletName(_ name: String) {

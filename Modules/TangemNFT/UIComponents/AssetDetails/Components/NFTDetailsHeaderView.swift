@@ -17,6 +17,7 @@ struct NFTDetailsHeaderView: View {
 
     var body: some View {
         content
+            .frame(maxWidth: .infinity, alignment: .leading)
             .roundedBackground(with: Constants.backgroundColor, padding: 14, radius: 14)
     }
 
@@ -82,22 +83,26 @@ struct NFTDetailsHeaderView: View {
 
     private func makePrices(model: NFTDetailsHeaderState.Price) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Last sale price") // [REDACTED_TODO_COMMENT]
+            Text(Localization.nftDetailsLastSalePrice)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 8)
 
-            Text(model.raw)
+            Text(model.crypto)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 4)
 
-            Text(model.quote)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            if model.fiat.error == nil {
+                // Fallback empty string is not visible since the skeleton is shown during loading
+                Text(model.fiat.value ?? "")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .skeletonable(isShown: model.fiat.isLoading, size: .init(width: 68.0, height: 18.0))
+            }
         }
     }
 
     private func makeRarityKeyValueView(keyValues: [KeyValuePairViewData]) -> some View {
         KeyValuePanelView(
-            config: KeyValuePanelConfig(
+            viewData: KeyValuePanelViewData(
                 header: nil,
                 keyValues: keyValues,
                 backgroundColor: nil
@@ -119,7 +124,7 @@ private extension NFTDetailsHeaderView {
         NFTDetailsHeaderView(
             state: .full(
                 .priceWithDescription(
-                    .init(raw: "0.0015 ETH", quote: "34,5 $"),
+                    .init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")),
                     .init(
                         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In nunc velit, aliquet vitae facilisis eu, malesuada vitae dui. Cras eget.",
                         readMoreAction: {}
@@ -143,7 +148,7 @@ private extension NFTDetailsHeaderView {
         NFTDetailsHeaderView(
             state: .full(
                 .priceWithDescription(
-                    .init(raw: "0.0015 ETH", quote: "34,5 $"),
+                    .init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")),
                     .init(
                         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In nunc velit, aliquet vitae facilisis eu, malesuada vitae dui. Cras eget.",
                         readMoreAction: {}
@@ -161,7 +166,7 @@ private extension NFTDetailsHeaderView {
         Color.gray
         NFTDetailsHeaderView(
             state: .priceWithDescription(
-                .price(.init(raw: "0.0015 ETH", quote: "34,5 $"))
+                .price(.init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")))
             )
         )
         .padding(.horizontal, 16)
@@ -208,7 +213,7 @@ private extension NFTDetailsHeaderView {
         NFTDetailsHeaderView(
             state: .priceWithDescription(
                 .priceWithDescription(
-                    .init(raw: "0.0015 ETH", quote: "34,5 $"),
+                    .init(crypto: "0.0015 ETH", fiat: .loading),
                     .init(
                         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In nunc velit, aliquet vitae facilisis eu, malesuada vitae dui. Cras eget.",
                         readMoreAction: {}
@@ -225,7 +230,7 @@ private extension NFTDetailsHeaderView {
         Color.gray
         NFTDetailsHeaderView(
             state: .full(
-                .price(.init(raw: "0.0015 ETH", quote: "34,5 $")),
+                .price(.init(crypto: "0.0015 ETH", fiat: .failedToLoad(error: URLError(.cannotConnectToHost)))),
                 (0 ... 1).map {
                     KeyValuePairViewData(
                         key: KeyValuePairViewData.Key(text: "Title-\($0)", action: nil),

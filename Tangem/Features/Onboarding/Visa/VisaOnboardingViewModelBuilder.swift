@@ -35,7 +35,7 @@ struct VisaOnboardingViewModelBuilder {
         if let initialActivationStatus {
             let factory = VisaActivationManagerFactory(
                 apiType: FeatureStorage.instance.visaAPIType,
-                isTestnet: FeatureStorage.instance.isVisaTestnet,
+                isTestnet: FeatureStorage.instance.visaAPIType.isTestnet,
                 isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
             )
             visaActivationManager = factory.make(

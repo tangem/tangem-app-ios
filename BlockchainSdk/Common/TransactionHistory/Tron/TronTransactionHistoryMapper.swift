@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class TronTransactionHistoryMapper {
     private let blockchain: Blockchain
