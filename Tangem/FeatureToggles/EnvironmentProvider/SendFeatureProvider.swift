@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 class SendFeatureProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService

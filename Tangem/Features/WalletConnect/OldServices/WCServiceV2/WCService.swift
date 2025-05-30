@@ -7,14 +7,22 @@
 //
 
 import Combine
+import ReownWalletKit
 
 protocol WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
+    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> { get }
 
     func initialize()
     func reset()
+
     func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource)
+
+    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal
+    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace]) async throws
+
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
     func updateSelectedWalletId(_ userWalletId: String)
@@ -26,7 +34,7 @@ private struct WCServiceKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var wConnectService: WCService {
+    var wcService: WCService {
         get { Self[WCServiceKey.self] }
         set { Self[WCServiceKey.self] = newValue }
     }
