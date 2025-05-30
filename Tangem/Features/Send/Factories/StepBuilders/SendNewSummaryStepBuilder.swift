@@ -23,7 +23,8 @@ struct SendNewSummaryStepBuilder {
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
+        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) -> ReturnValue {
@@ -40,6 +41,7 @@ struct SendNewSummaryStepBuilder {
             amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
@@ -65,7 +67,8 @@ private extension SendNewSummaryStepBuilder {
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
+        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) -> SendNewSummaryViewModel {
@@ -81,6 +84,7 @@ private extension SendNewSummaryStepBuilder {
             interactor: interactor,
             notificationManager: notificationManager,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
