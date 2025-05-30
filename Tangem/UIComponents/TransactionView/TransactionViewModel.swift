@@ -105,7 +105,7 @@ struct TransactionViewModel: Hashable, Identifiable {
             return Colors.Icon.accent
         case .confirmed:
             return Colors.Icon.informative
-        case .failed:
+        case .failed, .undefined:
             return Colors.Icon.warning
         }
     }
@@ -114,7 +114,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch status {
         case .inProgress: return Colors.Icon.accent.opacity(0.1)
         case .confirmed: return Colors.Background.secondary
-        case .failed: return Colors.Icon.warning.opacity(0.1)
+        case .failed, .undefined: return Colors.Icon.warning.opacity(0.1)
         }
     }
 
@@ -190,5 +190,6 @@ extension TransactionViewModel {
         case inProgress
         case failed
         case confirmed
+        case undefined
     }
 }
