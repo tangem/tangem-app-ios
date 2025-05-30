@@ -69,7 +69,7 @@ struct FeeRowView: View {
         case .loaded(let components):
             trailingView(for: components)
         case .failedToLoad:
-            Text(AppConstants.dashSign)
+            Text(AppConstants.emDashSign)
                 .style(leadingFont, color: Colors.Text.primary1)
                 .layoutPriority(1)
         }
