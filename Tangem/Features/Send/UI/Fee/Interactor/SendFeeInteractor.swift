@@ -175,6 +175,7 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
                 case .success(let fees):
                     interactor._fees.send(.loaded(fees))
                 case .failure(let error):
+                    AppLogger.error("GetFee error", error: error)
                     interactor._fees.send(.failedToLoad(error: error))
                 }
             }
