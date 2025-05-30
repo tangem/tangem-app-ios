@@ -1,5 +1,5 @@
 //
-//  WCEthPersonalSignTransactionView.swift
+//  WCSolanaDefaultTransactionDetailsView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemUI
 import TangemAssets
 
-struct WCEthPersonalSignTransactionView: View {
+struct WCSolanaDefaultTransactionDetailsView: View {
     let walletName: String
 
     var body: some View {
@@ -22,7 +22,7 @@ struct WCEthPersonalSignTransactionView: View {
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
 
-            WCTransactionNetworkRow(blockchain: .ethereum(testnet: false))
+            WCTransactionNetworkRow(blockchain: .solana(curve: .ed25519_slip0010, testnet: false))
                 .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
         }
         .background(Colors.Background.action)

@@ -19,9 +19,11 @@ struct WCRequestDetailsBuilder: Equatable {
 
     func makeRequestDetails() -> [WCTransactionDetailsSection] {
         switch method {
-        case .personalSign:
-            return WCEthPersonalSignDetailsModel(for: method, source: source).data
-        default: return []
+        case .personalSign, .solanaSignMessage, .solanaSignTransaction:
+            WCSignTransactionDetailsModel(for: method, source: source).data
+        case .solanaSignAllTransactions:
+            WCSolanaSignAllTransactionsDetailsModel(for: method, source: source).data
+        default: []
         }
     }
 }
