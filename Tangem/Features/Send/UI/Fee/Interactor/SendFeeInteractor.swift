@@ -50,8 +50,8 @@ class CommonSendFeeInteractor {
         customFeeService != nil
     }
 
-    private var cryptoAmountSubscribtion: AnyCancellable?
-    private var destinationAddressSubscribtion: AnyCancellable?
+    private var cryptoAmountSubscription: AnyCancellable?
+    private var destinationAddressSubscription: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -111,13 +111,13 @@ class CommonSendFeeInteractor {
     }
 
     func bind(input: any SendFeeInput) {
-        cryptoAmountSubscribtion = input.cryptoAmountPublisher
+        cryptoAmountSubscription = input.cryptoAmountPublisher
             .withWeakCaptureOf(self)
             .sink { processor, amount in
                 processor._cryptoAmount.send(amount)
             }
 
-        destinationAddressSubscribtion = input.destinationAddressPublisher
+        destinationAddressSubscription = input.destinationAddressPublisher
             .withWeakCaptureOf(self)
             .sink { processor, destination in
                 processor._destination.send(destination)
