@@ -538,7 +538,7 @@
 "nft_send" = "NFTを送信する";
 "nft_traits_title" = "特徴";
 "nft_untitled_collection" = "無題のコレクション";
-"nft_wallet_count" = "%2$liコレクションの%1$liNFT";
+"nft_wallet_count" = "%1$liコレクションの%2$liNFT";
 "nft_wallet_receive_nft" = "ここをタップして最初のNFTを受け取ります";
 "nft_wallet_title" = "NFTコレクション";
 "nft_wallet_unable_to_load" = "データを読み込めません";
@@ -672,8 +672,8 @@
 "push_notifications_permission_alert_negative_button" = "後で有効にする";
 "push_notifications_permission_alert_positive_button" = "設定";
 "push_notifications_permission_alert_title" = "通知を有効にする";
-"push_transactions_notifications_description" = "対応ネットワーク上の受信取引の通知を受け取る";
-"push_transactions_notifications_title" = "取引通知";
+"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
+"push_transactions_notifications_title" = "Transaction Notifications";
 "qr_scanner_camera_denied_gallery_button" = "ギャラリーから選択";
 "qr_scanner_camera_denied_settings_button" = "設定";
 "qr_scanner_camera_denied_text" = "カメラへのアクセスを許可していません。";
@@ -1173,7 +1173,7 @@
 "wallet_promo_banner_description" = "1.3万種類以上の暗号資産にアクセス。ワンタップで買付、売却、スワップ、ステーキングが可能です。\nバックアップ用に最大3枚のカードを連携できます。";
 "wallet_promo_banner_title" = "Tangemウォレットを見る";
 "wallet_settings_push_notifications_description" = "ウォレットの受信取引とTangemの更新について通知を受け取る。";
-"wallet_settings_push_notifications_title" = "取引通知";
+"wallet_settings_push_notifications_title" = "プッシュ通知";
 "wallet_settings_title" = "ウォレット設定";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";

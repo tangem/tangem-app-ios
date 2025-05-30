@@ -49,10 +49,6 @@ extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
-        guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
-            return
-        }
-
         var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {

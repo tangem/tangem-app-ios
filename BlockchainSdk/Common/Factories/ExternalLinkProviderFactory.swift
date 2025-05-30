@@ -11,6 +11,10 @@ import Foundation
 public struct ExternalLinkProviderFactory {
     public init() {}
 
+    public func makeNFTProvider(for blockchain: Blockchain) -> NFTExternalLinksProvider? {
+        makeProvider(for: blockchain) as? NFTExternalLinksProvider
+    }
+
     public func makeProvider(for blockchain: Blockchain) -> ExternalLinkProvider {
         let isTestnet = blockchain.isTestnet
 
