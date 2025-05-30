@@ -19,7 +19,6 @@ final class AppOverlaysManager {
 
     @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
-    ///    [REDACTED_USERNAME](\.walletConnectService) privatec var walletConnectService: walletConnectService
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
 
     private var overlayWindow: UIWindow?
@@ -47,7 +46,6 @@ final class AppOverlaysManager {
         )
 
         bindStories()
-//        bindWalletConnect()
     }
 
     func setMainWindow(_ mainWindow: MainWindow) {
@@ -71,16 +69,6 @@ final class AppOverlaysManager {
             }
             .store(in: &cancellables)
     }
-
-//    private func bindWalletConnect() {
-//        walletConnectService
-//            .errorsPublisher
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] errorAndDAppName in
-//                self?.handleWalletConnectError(errorAndDAppName.error, errorAndDAppName.dAppName)
-//            }
-//            .store(in: &cancellables)
-//    }
 
     private func handleNewStoriesState(_ state: TangemStoriesViewModel.State?) {
         guard let state else {
