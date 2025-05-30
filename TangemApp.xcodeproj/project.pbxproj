@@ -447,6 +447,7 @@
 		7982B02A2DE70E1900C41EA5 /* MainTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B01E2DE70E1900C41EA5 /* MainTest.swift */; };
 		7982B02C2DE71A9200C41EA5 /* TangemUITests.swift in Resources */ = {isa = PBXBuildFile; fileRef = 7982B02B2DE71A9200C41EA5 /* TangemUITests.swift */; };
 		7982B02E2DE7259E00C41EA5 /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B02D2DE7259500C41EA5 /* MainPage.swift */; };
+		7985089F2DE99FE900388668 /* ToSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7985089E2DE99FE800388668 /* ToSPage.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
 		B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */; };
@@ -4058,6 +4059,7 @@
 		7982B01E2DE70E1900C41EA5 /* MainTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTest.swift; sourceTree = "<group>"; };
 		7982B02B2DE71A9200C41EA5 /* TangemUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemUITests.swift; sourceTree = "<group>"; };
 		7982B02D2DE7259500C41EA5 /* MainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage.swift; sourceTree = "<group>"; };
+		7985089E2DE99FE800388668 /* ToSPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSPage.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
 		B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTokenAlertBuilder.swift; sourceTree = "<group>"; };
@@ -8468,8 +8470,9 @@
 		7982B01C2DE70E1900C41EA5 /* Pages */ = {
 			isa = PBXGroup;
 			children = (
-				7982B02D2DE7259500C41EA5 /* MainPage.swift */,
 				7982B01A2DE70E1900C41EA5 /* Blocks */,
+				7985089E2DE99FE800388668 /* ToSPage.swift */,
+				7982B02D2DE7259500C41EA5 /* MainPage.swift */,
 				7982B01B2DE70E1900C41EA5 /* StoriesPage.swift */,
 			);
 			path = Pages;
@@ -21268,6 +21271,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7982B0032DE70DF300C41EA5 /* CommonTests.swift in Sources */,
+				7985089F2DE99FE900388668 /* ToSPage.swift in Sources */,
 				7982B0042DE70DF300C41EA5 /* CommonTests+Extensions.swift in Sources */,
 				7982B00A2DE70E0100C41EA5 /* ScrollParameters.swift in Sources */,
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
