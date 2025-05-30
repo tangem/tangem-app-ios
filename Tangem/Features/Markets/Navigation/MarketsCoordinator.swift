@@ -47,6 +47,19 @@ class MarketsCoordinator: CoordinatorObject {
             coordinator: self
         )
     }
+
+    private func _openMarketsTokenDetails(with model: MarketsTokenModel) {
+        let detailsCoordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.tokenDetailsCoordinator = nil
+            }
+        )
+        detailsCoordinator.start(
+            with: .init(info: model, style: .marketsSheet)
+        )
+
+        tokenDetailsCoordinator = detailsCoordinator
+    }
 }
 
 extension MarketsCoordinator {
@@ -60,14 +73,12 @@ extension MarketsCoordinator: MarketsRoutable {
         })
     }
 
-    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
-        let tokenDetailsCoordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
-                self?.tokenDetailsCoordinator = nil
-            }
-        )
-        tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
+    func openMarketsTokenDetails(tokenSymbol: String, tokenId: String) {
+        let model = MarketsTokenModel(tokenSymbol: tokenSymbol, tokenId: tokenId)
+        _openMarketsTokenDetails(with: model)
+    }
 
-        self.tokenDetailsCoordinator = tokenDetailsCoordinator
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        _openMarketsTokenDetails(with: tokenInfo)
     }
 }
