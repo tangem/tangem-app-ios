@@ -21,7 +21,10 @@ final class WalletConnectConnectDAppUseCase {
         selectedUserWallet: some UserWalletModel
     ) async throws {
         let request = try proposal.dAppConnectionRequestFactory(selectedBlockchains, selectedUserWallet)
-        try await dAppConnectionService.connectDApp(with: request)
+
+        // [REDACTED_TODO_COMMENT]
+        try await dAppConnectionService.connectDApp(with: request, selectedUserWallet.userWalletId.stringValue)
+
         // [REDACTED_TODO_COMMENT]
     }
 }
