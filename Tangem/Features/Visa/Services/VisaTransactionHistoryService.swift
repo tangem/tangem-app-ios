@@ -15,17 +15,31 @@ class VisaTransactionHistoryService {
     private let storage: ThreadSafeContainer<[VisaTransactionRecord]> = []
     private var apiService: VisaTransactionHistoryAPIService?
 
+    private let cardId: String
     private let numberOfItemsOnPage: Int = 20
     private var currentOffset = 0
     private var reachEndOfHistoryList = false
+    private var productInstanceId: String?
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
 
-    init(apiService: VisaTransactionHistoryAPIService? = nil) {
+    init(cardId: String) {
+        self.cardId = cardId
+    }
+
+    init(
+        cardId: String,
+        productInstanceId: String,
+        apiService: VisaTransactionHistoryAPIService
+    ) {
+        self.cardId = cardId
+        self.productInstanceId = productInstanceId
         self.apiService = apiService
     }
 
-    func setupApiService(_ apiService: VisaTransactionHistoryAPIService) {
+    func setupApiService(productInstanceId: String, apiService: VisaTransactionHistoryAPIService) {
+        VisaLogger.debug("Setup Visa tx history using new service. Product instance id: \(productInstanceId)")
+        self.productInstanceId = productInstanceId
         self.apiService = apiService
     }
 }
@@ -108,12 +122,20 @@ extension VisaTransactionHistoryService {
 
 private extension VisaTransactionHistoryService {
     func loadRecordsPage(offset: Int) async throws -> [VisaTransactionRecord] {
-        guard let apiService else {
-            throw "Not initialized"
+        guard
+            let apiService,
+            let productInstanceId
+        else {
+            throw "Missing mandatory info"
         }
 
         VisaLogger.info("Attempting to load history page with request, offset: \(offset), numberOfItemsOnPage: \(numberOfItemsOnPage)")
-        let response = try await apiService.loadHistoryPage(offset: offset, numberOfItemsPerPage: numberOfItemsOnPage)
+        let response = try await apiService.loadHistoryPage(
+            productInstanceId: productInstanceId,
+            cardId: cardId,
+            offset: offset,
+            numberOfItemsPerPage: numberOfItemsOnPage
+        )
         return response.transactions
     }
 }
