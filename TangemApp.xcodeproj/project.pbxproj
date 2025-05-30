@@ -2634,7 +2634,6 @@
 		DC8E03202DE187A7008967D8 /* WCRequestDetailsInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E031F2DE187A7008967D8 /* WCRequestDetailsInput.swift */; };
 		DC8E03222DE18851008967D8 /* WCTransactionDetailsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03212DE18851008967D8 /* WCTransactionDetailsSection.swift */; };
 		DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */; };
-		DC8E03282DE18A1C008967D8 /* WCEthPersonalSignDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03272DE18A0D008967D8 /* WCEthPersonalSignDetailsModel.swift */; };
 		DC9090442D39395900BF7A43 /* HotCryptoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9090432D39395900BF7A43 /* HotCryptoDTO.swift */; };
 		DC9090462D39396E00BF7A43 /* HotCryptoToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9090452D39396E00BF7A43 /* HotCryptoToken.swift */; };
 		DC90904B2D393ABC00BF7A43 /* HotCryptoPriceUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC90904A2D393ABC00BF7A43 /* HotCryptoPriceUtility.swift */; };
@@ -2659,6 +2658,8 @@
 		DCA19BF12DDD95B00057BDA5 /* WCTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA19BF02DDD95A10057BDA5 /* WCTransactionView.swift */; };
 		DCA21D942BA1C77A000A3C1A /* ValidationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA21D932BA1C77A000A3C1A /* ValidationMode.swift */; };
 		DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */; };
+		DCA70E492DE8AD2B004EEC0A /* WCEthSignTypedDataDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA70E482DE8AD1F004EEC0A /* WCEthSignTypedDataDetailsModel.swift */; };
+		DCA70E4B2DE9A6CC004EEC0A /* WCRequestDetailsEIP712Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA70E4A2DE9A6A9004EEC0A /* WCRequestDetailsEIP712Parser.swift */; };
 		DCB14AE32DC615C60075F340 /* WalletConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14ADD2DC615C60075F340 /* WalletConnectViewModel.swift */; };
 		DCB14AE42DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14AD22DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewEvent.swift */; };
 		DCB14AE52DC615C60075F340 /* WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB14AE12DC615C60075F340 /* WalletConnectRoutable.swift */; };
@@ -6204,7 +6205,6 @@
 		DC8E031F2DE187A7008967D8 /* WCRequestDetailsInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsInput.swift; sourceTree = "<group>"; };
 		DC8E03212DE18851008967D8 /* WCTransactionDetailsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionDetailsSection.swift; sourceTree = "<group>"; };
 		DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsBuilder.swift; sourceTree = "<group>"; };
-		DC8E03272DE18A0D008967D8 /* WCEthPersonalSignDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthPersonalSignDetailsModel.swift; sourceTree = "<group>"; };
 		DC9090432D39395900BF7A43 /* HotCryptoDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotCryptoDTO.swift; sourceTree = "<group>"; };
 		DC9090452D39396E00BF7A43 /* HotCryptoToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotCryptoToken.swift; sourceTree = "<group>"; };
 		DC90904A2D393ABC00BF7A43 /* HotCryptoPriceUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotCryptoPriceUtility.swift; sourceTree = "<group>"; };
@@ -6229,6 +6229,8 @@
 		DCA19BF02DDD95A10057BDA5 /* WCTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionView.swift; sourceTree = "<group>"; };
 		DCA21D932BA1C77A000A3C1A /* ValidationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationMode.swift; sourceTree = "<group>"; };
 		DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChangeFormatterTests.swift; sourceTree = "<group>"; };
+		DCA70E482DE8AD1F004EEC0A /* WCEthSignTypedDataDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthSignTypedDataDetailsModel.swift; sourceTree = "<group>"; };
+		DCA70E4A2DE9A6A9004EEC0A /* WCRequestDetailsEIP712Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsEIP712Parser.swift; sourceTree = "<group>"; };
 		DCB14AD22DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppDetailsViewEvent.swift; sourceTree = "<group>"; };
 		DCB14AD32DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppDetailsViewModel.swift; sourceTree = "<group>"; };
 		DCB14AD42DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppDetailsViewState.swift; sourceTree = "<group>"; };
@@ -15478,8 +15480,8 @@
 		DC8E03232DE1892A008967D8 /* Service */ = {
 			isa = PBXGroup;
 			children = (
-				DC8E03262DE189FE008967D8 /* Model */,
 				DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */,
+				DC8E03262DE189FE008967D8 /* Model */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -15487,9 +15489,9 @@
 		DC8E03262DE189FE008967D8 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				DC9C0A482DE2E45A00E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift */,
-				DC075F952DE1A90F0092457A /* WCSignTransactionDetailsModel.swift */,
-				DC8E03272DE18A0D008967D8 /* WCEthPersonalSignDetailsModel.swift */,
+				DCA70E4F2DE9AA66004EEC0A /* EthSignTypedData */,
+				DCA70E4D2DE9AA16004EEC0A /* SolanaSignAllTransactions */,
+				DCA70E4C2DE9A9E8004EEC0A /* DefaultSigning */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -15646,6 +15648,31 @@
 				DC8E03062DDEE04B008967D8 /* WCEthPersonalSignTransactionView.swift */,
 			);
 			path = EthPersonalSign;
+			sourceTree = "<group>";
+		};
+		DCA70E4C2DE9A9E8004EEC0A /* DefaultSigning */ = {
+			isa = PBXGroup;
+			children = (
+				DC075F952DE1A90F0092457A /* WCSignTransactionDetailsModel.swift */,
+			);
+			path = DefaultSigning;
+			sourceTree = "<group>";
+		};
+		DCA70E4D2DE9AA16004EEC0A /* SolanaSignAllTransactions */ = {
+			isa = PBXGroup;
+			children = (
+				DC9C0A482DE2E45A00E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift */,
+			);
+			path = SolanaSignAllTransactions;
+			sourceTree = "<group>";
+		};
+		DCA70E4F2DE9AA66004EEC0A /* EthSignTypedData */ = {
+			isa = PBXGroup;
+			children = (
+				DCA70E482DE8AD1F004EEC0A /* WCEthSignTypedDataDetailsModel.swift */,
+				DCA70E4A2DE9A6A9004EEC0A /* WCRequestDetailsEIP712Parser.swift */,
+			);
+			path = EthSignTypedData;
 			sourceTree = "<group>";
 		};
 		DCB14AD52DC615C60075F340 /* ConnectedDAppDetails */ = {
@@ -19724,6 +19751,7 @@
 				B6761A612DB9790600402277 /* NFTReceiveWalletModelFinder.swift in Sources */,
 				EFC84B0C2C37FAB500546882 /* SendFeeStepBuilder.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
+				DCA70E492DE8AD2B004EEC0A /* WCEthSignTypedDataDetailsModel.swift in Sources */,
 				B677F1382DD2A4D80076FB9C /* PredefinedSellParameters.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
@@ -19818,6 +19846,7 @@
 				EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
 				B041C96B2C3FF70900CE027A /* MarketsPricePerformanceData.swift in Sources */,
+				DCA70E4B2DE9A6CC004EEC0A /* WCRequestDetailsEIP712Parser.swift in Sources */,
 				0A713CEE2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift in Sources */,
 				DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */,
 				B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */,
@@ -20784,7 +20813,6 @@
 				B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */,
 				B61D2A202B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift in Sources */,
 				B691A8C02AFE43CE0059D182 /* CardsInfoPagerSwipeDiscoveryAnimationModifier.swift in Sources */,
-				DC8E03282DE18A1C008967D8 /* WCEthPersonalSignDetailsModel.swift in Sources */,
 				B60976AB2C73881F00778E71 /* CALayer+.swift in Sources */,
 				B6E31B5F2C89F72400604C8F /* ViewHierarchySnapshottingContainerViewController.swift in Sources */,
 				EFEE236A2BFE20860099917E /* StakingDetailsCoordinator.swift in Sources */,
