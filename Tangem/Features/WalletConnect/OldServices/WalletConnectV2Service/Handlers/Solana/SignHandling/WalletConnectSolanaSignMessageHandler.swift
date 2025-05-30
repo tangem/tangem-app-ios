@@ -42,9 +42,13 @@ struct WalletConnectSolanaSignMessageHandler {
 }
 
 extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
-    var event: WalletConnectEvent {
-        .sign
+    var method: WalletConnectMethod { .solanaSignMessage }
+
+    var requestData: Data {
+        message.data(using: .utf8) ?? Data()
     }
+
+    var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         let message = Localization.walletConnectPersonalSignMessage(dApp.name, message)
