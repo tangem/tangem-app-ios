@@ -51,7 +51,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     var method: WalletConnectMethod { .solanaSignTransaction }
 
     var requestData: Data {
-        Data()
+        transaction.data(using: .utf8) ?? Data()
     }
 
     var event: WalletConnectEvent { .sign }
