@@ -23,6 +23,6 @@ public enum NavigationAction: Equatable {
     case buy
     case sell
     case markets
-    case tokenChart(tokenName: String)
+    case tokenChart(tokenSymbol: String, tokenId: String)
     case staking(tokenName: String)
 }
