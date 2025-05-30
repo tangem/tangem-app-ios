@@ -7,6 +7,7 @@
 //
 
 protocol WalletConnectDAppConnectionService {
-    func connectDApp(with request: WalletConnectDAppConnectionRequest) async throws
+    // [REDACTED_TODO_COMMENT]
+    func connectDApp(with request: WalletConnectDAppConnectionRequest, _ userWalletID: String) async throws
     func disconnectDApp(with request: WalletConnectDAppConnectionRequest) async throws
 }
