@@ -27,6 +27,14 @@ final class MainTest: CommonTests {
 
         testStep("Scanning wallet by tapping scan button and selecting mock wallet two") {
             storiesPage.scanButton.tap()
+        }
+
+        checkCondition(
+            "Verify wallet two button is visible",
+            storiesPage.cardMockWalletTwo.waitForState(state: .exists, for: .quickNetworkRequest)
+        )
+
+        testStep("Selecting mock wallet two") {
             storiesPage.cardMockWalletTwo.tap()
         }
 
