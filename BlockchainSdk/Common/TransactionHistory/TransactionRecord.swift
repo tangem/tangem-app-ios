@@ -76,6 +76,7 @@ public extension TransactionRecord {
         case unconfirmed
         case failed
         case confirmed
+        case undefined
     }
 }
 

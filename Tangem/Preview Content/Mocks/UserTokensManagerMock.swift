@@ -42,6 +42,10 @@ struct UserTokensManagerMock: UserTokensManager {
         []
     }
 
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
+        false
+    }
+
     func canRemove(_ tokenItem: TokenItem) -> Bool {
         return false
     }

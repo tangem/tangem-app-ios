@@ -7,6 +7,7 @@
 //
 
 import TangemUI
+import TangemFoundation
 
 enum NFTDetailsHeaderState {
     case full(PriceWithDescriptionState, [KeyValuePairViewData])
@@ -22,8 +23,8 @@ extension NFTDetailsHeaderState {
     }
 
     struct Price {
-        let raw: String
-        let quote: String
+        let crypto: String
+        let fiat: LoadingValue<String>
     }
 
     struct DescriptionConfig {

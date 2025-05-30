@@ -8,15 +8,8 @@
 
 import Foundation
 
-struct BlockaidMapper {
-    func mapSiteScan(_ response: BlockaidDTO.SiteScan.Response) -> BlockaidSiteScanResult {
-        BlockaidSiteScanResult(
-            isMalicious: response.status == .hit ? response.isMalicious : nil,
-            attackTypes: response.attackTypes.keys.map(mapToAttackType(from:))
-        )
-    }
-
-    func mapBlockchainScan(_ response: BlockaidDTO.EvmScan.Response) -> BlockaidChainScanResult {
+enum BlockaidMapper {
+    static func mapBlockchainScan(_ response: BlockaidDTO.EvmScan.Response) -> BlockaidChainScanResult {
         let validationStatus = response.validation.flatMap { mapToValidationResult(from: $0.resultType) }
 
         let assetsDiffValues: [BlockaidDTO.EvmScan.AssetDiff] = response.simulation?.assetsDiffs ?? []
@@ -28,7 +21,7 @@ struct BlockaidMapper {
         return BlockaidChainScanResult(validationStatus: validationStatus, assetsDiff: assetsDiff, approvals: approvals)
     }
 
-    func mapBlockchainScan(_ response: BlockaidDTO.SolanaScan.Response) -> BlockaidChainScanResult {
+    static func mapBlockchainScan(_ response: BlockaidDTO.SolanaScan.Response) -> BlockaidChainScanResult {
         let validationStatus = response.result.validation.flatMap { mapToValidationResult(from: $0.resultType) }
         let assetsDiffs = response.result.simulation.flatMap {
             mapToAssetsDiffs(from: $0.accountSummary.accountAssetsDiff)
@@ -39,7 +32,7 @@ struct BlockaidMapper {
 }
 
 private extension BlockaidMapper {
-    func mapToValidationResult(from result: BlockaidDTO.ResultType) -> BlockaidChainScanResult.ValidationStatus? {
+    static func mapToValidationResult(from result: BlockaidDTO.ResultType) -> BlockaidChainScanResult.ValidationStatus? {
         switch result {
         case .malicious: .malicious
         case .warning: .warning
@@ -48,23 +41,7 @@ private extension BlockaidMapper {
         }
     }
 
-    func mapToAttackType(
-        from attackType: BlockaidDTO.SiteScan.Response.AttackType
-    ) -> BlockaidSiteScanResult.AttackType {
-        switch attackType {
-        case .signatureFarming: .signatureFarming
-        case .approvalFarming: .approvalFarming
-        case .setApprovalForAll: .setApprovalForAll
-        case .transferFarming: .transferFarming
-        case .rawEtherTransfer: .rawEtherTransfer
-        case .seaportFarming: .seaportFarming
-        case .blurFarming: .blurFarming
-        case .permitFarming: .permitFarming
-        case .other: .other
-        }
-    }
-
-    func mapToAssetsDiffs(from assetsDiffs: [BlockaidDTO.EvmScan.AssetDiff]) -> BlockaidChainScanResult.AssetDiff {
+    static func mapToAssetsDiffs(from assetsDiffs: [BlockaidDTO.EvmScan.AssetDiff]) -> BlockaidChainScanResult.AssetDiff {
         let inAssets = assetsDiffs.flatMap { assetDiff -> [BlockaidChainScanResult.Asset] in
             return mapEVMAsset(assetDiff, transactions: assetDiff.in)
         }
@@ -75,7 +52,7 @@ private extension BlockaidMapper {
         return .init(in: inAssets, out: outAssets)
     }
 
-    func mapToAssetsDiffs(from assetsDiffs: [BlockaidDTO.SolanaScan.AssetDiff]) -> BlockaidChainScanResult.AssetDiff {
+    static func mapToAssetsDiffs(from assetsDiffs: [BlockaidDTO.SolanaScan.AssetDiff]) -> BlockaidChainScanResult.AssetDiff {
         let inAssets = assetsDiffs.compactMap { assetDiff -> BlockaidChainScanResult.Asset? in
             guard let inTransaction = assetDiff.in else { return nil }
             return mapSolanaAsset(assetDiff, amount: inTransaction.value)
@@ -88,7 +65,7 @@ private extension BlockaidMapper {
         return .init(in: inAssets, out: outAssets)
     }
 
-    func mapToApprovals(from exposures: [BlockaidDTO.Exposure]) -> [BlockaidChainScanResult.Asset] {
+    static func mapToApprovals(from exposures: [BlockaidDTO.Exposure]) -> [BlockaidChainScanResult.Asset] {
         exposures.flatMap { exposure in
             exposure.spenders.flatMap { key, spenderDetails in
                 spenderDetails.exposure.map {
@@ -103,7 +80,7 @@ private extension BlockaidMapper {
         }
     }
 
-    func mapSolanaAsset(
+    static func mapSolanaAsset(
         _ assetDiff: BlockaidDTO.SolanaScan.AssetDiff,
         amount: Decimal
     ) -> BlockaidChainScanResult.Asset {
@@ -115,7 +92,7 @@ private extension BlockaidMapper {
         )
     }
 
-    func mapEVMAsset(
+    static func mapEVMAsset(
         _ assetDiff: BlockaidDTO.EvmScan.AssetDiff,
         transactions: [BlockaidDTO.TransactionDetail]
     ) -> [BlockaidChainScanResult.Asset] {
