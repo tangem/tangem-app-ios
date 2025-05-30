@@ -22,88 +22,120 @@ final class DeepLinkURLParserTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Valid Deep Links
+    // MARK: – Valid scheme & hosts
 
-    func testParseMainHost() {
+    func testParse_mainHost_returnsMainAction() {
         let url = URL(string: "tangem://main")!
         let action = parser.parse(url)
         XCTAssertEqual(action, .navigation(.main))
     }
 
-    func testParseReferralHost() {
+    func testParse_referralHost_returnsReferralAction() {
         let url = URL(string: "tangem://referral")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.referral))
+        XCTAssertEqual(parser.parse(url), .navigation(.referral))
     }
 
-    func testParseBuyHost() {
+    func testParse_buyHost_returnsBuyAction() {
         let url = URL(string: "tangem://buy")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.buy))
+        XCTAssertEqual(parser.parse(url), .navigation(.buy))
     }
 
-    func testParseSellHost() {
+    func testParse_sellHost_returnsSellAction() {
         let url = URL(string: "tangem://sell")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.sell))
+        XCTAssertEqual(parser.parse(url), .navigation(.sell))
     }
 
-    func testParseMarketsHost() {
+    func testParse_marketsHost_returnsMarketsAction() {
         let url = URL(string: "tangem://markets")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.markets))
+        XCTAssertEqual(parser.parse(url), .navigation(.markets))
     }
 
-    func testParseTokenChartWithSymbol() {
-        let url = URL(string: "tangem://token_chart?symbol=BTC")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.tokenChart(tokenName: "BTC")))
+    // MARK: – Token navigation
+
+    func testParse_tokenHost_withSymbolAndNetwork_returnsTokenAction() {
+        let url = URL(string: "tangem://token?token_symbol=BTC&network=mainnet")!
+        XCTAssertEqual(
+            parser.parse(url),
+            .navigation(.token(tokenName: "BTC", network: "mainnet"))
+        )
     }
 
-    func testParseStakingWithSymbol() {
-        let url = URL(string: "tangem://staking?symbol=ETH")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.staking(tokenName: "ETH")))
+    func testParse_tokenHost_withSymbolOnly_returnsTokenActionWithEmptyNetwork() {
+        let url = URL(string: "tangem://token?token_symbol=ETH")!
+        XCTAssertEqual(
+            parser.parse(url),
+            .navigation(.token(tokenName: "ETH", network: ""))
+        )
     }
 
-    func testParseTokenWithSymbolNetwork() {
-        let url = URL(string: "tangem://token?symbol=USDT&network=solana")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.token(tokenName: "USDT", network: "solana")))
+    func testParse_tokenHost_missingSymbol_returnsNil() {
+        let url = URL(string: "tangem://token?network=solana")!
+        XCTAssertNil(parser.parse(url))
     }
 
-    // MARK: - Missing Parameters
+    // MARK: – Token chart
 
-    func testTokenMissingParameters() {
-        let url = URL(string: "tangem://token")!
-        let action = parser.parse(url)
-        // Defaults to empty strings for symbol and network
-        XCTAssertEqual(action, .navigation(.token(tokenName: "", network: "")))
+    func testParse_tokenChartHost_withBothParams_returnsTokenChartAction() {
+        let url = URL(string: "tangem://token_chart?token_symbol=USDT&token_id=42")!
+        XCTAssertEqual(
+            parser.parse(url),
+            .navigation(.tokenChart(tokenSymbol: "USDT", tokenId: "42"))
+        )
     }
 
-    func testTokenChartMissingSymbol() {
-        let url = URL(string: "tangem://token_chart")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.tokenChart(tokenName: "")))
+    func testParse_tokenChartHost_missingSymbol_returnsNil() {
+        let url = URL(string: "tangem://token_chart?token_id=42")!
+        XCTAssertNil(parser.parse(url))
     }
 
-    func testStakingMissingSymbol() {
+    func testParse_tokenChartHost_missingId_returnsNil() {
+        let url = URL(string: "tangem://token_chart?token_symbol=USDT")!
+        XCTAssertNil(parser.parse(url))
+    }
+
+    // MARK: – Staking
+
+    func testParse_stakingHost_withSymbol_returnsStakingAction() {
+        let url = URL(string: "tangem://staking?token_symbol=DOT")!
+        XCTAssertEqual(
+            parser.parse(url),
+            .navigation(.staking(tokenName: "DOT"))
+        )
+    }
+
+    func testParse_stakingHost_missingSymbol_returnsNil() {
         let url = URL(string: "tangem://staking")!
-        let action = parser.parse(url)
-        XCTAssertEqual(action, .navigation(.staking(tokenName: "")))
+        XCTAssertNil(parser.parse(url))
     }
 
-    // MARK: - Invalid Scheme and Host
+    // MARK: – Invalid cases
 
-    func testInvalidScheme() {
-        let url = URL(string: "http://main")!
-        let action = parser.parse(url)
-        XCTAssertNil(action)
+    func testParse_unknownHost_returnsNil() {
+        let url = URL(string: "tangem://foobar")!
+        XCTAssertNil(parser.parse(url))
     }
 
-    func testInvalidHost() {
-        let url = URL(string: "tangem://unknown")!
-        let action = parser.parse(url)
-        XCTAssertNil(action)
+    func testParse_invalidScheme_returnsNil() {
+        let url = URL(string: "https://token?token_symbol=BTC")!
+        XCTAssertNil(parser.parse(url))
+    }
+
+    func testParse_emptyURL_returnsNil() {
+        let url = URL(string: "") // malformed
+        XCTAssertNil(url.flatMap(parser.parse))
+    }
+
+    func testParse_queryParameterCaseSensitivity() {
+        // ensure name matching is exact
+        let url = URL(string: "tangem://token?TOKEN_SYMBOL=BTC")!
+        XCTAssertNil(parser.parse(url))
+    }
+
+    func testParse_extraQueryItems_areIgnored() {
+        let url = URL(string: "tangem://token?token_symbol=ADA&foo=bar")!
+        XCTAssertEqual(
+            parser.parse(url),
+            .navigation(.token(tokenName: "ADA", network: ""))
+        )
     }
 }
