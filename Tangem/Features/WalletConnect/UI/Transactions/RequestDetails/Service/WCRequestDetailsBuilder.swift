@@ -23,6 +23,8 @@ struct WCRequestDetailsBuilder: Equatable {
             WCSignTransactionDetailsModel(for: method, source: source).data
         case .solanaSignAllTransactions:
             WCSolanaSignAllTransactionsDetailsModel(for: method, source: source).data
+        case .signTypedData, .signTypedDataV4:
+            WCEthSignTypedDataDetailsModel(from: method, source: source).data
         default: []
         }
     }
