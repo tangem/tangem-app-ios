@@ -106,7 +106,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
-                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
+                    cardImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -117,7 +117,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
+                    cardImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -128,7 +128,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
-                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
+                    cardImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -139,9 +139,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
-                        .delay(for: 4, scheduler: DispatchQueue.main)
-                        .eraseToAnyPublisher(),
+                    cardImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )

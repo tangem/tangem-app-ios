@@ -17,7 +17,7 @@ struct WCUtils {
             let unsupportedBlockchains = blockchains.compactMap { blockchain in
                 let blockсhainMeta = WCUtils.makeBlockchain(from: blockchain)
 
-                if WCSupportedNamespaces(rawValue: namespace.key) != nil {
+                if WCSupportedNamespaces(rawValue: namespace.key.lowercased()) != nil {
                     return blockсhainMeta == nil ? blockchain.absoluteString : nil
                 } else {
                     return blockсhainMeta?.displayName ?? namespace.key.capitalizingFirstLetter()
@@ -30,7 +30,7 @@ struct WCUtils {
 
     func allChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
         for (namespace, proposals) in namespaces {
-            guard WCSupportedNamespaces(rawValue: namespace) != nil else { return false }
+            guard WCSupportedNamespaces(rawValue: namespace.lowercased()) != nil else { return false }
 
             let blockchains = proposals.chains?.compactMap(WCUtils.makeBlockchain(from:))
 
@@ -46,16 +46,15 @@ struct WCUtils {
 // MARK: - Create session namespaces
 
 extension WCUtils {
-    func createNewSessionModel(
+    func createSessionRequest(
         proposal: Session.Proposal,
         selectedWalletModelProvider: WalletConnectWalletModelProvider,
-        selectedUserWalletModelId: String,
         selectedOptionalNetworks: [BlockchainNetwork] = []
-    ) throws -> WCConnectionRequestModel {
+    ) throws -> (SessionNamespace: [String: SessionNamespace], requestData: [WCConnectionRequestDataItem]) {
         let builder = WCSessionNamespacesBuilder()
         let chains = Set(proposal.namespaceChains)
 
-        let requestData: [WCConnectionRequestData] = chains.compactMap { wcBlockchain -> WCConnectionRequestData? in
+        let requestData: [WCConnectionRequestDataItem] = chains.compactMap { wcBlockchain -> WCConnectionRequestDataItem? in
             builder.makeConnectionRequestData(
                 from: wcBlockchain,
                 and: proposal,
@@ -64,33 +63,20 @@ extension WCUtils {
             )
         }
 
-        try checkMissingBlockchains(builder.missingBlockchains)
-
         try checkUnsupportedEVMBlockchains(builder.unsupportedEVMBlockchains)
 
         do {
             let sessionNamespaces = try AutoNamespaces.build(
                 sessionProposal: proposal,
-                chains: Array(builder.supportedChains),
+                chains: Array(builder.selectedChains),
                 methods: proposal.namespaceMethods,
                 events: proposal.namespaceEvents,
                 accounts: requestData.compactMap(\.accounts).reduce([], +)
             )
 
-            return WCConnectionRequestModel(
-                selectedNetworks: requestData.compactMap(\.selectedBlockchain),
-                availableToSelectNetworks: requestData.compactMap(\.availableToSelectBlockchain),
-                notAddedNetworks: requestData.compactMap(\.notAddedBlockchain),
-                sessionNamespaces: sessionNamespaces
-            )
-        } catch {
-            throw handleAutoNamespaceError(error, missingOptionalBlockchains: builder.missingOptionalBlockchains)
-        }
-    }
-
-    private func checkMissingBlockchains(_ blockchains: [String]) throws {
-        guard blockchains.isEmpty else {
-            throw WalletConnectV2Error.missingBlockchains(blockchains)
+            return (sessionNamespaces, requestData)
+        } catch AutoNamespacesError.requiredChainsNotSatisfied {
+            throw WalletConnectV2Error.requiredChainsNotSatisfied(requestData)
         }
     }
 
@@ -99,35 +85,18 @@ extension WCUtils {
             throw WalletConnectV2Error.unsupportedBlockchains(blockchains)
         }
     }
-
-    private func handleAutoNamespaceError(_ error: Error, missingOptionalBlockchains: [String]) -> Error {
-        guard let error = error as? AutoNamespacesError else { return error }
-
-        if missingOptionalBlockchains.isNotEmpty, error == .emptySessionNamespacesForbidden {
-            return WalletConnectV2Error.missingOptionalBlockchains(missingOptionalBlockchains)
-        }
-
-        return error
-    }
 }
 
 // MARK: - Create Tangem blockchain
 
 extension WCUtils {
     static func makeBlockchainMeta(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainMeta? {
-        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
-            return nil
-        }
-
-        let blockchains = SupportedBlockchains.all
-        let wcChainId = wcBlockchain.reference
-        let blockchain = blockchains.first { $0.wcChainID?.contains(wcChainId) ?? false }
-
-        return .init(from: blockchain)
+        guard let blockchain = makeBlockchain(from: wcBlockchain) else { return nil }
+        return BlockchainMeta(from: blockchain)
     }
 
     static func makeBlockchain(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainSdk.Blockchain? {
-        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
+        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace.lowercased()) != nil else {
             return nil
         }
 
@@ -155,7 +124,7 @@ extension WCUtils {
         walletModelProvider: WalletConnectWalletModelProvider
     ) -> BlockchainNetwork? {
         guard
-            WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil,
+            WCSupportedNamespaces(rawValue: wcBlockchain.namespace.lowercased()) != nil,
             let blockchain = WCUtils.makeBlockchainMeta(from: wcBlockchain),
             let walletModel = try? walletModelProvider.getModel(with: address, blockchainId: blockchain.id)
         else {
