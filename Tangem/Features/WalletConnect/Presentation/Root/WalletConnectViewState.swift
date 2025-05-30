@@ -14,13 +14,12 @@ struct WalletConnectViewState: Equatable {
     let navigationBar: NavigationBar
     var contentState: ContentState
     var dialog: ModalDialog?
-    var newConnectionButton: Button
+    let newConnectionButtonTitle = Localization.wcNewConnection
 
     static let initial = WalletConnectViewState(
         navigationBar: NavigationBar(),
         contentState: .empty(WalletConnectViewState.ContentState.EmptyContentState()),
-        dialog: nil,
-        newConnectionButton: WalletConnectViewState.Button(isLoading: true)
+        dialog: nil
     )
 }
 
@@ -67,11 +66,6 @@ extension WalletConnectViewState {
             case .confirmationDialog: true
             }
         }
-    }
-
-    struct Button: Equatable {
-        let title = "New connection"
-        var isLoading: Bool
     }
 }
 
