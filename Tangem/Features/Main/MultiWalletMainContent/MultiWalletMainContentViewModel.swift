@@ -13,6 +13,7 @@ import CombineExt
 import TangemStaking
 import TangemNFT
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -100,7 +101,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         bind()
 
-        nftFeatureLifecycleHandler.startObserving()
         actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
@@ -156,7 +156,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
-        nftFeatureLifecycleHandler.walletsWithNFTEnabledPublisher
+        nftFeatureLifecycleHandler
+            .walletsWithNFTEnabledPublisher
             .map { [weak self] in
                 guard
                     let self,
@@ -166,15 +167,26 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return nil
                 }
 
-                let navigationContext = NFTReceiveInput(
-                    userWalletName: userWalletModel.name,
-                    userWalletConfig: userWalletModel.config,
+                let navigationContext = NFTNavigationInput(
+                    userWalletModel: userWalletModel,
                     walletModelsManager: userWalletModel.walletModelsManager
                 )
 
                 return NFTEntrypointViewModel(
                     nftManager: userWalletModel.nftManager,
                     navigationContext: navigationContext,
+                    analytics: NFTAnalytics.Entrypoint(
+                        logCollectionsOpen: { state, collectionsCount, nftsCount in
+                            Analytics.log(
+                                event: .nftCollectionsOpened,
+                                params: [
+                                    .state: state,
+                                    .nftCollectionsCount: "\(collectionsCount)",
+                                    .nftAssetsCount: "\(nftsCount)",
+                                ]
+                            )
+                        }
+                    ),
                     coordinator: coordinator
                 )
             }
