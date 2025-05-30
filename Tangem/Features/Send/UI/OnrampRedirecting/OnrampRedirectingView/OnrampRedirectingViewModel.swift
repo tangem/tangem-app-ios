@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemExpress
+import TangemFoundation
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 

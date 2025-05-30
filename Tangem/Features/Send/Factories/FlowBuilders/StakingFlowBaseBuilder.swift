@@ -22,6 +22,8 @@ struct StakingFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, router: SendRoutable) -> SendViewModel {
+        let flowKind: SendModel.PredefinedValues.FlowKind = .staking
+
         let stakingModel = builder.makeStakingModel(stakingManager: manager)
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: stakingModel, input: stakingModel)
@@ -42,7 +44,7 @@ struct StakingFlowBaseBuilder {
             sendQRCodeService: .none,
             sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
             amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
-            source: .staking
+            flowKind: flowKind
         )
 
         let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
@@ -57,11 +59,13 @@ struct StakingFlowBaseBuilder {
             actionType: .stake,
             descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            destinationEditableType: .editable,
+            amountEditableType: .editable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: validators.compact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            flowKind: flowKind
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(

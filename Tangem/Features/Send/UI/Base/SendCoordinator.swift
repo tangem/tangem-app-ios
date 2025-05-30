@@ -15,7 +15,12 @@ import TangemExpress
 import TangemStaking
 
 class SendCoordinator: CoordinatorObject {
-    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
+    enum DismissOptions {
+        case openFeeCurrency(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+        case closeButtonTap
+    }
+
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -45,7 +50,7 @@ class SendCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     required init(
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<DismissOptions?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -62,6 +67,10 @@ class SendCoordinator: CoordinatorObject {
         let stakingParams = StakingBlockchainParams(blockchain: options.walletModel.tokenItem.blockchain)
 
         switch options.type {
+        case .send where FeatureProvider.isAvailable(.newSendUI):
+            rootViewModel = factory.makeNewSendViewModel(router: self)
+        case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
+            rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
         case .sell(let parameters):
@@ -78,6 +87,16 @@ class SendCoordinator: CoordinatorObject {
             rootViewModel = factory.makeStakingSingleActionViewModel(manager: manager, action: action, router: self)
         case .onramp:
             rootViewModel = factory.makeOnrampViewModel(router: self)
+        }
+    }
+
+    private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
+        switch reason {
+        case .mainButtonTap(type: .close):
+            return .closeButtonTap
+        case .mainButtonTap,
+             .other:
+            return nil
         }
     }
 }
@@ -98,6 +117,7 @@ extension SendCoordinator {
         case stakingDetails
         case markets
         case actionButtons
+        case nft
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -106,6 +126,7 @@ extension SendCoordinator {
             case .stakingDetails: .token
             case .markets: .markets
             case .actionButtons: .main
+            case .nft: .nft
             }
         }
     }
@@ -114,8 +135,9 @@ extension SendCoordinator {
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
-    func dismiss() {
-        dismiss(with: nil)
+    func dismiss(reason: SendDismissReason) {
+        let dismissOptions = mapDismissReasonToDismissOptions(reason)
+        dismiss(with: dismissOptions)
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
@@ -155,7 +177,7 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        dismiss(with: (walletModel, userWalletModel))
+        dismiss(with: .openFeeCurrency(walletModel: walletModel, userWalletModel: userWalletModel))
     }
 
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {

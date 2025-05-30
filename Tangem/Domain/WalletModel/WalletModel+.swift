@@ -20,7 +20,7 @@ extension WalletModel {
 
 extension WalletModel {
     var description: String {
-        TangemFoundation.objectDescription(
+        objectDescription(
             self,
             userInfo: [
                 "name": name,

@@ -89,8 +89,8 @@ class SendAmountViewModel: ObservableObject {
         default: break
         }
         let amount = interactor.updateToMaxAmount()
-        decimalNumberTextFieldViewModel.update(value: amount?.main)
-        alternativeAmount = amount?.formatAlternative(currencySymbol: tokenItem.currencySymbol, decimalCount: tokenItem.decimalCount)
+        decimalNumberTextFieldViewModel.update(value: amount.main)
+        alternativeAmount = amount.formatAlternative(currencySymbol: tokenItem.currencySymbol, decimalCount: tokenItem.decimalCount)
     }
 }
 
