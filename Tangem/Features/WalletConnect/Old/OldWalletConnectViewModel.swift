@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import AVFoundation
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 class OldWalletConnectViewModel: ObservableObject {

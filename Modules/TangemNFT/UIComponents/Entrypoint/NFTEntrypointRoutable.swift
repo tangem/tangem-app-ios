@@ -7,5 +7,5 @@
 //
 
 public protocol NFTEntrypointRoutable: AnyObject {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTEntrypointNavigationContext)
+    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext)
 }

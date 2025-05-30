@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 final class MarketsListDataProvider {
     // MARK: Dependencies

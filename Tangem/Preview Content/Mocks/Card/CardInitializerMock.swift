@@ -18,7 +18,6 @@ class CardInitializerMock: CardInitializer {
                 card: .init(card: CardMock.wallet.card),
                 walletData: .none,
                 name: "",
-                artwork: .noArtwork,
                 primaryCard: nil
             )
             completion(.success(cardInfo))

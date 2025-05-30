@@ -61,7 +61,13 @@ struct WalletConnectV2PersonalSignHandler {
 }
 
 extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .personalSign }
+
     var event: WalletConnectEvent { .sign }
+
+    var requestData: Data {
+        Data(hex: message)
+    }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         let message = Localization.walletConnectPersonalSignMessage(dApp.name, dataToSign.hexString)

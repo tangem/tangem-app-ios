@@ -14,10 +14,10 @@ struct GetCardInfoMethod: SmartContractMethod {
     let cardAddress: String
     private let methodSignature = "cards(address)"
 
-    var prefix: String { SmartContractMethodPrefixCreator().createPrefixForMethod(with: methodSignature) }
+    var methodId: String { SmartContractMethodIdCreator().createIdForMethod(with: methodSignature) }
 
     var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let ownerData = Data(hexString: cardAddress).leadingZeroPadding(toLength: 32)
         return prefixData + ownerData
     }
@@ -26,10 +26,10 @@ struct GetCardInfoMethod: SmartContractMethod {
 struct GetCardsListMethod: SmartContractMethod {
     private let methodSignature = "activeCardAddresses()"
 
-    var prefix: String { SmartContractMethodPrefixCreator().createPrefixForMethod(with: methodSignature) }
+    var methodId: String { SmartContractMethodIdCreator().createIdForMethod(with: methodSignature) }
 
     var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         return prefixData
     }
 }

@@ -11,7 +11,6 @@ import TangemLocalization
 import class UIKit.UIColor
 import TangemAssets
 import TangemSdk
-import TangemNetworkUtils
 
 struct TangemSdkConfigFactory {
     func makeDefaultConfig() -> Config {
@@ -37,8 +36,7 @@ struct TangemSdkConfigFactory {
         config.style.colors.tintUIColor = UIColor.textAccent
         config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
         Config.useDevApi = FeatureStorage.instance.useDevApi
-        Config.forcedCT = ForcedCTServerTrustEvaluator.shouldForceCT
-        config.newAttestaionService = FeatureProvider.isAvailable(.newAttestation)
+        config.newAttestationService = FeatureProvider.isAvailable(.newAttestation)
         return config
     }
 }
