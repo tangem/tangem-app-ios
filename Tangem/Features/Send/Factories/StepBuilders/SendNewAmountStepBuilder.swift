@@ -11,7 +11,7 @@ import TangemExpress
 
 struct SendNewAmountStepBuilder {
     typealias IO = (input: SendAmountInput, output: SendAmountOutput)
-    typealias ReturnValue = (step: SendNewAmountStep, interactor: SendAmountInteractor, compact: SendAmountCompactViewModel)
+    typealias ReturnValue = (step: SendNewAmountStep, interactor: SendAmountInteractor, compact: SendNewAmountCompactViewModel, finish: SendAmountCompactViewModel)
 
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -45,8 +45,9 @@ struct SendNewAmountStepBuilder {
             flowKind: flowKind
         )
 
-        let compact = makeSendAmountCompactViewModel(input: io.input)
-        return (step: step, interactor: interactor, compact: compact)
+        let compact = makeSendAmountCompactViewModel(input: io.input, actionType: actionType)
+        let finish = makeSendAmountCompactViewModel(input: io.input)
+        return (step: step, interactor: interactor, compact: compact, finish: finish)
     }
 
     func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendAmountCompactViewModel {
@@ -57,6 +58,21 @@ struct SendNewAmountStepBuilder {
         )
 
         return SendAmountCompactViewModel(conventViewModel: .default(viewModel: conventViewModel))
+    }
+
+    func makeSendAmountCompactViewModel(input: SendAmountInput, actionType: SendFlowActionType) -> SendNewAmountCompactViewModel {
+        let viewModel = SendNewAmountCompactViewModel(
+            receiveToken: .init(
+                wallet: builder.walletName(),
+                tokenItem: tokenItem,
+                tokenIconInfo: builder.makeTokenIconInfo(),
+                fiatItem: builder.makeFiatItem()
+            )
+        )
+
+        viewModel.bind(amountPublisher: input.amountPublisher)
+        viewModel.bind(balanceTypePublisher: builder.makeTokenBalanceProvider().formattedBalanceTypePublisher)
+        return viewModel
     }
 }
 
