@@ -58,6 +58,7 @@ struct NewSendFlowBaseBuilder {
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            sendReceiveTokenCompactViewModel: nil,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -66,7 +67,7 @@ struct NewSendFlowBaseBuilder {
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
-            sendAmountCompactViewModel: amount.compact,
+            sendAmountCompactViewModel: amount.finish,
             onrampAmountCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact,
