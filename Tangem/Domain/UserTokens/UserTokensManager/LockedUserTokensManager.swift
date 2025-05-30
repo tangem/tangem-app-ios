@@ -46,6 +46,10 @@ struct LockedUserTokensManager: UserTokensManager {
         return false
     }
 
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
+        false
+    }
+
     func remove(_ tokenItem: TokenItem) {}
 
     func sync(completion: @escaping () -> Void) {}
