@@ -170,7 +170,7 @@ extension TokenDetailsViewModel {
     func generateXPUBButtonAction() {
         guard let xpubGenerator else { return }
 
-        TangemFoundation.runTask { [weak self] in
+        runTask { [weak self] in
             do {
                 let xpub = try await xpubGenerator.generateXPUB()
                 let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)

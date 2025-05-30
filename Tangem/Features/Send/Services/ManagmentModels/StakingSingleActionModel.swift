@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemStaking
 import Combine
 import BlockchainSdk
+import TangemFoundation
+import TangemStaking
 
 protocol StakingSingleActionModelStateProvider {
     var stakingAction: StakingSingleActionModel.Action { get }
@@ -190,8 +191,11 @@ private extension StakingSingleActionModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [.token: tokenItem.currencySymbol])
+        case .sendTxError(_, let error):
+            Analytics.log(event: .stakingErrorTransactionRejected, params: [
+                .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)",
+            ])
         }
     }
 }
