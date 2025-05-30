@@ -10,9 +10,20 @@ import XCTest
 final class MainTest: CommonTests {
     lazy var storiesPage = StoriesPage(app)
     lazy var mainPage = MainPage(app)
+    lazy var tosPage = ToSPage(app)
 
     func testScanWallet2() {
         launchApp()
+
+        testStep("Accept Terms of Service and skip additional setup") {
+            tosPage.acceptButton.tap()
+            tosPage.laterButton.tap()
+        }
+
+        checkCondition(
+            "Verify Scan button is visible",
+            storiesPage.scanButton.waitForState(state: .exists, for: .quickNetworkRequest)
+        )
 
         testStep("Scanning wallet by tapping scan button and selecting mock wallet two") {
             storiesPage.scanButton.tap()
