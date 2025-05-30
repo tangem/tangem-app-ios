@@ -31,7 +31,7 @@ final class WCNetworksSelectorViewModel: ObservableObject {
         backAction = input.backAction
         requiredBlockchainNames = input.requiredBlockchainNames
 
-        selectedBlockchains.formUnion(blockchains.filter { $0.state == .selected })
+        selectedBlockchains = blockchains.filter { $0.state == .selected }.toSet()
     }
 
     func handleViewAction(_ action: ViewAction) {
