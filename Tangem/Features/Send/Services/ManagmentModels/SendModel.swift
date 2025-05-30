@@ -45,7 +45,7 @@ class SendModel {
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
-    private let source: PredefinedValues.Source
+    private let flowKind: PredefinedValues.FlowKind
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -68,7 +68,7 @@ class SendModel {
         self.feeIncludedCalculator = feeIncludedCalculator
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
 
-        source = predefinedValues.source
+        flowKind = predefinedValues.flowKind
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
@@ -201,9 +201,10 @@ private extension SendModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
+        case .sendTxError(_, let error):
             Analytics.log(event: .sendErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)",
             ])
         }
     }
@@ -448,7 +449,7 @@ private extension SendModel {
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
 
         Analytics.log(event: .transactionSent, params: [
-            .source: source.analyticsValue.rawValue,
+            .source: flowKind.analyticsValue.rawValue,
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
@@ -483,13 +484,12 @@ private extension SendModel {
 
 extension SendModel {
     struct PredefinedValues {
-        let source: Source
-
+        let flowKind: FlowKind
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
 
-        enum Source {
+        enum FlowKind {
             case send
             case sell
             case staking
