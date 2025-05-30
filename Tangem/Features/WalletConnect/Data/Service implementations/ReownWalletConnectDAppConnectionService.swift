@@ -15,9 +15,10 @@ final class ReownWalletConnectDAppConnectionService: WalletConnectDAppConnection
         self.walletConnectService = walletConnectService
     }
 
-    func connectDApp(with request: WalletConnectDAppConnectionRequest) async throws {
+    // [REDACTED_TODO_COMMENT]
+    func connectDApp(with request: WalletConnectDAppConnectionRequest, _ userWalletID: String) async throws {
         let reownNamespaces = WalletConnectSessionNamespaceMapper.mapFromDomain(request.namespaces)
-        try await walletConnectService.acceptSessionProposal(with: request.proposalID, namespaces: reownNamespaces)
+        try await walletConnectService.acceptSessionProposal(with: request.proposalID, namespaces: reownNamespaces, userWalletID)
     }
 
     func disconnectDApp(with request: WalletConnectDAppConnectionRequest) async throws {
