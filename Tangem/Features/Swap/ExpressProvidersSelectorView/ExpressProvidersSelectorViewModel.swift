@@ -7,9 +7,10 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemExpress
+import TangemFoundation
+import TangemLocalization
 
 final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState

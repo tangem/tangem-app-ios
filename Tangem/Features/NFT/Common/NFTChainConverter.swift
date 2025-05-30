@@ -23,24 +23,22 @@ enum NFTChainConverter {
             return .bsc(testnet: isTestnet)
         case .avalanche:
             return .avalanche(testnet: false)
-        case .fantom:
-            return .fantom(testnet: false)
+        case .fantom(let isTestnet):
+            return .fantom(testnet: isTestnet)
         case .cronos:
             return .cronos
-        case .arbitrum:
-            return .arbitrum(testnet: false)
-        case .gnosis:
-            return .gnosis
+        case .arbitrum(let isTestnet):
+            return .arbitrum(testnet: isTestnet)
         case .chiliz(let isTestnet):
             return .chiliz(testnet: isTestnet)
         case .base(let isTestnet):
             return .base(testnet: isTestnet)
-        case .optimism:
-            return .optimism(testnet: false)
+        case .optimism(let isTestnet):
+            return .optimism(testnet: isTestnet)
         case .moonbeam(let isTestnet):
             return .moonbeam(testnet: isTestnet)
-        case .moonriver:
-            return .moonriver(testnet: false)
+        case .moonriver(let isTestnet):
+            return .moonriver(testnet: isTestnet)
         case .solana:
             return .solana(curve: ed25519Curve(for: version), testnet: false)
         }
@@ -58,31 +56,25 @@ enum NFTChainConverter {
             return .avalanche
         case .solana(_, testnet: let testnet) where !testnet:
             return .solana
-        case .fantom(let testnet) where !testnet:
-            return .fantom
-        case .arbitrum(let testnet) where !testnet:
-            return .arbitrum
-        case .gnosis:
-            return .gnosis(isTestnet: false)
-        case .optimism(let testnet) where !testnet:
-            return .optimism
+        case .fantom(let testnet):
+            return .fantom(isTestnet: testnet)
+        case .arbitrum(let testnet):
+            return .arbitrum(isTestnet: testnet)
+        case .optimism(let testnet):
+            return .optimism(isTestnet: testnet)
         case .cronos:
             return .cronos
         case .moonbeam(let testnet):
             return .moonbeam(isTestnet: testnet)
-        case .moonriver(let testnet) where !testnet:
-            return .moonriver
+        case .moonriver(let testnet):
+            return .moonriver(isTestnet: testnet)
         case .base(let testnet):
             return .base(isTestnet: testnet)
         case .chiliz(let testnet):
             return .chiliz(isTestnet: testnet)
         case .avalanche,
              .solana,
-             .fantom,
-             .arbitrum,
-             .optimism,
              .pulsechain,
-             .moonriver,
              .bitcoin,
              .litecoin,
              .stellar,
@@ -102,6 +94,7 @@ enum NFTChainConverter {
              .azero,
              .tron,
              .dash,
+             .gnosis,
              .ton,
              .kava,
              .kaspa,
