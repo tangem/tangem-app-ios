@@ -100,7 +100,7 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func loadAndSave(currencies: CurrenciesSet) {
-        TangemFoundation.runTask(in: self) { provider in
+        runTask(in: self) { provider in
             do {
                 let availabilityStates = try await provider.loadAvailabilityStates(currencies: currencies)
                 provider.save(states: availabilityStates)
@@ -188,7 +188,7 @@ private extension CommonExpressAvailabilityProvider {
             .unique(by: \.currency)
 
         do {
-            try storage.store(value: models)
+            try storage.storeAndWait(value: models)
         } catch {
             ExpressLogger.error("Failed", error: error)
         }
