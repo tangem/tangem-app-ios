@@ -17,6 +17,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
     private let prompt: Prompt
     private let expandedView: ExpandedView
     private let alignment: HorizontalAlignment
+    private let useDrawingGroup: Bool
 
     public init(
         animation: Animation? = .default,
@@ -24,6 +25,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
         transition: AnyTransition? = nil,
         actionOnClick: @escaping () -> Void,
         alignment: HorizontalAlignment = .center,
+        useDrawingGroup: Bool = true,
         prompt: () -> Prompt,
         expandedView: () -> ExpandedView
     ) {
@@ -32,6 +34,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
         self.transition = transition
         self.animation = animation
         self.alignment = alignment
+        self.useDrawingGroup = useDrawingGroup
         self.prompt = prompt()
         self.expandedView = expandedView()
     }
@@ -51,6 +54,8 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
             }
         }
         .clipped()
-        .drawingGroup()
+        .if(useDrawingGroup) {
+            $0.drawingGroup()
+        }
     }
 }

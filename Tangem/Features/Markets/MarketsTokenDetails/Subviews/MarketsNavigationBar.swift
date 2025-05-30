@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct MarketsNavigationBar<Content: View>: View {
     let titleView: () -> Content

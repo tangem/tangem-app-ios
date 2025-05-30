@@ -10,6 +10,8 @@ import SwiftUI
 
 public extension View {
     func style(_ font: Font, color: Color) -> some View {
-        self.font(font).foregroundColor(color)
+        self
+            .font(font)
+            .foregroundStyle(color)
     }
 }
