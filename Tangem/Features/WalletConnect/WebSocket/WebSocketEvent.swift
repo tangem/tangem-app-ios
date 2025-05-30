@@ -16,6 +16,6 @@ extension WebSocket {
         case messageSent(String)
         case pingSent
         case pongReceived
-        case connnectionError(Error)
+        case connectionError(Error)
     }
 }
