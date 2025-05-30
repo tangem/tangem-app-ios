@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUIUtils
 
 public struct KeyValuePanelView: View {
-    let config: KeyValuePanelConfig
+    let viewData: KeyValuePanelViewData
     @State private var width: CGFloat = 0
 
     private var itemWidth: CGFloat {
@@ -22,18 +22,18 @@ public struct KeyValuePanelView: View {
         [GridItem(.adaptive(minimum: itemWidth), spacing: Constants.interitemSpacing, alignment: .topLeading)]
     }
 
-    public init(config: KeyValuePanelConfig) {
-        self.config = config
+    public init(viewData: KeyValuePanelViewData) {
+        self.viewData = viewData
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if let header = config.header {
+            if let header = viewData.header {
                 makeHeaderView(header)
             }
 
             LazyVGrid(columns: gridItems, alignment: .center, spacing: Constants.interitemSpacing) {
-                ForEach(config.keyValues.indexed(), id: \.0) { _, pair in
+                ForEach(viewData.keyValues.indexed(), id: \.0) { _, pair in
                     KeyValuePairView(pair: pair)
                         .frame(maxWidth: itemWidth, alignment: .leading)
                 }
@@ -42,7 +42,7 @@ public struct KeyValuePanelView: View {
                 width = value.frame.width
             }
         }
-        .ifLet(config.backgroundColor) { view, color in
+        .ifLet(viewData.backgroundColor) { view, color in
             view.roundedBackground(
                 with: color,
                 verticalPadding: Constants.backgroundVerticalPadding,
@@ -53,7 +53,7 @@ public struct KeyValuePanelView: View {
     }
 
     @ViewBuilder
-    private func makeHeaderView(_ headerModel: KeyValuePanelConfig.Header) -> some View {
+    private func makeHeaderView(_ headerModel: KeyValuePanelViewData.Header) -> some View {
         if let actionConfig = headerModel.actionConfig {
             HStack(spacing: 0) {
                 makeHeaderText(from: headerModel.title)
@@ -73,7 +73,7 @@ public struct KeyValuePanelView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
-    private func makeHeaderButton(from actionConfig: KeyValuePanelConfig.Header.ActionConfig) -> some View {
+    private func makeHeaderButton(from actionConfig: KeyValuePanelViewData.Header.ActionConfig) -> some View {
         Button(action: actionConfig.action) {
             HStack(spacing: 4) {
                 if let imageType = actionConfig.image {
@@ -103,8 +103,8 @@ private extension KeyValuePanelView {
     ZStack {
         Color.gray
         KeyValuePanelView(
-            config: KeyValuePanelConfig(
-                header: KeyValuePanelConfig.Header(
+            viewData: KeyValuePanelViewData(
+                header: KeyValuePanelViewData.Header(
                     title: "Header",
                     actionConfig: .init(buttonTitle: "see all", image: Assets.arrowRightUp, action: {})
                 ),
