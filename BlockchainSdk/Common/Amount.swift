@@ -178,8 +178,8 @@ extension Amount.AmountType: Hashable {
         switch (lhs, rhs) {
         case (.coin, .coin), (.reserve, .reserve):
             return true
-        case (.token(let lv), .token(let rv)):
-            return lv == rv
+        case (.token(let lValue), .token(let rValue)):
+            return lValue == rValue
         case (.feeResource(let ln), .feeResource(let rn)):
             return ln == rn
         default:

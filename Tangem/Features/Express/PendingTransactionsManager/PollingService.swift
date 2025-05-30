@@ -51,7 +51,7 @@ final class PollingService<RequestData: Identifiable, ResponseData: Identifiable
 
         cancelTask()
 
-        updateTask = TangemFoundation.runTask(in: self) {
+        updateTask = runTask(in: self) {
             await $0.poll(for: requests)
             $0.cancelTask()
         }

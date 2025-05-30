@@ -135,10 +135,6 @@ extension CardanoWalletManager: DustRestrictable {
 // MARK: - WithdrawalNotificationProvider
 
 extension CardanoWalletManager: WithdrawalNotificationProvider {
-    func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
-        return nil
-    }
-
     func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
         // We have to show the notification only when send the token
         guard amount.type.isToken else {

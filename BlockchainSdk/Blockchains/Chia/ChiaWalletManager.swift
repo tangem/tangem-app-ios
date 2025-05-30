@@ -129,29 +129,6 @@ private extension ChiaWalletManager {
 // MARK: - WithdrawalNotificationProvider
 
 extension ChiaWalletManager: WithdrawalNotificationProvider {
-    /// Chia, kaspa have the same logic
-    @available(*, deprecated, message: "Use MaximumAmountRestrictable")
-    func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
-        let availableAmount = txBuilder.availableAmount()
-        let amountAvailableToSend = availableAmount - fee
-
-        if amount <= amountAvailableToSend {
-            return nil
-        }
-
-        let amountToReduceBy = amount - amountAvailableToSend
-
-        return WithdrawalWarning(
-            warningMessage: Localization.commonUtxoValidateWithdrawalMessageWarning(
-                wallet.blockchain.displayName,
-                txBuilder.maxInputCount,
-                amountAvailableToSend.description
-            ),
-            reduceMessage: Localization.commonOk,
-            suggestedReduceAmount: amountToReduceBy
-        )
-    }
-
     func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
         // The 'Mandatory amount change' withdrawal suggestion has been superseded by a validation performed in
         // the 'MaximumAmountRestrictable.validateMaximumAmount(amount:fee:)' method below

@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemStories
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 

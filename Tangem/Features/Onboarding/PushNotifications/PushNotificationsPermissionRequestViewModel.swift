@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 
 final class PushNotificationsPermissionRequestViewModel: ObservableObject, Identifiable {

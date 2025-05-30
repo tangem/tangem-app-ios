@@ -39,7 +39,7 @@ extension CommonReferralNotificationController: ReferralNotificationController {
             return
         }
 
-        TangemFoundation.runTask(in: self) { controller in
+        runTask(in: self) { controller in
             do {
                 let programInfo = try await controller.loadReferralProgram()
                 controller.showReferralNotificationSubject.send(programInfo.referral == nil)

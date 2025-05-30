@@ -18,23 +18,21 @@ public enum NFTChain: Hashable, Sendable {
 
     case avalanche
 
-    case fantom
+    case fantom(isTestnet: Bool)
 
     case cronos
 
-    case arbitrum
-
-    case gnosis(isTestnet: Bool)
+    case arbitrum(isTestnet: Bool)
 
     case chiliz(isTestnet: Bool)
 
     case base(isTestnet: Bool)
 
-    case optimism
+    case optimism(isTestnet: Bool)
 
     case moonbeam(isTestnet: Bool)
 
-    case moonriver
+    case moonriver(isTestnet: Bool)
 
     case solana
 
@@ -49,6 +47,9 @@ public enum NFTChain: Hashable, Sendable {
 
     @available(*, unavailable, message: "The network is not supported yet by the app")
     case lisk(isTestnet: Bool)
+
+    @available(*, unavailable, message: "NFTs are not supported for this network yet")
+    case gnosis(isTestnet: Bool)
 
     @available(*, unavailable, message: "NFTs are not supported for this network yet")
     case btc
@@ -117,8 +118,6 @@ public extension NFTChain {
             break
         case .arbitrum:
             break
-        case .gnosis:
-            break
         case .chiliz:
             break
         case .base:
@@ -141,15 +140,14 @@ public extension NFTChain {
             .polygon(isTestnet: isTestnet),
             .bsc(isTestnet: isTestnet),
             .avalanche,
-            .fantom,
+            .fantom(isTestnet: isTestnet),
             .cronos,
-            .arbitrum,
-            .gnosis(isTestnet: isTestnet),
+            .arbitrum(isTestnet: isTestnet),
             .chiliz(isTestnet: isTestnet),
             .base(isTestnet: isTestnet),
-            .optimism,
+            .optimism(isTestnet: isTestnet),
             .moonbeam(isTestnet: isTestnet),
-            .moonriver,
+            .moonriver(isTestnet: isTestnet),
             .solana,
         ]
     }
