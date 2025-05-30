@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 class SendNewAmountViewModel: ObservableObject {
@@ -100,7 +100,7 @@ class SendNewAmountViewModel: ObservableObject {
         }
 
         let amount = interactor.updateToMaxAmount()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        FeedbackGenerator.success()
         updateAmountsUI(amount: amount)
     }
 }
