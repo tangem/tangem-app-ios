@@ -10,7 +10,7 @@ import Foundation
 import TangemStaking
 
 enum SendType {
-    case send
+    case send(parameters: SendParameters)
     case sell(parameters: PredefinedSellParameters)
     case staking(manager: StakingManager)
     case unstaking(manager: StakingManager, action: UnstakingModel.Action)
@@ -19,8 +19,8 @@ enum SendType {
     case onramp
 }
 
-struct PredefinedSellParameters {
-    let amount: Decimal
-    let destination: String
-    let tag: String?
+// MARK: - Convenience extensions
+
+extension SendType {
+    static var send: Self { .send(parameters: .init()) }
 }

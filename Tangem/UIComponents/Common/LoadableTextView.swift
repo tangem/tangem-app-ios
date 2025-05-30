@@ -51,7 +51,7 @@ struct LoadableTextView: View {
     }
 
     private var styledDashText: some View {
-        styledText("–", isSensitive: false)
+        styledText(AppConstants.enDashSign, isSensitive: false)
     }
 
     @ViewBuilder
