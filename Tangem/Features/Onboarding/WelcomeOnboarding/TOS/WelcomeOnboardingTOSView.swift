@@ -21,6 +21,7 @@ struct WelcomeOnboardingTOSView: View {
                 title: Localization.commonAccept,
                 action: viewModel.didTapAccept
             )
+            .accessibilityIdentifier("AcceptButton")
             .padding(.top, 14)
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
