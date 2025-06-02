@@ -14,10 +14,10 @@ extension MainViewModel {
     struct MainNavigationActionHandler {
         @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
         @Injected(\.appLockController) private var appLockController: AppLockController
-        
+
         let userWalletModel: (any UserWalletModel)?
         let coordinator: MainRoutable
-        
+
         private func routeSellAction() -> Bool {
             guard let userWalletModel = userWalletModel else {
                 incomingActionManager.discardIncomingAction()
@@ -29,7 +29,7 @@ extension MainViewModel {
         }
 
         private func routeBuyAction() -> Bool {
-            guard isMulticurrencySupported(),
+            guard isFeatureSupported(feature: .multiCurrency),
                   let userWalletModel = userWalletModel
             else {
                 incomingActionManager.discardIncomingAction()
@@ -131,14 +131,6 @@ extension MainViewModel.MainNavigationActionHandler: NavigationActionHandling {
 // MARK: - Helpers
 
 extension MainViewModel.MainNavigationActionHandler {
-    private func isMulticurrencySupported() -> Bool {
-        guard let userWalletModel else {
-            return false
-        }
-
-        return userWalletModel.config.hasFeature(.multiCurrency)
-    }
-
     private func isFeatureSupported(feature: UserWalletFeature) -> Bool {
         guard let userWalletModel,
               !userWalletModel.config.getFeatureAvailability(feature).isHidden else {
@@ -150,7 +142,7 @@ extension MainViewModel.MainNavigationActionHandler {
 
     private func isMatch(_ model: any WalletModel, tokenSymbol: String, network: String?) -> Bool {
         let symbolMatches = model.tokenItem.currencySymbol.lowercased() == tokenSymbol.lowercased()
-        let networkMatches = network.map { model.tokenItem.blockchain.blockchainId == $0.lowercased() } ?? true
+        let networkMatches = network.map { model.tokenItem.blockchain.networkId == $0.lowercased() } ?? true
         return symbolMatches && networkMatches
     }
 
