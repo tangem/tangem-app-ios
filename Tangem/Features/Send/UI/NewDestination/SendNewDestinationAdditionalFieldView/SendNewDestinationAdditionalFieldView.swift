@@ -14,7 +14,6 @@ import TangemUI
 
 struct SendNewDestinationAdditionalFieldView: View {
     @ObservedObject var viewModel: SendNewDestinationAdditionalFieldViewModel
-    let namespace: SendDestinationView.Namespace
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
@@ -43,7 +42,6 @@ struct SendNewDestinationAdditionalFieldView: View {
             }
         }
         .lineLimit(1)
-        .matchedGeometryEffect(id: namespace.names.addressAdditionalFieldTitle, in: namespace.id)
     }
 
     private var textField: some View {
@@ -51,7 +49,6 @@ struct SendNewDestinationAdditionalFieldView: View {
             .autocorrectionDisabled()
             .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
             .disabled(viewModel.disabled)
-            .matchedGeometryEffect(id: namespace.names.addressAdditionalFieldText, in: namespace.id)
     }
 
     @ViewBuilder
@@ -79,6 +76,5 @@ struct SendNewDestinationAdditionalFieldView: View {
                 .foregroundStyle(Colors.Icon.informative)
                 .frame(width: 24, height: 24)
         }
-        .matchedGeometryEffect(id: namespace.names.addressAdditionalFieldClearButton, in: namespace.id)
     }
 }
