@@ -111,7 +111,8 @@ private extension Logger {
 
         writeToConsole(level, message: message)
 
-        writeToFile(level, message: message)
+        // We should only redact logs that are written to file
+        writeToFile(level, message: LogsSanitizer.sanitize(message))
     }
 
     func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
