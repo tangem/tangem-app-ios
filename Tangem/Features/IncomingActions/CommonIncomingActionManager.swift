@@ -25,10 +25,6 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         _didReceiveNavigationAction.eraseToAnyPublisher()
     }
 
-    public func hasReferralNavigationAction() -> Bool {
-        pendingAction == .referralProgram
-    }
-
     public func becomeFirstResponder(_ responder: IncomingActionResponder) {
         if !responders.contains(responder) {
             responders.add(responder)

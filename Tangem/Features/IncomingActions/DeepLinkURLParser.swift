@@ -19,12 +19,12 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return .navigation(.main)
 
         case Constants.hostToken:
-            guard let tokenName = url.queryValue(named: "token_symbol") else {
+            guard let tokenSymbol = url.queryValue(named: Constants.tokenSymbolParamName) else {
                 return nil
             }
 
-            let network = url.queryValue(named: "network") ?? ""
-            return .navigation(.token(tokenName: tokenName, network: network))
+            let networkId = url.queryValue(named: Constants.networkSymbolParamName) ?? ""
+            return .navigation(.token(tokenSymbol: tokenSymbol, network: networkId))
 
         case Constants.hostReferral:
             return .navigation(.referral)
@@ -39,8 +39,8 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return .navigation(.markets)
 
         case Constants.hostTokenChart:
-            guard let tokenSymbol = url.queryValue(named: "token_symbol"),
-                  let tokenId = url.queryValue(named: "token_id")
+            guard let tokenSymbol = url.queryValue(named: Constants.tokenSymbolParamName),
+                  let tokenId = url.queryValue(named: Constants.tokenIdParamName)
             else {
                 return nil
             }
@@ -48,11 +48,11 @@ struct DeepLinkURLParser: IncomingActionURLParser {
             return .navigation(.tokenChart(tokenSymbol: tokenSymbol, tokenId: tokenId))
 
         case Constants.hostStaking:
-            guard let tokenName = url.queryValue(named: "token_symbol") else {
+            guard let tokenSymbol = url.queryValue(named: Constants.tokenSymbolParamName) else {
                 return nil
             }
 
-            return .navigation(.staking(tokenName: tokenName))
+            return .navigation(.staking(tokenSymbol: tokenSymbol))
 
         default:
             return nil
@@ -81,6 +81,10 @@ private extension DeepLinkURLParser {
         static let hostMarkets = "markets"
         static let hostTokenChart = "token_chart"
         static let hostStaking = "staking"
+
+        static let tokenSymbolParamName = "token_symbol"
+        static let networkSymbolParamName = "network"
+        static let tokenIdParamName = "token_id"
 
         static let allHosts: Set<String> = [
             hostMain,
