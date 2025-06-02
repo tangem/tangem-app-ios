@@ -140,7 +140,7 @@
 "common_generate_addresses" = "アドレスを同期する";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
-"common_got_it" = "Got it";
+"common_got_it" = "わかりました";
 "common_hide" = "非表示";
 "common_hour" = "時間";
 "common_import" = "インポート";
@@ -197,7 +197,7 @@
 "common_submit" = "送信";
 "common_success" = "成功";
 "common_support" = "サポート";
-"common_supported_networks" = "Supported networks";
+"common_supported_networks" = "対応ネットワーク";
 "common_swap" = "スワップ";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "利用規約";
@@ -538,7 +538,7 @@
 "nft_send" = "NFTを送信する";
 "nft_traits_title" = "特徴";
 "nft_untitled_collection" = "無題のコレクション";
-"nft_wallet_count" = "%1$liコレクションの%2$liNFT";
+"nft_wallet_count" = "%2$liコレクションの%1$liNFT";
 "nft_wallet_receive_nft" = "ここをタップして最初のNFTを受け取ります";
 "nft_wallet_title" = "NFTコレクション";
 "nft_wallet_unable_to_load" = "データを読み込めません";
@@ -672,8 +672,8 @@
 "push_notifications_permission_alert_negative_button" = "後で有効にする";
 "push_notifications_permission_alert_positive_button" = "設定";
 "push_notifications_permission_alert_title" = "通知を有効にする";
-"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
-"push_transactions_notifications_title" = "Transaction Notifications";
+"push_transactions_notifications_description" = "対応ネットワーク上の受信取引の通知を受け取る";
+"push_transactions_notifications_title" = "取引通知";
 "qr_scanner_camera_denied_gallery_button" = "ギャラリーから選択";
 "qr_scanner_camera_denied_settings_button" = "設定";
 "qr_scanner_camera_denied_text" = "カメラへのアクセスを許可していません。";
@@ -1053,10 +1053,13 @@
 "twins_recreate_toolbar" = "Tangemツイン";
 "twins_recreate_warning" = "この操作は元に戻せません。古いウォレットにはアクセスできなくなります。";
 "twins_scan_twin_with_number" = "番号%@のツインカードをタップし、操作が終了するまで取り外さないでください。";
+"unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
+"unexpected_error_title" = "問題が発生しました。";
 "universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
 "user_push_notification_agreement_argument_one" = "最新の機能とニュースをお届けします";
+"user_push_notification_agreement_argument_three" = "受信取引の通知を受け取る";
 "user_push_notification_agreement_argument_two" = "新しいプロモーション情報をいち早く入手しましょう";
 "user_push_notification_agreement_header" = "プッシュ通知を使用しますか?";
 "user_wallet_list_add_button" = "新しいウォレットを追加";
@@ -1173,7 +1176,7 @@
 "wallet_promo_banner_description" = "1.3万種類以上の暗号資産にアクセス。ワンタップで買付、売却、スワップ、ステーキングが可能です。\nバックアップ用に最大3枚のカードを連携できます。";
 "wallet_promo_banner_title" = "Tangemウォレットを見る";
 "wallet_settings_push_notifications_description" = "ウォレットの受信取引とTangemの更新について通知を受け取る。";
-"wallet_settings_push_notifications_title" = "プッシュ通知";
+"wallet_settings_push_notifications_title" = "取引通知";
 "wallet_settings_title" = "ウォレット設定";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
