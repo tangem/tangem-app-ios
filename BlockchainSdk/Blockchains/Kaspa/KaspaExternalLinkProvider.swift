@@ -14,7 +14,7 @@ struct KaspaExternalLinkProvider: ExternalLinkProvider {
     init(isTestnet: Bool) {
         baseExplorerUrl = isTestnet
             ? "https://explorer-tn10.kaspa.org"
-            : "https://explorer.kaspa.org"
+            : "https://kas.fyi"
     }
 
     var testnetFaucetURL: URL? {
@@ -22,10 +22,10 @@ struct KaspaExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        URL(string: "\(baseExplorerUrl)/txs/\(hash)")
+        URL(string: "\(baseExplorerUrl)/transaction/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        URL(string: "\(baseExplorerUrl)/addresses/\(address)")
+        URL(string: "\(baseExplorerUrl)/address/\(address)")
     }
 }
