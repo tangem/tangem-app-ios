@@ -66,7 +66,7 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendDestinationCompactViewModel: destination.compact,
+            sendDestinationCompactViewModel: destination.finish,
             sendAmountCompactViewModel: amount.finish,
             onrampAmountCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
