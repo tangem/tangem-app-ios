@@ -13,33 +13,27 @@ import TangemUI
 struct SendNewDestinationView: View {
     @ObservedObject var viewModel: SendNewDestinationViewModel
     let transitionService: SendTransitionService
-    let namespace: Namespace
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.destinationAddressViewModel) {
-                SendNewDestinationAddressView(viewModel: $0, namespace: namespace)
+                SendNewDestinationAddressView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.addressDescription)
                     .transition(transitionService.destinationAuxiliaryViewTransition)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .geometryEffect(.init(id: namespace.names.addressBackground, namespace: namespace.id))
             .animation(SendTransitionService.Constants.newAnimation, value: viewModel.addressTextViewHeightModel.height)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
-                SendNewDestinationAdditionalFieldView(viewModel: $0, namespace: namespace)
+                SendNewDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.additionalFieldDescription)
                     .transition(transitionService.destinationAuxiliaryViewTransition)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .geometryEffect(.init(
-                id: namespace.names.addressAdditionalFieldBackground,
-                namespace: namespace.id
-            ))
             .transition(transitionService.destinationAuxiliaryViewTransition)
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
@@ -49,7 +43,8 @@ struct SendNewDestinationView: View {
                 }
             }
         }
-        .transition(transitionService.transitionToDestinationStep(isEditMode: viewModel.isEditMode))
+        .id(viewModel.id)
+        .transition(transitionService.transitionToNewDestinationStep(isEditMode: viewModel.isEditMode))
         .onAppear(perform: viewModel.onAppear)
     }
 }
