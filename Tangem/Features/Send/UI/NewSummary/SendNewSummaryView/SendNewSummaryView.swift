@@ -23,7 +23,7 @@ struct SendNewSummaryView: View {
 
             descriptionView
         }
-        .transition(transitionService.summaryViewTransition)
+        .transition(transitionService.newSummaryViewTransition(isEditMode: viewModel.isEditMode))
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
