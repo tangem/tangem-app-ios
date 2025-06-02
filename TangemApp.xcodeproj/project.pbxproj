@@ -3416,6 +3416,8 @@
 		EFF3038F2DA6B07600F3DC5E /* BitcoinScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF3038E2DA6B07600F3DC5E /* BitcoinScript.swift */; };
 		EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */; };
 		EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */; };
+		EFF732592DE9C1BB0070A8FF /* SendNewDestinationCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF732582DE9C1BB0070A8FF /* SendNewDestinationCompactView.swift */; };
+		EFF7325B2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF7325A2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift */; };
 		EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF763E02C4E38B500E846F4 /* SendStepViewAnimatable.swift */; };
 		EFF763E32C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF763E22C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift */; };
 		EFF7641E2C4F8B6D00E846F4 /* SendTransitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF7641D2C4F8B6D00E846F4 /* SendTransitionService.swift */; };
@@ -6994,6 +6996,8 @@
 		EFF3038E2DA6B07600F3DC5E /* BitcoinScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinScript.swift; sourceTree = "<group>"; };
 		EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
+		EFF732582DE9C1BB0070A8FF /* SendNewDestinationCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewDestinationCompactView.swift; sourceTree = "<group>"; };
+		EFF7325A2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewDestinationCompactViewModel.swift; sourceTree = "<group>"; };
 		EFF763E02C4E38B500E846F4 /* SendStepViewAnimatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepViewAnimatable.swift; sourceTree = "<group>"; };
 		EFF763E22C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepNavigationTrailingViewType.swift; sourceTree = "<group>"; };
 		EFF7641D2C4F8B6D00E846F4 /* SendTransitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTransitionService.swift; sourceTree = "<group>"; };
@@ -18235,6 +18239,7 @@
 			children = (
 				EFC7AD722DD8BB7100AE78E1 /* SendNewDestinationStep.swift */,
 				EFC7AD702DD788A100AE78E1 /* SendNewDestinationView */,
+				EFF7325C2DE9C20B0070A8FF /* SendNewDestinationCompactView */,
 				EFC7AD6D2DD7882300AE78E1 /* SendNewDestinationTextView */,
 				EF4C0C5C2DDB52FA00AFD567 /* SendNewDestinationAdditionalFieldView */,
 				EFC7AD782DD92B8A00AE78E1 /* StringPasteButton */,
@@ -18556,6 +18561,15 @@
 				EFF2A52C2C60BA0F007DB0C1 /* StakingNotificationEvent.swift */,
 			);
 			path = StakingNotifications;
+			sourceTree = "<group>";
+		};
+		EFF7325C2DE9C20B0070A8FF /* SendNewDestinationCompactView */ = {
+			isa = PBXGroup;
+			children = (
+				EFF732582DE9C1BB0070A8FF /* SendNewDestinationCompactView.swift */,
+				EFF7325A2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift */,
+			);
+			path = SendNewDestinationCompactView;
 			sourceTree = "<group>";
 		};
 		EFFE2CEA28B8E1A700B9F279 /* DerivationManager */ = {
@@ -19538,6 +19552,7 @@
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
 				DCBF4D282D8B497F002C2B8E /* GenericWalletManagerFactory.swift in Sources */,
 				DCBF4D292D8B497F002C2B8E /* CardanoWalletManagerFactory.swift in Sources */,
+				EFF732592DE9C1BB0070A8FF /* SendNewDestinationCompactView.swift in Sources */,
 				DCBF4D2A2D8B497F002C2B8E /* XPUBGeneratorFactory.swift in Sources */,
 				DCBF4D2B2D8B497F002C2B8E /* XPUBGenerator.swift in Sources */,
 				DCBF4D2C2D8B497F002C2B8E /* EthereumNetworkProvider+.swift in Sources */,
@@ -19581,6 +19596,7 @@
 				EF4715C72DBF92FF00237395 /* CommonUKGeoDefiner.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				B6FCEE712C40E14300CA9252 /* UIScrollView+.swift in Sources */,
+				EFF7325B2DE9C1FA0070A8FF /* SendNewDestinationCompactViewModel.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				DCE2F7CE2CE34A5900BDE145 /* SellActionButtonViewModel.swift in Sources */,
 				EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */,
