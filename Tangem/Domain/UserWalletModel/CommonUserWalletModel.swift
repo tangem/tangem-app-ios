@@ -35,14 +35,6 @@ class CommonUserWalletModel {
 
     var signer: TangemSigner { _signer }
 
-    var cardId: String { cardInfo.card.cardId }
-
-    var card: CardDTO {
-        cardInfo.card
-    }
-
-    var cardPublicKey: Data { cardInfo.card.cardPublicKey }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
@@ -108,22 +100,9 @@ class CommonUserWalletModel {
         AppLogger.debug(self)
     }
 
-    func validate() -> Bool {
-        let pendingBackupManager = PendingBackupManager()
-        if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
-            return false
-        }
-
-        guard validateBackup(card.backupStatus, wallets: card.wallets) else {
-            return false
-        }
-
-        return true
-    }
-
     private func validateBackup(_ backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
         let backupValidator = BackupValidator()
-        if !backupValidator.validate(backupStatus: card.backupStatus, wallets: wallets) {
+        if !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: wallets) {
             return false
         }
 
@@ -203,11 +182,15 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     var refcodeProvider: RefcodeProvider? {
-        CommonExpressRefcodeProvider(cardInfo: cardInfo)
+        CommonExpressRefcodeProvider(
+            userWalletId: userWalletId,
+            cardId: cardInfo.card.cardId,
+            batchId: cardInfo.card.batchId
+        )
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
+        .init(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
     }
 
     var hasBackupCards: Bool {
@@ -270,7 +253,7 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(_ cardId: String) {
-        let cardInfo = CardInfo(card: card, walletData: .none, name: "")
+        let cardInfo = CardInfo(card: cardInfo.card, walletData: .none, name: "")
         guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo),
               userWalletId == self.userWalletId else {
             return
@@ -279,6 +262,19 @@ extension CommonUserWalletModel: UserWalletModel {
         if !associatedCardIds.contains(cardId) {
             associatedCardIds.insert(cardId)
         }
+    }
+
+    func validate() -> Bool {
+        let pendingBackupManager = PendingBackupManager()
+        if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
+            return false
+        }
+
+        guard validateBackup(cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) else {
+            return false
+        }
+
+        return true
     }
 }
 
