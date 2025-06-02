@@ -19,6 +19,8 @@ struct SendNewSummaryView: View {
         VStack(alignment: .center, spacing: 14) {
             GroupedScrollView(spacing: 14) {
                 amountSectionView
+
+                destinationSectionView
             }
 
             descriptionView
@@ -28,7 +30,7 @@ struct SendNewSummaryView: View {
         .onDisappear(perform: viewModel.onDisappear)
     }
 
-    // MARK: - Description
+    // MARK: - Amount
 
     @ViewBuilder
     private var amountSectionView: some View {
@@ -52,6 +54,17 @@ struct SendNewSummaryView: View {
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+    }
+
+    // MARK: - Destination
+
+    @ViewBuilder
+    private var destinationSectionView: some View {
+        if let destinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
+            Button(action: viewModel.userDidTapDestination) {
+                SendNewDestinationCompactView(viewModel: destinationCompactViewModel)
+            }
+        }
     }
 
     // MARK: - Description

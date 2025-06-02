@@ -17,7 +17,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactViewModel?
     @Published private(set) var sendAmountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle?
     @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?
-    @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
+    @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
@@ -62,7 +62,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         notificationManager: NotificationManager,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
         sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
+        sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
