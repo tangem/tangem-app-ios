@@ -189,10 +189,10 @@ extension SendNewAmountViewModel: SendStepViewAnimatable {
         case .appearing(.destination(_)):
             // Have to be always visible
             isEditMode = false
-        case .appearing(.summary(_)):
+        case .appearing(.newSummary(_)):
             // Will be shown with animation
             isEditMode = true
-        case .disappearing(.summary(_)):
+        case .disappearing(.newSummary(_)):
             // Have to use this HACK to force re-render view with the new transition
             // Will look at it "if" later
             if !isEditMode {
