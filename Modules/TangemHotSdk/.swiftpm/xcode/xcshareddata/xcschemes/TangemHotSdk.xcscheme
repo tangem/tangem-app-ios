@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
+   LastUpgradeVersion = "1630"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "TangemModules"
-               BuildableName = "TangemModules"
-               BlueprintName = "TangemModules"
+               BlueprintIdentifier = "TangemHotSdk"
+               BuildableName = "TangemHotSdk"
+               BlueprintName = "TangemHotSdk"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,39 +34,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "TangemFoundationTests"
-               BuildableName = "TangemFoundationTests"
-               BlueprintName = "TangemFoundationTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "TangemNFTTests"
-               BuildableName = "TangemNFTTests"
-               BlueprintName = "TangemNFTTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "TangemHotSdkTests"
                BuildableName = "TangemHotSdkTests"
                BlueprintName = "TangemHotSdkTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "TangemLoggerTests"
-               BuildableName = "TangemLoggerTests"
-               BlueprintName = "TangemLoggerTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -92,9 +62,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "TangemModules"
-            BuildableName = "TangemModules"
-            BlueprintName = "TangemModules"
+            BlueprintIdentifier = "TangemHotSdk"
+            BuildableName = "TangemHotSdk"
+            BlueprintName = "TangemHotSdk"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>
