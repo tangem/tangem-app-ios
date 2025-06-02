@@ -81,7 +81,7 @@ class CommonNewSendStepsManager {
         let step = currentStep()
 
         switch step.type {
-        case .summary:
+        case .summary, .newSummary:
             output?.update(state: .init(step: step, action: .action))
         default:
             output?.update(state: .init(step: step, action: .next))
@@ -92,7 +92,7 @@ class CommonNewSendStepsManager {
 // MARK: - SendStepsManager
 
 extension CommonNewSendStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { false }
+    var initialKeyboardState: Bool { true }
 
     var initialFlowActionType: SendFlowActionType { .send }
 
