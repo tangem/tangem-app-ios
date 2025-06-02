@@ -38,8 +38,6 @@ class SendNewSummaryStep {
 extension SendNewSummaryStep: SendStep {
     var title: String? { _title }
 
-    var subtitle: String? { _subtitle }
-
     var type: SendStepType { .newSummary(viewModel) }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
