@@ -14,7 +14,6 @@ import TangemUI
 
 struct SendNewDestinationAddressView: View {
     @ObservedObject var viewModel: SendNewDestinationAddressViewModel
-    let namespace: SendDestinationView.Namespace
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -22,6 +21,7 @@ struct SendNewDestinationAddressView: View {
 
             content
         }
+        .animation(.default, value: viewModel.textViewModel.height)
     }
 
     @ViewBuilder
@@ -37,7 +37,6 @@ struct SendNewDestinationAddressView: View {
             }
         }
         .lineLimit(1)
-        .matchedGeometryEffect(id: namespace.names.addressTitle, in: namespace.id)
     }
 
     private var content: some View {
@@ -45,7 +44,6 @@ struct SendNewDestinationAddressView: View {
             addressIconView
 
             SUITextView(viewModel: viewModel.textViewModel, text: viewModel.text.asBinding, font: UIFonts.Regular.subheadline, color: UIColor.textPrimary1)
-                .matchedGeometryEffect(id: namespace.names.addressText, in: namespace.id)
 
             trailingView
         }
@@ -62,7 +60,6 @@ struct SendNewDestinationAddressView: View {
                     AddressIconView(viewModel: AddressIconViewModel(address: viewModel.text.value))
                 }
             }
-            .matchedGeometryEffect(id: namespace.names.addressIcon, in: namespace.id)
     }
 
     @ViewBuilder
@@ -100,6 +97,5 @@ struct SendNewDestinationAddressView: View {
                 .foregroundStyle(Colors.Icon.informative)
                 .frame(width: 24, height: 24)
         }
-        .matchedGeometryEffect(id: namespace.names.addressClearButton, in: namespace.id)
     }
 }
