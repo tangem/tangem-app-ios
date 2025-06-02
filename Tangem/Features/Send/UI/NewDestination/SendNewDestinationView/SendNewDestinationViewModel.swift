@@ -13,6 +13,7 @@ import TangemFoundation
 import SwiftUI
 
 class SendNewDestinationViewModel: ObservableObject, Identifiable {
+    @Published var id: UUID = .init()
     @Published var isEditMode: Bool = false
 
     @Published var destinationAddressViewModel: SendNewDestinationAddressViewModel?
@@ -229,7 +230,25 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
 // MARK: - SendStepViewAnimatable
 
 extension SendNewDestinationViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
+        switch state {
+        case .appearing(.amount(_)):
+            // Have to be always visible
+            isEditMode = false
+        case .appearing(.newSummary(_)):
+            // Will be shown with animation
+            isEditMode = true
+        case .disappearing(.newSummary(_)):
+            // Have to use this HACK to force re-render view with the new transition
+            // Will look at it "if" later
+            if !isEditMode {
+                isEditMode = true
+                id = UUID()
+            }
+        default:
+            break
+        }
+    }
 }
 
 extension SendNewDestinationViewModel {
