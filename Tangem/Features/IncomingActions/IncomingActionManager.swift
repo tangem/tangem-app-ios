@@ -21,7 +21,6 @@ public protocol IncomingActionHandler {
 public protocol IncomingActionManaging: AnyObject {
     var didReceiveNavigationAction: AnyPublisher<Void, Never> { get }
 
-    func hasReferralNavigationAction() -> Bool
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
     func discardIncomingAction()
