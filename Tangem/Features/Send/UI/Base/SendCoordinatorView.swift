@@ -63,6 +63,9 @@ struct SendCoordinatorView: CoordinatorView {
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
             }
+            .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
+                FeeSelectorContentView(viewModel: $0)
+            }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }

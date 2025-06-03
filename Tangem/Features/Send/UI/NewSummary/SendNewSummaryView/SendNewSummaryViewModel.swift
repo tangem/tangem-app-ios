@@ -19,7 +19,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
-    @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
+    @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
 
     @Published var showHint = false
     @Published var notificationInputs: [NotificationViewInput] = []
@@ -64,7 +64,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) {
         destinationEditableType = settings.destinationEditableType
         amountEditableType = settings.amountEditableType
