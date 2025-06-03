@@ -14,7 +14,7 @@ public struct RoundedButton: View {
     private let style: Style
     private let action: () -> Void
 
-    private var isDisabled: Bool = false
+    private var disabled: Bool = false
 
     @State private var size: CGSize = .zero
 
@@ -42,7 +42,7 @@ public struct RoundedButton: View {
                 }
                 .readGeometry(\.size, bindTo: $size)
         }
-        .disabled(isDisabled)
+        .disabled(disabled)
     }
 
     @ViewBuilder
@@ -50,15 +50,15 @@ public struct RoundedButton: View {
         switch style {
         case .string(let string):
             Text(.init(string))
-                .style(Fonts.Bold.footnote, color: isDisabled ? Colors.Text.disabled : Colors.Text.primary1)
+                .style(Fonts.Bold.footnote, color: disabled ? Colors.Text.disabled : Colors.Text.primary1)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-        case .icon(let imageType):
+        case .icon(let imageType, let color):
             imageType.image
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Colors.Icon.primary1)
+                .foregroundStyle(color)
                 .padding(.all, 4)
         }
     }
@@ -67,14 +67,14 @@ public struct RoundedButton: View {
 // MARK: - Setupable
 
 extension RoundedButton: Setupable {
-    public func isDisabled(_ isDisabled: Bool) -> Self {
-        map { $0.isDisabled = isDisabled }
+    public func disabled(_ disabled: Bool) -> Self {
+        map { $0.disabled = disabled }
     }
 }
 
 public extension RoundedButton {
     enum Style: Hashable {
         case string(String)
-        case icon(ImageType)
+        case icon(ImageType, color: Color = Colors.Icon.primary1)
     }
 }
