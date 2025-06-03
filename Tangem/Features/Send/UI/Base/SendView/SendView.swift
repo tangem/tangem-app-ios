@@ -57,9 +57,7 @@ struct SendView: View {
         if let title = viewModel.title {
             ZStack(alignment: .center) {
                 HStack {
-                    Button(Localization.commonClose, action: viewModel.dismiss)
-                        .foregroundColor(viewModel.closeButtonColor)
-                        .disabled(viewModel.closeButtonDisabled)
+                    leadingView
 
                     Spacer()
 
@@ -77,10 +75,27 @@ struct SendView: View {
     }
 
     @ViewBuilder
+    private var leadingView: some View {
+        switch viewModel.step.navigationLeadingViewType {
+        case .none:
+            EmptyView()
+        case .closeButton:
+            CloseButton(dismiss: viewModel.dismiss)
+                .disabled(viewModel.closeButtonDisabled)
+        case .backButton:
+            CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
+        }
+    }
+
+    @ViewBuilder
     private var trailingView: some View {
         switch viewModel.step.navigationTrailingViewType {
         case .none:
             EmptyView()
+
+        case .closeButton:
+            CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: viewModel.dismiss)
+                .disabled(viewModel.closeButtonDisabled)
 
         case .qrCodeButton(let action):
             Button(action: action) {
