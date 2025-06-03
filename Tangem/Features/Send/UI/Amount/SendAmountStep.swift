@@ -37,6 +37,9 @@ extension SendAmountStep: SendStep {
 
     var type: SendStepType { .amount(viewModel) }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
+
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
