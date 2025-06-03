@@ -128,7 +128,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                         limit: Constants.pageSize,
                         cursor: cursor,
                         tokenCounts: true, // Moralis doesn't return the list of assets, so this option must be turned on
-                        excludeSpam: nil
+                        excludeSpam: true
                     )
                 )
             )
@@ -153,7 +153,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                         format: .decimal,
                         limit: Constants.pageSize,
                         cursor: cursor,
-                        excludeSpam: nil,
+                        excludeSpam: true,
                         tokenAddresses: nil,
                         normalizeMetadata: true,
                         mediaItems: true,
