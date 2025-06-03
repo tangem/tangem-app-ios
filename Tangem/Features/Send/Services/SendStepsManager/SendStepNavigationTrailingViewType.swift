@@ -9,6 +9,7 @@
 import Foundation
 
 enum SendStepNavigationTrailingViewType: Hashable {
+    case closeButton
     case qrCodeButton(action: () -> Void)
     case dotsButton(action: () -> Void)
 
@@ -18,6 +19,8 @@ enum SendStepNavigationTrailingViewType: Hashable {
 
     func hash(into hasher: inout Hasher) {
         switch self {
+        case .closeButton:
+            hasher.combine("closeButton")
         case .qrCodeButton:
             hasher.combine("qrCodeButton")
         case .dotsButton:

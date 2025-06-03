@@ -65,7 +65,7 @@ class CommonNewSendStepsManager {
              .fee where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
         case .newAmount, .newDestination:
-            output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
+            output?.update(state: .init(step: step, action: .next))
         case .amount, .fee, .validators, .onramp, .destination:
             assertionFailure("There is no next step")
         }
