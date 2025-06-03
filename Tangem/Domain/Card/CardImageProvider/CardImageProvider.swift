@@ -33,7 +33,7 @@ struct CardImageProvider {
     init(input: Input) {
         cardId = input.cardId
 
-        let networkService = NetworkService(session: Self.session)
+        let networkService = NetworkService(session: Self.session, additionalHeaders: DeviceInfo().asHeaders())
         let factory = CardArtworksProviderFactory(networkService: networkService)
 
         artworksProvider = factory.makeArtworksProvider(
