@@ -13,8 +13,10 @@ class CommonNewSendStepsManager {
     private let destinationStep: SendNewDestinationStep
     private let summaryStep: SendNewSummaryStep
     private let finishStep: SendFinishStep
+    private let feeSelector: FeeSelectorContentViewModel
 
     private var stack: [SendStep]
+    weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
 
     private var isEditAction: Bool {
@@ -25,12 +27,14 @@ class CommonNewSendStepsManager {
         amountStep: SendNewAmountStep,
         destinationStep: SendNewDestinationStep,
         summaryStep: SendNewSummaryStep,
-        finishStep: SendFinishStep
+        finishStep: SendFinishStep,
+        feeSelector: FeeSelectorContentViewModel
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.feeSelector = feeSelector
 
         stack = [amountStep]
     }
@@ -174,7 +178,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        router?.openFeeSelector(viewModel: feeSelector)
     }
 }
 
