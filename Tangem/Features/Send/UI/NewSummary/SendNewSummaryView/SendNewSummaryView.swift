@@ -21,6 +21,8 @@ struct SendNewSummaryView: View {
                 amountSectionView
 
                 destinationSectionView
+
+                feeSectionView
             }
 
             descriptionView
@@ -64,6 +66,18 @@ struct SendNewSummaryView: View {
             Button(action: viewModel.userDidTapDestination) {
                 SendNewDestinationCompactView(viewModel: destinationCompactViewModel)
             }
+        }
+    }
+
+    // MARK: - Fee
+
+    @ViewBuilder
+    private var feeSectionView: some View {
+        if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
+            Button(action: viewModel.userDidTapFee) {
+                SendNewFeeCompactView(viewModel: feeCompactViewModel)
+            }
+            .disabled(!feeCompactViewModel.canEditFee)
         }
     }
 
