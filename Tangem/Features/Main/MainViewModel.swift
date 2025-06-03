@@ -547,9 +547,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
 extension MainViewModel: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard !isLoggingOut,
-              let handler = navigationActionHandler
-        else {
+        guard let handler = navigationActionHandler else {
             return false
         }
 
