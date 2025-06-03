@@ -79,7 +79,7 @@ struct MoralisEVMNetworkMapper {
             contractType: contractType,
             decimalCount: Constants.decimalCount,
             ownerAddress: asset.ownerOf ?? ownerAddress(),
-            name: asset.name ?? Constants.assetNameFallback,
+            name: asset.normalizedMetadata?.name ?? Constants.assetNameFallback,
             description: asset.normalizedMetadata?.description,
             salePrice: nil,
             media: media,
