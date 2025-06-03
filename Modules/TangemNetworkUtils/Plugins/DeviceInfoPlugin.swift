@@ -19,13 +19,11 @@ public struct DeviceInfoPlugin: PluginType {
 
     public func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
+        let headers = deviceInfo.asHeaders()
 
-        request.headers.add(name: "version", value: deviceInfo.version)
-        request.headers.add(name: "platform", value: deviceInfo.platform)
-        request.headers.add(name: "language", value: deviceInfo.language)
-        request.headers.add(name: "timezone", value: deviceInfo.timezone)
-        request.headers.add(name: "device", value: deviceInfo.device)
-        request.headers.add(name: "system_version", value: deviceInfo.systemVersion)
+        for header in headers {
+            request.headers.add(name: header.key, value: header.value)
+        }
 
         return request
     }
