@@ -2169,7 +2169,6 @@
 		DA1DC0CD2B7F4D5100395A1F /* FakeSendNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DC0CC2B7F4D5100395A1F /* FakeSendNotificationManager.swift */; };
 		DA1DF04F2BA40D44008310E4 /* HintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF04E2BA40D44008310E4 /* HintView.swift */; };
 		DA1DF0612BA4630D008310E4 /* FormattedFeeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0602BA4630D008310E4 /* FormattedFeeComponents.swift */; };
-		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift */; };
 		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift */; };
 		DA4055272ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */; };
@@ -5736,7 +5735,6 @@
 		DA1DC0CC2B7F4D5100395A1F /* FakeSendNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeSendNotificationManager.swift; sourceTree = "<group>"; };
 		DA1DF04E2BA40D44008310E4 /* HintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HintView.swift; sourceTree = "<group>"; };
 		DA1DF0602BA4630D008310E4 /* FormattedFeeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedFeeComponents.swift; sourceTree = "<group>"; };
-		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworksListItemView.swift; sourceTree = "<group>"; };
 		DA4055222ABDD3A300353F8A /* AddCustomTokenNetworkSelectorDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorDelegate.swift; sourceTree = "<group>"; };
@@ -8314,7 +8312,6 @@
 				B63D4CAC2B2B8C6200DB2420 /* MutableCollection+.swift */,
 				B674D6D82A96AC8800172491 /* Sequence+.swift */,
 				B69E7FC72B220C3300B78D9A /* Dictionary+.swift */,
-				DA28D57C290AAE2000F0C335 /* ScrollView+.swift */,
 				DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */,
 				B0A948FE2ACD999C00C80B0A /* WeakifyFunction.swift */,
 				B0B657922B690D5400FBC610 /* Int+.swift */,
@@ -20018,7 +20015,6 @@
 				B0DC03E92A9CB15600058AEB /* FakeUserWalletNotificationManager.swift in Sources */,
 				B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */,
 				B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */,
-				DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */,
 				DA8C673D2B0B455700E1C9B8 /* DefaultTextWithTitleRowViewData.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B05D063229DEA11E0031C6AB /* AccessCodeRecoverySettingsView.swift in Sources */,
