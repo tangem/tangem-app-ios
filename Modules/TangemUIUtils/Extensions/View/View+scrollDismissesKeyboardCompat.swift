@@ -1,5 +1,5 @@
 //
-//  ScrollView+.swift
+//  View+scrollDismissesKeyboardCompat.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     @ViewBuilder
     func scrollDismissesKeyboardCompat(_ type: ScrollDismissesKeyboardCompatType) -> some View {
         if #available(iOS 16.0, *) {
@@ -33,7 +33,7 @@ extension View {
     }
 }
 
-enum ScrollDismissesKeyboardCompatType {
+public enum ScrollDismissesKeyboardCompatType {
     case interactively
     case immediately
     case never
