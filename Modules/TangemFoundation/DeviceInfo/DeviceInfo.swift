@@ -24,6 +24,17 @@ public struct DeviceInfo {
         device = IPhoneModel()?.name ?? Constants.commonUnknown
         systemVersion = UIDevice.current.systemVersion
     }
+
+    public func asHeaders() -> [String: String] {
+        [
+            "platform": platform,
+            "version": version,
+            "language": language,
+            "timezone": timezone,
+            "device": device,
+            "system_version": systemVersion,
+        ]
+    }
 }
 
 // MARK: - Private
