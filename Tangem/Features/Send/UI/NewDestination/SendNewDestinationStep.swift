@@ -40,6 +40,8 @@ extension SendNewDestinationStep: SendStep {
     var title: String? { Localization.sendRecipientLabel }
 
     var type: SendStepType { .newDestination(viewModel) }
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { viewModel.isEditMode ? .none : .backButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 

@@ -65,7 +65,7 @@ struct StringPasteButton: View {
                 action(string)
             }
         }
-        .isDisabled(isDisabled)
+        .disabled(isDisabled)
     }
 }
 
