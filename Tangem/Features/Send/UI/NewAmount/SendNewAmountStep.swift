@@ -75,7 +75,7 @@ extension SendNewAmountStep: SendStep {
     }
 
     func willDisappear(next step: SendStep) {
-        guard step.type.isSummary else {
+        guard viewModel.isEditMode, step.type.isSummary else {
             return
         }
 
