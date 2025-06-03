@@ -42,6 +42,7 @@ extension OnrampStep: SendStep {
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
         .dotsButton { [weak self] in
             self?.viewModel.openOnrampSettingsView()
