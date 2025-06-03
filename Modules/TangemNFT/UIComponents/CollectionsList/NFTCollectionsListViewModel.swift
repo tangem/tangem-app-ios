@@ -185,7 +185,12 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
         collections
-            .sorted { $0.name.caseInsensitiveSmaller(than: $1.name) }
+            .sorted { lhs, rhs in
+                if lhs.id.chain.id.caseInsensitiveEquals(to: rhs.id.chain.id) {
+                    return lhs.name.caseInsensitiveSmaller(than: rhs.name)
+                }
+                return lhs.id.chain.id.caseInsensitiveSmaller(than: rhs.id.chain.id)
+            }
             .map { collection in
                 NFTCompactCollectionViewModel(
                     nftCollection: collection,
