@@ -141,6 +141,10 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
         return input.selectedFeePublisher
     }
 
+    var fees: [SendFee] {
+        mapToSendFees(feesValue: _fees.value, customFee: _customFee.value)
+    }
+
     var feesPublisher: AnyPublisher<[SendFee], Never> {
         Publishers.CombineLatest(_fees, _customFee)
             .withWeakCaptureOf(self)
@@ -184,6 +188,52 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
 
     func update(selectedFee: SendFee) {
         output?.feeDidChanged(fee: selectedFee)
+    }
+}
+
+// MARK: - FeeSelectorContentViewModelInput
+
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
+    var selectedSelectorFee: FeeSelectorFee? {
+        mapToFeeSelectorFee(fee: selectedFee)
+    }
+
+    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+        selectedFeePublisher
+            .withWeakCaptureOf(self)
+            .compactMap { $0.mapToFeeSelectorFee(fee: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorFees: [FeeSelectorFee] {
+        fees.compactMap { mapToFeeSelectorFee(fee: $0) }
+    }
+
+    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> {
+        feesPublisher
+            .withWeakCaptureOf(self)
+            .compactMap { interactor, fees in
+                fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToFeeSelectorFee(fee: SendFee?) -> FeeSelectorFee? {
+        guard let fee, let value = fee.value.value else {
+            return nil
+        }
+
+        return .init(option: fee.option, value: value.amount.value)
+    }
+}
+
+// MARK: - FeeSelectorContentViewModelInput
+
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
+    func update(selectedSelectorFee: FeeSelectorFee) {
+        if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
+            update(selectedFee: fee)
+        }
     }
 }
 
