@@ -326,6 +326,25 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeCustomFeeService() -> CustomFeeService? {
+        CustomFeeServiceFactory(walletModel: walletModel).makeService()
+    }
+
+    func makeSendFeeProvider() -> SendFeeProvider {
+        CommonSendFeeProvider(walletModel: walletModel)
+    }
+
+    func makeFeeSelectorContentViewModelAnalytics(flowKind: SendModel.PredefinedValues.FlowKind) -> FeeSelectorContentViewModelAnalytics {
+        SendFeeSelectorContentViewModelAnalytics(
+            flowKind: flowKind,
+            analyticsBuilder: makeFeeAnalyticsParameterBuilder()
+        )
+    }
+
+    func makeFeeSelectorCustomFeeFieldsBuilder() -> FeeSelectorCustomFeeFieldsBuilder {
+        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: makeCustomFeeService())
+    }
+
     // MARK: - NFT support
 
     func makeNFTSendAmountValidator() -> SendAmountValidator {
