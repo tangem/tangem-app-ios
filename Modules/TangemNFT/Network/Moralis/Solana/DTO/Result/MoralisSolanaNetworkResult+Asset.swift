@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  MoralisSolanaNetworkResult+Asset.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
