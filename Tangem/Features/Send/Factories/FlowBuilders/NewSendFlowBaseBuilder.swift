@@ -14,7 +14,7 @@ struct NewSendFlowBaseBuilder {
     let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
-    let sendFeeStepBuilder: SendFeeStepBuilder
+    let sendFeeStepBuilder: SendNewFeeStepBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
     let builder: SendDependenciesBuilder
@@ -27,10 +27,8 @@ struct NewSendFlowBaseBuilder {
         let sendModel = builder.makeSendModel()
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
 
-        let fee = sendFeeStepBuilder.makeFeeSendStep(
+        let fee = sendFeeStepBuilder.makeSendFee(
             io: (input: sendModel, output: sendModel),
-            notificationManager: notificationManager,
-            router: router
         )
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
@@ -70,7 +68,7 @@ struct NewSendFlowBaseBuilder {
             sendAmountCompactViewModel: amount.finish,
             onrampAmountCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
+            sendFeeCompactViewModel: fee.finish,
             onrampStatusCompactViewModel: .none
         )
 
@@ -91,7 +89,8 @@ struct NewSendFlowBaseBuilder {
             amountStep: amount.step,
             destinationStep: destination.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            feeSelector: fee.feeSelector
         )
 
         summary.step.set(router: stepsManager)
@@ -112,7 +111,10 @@ struct NewSendFlowBaseBuilder {
         )
 
         stepsManager.set(output: viewModel)
-        fee.step.set(alertPresenter: viewModel)
+        stepsManager.router = router
+
+        // [REDACTED_TODO_COMMENT]
+        // fee.step.set(alertPresenter: viewModel)
         sendModel.router = viewModel
 
         return viewModel
