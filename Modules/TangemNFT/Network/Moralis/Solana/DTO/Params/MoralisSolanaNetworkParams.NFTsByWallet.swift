@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  MoralisSolanaNetworkParams.NFTsByWallet.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,7 +7,9 @@
 //
 
 extension MoralisSolanaNetworkParams {
-    struct NFTsByWallet {
-        let showNFTMetadata: Bool
+    struct NFTsByWallet: Encodable {
+        let nftMetadata: Bool?
+        let mediaItems: Bool?
+        let excludeSpam: Bool?
     }
 }
