@@ -42,10 +42,6 @@ final class SendViewModel: ObservableObject {
     var subtitle: String? { step.subtitle }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
 
-    var closeButtonColor: Color {
-        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
-    }
-
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
     }
