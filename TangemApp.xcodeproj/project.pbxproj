@@ -2964,6 +2964,18 @@
 		EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */; };
 		EF4BEFDF28AD3EE500C5D1BE /* ContentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */; };
 		EF4BEFE128AD423C00C5D1BE /* TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */; };
+		EF4C044A2DEF2A360059D7AA /* SendNewFeeStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04492DEF2A360059D7AA /* SendNewFeeStepBuilder.swift */; };
+		EF4C04562DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C044C2DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift */; };
+		EF4C04572DEF2A740059D7AA /* FeeSelectorContentRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C044B2DEF2A740059D7AA /* FeeSelectorContentRowView.swift */; };
+		EF4C04582DEF2A740059D7AA /* FeeSelectorContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C044F2DEF2A740059D7AA /* FeeSelectorContentViewModel.swift */; };
+		EF4C04592DEF2A740059D7AA /* FeeSelectorInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */; };
+		EF4C045A2DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04522DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift */; };
+		EF4C045B2DEF2A740059D7AA /* FeeSelectorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C044E2DEF2A740059D7AA /* FeeSelectorContentView.swift */; };
+		EF4C045C2DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04512DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift */; };
+		EF4C04632DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04612DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift */; };
+		EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */; };
+		EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */; };
+		EF4C04662DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04602DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift */; };
 		EF4C0C5B2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C0C5A2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift */; };
 		EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */; };
 		EF52564D2D2FFDCB00ADCA7E /* Shimmer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564C2D2FFDCB00ADCA7E /* Shimmer.swift */; };
@@ -6544,6 +6556,18 @@
 		EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentState.swift; sourceTree = "<group>"; };
 		EF4BEFE028AD423C00C5D1BE /* TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIError.swift; sourceTree = "<group>"; };
+		EF4C04492DEF2A360059D7AA /* SendNewFeeStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeStepBuilder.swift; sourceTree = "<group>"; };
+		EF4C044B2DEF2A740059D7AA /* FeeSelectorContentRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorContentRowView.swift; sourceTree = "<group>"; };
+		EF4C044C2DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorContentRowViewModel.swift; sourceTree = "<group>"; };
+		EF4C044E2DEF2A740059D7AA /* FeeSelectorContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorContentView.swift; sourceTree = "<group>"; };
+		EF4C044F2DEF2A740059D7AA /* FeeSelectorContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorContentViewModel.swift; sourceTree = "<group>"; };
+		EF4C04512DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorCustomFeeRowView.swift; sourceTree = "<group>"; };
+		EF4C04522DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorCustomFeeRowViewModel.swift; sourceTree = "<group>"; };
+		EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorInterfaces.swift; sourceTree = "<group>"; };
+		EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactView.swift; sourceTree = "<group>"; };
+		EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactViewModel.swift; sourceTree = "<group>"; };
+		EF4C04602DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSelectorContentViewModelAnalytics.swift; sourceTree = "<group>"; };
+		EF4C04612DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSelectorCustomFeeFieldsBuilder.swift; sourceTree = "<group>"; };
 		EF4C0C5A2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewDestinationAdditionalFieldView.swift; sourceTree = "<group>"; };
 		EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTokenBalanceView.swift; sourceTree = "<group>"; };
 		EF52564C2D2FFDCB00ADCA7E /* Shimmer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shimmer.swift; sourceTree = "<group>"; };
@@ -9430,6 +9454,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				EF4C04552DEF2A740059D7AA /* FeeSelector */,
 				C22564002D9154CE003063DA /* FloatingSheet */,
 				DCC05A5E2CD17DE6004CE6A4 /* TokenSelectorView */,
 				EF0E1DAE2CE3A2A5003D47AA /* ProgressDots */,
@@ -16788,6 +16813,63 @@
 			path = UserTokenListManager;
 			sourceTree = "<group>";
 		};
+		EF4C044D2DEF2A740059D7AA /* FeeSelectorContentRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C044B2DEF2A740059D7AA /* FeeSelectorContentRowView.swift */,
+				EF4C044C2DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift */,
+			);
+			path = FeeSelectorContentRowView;
+			sourceTree = "<group>";
+		};
+		EF4C04502DEF2A740059D7AA /* FeeSelectorContentView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C044E2DEF2A740059D7AA /* FeeSelectorContentView.swift */,
+				EF4C044F2DEF2A740059D7AA /* FeeSelectorContentViewModel.swift */,
+			);
+			path = FeeSelectorContentView;
+			sourceTree = "<group>";
+		};
+		EF4C04532DEF2A740059D7AA /* FeeSelectorCustomFeeRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C04512DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift */,
+				EF4C04522DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift */,
+			);
+			path = FeeSelectorCustomFeeRowView;
+			sourceTree = "<group>";
+		};
+		EF4C04552DEF2A740059D7AA /* FeeSelector */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */,
+				EF4C044D2DEF2A740059D7AA /* FeeSelectorContentRowView */,
+				EF4C04502DEF2A740059D7AA /* FeeSelectorContentView */,
+				EF4C04532DEF2A740059D7AA /* FeeSelectorCustomFeeRowView */,
+			);
+			path = FeeSelector;
+			sourceTree = "<group>";
+		};
+		EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */,
+				EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */,
+			);
+			path = SendNewFeeCompactView;
+			sourceTree = "<group>";
+		};
+		EF4C04622DEF2ACC0059D7AA /* NewFee */ = {
+			isa = PBXGroup;
+			children = (
+				EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */,
+				EF4C04602DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift */,
+				EF4C04612DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift */,
+			);
+			path = NewFee;
+			sourceTree = "<group>";
+		};
 		EF4C0C5C2DDB52FA00AFD567 /* SendNewDestinationAdditionalFieldView */ = {
 			isa = PBXGroup;
 			children = (
@@ -17006,6 +17088,7 @@
 				EFC7AD5E2DD4F44B00AE78E1 /* NewAmount */,
 				EFB9320E2C3EC17800C999E9 /* Validators */,
 				DA559C202B0261F300F59584 /* Fee */,
+				EF4C04622DEF2ACC0059D7AA /* NewFee */,
 				DA559C272B0261F400F59584 /* Summary */,
 				EF40412E2DE466DA002F996A /* NewSummary */,
 				EFF09E842DE71E8E008E4FE0 /* ReceiveToken */,
@@ -18268,6 +18351,7 @@
 		EFC84B052C37FAB500546882 /* StepBuilders */ = {
 			isa = PBXGroup;
 			children = (
+				EF4C04492DEF2A360059D7AA /* SendNewFeeStepBuilder.swift */,
 				EFF09E822DE71E28008E4FE0 /* SendReceiveTokenBuilder.swift */,
 				EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */,
 				EFC7AD792DDB27D100AE78E1 /* SendNewDestinationStepBuilder.swift */,
@@ -19803,6 +19887,13 @@
 				EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */,
 				C207D60B2DE60F2500A5FB2E /* WalletConnectConnectDAppUseCase.swift in Sources */,
 				C207D60C2DE60F2500A5FB2E /* WalletConnectEstablishDAppConnectionUseCase.swift in Sources */,
+				EF4C04562DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift in Sources */,
+				EF4C04572DEF2A740059D7AA /* FeeSelectorContentRowView.swift in Sources */,
+				EF4C04582DEF2A740059D7AA /* FeeSelectorContentViewModel.swift in Sources */,
+				EF4C04592DEF2A740059D7AA /* FeeSelectorInterfaces.swift in Sources */,
+				EF4C045A2DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift in Sources */,
+				EF4C045B2DEF2A740059D7AA /* FeeSelectorContentView.swift in Sources */,
+				EF4C045C2DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift in Sources */,
 				C207D60D2DE60F2500A5FB2E /* WalletConnectResolveAvailableBlockchainsUseCase.swift in Sources */,
 				C207D60E2DE60F2500A5FB2E /* WalletConnectGetDAppConnectionProposalUseCase.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
@@ -19955,6 +20046,10 @@
 				2DB4EAD92C41938E00F9E860 /* MarketsPortfolioContainerView.swift in Sources */,
 				B036626B2B63D77D0064E073 /* ISO4217CodeConverter.swift in Sources */,
 				2D3E1EDF2C9D6F96006AF975 /* WalletSelectorRoutable.swift in Sources */,
+				EF4C04632DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift in Sources */,
+				EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */,
+				EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */,
+				EF4C04662DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift in Sources */,
 				EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */,
 				B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */,
 				B6E932B12A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift in Sources */,
@@ -20217,6 +20312,7 @@
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
 				EFC7AD6A2DD787F400AE78E1 /* SendNewDestinationTextView.swift in Sources */,
 				B63127D42A2F52E2007C124C /* OrganizeTokensListSection.swift in Sources */,
+				EF4C044A2DEF2A360059D7AA /* SendNewFeeStepBuilder.swift in Sources */,
 				B0A7DB502C58E56F00986D95 /* MarketsListStateUpdater.swift in Sources */,
 				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				B6796E7B2C65C16E005D7292 /* TouchPassthroughView.swift in Sources */,

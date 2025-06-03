@@ -45,7 +45,9 @@ struct OnrampProviderRowView: View {
         .lineLimit(1)
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
-        .overlay { overlay }
+        .overlay {
+            if data.isSelected { SelectionOverlay() }
+        }
         .contentShape(Rectangle())
     }
 
@@ -68,22 +70,6 @@ struct OnrampProviderRowView: View {
             Spacer()
 
             trailingView
-        }
-    }
-
-    @ViewBuilder
-    private var overlay: some View {
-        if data.isSelected {
-            Color.clear.overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent, lineWidth: 1)
-            }
-            .padding(1)
-            .overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: 2.5)
-            }
-            .padding(2.5)
         }
     }
 
