@@ -14,9 +14,11 @@ extension MainViewModel {
     struct MainNavigationActionHandler {
         @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
         @Injected(\.appLockController) private var appLockController: AppLockController
+        @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+        @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
 
         let userWalletModel: (any UserWalletModel)?
-        let coordinator: MainRoutable
+        weak var coordinator: MainRoutable?
 
         private func routeSellAction() -> Bool {
             guard let userWalletModel = userWalletModel else {
@@ -24,7 +26,7 @@ extension MainViewModel {
                 return false
             }
 
-            coordinator.openSell(userWalletModel: userWalletModel)
+            coordinator?.openSell(userWalletModel: userWalletModel)
             return true
         }
 
@@ -36,27 +38,30 @@ extension MainViewModel {
                 return false
             }
 
-            coordinator.openBuy(userWalletModel: userWalletModel)
+            coordinator?.openBuy(userWalletModel: userWalletModel)
             return true
         }
 
         private func routeTokenAction(tokenSymbol: String, network: String?) -> Bool {
             guard
-                let uwm = userWalletModel,
-                let walletModel = findWalletModel(in: uwm, tokenSymbol: tokenSymbol, network: network),
-                TokenActionAvailabilityProvider(userWalletConfig: uwm.config, walletModel: walletModel).isTokenInteractionAvailable()
+                let coordinator,
+                let userWalletModel = userWalletModel,
+                let walletModel = findWalletModel(in: userWalletModel, tokenSymbol: tokenSymbol, network: network),
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            coordinator.openTokenDetails(for: walletModel, userWalletModel: uwm)
+            coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
             return true
         }
 
         private func routeReferralAction() -> Bool {
-            guard isFeatureSupported(feature: .referralProgram),
-                  let userWalletModel = userWalletModel
+            guard
+                let coordinator,
+                isFeatureSupported(feature: .referralProgram),
+                let userWalletModel = userWalletModel
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -74,9 +79,10 @@ extension MainViewModel {
 
         private func routeStaking(tokenSymbol: String) -> Bool {
             guard
+                let coordinator,
                 isFeatureSupported(feature: .staking),
-                let uwm = userWalletModel,
-                let walletModel = findWalletModel(in: uwm, tokenSymbol: tokenSymbol, network: nil),
+                let userWalletModel = userWalletModel,
+                let walletModel = findWalletModel(in: userWalletModel, tokenSymbol: tokenSymbol, network: nil),
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
@@ -84,7 +90,7 @@ extension MainViewModel {
             }
 
             let options = StakingDetailsCoordinator.Options(
-                userWalletModel: uwm,
+                userWalletModel: userWalletModel,
                 walletModel: walletModel,
                 manager: stakingManager
             )
@@ -99,9 +105,11 @@ extension MainViewModel {
 
 extension MainViewModel.MainNavigationActionHandler: NavigationActionHandling {
     func routeIncommingAction(_ action: IncomingAction) -> Bool {
-        guard case .navigation(let navigationAction) = action,
-              !appLockController.isLocked,
-              coordinator.isOnMainView
+        guard
+            let coordinator,
+            case .navigation(let navigationAction) = action,
+            !appLockController.isLocked,
+            coordinator.isOnMainView
         else {
             return false
         }
