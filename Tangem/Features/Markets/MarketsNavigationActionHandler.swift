@@ -14,7 +14,7 @@ extension MarketsViewModel {
         @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
         @Injected(\.appLockController) private var appLockController: AppLockController
         
-        private let coordinator: MarketsRoutable
+        private weak var coordinator: MarketsRoutable?
         private let bottomSheetPosition: () -> BottomSheetPosition
         
         init(coordinator: MarketsRoutable, bottomSheetPosition: @escaping () -> BottomSheetPosition) {
@@ -44,7 +44,7 @@ extension MarketsViewModel.MarketsNavigationActionHandler {
             bottomSheetStateController.expand()
         }
         
-        coordinator.openMarketsTokenDetails(tokenSymbol: tokenSymbol, tokenId: tokenId)
+        coordinator?.openMarketsTokenDetails(tokenSymbol: tokenSymbol, tokenId: tokenId)
         return true
     }
     
