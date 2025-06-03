@@ -80,8 +80,8 @@ struct SendFlowFactory {
             builder: builder
         )
         let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
-        let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
-        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(walletModel: walletModel, builder: builder)
+        let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
 
         let baseBuilder = NewSendFlowBaseBuilder(
