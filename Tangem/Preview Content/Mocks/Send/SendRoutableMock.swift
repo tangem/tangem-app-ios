@@ -27,4 +27,5 @@ class SendRoutableMock: SendRoutable {
     func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
+    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
 }
