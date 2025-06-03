@@ -37,7 +37,11 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
         let apiTarget = MoralisSolanaAPITarget(
             target: .getNFTsByWallet(
                 address: address,
-                params: MoralisSolanaNetworkParams.NFTsByWallet(showNFTMetadata: true)
+                params: MoralisSolanaNetworkParams.NFTsByWallet(
+                    nftMetadata: true,
+                    mediaItems: nil,
+                    excludeSpam: true
+                )
             )
         )
 
