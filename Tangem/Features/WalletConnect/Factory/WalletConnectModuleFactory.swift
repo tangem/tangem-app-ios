@@ -83,6 +83,7 @@ enum WalletConnectModuleFactory {
         return WalletConnectDAppConnectionProposalViewModel(
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
             connectDAppUseCase: connectDAppUseCase,
+            hapticFeedbackGenerator: WalletConnectUIFeedbackGenerator(),
             userWallets: filteredUserWallets,
             selectedUserWallet: selectedUserWallet,
             dismissFlowAction: { [weak floatingSheetPresenter] in
