@@ -27,14 +27,9 @@ struct WalletConnectDAppConnectionProposalView: View {
                 WalletConnectDAppConnectionRequestView(viewModel: viewModel)
                     .transition(.connectionRequest)
 
-            case .verifiedDomain:
-                // [REDACTED_TODO_COMMENT]
-                VStack {
-                    Button("back") { viewModel.switchToConnectionRequest() }
-                }
-                .frame(height: 300)
-                .background(.yellow)
-                .transition(.verifiedDomain)
+            case .verifiedDomain(let viewModel):
+                WalletConnectDAppDomainVerificationView(viewModel: viewModel)
+                    .transition(.verifiedDomain)
 
             case .walletSelector(let viewModel):
                 WalletConnectWalletSelectorView(viewModel: viewModel)
