@@ -12,7 +12,7 @@ class CommonNewSendStepsManager {
     private let amountStep: SendNewAmountStep
     private let destinationStep: SendNewDestinationStep
     private let summaryStep: SendNewSummaryStep
-    private let finishStep: SendFinishStep
+    private let finishStep: SendNewFinishStep
     private let feeSelector: FeeSelectorContentViewModel
 
     private var stack: [SendStep]
@@ -27,7 +27,7 @@ class CommonNewSendStepsManager {
         amountStep: SendNewAmountStep,
         destinationStep: SendNewDestinationStep,
         summaryStep: SendNewSummaryStep,
-        finishStep: SendFinishStep,
+        finishStep: SendNewFinishStep,
         feeSelector: FeeSelectorContentViewModel
     ) {
         self.amountStep = amountStep
@@ -50,7 +50,7 @@ class CommonNewSendStepsManager {
             return summaryStep
         case .newAmount:
             return destinationStep
-        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination:
+        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination, .newFinish:
             assertionFailure("There is no next step")
             return nil
         }
@@ -62,7 +62,7 @@ class CommonNewSendStepsManager {
         switch step.type {
         case .summary, .newSummary:
             output?.update(state: .init(step: step, action: .action))
-        case .finish:
+        case .finish, .newFinish:
             output?.update(state: .init(step: step, action: .close))
         case .newAmount where isEditAction,
              .newDestination where isEditAction,
@@ -105,7 +105,11 @@ extension CommonNewSendStepsManager: SendStepsManager {
     }
 
     var shouldShowDismissAlert: Bool {
-        stack.contains(where: { $0.type.isSummary })
+        if currentStep().type.isFinish {
+            return false
+        }
+
+        return stack.contains(where: { $0.type.isSummary })
     }
 
     func set(output: SendStepsManagerOutput) {
