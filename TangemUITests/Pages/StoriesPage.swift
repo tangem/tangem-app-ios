@@ -25,11 +25,11 @@ enum StoriesPageUIElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .root:
-            "test"
+            AccessibilityIdentifiers.Stories.root
         case .scanButton:
-            "ScanButton"
+            AccessibilityIdentifiers.Stories.scanButton
         case .cardMockWalletTwo:
-            "CardMockWallet2"
+            AccessibilityIdentifiers.Stories.cardMockWalletTwo
         }
     }
 }
