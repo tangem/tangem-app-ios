@@ -16,7 +16,15 @@ struct MoralisSolanaNetworkMapper {
         assets: [MoralisSolanaNetworkResult.Asset],
         ownerAddress: String
     ) -> NFTCollection {
-        let domainAssets = assets.compactMap { map(asset: $0, ownerAddress: ownerAddress) }
+        let domainAssets = assets.compactMap {
+            map(
+                asset: $0,
+                ownerAddress: ownerAddress,
+                // We should use collection description as an asset's description
+                // when asset's description is missing. (In case of Moralis for Solana -- always)
+                description: collection?.description
+            )
+        }
 
         // Moralis doesn't send collection image URL, so we are assigning first asset's image
         let collectionMedia = domainAssets.first { $0.media != nil }?.media
@@ -28,6 +36,7 @@ struct MoralisSolanaNetworkMapper {
                 assetsCount: domainAssets.count,
                 contractType: .unknown,
                 ownerAddress: ownerAddress,
+                description: collection?.description,
                 media: collectionMedia
             )
         }
@@ -47,7 +56,8 @@ struct MoralisSolanaNetworkMapper {
 
     private func map(
         asset: MoralisSolanaNetworkResult.Asset,
-        ownerAddress: String
+        ownerAddress: String,
+        description: String?
     ) -> NFTAsset? {
         // `mint` field is the actual contract address for Solana NFTs
         guard let contractAddress = asset.mint else {
@@ -73,7 +83,7 @@ struct MoralisSolanaNetworkMapper {
             decimalCount: decimalCount,
             ownerAddress: ownerAddress,
             name: asset.name ?? Constants.assetNameFallback,
-            description: nil, // Moralis doesn't send description for Solana
+            description: description,
             salePrice: nil,
             media: media,
             rarity: rarity,
@@ -82,7 +92,7 @@ struct MoralisSolanaNetworkMapper {
     }
 
     private func mapToRarity(attributes: [MoralisSolanaNetworkResult.Attribute]?) -> NFTAsset.Rarity? {
-        guard let rarityAttribute = attributes?.first(where: { $0.type == Constants.rarityRankTitle }) else {
+        guard let rarityAttribute = attributes?.first(where: { $0.traitType == Constants.rarityRankTitle }) else {
             return nil
         }
 
@@ -129,18 +139,18 @@ struct MoralisSolanaNetworkMapper {
 
     private func mapToTraits(attributes: [MoralisSolanaNetworkResult.Attribute]?) -> [NFTAsset.Trait] {
         attributes?.compactMap { attribute in
-            guard attribute.type != Constants.rarityRankTitle else {
+            guard attribute.traitType != Constants.rarityRankTitle else {
                 return nil
             }
 
             guard
-                let name = attribute.type,
+                let name = attribute.traitType,
                 let value = attribute.value?.value as? String
             else {
                 NFTLogger.warning(
                     String(
                         format: "Attribute missing required fields: type %@, value %@",
-                        String(describing: attribute.type),
+                        String(describing: attribute.traitType),
                         String(describing: attribute.value)
                     )
                 )
