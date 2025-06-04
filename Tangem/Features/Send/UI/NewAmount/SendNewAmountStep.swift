@@ -14,18 +14,15 @@ import SwiftUI
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendAmountInteractor
-    private let sendFeeLoader: SendFeeLoader
     private let flowKind: SendModel.PredefinedValues.FlowKind
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendAmountInteractor,
-        sendFeeLoader: SendFeeLoader,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeLoader = sendFeeLoader
         self.flowKind = flowKind
     }
 }
@@ -72,14 +69,6 @@ extension SendNewAmountStep: SendStep {
         case (_, false):
             Analytics.log(.sendAmountScreenOpened)
         }
-    }
-
-    func willDisappear(next step: SendStep) {
-        guard viewModel.isEditMode, step.type.isSummary else {
-            return
-        }
-
-        sendFeeLoader.updateFees()
     }
 }
 
