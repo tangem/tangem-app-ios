@@ -648,12 +648,13 @@ private extension ExpressViewModel {
                 return .none
             }
 
-            if selectedProvider.provider.recommended == true {
-                return .recommended
+            if ukGeoDefiner.isUK,
+               ExpressConstants.expressProvidersFCAWarningList.contains(selectedProvider.provider.id) {
+                return .fcaWarning
             }
 
-            if ukGeoDefiner.isUK {
-                return .none
+            if selectedProvider.provider.recommended == true {
+                return .recommended
             }
 
             return selectedProvider.isBest ? .bestRate : .none
