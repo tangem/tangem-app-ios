@@ -23,7 +23,7 @@ struct SendNewFeeCompactView: View {
                 loaderSize: CGSize(width: 70, height: 15)
             )
         })
+        .isTappable(viewModel.canEditFee)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 11, horizontalPadding: 14)
-        .allowsHitTesting(viewModel.canEditFee)
     }
 }
