@@ -8,12 +8,15 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 public struct BaseOneLineRow<TrailingView: View>: View {
     private let icon: ImageType
     private let title: String
     private let infoButtonAction: (() -> Void)?
     private let trailingView: () -> TrailingView
+
+    private var isTappable: Bool = true
 
     public init(icon: ImageType, title: String, infoButtonAction: (() -> Void)? = nil, trailingView: @escaping () -> TrailingView) {
         self.icon = icon
@@ -31,7 +34,9 @@ public struct BaseOneLineRow<TrailingView: View>: View {
             HStack(alignment: .center, spacing: 4) {
                 trailingView()
 
-                trailingIcon
+                if isTappable {
+                    trailingIcon
+                }
             }
         }
     }
@@ -80,5 +85,13 @@ public struct BaseOneLineRow<TrailingView: View>: View {
             .renderingMode(.template)
             .foregroundStyle(Colors.Icon.informative)
             .frame(width: 18, height: 24)
+    }
+}
+
+// MARK: - Setupable
+
+extension BaseOneLineRow: Setupable {
+    public func isTappable(_ isTappable: Bool) -> Self {
+        map { $0.isTappable = isTappable }
     }
 }
