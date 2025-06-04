@@ -25,10 +25,12 @@ class ServicesManager {
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
+    private let pushNotificationEventsLogger: PushNotificationsEventsLogger
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
+        pushNotificationEventsLogger = PushNotificationsEventsLogger()
     }
 
     func initialize() {
