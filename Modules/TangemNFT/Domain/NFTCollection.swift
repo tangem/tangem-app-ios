@@ -83,4 +83,18 @@ public extension NFTCollection {
             assets: assets
         )
     }
+
+    static var dummy: Self {
+        NFTCollection(
+            collectionIdentifier: "",
+            chain: .avalanche,
+            contractType: .erc1155,
+            ownerAddress: "",
+            name: "",
+            description: nil,
+            media: nil,
+            assetsCount: nil,
+            assets: []
+        )
+    }
 }
