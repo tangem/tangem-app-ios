@@ -53,7 +53,10 @@ struct WalletConnectWalletSelectorView: View {
                             walletsDivider(index)
                             walletSelectionBorder(walletViewModel)
                         }
-                        .animation(.easeInOut(duration: viewModel.selectionAnimationDuration), value: walletViewModel.isSelected)
+                        .animation(
+                            .easeInOut(duration: WalletConnectWalletSelectorViewModel.selectionAnimationDuration),
+                            value: walletViewModel.isSelected
+                        )
                         .id(walletViewModel.id)
                     }
                 }
