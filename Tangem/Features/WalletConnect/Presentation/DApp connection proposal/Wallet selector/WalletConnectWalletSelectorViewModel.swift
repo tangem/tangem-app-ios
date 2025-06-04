@@ -15,24 +15,32 @@ import TangemLocalization
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
     private let backAction: () -> Void
     private let userWalletSelectedAction: (UserWalletModel) -> Void
+    private let hapticFeedbackGenerator: any WalletConnectHapticFeedbackGenerator
+
+    private var selectedUserWallet: any UserWalletModel
 
     private let balanceStateBuilder: LoadableTokenBalanceViewStateBuilder
 
+    private var walletSelectionTask: Task<Void, Never>?
     private var walletImagesLoadingTask: Task<Void, Never>?
     private var cancellables: Set<AnyCancellable>
 
-    let selectionAnimationDuration: TimeInterval = 0.3
+    /// 0.3
+    static let selectionAnimationDuration: TimeInterval = 0.3
 
     @Published private(set) var state: WalletConnectWalletSelectorViewState
 
     init(
         userWallets: [any UserWalletModel],
         selectedUserWallet: some UserWalletModel,
+        hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         backAction: @escaping () -> Void,
         userWalletSelectedAction: @escaping (UserWalletModel) -> Void
     ) {
         self.backAction = backAction
         self.userWalletSelectedAction = userWalletSelectedAction
+        self.hapticFeedbackGenerator = hapticFeedbackGenerator
+        self.selectedUserWallet = selectedUserWallet
 
         state = .loading(userWallets: userWallets, selectedWallet: selectedUserWallet)
 
@@ -44,12 +52,13 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
     }
 
     deinit {
+        walletSelectionTask?.cancel()
         walletImagesLoadingTask?.cancel()
     }
 
     private func loadImages(for userWallets: [any UserWalletModel]) {
-        walletImagesLoadingTask = Task {
-            await withTaskGroup(of: (Int, SwiftUI.Image).self) { [weak self] taskGroup in
+        walletImagesLoadingTask = Task { [weak self] in
+            await withTaskGroup(of: (Int, SwiftUI.Image).self) { taskGroup in
                 for (index, userWallet) in userWallets.enumerated() {
                     taskGroup.addTask {
                         let image = await userWallet.cardImageProvider.loadSmallImage().image
@@ -92,13 +101,35 @@ extension WalletConnectWalletSelectorViewModel {
             backAction()
 
         case .selectedUserWalletUpdated(let selectedUserWallet):
-            updateSelectedUserWallet(selectedUserWallet)
+            handleSelectedUserWalletUpdated(selectedUserWallet)
+        }
+    }
 
-            Task {
-                let extraDelay = 0.2
-                try await Task.sleep(seconds: self.selectionAnimationDuration + extraDelay)
-                self.userWalletSelectedAction(selectedUserWallet)
+    private func handleSelectedUserWalletUpdated(_ selectedUserWallet: some UserWalletModel) {
+        let walletSelectionTaskIsRunning = walletSelectionTask != nil
+        let differentWalletSelected = self.selectedUserWallet.userWalletId != selectedUserWallet.userWalletId
+
+        updateSelectedUserWallet(selectedUserWallet)
+        hapticFeedbackGenerator.selectionChanged()
+
+        guard differentWalletSelected else {
+            if !walletSelectionTaskIsRunning {
+                userWalletSelectedAction(selectedUserWallet)
             }
+
+            return
+        }
+
+        walletSelectionTask?.cancel()
+        walletSelectionTask = Task { [weak self] in
+            let extraDelay = 0.1
+            let durationInSeconds = Self.selectionAnimationDuration + extraDelay
+
+            try? await Task.sleep(nanoseconds: UInt64(durationInSeconds * Double(NSEC_PER_SEC)))
+            guard !Task.isCancelled else { return }
+
+            self?.userWalletSelectedAction(selectedUserWallet)
+            self?.walletSelectionTask = nil
         }
     }
 }
@@ -116,10 +147,11 @@ extension WalletConnectWalletSelectorViewModel {
             )
         }
 
+        self.selectedUserWallet = selectedUserWallet
         state.wallets = updatedWallets
     }
 
-    func updateWalletBalance(_ walletIndex: Int, balanceState: TotalBalanceState) {
+    private func updateWalletBalance(_ walletIndex: Int, balanceState: TotalBalanceState) {
         state.wallets[walletIndex].description.balanceState = balanceStateBuilder.buildTotalBalance(state: balanceState)
     }
 }
