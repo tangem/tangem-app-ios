@@ -32,5 +32,5 @@ final class NFTManagerMock: NFTManager {
     }
 
     func update(cachePolicy: NFTCachePolicy) {}
-    func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {}
+    func updateAssets(in collection: NFTCollection) {}
 }
