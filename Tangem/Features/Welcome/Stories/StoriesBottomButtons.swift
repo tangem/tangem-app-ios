@@ -27,7 +27,7 @@ struct StoriesBottomButtons: View {
                 icon: .trailing(Assets.tangemIcon),
                 style: scanColorStyle,
                 isLoading: isScanning,
-                accessibilityIdentifier: "ScanButton",
+                accessibilityIdentifier: AccessibilityIdentifiers.Stories.scanButton,
                 action: scanCard
             )
 

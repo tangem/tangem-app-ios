@@ -25,11 +25,11 @@ enum ToSPageUIElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .root:
-            "TosPage"
+            AccessibilityIdentifiers.TOS.root
         case .acceptButton:
-            "AcceptButton"
+            AccessibilityIdentifiers.TOS.acceptButton
         case .laterButton:
-            "LaterButton"
+            AccessibilityIdentifiers.TOS.laterButton
         }
     }
 }
