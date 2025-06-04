@@ -17,6 +17,7 @@ enum SendStepType {
     case summary(SendSummaryViewModel)
     case newSummary(SendNewSummaryViewModel)
     case finish(SendFinishViewModel)
+    case newFinish(SendNewFinishViewModel)
     case validators(StakingValidatorsViewModel)
     case onramp(OnrampViewModel)
 
@@ -37,6 +38,10 @@ enum SendStepType {
             return true
         }
 
+        if case .newFinish = self {
+            return true
+        }
+
         return false
     }
 }
@@ -53,6 +58,7 @@ extension SendStepType: Hashable {
         case .summary(let viewModel): hasher.combine(viewModel.id)
         case .newSummary(let viewModel): hasher.combine(viewModel.id)
         case .finish(let viewModel): hasher.combine(viewModel.id)
+        case .newFinish(let viewModel): hasher.combine(viewModel.id)
         case .onramp(let viewModel): hasher.combine(viewModel.id)
         }
     }
@@ -70,7 +76,7 @@ extension SendStepType {
         case .fee: .fee
         case .validators: .stakeSourceValidators
         case .summary, .newSummary: .summary
-        case .finish: .finish
+        case .finish, .newFinish: .finish
         case .onramp: .onramp
         }
     }
