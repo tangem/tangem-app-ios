@@ -58,7 +58,13 @@ extension SuiCoinObject {
                 throw SuiError.failedDecoding
             }
 
-            contract = Data(hexString: elements[0]).leadingZeroPadding(toLength: 32).hex().addHexPrefix()
+            contract = switch elements[0] {
+            case Self.sui.contract:
+                elements[0]
+            default:
+                Data(hexString: elements[0]).leadingZeroPadding(toLength: 32).hex().addHexPrefix()
+            }
+
             lowerID = elements[1]
             upperID = elements[2]
         }
