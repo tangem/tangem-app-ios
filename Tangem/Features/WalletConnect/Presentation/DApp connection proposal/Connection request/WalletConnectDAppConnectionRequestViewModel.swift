@@ -16,15 +16,17 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase
     private let connectDAppUseCase: WalletConnectConnectDAppUseCase
 
-    private var cachedDAppProposal: WalletConnectDAppConnectionProposal?
-    private(set) var cachedBlockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult?
+    private let hapticFeedbackGenerator: any WalletConnectHapticFeedbackGenerator
+
+    private var selectedUserWallet: any UserWalletModel
+    private var userWalletIDToBlockchainsAvailabilityResult: [UserWalletId: WalletConnectDAppBlockchainsAvailabilityResult]
+
+    private var loadedDAppProposal: WalletConnectDAppConnectionProposal?
 
     private var dAppLoadingTask: Task<Void, Never>?
     private var dAppConnectionTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectDAppConnectionRequestViewState
-
-    private(set) var selectedUserWallet: any UserWalletModel
 
     weak var coordinator: (any WalletConnectDAppConnectionProposalRoutable)?
 
@@ -33,13 +35,18 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
         resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase,
         connectDAppUseCase: WalletConnectConnectDAppUseCase,
+        hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         selectedUserWallet: some UserWalletModel
     ) {
         self.state = state
         self.getDAppConnectionProposalUseCase = getDAppConnectionProposalUseCase
         self.resolveAvailableBlockchainsUseCase = resolveAvailableBlockchainsUseCase
         self.connectDAppUseCase = connectDAppUseCase
+
+        self.hapticFeedbackGenerator = hapticFeedbackGenerator
+
         self.selectedUserWallet = selectedUserWallet
+        userWalletIDToBlockchainsAvailabilityResult = [:]
     }
 
     deinit {
@@ -51,29 +58,31 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.selectedUserWallet = selectedUserWallet
         state.walletSection.selectedUserWalletName = selectedUserWallet.name
 
-        guard let cachedDAppProposal else { return }
+        guard let loadedDAppProposal else { return }
+
+        let previousBlockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
 
         let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
-            sessionProposal: cachedDAppProposal.sessionProposal,
-            selectedBlockchains: cachedBlockchainsAvailabilityResult?.retrieveSelectedBlockchains() ?? [],
+            sessionProposal: loadedDAppProposal.sessionProposal,
+            selectedBlockchains: previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains() ?? [],
             userWallet: selectedUserWallet
         )
 
-        cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
-        updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
+        userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] = blockchainsAvailabilityResult
+        updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
     func updateSelectedBlockchains(_ selectedBlockchains: [Blockchain]) {
-        guard let cachedDAppProposal else { return }
+        guard let loadedDAppProposal else { return }
 
         let blockchainsAvailabilityResult = resolveAvailableBlockchainsUseCase(
-            sessionProposal: cachedDAppProposal.sessionProposal,
+            sessionProposal: loadedDAppProposal.sessionProposal,
             selectedBlockchains: selectedBlockchains,
             userWallet: selectedUserWallet
         )
 
-        cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
-        updateState(dAppProposal: cachedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
+        userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] = blockchainsAvailabilityResult
+        updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 }
 
@@ -113,6 +122,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleDAppProposalLoadingRequested() {
+        hapticFeedbackGenerator.prepareNotificationFeedback()
         dAppLoadingTask?.cancel()
 
         dAppLoadingTask = Task { [weak self, getDAppConnectionProposalUseCase, resolveAvailableBlockchainsUseCase, selectedUserWallet] in
@@ -124,19 +134,21 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     userWallet: selectedUserWallet
                 )
 
-                self?.cachedDAppProposal = dAppProposal
-                self?.cachedBlockchainsAvailabilityResult = blockchainsAvailabilityResult
+                self?.loadedDAppProposal = dAppProposal
+                self?.userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] = blockchainsAvailabilityResult
 
                 self?.updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
+                self?.hapticFeedbackGenerator.successNotificationOccurred()
             } catch {
+                self?.hapticFeedbackGenerator.errorNotificationOccurred()
                 self?.coordinator?.openErrorScreen(error: error)
             }
         }
     }
 
     private func handleVerifiedDomainIconTapped() {
-        guard !state.dAppDescriptionSection.isLoading else { return }
-        coordinator?.openDomainVerification()
+        guard !state.dAppDescriptionSection.isLoading, let dAppName = loadedDAppProposal?.dApp.name else { return }
+        coordinator?.openVerifiedDomain(for: dAppName)
     }
 
     private func handleConnectionRequestSectionHeaderTapped() {
@@ -149,7 +161,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleNetworksRowTapped() {
-        coordinator?.openNetworksSelector()
+        guard let blockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] else { return }
+        coordinator?.openNetworksSelector(blockchainsAvailabilityResult)
     }
 
     private func handleCancelButtonTapped() {
@@ -157,32 +170,64 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleConnectButtonTapped() {
+        hapticFeedbackGenerator.prepareNotificationFeedback()
+
         guard
             !state.connectButton.isLoading,
-            let cachedDAppProposal,
-            let cachedBlockchainsAvailabilityResult
+            let loadedDAppProposal,
+            let blockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
         else {
+            hapticFeedbackGenerator.warningNotificationOccurred()
+            return
+        }
+
+        let selectedBlockchains = blockchainsAvailabilityResult.retrieveSelectedBlockchains()
+
+        guard selectedBlockchains.isNotEmpty else {
+            hapticFeedbackGenerator.warningNotificationOccurred()
+            return
+        }
+
+        guard loadedDAppProposal.verificationStatus.isVerified else {
+            coordinator?.openDomainVerificationWarning(
+                loadedDAppProposal.verificationStatus,
+                cancelAction: { [weak self] in
+                    // [REDACTED_TODO_COMMENT]
+                    self?.coordinator?.dismiss()
+                },
+                connectAnywayAction: { [weak self] in
+                    await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
+                }
+            )
             return
         }
 
         state.connectButton.isLoading = true
 
         dAppConnectionTask?.cancel()
-        dAppConnectionTask = Task { [weak self, selectedUserWallet, connectDAppUseCase] in
-            do {
-                try await connectDAppUseCase(
-                    proposal: cachedDAppProposal.sessionProposal,
-                    selectedBlockchains: cachedBlockchainsAvailabilityResult.retrieveSelectedBlockchains(),
-                    selectedUserWallet: selectedUserWallet
-                )
-                self?.coordinator?.showSuccessToast(with: "\(cachedDAppProposal.dApp.name) has been connected")
-                self?.coordinator?.dismiss()
-            } catch {
-                // [REDACTED_TODO_COMMENT]
-                self?.coordinator?.showErrorToast(with: error.localizedDescription)
-            }
-
+        dAppConnectionTask = Task { [weak self] in
+            await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
             self?.state.connectButton.isLoading = false
+        }
+    }
+
+    private func connectDApp(
+        with proposal: WalletConnectDAppConnectionProposal,
+        selectedBlockchains: some Sequence<Blockchain>,
+    ) async {
+        do {
+            try await connectDAppUseCase(
+                proposal: proposal.sessionProposal,
+                selectedBlockchains: selectedBlockchains,
+                selectedUserWallet: selectedUserWallet
+            )
+            hapticFeedbackGenerator.successNotificationOccurred()
+            coordinator?.showSuccessToast(with: "\(proposal.dApp.name) has been connected")
+            coordinator?.dismiss()
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            hapticFeedbackGenerator.errorNotificationOccurred()
+            coordinator?.showErrorToast(with: error.localizedDescription)
         }
     }
 }
