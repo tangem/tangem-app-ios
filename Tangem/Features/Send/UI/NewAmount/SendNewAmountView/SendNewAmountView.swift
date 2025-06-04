@@ -21,8 +21,7 @@ struct SendNewAmountView: View {
         GroupedScrollView(spacing: 14) {
             content
         }
-        .id(viewModel.id)
-        .transition(transitionService.transitionToNewAmountStep(isEditMode: viewModel.isEditMode))
+        .transition(transitionService.transitionToNewAmountStep())
         .onAppear(perform: viewModel.onAppear)
     }
 
