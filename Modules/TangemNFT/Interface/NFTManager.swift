@@ -17,5 +17,5 @@ public protocol NFTManager {
     var statePublisher: AnyPublisher<NFTManagerState, Never> { get }
 
     func update(cachePolicy: NFTCachePolicy)
-    func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID)
+    func updateAssets(in collection: NFTCollection)
 }
