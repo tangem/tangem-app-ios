@@ -116,6 +116,12 @@ class SendTransitionService {
     func newSummaryViewTransition(isEditMode: Bool) -> AnyTransition {
         newTransition(direction: .next)
     }
+
+    // MARK: - Finish
+
+    func newFinishViewTransition() -> AnyTransition {
+        newTransition(direction: .next)
+    }
 }
 
 // MARK: - New transition
