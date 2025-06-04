@@ -26,6 +26,11 @@ struct ExpressProvidersSelectorView: View {
             )
             .fixedSize(horizontal: false, vertical: true)
 
+            if let ukNotificationInput = viewModel.ukNotificationInput {
+                NotificationView(input: ukNotificationInput)
+                    .padding(.vertical, 4)
+            }
+
             GroupedSection(viewModel.providerViewModels) {
                 ProviderRowView(viewModel: $0)
             }
