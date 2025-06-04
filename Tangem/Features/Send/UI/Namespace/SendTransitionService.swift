@@ -36,7 +36,7 @@ class SendTransitionService {
         )
     }
 
-    func transitionToNewDestinationStep(isEditMode: Bool) -> AnyTransition {
+    func transitionToNewDestinationStep() -> AnyTransition {
         newTransition(direction: .next)
     }
 
@@ -64,7 +64,7 @@ class SendTransitionService {
 
     // MARK: - New Amount
 
-    func transitionToNewAmountStep(isEditMode: Bool) -> AnyTransition {
+    func transitionToNewAmountStep() -> AnyTransition {
         newTransition(direction: .next)
     }
 
@@ -113,7 +113,7 @@ class SendTransitionService {
         .asymmetric(insertion: .opacity, removal: .opacity)
     }
 
-    func newSummaryViewTransition(isEditMode: Bool) -> AnyTransition {
+    func newSummaryViewTransition() -> AnyTransition {
         newTransition(direction: .next)
     }
 

@@ -43,8 +43,7 @@ struct SendNewDestinationView: View {
                 }
             }
         }
-        .id(viewModel.id)
-        .transition(transitionService.transitionToNewDestinationStep(isEditMode: viewModel.isEditMode))
+        .transition(transitionService.transitionToNewDestinationStep())
         .onAppear(perform: viewModel.onAppear)
     }
 }
