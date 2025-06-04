@@ -3229,6 +3229,10 @@
 		EFA154802CD24B8700A0642C /* OnrampAmountInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */; };
 		EFA154822CD2542700A0642C /* OnrampAmountBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */; };
 		EFA1FD892DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */; };
+		EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E722DEF6CBE004ADD0A /* SendNewFinishStep.swift */; };
+		EFA23E752DEF6CDD004ADD0A /* SendNewFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */; };
+		EFA23E782DEF6CFC004ADD0A /* SendNewFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */; };
+		EFA23E7A2DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E792DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift */; };
 		EFA3B2212AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */; };
 		EFA4E3752C3EE6ED008815AD /* StakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */; };
 		EFA4E3772C3EE785008815AD /* FakeStakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3762C3EE785008815AD /* FakeStakingValidatorsInteractor.swift */; };
@@ -6828,6 +6832,10 @@
 		EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInputOutput.swift; sourceTree = "<group>"; };
 		EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBuilder.swift; sourceTree = "<group>"; };
 		EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaUTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
+		EFA23E722DEF6CBE004ADD0A /* SendNewFinishStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishStep.swift; sourceTree = "<group>"; };
+		EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishView.swift; sourceTree = "<group>"; };
+		EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishViewModel.swift; sourceTree = "<group>"; };
+		EFA23E792DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishStepBuilder.swift; sourceTree = "<group>"; };
 		EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
 		EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorsInteractor.swift; sourceTree = "<group>"; };
 		EFA4E3762C3EE785008815AD /* FakeStakingValidatorsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeStakingValidatorsInteractor.swift; sourceTree = "<group>"; };
@@ -14117,8 +14125,8 @@
 		DAF72F3E2B0F480A0006B44F /* Finish */ = {
 			isa = PBXGroup;
 			children = (
-				EF75942B2CFF662400009DCE /* SendFinishAnalyticsLogger */,
 				EFC84B232C37FBB200546882 /* SendFinishStep.swift */,
+				EF75942B2CFF662400009DCE /* SendFinishAnalyticsLogger */,
 				EF665E442CBD23E400F79B87 /* SendFinishView */,
 			);
 			path = Finish;
@@ -17125,6 +17133,7 @@
 				EF2800EA2CDD0B9A002AEB9A /* OnrampRedirecting */,
 				EF68830F2CF8B6A900658644 /* OnrampStatus */,
 				DAF72F3E2B0F480A0006B44F /* Finish */,
+				EFA23E712DEF6469004ADD0A /* NewFinish */,
 				EF665E462CBD24F800F79B87 /* UITypes */,
 			);
 			path = UI;
@@ -18000,6 +18009,24 @@
 			path = Interactor;
 			sourceTree = "<group>";
 		};
+		EFA23E712DEF6469004ADD0A /* NewFinish */ = {
+			isa = PBXGroup;
+			children = (
+				EFA23E722DEF6CBE004ADD0A /* SendNewFinishStep.swift */,
+				EFA23E762DEF6CEE004ADD0A /* SendNewFinishView */,
+			);
+			path = NewFinish;
+			sourceTree = "<group>";
+		};
+		EFA23E762DEF6CEE004ADD0A /* SendNewFinishView */ = {
+			isa = PBXGroup;
+			children = (
+				EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */,
+				EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */,
+			);
+			path = SendNewFinishView;
+			sourceTree = "<group>";
+		};
 		EFA580642893F89000110DB0 /* ResetToFactory */ = {
 			isa = PBXGroup;
 			children = (
@@ -18377,6 +18404,7 @@
 		EFC84B052C37FAB500546882 /* StepBuilders */ = {
 			isa = PBXGroup;
 			children = (
+				EFA23E792DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift */,
 				EF4C04492DEF2A360059D7AA /* SendNewFeeStepBuilder.swift */,
 				EFF09E822DE71E28008E4FE0 /* SendReceiveTokenBuilder.swift */,
 				EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */,
@@ -19568,6 +19596,7 @@
 				DA81CF2F2B060A5D008877F1 /* SendSuggestedDestinationView.swift in Sources */,
 				B06C9B862A3AE65A00875852 /* ExchangeCryptoUtility.swift in Sources */,
 				DC3DCAED2A49C6D900F72554 /* WalletManagersRepository.swift in Sources */,
+				EFA23E7A2DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift in Sources */,
 				B09BD0022ACEE4F800CAB754 /* NotificationTransitionModifier.swift in Sources */,
 				DA559C532B0265E700F59584 /* SendDestinationTextViewModel.swift in Sources */,
 				C22564082D956481003063DA /* OverlayRootView.swift in Sources */,
@@ -19780,6 +19809,7 @@
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
 				B0063A7E2CDE3A6A00EDE943 /* VisaOnboardingPinView.swift in Sources */,
 				B07A13842C416B2A00A429C3 /* MarketsTokenDetailsLinkChipsView.swift in Sources */,
+				EFA23E782DEF6CFC004ADD0A /* SendNewFinishViewModel.swift in Sources */,
 				EF7A072E2C2F0738003DED83 /* TransactionDispatcher.swift in Sources */,
 				DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */,
 				B0EA18AD2C465D860023B72A /* DescriptionBottomSheetView.swift in Sources */,
@@ -20186,6 +20216,7 @@
 				EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */,
 				B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */,
 				EFA5683C2C480D120064EBA1 /* SendTransactionType.swift in Sources */,
+				EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
@@ -21101,6 +21132,7 @@
 				DC0003092DC2090600305FB6 /* WalletConnectV2Error.swift in Sources */,
 				DC00030A2DC2090600305FB6 /* Common.swift in Sources */,
 				DC00030C2DC2090600305FB6 /* SiteScan.swift in Sources */,
+				EFA23E752DEF6CDD004ADD0A /* SendNewFinishView.swift in Sources */,
 				DC00030D2DC2090600305FB6 /* WalletConnectV2MessageComposer.swift in Sources */,
 				DC00030E2DC2090600305FB6 /* EvmScan.swift in Sources */,
 				DC00030F2DC2090600305FB6 /* WebSocketConnectionDelegate.swift in Sources */,
