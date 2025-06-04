@@ -140,7 +140,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         return NFTPartialResult(value: nftCollections, errors: loadedResponse.errors)
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
+    public func getAssets(address: String, in collection: NFTCollection) async throws -> NFTPartialResult<[NFTAsset]> {
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
         let loadedResponse: (value: [EVMResponse<[EVMAsset]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
@@ -167,20 +167,21 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             .value
             .flatMap(\.result)
             .filter { asset in
-                guard let collectionIdentifier else {
-                    return true
-                }
-                return asset.tokenAddress == collectionIdentifier.collectionIdentifier
+                asset.tokenAddress == collection.id.collectionIdentifier
             }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
         return NFTPartialResult(
-            value: mapper.map(assets: response, ownerAddress: address),
+            value: mapper.map(
+                assets: response,
+                ownerAddress: address,
+                fallbackDescription: collection.description
+            ),
             errors: loadedResponse.errors
         )
     }
 
-    public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
+    public func getAsset(assetIdentifier: NFTAsset.ID, in collection: NFTCollection) async throws -> NFTAsset? {
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
         let token = MoralisEVMNetworkParams.NFTAssetsBody.Token(
@@ -206,7 +207,11 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             .first { $0.tokenAddress == assetIdentifier.contractAddress && $0.tokenId == assetIdentifier.identifier }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
-        return mapper.map(asset: response, ownerAddress: assetIdentifier.ownerAddress)
+        return mapper.map(
+            asset: response,
+            ownerAddress: assetIdentifier.ownerAddress,
+            fallbackDescription: collection.description
+        )
     }
 
     public func getSalePrice(assetIdentifier: NFTAsset.ID) async throws -> NFTSalePrice? {

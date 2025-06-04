@@ -16,5 +16,5 @@ struct NotSupportedNFTManager: NFTManager {
     var statePublisher: AnyPublisher<NFTManagerState, Never> { .just(output: .loaded(NFTPartialResult(value: []))) }
 
     func update(cachePolicy: NFTCachePolicy) {}
-    func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {}
+    func updateAssets(in collection: NFTCollection) {}
 }
