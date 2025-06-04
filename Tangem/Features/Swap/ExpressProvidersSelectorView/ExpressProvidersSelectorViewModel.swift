@@ -12,8 +12,11 @@ import SwiftUI
 import TangemExpress
 
 final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     // MARK: - ViewState
 
+    @Published var ukNotificationInput: NotificationViewInput?
     @Published var providerViewModels: [ProviderRowViewModel] = []
 
     // MARK: - Dependencies
@@ -60,6 +63,12 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         runTask(in: self) { viewModel in
             try await viewModel.updateFields()
             await viewModel.setupProviderRowViewModels()
+        }
+
+        if ukGeoDefiner.isUK {
+            ukNotificationInput = NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
+        } else {
+            ukNotificationInput = nil
         }
     }
 
@@ -131,6 +140,11 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         let isSelected = selectedProvider?.provider.id == provider.provider.id
 
         let badge: ProviderRowViewModel.Badge? = {
+            if ukGeoDefiner.isUK,
+               ExpressConstants.expressProvidersFCAWarningList.contains(provider.provider.id) {
+                return .fcaWarning
+            }
+
             if state.isPermissionRequired {
                 return .permissionNeeded
             }
