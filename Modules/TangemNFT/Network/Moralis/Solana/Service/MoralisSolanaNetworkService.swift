@@ -65,22 +65,18 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
         return NFTPartialResult(value: collections, errors: [])
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
+    public func getAssets(address: String, in collection: NFTCollection) async throws -> NFTPartialResult<[NFTAsset]> {
         let loadedResponse = try await getCollections(address: address)
 
-        let assets = if let collectionIdentifier {
-            loadedResponse
-                .value
-                .first { $0.id == collectionIdentifier }?
-                .assets ?? []
-        } else {
-            loadedResponse.value.flatMap(\.assets)
-        }
+        let assets = loadedResponse
+            .value
+            .first { $0.id == collection.id }?
+            .assets ?? []
 
         return NFTPartialResult(value: assets, errors: [])
     }
 
-    public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
+    public func getAsset(assetIdentifier: NFTAsset.ID, in collection: NFTCollection) async throws -> NFTAsset? {
         throw MoralisSolanaServiceError.unsupportedMethod("This method is not supported in Moralis' Solana API")
     }
 

@@ -61,18 +61,18 @@ extension NFTScanNFTNetworkService: NFTNetworkService {
         return NFTPartialResult(value: collections, errors: [])
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
+    public func getAssets(address: String, in collection: NFTCollection) async throws -> NFTPartialResult<[NFTAsset]> {
         let assets = try await getCollections(address: address)
             .value
             .filter {
-                collectionIdentifier != nil ? $0.id.collectionIdentifier == collectionIdentifier?.collectionIdentifier : true
+                $0.id.collectionIdentifier == collection.id.collectionIdentifier
             }
             .flatMap(\.assets)
 
         return NFTPartialResult(value: assets, errors: [])
     }
 
-    public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
+    public func getAsset(assetIdentifier: NFTAsset.ID, in collection: NFTCollection) async throws -> NFTAsset? {
         guard let assetDTO = try? await getAssetDTO(for: assetIdentifier) else {
             return nil
         }

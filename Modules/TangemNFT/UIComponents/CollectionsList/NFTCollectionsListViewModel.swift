@@ -240,7 +240,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         rowExpanded.toggle()
 
         if shouldLoadAssets(for: collection, isExpanded: isExpanded) {
-            nftManager.updateAssets(inCollectionWithIdentifier: collection.id)
+            nftManager.updateAssets(in: collection)
         }
     }
 
