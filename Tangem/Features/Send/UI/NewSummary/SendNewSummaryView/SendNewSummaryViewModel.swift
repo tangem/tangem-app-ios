@@ -11,9 +11,6 @@ import SwiftUI
 import Combine
 
 class SendNewSummaryViewModel: ObservableObject, Identifiable {
-    @Published var id: UUID = .init()
-    @Published var isEditMode: Bool = false
-
     @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactViewModel?
     @Published private(set) var sendAmountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle?
     @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?
@@ -167,21 +164,7 @@ extension SendNewSummaryViewModel {
 // MARK: - SendStepViewAnimatable
 
 extension SendNewSummaryViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
-        switch state {
-        case .appearing(.destination(_)), .appearing(.amount(_)):
-            isEditMode = true
-        case .disappearing(.destination(_)), .disappearing(.amount(_)):
-            // Have to use this HACK to force re-render view with the new transition
-            // Will look at it "if" later
-            if !isEditMode {
-                isEditMode = true
-                id = UUID()
-            }
-        default:
-            break
-        }
-    }
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 extension SendNewSummaryViewModel {
