@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import WalletCore
-import TangemSdk
 import TangemFoundation
+import TangemSdkWalletCoreUmbrella
 
 extension WalletCore.Curve {
     init?(_ curve: EllipticCurve) {
