@@ -48,3 +48,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 }
+/Users/dmitry/Library/Developer/Xcode/DerivedData/ModulesTestApp-dgrznrwtqyopgjdfnhzpqrwxqlei/SourcePackages/checkouts/Alamofire/Tests/ValidationTests.swift:    @MainActor
