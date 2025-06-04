@@ -16,7 +16,7 @@ public struct RefreshableScrollView<Content: View>: View {
 
     private let content: Content
     private let useNativeRefresh: Bool
-    
+
     /// Initializes a custom `ScrollView` with pull-to-refresh component.
     ///
     /// - Parameters:

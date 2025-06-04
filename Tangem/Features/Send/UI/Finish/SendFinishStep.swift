@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 class SendFinishStep {
     private let viewModel: SendFinishViewModel
