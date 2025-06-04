@@ -22,7 +22,6 @@ struct SendNewDestinationStepBuilder {
 
     func makeSendDestinationStep(
         io: IO,
-        sendFeeInteractor: any SendFeeInteractor,
         sendQRCodeService: SendQRCodeService,
         router: SendDestinationRoutable
     ) -> ReturnValue {
@@ -36,12 +35,7 @@ struct SendNewDestinationStepBuilder {
             router: router
         )
 
-        let step = SendNewDestinationStep(
-            viewModel: viewModel,
-            interactor: interactor,
-            sendFeeInteractor: sendFeeInteractor,
-            tokenItem: tokenItem
-        )
+        let step = SendNewDestinationStep(viewModel: viewModel, interactor: interactor)
 
         let compact = makeSendNewDestinationCompactViewModel(
             input: io.input,
