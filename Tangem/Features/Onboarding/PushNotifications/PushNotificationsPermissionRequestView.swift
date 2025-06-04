@@ -92,7 +92,7 @@ struct PushNotificationsPermissionRequestView: View {
             style: .secondary,
             action: viewModel.didTapLater
         )
-        .accessibilityIdentifier("LaterButton")
+        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.laterButton)
     }
 
     private var iconColor: Color {
