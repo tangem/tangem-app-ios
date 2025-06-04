@@ -20,7 +20,6 @@ struct SendNewAmountStepBuilder {
     func makeSendNewAmountStep(
         io: IO,
         actionType: SendFlowActionType,
-        sendFeeLoader: any SendFeeLoader,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         flowKind: SendModel.PredefinedValues.FlowKind
@@ -41,7 +40,6 @@ struct SendNewAmountStepBuilder {
         let step = SendNewAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeLoader: sendFeeLoader,
             flowKind: flowKind
         )
 
