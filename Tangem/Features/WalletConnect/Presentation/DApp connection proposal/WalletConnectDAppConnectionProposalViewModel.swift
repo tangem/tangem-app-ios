@@ -10,7 +10,9 @@ import Combine
 
 @MainActor
 final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
+    private let hapticFeedbackGenerator: any WalletConnectHapticFeedbackGenerator
     private let userWallets: [any UserWalletModel]
+    private var selectedUserWallet: any UserWalletModel
 
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
     private lazy var walletSelectorViewModel: WalletConnectWalletSelectorViewModel = makeWalletSelectorViewModel()
@@ -25,6 +27,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     init(
         getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
         connectDAppUseCase: WalletConnectConnectDAppUseCase,
+        hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         userWallets: [any UserWalletModel],
         selectedUserWallet: some UserWalletModel,
         dismissFlowAction: @escaping () -> Void
@@ -34,11 +37,15 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
             getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
             connectDAppUseCase: connectDAppUseCase,
+            hapticFeedbackGenerator: hapticFeedbackGenerator,
             selectedUserWallet: selectedUserWallet
         )
         state = .connectionRequest(connectionRequestViewModel)
 
+        self.hapticFeedbackGenerator = hapticFeedbackGenerator
         self.userWallets = userWallets
+        self.selectedUserWallet = selectedUserWallet
+
         self.dismissFlowAction = dismissFlowAction
 
         setupConnectionRequestViewModel()
@@ -67,21 +74,45 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
 
 extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnectionProposalRoutable {
     func openConnectionRequest() {
+        connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
+
         state = .connectionRequest(connectionRequestViewModel)
     }
 
-    func openDomainVerification() {
-        state = .verifiedDomain
+    func openVerifiedDomain(for dAppName: String) {
+        let viewModel = WalletConnectDAppDomainVerificationViewModel(
+            verifiedDAppName: dAppName,
+            closeAction: { [weak self] in
+                self?.openConnectionRequest()
+            }
+        )
+
+        state = .verifiedDomain(viewModel)
+    }
+
+    func openDomainVerificationWarning(
+        _ verificationStatus: WalletConnectDAppVerificationStatus,
+        cancelAction: @escaping () async -> Void,
+        connectAnywayAction: @escaping () async -> Void
+    ) {
+        let viewModel = WalletConnectDAppDomainVerificationViewModel(
+            warningVerificationStatus: verificationStatus,
+            closeAction: { [weak self] in
+                self?.dismiss()
+            },
+            cancelAction: cancelAction,
+            connectAnywayAction: connectAnywayAction
+        )
+
+        state = .verifiedDomain(viewModel)
     }
 
     func openWalletSelector() {
+        walletSelectorViewModel.updateSelectedUserWallet(selectedUserWallet)
         state = .walletSelector(walletSelectorViewModel)
     }
 
-    func openNetworksSelector() {
-        guard let blockchainsAvailabilityResult = connectionRequestViewModel.cachedBlockchainsAvailabilityResult else {
-            return
-        }
+    func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
         networksSelectorViewModel.update(with: blockchainsAvailabilityResult)
         state = .networkSelector(networksSelectorViewModel)
     }
@@ -111,12 +142,14 @@ extension WalletConnectDAppConnectionProposalViewModel {
     private func makeWalletSelectorViewModel() -> WalletConnectWalletSelectorViewModel {
         WalletConnectWalletSelectorViewModel(
             userWallets: userWallets,
-            selectedUserWallet: connectionRequestViewModel.selectedUserWallet,
+            selectedUserWallet: selectedUserWallet,
+            hapticFeedbackGenerator: hapticFeedbackGenerator,
             backAction: { [weak self] in
                 self?.openConnectionRequest()
             },
             userWalletSelectedAction: { [weak self] selectedUserWallet in
-                self?.connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
+                guard case .walletSelector = self?.state else { return }
+                self?.selectedUserWallet = selectedUserWallet
                 self?.openConnectionRequest()
             }
         )
