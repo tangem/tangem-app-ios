@@ -16,7 +16,7 @@ struct NewSendFlowBaseBuilder {
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendNewFeeStepBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
-    let sendFinishStepBuilder: SendFinishStepBuilder
+    let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
@@ -64,12 +64,10 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendDestinationCompactViewModel: destination.finish,
-            sendAmountCompactViewModel: amount.finish,
-            onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: nil,
+            sendAmountCompactViewModel: amount.compact,
+            sendReceiveTokenCompactViewModel: nil,
+            sendDestinationCompactViewModel: destination.compact,
             sendFeeCompactViewModel: fee.finish,
-            onrampStatusCompactViewModel: .none
         )
 
         // We have to set dependencies here after all setups is completed
@@ -84,6 +82,7 @@ struct NewSendFlowBaseBuilder {
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
+        fee.finish.bind(input: sendModel)
 
         let stepsManager = CommonNewSendStepsManager(
             amountStep: amount.step,
