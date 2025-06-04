@@ -14,19 +14,15 @@ import SwiftUI
 class SendNewDestinationStep {
     private let viewModel: SendNewDestinationViewModel
     private let interactor: SendDestinationInteractor
-    private let sendFeeInteractor: SendFeeInteractor
-    private let tokenItem: TokenItem
+
+    private var isEditMode: Bool = false
 
     init(
         viewModel: SendNewDestinationViewModel,
-        interactor: any SendDestinationInteractor,
-        sendFeeInteractor: any SendFeeInteractor,
-        tokenItem: TokenItem
+        interactor: any SendDestinationInteractor
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeInteractor = sendFeeInteractor
-        self.tokenItem = tokenItem
     }
 
     func set(stepRouter: SendDestinationStepRoutable) {
@@ -40,7 +36,7 @@ extension SendNewDestinationStep: SendStep {
     var title: String? { Localization.sendRecipientLabel }
 
     var type: SendStepType { .newDestination(viewModel) }
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { viewModel.isEditMode ? .none : .backButton }
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { isEditMode ? .none : .backButton }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
@@ -54,16 +50,10 @@ extension SendNewDestinationStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
+        isEditMode = step.type.isSummary
+
         if step.type.isSummary {
             Analytics.log(.sendScreenReopened, params: [.source: .address])
         }
-    }
-
-    func willDisappear(next step: SendStep) {
-        guard step.type.isSummary else {
-            return
-        }
-
-        sendFeeInteractor.updateFees()
     }
 }
