@@ -34,7 +34,6 @@ struct NewSendFlowBaseBuilder {
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            sendFeeLoader: fee.interactor,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
             flowKind: flowKind
@@ -42,7 +41,6 @@ struct NewSendFlowBaseBuilder {
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
-            sendFeeInteractor: fee.interactor,
             sendQRCodeService: sendQRCodeService,
             router: router
         )
@@ -52,6 +50,7 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
+            feeLoader: fee.interactor,
             destinationEditableType: .editable,
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
