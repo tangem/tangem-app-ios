@@ -11,6 +11,7 @@ import TangemFoundation
 
 final class CommonPushNotificationsInteractor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsPermission) private var pushNotificationsPermissionsService: PushNotificationsPermissionService
 
     /// Optional bool because this property is updated only once,
     /// on the very first launch of the app version with push notifications support.
@@ -28,14 +29,6 @@ final class CommonPushNotificationsInteractor {
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
 
-    private let pushNotificationsService: PushNotificationsService
-
-    init(
-        pushNotificationsService: PushNotificationsService
-    ) {
-        self.pushNotificationsService = pushNotificationsService
-    }
-
     private func updateSavedWalletsStatusIfNeeded() {
         // Runs only once per installation
         guard hasSavedWalletsFromPreviousVersion == nil else {
@@ -47,7 +40,7 @@ final class CommonPushNotificationsInteractor {
 
     private func registerIfPossible() {
         runTask(in: self) { interactor in
-            await interactor.pushNotificationsService.registerIfPossible()
+            await interactor.pushNotificationsPermissionsService.registerIfPossible()
         }
     }
 
@@ -62,7 +55,7 @@ final class CommonPushNotificationsInteractor {
     }
 
     private func logAuthorizationStatus() async {
-        let state: Analytics.ParameterValue = await pushNotificationsService.isAuthorized ? .allow : .cancel
+        let state: Analytics.ParameterValue = await pushNotificationsPermissionsService.isAuthorized ? .allow : .cancel
         Analytics.log(.pushPermissionStatus, params: [.state: state])
     }
 
@@ -101,7 +94,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
     func allowRequest(in flow: PushNotificationsPermissionRequestFlow) async {
         logAllowRequest(in: flow)
-        await pushNotificationsService.requestAuthorizationAndRegister()
+        await pushNotificationsPermissionsService.requestAuthorizationAndRegister()
         await logAuthorizationStatus()
         runOnMain {
             canRequestAuthorization = false
