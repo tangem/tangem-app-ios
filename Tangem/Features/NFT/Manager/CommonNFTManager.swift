@@ -106,25 +106,25 @@ final class CommonNFTManager: NFTManager {
 
         let assetsPublisher = updateAssetsPublisher
             .withLatestFrom(networkServicesPublisher) { ($0, $1) }
-            .compactMap { collectionIdentifier, networkServices -> (NFTCollection.ID, NFTNetworkService)? in
+            .compactMap { collection, networkServices -> (NFTCollection, NFTNetworkService)? in
                 let targetNetworkService = networkServices.first { walletModel, networkService in
-                    return NFTWalletModelFinder.isWalletModel(walletModel, equalsTo: collectionIdentifier)
+                    return NFTWalletModelFinder.isWalletModel(walletModel, equalsTo: collection.id)
                 }
 
                 guard let networkService = targetNetworkService?.1 else {
                     return nil
                 }
 
-                return (collectionIdentifier, networkService)
+                return (collection, networkService)
             }
-            .flatMapLatest { collectionIdentifier, networkService in
-                return Just((collectionIdentifier, networkService))
+            .flatMapLatest { collection, networkService in
+                return Just((collection, networkService))
                     .setFailureType(to: Error.self)
-                    .asyncTryMap { collectionIdentifier, networkService in
-                        let assets = try await Self.fetchAssets(inCollectionWithIdentifier: collectionIdentifier, using: networkService)
+                    .asyncTryMap { collection, networkService in
+                        let assets = try await Self.fetchAssets(in: collection, using: networkService)
                         let updatedAssets = await Self.updateAssets(assets, using: networkService)
 
-                        return (collectionIdentifier, updatedAssets)
+                        return (collection, updatedAssets)
                     }
                     .materialize()
             }
@@ -140,13 +140,13 @@ final class CommonNFTManager: NFTManager {
         // Prepend is used to ensure that `assetsValuesPublisher` won't prevent the merged publisher from emitting values
         let assetsValuesPublisher = assetsPublisher
             .values()
-            .prepend((NFTCollection.ID.dummy, NFTPartialResult(value: [])))
+            .prepend((NFTCollection.dummy, NFTPartialResult(value: [])))
             .share()
 
         let enrichedCollectionsFromCollectionsPublisher = collectionsValuesPublisher
             .withLatestFrom(assetsValuesPublisher) { collections, assetsInput in
-                let (collectionIdentifier, assetsLoadedResult) = assetsInput
-                assetsCache[collectionIdentifier] = assetsLoadedResult
+                let (collection, assetsLoadedResult) = assetsInput
+                assetsCache[collection.id] = assetsLoadedResult
 
                 return Self.enrichedCollections(collections, using: assetsCache)
             }
@@ -154,8 +154,8 @@ final class CommonNFTManager: NFTManager {
 
         let enrichedCollectionsFromAssetsPublisher = assetsValuesPublisher
             .withLatestFrom(collectionsValuesPublisher) { assetsInput, collections in
-                let (collectionIdentifier, assetsLoadedResult) = assetsInput
-                assetsCache[collectionIdentifier] = assetsLoadedResult
+                let (collection, assetsLoadedResult) = assetsInput
+                assetsCache[collection.id] = assetsLoadedResult
 
                 return Self.enrichedCollections(collections, using: assetsCache)
             }
@@ -172,8 +172,8 @@ final class CommonNFTManager: NFTManager {
     private var updatePublisher: some Publisher<NFTCachePolicy, Never> { updateSubject }
     private let updateSubject: some Subject<NFTCachePolicy, Never> = PassthroughSubject()
 
-    private var updateAssetsPublisher: some Publisher<NFTCollection.ID, Never> { updateAssetsSubject }
-    private let updateAssetsSubject: some Subject<NFTCollection.ID, Never> = PassthroughSubject()
+    private var updateAssetsPublisher: some Publisher<NFTCollection, Never> { updateAssetsSubject }
+    private let updateAssetsSubject: some Subject<NFTCollection, Never> = PassthroughSubject()
 
     private let walletModelsManager: WalletModelsManager
     private let cache: NFTCache
@@ -204,8 +204,8 @@ final class CommonNFTManager: NFTManager {
         updateSubject.send(cachePolicy)
     }
 
-    func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {
-        updateAssetsSubject.send(collectionIdentifier)
+    func updateAssets(in collection: NFTCollection) {
+        updateAssetsSubject.send(collection)
     }
 
     private func bind() {
@@ -253,10 +253,13 @@ final class CommonNFTManager: NFTManager {
     }
 
     private static func fetchAssets(
-        inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID,
-        using networkService: NFTNetworkService
+        in collection: NFTCollection,
+        using networkService: NFTNetworkService,
     ) async throws -> NFTPartialResult<[NFTAsset]> {
-        return try await networkService.getAssets(address: collectionIdentifier.ownerAddress, collectionIdentifier: collectionIdentifier)
+        return try await networkService.getAssets(
+            address: collection.id.ownerAddress,
+            in: collection
+        )
     }
 
     private static func updateAssets(
