@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import TangemSdk
+import TangemSdkWalletCoreUmbrella
 
 enum HotWalletError: Error, Equatable {
     case derivationIsNotSupported

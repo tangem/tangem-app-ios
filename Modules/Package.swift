@@ -28,8 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.0"),
-        .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
+        .package(path: "../TangemSdkWalletCoreUmbrella"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -115,8 +114,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemHotSdk",
             path: "TangemHotSdk/Sources",
             dependencies: [
-                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
-                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+                .product(name: "TangemSdkWalletCoreUmbrella", package: "TangemSdkWalletCoreUmbrella"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
