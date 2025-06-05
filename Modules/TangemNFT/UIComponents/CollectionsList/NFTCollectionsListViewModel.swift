@@ -158,16 +158,17 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func updateState(with result: ManagerStateMappingResult) {
-        let hadErrorsWhileLoading = result.notificationViewData != nil
         let currentCollections = state.value ?? []
 
-        switch result.viewState {
-        case .loaded(let collections) where hadErrorsWhileLoading && collections.isEmpty && state.isLoading:
-            // We don't need error here, NSError used to silence the compiler
-            state = .failedToLoad(error: NSError(domain: "", code: 0))
+        // We don't need error here, NSError used to silence the compiler
+        let errorState = ViewState.failedToLoad(error: NSError(domain: "", code: 0))
 
-        case .loaded(let collections) where hadErrorsWhileLoading && collections.isEmpty:
-            break // Keep previous state (non-loading)
+        switch result.viewState {
+        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
+            state = errorState
+
+        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result):
+            break // Keep previous state
 
         case .loaded(let collections):
             state = .loaded(collections)
@@ -257,6 +258,13 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             subtitle: Localization.nftCollectionsWarningSubtitle,
             icon: Assets.warningIcon
         )
+    }
+
+    private func didHaveErrorsWithEmptyCollections(
+        _ result: ManagerStateMappingResult
+    ) -> Bool {
+        result.notificationViewData != nil &&
+            result.viewState.value?.isEmpty ?? false
     }
 }
 
