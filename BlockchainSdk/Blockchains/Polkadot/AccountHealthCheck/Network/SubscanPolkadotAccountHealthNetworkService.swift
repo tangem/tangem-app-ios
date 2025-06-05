@@ -156,12 +156,7 @@ public final class SubscanPolkadotAccountHealthNetworkService {
             return false
         }
 
-        let urlErrorCode = (error as? URLError)?.code
-        let afErrorCode = (error.asAFError?.underlyingError as? URLError)?.code
-        let moyaErrorCode = (error.asMoyaError?.underlyingError as? URLError)?.code
-        let errorCode = urlErrorCode ?? afErrorCode ?? moyaErrorCode
-
-        if let errorCode, errorCode == .cancelled {
+        if let errorCode = error.networkErrorCode, errorCode == .cancelled {
             return false
         }
 
@@ -189,51 +184,5 @@ private extension SubscanPolkadotAccountHealthNetworkService {
         static var retryJitterMinValue: TimeInterval { -retryJitterMaxValue }
         static var retryJitterMaxValue: TimeInterval { 0.5 }
         static let nonExistentAccountErrorCode = 10004
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension MoyaError {
-    /// Just a copy-paste from MoyaError.swift (it has `internal` access level)
-    var underlyingError: Swift.Error? {
-        switch self {
-        case .imageMapping,
-             .jsonMapping,
-             .stringMapping,
-             .requestMapping,
-             .statusCode:
-            return nil
-        case .objectMapping(let error, _):
-            return error
-        case .encodableMapping(let error):
-            return error
-        case .underlying(let error, _):
-            return error
-        case .parameterEncoding(let error):
-            return error
-        }
-    }
-
-    var isMappingError: Bool {
-        switch self {
-        case .objectMapping,
-             .encodableMapping,
-             .imageMapping,
-             .jsonMapping,
-             .stringMapping,
-             .requestMapping,
-             .parameterEncoding:
-            return true
-        case .statusCode,
-             .underlying:
-            return false
-        }
-    }
-}
-
-private extension Error {
-    var asMoyaError: MoyaError? {
-        return self as? MoyaError
     }
 }
