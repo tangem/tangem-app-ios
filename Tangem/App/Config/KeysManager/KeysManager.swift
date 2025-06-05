@@ -23,7 +23,6 @@ protocol KeysManager {
     var devExpressKeys: ExpressKeys? { get }
     var stakeKitKey: String { get }
     var moralisAPIKey: String { get }
-    var nftScanAPIKey: String { get }
     var blockaidAPIKey: String { get }
 }
 
