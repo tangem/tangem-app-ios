@@ -11,12 +11,49 @@ import Combine
 
 public class CommonIncomingActionManager {
     @Injected(\.appLockController) private var appLockController: AppLockController
+    @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
 
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
+    private var cancellable: AnyCancellable?
 
-    public init() {}
+    public init() {
+        bind()
+    }
+
+    private func bind() {
+        cancellable = pushNotificationsEventsPublisher.eventsPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { manager, event in
+                manager.handlePushNotificationEvent(event)
+            }
+    }
+
+    @discardableResult
+    private func _handleDeeplink(_ url: URL) -> Bool {
+        AppLogger.info("Received deeplink: \(url.absoluteString)")
+
+        guard let action = parser.parseDeeplink(url) else {
+            return false
+        }
+
+        pendingAction = action
+        tryHandleLastAction()
+        return true
+    }
+
+    private func handlePushNotificationEvent(_ event: PushNotificationsEvent) {
+        guard case .receivedResponse(let response) = event,
+              let deeplinkURL = response.notification.request.content.userInfo[Constants.deeplinkKey] as? String,
+              let url = URL(string: deeplinkURL)
+        else {
+            return
+        }
+
+        _handleDeeplink(url)
+    }
 }
 
 // MARK: - IncomingActionManaging
@@ -76,14 +113,14 @@ extension CommonIncomingActionManager: IncomingActionHandler {
     }
 
     public func handleDeeplink(_ url: URL) -> Bool {
-        AppLogger.info("Received deeplink: \(url.absoluteString)")
+        _handleDeeplink(url)
+    }
+}
 
-        guard let action = parser.parseDeeplink(url) else {
-            return false
-        }
+// MARK: - Constants
 
-        pendingAction = action
-        tryHandleLastAction()
-        return true
+extension CommonIncomingActionManager {
+    enum Constants {
+        static let deeplinkKey = "deeplink"
     }
 }

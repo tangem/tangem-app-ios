@@ -106,11 +106,6 @@ final class SingleTokenNotificationManager {
             events.append(.maticMigration)
         }
 
-        // We need display alert for user with Kaspa token is beta feature
-        if walletModel.tokenItem.blockchainNetwork.blockchain == .kaspa(testnet: false), walletModel.tokenItem.isToken {
-            events.append(.kaspaTokensBeta)
-        }
-
         if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
                 $0.tokenItem == walletModel.feeTokenItem && $0.tokenItem.blockchainNetwork == walletModel.tokenItem.blockchainNetwork
