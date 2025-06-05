@@ -14,18 +14,15 @@ import SwiftUI
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendAmountInteractor
-    private let sendFeeLoader: SendFeeLoader
     private let flowKind: SendModel.PredefinedValues.FlowKind
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendAmountInteractor,
-        sendFeeLoader: SendFeeLoader,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeLoader = sendFeeLoader
         self.flowKind = flowKind
     }
 }
@@ -37,6 +34,8 @@ extension SendNewAmountStep: SendStep {
 
     var type: SendStepType { .newAmount(viewModel) }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
@@ -70,14 +69,6 @@ extension SendNewAmountStep: SendStep {
         case (_, false):
             Analytics.log(.sendAmountScreenOpened)
         }
-    }
-
-    func willDisappear(next step: SendStep) {
-        guard step.type.isSummary else {
-            return
-        }
-
-        sendFeeLoader.updateFees()
     }
 }
 

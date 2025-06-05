@@ -45,13 +45,27 @@ struct MoralisEVMNetworkMapper {
         }
     }
 
-    /// - Note: `ownerAddress` is only used as a fallback value, so it is passed as `@autoclosure`.
-    func map(assets: [MoralisEVMNetworkResult.EVMNFTAsset], ownerAddress: @autoclosure () -> String) -> [NFTAsset] {
-        return assets.compactMap { map(asset: $0, ownerAddress: ownerAddress()) }
+    /// - Note: `ownerAddress and fallbackDescription` are only used as a fallback values, so they are passed as `@autoclosure`.
+    func map(
+        assets: [MoralisEVMNetworkResult.EVMNFTAsset],
+        ownerAddress: @autoclosure () -> String,
+        fallbackDescription: @autoclosure () -> String?
+    ) -> [NFTAsset] {
+        return assets.compactMap {
+            map(
+                asset: $0,
+                ownerAddress: ownerAddress(),
+                fallbackDescription: fallbackDescription()
+            )
+        }
     }
 
-    /// - Note: `ownerAddress` is only used as a fallback value, so it is passed as `@autoclosure`.
-    func map(asset: MoralisEVMNetworkResult.EVMNFTAsset?, ownerAddress: @autoclosure () -> String) -> NFTAsset? {
+    /// - Note: `ownerAddress and fallbackDescription` are only used as a fallback values, so it is passed as `@autoclosure`.
+    func map(
+        asset: MoralisEVMNetworkResult.EVMNFTAsset?,
+        ownerAddress: @autoclosure () -> String,
+        fallbackDescription: @autoclosure () -> String?
+    ) -> NFTAsset? {
         guard
             let asset,
             let assetIdentifier = asset.tokenId,
@@ -79,8 +93,8 @@ struct MoralisEVMNetworkMapper {
             contractType: contractType,
             decimalCount: Constants.decimalCount,
             ownerAddress: asset.ownerOf ?? ownerAddress(),
-            name: asset.name ?? Constants.assetNameFallback,
-            description: asset.normalizedMetadata?.description,
+            name: asset.normalizedMetadata?.name ?? Constants.assetNameFallback,
+            description: asset.normalizedMetadata?.description ?? fallbackDescription(),
             salePrice: nil,
             media: media,
             rarity: rarity,
