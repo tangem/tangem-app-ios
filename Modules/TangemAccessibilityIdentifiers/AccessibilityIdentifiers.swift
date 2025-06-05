@@ -18,5 +18,6 @@ public enum AccessibilityIdentifiers {
         public static let root = "test"
         public static let scanButton = "ScanButton"
         public static let cardMockWalletTwo = "CardMockWallet2"
+        public static let buyCardButton = "BuyCardButton"
     }
 }
