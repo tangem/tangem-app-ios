@@ -50,7 +50,7 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
     var method: WalletConnectMethod { .signTypedData }
 
     var requestData: Data {
-        Data()
+        message.data(using: .utf8) ?? Data()
     }
 
     var event: WalletConnectEvent { .sign }

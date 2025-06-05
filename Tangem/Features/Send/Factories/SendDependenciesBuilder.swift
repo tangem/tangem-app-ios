@@ -42,16 +42,18 @@ struct SendDependenciesBuilder {
 
     func summaryTitle(action: SendFlowActionType) -> String {
         switch action {
-        case .send: Localization.sendSummaryTitle(walletModel.tokenItem.currencySymbol)
-        case .approve, .stake: "\(Localization.commonStake) \(walletModel.tokenItem.currencySymbol)"
-        case .unstake: action.title
-        case .withdraw: action.title
-        case .claimRewards: action.title
-        case .restakeRewards: action.title
-        case .unlockLocked: action.title
-        case .restake: action.title
-        case .claimUnstaked: SendFlowActionType.withdraw.title
-        default: action.title
+        case .send:
+            let assetName: String = switch walletModel.tokenItem.token?.metadata.kind {
+            case .nonFungible: Localization.commonNft
+            default: walletModel.tokenItem.currencySymbol
+            }
+            return Localization.sendSummaryTitle(assetName)
+        case .approve, .stake:
+            return "\(Localization.commonStake) \(walletModel.tokenItem.currencySymbol)"
+        case .claimUnstaked:
+            return SendFlowActionType.withdraw.title
+        default:
+            return action.title
         }
     }
 
@@ -322,6 +324,25 @@ struct SendDependenciesBuilder {
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
             sendFeeInput: sendFeeInput
         )
+    }
+
+    func makeCustomFeeService() -> CustomFeeService? {
+        CustomFeeServiceFactory(walletModel: walletModel).makeService()
+    }
+
+    func makeSendFeeProvider() -> SendFeeProvider {
+        CommonSendFeeProvider(walletModel: walletModel)
+    }
+
+    func makeFeeSelectorContentViewModelAnalytics(flowKind: SendModel.PredefinedValues.FlowKind) -> FeeSelectorContentViewModelAnalytics {
+        SendFeeSelectorContentViewModelAnalytics(
+            flowKind: flowKind,
+            analyticsBuilder: makeFeeAnalyticsParameterBuilder()
+        )
+    }
+
+    func makeFeeSelectorCustomFeeFieldsBuilder() -> FeeSelectorCustomFeeFieldsBuilder {
+        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: makeCustomFeeService())
     }
 
     // MARK: - NFT support
