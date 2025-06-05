@@ -72,7 +72,8 @@ struct NFTCollectionRow: View {
                 url: media.url,
                 size: Constants.Icon.size,
                 cornerRadius: Constants.Icon.cornerRadius,
-                forceKingfisher: true
+                forceKingfisher: true,
+                placeholder: { placeholder }
             )
 
         case .animation:
