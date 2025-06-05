@@ -33,12 +33,13 @@ public struct NFTCollectionsListView: View {
             .padding(.horizontal, 16)
             .background(Colors.Background.tertiary)
             .onAppear(perform: viewModel.onViewAppear)
+            .scrollDismissesKeyboardCompat(.immediately)
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .loaded(let collections) where collections.isEmpty:
+        case .loaded(let collections) where collections.isEmpty && viewModel.searchEntry.isEmpty:
             noCollectionsView
         case .loaded(let collections):
             nonEmptyContentView(collections: collections)

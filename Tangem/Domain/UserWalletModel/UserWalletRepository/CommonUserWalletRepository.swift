@@ -428,6 +428,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch unlockResult {
             case .failure(let error):
+                trackBiometricFailure(error: error)
                 completion(.error(error))
             case .success(let context):
                 unlockStoragesWithBiometryContext(context, completion: completion)
@@ -603,6 +604,26 @@ class CommonUserWalletRepository: UserWalletRepository {
         let keys = encryptionKeyByUserWalletId.filter { $0.key == userWalletId }
         let userWallets = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
         return userWallets.first { $0.userWalletId == userWalletId.value }
+    }
+
+    private func trackBiometricFailure(error: Error) {
+        var params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+            .source: .signIn,
+        ]
+
+        let reason: Analytics.ParameterValue?
+        switch error as? TangemSdkError {
+        case .userCancelled:
+            reason = .biometricsReasonAuthenticationCanceled
+        case .underlying(let underlyingError) where (underlyingError as? LAError)?.code == LAError.biometryLockout:
+            reason = .biometricsReasonAuthenticationLockout
+        default:
+            reason = nil
+        }
+
+        params[.reason] = reason
+
+        Analytics.log(.biometryFailed, params: params)
     }
 }
 
