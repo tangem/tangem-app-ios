@@ -25,9 +25,10 @@ final class NFTPriceFormatter: NFTPriceFormatting {
     func formatCryptoPrice(_ cryptoPrice: Decimal, in nftChain: NFTChain) -> String {
         // [REDACTED_TODO_COMMENT]
         let blockchain = NFTChainConverter.convert(nftChain, version: .v2)
+        let convertedCryptoPrice = cryptoPrice / blockchain.decimalValue
 
         return balanceFormatter.formatCryptoBalance(
-            cryptoPrice,
+            convertedCryptoPrice,
             currencyCode: blockchain.currencySymbol,
             formattingOptions: Self.cryptoFormattingOptions
         )
@@ -36,8 +37,9 @@ final class NFTPriceFormatter: NFTPriceFormatting {
     func convertToFiatAndFormatCryptoPrice(_ cryptoPrice: Decimal, in nftChain: NFTChain) async -> String {
         // [REDACTED_TODO_COMMENT]
         let blockchain = NFTChainConverter.convert(nftChain, version: .v2)
+        let convertedCryptoPrice = cryptoPrice / blockchain.decimalValue
         // Errors are intentionally ignored here, `BalanceFormatter.defaultEmptyBalanceString` will be used instead in case of failure
-        let fiatValue = try? await balanceConverter.convertToFiat(cryptoPrice, currencyId: blockchain.currencyId)
+        let fiatValue = try? await balanceConverter.convertToFiat(convertedCryptoPrice, currencyId: blockchain.currencyId)
 
         return balanceFormatter.formatFiatBalance(fiatValue)
     }

@@ -26,6 +26,7 @@ class SendCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -134,7 +135,7 @@ extension SendCoordinator {
 
 // MARK: - SendRoutable
 
-extension SendCoordinator: SendRoutable {
+extension SendCoordinator: @preconcurrency SendRoutable {
     func dismiss(reason: SendDismissReason) {
         let dismissOptions = mapDismissReasonToDismissOptions(reason)
         dismiss(with: dismissOptions)
@@ -190,6 +191,11 @@ extension SendCoordinator: SendRoutable {
             approveViewModelInput: approveViewModelInput,
             coordinator: self
         )
+    }
+
+    @MainActor
+    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+        floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 }
 
