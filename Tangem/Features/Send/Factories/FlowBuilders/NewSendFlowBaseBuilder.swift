@@ -14,9 +14,9 @@ struct NewSendFlowBaseBuilder {
     let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
-    let sendFeeStepBuilder: SendFeeStepBuilder
+    let sendFeeStepBuilder: SendNewFeeStepBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
-    let sendFinishStepBuilder: SendFinishStepBuilder
+    let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
@@ -27,16 +27,13 @@ struct NewSendFlowBaseBuilder {
         let sendModel = builder.makeSendModel()
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
 
-        let fee = sendFeeStepBuilder.makeFeeSendStep(
+        let fee = sendFeeStepBuilder.makeSendFee(
             io: (input: sendModel, output: sendModel),
-            notificationManager: notificationManager,
-            router: router
         )
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            sendFeeLoader: fee.interactor,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
             flowKind: flowKind
@@ -44,7 +41,6 @@ struct NewSendFlowBaseBuilder {
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
-            sendFeeInteractor: fee.interactor,
             sendQRCodeService: sendQRCodeService,
             router: router
         )
@@ -54,10 +50,12 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
+            feeLoader: fee.interactor,
             destinationEditableType: .editable,
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            sendReceiveTokenCompactViewModel: nil,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -65,12 +63,10 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
-            onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact,
-            onrampStatusCompactViewModel: .none
+            sendReceiveTokenCompactViewModel: nil,
+            sendDestinationCompactViewModel: destination.compact,
+            sendFeeCompactViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
@@ -85,12 +81,14 @@ struct NewSendFlowBaseBuilder {
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
+        fee.finish.bind(input: sendModel)
 
         let stepsManager = CommonNewSendStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            feeSelector: fee.feeSelector
         )
 
         summary.step.set(router: stepsManager)
@@ -111,7 +109,10 @@ struct NewSendFlowBaseBuilder {
         )
 
         stepsManager.set(output: viewModel)
-        fee.step.set(alertPresenter: viewModel)
+        stepsManager.router = router
+
+        // [REDACTED_TODO_COMMENT]
+        // fee.step.set(alertPresenter: viewModel)
         sendModel.router = viewModel
 
         return viewModel
