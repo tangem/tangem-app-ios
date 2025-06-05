@@ -8,6 +8,7 @@
 
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 enum ActionButtonModel: Hashable {
     case buy
