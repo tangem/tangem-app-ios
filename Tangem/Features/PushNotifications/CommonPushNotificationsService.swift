@@ -18,7 +18,7 @@ final class CommonPushNotificationsService: NSObject {
         .badge,
         .sound,
     ]
-    
+
     private let validAuthorizationStatuses: Set<UNAuthorizationStatus> = [
         .authorized,
         .ephemeral,
@@ -28,19 +28,18 @@ final class CommonPushNotificationsService: NSObject {
     private var respondedNotificationIds: Set<String> = []
     private let userNotificationCenter = UNUserNotificationCenter.current()
     private let application: UIApplication
-    
+
     init(application: UIApplication) {
         self.application = application
         super.init()
         userNotificationCenter.delegate = self
     }
-    
+
     @MainActor
     private func registerForRemoteNotifications() async {
         application.registerForRemoteNotifications()
     }
 }
-
 
 // MARK: - PushNotificationEventsPublishing
 
@@ -62,25 +61,25 @@ extension CommonPushNotificationsService: PushNotificationsPermissionService {
             return notificationSettings.authorizationStatus == .authorized
         }
     }
-    
+
     func registerIfPossible() async {
         let notificationSettings = await userNotificationCenter.notificationSettings()
         if validAuthorizationStatuses.contains(notificationSettings.authorizationStatus) {
             await registerForRemoteNotifications()
         }
     }
-    
+
     func requestAuthorizationAndRegister() async {
         do {
             let granted = try await userNotificationCenter.requestAuthorization(options: requestedAuthorizationOptions)
-            
+
             if granted {
                 _didReceiveEvent.send(.authorization(.granted))
                 await registerForRemoteNotifications()
             } else {
                 _didReceiveEvent.send(.authorization(.deniedOrUndetermined))
             }
-            
+
         } catch {
             _didReceiveEvent.send(.authorization(.failed(error)))
         }
@@ -96,13 +95,13 @@ extension CommonPushNotificationsService: UNUserNotificationCenterDelegate {
     @MainActor
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let identifier = response.notification.request.identifier
-        
+
         guard response.actionIdentifier == UNNotificationDefaultActionIdentifier,
               !respondedNotificationIds.contains(identifier)
         else {
             return
         }
-        
+
         respondedNotificationIds.insert(identifier)
         _didReceiveEvent.send(.receivedResponse(response))
     }
