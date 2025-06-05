@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import enum ReownWalletKit.AutoNamespaces
+
 final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     private let walletConnectService: any WCService
 
@@ -19,6 +21,12 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     ) async throws -> (WalletConnectDAppData, WalletConnectSessionProposal) {
         let reownSessionProposal = try await walletConnectService.openSession(with: uri, source: source)
 
+        let unsupportedBlockchainNames = WalletConnectSessionProposalMapper.mapUnsupportedBlockchainNames(from: reownSessionProposal)
+
+        guard unsupportedBlockchainNames.isEmpty else {
+            throw WalletConnectV2Error.unsupportedBlockchains(unsupportedBlockchainNames.sorted())
+        }
+
         let dAppData = WalletConnectDAppData(
             name: reownSessionProposal.proposer.name,
             domain: try WalletConnectDAppDataMapper.mapDomainURL(from: reownSessionProposal),
@@ -26,10 +34,22 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         )
 
         let proposal = WalletConnectSessionProposal(
-            id: reownSessionProposal.id,
-            requiredNamespaces: WalletConnectSessionProposalMapper.mapToDomainNamespaces(from: reownSessionProposal.requiredNamespaces),
-            optionalNamespaces: WalletConnectSessionProposalMapper.mapToOptionalDomainNamespaces(from: reownSessionProposal.optionalNamespaces),
-            unsupportedBlockchainNames: WalletConnectSessionProposalMapper.mapUnsupportedBlockchainNames(from: reownSessionProposal)
+            requiredBlockchains: WalletConnectSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal),
+            optionalBlockchains: WalletConnectSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal),
+            dAppConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet in
+                let reownSessionNamespaces = try AutoNamespaces.build(
+                    sessionProposal: reownSessionProposal,
+                    chains: selectedBlockchains.compactMap(WalletConnectBlockchainMapper.mapFromDomain),
+                    methods: WalletConnectSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
+                    events: WalletConnectSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
+                    accounts: selectedBlockchains.flatMap { WalletConnectAccountsMapper.map(from: $0, userWalletModel: selectedUserWallet) }
+                )
+
+                return WalletConnectDAppConnectionRequest(
+                    proposalID: reownSessionProposal.id,
+                    namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
+                )
+            }
         )
 
         return (dAppData, proposal)

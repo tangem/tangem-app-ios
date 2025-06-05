@@ -28,6 +28,8 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.0"),
+        .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -114,6 +116,18 @@ var serviceModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemHotSdk",
+            path: "TangemHotSdk/Sources",
+            dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
@@ -172,6 +186,20 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemNFT",
             ]
         ),
+        .tangemTestTarget(
+            name: "TangemLoggerTests",
+            dependencies: [
+                "TangemLogger",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemHotSdkTests",
+            path: "TangemHotSdk/Tests",
+            dependencies: [
+                "TangemFoundation",
+                "TangemHotSdk",
+            ]
+        ),
     ]
 }
 
@@ -192,6 +220,7 @@ private extension PackageDescription.Target {
     /// Just a dumb wrapper that sets the module `path` to the value of the module `name`.
     static func tangemTarget(
         name: String,
+        path: String? = nil,
         dependencies: [PackageDescription.Target.Dependency] = [],
         exclude: [String] = [],
         sources: [String]? = nil,
@@ -204,7 +233,7 @@ private extension PackageDescription.Target {
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
-        let path = name
+        let path = path ?? name
         let enrichedCSettings: [PackageDescription.CSetting]?
         let enrichedCXXSettings: [PackageDescription.CXXSetting]?
         let enrichedSwiftSettings: [PackageDescription.SwiftSetting]?
@@ -239,6 +268,7 @@ private extension PackageDescription.Target {
     /// Just a dumb wrapper that sets the module `path` to the value of the module `name`.
     static func tangemTestTarget(
         name: String,
+        path: String? = nil,
         dependencies: [PackageDescription.Target.Dependency] = [],
         exclude: [String] = [],
         sources: [String]? = nil,
@@ -250,7 +280,7 @@ private extension PackageDescription.Target {
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
-        let path = name
+        let path = path ?? name
         let enrichedCSettings: [PackageDescription.CSetting]?
         let enrichedCXXSettings: [PackageDescription.CXXSetting]?
         let enrichedSwiftSettings: [PackageDescription.SwiftSetting]?

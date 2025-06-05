@@ -1,5 +1,5 @@
 {
-  "originHash" : "0096aaeb519b3a50fcbb5ec1b5a9f744288b99c69328e1637f2bb14709e2f46c",
+  "originHash" : "99f825110ab2b0d80fec97e5a48cc1b02179e1d3b38822eaeee73c6c9da9e009",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -71,6 +71,33 @@
       "state" : {
         "revision" : "c7c7d2cf50a3211fe2843f76869c698e4e417930",
         "version" : "6.8.0"
+      }
+    },
+    {
+      "identity" : "swift-protobuf-binaries",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/swift-protobuf-binaries.git",
+      "state" : {
+        "revision" : "2e9fbb639e4c70334d48b9bfcc2a343e731bf208",
+        "version" : "1.25.2-tangem4"
+      }
+    },
+    {
+      "identity" : "tangem-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
+      "state" : {
+        "revision" : "a06ecb7f68a658bb6e4b469ac8b037c7d680c3a9",
+        "version" : "3.21.0"
+      }
+    },
+    {
+      "identity" : "wallet-core-binaries-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:tangem-developments/wallet-core-binaries-ios.git",
+      "state" : {
+        "revision" : "d882a521e9951f38d525f1656f584a59e8d077ab",
+        "version" : "4.1.20-tangem7"
       }
     },
     {

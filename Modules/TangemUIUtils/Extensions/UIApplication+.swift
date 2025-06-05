@@ -14,13 +14,16 @@ public extension UIApplication {
         return scene?.windows.first?.safeAreaInsets ?? .zero
     }
 
+    static var mainWindow: UIWindow? {
+        UIApplication.shared.windows.last { $0 is MainWindow }
+    }
+
     func endEditing() {
         windows.first { $0.isKeyWindow }?.endEditing(true)
     }
 
     static var topViewController: UIViewController? {
-        let mainWindow = UIApplication.shared.windows.last { $0 is MainWindow }
-        return mainWindow?.topViewController
+        UIApplication.mainWindow?.topViewController
     }
 
     static func modalFromTop(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {

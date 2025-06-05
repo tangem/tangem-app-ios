@@ -11,7 +11,7 @@ import BlockchainSdk
 
 struct SendNewDestinationStepBuilder {
     typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
-    typealias ReturnValue = (step: SendNewDestinationStep, interactor: SendDestinationInteractor, compact: SendDestinationCompactViewModel)
+    typealias ReturnValue = (step: SendNewDestinationStep, interactor: SendDestinationInteractor, compact: SendNewDestinationCompactViewModel, finish: SendDestinationCompactViewModel)
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -22,33 +22,39 @@ struct SendNewDestinationStepBuilder {
 
     func makeSendDestinationStep(
         io: IO,
-        sendFeeInteractor: any SendFeeInteractor,
         sendQRCodeService: SendQRCodeService,
         router: SendDestinationRoutable
     ) -> ReturnValue {
-        let addressTextViewHeightModel = AddressTextViewHeightModel()
+        let suiTextViewModel = SUITextViewModel()
         let interactor = makeSendDestinationInteractor(io: io)
 
         let viewModel = makeSendNewDestinationViewModel(
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
-            addressTextViewHeightModel: addressTextViewHeightModel,
+            addressTextViewHeightModel: suiTextViewModel,
             router: router
         )
 
-        let step = SendNewDestinationStep(
-            viewModel: viewModel,
-            interactor: interactor,
-            sendFeeInteractor: sendFeeInteractor,
-            tokenItem: tokenItem
-        )
+        let step = SendNewDestinationStep(viewModel: viewModel, interactor: interactor)
 
-        let compact = makeSendDestinationCompactViewModel(
+        let compact = makeSendNewDestinationCompactViewModel(
             input: io.input,
-            addressTextViewHeightModel: addressTextViewHeightModel
+            suiTextViewModel: suiTextViewModel
         )
 
-        return (step: step, interactor: interactor, compact: compact)
+        let finish = makeSendDestinationCompactViewModel(
+            input: io.input,
+            addressTextViewHeightModel: suiTextViewModel
+        )
+
+        return (step: step, interactor: interactor, compact: compact, finish: finish)
+    }
+
+    func makeSendNewDestinationCompactViewModel(
+        input: SendDestinationInput,
+        suiTextViewModel: AddressTextViewHeightModel
+    ) -> SendNewDestinationCompactViewModel {
+        .init(input: input, suiTextViewModel: suiTextViewModel)
     }
 
     func makeSendDestinationCompactViewModel(

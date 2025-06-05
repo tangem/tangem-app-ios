@@ -79,8 +79,7 @@ struct WalletConnectView: View {
 
     private var newConnectionButton: some View {
         MainButton(
-            title: viewModel.state.newConnectionButton.title,
-            isLoading: viewModel.state.newConnectionButton.isLoading,
+            title: viewModel.state.newConnectionButtonTitle,
             action: {
                 viewModel.handle(viewEvent: .newConnectionButtonTapped)
             }

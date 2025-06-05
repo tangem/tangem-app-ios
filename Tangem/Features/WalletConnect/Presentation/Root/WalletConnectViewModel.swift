@@ -57,14 +57,6 @@ final class WalletConnectViewModel: ObservableObject {
                 self?.handle(viewEvent: .connectedDAppsChanged(sessions))
             }
         }
-
-        walletConnectService
-            .canEstablishNewSessionPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] canEstablishNewSession in
-                self?.handle(viewEvent: .canConnectNewDAppStateChanged(canEstablishNewSession))
-            }
-            .store(in: &cancellables)
     }
 
     private func disconnectAllConnectedDApps() {
@@ -104,9 +96,6 @@ extension WalletConnectViewModel {
         case .dAppTapped(let dApp):
             handleDAppButtonTapped(dApp)
 
-        case .canConnectNewDAppStateChanged(let canConnectNewDApp):
-            handleCanConnectNewDAppStateChanged(canConnectNewDApp)
-
         case .connectedDAppsChanged(let connectedDApps):
             handleConnectedDAppsChanged(connectedDApps)
 
@@ -129,7 +118,7 @@ extension WalletConnectViewModel {
 
                 if let clipboardURI {
                     establishConnectionFromClipboardAction = { [weak self] in
-                        self?.walletConnectService.openSession(with: clipboardURI, source: .clipboard)
+                        self?.coordinator?.openDAppConnectionProposal(forURI: clipboardURI, source: .clipboard)
                     }
                 } else {
                     establishConnectionFromClipboardAction = nil
@@ -143,7 +132,7 @@ extension WalletConnectViewModel {
                 )
 
             case .canOpenQRScanner(let clipboardURI):
-                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [walletConnectService] result in
+                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [weak self] result in
                     let source: Analytics.WalletConnectSessionSource
                     let sessionURI: WalletConnectRequestURI
 
@@ -156,7 +145,7 @@ extension WalletConnectViewModel {
                         sessionURI = uri
                     }
 
-                    walletConnectService.openSession(with: sessionURI, source: source)
+                    self?.coordinator?.openDAppConnectionProposal(forURI: sessionURI, source: source)
                 }
             }
         } catch {
@@ -183,10 +172,6 @@ extension WalletConnectViewModel {
 
     private func handleDAppButtonTapped(_ dApp: WalletConnectSavedSession) {
         coordinator?.openConnectedDAppDetails(dApp)
-    }
-
-    private func handleCanConnectNewDAppStateChanged(_ canConnectNewDApp: Bool) {
-        state.newConnectionButton.isLoading = !canConnectNewDApp
     }
 
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectSavedSession]) {
