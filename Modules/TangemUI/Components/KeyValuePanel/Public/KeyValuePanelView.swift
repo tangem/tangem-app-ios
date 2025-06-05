@@ -27,28 +27,34 @@ public struct KeyValuePanelView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            if let header = viewData.header {
-                makeHeaderView(header)
-            }
+        ZStack {
+            // This invisible view is used to read the width of the parent container since on some iOS versions
+            // the width of items in LazyVGrid is not calculated correctly when using LazyVGrid's own width
+            Color.clear
+                .readGeometry { value in
+                    width = value.frame.width
+                }
 
-            LazyVGrid(columns: gridItems, alignment: .center, spacing: Constants.interitemSpacing) {
-                ForEach(viewData.keyValues.indexed(), id: \.0) { _, pair in
-                    KeyValuePairView(pair: pair)
-                        .frame(maxWidth: itemWidth, alignment: .leading)
+            VStack(alignment: .leading, spacing: 20) {
+                if let header = viewData.header {
+                    makeHeaderView(header)
+                }
+
+                LazyVGrid(columns: gridItems, alignment: .center, spacing: Constants.interitemSpacing) {
+                    ForEach(viewData.keyValues.indexed(), id: \.0) { _, pair in
+                        KeyValuePairView(pair: pair)
+                            .frame(maxWidth: itemWidth, alignment: .leading)
+                    }
                 }
             }
-            .readGeometry { value in
-                width = value.frame.width
+            .ifLet(viewData.backgroundColor) { view, color in
+                view.roundedBackground(
+                    with: color,
+                    verticalPadding: Constants.backgroundVerticalPadding,
+                    horizontalPadding: Constants.backgroundHorizontalPadding,
+                    radius: 14
+                )
             }
-        }
-        .ifLet(viewData.backgroundColor) { view, color in
-            view.roundedBackground(
-                with: color,
-                verticalPadding: Constants.backgroundVerticalPadding,
-                horizontalPadding: Constants.backgroundHorizontalPadding,
-                radius: 14
-            )
         }
     }
 
