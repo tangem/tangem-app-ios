@@ -52,15 +52,22 @@ extension SuiCoinObject {
         }
 
         init(string: String) throws {
-            let elements = string.components(separatedBy: Self.separator)
+            if string == Self.sui.string {
+                self = Self.sui
+            } else {
+                let elements = string.components(separatedBy: Self.separator)
 
-            guard elements.count == 3 else {
-                throw SuiError.failedDecoding
+                guard elements.count == 3 else {
+                    throw SuiError.failedDecoding
+                }
+
+                let withoutPrefix = elements[0].removeHexPrefix()
+                let paddingContract = withoutPrefix.leftPadding(toLength: 64, withPad: "0").addHexPrefix()
+
+                contract = paddingContract
+                lowerID = elements[1]
+                upperID = elements[2]
             }
-
-            contract = Data(hexString: elements[0]).leadingZeroPadding(toLength: 32).hex().addHexPrefix()
-            lowerID = elements[1]
-            upperID = elements[2]
         }
 
         init(from decoder: any Decoder) throws {
