@@ -149,7 +149,7 @@ struct MoralisSolanaNetworkMapper {
             else {
                 NFTLogger.warning(
                     String(
-                        format: "Attribute missing required fields: type %@, value %@",
+                        format: "Attribute missing required fields: traitType %@, value %@",
                         String(describing: attribute.traitType),
                         String(describing: attribute.value)
                     )
