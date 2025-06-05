@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct PushNotificationsPermissionRequestView: View {
     @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
