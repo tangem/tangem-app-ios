@@ -448,6 +448,7 @@
 		7982B02E2DE7259E00C41EA5 /* MainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B02D2DE7259500C41EA5 /* MainPage.swift */; };
 		7985089F2DE99FE900388668 /* ToSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7985089E2DE99FE800388668 /* ToSPage.swift */; };
 		798508AC2DF1683C00388668 /* TangemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B02B2DE71A9200C41EA5 /* TangemUITests.swift */; };
+		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
 		B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */; };
@@ -7070,6 +7071,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				798508AE2DF1AF9100388668 /* TangemModules in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -28825,6 +28827,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		798508AD2DF1AF9100388668 /* TangemModules */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = TangemModules;
 		};
 		B0776C362DA69090004A8765 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
