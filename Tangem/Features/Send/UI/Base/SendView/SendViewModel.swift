@@ -42,10 +42,6 @@ final class SendViewModel: ObservableObject {
     var subtitle: String? { step.subtitle }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
 
-    var closeButtonColor: Color {
-        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
-    }
-
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
     }
@@ -137,7 +133,7 @@ final class SendViewModel: ObservableObject {
 
     func onAppear(newStep: any SendStep) {
         switch (step.type, newStep.type) {
-        case (_, .summary):
+        case (_, .summary), (_, .newSummary), (_, .newDestination):
             isKeyboardActive = false
         default:
             break
@@ -153,7 +149,7 @@ final class SendViewModel: ObservableObject {
         // if the destination's TextField will be support @FocusState
         // case (_, .destination):
         //    isKeyboardActive = true
-        case (_, .amount):
+        case (_, .amount), (_, .newAmount):
             isKeyboardActive = true
         default:
             break

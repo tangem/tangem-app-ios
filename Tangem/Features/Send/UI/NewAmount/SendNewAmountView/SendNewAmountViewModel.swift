@@ -7,15 +7,12 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
-class SendNewAmountViewModel: ObservableObject {
+class SendNewAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
-
-    @Published var id: UUID = .init()
-    @Published var isEditMode: Bool = false
 
     @Published var cryptoTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var cryptoTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
@@ -100,7 +97,7 @@ class SendNewAmountViewModel: ObservableObject {
         }
 
         let amount = interactor.updateToMaxAmount()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        FeedbackGenerator.success()
         updateAmountsUI(amount: amount)
     }
 }
@@ -184,25 +181,7 @@ private extension SendNewAmountViewModel {
 // MARK: - SendStepViewAnimatable
 
 extension SendNewAmountViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {
-        switch state {
-        case .appearing(.destination(_)):
-            // Have to be always visible
-            isEditMode = false
-        case .appearing(.summary(_)):
-            // Will be shown with animation
-            isEditMode = true
-        case .disappearing(.summary(_)):
-            // Have to use this HACK to force re-render view with the new transition
-            // Will look at it "if" later
-            if !isEditMode {
-                isEditMode = true
-                id = UUID()
-            }
-        default:
-            break
-        }
-    }
+    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 // MARK: - Types
