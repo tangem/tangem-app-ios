@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct WelcomeOnboardingTOSView: View {
     @ObservedObject var viewModel: WelcomeOnboardingTOSViewModel
