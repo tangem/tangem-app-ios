@@ -49,7 +49,7 @@ struct NFTNetworkServiceFactory {
                 headers: [
                     APIHeaderKeyInfo(
                         headerName: Constants.xAPIKeyHeaderName,
-                        headerValue: keysManager.nftScanAPIKey
+                        headerValue: ""
                     ),
                 ],
                 chain: nftChain
