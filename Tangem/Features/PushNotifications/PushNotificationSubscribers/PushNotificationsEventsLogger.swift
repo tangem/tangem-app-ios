@@ -10,22 +10,19 @@ import Foundation
 import Combine
 
 final class PushNotificationsEventsLogger {
-    
     // MARK: - Properties
-    
+
     @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
     private var cancellable: AnyCancellable?
-    
-    
+
     // MARK: - Init
-    
+
     public init() {
         bind()
     }
-    
-    
+
     // MARK: - Private Implementation
-    
+
     private func bind() {
         cancellable = pushNotificationsEventsPublisher.eventsPublisher
             .withWeakCaptureOf(self)
@@ -51,7 +48,6 @@ final class PushNotificationsEventsLogger {
         }
     }
 }
-
 
 // MARK: - Constants
 

@@ -33,7 +33,7 @@ public final class MoralisSolanaNetworkService {
 // MARK: - NFTNetworkService protocol conformance
 
 extension MoralisSolanaNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
+    public func getCollections(address: String) async -> NFTPartialResult<[NFTCollection]> {
         let apiTarget = MoralisSolanaAPITarget(
             target: .getNFTsByWallet(
                 address: address,
@@ -45,28 +45,40 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
             )
         )
 
-        let assets = try await provider.asyncRequest(apiTarget)
-            .map([MoralisSolanaNetworkResult.Asset].self)
+        var resultCollections = [NFTCollection]()
+        var requestError: NFTErrorDescriptor?
 
-        let groupedAssets = Dictionary(
-            grouping: assets,
-            by: { makeAssetsGroupingKeys(from: $0.collection) }
-        )
+        do {
+            let assets = try await provider.asyncRequest(apiTarget)
+                .map([MoralisSolanaNetworkResult.Asset].self)
 
-        let keys = assets
-            .map { makeAssetsGroupingKeys(from: $0.collection) }
-            .unique()
+            let groupedAssets = Dictionary(
+                grouping: assets,
+                by: { makeAssetsGroupingKeys(from: $0.collection) }
+            )
 
-        let collections = keys.map { key in
-            let assets = groupedAssets[key, default: []]
-            return mapper.map(collection: assets.first?.collection, assets: assets, ownerAddress: address)
+            let keys = assets
+                .map { makeAssetsGroupingKeys(from: $0.collection) }
+                .unique()
+
+            let collections = keys.map { key in
+                let assets = groupedAssets[key, default: []]
+                return mapper.map(collection: assets.first?.collection, assets: assets, ownerAddress: address)
+            }
+
+            resultCollections.append(contentsOf: collections)
+        } catch {
+            requestError = NFTErrorDescriptor(
+                code: error.networkErrorCodeOrNSErrorFallback,
+                description: error.localizedDescription
+            )
         }
 
-        return NFTPartialResult(value: collections, errors: [])
+        return NFTPartialResult(value: resultCollections, errors: [requestError].compactMap { $0 })
     }
 
-    public func getAssets(address: String, in collection: NFTCollection) async throws -> NFTPartialResult<[NFTAsset]> {
-        let loadedResponse = try await getCollections(address: address)
+    public func getAssets(address: String, in collection: NFTCollection) async -> NFTPartialResult<[NFTAsset]> {
+        let loadedResponse = await getCollections(address: address)
 
         let assets = loadedResponse
             .value
