@@ -13,9 +13,7 @@ import TangemUI
 
 struct SendNewAmountView: View {
     @ObservedObject var viewModel: SendNewAmountViewModel
-
     let transitionService: SendTransitionService
-    let namespace: SendAmountView.Namespace
 
     @FocusState private var focused: SendAmountCalculationType?
 
@@ -23,8 +21,7 @@ struct SendNewAmountView: View {
         GroupedScrollView(spacing: 14) {
             content
         }
-        .id(viewModel.id)
-        .transition(transitionService.transitionToAmountStep(isEditMode: viewModel.isEditMode))
+        .transition(transitionService.transitionToNewAmountStep())
         .onAppear(perform: viewModel.onAppear)
     }
 

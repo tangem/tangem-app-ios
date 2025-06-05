@@ -13,8 +13,6 @@ import TangemFoundation
 import SwiftUI
 
 class SendNewDestinationViewModel: ObservableObject, Identifiable {
-    @Published var isEditMode: Bool = false
-
     @Published var destinationAddressViewModel: SendNewDestinationAddressViewModel?
     @Published var additionalFieldViewModel: SendNewDestinationAdditionalFieldViewModel?
 

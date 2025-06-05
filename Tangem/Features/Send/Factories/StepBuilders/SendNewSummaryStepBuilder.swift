@@ -12,7 +12,7 @@ struct SendNewSummaryStepBuilder {
     typealias IO = (input: SendSummaryInput, output: SendSummaryOutput)
     typealias ReturnValue = (step: SendNewSummaryStep, interactor: SendSummaryInteractor)
 
-    let walletModel: any WalletModel
+    let tokenItem: TokenItem
     let builder: SendDependenciesBuilder
 
     func makeSendSummaryStep(
@@ -20,12 +20,14 @@ struct SendNewSummaryStepBuilder {
         actionType: SendFlowActionType,
         descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
         notificationManager: NotificationManager,
+        feeLoader: SendFeeLoader,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
+        sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
+        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = makeSendSummaryInteractor(
             io: io,
@@ -40,6 +42,7 @@ struct SendNewSummaryStepBuilder {
             amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
@@ -47,8 +50,8 @@ struct SendNewSummaryStepBuilder {
         let step = SendNewSummaryStep(
             viewModel: viewModel,
             input: io.input,
-            title: builder.summaryTitle(action: actionType),
-            subtitle: builder.summarySubtitle(action: actionType)
+            feeLoader: feeLoader,
+            title: builder.summaryTitle(action: actionType)
         )
 
         return (step: step, interactor: interactor)
@@ -64,13 +67,14 @@ private extension SendNewSummaryStepBuilder {
         notificationManager: NotificationManager,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
-        sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendAmountCompactViewModel?,
+        sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
+        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> SendNewSummaryViewModel {
         let settings = SendNewSummaryViewModel.Settings(
-            tokenItem: walletModel.tokenItem,
+            tokenItem: tokenItem,
             destinationEditableType: destinationEditableType,
             amountEditableType: amountEditableType,
             actionType: actionType
@@ -81,6 +85,7 @@ private extension SendNewSummaryStepBuilder {
             interactor: interactor,
             notificationManager: notificationManager,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel

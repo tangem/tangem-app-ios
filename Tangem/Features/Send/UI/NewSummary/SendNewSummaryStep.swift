@@ -13,19 +13,19 @@ import SwiftUI
 class SendNewSummaryStep {
     private let viewModel: SendNewSummaryViewModel
     private let input: SendSummaryInput
+    private let feeLoader: SendFeeLoader
     private let _title: String?
-    private let _subtitle: String?
 
     init(
         viewModel: SendNewSummaryViewModel,
         input: SendSummaryInput,
-        title: String?,
-        subtitle: String?
+        feeLoader: SendFeeLoader,
+        title: String?
     ) {
         self.viewModel = viewModel
         self.input = input
+        self.feeLoader = feeLoader
         _title = title
-        _subtitle = subtitle
     }
 
     func set(router: SendSummaryStepsRoutable) {
@@ -38,13 +38,18 @@ class SendNewSummaryStep {
 extension SendNewSummaryStep: SendStep {
     var title: String? { _title }
 
-    var subtitle: String? { _subtitle }
-
     var type: SendStepType { .newSummary(viewModel) }
+
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         input.isReadyToSendPublisher.eraseToAnyPublisher()
+    }
+
+    func willAppear(previous step: any SendStep) {
+        feeLoader.updateFees()
     }
 }
