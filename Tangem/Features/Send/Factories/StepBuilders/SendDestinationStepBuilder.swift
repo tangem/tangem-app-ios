@@ -100,21 +100,33 @@ private extension SendDestinationStepBuilder {
     }
 
     func makeSuggestedWallets() -> [SendDestinationViewModel.Settings.SuggestedWallet] {
-        userWalletRepository.models.reduce([]) { result, userWalletModel in
-            let walletModels = userWalletModel.walletModelsManager.walletModels
-            return result + walletModels
-                .filter { walletModel in
-                    let ignoredAddresses = self.walletModel.addresses.map { $0.value }
+        let ignoredAddresses = walletModel
+            .addresses
+            .map(\.value)
+            .toSet()
 
-                    let shouldBeIncluded = walletModel.tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
+        let targetNetworkId = walletModel
+            .tokenItem
+            .blockchain
+            .networkId
 
-                    return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
-                        && walletModel.isMainToken
-                        && shouldBeIncluded
-                }
-                .map { walletModel in
-                    (name: userWalletModel.name, address: walletModel.defaultAddressString)
-                }
-        }
+        return userWalletRepository
+            .models
+            .reduce(into: []) { partialResult, userWalletModel in
+                let walletModels = userWalletModel
+                    .walletModelsManager
+                    .walletModels
+
+                partialResult += walletModels
+                    .filter { walletModel in
+                        let blockchain = walletModel.tokenItem.blockchain
+                        let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
+
+                        return blockchain.networkId == targetNetworkId && walletModel.isMainToken && shouldBeIncluded()
+                    }
+                    .map { walletModel in
+                        (name: userWalletModel.name, address: walletModel.defaultAddressString)
+                    }
+            }
     }
 }
