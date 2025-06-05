@@ -3232,6 +3232,7 @@
 		EFA154802CD24B8700A0642C /* OnrampAmountInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */; };
 		EFA154822CD2542700A0642C /* OnrampAmountBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */; };
 		EFA1FD892DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */; };
+		EFA23E7E2DF08597004ADD0A /* ExpressProvidersEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */; };
 		EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E722DEF6CBE004ADD0A /* SendNewFinishStep.swift */; };
 		EFA23E752DEF6CDD004ADD0A /* SendNewFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */; };
 		EFA23E782DEF6CFC004ADD0A /* SendNewFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */; };
@@ -6838,6 +6839,7 @@
 		EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInputOutput.swift; sourceTree = "<group>"; };
 		EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBuilder.swift; sourceTree = "<group>"; };
 		EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaUTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
+		EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersEvents.swift; sourceTree = "<group>"; };
 		EFA23E722DEF6CBE004ADD0A /* SendNewFinishStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishStep.swift; sourceTree = "<group>"; };
 		EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishView.swift; sourceTree = "<group>"; };
 		EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishViewModel.swift; sourceTree = "<group>"; };
@@ -17417,7 +17419,8 @@
 		EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */ = {
 			isa = PBXGroup;
 			children = (
-				EFCC878C2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift */,
+				EFA23E7C2DF0858A004ADD0A /* ExpressProvidersEvents */,
+				EFA23E7B2DF08583004ADD0A /* ExpressMoreProvidersSoonView */,
 				EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */,
 				EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */,
 				EF729B6E2AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift */,
@@ -18024,6 +18027,22 @@
 				EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */,
 			);
 			path = Interactor;
+			sourceTree = "<group>";
+		};
+		EFA23E7B2DF08583004ADD0A /* ExpressMoreProvidersSoonView */ = {
+			isa = PBXGroup;
+			children = (
+				EFCC878C2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift */,
+			);
+			path = ExpressMoreProvidersSoonView;
+			sourceTree = "<group>";
+		};
+		EFA23E7C2DF0858A004ADD0A /* ExpressProvidersEvents */ = {
+			isa = PBXGroup;
+			children = (
+				EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */,
+			);
+			path = ExpressProvidersEvents;
 			sourceTree = "<group>";
 		};
 		EFA23E712DEF6469004ADD0A /* NewFinish */ = {
@@ -19660,6 +19679,7 @@
 				EFAD02472A824E6700E9B959 /* TransactionViewModel.swift in Sources */,
 				DA64DAC92C08BE71000CBC1E /* UserWalletNameIndexationHelper.swift in Sources */,
 				EF729B722AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift in Sources */,
+				EFA23E7E2DF08597004ADD0A /* ExpressProvidersEvents.swift in Sources */,
 				B0E559FD2CA4385F00E20EF4 /* MarketsTokenDetailsExchangesListView.swift in Sources */,
 				0A83F56C2DD3609400ADB321 /* MarketsNotificationsManager.swift in Sources */,
 				DCEC71F52B8683FB00B3847E /* BackupValidator.swift in Sources */,
