@@ -12,7 +12,7 @@ final class MainTest: CommonTests {
     lazy var mainPage = MainPage(app)
     lazy var tosPage = ToSPage(app)
 
-    func testScanWallet2() {
+    func testScanWalletTwo() {
         launchApp()
 
         testStep("Accept Terms of Service and skip additional setup") {
