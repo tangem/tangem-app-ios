@@ -12,7 +12,7 @@ import Combine
 public class CommonIncomingActionManager {
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
-    
+
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
@@ -21,7 +21,7 @@ public class CommonIncomingActionManager {
     public init() {
         bind()
     }
-    
+
     private func bind() {
         cancellable = pushNotificationsEventsPublisher.eventsPublisher
             .withWeakCaptureOf(self)
@@ -30,7 +30,7 @@ public class CommonIncomingActionManager {
                 manager.handlePushNotificationEvent(event)
             }
     }
-    
+
     @discardableResult
     private func _handleDeeplink(_ url: URL) -> Bool {
         AppLogger.info("Received deeplink: \(url.absoluteString)")
@@ -43,7 +43,7 @@ public class CommonIncomingActionManager {
         tryHandleLastAction()
         return true
     }
-    
+
     private func handlePushNotificationEvent(_ event: PushNotificationsEvent) {
         guard case .receivedResponse(let response) = event,
               let deeplinkURL = response.notification.request.content.userInfo[Constants.deeplinkKey] as? String,
@@ -51,7 +51,7 @@ public class CommonIncomingActionManager {
         else {
             return
         }
-        
+
         _handleDeeplink(url)
     }
 }
@@ -97,7 +97,6 @@ extension CommonIncomingActionManager: IncomingActionManaging {
     }
 }
 
-
 // MARK: - IncomingActionHandler
 
 extension CommonIncomingActionManager: IncomingActionHandler {
@@ -117,7 +116,6 @@ extension CommonIncomingActionManager: IncomingActionHandler {
         _handleDeeplink(url)
     }
 }
-
 
 // MARK: - Constants
 
