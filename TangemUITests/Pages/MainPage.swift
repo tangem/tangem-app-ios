@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 final class MainPage: UIElementPage<MainPageUIElement> {
     private(set) lazy var buyTitle = staticText(.buyTitle)
