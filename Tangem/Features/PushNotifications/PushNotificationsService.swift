@@ -26,16 +26,16 @@ extension InjectedValues {
     var pushNotificationsPermission: PushNotificationsPermissionService {
         service
     }
-    
+
     var pushNotificationsEventsPublisher: PushNotificationEventsPublishing {
         service
     }
-    
+
     private var service: PushNotificationsService {
         get { Self[Key.self] }
         set { Self[Key.self] = newValue }
     }
-    
+
     private struct Key: InjectionKey {
         static var currentValue: PushNotificationsService = CommonPushNotificationsService(application: .shared)
     }
