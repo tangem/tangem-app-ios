@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 final class ToSPage: UIElementPage<ToSPageUIElement> {
     private(set) lazy var acceptButton = button(.acceptButton)
