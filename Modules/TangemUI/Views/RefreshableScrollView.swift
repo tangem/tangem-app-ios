@@ -11,23 +11,30 @@ import SwiftUI
 public typealias RefreshCompletionHandler = () -> Void
 public typealias OnRefresh = (_ completionHandler: @escaping RefreshCompletionHandler) -> Void
 
-/// Author: The SwiftUI Lab.
-/// Full article: https://swiftui-lab.com/scrollview-pull-to-refresh/.
 public struct RefreshableScrollView<Content: View>: View {
     @StateObject private var refreshContainer: RefreshContainer
 
     private let content: Content
+    private let useNativeRefresh: Bool
 
+    /// Initializes a custom `ScrollView` with pull-to-refresh component.
+    ///
+    /// - Parameters:
+    ///   - onRefresh: A closure that will be called when a refresh is triggered by the user (e.g. by pulling down).
+    ///   - content: A view builder that provides the scrollable content of the view.
+    ///   - useNativeRefresh: A Boolean value that determines whether to use the native iOS pull-to-refresh behavior (default is `false`).
     public init(
         onRefresh: @escaping OnRefresh,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
+        useNativeRefresh: Bool = false
     ) {
         self.content = content()
+        self.useNativeRefresh = useNativeRefresh
         _refreshContainer = StateObject(wrappedValue: RefreshContainer(onRefresh: onRefresh))
     }
 
     public var body: some View {
-        if #available(iOS 16, *) {
+        if #available(iOS 16, *), useNativeRefresh {
             ScrollView(.vertical, showsIndicators: false) {
                 content
             }
@@ -40,6 +47,8 @@ public struct RefreshableScrollView<Content: View>: View {
     }
 }
 
+/// Author: The SwiftUI Lab.
+/// Full article: https://swiftui-lab.com/scrollview-pull-to-refresh/.
 @available(iOS, obsoleted: 16, message: "iOS 15 doesn't fully support refreshable for ScrollView. Can be removed after update min OS version to 16 ([REDACTED_INFO])")
 private struct RefreshableScrollViewCompat<Content: View>: View {
     @State private var previousScrollOffset: CGFloat = 0

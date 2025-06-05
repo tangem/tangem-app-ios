@@ -46,8 +46,12 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     var subtitle: String {
-        let totalNFTs = collections.map(\.assetsCount).reduce(0, +)
-        return Localization.nftWalletCount(totalNFTs, collections.count)
+        if collections.isEmpty {
+            return Localization.nftWalletReceiveNft
+        } else {
+            let totalNFTs = collections.map(\.assetsCount).reduce(0, +)
+            return Localization.nftWalletCountIos(totalNFTs, collections.count)
+        }
     }
 
     func onViewAppear() {

@@ -23,8 +23,6 @@ extension InjectedValues {
     }
 
     private struct Key: InjectionKey {
-        static var currentValue: PushNotificationsInteractor = CommonPushNotificationsInteractor(
-            pushNotificationsService: PushNotificationsService(application: .shared)
-        )
+        static var currentValue: PushNotificationsInteractor = CommonPushNotificationsInteractor()
     }
 }
