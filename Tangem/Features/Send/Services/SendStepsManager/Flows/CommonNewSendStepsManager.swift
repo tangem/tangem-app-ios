@@ -12,9 +12,11 @@ class CommonNewSendStepsManager {
     private let amountStep: SendNewAmountStep
     private let destinationStep: SendNewDestinationStep
     private let summaryStep: SendNewSummaryStep
-    private let finishStep: SendFinishStep
+    private let finishStep: SendNewFinishStep
+    private let feeSelector: FeeSelectorContentViewModel
 
     private var stack: [SendStep]
+    weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
 
     private var isEditAction: Bool {
@@ -25,12 +27,14 @@ class CommonNewSendStepsManager {
         amountStep: SendNewAmountStep,
         destinationStep: SendNewDestinationStep,
         summaryStep: SendNewSummaryStep,
-        finishStep: SendFinishStep
+        finishStep: SendNewFinishStep,
+        feeSelector: FeeSelectorContentViewModel
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.feeSelector = feeSelector
 
         stack = [amountStep]
     }
@@ -46,7 +50,7 @@ class CommonNewSendStepsManager {
             return summaryStep
         case .newAmount:
             return destinationStep
-        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination:
+        case .fee, .validators, .summary, .newSummary, .finish, .onramp, .amount, .destination, .newFinish:
             assertionFailure("There is no next step")
             return nil
         }
@@ -58,14 +62,14 @@ class CommonNewSendStepsManager {
         switch step.type {
         case .summary, .newSummary:
             output?.update(state: .init(step: step, action: .action))
-        case .finish:
+        case .finish, .newFinish:
             output?.update(state: .init(step: step, action: .close))
         case .newAmount where isEditAction,
              .newDestination where isEditAction,
              .fee where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
         case .newAmount, .newDestination:
-            output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
+            output?.update(state: .init(step: step, action: .next))
         case .amount, .fee, .validators, .onramp, .destination:
             assertionFailure("There is no next step")
         }
@@ -81,7 +85,7 @@ class CommonNewSendStepsManager {
         let step = currentStep()
 
         switch step.type {
-        case .summary:
+        case .summary, .newSummary:
             output?.update(state: .init(step: step, action: .action))
         default:
             output?.update(state: .init(step: step, action: .next))
@@ -92,7 +96,7 @@ class CommonNewSendStepsManager {
 // MARK: - SendStepsManager
 
 extension CommonNewSendStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { false }
+    var initialKeyboardState: Bool { true }
 
     var initialFlowActionType: SendFlowActionType { .send }
 
@@ -101,7 +105,11 @@ extension CommonNewSendStepsManager: SendStepsManager {
     }
 
     var shouldShowDismissAlert: Bool {
-        stack.contains(where: { $0.type.isSummary })
+        if currentStep().type.isFinish {
+            return false
+        }
+
+        return stack.contains(where: { $0.type.isSummary })
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -174,7 +182,7 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
+        router?.openFeeSelector(viewModel: feeSelector)
     }
 }
 

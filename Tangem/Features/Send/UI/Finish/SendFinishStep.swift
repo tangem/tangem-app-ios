@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 class SendFinishStep {
     private let viewModel: SendFinishViewModel
@@ -24,6 +23,9 @@ extension SendFinishStep: SendStep {
     var title: String? { nil }
 
     var type: SendStepType { .finish(viewModel) }
+
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
