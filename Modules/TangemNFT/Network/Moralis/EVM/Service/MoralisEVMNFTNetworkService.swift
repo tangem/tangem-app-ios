@@ -82,7 +82,6 @@ public final class MoralisEVMNFTNetworkService {
     private func paginableRequest<T>(
         targetFactory: MoralisPaginableResponse.TargetFactory
     ) async -> (value: [T], errors: [NFTErrorDescriptor]) where T: Decodable, T: MoralisPaginableResponse {
-        var hadError = false
         var results: [T] = []
         var errors: [NFTErrorDescriptor] = []
         var cursor: String? = nil
@@ -98,10 +97,9 @@ public final class MoralisEVMNFTNetworkService {
                 results.append(response)
                 cursor = response.cursor
             } catch {
-                let errorCode = error.asAFError?.responseCode ?? (error as NSError).code
                 errors.append(
                     NFTErrorDescriptor(
-                        code: errorCode,
+                        code: error.networkErrorCodeOrNSErrorFallback,
                         description: error.localizedDescription
                     )
                 )
@@ -116,8 +114,14 @@ public final class MoralisEVMNFTNetworkService {
 // MARK: - NFTNetworkService protocol conformance
 
 extension MoralisEVMNFTNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
-        let moralisNFTChain = try makeMoralisNFTChain(from: chain)
+    public func getCollections(address: String) async -> NFTPartialResult<[NFTCollection]> {
+        let moralisNFTChain: MoralisEVMNetworkParams.NFTChain
+
+        do {
+            moralisNFTChain = try makeMoralisNFTChain(from: chain)
+        } catch {
+            return makeEmptyResultWithErrorAndLog<NFTCollection>(error: error)
+        }
 
         let loadedResponse: (value: [EVMResponse<[EVMCollection]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
             MoralisEVMAPITarget(
@@ -129,7 +133,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                         limit: Constants.pageSize,
                         cursor: cursor,
                         tokenCounts: true, // Moralis doesn't return the list of assets, so this option must be turned on
-                        excludeSpam: nil
+                        excludeSpam: true
                     )
                 )
             )
@@ -141,8 +145,14 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         return NFTPartialResult(value: nftCollections, errors: loadedResponse.errors)
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
-        let moralisNFTChain = try makeMoralisNFTChain(from: chain)
+    public func getAssets(address: String, in collection: NFTCollection) async -> NFTPartialResult<[NFTAsset]> {
+        let moralisNFTChain: MoralisEVMNetworkParams.NFTChain
+
+        do {
+            moralisNFTChain = try makeMoralisNFTChain(from: chain)
+        } catch {
+            return makeEmptyResultWithErrorAndLog<NFTAsset>(error: error)
+        }
 
         let loadedResponse: (value: [EVMResponse<[EVMAsset]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
             MoralisEVMAPITarget(
@@ -154,7 +164,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
                         format: .decimal,
                         limit: Constants.pageSize,
                         cursor: cursor,
-                        excludeSpam: nil,
+                        excludeSpam: true,
                         tokenAddresses: nil,
                         normalizeMetadata: true,
                         mediaItems: true,
@@ -168,20 +178,21 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             .value
             .flatMap(\.result)
             .filter { asset in
-                guard let collectionIdentifier else {
-                    return true
-                }
-                return asset.tokenAddress == collectionIdentifier.collectionIdentifier
+                asset.tokenAddress == collection.id.collectionIdentifier
             }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
         return NFTPartialResult(
-            value: mapper.map(assets: response, ownerAddress: address),
+            value: mapper.map(
+                assets: response,
+                ownerAddress: address,
+                fallbackDescription: collection.description
+            ),
             errors: loadedResponse.errors
         )
     }
 
-    public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
+    public func getAsset(assetIdentifier: NFTAsset.ID, in collection: NFTCollection) async throws -> NFTAsset? {
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
         let token = MoralisEVMNetworkParams.NFTAssetsBody.Token(
@@ -207,7 +218,11 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             .first { $0.tokenAddress == assetIdentifier.contractAddress && $0.tokenId == assetIdentifier.identifier }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
-        return mapper.map(asset: response, ownerAddress: assetIdentifier.ownerAddress)
+        return mapper.map(
+            asset: response,
+            ownerAddress: assetIdentifier.ownerAddress,
+            fallbackDescription: collection.description
+        )
     }
 
     public func getSalePrice(assetIdentifier: NFTAsset.ID) async throws -> NFTSalePrice? {
@@ -231,6 +246,23 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
         return mapper.map(prices: response)
+    }
+}
+
+// MARK: - Helpers
+
+private extension MoralisEVMNFTNetworkService {
+    func makeEmptyResultWithErrorAndLog<T: Equatable>(error: any Swift.Error) -> NFTPartialResult<[T]> {
+        assertionFailure("\(String(describing: Self.self)) misused: \(chain) is not supported in this context")
+
+        NFTLogger.error(error: error)
+
+        return NFTPartialResult(
+            value: [],
+            errors: [
+                NFTErrorDescriptor(code: error.networkErrorCodeOrNSErrorFallback, description: error.localizedDescription),
+            ]
+        )
     }
 }
 
