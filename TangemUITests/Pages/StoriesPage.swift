@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 final class StoriesPage: UIElementPage<StoriesPageUIElement> {
     private(set) lazy var scanButton = button(.scanButton)
