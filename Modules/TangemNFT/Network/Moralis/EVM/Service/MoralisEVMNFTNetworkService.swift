@@ -97,10 +97,9 @@ public final class MoralisEVMNFTNetworkService {
                 results.append(response)
                 cursor = response.cursor
             } catch {
-                let errorCode = error.asAFError?.responseCode ?? (error as NSError).code
                 errors.append(
                     NFTErrorDescriptor(
-                        code: errorCode,
+                        code: error.networkErrorCodeOrNSErrorFallback,
                         description: error.localizedDescription
                     )
                 )
@@ -115,8 +114,14 @@ public final class MoralisEVMNFTNetworkService {
 // MARK: - NFTNetworkService protocol conformance
 
 extension MoralisEVMNFTNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
-        let moralisNFTChain = try makeMoralisNFTChain(from: chain)
+    public func getCollections(address: String) async -> NFTPartialResult<[NFTCollection]> {
+        let moralisNFTChain: MoralisEVMNetworkParams.NFTChain
+
+        do {
+            moralisNFTChain = try makeMoralisNFTChain(from: chain)
+        } catch {
+            return makeEmptyResultWithErrorAndLog<NFTCollection>(error: error)
+        }
 
         let loadedResponse: (value: [EVMResponse<[EVMCollection]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
             MoralisEVMAPITarget(
@@ -140,8 +145,14 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         return NFTPartialResult(value: nftCollections, errors: loadedResponse.errors)
     }
 
-    public func getAssets(address: String, in collection: NFTCollection) async throws -> NFTPartialResult<[NFTAsset]> {
-        let moralisNFTChain = try makeMoralisNFTChain(from: chain)
+    public func getAssets(address: String, in collection: NFTCollection) async -> NFTPartialResult<[NFTAsset]> {
+        let moralisNFTChain: MoralisEVMNetworkParams.NFTChain
+
+        do {
+            moralisNFTChain = try makeMoralisNFTChain(from: chain)
+        } catch {
+            return makeEmptyResultWithErrorAndLog<NFTAsset>(error: error)
+        }
 
         let loadedResponse: (value: [EVMResponse<[EVMAsset]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
             MoralisEVMAPITarget(
@@ -235,6 +246,23 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
         return mapper.map(prices: response)
+    }
+}
+
+// MARK: - Helpers
+
+private extension MoralisEVMNFTNetworkService {
+    func makeEmptyResultWithErrorAndLog<T: Equatable>(error: any Swift.Error) -> NFTPartialResult<[T]> {
+        assertionFailure("\(String(describing: Self.self)) misused: \(chain) is not supported in this context")
+
+        NFTLogger.error(error: error)
+
+        return NFTPartialResult(
+            value: [],
+            errors: [
+                NFTErrorDescriptor(code: error.networkErrorCodeOrNSErrorFallback, description: error.localizedDescription),
+            ]
+        )
     }
 }
 
