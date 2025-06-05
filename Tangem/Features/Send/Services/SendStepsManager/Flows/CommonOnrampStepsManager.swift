@@ -35,7 +35,7 @@ class CommonOnrampStepsManager {
         switch step.type {
         case .finish:
             output?.update(state: .init(step: step, action: .close))
-        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination, .newSummary:
+        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
             assertionFailure("There is no next step")
         }
     }

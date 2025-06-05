@@ -38,6 +38,8 @@ protocol UserTokensManager: UserTokensReordering {
     /// Add token and retrieve it's address
     func add(_ tokenItem: TokenItem) async throws -> String
 
+    /// Checks whether token can be removed when have pending tokens to add or remove
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool
     func canRemove(_ tokenItem: TokenItem) -> Bool
     func remove(_ tokenItem: TokenItem)
 
