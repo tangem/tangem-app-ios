@@ -38,6 +38,10 @@ let package = Package(
 var serviceModules: [PackageDescription.Target] {
     [
         .tangemTarget(
+            name: "TangemAccessibilityIdentifiers",
+            dependencies: []
+        ),
+        .tangemTarget(
             name: "TangemAssets",
             dependencies: [
                 .product(name: "Lottie", package: "lottie-spm"),
