@@ -29,7 +29,7 @@ struct NoteDemoConfig: CardContainer {
     }
 }
 
-extension NoteDemoConfig: UserWalletConfig {
+extension NoteDemoConfig: CardUserWalletConfig {
     var cardSetLabel: String? {
         nil
     }
@@ -38,7 +38,7 @@ extension NoteDemoConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var name: String {
         "Note"
     }
 
