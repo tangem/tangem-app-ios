@@ -47,14 +47,14 @@ struct NFTCompactAssetView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Color.clear
-                    .frame(size: .init(width: 70, height: Constants.textSkeletonsHeight))
+                    .frame(size: CGSize(width: 70, height: Constants.textSkeletonsHeight))
                     .skeletonable(
                         isShown: true,
                         radius: Constants.textSkeletonsCornerRadius
                     )
 
                 Color.clear
-                    .frame(size: .init(width: 52, height: Constants.textSkeletonsHeight))
+                    .frame(size: CGSize(width: 52, height: Constants.textSkeletonsHeight))
                     .skeletonable(
                         isShown: true,
                         radius: Constants.textSkeletonsCornerRadius
@@ -72,10 +72,8 @@ struct NFTCompactAssetView: View {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-            if let subtitle {
-                Text(subtitle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
-            }
+            Text(subtitle ?? "")
+                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
         }
     }
 }
@@ -83,8 +81,9 @@ struct NFTCompactAssetView: View {
 extension NFTCompactAssetView {
     enum Constants {
         static let textSkeletonsCornerRadius: CGFloat = 4
-        static let textSkeletonsHeight: CGFloat = 12
         static let iconTextsSpacing: CGFloat = 12
+
+        static let textSkeletonsHeight: CGFloat = 12
     }
 }
 
