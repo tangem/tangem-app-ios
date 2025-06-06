@@ -105,6 +105,26 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             self?.exchangesListViewModel = nil
         }
     }
+
+    func openStaking(for walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
+        guard let stakingManager = walletModel.stakingManager else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.stakingDetailsCoordinator = nil
+        }
+
+        let options = StakingDetailsCoordinator.Options(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            manager: stakingManager
+        )
+
+        let coordinator = StakingDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: options)
+        stakingDetailsCoordinator = coordinator
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
