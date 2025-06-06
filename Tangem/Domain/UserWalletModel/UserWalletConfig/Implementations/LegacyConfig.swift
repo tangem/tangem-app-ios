@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 
 /// V3 Config
-struct LegacyConfig: CardContainer {
+struct LegacyConfig {
     let card: CardDTO
     private let walletData: WalletData?
 
