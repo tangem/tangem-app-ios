@@ -69,6 +69,8 @@ struct SquaredOrRectangleImageView: View {
     private var downloadFailedPlaceholder: some View {
         Assets.Nft.assetImagePlaceholder.image
             .resizable()
+            .renderingMode(.template)
+            .foregroundStyle(Colors.Icon.primary1)
             .frame(width: containerSize.width / 3, height: containerSize.height / 3)
     }
 
