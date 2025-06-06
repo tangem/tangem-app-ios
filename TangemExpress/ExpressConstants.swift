@@ -13,4 +13,12 @@ public typealias Fee = BlockchainSdk.Fee
 
 public enum ExpressConstants {
     public static let coinContractAddress = "0"
+
+    public static let expressProvidersFCAWarningList: [String] = [
+        "simpleswap",
+        "changenow",
+        "okx-cross-chain",
+        "okx-on-chain",
+        "changelly",
+    ]
 }
