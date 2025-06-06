@@ -181,14 +181,7 @@ private extension SendModel {
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         logTransactionAnalytics(signerType: result.signerType)
-
-        transaction.amount.type.token.map { token in
-            UserWalletFinder().addToken(
-                token,
-                in: tokenItem.blockchain,
-                for: transaction.destinationAddress
-            )
-        }
+        addTokenFromTransactionIfNeeded(transaction)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -206,6 +199,23 @@ private extension SendModel {
                 .token: tokenItem.currencySymbol,
                 .errorCode: "\(error.universalErrorCode)",
             ])
+        }
+    }
+
+    private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
+        guard let token = transaction.amount.type.token else {
+            return
+        }
+
+        switch token.metadata.kind {
+        case .fungible:
+            UserWalletFinder().addToken(
+                token,
+                in: tokenItem.blockchain,
+                for: transaction.destinationAddress
+            )
+        case .nonFungible:
+            break // NFTs should never be shown in the token list
         }
     }
 }
