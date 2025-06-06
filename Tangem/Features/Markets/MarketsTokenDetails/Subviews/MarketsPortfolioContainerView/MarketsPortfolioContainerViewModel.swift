@@ -288,7 +288,10 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             coordinator.openExchange(for: walletModel, with: userWalletModel)
-        case .hide, .marketsDetails, .send, .stake, .sell, .copyAddress:
+        case .stake:
+            Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
+            coordinator.openStaking(for: walletModel, with: userWalletModel)
+        case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available
             return
         }
