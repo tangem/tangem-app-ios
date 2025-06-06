@@ -12,6 +12,7 @@ import TangemNFT
 
 struct NFTSendAmountCompactContentView: View {
     let viewModel: NFTSendAmountCompactContentViewModel
+    let borderColor: Color
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12.0) {
@@ -24,7 +25,7 @@ struct NFTSendAmountCompactContentView: View {
 
             HStack(spacing: 12.0) {
                 NFTSendAssetImageViewFactory(nftChainIconProvider: viewModel.nftChainIconProvider)
-                    .makeImageView(for: viewModel.asset, cornerRadius: 8.0)
+                    .makeImageView(for: viewModel.asset, borderColor: borderColor, cornerRadius: 8.0)
                     .frame(size: .init(bothDimensions: 36.0))
 
                 VStack(alignment: .leading, spacing: 2.0) {
