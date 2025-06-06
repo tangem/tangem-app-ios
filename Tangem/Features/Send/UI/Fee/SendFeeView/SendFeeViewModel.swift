@@ -188,12 +188,18 @@ extension SendFeeViewModel: SendStepViewAnimatable {
         case .appearing(.summary(_)):
             // Will be shown with animation
             auxiliaryViewsVisible = false
-            Analytics.log(.sendScreenReopened, params: [.source: .fee])
+
+            switch tokenKind {
+            case .nonFungible:
+                logNFTFeeScreenOpening()
+            case .fungible, .none:
+                Analytics.log(.sendScreenReopened, params: [.source: .fee])
+            }
 
         case .appearing:
             switch tokenKind {
             case .nonFungible:
-                Analytics.log(.nftComissionScreenOpened)
+                logNFTFeeScreenOpening()
             case .fungible, .none:
                 Analytics.log(.sendFeeScreenOpened)
             }
@@ -204,6 +210,10 @@ extension SendFeeViewModel: SendStepViewAnimatable {
         default:
             break
         }
+    }
+
+    private func logNFTFeeScreenOpening() {
+        Analytics.log(.nftCommissionScreenOpened)
     }
 }
 
