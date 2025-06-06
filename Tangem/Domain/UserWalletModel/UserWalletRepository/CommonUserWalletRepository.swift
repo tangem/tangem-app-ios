@@ -92,7 +92,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 Analytics.endLoggingCardScan()
 
                 cardInfo.name = UserWalletNameIndexationHelper.suggestedName(
-                    config.cardName,
+                    config.name,
                     names: models.map(\.name)
                 )
 

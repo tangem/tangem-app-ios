@@ -44,7 +44,7 @@ struct AppScanTaskResponse {
         )
 
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        cardInfo.name = config.cardName
+        cardInfo.name = config.name
         return cardInfo
     }
 }
