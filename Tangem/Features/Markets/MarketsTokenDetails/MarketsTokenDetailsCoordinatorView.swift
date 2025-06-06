@@ -36,6 +36,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 ExpressCoordinatorView(coordinator: coordinator)
                     .expressNavigationView()
             }
+            .iOS16UIKitSheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
+                StakingDetailsCoordinatorView(coordinator: coordinator)
+                    .stakingNavigationView()
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
