@@ -21,9 +21,13 @@ struct NFTCollectionRow: View {
 
     var body: some View {
         HStack(spacing: Constants.iconTextsSpacing) {
-            iconWitNetworkOverlay
+            icon
+                .networkIconOverlay(imageAsset: iconOverlayImage)
+
             textsView
+
             Spacer()
+
             Assets.chevronDown24.image
                 .resizable()
                 .frame(size: Constants.chevronSize)
@@ -32,9 +36,6 @@ struct NFTCollectionRow: View {
                 .animation(Constants.rotationAnimation, value: isExpanded)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(
-            height: Constants.Icon.size.height + abs(Constants.Icon.Overlay.offset.height)
-        )
     }
 
     private var textsView: some View {
@@ -45,14 +46,6 @@ struct NFTCollectionRow: View {
             Text(subtitle)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
         }
-    }
-
-    private var iconWitNetworkOverlay: some View {
-        icon
-            .networkOverlay(
-                image: iconOverlayImage.image,
-                offset: Constants.Icon.Overlay.offset
-            )
     }
 
     @ViewBuilder
@@ -98,10 +91,6 @@ extension NFTCollectionRow {
         enum Icon {
             static let size: CGSize = .init(bothDimensions: 36)
             static let cornerRadius: CGFloat = 8
-
-            enum Overlay {
-                static let offset: CGSize = .init(width: 4, height: -4)
-            }
         }
 
         static let iconTextsSpacing: CGFloat = 12
@@ -113,18 +102,25 @@ extension NFTCollectionRow {
 
 #if DEBUG
 #Preview {
-    NFTCollectionRow(
-        media: .init(
-            kind: .animation,
-            url: URL(
-                string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
-            )!
-        ),
-        iconOverlayImage: Tokens.ethereumFill,
-        title: "Nethers",
-        subtitle: "2 items",
-        isExpanded: false
-    )
-    .padding(.horizontal, 16)
+    ZStack {
+        Color.gray
+            .ignoresSafeArea()
+
+        VStack {
+            NFTCollectionRow(
+                media: .init(
+                    kind: .animation,
+                    url: URL(
+                        string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
+                    )!
+                ),
+                iconOverlayImage: Tokens.ethereumFill,
+                title: "Nethers",
+                subtitle: "2 items",
+                isExpanded: false
+            )
+            .padding(.horizontal, 16)
+        }
+    }
 }
 #endif
