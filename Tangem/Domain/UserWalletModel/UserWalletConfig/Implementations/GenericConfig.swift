@@ -21,7 +21,7 @@ struct GenericConfig {
     }
 }
 
-extension GenericConfig: UserWalletConfig {
+extension GenericConfig: CardUserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -38,7 +38,7 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    var cardName: String {
+    var name: String {
         "Wallet"
     }
 
