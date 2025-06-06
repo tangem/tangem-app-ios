@@ -13,7 +13,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 
-struct GenericDemoConfig: CardContainer {
+struct GenericDemoConfig {
     let card: CardDTO
 
     init(card: CardDTO) {
