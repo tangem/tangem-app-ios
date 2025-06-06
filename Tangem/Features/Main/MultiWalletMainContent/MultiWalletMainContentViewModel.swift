@@ -172,11 +172,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         nftEntrypointViewModelPublisher
             .withWeakCaptureOf(self)
-            .tryMap { viewModel, walletsWithNFTEnabled in
+            .flatMap { viewModel, walletsWithNFTEnabled in
                 let isNFTEnabledForWallet = walletsWithNFTEnabled.contains(viewModel.userWalletModel.userWalletId)
-                return try viewModel.makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: isNFTEnabledForWallet)
+                let result = Result { try viewModel.makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: isNFTEnabledForWallet) }
+
+                return result
+                    .publisher
+                    .materialize()
             }
-            .materialize()
             .values()
             .receiveOnMain()
             .assign(to: \.nftEntrypointViewModel, on: self, ownership: .weak)
