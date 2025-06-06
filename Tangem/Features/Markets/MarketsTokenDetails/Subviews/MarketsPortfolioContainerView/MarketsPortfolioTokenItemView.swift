@@ -191,6 +191,8 @@ struct MarketsPortfolioTokenItemView: View {
             return Assets.Portfolio.exchange12.image
         case .receive:
             return Assets.Portfolio.receive12.image
+        case .stake:
+            return Assets.Portfolio.stake12.image
         default:
             return nil
         }
