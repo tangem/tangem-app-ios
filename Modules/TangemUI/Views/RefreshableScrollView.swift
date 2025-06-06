@@ -25,8 +25,8 @@ public struct RefreshableScrollView<Content: View>: View {
     ///   - useNativeRefresh: A Boolean value that determines whether to use the native iOS pull-to-refresh behavior (default is `false`).
     public init(
         onRefresh: @escaping OnRefresh,
-        @ViewBuilder content: () -> Content,
-        useNativeRefresh: Bool = false
+        useNativeRefresh: Bool = false,
+        @ViewBuilder content: () -> Content
     ) {
         self.content = content()
         self.useNativeRefresh = useNativeRefresh
