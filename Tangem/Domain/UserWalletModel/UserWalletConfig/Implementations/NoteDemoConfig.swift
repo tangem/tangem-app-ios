@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemLocalization
 import TangemFoundation
 
-struct NoteDemoConfig: CardContainer {
+struct NoteDemoConfig {
     let card: CardDTO
     private let noteData: WalletData
 
