@@ -12,14 +12,14 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 
-protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory {
+protocol UserWalletConfig: OnboardingStepsBuilderFactory {
     var emailConfig: EmailConfig? { get }
 
     var cardsCount: Int { get }
 
     var cardSetLabel: String? { get }
 
-    var cardName: String { get }
+    var name: String { get }
 
     /// Actual state of current card's curves or main card's curves in case of biometrics
     var existingCurves: [EllipticCurve] { get }
@@ -58,7 +58,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardHeaderImage: ImageType? { get }
 
-    var cardSessionFilter: SessionFilter { get }
+    var cardSessionFilter: SessionFilter? { get }
 
     var hasDefaultToken: Bool { get }
 
@@ -112,6 +112,7 @@ struct TOU {
 
 protocol CardContainer {
     var card: CardDTO { get }
+    var sessionFilter: SessionFilter { get }
 }
 
 extension UserWalletConfig where Self: CardContainer {
@@ -119,15 +120,11 @@ extension UserWalletConfig where Self: CardContainer {
         card.walletCurves
     }
 
-    var tangemSigner: TangemSigner {
-        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
-    }
-
     var isWalletsCreated: Bool {
         !card.wallets.isEmpty
     }
 
-    var cardSessionFilter: SessionFilter {
+    var sessionFilter: SessionFilter {
         let shouldSkipCardId = card.backupStatus?.isActive ?? false
 
         if shouldSkipCardId, let userWalletIdSeed {
@@ -139,17 +136,31 @@ extension UserWalletConfig where Self: CardContainer {
         return .cardId(card.cardId)
     }
 
-    func makeTangemSdk() -> TangemSdk {
-        let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
-        return factory.makeTangemSdk()
-    }
-
-    func makeBackupService() -> BackupService {
-        let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
-        return factory.makeBackupService()
+    var cardSessionFilter: SessionFilter? {
+        sessionFilter
     }
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
         return CommonMainHeaderProviderFactory()
     }
 }
+
+extension UserWalletConfig where Self: CardContainer, Self: BackupServiceFactory {
+    func makeBackupService() -> BackupService {
+        let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
+        return factory.makeBackupService()
+    }
+}
+
+extension UserWalletConfig where Self: CardContainer, Self: TangemSdkFactory {
+    var tangemSigner: TangemSigner {
+        .init(filter: sessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+    }
+
+    func makeTangemSdk() -> TangemSdk {
+        let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
+        return factory.makeTangemSdk()
+    }
+}
+
+typealias CardUserWalletConfig = UserWalletConfig & BackupServiceFactory & TangemSdkFactory
