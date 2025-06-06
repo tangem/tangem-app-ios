@@ -46,6 +46,7 @@ struct NFTCollectionDisclosureGroupView: View {
             subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
             isExpanded: isExpanded
         )
+        .padding(.vertical, 15.0)
     }
 
     @ViewBuilder
@@ -64,8 +65,7 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private func buildGridView(with viewModel: NFTAssetsGridViewModel) -> some View {
         NFTAssetsGridView(viewModel: viewModel)
-            .padding(.top, Constants.gridViewTopPadding)
-            .padding(.bottom, Constants.gridViewBottomPadding)
+            .padding(.vertical, 12.0)
     }
 
     private var errorView: some View {
@@ -86,13 +86,6 @@ struct NFTCollectionDisclosureGroupView: View {
         withAnimation {
             isExpanded.toggle()
         }
-    }
-}
-
-extension NFTCollectionDisclosureGroupView {
-    enum Constants {
-        static let gridViewTopPadding: CGFloat = 26
-        static let gridViewBottomPadding: CGFloat = 12
     }
 }
 
