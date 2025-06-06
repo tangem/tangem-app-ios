@@ -24,7 +24,7 @@ struct Wallet2Config {
     }
 }
 
-extension Wallet2Config: UserWalletConfig {
+extension Wallet2Config: CardUserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -41,7 +41,7 @@ extension Wallet2Config: UserWalletConfig {
         }
     }
 
-    var cardName: String {
+    var name: String {
         "Wallet"
     }
 
