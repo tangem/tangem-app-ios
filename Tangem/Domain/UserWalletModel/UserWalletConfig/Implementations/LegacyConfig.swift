@@ -44,7 +44,7 @@ struct LegacyConfig: CardContainer {
     }
 }
 
-extension LegacyConfig: UserWalletConfig {
+extension LegacyConfig: CardUserWalletConfig {
     var cardSetLabel: String? {
         nil
     }
@@ -53,7 +53,7 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var name: String {
         "Tangem Card"
     }
 
