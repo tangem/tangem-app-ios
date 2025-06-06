@@ -476,7 +476,7 @@ extension Analytics {
         case nftReceiveShareAddressButtonClicked = "[NFT] Button - Share Address"
 
         case nftSendAddressEntered = "[NFT] Send Address Entered"
-        case nftComissionScreenOpened = "[NFT] Commission Screen Opened"
+        case nftCommissionScreenOpened = "[NFT] Commission Screen Opened"
         case nftFeeSelected = "[NFT] Fee Selected"
         case nftConfirmScreenOpened = "[NFT] Confirm Screen Opened"
         case nftSentScreenOpened = "[NFT] NFT Sent Screen Opened"
