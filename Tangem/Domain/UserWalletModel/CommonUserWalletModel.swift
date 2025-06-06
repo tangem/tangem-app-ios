@@ -42,7 +42,7 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     private(set) var cardInfo: CardInfo
-    var config: UserWalletConfig
+    private var cardConfig: CardUserWalletConfig
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
@@ -57,7 +57,7 @@ class CommonUserWalletModel {
 
     init(
         cardInfo: CardInfo,
-        config: UserWalletConfig,
+        config: CardUserWalletConfig,
         userWalletId: UserWalletId,
         associatedCardIds: Set<String>,
         walletManagersRepository: WalletManagersRepository,
@@ -70,7 +70,7 @@ class CommonUserWalletModel {
         totalBalanceProvider: TotalBalanceProviding
     ) {
         self.cardInfo = cardInfo
-        self.config = config
+        cardConfig = config
         self.userWalletId = userWalletId
 
         var associatedCardIds = associatedCardIds
@@ -130,7 +130,7 @@ class CommonUserWalletModel {
 
     private func onUpdate() {
         AppLogger.info("Updating with new card")
-        config = UserWalletConfigFactory(cardInfo).makeConfig()
+        cardConfig = UserWalletConfigFactory(cardInfo).makeConfig()
         _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = config.tangemSigner
         // prevent save until onboarding completed
@@ -162,13 +162,17 @@ extension CommonUserWalletModel {
 // [REDACTED_TODO_COMMENT]
 extension CommonUserWalletModel: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
-        config.makeTangemSdk()
+        cardConfig.makeTangemSdk()
     }
 }
 
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    var config: any UserWalletConfig {
+        cardConfig as UserWalletConfig
+    }
+
     var name: String {
         cardInfo.name
     }
@@ -214,7 +218,7 @@ extension CommonUserWalletModel: UserWalletModel {
         let factory = OnboardingInputFactory(
             cardInfo: cardInfo,
             userWalletModel: self,
-            sdkFactory: config,
+            sdkFactory: cardConfig,
             onboardingStepsBuilderFactory: config,
             pushNotificationsInteractor: pushNotificationsInteractor
         )

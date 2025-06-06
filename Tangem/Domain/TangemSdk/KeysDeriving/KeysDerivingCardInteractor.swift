@@ -16,7 +16,7 @@ class KeysDerivingCardInteractor {
     init(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         tangemSdk = config.makeTangemSdk()
-        filter = config.cardSessionFilter
+        filter = config.sessionFilter
     }
 }
 
