@@ -346,6 +346,7 @@ extension Analytics {
         case marketsChartButtonBuy = "[Markets / Chart] Button - Buy"
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
+        case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
