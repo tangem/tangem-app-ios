@@ -40,6 +40,7 @@ struct NFTNetworkServiceFactory {
              .optimism,
              .moonbeam,
              .moonriver:
+
             return MoralisEVMNFTNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
                 headers: moralisNeworkHeaders,
