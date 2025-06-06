@@ -21,6 +21,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var state: ViewState
     @Published var searchEntry: String = ""
     @Published private(set) var rowExpanded = false
+    @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
@@ -238,7 +239,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
-        rowExpanded.toggle()
+        // We don't need to scroll if collection is collapsed
+        tappedRowID = isExpanded ? collection.id : nil
 
         if shouldLoadAssets(for: collection, isExpanded: isExpanded) {
             nftManager.updateAssets(in: collection)
