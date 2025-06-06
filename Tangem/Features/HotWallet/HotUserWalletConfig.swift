@@ -127,4 +127,8 @@ extension HotUserWalletConfig: UserWalletConfig {
     func makeMainHeaderProviderFactory() -> any MainHeaderProviderFactory {
         CommonMainHeaderProviderFactory()
     }
+
+    func makeOnboardingStepsBuilder(backupService: BackupService, isPushNotificationsAvailable: Bool) -> any OnboardingStepsBuilder {
+        fatalError()
+    }
 }

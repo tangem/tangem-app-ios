@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 
-struct NoteConfig: CardContainer {
+struct NoteConfig {
     let card: CardDTO
     private let noteData: WalletData
 
