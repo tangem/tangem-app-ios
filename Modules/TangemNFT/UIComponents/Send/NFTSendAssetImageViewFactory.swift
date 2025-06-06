@@ -17,18 +17,18 @@ public struct NFTSendAssetImageViewFactory {
         self.nftChainIconProvider = nftChainIconProvider
     }
 
-    public func makeImageView(for asset: NFTAsset, cornerRadius: CGFloat? = nil) -> some View {
-        let image = nftChainIconProvider
+    public func makeImageView(
+        for asset: NFTAsset,
+        borderColor: Color,
+        cornerRadius: CGFloat? = nil
+    ) -> some View {
+        let imageAsset = nftChainIconProvider
             .provide(by: asset.id.chain)
-            .image
 
         return SquaredOrRectangleImageView(media: asset.media)
             .ifLet(cornerRadius) { view, cornerRadius in
                 return view.cornerRadius(cornerRadius)
             }
-            .networkOverlay(
-                image: image,
-                offset: .init(width: 6.0, height: -6.0)
-            )
+            .networkIconOverlay(imageAsset: imageAsset, borderColor: borderColor)
     }
 }
