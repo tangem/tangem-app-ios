@@ -117,7 +117,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private func shareAnalytics() {
         switch flow {
         case .nft:
-            Analytics.log(event: .nftReceiveCopyAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
+            Analytics.log(event: .nftReceiveShareAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
         case .crypto:
             Analytics.log(event: .buttonShareAddress, params: [
                 .token: tokenItem.currencySymbol,

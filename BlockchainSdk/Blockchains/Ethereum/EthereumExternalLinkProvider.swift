@@ -40,8 +40,10 @@ extension EthereumExternalLinkProvider: ExternalLinkProvider {
         let url = baseURL + "address/\(address)"
         return URL(string: url)
     }
+}
 
-    func nftURL(tokenAddress: String, tokenID: String) -> URL? {
+extension EthereumExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
         URL(string: baseURL + "nft/\(tokenAddress)/\(tokenID)")
     }
 }
