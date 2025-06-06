@@ -105,14 +105,15 @@ public struct NFTCollectionsListView: View {
                         .padding(.bottom, 12)
                 }
 
-                LazyVStack(spacing: Constants.collectionRowsSpacing) {
+                LazyVStack(spacing: 0.0) {
                     ForEach(collections, id: \.id) { collectionViewModel in
                         NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
                     }
                 }
                 .roundedBackground(
                     with: Constants.RoundedBackground.color,
-                    padding: Constants.RoundedBackground.padding,
+                    verticalPadding: 0.0,
+                    horizontalPadding: Constants.RoundedBackground.padding,
                     radius: Constants.RoundedBackground.radius
                 )
                 .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
@@ -231,7 +232,7 @@ extension NFTCollectionsListView {
         }
 
         enum RoundedBackground {
-            static let color = Colors.Background.primary
+            static let color = Colors.Background.action
             static let padding: CGFloat = 14
             static let radius: CGFloat = 14
         }
