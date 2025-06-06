@@ -141,6 +141,10 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.receive)
         }
 
+        if isStakeAvailable {
+            availableActions.append(.stake)
+        }
+
         return availableActions
     }
 
