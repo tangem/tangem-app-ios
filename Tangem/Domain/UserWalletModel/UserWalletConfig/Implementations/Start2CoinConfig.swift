@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 
-struct Start2CoinConfig: CardContainer {
+struct Start2CoinConfig {
     let card: CardDTO
     private let walletData: WalletData
 
