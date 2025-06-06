@@ -26,7 +26,7 @@ struct Start2CoinConfig: CardContainer {
     }
 }
 
-extension Start2CoinConfig: UserWalletConfig {
+extension Start2CoinConfig: CardUserWalletConfig {
     var emailConfig: EmailConfig? {
         .init(
             recipient: "cardsupport@start2coin.com",
@@ -42,7 +42,7 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
-    var cardName: String {
+    var name: String {
         "Start2Coin"
     }
 

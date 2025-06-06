@@ -26,7 +26,7 @@ struct VisaConfig: CardContainer {
     }
 }
 
-extension VisaConfig: UserWalletConfig {
+extension VisaConfig: CardUserWalletConfig {
     var emailConfig: EmailConfig? {
         .visaDefault()
     }
@@ -39,7 +39,7 @@ extension VisaConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var name: String {
         "Tangem Visa"
     }
 
