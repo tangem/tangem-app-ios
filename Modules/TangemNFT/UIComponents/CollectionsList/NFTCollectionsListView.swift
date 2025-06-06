@@ -31,7 +31,7 @@ public struct NFTCollectionsListView: View {
             .navigationTitle(Localization.nftWalletTitle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 16)
-            .background(Colors.Background.tertiary)
+            .background(Colors.Background.secondary)
             .onAppear(perform: viewModel.onViewAppear)
             .scrollDismissesKeyboardCompat(.immediately)
     }
@@ -98,45 +98,52 @@ public struct NFTCollectionsListView: View {
     }
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
-        RefreshableScrollView(onRefresh: viewModel.update(completion:)) {
-            VStack(spacing: 0) {
-                if let notificationViewData = viewModel.loadingTroublesViewData {
-                    NFTNotificationView(viewData: notificationViewData)
-                        .padding(.bottom, 12)
-                }
-
-                LazyVStack(spacing: 0.0) {
-                    ForEach(collections, id: \.id) { collectionViewModel in
-                        NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
+        ScrollViewReader { scrollViewProxy in
+            RefreshableScrollView(onRefresh: viewModel.update(completion:)) {
+                VStack(spacing: 0) {
+                    if let notificationViewData = viewModel.loadingTroublesViewData {
+                        NFTNotificationView(viewData: notificationViewData)
+                            .padding(.bottom, 12)
                     }
-                }
-                .roundedBackground(
-                    with: Constants.RoundedBackground.color,
-                    verticalPadding: 0.0,
-                    horizontalPadding: Constants.RoundedBackground.padding,
-                    radius: Constants.RoundedBackground.radius
-                )
-                .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
-                // We need this code to track view's heigh when row expands
-                // .readGeometry only tracks it before list expands
-                .background(
-                    GeometryReader { proxy in
-                        Color.clear
-                            .onChange(of: viewModel.rowExpanded) { _ in
-                                onCollectionHeightChanged(proxy: proxy)
-                            }
-                            .onChange(of: viewModel.loadingTroublesViewData) { _ in
-                                onCollectionHeightChanged(proxy: proxy)
-                            }
-                    }
-                )
 
-                Spacer()
-                    .frame(height: buttonHeight + Constants.contentButtonSpacing)
-            }
-            .readContentOffset(inCoordinateSpace: coordinateSpace) { point in
-                let contentMaxY = contentHeight - point.y - buttonHeight + Constants.contentButtonSpacing
-                shouldShowShadow = contentMaxY > buttonMinY
+                    LazyVStack(spacing: Constants.collectionRowsSpacing) {
+                        ForEach(collections, id: \.id) { collectionViewModel in
+                            NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
+                                .id(collectionViewModel.id)
+                        }
+                    }
+                    .roundedBackground(
+                        with: Constants.RoundedBackground.color,
+                        verticalPadding: 0.0,
+                        horizontalPadding: Constants.RoundedBackground.padding,
+                        radius: Constants.RoundedBackground.radius
+                    )
+                    .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
+                    // We need this code to track view's heigh when row expands
+                    // .readGeometry only tracks it before list expands
+                    .background(
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onChange(of: viewModel.tappedRowID) { rowID in
+                                    onCollectionHeightChanged(
+                                        geoProxy: proxy,
+                                        scrollProxy: scrollViewProxy,
+                                        tappedRowID: rowID
+                                    )
+                                }
+                                .onChange(of: viewModel.loadingTroublesViewData) { _ in
+                                    onCollectionHeightChanged(geoProxy: proxy)
+                                }
+                        }
+                    )
+
+                    Spacer()
+                        .frame(height: buttonHeight + Constants.contentButtonSpacing)
+                }
+                .readContentOffset(inCoordinateSpace: coordinateSpace) { point in
+                    let contentMaxY = contentHeight - point.y - buttonHeight + Constants.contentButtonSpacing
+                    shouldShowShadow = contentMaxY > buttonMinY
+                }
             }
         }
     }
@@ -198,7 +205,6 @@ public struct NFTCollectionsListView: View {
                     .skeletonable(isShown: true, radius: 4)
             }
         }
-        .drawingGroup()
         .infinityFrame(alignment: .leading)
     }
 
@@ -206,10 +212,21 @@ public struct NFTCollectionsListView: View {
         .named(coordinateSpaceName)
     }
 
-    private func onCollectionHeightChanged(proxy: GeometryProxy) {
-        let rect = proxy.frame(in: coordinateSpace)
+    private func onCollectionHeightChanged(
+        geoProxy: GeometryProxy,
+        scrollProxy: ScrollViewProxy? = nil,
+        tappedRowID: AnyHashable? = nil
+    ) {
+        let rect = geoProxy.frame(in: coordinateSpace)
         let offset = -rect.origin.y
         shouldShowShadow = rect.height - offset > buttonMinY
+
+        // We need to scroll to the row after it changes its height
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation {
+                scrollProxy?.scrollTo(tappedRowID, anchor: .top)
+            }
+        }
     }
 }
 
@@ -249,7 +266,7 @@ let collections = (0 ... 20).map {
         chain: .solana,
         contractType: .erc1155,
         ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-        name: "My awesome collection",
+        name: "My awesome collection - \($0)",
         description: "",
         media: .init(
             kind: .image,
@@ -282,39 +299,7 @@ let collections = (0 ... 20).map {
             viewModel: .init(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        .init(
-                            value: (0 ... 20).map {
-                                NFTCollection(
-                                    collectionIdentifier: "some-\($0)",
-                                    chain: .solana,
-                                    contractType: .erc1155,
-                                    ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-                                    name: "My awesome collection",
-                                    description: "",
-                                    media: .init(
-                                        kind: .image,
-                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                    ),
-                                    assetsCount: nil,
-                                    assets: (0 ... 3).map {
-                                        NFTAsset(
-                                            assetIdentifier: "some-\($0)",
-                                            assetContractAddress: "some1",
-                                            chain: .solana,
-                                            contractType: .unknown,
-                                            decimalCount: 0,
-                                            ownerAddress: "",
-                                            name: "My asset",
-                                            description: "",
-                                            salePrice: nil,
-                                            media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                                            rarity: nil,
-                                            traits: []
-                                        )
-                                    }
-                                )
-                            }
-                        )
+                        .init(value: collections)
                     )
                 ),
                 navigationContext: NFTNavigationContextMock(),
