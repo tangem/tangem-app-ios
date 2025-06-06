@@ -197,8 +197,12 @@ private extension UserWalletSettingsViewModel {
             sessionFilter: userWalletModel.config.cardSessionFilter
         )
 
+        guard let config = userWalletModel.config as? TangemSdkFactory else {
+            return
+        }
+
         let scanner = CardScannerFactory().makeScanner(
-            with: userWalletModel.config.makeTangemSdk(),
+            with: config.makeTangemSdk(),
             parameters: scanParameters
         )
 
