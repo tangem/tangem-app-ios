@@ -163,4 +163,4 @@ extension UserWalletConfig where Self: CardContainer, Self: TangemSdkFactory {
     }
 }
 
-typealias CardUserWalletConfig = UserWalletConfig & BackupServiceFactory & TangemSdkFactory
+typealias CardUserWalletConfig = UserWalletConfig & BackupServiceFactory & TangemSdkFactory & CardContainer
