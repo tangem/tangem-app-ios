@@ -36,7 +36,7 @@ struct SendAmountCompactView: View {
         case .default(let viewModel):
             SendAmountCompactContentView(viewModel: viewModel, namespace: namespace)
         case .nft(let viewModel):
-            NFTSendAmountCompactContentView(viewModel: viewModel)
+            NFTSendAmountCompactContentView(viewModel: viewModel, borderColor: type.background)
         }
     }
 }
