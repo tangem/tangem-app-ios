@@ -18,7 +18,7 @@ struct UserWalletConfigFactory {
         self.cardInfo = cardInfo
     }
 
-    func makeConfig() -> UserWalletConfig {
+    func makeConfig() -> CardUserWalletConfig {
         let isDemo = DemoUtil().isDemoCard(cardId: cardInfo.card.cardId)
         let isS2CCard = cardInfo.card.issuer.name.lowercased() == "start2coin"
 
