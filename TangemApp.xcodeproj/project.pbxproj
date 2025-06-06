@@ -3238,7 +3238,6 @@
 		EFA23E782DEF6CFC004ADD0A /* SendNewFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */; };
 		EFA23E7A2DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E792DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift */; };
 		EFA23E7E2DF08597004ADD0A /* ExpressProvidersEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */; };
-		EFA23E7E2DF08597004ADD0A /* ExpressProvidersEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */; };
 		EFA3B2212AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */; };
 		EFA4E3752C3EE6ED008815AD /* StakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */; };
 		EFA4E3772C3EE785008815AD /* FakeStakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3762C3EE785008815AD /* FakeStakingValidatorsInteractor.swift */; };
@@ -6846,7 +6845,6 @@
 		EFA23E742DEF6CDD004ADD0A /* SendNewFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishView.swift; sourceTree = "<group>"; };
 		EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishViewModel.swift; sourceTree = "<group>"; };
 		EFA23E792DEF6E9E004ADD0A /* SendNewFinishStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFinishStepBuilder.swift; sourceTree = "<group>"; };
-		EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersEvents.swift; sourceTree = "<group>"; };
 		EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersEvents.swift; sourceTree = "<group>"; };
 		EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
 		EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorsInteractor.swift; sourceTree = "<group>"; };
@@ -18050,22 +18048,6 @@
 				EFA23E772DEF6CFC004ADD0A /* SendNewFinishViewModel.swift */,
 			);
 			path = SendNewFinishView;
-			sourceTree = "<group>";
-		};
-		EFA23E7B2DF08583004ADD0A /* ExpressMoreProvidersSoonView */ = {
-			isa = PBXGroup;
-			children = (
-				EFCC878C2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift */,
-			);
-			path = ExpressMoreProvidersSoonView;
-			sourceTree = "<group>";
-		};
-		EFA23E7C2DF0858A004ADD0A /* ExpressProvidersEvents */ = {
-			isa = PBXGroup;
-			children = (
-				EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */,
-			);
-			path = ExpressProvidersEvents;
 			sourceTree = "<group>";
 		};
 		EFA23E7B2DF08583004ADD0A /* ExpressMoreProvidersSoonView */ = {
