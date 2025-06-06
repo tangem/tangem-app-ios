@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 
-struct TwinConfig: CardContainer {
+struct TwinConfig {
     let card: CardDTO
     private let walletData: WalletData
     private let twinData: TwinData
