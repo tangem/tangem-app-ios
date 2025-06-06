@@ -16,7 +16,7 @@ import TangemFoundation
 /// The send flow is heavily dependent on the `WalletModel`, so this proxy around the main token wallet model
 /// (the main token for the NFT asset's chain) is used to fulfill those needs.
 /// Most methods and properties here are just plain stubs though, since NFTs don't support certain features like
-/// 'transaction history', 'staking' and so on.
+/// 'rent', 'staking' and so on.
 final class NFTSendWalletModelProxy {
     let tokenItem: TokenItem
 
@@ -39,6 +39,33 @@ final class NFTSendWalletModelProxy {
         self.mainTokenWalletModel = mainTokenWalletModel
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionSendAvailabilityProvider = transactionSendAvailabilityProvider
+    }
+
+    func prepare() {
+        dispatchTransactionsHistoryUpdateIfNeeded()
+    }
+
+    /// This method attempts to update the transaction history for the wrapped wallet model once.
+    /// The updated transaction history will be used to build a list of suggested destinations for the NFT send flow.
+    private func dispatchTransactionsHistoryUpdateIfNeeded() {
+        var subscription: AnyCancellable?
+        subscription = transactionHistoryPublisher
+            .prefix(1) // We only care about the most recent state and we process it only once
+            .withWeakCaptureOf(self)
+            .flatMap { walletModel, transactionHistoryState in
+                switch transactionHistoryState {
+                case .notSupported,
+                     .loading,
+                     .loaded:
+                    return AnyPublisher.just
+                case .error:
+                    walletModel.clearHistory()
+                    fallthrough
+                case .notLoaded:
+                    return walletModel.updateTransactionsHistory()
+                }
+            }
+            .sink { withExtendedLifetime(subscription) {} }
     }
 }
 
@@ -168,8 +195,7 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        // No transaction history for NFT
-        .empty
+        mainTokenWalletModel.updateTransactionsHistory()
     }
 
     func updateAfterSendingTransaction() {
@@ -278,8 +304,7 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     var isSupportedTransactionHistory: Bool {
-        // No transaction history for NFT
-        false
+        mainTokenWalletModel.isSupportedTransactionHistory
     }
 
     var hasPendingTransactions: Bool {
@@ -287,8 +312,7 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        // No transaction history for NFT
-        .just(output: .notSupported)
+        mainTokenWalletModel.transactionHistoryPublisher
     }
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
@@ -311,12 +335,11 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     var canFetchHistory: Bool {
-        // No transaction history for NFT
-        false
+        mainTokenWalletModel.canFetchHistory
     }
 
     func clearHistory() {
-        // No transaction history for NFT
+        mainTokenWalletModel.clearHistory()
     }
 
     func getFeeCurrencyBalance() -> Decimal {
