@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 
-struct VisaConfig: CardContainer {
+struct VisaConfig {
     let card: CardDTO
     let activationLocalState: VisaCardActivationLocalState
 
