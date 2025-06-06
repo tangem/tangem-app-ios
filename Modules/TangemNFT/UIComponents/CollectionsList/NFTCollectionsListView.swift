@@ -27,26 +27,35 @@ public struct NFTCollectionsListView: View {
     }
 
     public var body: some View {
-        content
-            .navigationTitle(Localization.nftWalletTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 16)
-            .background(Colors.Background.secondary)
-            .onAppear(perform: viewModel.onViewAppear)
-            .scrollDismissesKeyboardCompat(.immediately)
+        ZStack {
+            content
+
+            receiveButtonContainer
+        }
+        .coordinateSpace(name: coordinateSpaceName)
+        .if(viewModel.isSearchable) {
+            $0.nftListSearchable(text: $viewModel.searchEntry)
+        }
+        .navigationTitle(Localization.nftWalletTitle)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 16)
+        .background(Colors.Background.secondary)
+        .onAppear(perform: viewModel.onViewAppear)
+        .scrollDismissesKeyboardCompat(.immediately)
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .loaded(let collections) where collections.isEmpty && viewModel.searchEntry.isEmpty:
+        case .loaded(let collections) where viewModel.isStateEmpty(collections: collections):
             noCollectionsView
+
         case .loaded(let collections):
             nonEmptyContentView(collections: collections)
-                .nftListSearchable(text: $viewModel.searchEntry)
+
         case .loading:
             loadingView
-                .nftListSearchable(text: $viewModel.searchEntry)
+
         case .failedToLoad:
             UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
                 .infinityFrame()
@@ -62,9 +71,6 @@ public struct NFTCollectionsListView: View {
 
             noCollectionsTexts
                 .padding(.bottom, 56)
-
-            receiveButton(shouldAddShadow: false)
-                .padding(.horizontal, Constants.EmptyView.buttonHPaddingInsideContainer)
         }
         .padding(.horizontal, Constants.EmptyView.horizontalPadding)
     }
@@ -79,17 +85,13 @@ public struct NFTCollectionsListView: View {
         }
     }
 
+    @ViewBuilder
     private func nonEmptyContentView(collections: [NFTCompactCollectionViewModel]) -> some View {
-        ZStack {
-            if collections.isNotEmpty {
-                collectionsContent(from: collections)
-            } else {
-                emptySearchView
-            }
-
-            receiveButtonContainer
+        if collections.isNotEmpty {
+            collectionsContent(from: collections)
+        } else {
+            emptySearchView
         }
-        .coordinateSpace(name: coordinateSpaceName)
     }
 
     private var emptySearchView: some View {
@@ -99,14 +101,14 @@ public struct NFTCollectionsListView: View {
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
         ScrollViewReader { scrollViewProxy in
-            RefreshableScrollView(onRefresh: viewModel.update(completion:)) {
+            RefreshableScrollView(onRefresh: viewModel.update(completion:), useNativeRefresh: true) {
                 VStack(spacing: 0) {
                     if let notificationViewData = viewModel.loadingTroublesViewData {
                         NFTNotificationView(viewData: notificationViewData)
                             .padding(.bottom, 12)
                     }
 
-                    LazyVStack(spacing: Constants.collectionRowsSpacing) {
+                    LazyVStack(spacing: 0.0) {
                         ForEach(collections, id: \.id) { collectionViewModel in
                             NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
                                 .id(collectionViewModel.id)
@@ -145,6 +147,7 @@ public struct NFTCollectionsListView: View {
                     shouldShowShadow = contentMaxY > buttonMinY
                 }
             }
+            .coordinateSpace(name: coordinateSpaceName)
         }
     }
 
@@ -171,7 +174,7 @@ public struct NFTCollectionsListView: View {
 
     private var loadingView: some View {
         VStack(spacing: 0) {
-            LazyVStack(spacing: Constants.collectionRowsSpacing) {
+            LazyVStack(spacing: 14) {
                 ForEach(0 ..< 5) { _ in
                     collectionSkeleton
                 }
@@ -255,7 +258,6 @@ extension NFTCollectionsListView {
         }
 
         static let contentButtonSpacing: CGFloat = 16
-        static let collectionRowsSpacing: CGFloat = 30
     }
 }
 
