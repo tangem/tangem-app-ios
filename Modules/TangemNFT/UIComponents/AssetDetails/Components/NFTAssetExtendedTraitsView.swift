@@ -21,6 +21,7 @@ public struct NFTAssetExtendedTraitsView: View {
     public var body: some View {
         VStack(spacing: 0) {
             KeyValuePanelView(viewData: viewData)
+
             Spacer()
         }
         .padding(.horizontal, 16)

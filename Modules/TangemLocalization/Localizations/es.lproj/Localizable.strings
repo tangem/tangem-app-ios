@@ -108,6 +108,8 @@
 "common_cancel" = "Cancelar";
 "common_change" = "Cambie";
 "common_choose_action" = "Elige una acción";
+"common_choose_network" = "Choose network";
+"common_choose_token" = "Elige token";
 "common_claim_rewards" = "Reclame recompensas";
 "common_claim" = "Reclamar";
 "common_close" = "Cerrar";
@@ -259,6 +261,7 @@
 "details_row_description_flip_to_hide" = "Gire la pantalla de su dispositivo hacia abajo para ocultar y mostrar rápidamente los saldos";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "ID del dispositivo";
+"details_row_title_contact_to_support_chat" = "Open support chat";
 "details_row_title_contact_to_support" = "Contactar con el equipo de soporte";
 "details_row_title_create_backup_footer" = "Puede sincronizar hasta tres tarjetas en una sola billetera. Solo se puede hacer una vez.";
 "details_row_title_create_backup" = "Vincular más tarjetas";
@@ -323,6 +326,7 @@
 "express_legal_two_placeholders" = "Al utilizar la función de intercambio, aceptas las condiciones de %1$@ y %2$@ del proveedor";
 "express_more_providers_soon" = "Próximamente habrá más proveedores.\n¡Estén atentos!";
 "express_provider_best_rate" = "Mejor tarifa";
+"express_provider_fca_warning_list" = "FCA Warning List";
 "express_provider_max_amount" = "Disponible hasta %@";
 "express_provider_min_amount" = "Disponible desde %@";
 "express_provider_not_available" = "No disponible para este par";
@@ -335,6 +339,8 @@
 "express_status_hide_button_text" = "Ocultar esta transacción";
 "express_status_hide_dialog_text" = "Una vez oculto, el estado de la transacción no se puede volver a ver. En su lugar, basta con deslizar el dedo para descartarla.";
 "express_status_hide_dialog_title" = "¿Ocultar el estado de la transacción?";
+"express_swap_not_supported_text" = "This token is not supported. Please choose a different token to swap.";
+"express_swap_not_supported_title" = "%@ is not supported";
 "express_swap_with" = "Swap with";
 "express_token_list_empty_search" = "No se encontraron fichas. Por favor intenta con otra solicitud";
 "express_transaction_id_copied" = "ID de transacción copiado";
@@ -813,11 +819,14 @@
 "send_tron_account_activation_error" = "%1$@  es un activo en la red Tron. Para calcular la tarifa y realizar una transacción, deba depositar algo de Tron (TRX) en su cuenta.";
 "send_validation_destination_tag_required_description" = "Es necesario una etiqueta de destino (memo) para completar esta transacción para la dirección especificada.";
 "send_validation_destination_tag_required_title" = "Etiqueta de destino obligatoria";
+"send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
 "settings_forget_wallet_footer" = "Esto eliminará la wallet de la aplicación. La wallet en sí puede\nañadirse de nuevo.";
 "settings_forget_wallet" = "Olvidar la billetera";
 "settings_wallet_name_title" = "Nombre";
+"stake_token_description" = "Join staking with this token";
 "staking_active_footer" = "Para eliminar el staking de sus activos, presione el bloque de arriba";
 "staking_active" = "Activo";
 "staking_amount_requirement_error" = "El monto del staking debe ser al menos %@";
@@ -960,6 +969,7 @@
 "story_web3_title" = "Compatible con Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Se requiere una transacción entrante de al menos %1$@ para proceder";
 "sui_not_enough_coin_for_fee_title" = "Fondos insuficientes";
+"swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "La red cobrará una tarifa de aprobación de token para verificar que está autorizando el uso de su token para el swap.";
 "swap_promo_text" = "Intercambie más tokens a mejores tasas directamente en su billetera.";
 "swap_promo_title" = "¡Nuevo proveedor de intercambio disponible!";
@@ -1037,6 +1047,8 @@
 "transaction_history_transaction_from_address" = "desde: %@";
 "transaction_history_transaction_to_address" = "a: %@";
 "transaction_history_transaction_validator" = "validador: %@";
+"transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
+"transaction_notifications_warning_title" = "Transaction Notifications";
 "transfer_min_amount_error" = "Mínimo %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "El monto mínimo para realizar esta transacción es %1$@.";
 "tron_will_be_send_token_fee_description" = "Tron network fees for popular tokens can be higher. Staking TRX may help reduce transaction costs.";
@@ -1209,6 +1221,8 @@
 "warning_express_notification_invalid_reserve_amount_title" = "El monto a recibir debe ser de al menos %@";
 "warning_express_pair_unavailable_message" = "Esto puede suceder porque el proveedor actualmente no puede operar con el par que usted seleccionó. Espere un momento e inténtelo de nuevo. (Código %@)";
 "warning_express_pair_unavailable_title" = "El par seleccionado no está disponible temporalmente";
+"warning_express_providers_fca_warning_description" = "Algunos proveedores no están autorizados por la Autoridad de Conducta Financiera (FCA) del Reino Unido. Deberías evitar tratar con ellos.";
+"warning_express_providers_fca_warning_title" = "FCA Warning List";
 "warning_express_refresh_required_title" = "Servicio no disponible temporalmente";
 "warning_express_too_maximum_amount_title" = "La cantidad de tokens a intercambiar no debe exceder %@";
 "warning_express_too_minimal_amount_title" = "El monto a cambiar debe ser de al menos %@";
@@ -1246,6 +1260,7 @@
 "warning_rate_app_message" = "Su opinión nos motiva a hacer Tangem Wallet aún mejor";
 "warning_rate_app_title" = "¿Disfrutando de Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Deba asociar su token antes de recibir tokens";
+"warning_receive_blocked_stelar_token_trustline_required_message" = "You must open trustline for your token before receiving it";
 "warning_rent_fee_title" = "Se requiere tarifa de alquiler de red";
 "warning_seedphrase_action_required_title" = "Acción requerida";
 "warning_seedphrase_contacted_support" = "¿Te pusiste en contacto con el servicio de asistencia a través de la aplicación o por correo electrónico en los 7 días posteriores a la creación de la billetera? Si lo hiciste o no estás seguro, sigue y completa las instrucciones.";
@@ -1259,6 +1274,10 @@
 "warning_some_networks_unreachable_message" = "Deslice hacia abajo para refrescar o inténtelo de nuevo más tarde.";
 "warning_some_networks_unreachable_title" = "Algunas redes no están disponibles";
 "warning_some_token_balances_not_updated" = "No se han podido actualizar los saldos de algunos tokens";
+"warning_stelar_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
+"warning_stellar_token_trustline_button_title" = "Enable Trustline";
+"warning_stellar_token_trustline_subtiile" = "According to network rules, you need to open a Trustline before depositing this token. It allows your wallet to accept and hold the asset.";
+"warning_stellar_token_trustline_tiile" = "Enable Trustline for this token";
 "warning_system_deprecation_title" = "Actualización del sistema requerida";
 "warning_system_deprecation_with_date_message" = "El soporte para tu versión del sistema operativo finalizará el %@. Para recibir futuras actualizaciones de la app, deba actualizarlo a la última versión.";
 "warning_system_update_message" = "Tangem recomienda instalar la última actualización de iOS para un funcionamiento estable y seguro";
@@ -1285,8 +1304,10 @@
 "wc_allow_to_spend" = "Allow to spend";
 "wc_common_address" = "Address";
 "wc_common_connect" = "Connect";
+"wc_common_loading" = "Loading";
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
+"wc_common_unlimited" = "Unlimited";
 "wc_common_wallet" = "Wallet";
 "wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
@@ -1302,6 +1323,7 @@
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
 "wc_disconnect_all_alert_title" = "Disconect All dApps";
 "wc_disconnect_all" = "Disconnect all";
+"wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Estimated wallet changes";
 "wc_malicious_transaction" = "Malicious transaction";
 "wc_missing_required_network_description" = "Add the %@ network to your profile for this wallet";
