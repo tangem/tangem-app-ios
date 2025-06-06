@@ -18,6 +18,7 @@ struct NFTExplorerLinkProvider {
         let blockchain = NFTChainConverter.convert(assetID.chain, version: .v2)
 
         guard let provider = ExternalLinkProviderFactory().makeNFTProvider(for: blockchain) else {
+            assertionFailure("Cannot construct NFTExternalLinksProvider for \(blockchain.displayName)")
             return nil
         }
 
