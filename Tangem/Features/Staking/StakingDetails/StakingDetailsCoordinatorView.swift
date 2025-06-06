@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemLocalization
 
 struct StakingDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: StakingDetailsCoordinator
@@ -44,5 +45,19 @@ struct StakingDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.multipleRewardsCoordinator) {
                 MultipleRewardsCoordinatorView(coordinator: $0)
             }
+    }
+}
+
+extension StakingDetailsCoordinatorView {
+    func stakingNavigationView() -> some View {
+        NavigationView {
+            self
+                .navigationBarTitle(Text(Localization.commonStake), displayMode: .inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        CloseButton(dismiss: { coordinator.dismiss() })
+                    }
+                }
+        }
     }
 }
