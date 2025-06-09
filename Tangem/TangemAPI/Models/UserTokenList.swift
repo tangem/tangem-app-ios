@@ -14,6 +14,7 @@ struct UserTokenList: Codable {
     var tokens: [Token]
     var group: GroupType
     var sort: SortType
+    var notifyStatus: Bool?
 
     private let version: Int
 
@@ -21,11 +22,13 @@ struct UserTokenList: Codable {
         tokens: [Token],
         group: GroupType,
         sort: SortType,
+        notifyStatus: Bool? = nil,
         version: Int
     ) {
         self.tokens = tokens
         self.group = group
         self.sort = sort
+        self.notifyStatus = notifyStatus
         self.version = version
     }
 }
@@ -36,12 +39,14 @@ extension UserTokenList {
     init(
         tokens: [Token],
         group: GroupType,
-        sort: SortType
+        sort: SortType,
+        notifyStatus: Bool? = nil
     ) {
         self.init(
             tokens: tokens,
             group: group,
             sort: sort,
+            notifyStatus: notifyStatus,
             version: Self.initialVersion
         )
     }
@@ -56,6 +61,7 @@ extension UserTokenList {
         let decimals: Int
         let derivationPath: DerivationPath?
         let contractAddress: String?
+        let addresses: [String]?
     }
 
     enum GroupType: String, Codable {
