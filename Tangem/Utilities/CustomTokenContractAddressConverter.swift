@@ -106,7 +106,6 @@ struct CustomTokenContractAddressConverter {
              .blast,
              .filecoin,
              .sei,
-             .sui,
              .energyWebEVM,
              .energyWebX,
              .core,
