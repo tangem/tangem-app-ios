@@ -256,7 +256,7 @@ final class CommonNFTManager: NFTManager {
         in collection: NFTCollection,
         using networkService: NFTNetworkService,
     ) async throws -> NFTPartialResult<[NFTAsset]> {
-        return try await networkService.getAssets(
+        return await networkService.getAssets(
             address: collection.id.ownerAddress,
             in: collection
         )
@@ -367,7 +367,7 @@ private extension CommonNFTManager {
             }
 
             let task = CollectionsTask {
-                try await networkService.getCollections(address: address)
+                await networkService.getCollections(address: address)
             }
 
             updateTasks[walletModelId] = .inProgress(task)
