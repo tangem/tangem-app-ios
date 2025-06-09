@@ -19,9 +19,10 @@ class ServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
-    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -43,9 +44,7 @@ class ServicesManager {
 
         AppLogger.info("Start services initializing")
 
-        if !AppEnvironment.current.isDebug {
-            configureFirebase()
-        }
+        configureFirebase()
 
         configureBlockchainSdkExceptionHandler()
 
@@ -53,6 +52,7 @@ class ServicesManager {
         accountHealthChecker.initialize()
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
+        userTokensPushNotificationsService.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
