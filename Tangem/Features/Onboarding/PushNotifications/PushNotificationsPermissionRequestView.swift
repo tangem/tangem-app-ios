@@ -51,6 +51,15 @@ struct PushNotificationsPermissionRequestView: View {
                         iconImage: Assets.notificationBulletItemTwo.image,
                         description: Localization.userPushNotificationAgreementArgumentTwo
                     )
+
+                    if viewModel.isPushTransactionsAvailable {
+                        FixedSpacer(height: 28.0)
+
+                        OnboardingFeatureDescriptionView(
+                            iconImage: Assets.notificationBulletItemThree.image,
+                            description: Localization.userPushNotificationAgreementArgumentThree
+                        )
+                    }
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
             }

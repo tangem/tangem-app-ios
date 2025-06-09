@@ -86,6 +86,13 @@ struct CommonUserWalletModelFactory {
             )
         )
 
+        let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: derivationManager,
+            userTokenListManager: userTokenListManager
+        )
+
         let model = CommonUserWalletModel(
             cardInfo: cardInfo,
             config: config,
@@ -98,11 +105,15 @@ struct CommonUserWalletModelFactory {
             nftManager: nftManager,
             keysRepository: keysRepository,
             derivationManager: derivationManager,
-            totalBalanceProvider: totalBalanceProvider
+            totalBalanceProvider: totalBalanceProvider,
+            userTokensPushNotificationsManager: userTokensPushNotificationsManager
         )
 
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
+
+        // Set walletModelsManager as the source of addresses for the token list manager & pushNotifyStatus
+        userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
 
         switch cardInfo.walletData {
         case .visa:
