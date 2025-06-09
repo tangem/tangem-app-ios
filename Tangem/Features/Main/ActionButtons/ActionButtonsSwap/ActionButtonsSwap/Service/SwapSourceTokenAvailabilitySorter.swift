@@ -20,7 +20,6 @@ extension SwapSourceTokenAvailabilitySorter: TokenAvailabilitySorter {
         walletModels.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
-
             if expressAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem), !walletModel.isCustom, !walletModel.state.isBlockchainUnreachable {
                 result.availableModels.append(walletModel)
             } else {

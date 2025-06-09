@@ -65,7 +65,6 @@ struct TronTransactionTests {
         ]
 
         let transactionDataList = try amountValues.map { amountValue -> Data in
-
             let transaction = Transaction(
                 amount: Amount(with: token, value: amountValue),
                 fee: Fee(.zeroCoin(for: blockchain)),
@@ -105,7 +104,6 @@ struct TronTransactionTests {
         ]
 
         let transactionDataList = try amountValues.map { amountValue -> Data in
-
             let transaction = Transaction(
                 amount: Amount(with: token, value: amountValue),
                 fee: Fee(.zeroCoin(for: blockchain)),
