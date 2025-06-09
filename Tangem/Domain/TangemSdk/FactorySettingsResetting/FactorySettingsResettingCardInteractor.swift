@@ -42,7 +42,6 @@ extension FactorySettingsResettingCardInteractor: FactorySettingsResetting {
             filter: filter,
             initialMessage: initialMessage
         ) { result in
-
             // Fix alerts no-show
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 completion(result)

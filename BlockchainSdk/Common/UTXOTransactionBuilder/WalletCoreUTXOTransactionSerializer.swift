@@ -110,7 +110,7 @@ private extension WalletCoreUTXOTransactionSerializer {
             $0.toAddress = transaction.transaction.destinationAddress
             $0.amount = Int64(destination.value)
 
-            if let change {
+            if change != nil {
                 $0.changeAddress = transaction.transaction.changeAddress
             }
         }
