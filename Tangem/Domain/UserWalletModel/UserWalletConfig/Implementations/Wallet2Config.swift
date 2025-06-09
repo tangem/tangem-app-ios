@@ -327,7 +327,6 @@ extension Wallet2Config: UserWalletConfig {
             return cardsCount == 2 ? Assets.Cards.pepeDouble : Assets.Cards.pepeTriple
         // Tangem Wallet 2.0
         default:
-
             var isUserWalletWithRing = false
 
             if let userWalletIdSeed {
