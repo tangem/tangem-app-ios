@@ -132,7 +132,7 @@ class CommonUserWalletModel {
         AppLogger.info("Updating with new card")
         cardConfig = UserWalletConfigFactory(cardInfo).makeConfig()
         _cardHeaderImagePublisher.send(config.cardHeaderImage)
-        _signer = config.tangemSigner
+        _signer = cardConfig.tangemSigner
         // prevent save until onboarding completed
         if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
             userWalletRepository.save()
