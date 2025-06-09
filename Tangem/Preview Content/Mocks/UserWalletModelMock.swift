@@ -75,6 +75,15 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: nil,
+            userTokenListManager: userTokenListManager
+        )
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -82,6 +91,8 @@ class UserWalletModelMock: UserWalletModel {
     var totalSignedHashes: Int { 0 }
 
     func updateWalletName(_ name: String) {}
+
+    func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
