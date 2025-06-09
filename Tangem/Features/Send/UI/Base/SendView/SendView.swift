@@ -121,7 +121,6 @@ struct SendView: View {
         case .none:
             EmptyView()
         case .some(let title):
-
             VStack(spacing: 2) {
                 Text(title)
                     .multilineTextAlignment(.center)

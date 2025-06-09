@@ -168,7 +168,6 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .withButtons([
                     .init(action: { _, _ in
-
                     }, actionType: .backupCard, isWithLoader: false),
                 ]),
                 severity: .info,
@@ -179,7 +178,6 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .withButtons([
                     .init(action: { _, _ in
-
                     }, actionType: .generateAddresses, isWithLoader: false),
                 ]),
                 severity: .warning,
