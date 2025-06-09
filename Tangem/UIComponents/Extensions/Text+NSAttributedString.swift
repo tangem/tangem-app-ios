@@ -15,7 +15,6 @@ extension Text {
         self.init("")
 
         attributedString.enumerateAttributes(in: NSRange(location: 0, length: attributedString.length), options: []) { attributes, range, _ in
-
             var text = Text(attributedString.attributedSubstring(from: range).string)
 
             if let color = attributes[NSAttributedString.Key.foregroundColor] as? UIColor {
