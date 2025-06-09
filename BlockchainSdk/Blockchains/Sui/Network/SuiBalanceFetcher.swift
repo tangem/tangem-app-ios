@@ -58,7 +58,6 @@ class SuiBalanceFetcher {
                     self?.clear()
                 }
             } receiveValue: { [weak self] response in
-
                 guard let self else {
                     return
                 }
