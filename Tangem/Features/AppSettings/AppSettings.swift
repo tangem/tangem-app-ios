@@ -102,6 +102,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
     var tronWarningWithdrawTokenDisplayed: Int = 0
 
+    @AppStorageCompat(StorageType.applicationUid)
+    var applicationUid: String = ""
+
+    @AppStorageCompat(StorageType.lastStoredFCMToken)
+    var lastStoredFCMToken: String? = nil
+
     static let shared: AppSettings = .init()
 
     private init() {}
