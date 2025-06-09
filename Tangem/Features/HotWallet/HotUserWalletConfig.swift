@@ -29,10 +29,12 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
+        existingCurves
     }
 
-    var tangemSigner: TangemSigner { fatalError() }
+    var transactionSigner: TransactionSigner {
+        fatalError("Unimplemented")
+    }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
         GeneralNotificationEventsFactory().makeNotifications(for: hotWallet)
@@ -129,6 +131,7 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService, isPushNotificationsAvailable: Bool) -> any OnboardingStepsBuilder {
-        fatalError()
+        #warning("Add asset")
+        fatalError("Unimplemented")
     }
 }

@@ -29,7 +29,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory {
 
     var derivationStyle: DerivationStyle? { get }
 
-    var tangemSigner: TangemSigner { get }
+    var transactionSigner: TransactionSigner { get }
 
     var generalNotificationEvents: [GeneralNotificationEvent] { get }
 
@@ -153,6 +153,10 @@ extension UserWalletConfig where Self: CardContainer, Self: BackupServiceFactory
 }
 
 extension UserWalletConfig where Self: CardContainer, Self: TangemSdkFactory {
+    var transactionSigner: TransactionSigner {
+        tangemSigner
+    }
+
     var tangemSigner: TangemSigner {
         .init(filter: sessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
