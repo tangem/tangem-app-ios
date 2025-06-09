@@ -74,6 +74,21 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         updateInternal()
     }
 
+    var isSearchable: Bool {
+        switch state {
+        case .failedToLoad:
+            false
+        case .loaded(let collections) where isStateEmpty(collections: collections):
+            false
+        case .loaded, .loading:
+            true
+        }
+    }
+
+    func isStateEmpty(collections: [NFTCompactCollectionViewModel]) -> Bool {
+        collections.isEmpty && searchEntry.isEmpty
+    }
+
     private func updateInternal() {
         nftManager.update(cachePolicy: .never)
     }
@@ -171,8 +186,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result):
             break // Keep previous state
 
-        case .loaded(let collections):
-            state = .loaded(collections)
+        case .loaded:
+            state = .loaded(filteredCollections(entry: searchEntry))
 
         case .loading where currentCollections.isEmpty:
             state = .loading
@@ -209,6 +224,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func filterAndAssignCollections(for entry: String) {
+        guard case .loaded = state else { return }
         state = .loaded(filteredCollections(entry: entry))
     }
 
