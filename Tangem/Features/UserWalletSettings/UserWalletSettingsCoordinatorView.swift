@@ -51,5 +51,8 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
+                TransactionNotificationsModalView(viewModel: $0)
+            }
     }
 }
