@@ -28,6 +28,7 @@ class CommonUserWalletModel {
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
     let cardImageProvider: CardImageProviding
+    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
     private let walletManagersRepository: WalletManagersRepository
 
@@ -48,7 +49,6 @@ class CommonUserWalletModel {
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
     private var signSubscription: AnyCancellable?
-
     private var _signer: TangemSigner {
         didSet {
             bindSigner()
@@ -67,7 +67,8 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
-        totalBalanceProvider: TotalBalanceProviding
+        totalBalanceProvider: TotalBalanceProviding,
+        userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     ) {
         self.cardInfo = cardInfo
         self.config = config
@@ -85,6 +86,7 @@ class CommonUserWalletModel {
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
+        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         cardImageProvider = CardImageProvider(card: cardInfo.card)
 
         _signer = config.tangemSigner
