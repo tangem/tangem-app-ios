@@ -140,7 +140,6 @@ class CosmosNetworkService: MultiNetworkProvider {
             $0.querySmartContract(contractAddress: token.contractAddress, query: query)
                 .tryMap {
                     (result: CosmosCW20QueryResult<CosmosCW20QueryBalanceData>) -> (Token, Decimal) in
-
                     guard let balanceInSmallestDenomination = Decimal(string: result.data.balance) else {
                         throw WalletError.failedToParseNetworkResponse()
                     }
