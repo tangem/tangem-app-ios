@@ -16,6 +16,11 @@ public struct DeviceInfo {
     public let device: String
     public let systemVersion: String
 
+    // [REDACTED_TODO_COMMENT]
+    public var appLanguageCode: String {
+        Locale.appLanguageCode
+    }
+
     public init() {
         platform = Constants.platformName
         version = InfoDictionaryUtils.version.value() ?? Constants.commonUnknown
@@ -41,11 +46,7 @@ public struct DeviceInfo {
 
 private extension DeviceInfo {
     static var languageCode: String? {
-        if #available(iOS 16, *) {
-            Locale.current.language.languageCode?.identifier
-        } else {
-            Locale.current.languageCode
-        }
+        Locale.deviceLanguageCode()
     }
 }
 
