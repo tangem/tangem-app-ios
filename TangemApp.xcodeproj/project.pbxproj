@@ -2820,6 +2820,7 @@
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
 		EAD10C5E2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */; };
+		EAF4F59A2DF729FA0045996D /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
 		EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */; };
@@ -6475,6 +6476,7 @@
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
 		EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEvents.swift; sourceTree = "<group>"; };
+		EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
 		EF031A642C0A32C3001535C9 /* SendGeometryEffectNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendGeometryEffectNames.swift; sourceTree = "<group>"; };
@@ -13432,6 +13434,7 @@
 				B62D432B2CBC79E300C2460E /* Cardano */,
 				2D616FF62CD142BE00581EA6 /* Casper */,
 				B62D432F2CBC79E400C2460E /* Chia */,
+				EAF4F5982DF729DF0045996D /* Clore */,
 				B62D42F92CBC79E100C2460E /* Common */,
 				B62D43132CBC79E300C2460E /* Cosmos */,
 				305B223D2D78A084009BCC73 /* Dash */,
@@ -16453,6 +16456,14 @@
 				EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */,
 			);
 			path = PushNotificationSubscribers;
+			sourceTree = "<group>";
+		};
+		EAF4F5982DF729DF0045996D /* Clore */ = {
+			isa = PBXGroup;
+			children = (
+				EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */,
+			);
+			path = Clore;
 			sourceTree = "<group>";
 		};
 		EF031A262C08E64F001535C9 /* StakingCalculator */ = {
@@ -22980,6 +22991,7 @@
 				30410B3F2D7740270044C703 /* NEARAddressTests.swift in Sources */,
 				B62D436C2CBC79E400C2460E /* ChiaTransactionTests.swift in Sources */,
 				B62D43562CBC79E400C2460E /* AptosTransactionTests.swift in Sources */,
+				EAF4F59A2DF729FA0045996D /* CloreTransactionTests.swift in Sources */,
 				305B22392D789E29009BCC73 /* BSCAddressTests.swift in Sources */,
 				B62D43592CBC79E400C2460E /* CosmosTransactionTests.swift in Sources */,
 				B62D43582CBC79E400C2460E /* EthereumTransactionTests.swift in Sources */,
