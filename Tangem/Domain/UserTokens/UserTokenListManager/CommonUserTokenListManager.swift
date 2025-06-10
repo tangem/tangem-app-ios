@@ -18,6 +18,10 @@ class CommonUserTokenListManager {
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
+
+    // MARK: - Private Properties
+
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
     private let hasTokenSynchronization: Bool
@@ -91,7 +95,11 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository.update(userTokenList)
         notifyAboutTokenListUpdates(with: userTokenList)
 
-        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+        let converter = UserTokenListConverter(
+            supportedBlockchains: supportedBlockchains,
+            externalParametersProvider: externalParametersProvider
+        )
+
         updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
     }
 
@@ -146,7 +154,10 @@ private extension CommonUserTokenListManager {
 
     func loadUserTokenList(_ completion: @escaping Completion) {
         if let list = pendingTokensToUpdate {
-            let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+            let converter = UserTokenListConverter(
+                supportedBlockchains: supportedBlockchains,
+                externalParametersProvider: externalParametersProvider
+            )
 
             tokenItemsRepository.update(converter.convertRemoteToStored(list))
             updateTokensOnServer(list: list, completion: completion)
@@ -171,7 +182,10 @@ private extension CommonUserTokenListManager {
                 guard let self else { return }
 
                 if let list {
-                    let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+                    let converter = UserTokenListConverter(
+                        supportedBlockchains: supportedBlockchains,
+                        externalParametersProvider: externalParametersProvider
+                    )
                     let updatedUserTokenList = converter.convertRemoteToStored(list)
                     tokenItemsRepository.update(updatedUserTokenList)
                     notifyAboutTokenListUpdates(with: updatedUserTokenList)
@@ -208,7 +222,10 @@ private extension CommonUserTokenListManager {
     }
 
     func getUserTokenList() -> UserTokenList {
-        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+        let converter = UserTokenListConverter(
+            supportedBlockchains: supportedBlockchains,
+            externalParametersProvider: externalParametersProvider
+        )
         let list = tokenItemsRepository.getList()
         return converter.convertStoredToRemote(list)
     }

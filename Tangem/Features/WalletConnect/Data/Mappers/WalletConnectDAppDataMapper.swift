@@ -10,10 +10,9 @@ import struct Foundation.URL
 import struct ReownWalletKit.Session
 
 enum WalletConnectDAppDataMapper {
-    static func mapDomainURL(from proposal: Session.Proposal) throws -> URL {
+    static func mapDomainURL(from proposal: Session.Proposal) throws(WalletConnectDAppProposalLoadingError) -> URL {
         guard let domainURL = URL(string: proposal.proposer.url) else {
-            // [REDACTED_TODO_COMMENT]
-            throw CancellationError()
+            throw WalletConnectDAppProposalLoadingError.invalidDomainURL(proposal.proposer.url)
         }
 
         return domainURL
