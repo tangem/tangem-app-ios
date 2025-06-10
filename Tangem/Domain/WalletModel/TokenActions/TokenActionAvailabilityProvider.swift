@@ -394,7 +394,6 @@ extension TokenActionAvailabilityProvider {
 
         switch requirementsCondition {
         case .paidTransactionWithFee(let blockchain, _, _):
-
             switch blockchain {
             case .hedera:
                 return .assetRequirement(blockchain: blockchain)
