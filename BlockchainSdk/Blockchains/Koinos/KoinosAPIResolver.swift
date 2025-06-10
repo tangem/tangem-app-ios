@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct KoinosAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(blockchain: Blockchain) -> NodeInfo? {
         guard case .koinos = blockchain else {
@@ -18,7 +19,7 @@ struct KoinosAPIResolver {
 
         return .init(
             url: URL(string: "https://api.koinos.pro/jsonrpc")!,
-            keyInfo: APIKeysInfoProvider(blockchain: blockchain, config: config).apiKeys(for: .koinos)
+            keyInfo: APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: .koinosPro)
         )
     }
 }

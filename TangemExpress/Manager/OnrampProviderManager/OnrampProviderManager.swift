@@ -6,32 +6,109 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-// For every onramp provider
-public protocol OnrampProviderManager: Actor {
-    // Update quotes for amount
-    func update(amount: Decimal) async
+public protocol OnrampProviderManager {
+    /// Get actual from amount
+    var amount: Decimal? { get }
 
-    // Get actual state
-    func state() -> OnrampProviderManagerState
+    /// Get actual state
+    var state: OnrampProviderManagerState { get }
+
+    /// Update methods where this provider will be available
+    func update(supportedMethods: [OnrampPaymentMethod])
+
+    /// Update quotes for amount
+    func update(amount: OnrampUpdatingAmount) async
+
+    /// Build a request item with all fileds
+    func makeOnrampQuotesRequestItem() throws -> OnrampQuotesRequestItem
 }
 
-public enum OnrampProviderManagerState: Hashable {
-    case created
+// MARK: - OnrampProviderManagerState
+
+public enum OnrampProviderManagerState {
+    case idle
+    case notSupported(NotSupported)
     case loading
-    case failed(String)
-    case loaded([Loaded])
+    case restriction(Restriction)
+    case failed(error: Error)
+    case loaded(OnrampQuote)
 
-    public struct Loaded: Hashable {
-        public let paymentMethod: OnrampPaymentMethod
-        public let state: State
+    public var isSupported: Bool {
+        switch self {
+        case .idle, .loading, .failed, .loaded, .restriction: true
+        case .notSupported: false
+        }
+    }
 
-        public enum State: Hashable {
-            case notSupported
-            case failed(error: String)
-            case quote(OnrampQuote)
+    public enum Restriction: Hashable, CustomStringConvertible {
+        case tooSmallAmount(_ amount: Decimal, formatted: String)
+        case tooBigAmount(_ amount: Decimal, formatted: String)
+
+        var amount: Decimal {
+            switch self {
+            case .tooSmallAmount(let amount, _): amount
+            case .tooBigAmount(let amount, _): amount
+            }
+        }
+
+        public var description: String {
+            switch self {
+            case .tooSmallAmount(_, let formatted): "Too small amount: \(formatted)"
+            case .tooBigAmount(_, let formatted): "Too big amount: \(formatted))"
+            }
+        }
+    }
+
+    public enum NotSupported: Hashable, CustomStringConvertible {
+        case currentPair
+        case paymentMethod(supportedMethods: [OnrampPaymentMethod])
+
+        public var description: String {
+            switch self {
+            case .currentPair:
+                "Current pair"
+            case .paymentMethod(let supportedMethods):
+                "Supported only for methods for \(supportedMethods.map(\.name))"
+            }
         }
     }
 }
+
+// MARK: - OnrampProviderManagerState + Hashable
+
+extension OnrampProviderManagerState: Hashable {
+    public static func == (lhs: OnrampProviderManagerState, rhs: OnrampProviderManagerState) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .idle: hasher.combine("idle")
+        case .notSupported(let notSupported): hasher.combine(notSupported)
+        case .loading: hasher.combine("loading")
+        case .restriction(let restriction): hasher.combine(restriction)
+        case .failed(let error): hasher.combine(error.localizedDescription)
+        case .loaded(let onrampQuote): hasher.combine(onrampQuote)
+        }
+    }
+}
+
+// MARK: - OnrampProviderManagerState + CustomStringConvertible
+
+extension OnrampProviderManagerState: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .idle: "Idle"
+        case .notSupported(let type): "Not supported: \(type)"
+        case .loading: "Loading"
+        case .restriction(let restriction): "Restriction: \(restriction)"
+        case .failed(error: let error): "Failed: \(error)"
+        case .loaded(let quote): "Quote with amount: \(quote.expectedAmount)"
+        }
+    }
+}
+
+// MARK: - OnrampProviderManagerError
 
 public enum OnrampProviderManagerError: LocalizedError {
     case objectReleased

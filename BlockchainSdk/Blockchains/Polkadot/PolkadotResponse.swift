@@ -9,27 +9,6 @@
 import Foundation
 import ScaleCodec
 
-struct PolkadotJsonRpcResponse<T: Codable>: Codable {
-    let jsonRpc: String
-    let id: Int?
-    let result: T?
-    let error: PolkadotJsonRpcError?
-
-    private enum CodingKeys: String, CodingKey {
-        case jsonRpc = "jsonrpc"
-        case id, result, error
-    }
-}
-
-struct PolkadotJsonRpcError: Codable {
-    let code: Int?
-    let message: String?
-
-    var error: Error {
-        NSError(domain: message ?? .unknown, code: code ?? -1, userInfo: nil)
-    }
-}
-
 struct PolkadotHeader: Codable {
     let number: String
 }
@@ -40,11 +19,38 @@ struct PolkadotRuntimeVersion: Codable {
     let transactionVersion: UInt32
 }
 
-struct PolkadotQueriedInfo: Codable {
-    let partialFee: String
+struct PolkadotQueriedInfo: ScaleDecodable {
+    let refTime: UInt64
+    let proofSize: UInt64
+    let classType: UInt8
+    let partialFee: BigUInt
+
+    init(from decoder: any ScaleCodec.ScaleDecoder) throws {
+        refTime = try decoder.decode(.compact)
+        proofSize = try decoder.decode(.compact)
+        classType = try decoder.decode()
+
+        // RPC APIs for Bittensor are returning shortened response to `TransactionPaymentApi_query_info`
+        // And result for `partialFee` will UInt64 instead of UInt128 for rest APIs
+        switch decoder.length {
+        case 8:
+            let fee: UInt64 = try decoder.decode()
+            partialFee = .init(fee)
+        case 16:
+            partialFee = try decoder.decode(.b128)
+        default:
+            throw WalletError.failedToGetFee
+        }
+    }
 }
 
 struct PolkadotAccountInfo: ScaleDecodable {
+    let nonce: UInt32
+    let consumers: UInt32
+    let providers: UInt32
+    let sufficients: UInt32
+    let data: PolkadotAccountData
+
     init(from decoder: ScaleDecoder) throws {
         nonce = try decoder.decode()
         consumers = try decoder.decode()
@@ -52,12 +58,6 @@ struct PolkadotAccountInfo: ScaleDecodable {
         sufficients = try decoder.decode()
         data = try decoder.decode()
     }
-
-    var nonce: UInt32
-    var consumers: UInt32
-    var providers: UInt32
-    var sufficients: UInt32
-    let data: PolkadotAccountData
 }
 
 struct PolkadotAccountData: ScaleDecodable {

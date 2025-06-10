@@ -8,11 +8,12 @@
 
 import Foundation
 import Combine
-import TangemSdk
 
 public protocol TransactionValidator: WalletProvider {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
     func validate(amount: Amount, fee: Fee) throws
+
+    func validate(transaction: Transaction) async throws
 }
 
 public enum DestinationType: Hashable {
@@ -26,7 +27,7 @@ public enum DestinationType: Hashable {
 
 public extension TransactionValidator {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validateAmounts(amount: amount, fee: fee.amount)
     }
 
@@ -102,7 +103,7 @@ public extension TransactionValidator {
 
 extension TransactionValidator where Self: DustRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -116,7 +117,7 @@ extension TransactionValidator where Self: DustRestrictable {
 
 extension TransactionValidator where Self: MinimumBalanceRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -130,7 +131,7 @@ extension TransactionValidator where Self: MinimumBalanceRestrictable {
 
 extension TransactionValidator where Self: MaximumAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -144,7 +145,7 @@ extension TransactionValidator where Self: MaximumAmountRestrictable {
 
 extension TransactionValidator where Self: MinimumAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -158,7 +159,7 @@ extension TransactionValidator where Self: MinimumAmountRestrictable {
 
 extension TransactionValidator where Self: MaximumAmountRestrictable, Self: DustRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -173,7 +174,7 @@ extension TransactionValidator where Self: MaximumAmountRestrictable, Self: Dust
 
 extension TransactionValidator where Self: DustRestrictable, Self: CardanoTransferRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -189,13 +190,17 @@ extension TransactionValidator where Self: DustRestrictable, Self: CardanoTransf
 extension TransactionValidator where Self: ReserveAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
         try validateAmounts(amount: amount, fee: fee.amount)
+        try await validateReserveAmount(amount: amount, destination: destination)
+    }
+}
 
-        switch destination {
-        case .generate:
-            try await validateReserveAmount(amount: amount, addressType: .notCreated)
-        case .address(let string):
-            try await validateReserveAmount(amount: amount, addressType: .address(string))
-        }
+// MARK: - RequiredMemoRestrictable & ReserveAmountRestrictable e.g. XRPWalletManager
+
+extension TransactionValidator where Self: RequiredMemoRestrictable, Self: ReserveAmountRestrictable {
+    func validate(transaction: Transaction) async throws {
+        try validateAmounts(amount: transaction.amount, fee: transaction.fee.amount)
+        try await validateReserveAmount(amount: transaction.amount, destination: .address(transaction.destinationAddress))
+        try await validateRequiredMemo(destination: transaction.destinationAddress, transactionParams: transaction.params)
     }
 }
 
@@ -203,12 +208,26 @@ extension TransactionValidator where Self: ReserveAmountRestrictable {
 
 extension TransactionValidator where Self: FeeResourceRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        Log.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
     func validate(amount: Amount, fee: Fee) throws {
         try validate(amount: amount)
         try validateFeeResource(amount: amount, fee: fee.amount)
+    }
+}
+
+// MARK: - RentExtemptionRestrictable e.g. SolanaWalletManager
+
+extension TransactionValidator where Self: RentExtemptionRestrictable {
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        try validate(amount: amount, fee: fee)
+    }
+
+    func validate(amount: Amount, fee: Fee) throws {
+        try validateAmounts(amount: amount, fee: fee.amount)
+        try validateRentExtemption(amount: amount, fee: fee.amount)
     }
 }
