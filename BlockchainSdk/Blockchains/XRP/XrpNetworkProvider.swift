@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import Combine
 import TangemFoundation
+import TangemNetworkUtils
 
 class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     var host: String {
@@ -17,11 +18,11 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<XRPTarget>
+    private let provider: TangemProvider<XRPTarget>
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<XRPTarget>(configuration: configuration)
+        provider = TangemProvider<XRPTarget>(configuration: configuration)
     }
 
     func getFee() -> AnyPublisher<XRPFeeResponse, Error> {
@@ -136,6 +137,15 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
                 } catch {
                     return false
                 }
+            }
+            .eraseToAnyPublisher()
+            .eraseError()
+    }
+
+    func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
+        return request(.accountInfo(account: account))
+            .map { xrpResponse -> Bool in
+                xrpResponse.result?.account_flags?.requireDestinationTag ?? false
             }
             .eraseToAnyPublisher()
             .eraseError()

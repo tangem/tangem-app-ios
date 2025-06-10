@@ -90,7 +90,7 @@ extension CardanoWalletManager: TransactionSender {
 
                 return networkService
                     .send(transaction: builtTransaction)
-                    .mapSendError(tx: builtTransaction.hexString.lowercased())
+                    .mapSendError(tx: builtTransaction.hex())
                     .eraseToAnyPublisher()
             }
             .tryMap { [weak self] hash in
@@ -233,6 +233,70 @@ extension CardanoWalletManager: CardanoTransferRestrictable {
         // If there not enough ada balance to change
         if willReceiveChange, parameters.change < minChange {
             throw ValidationError.cardanoInsufficientBalanceToSendToken
+        }
+    }
+}
+
+// MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
+
+extension CardanoWalletManager: StakeKitTransactionSender, StakeKitTransactionsBuilder, StakeKitTransactionDataBroadcaster {
+    typealias RawTransaction = Data
+
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+        try await networkService.send(transaction: rawTransaction).async()
+    }
+
+    func buildRawTransactions(
+        from transactions: [StakeKitTransaction],
+        publicKey: Wallet.PublicKey,
+        signer: TransactionSigner
+    ) async throws -> [Data] {
+        let firstDerivationPath: DerivationPath
+        let secondDerivationPath: DerivationPath
+
+        let firstPublicKey = publicKey.blockchainKey
+        let secondPublicKey: Data
+
+        switch publicKey.derivationType {
+        case .double(let first, let second):
+            firstDerivationPath = first.path
+            secondDerivationPath = second.path
+
+            secondPublicKey = second.extendedPublicKey.publicKey
+
+        default: throw WalletError.failedToBuildTx
+        }
+
+        var transactionHashes = [StakeKitTransaction: Data]()
+
+        let stakeKitTransactionHelper = CardanoStakeKitTransactionHelper(
+            transactionBuilder: transactionBuilder
+        )
+
+        var dataToSign = [SignData]()
+        for transaction in transactions {
+            let hashToSign = try stakeKitTransactionHelper.prepareForSign(transaction)
+
+            transactionHashes[transaction] = hashToSign
+
+            dataToSign.append(
+                SignData(derivationPath: firstDerivationPath, hash: hashToSign, publicKey: firstPublicKey)
+            )
+            dataToSign.append(
+                SignData(derivationPath: secondDerivationPath, hash: hashToSign, publicKey: secondPublicKey)
+            )
+        }
+
+        let signatures: [SignatureInfo] = try await signer.sign(
+            dataToSign: dataToSign,
+            seedKey: publicKey.seedKey
+        ).async()
+
+        return try transactions.compactMap { transaction -> Data? in
+            guard let hash = transactionHashes[transaction] else { return nil }
+            let signatures = signatures.filter { $0.hash == hash }
+
+            return try stakeKitTransactionHelper.prepareForSend(transaction, signatures: signatures)
         }
     }
 }
