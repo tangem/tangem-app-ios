@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import Moya
-import TangemSdk
+import TangemNetworkUtils
 
 @available(iOS 13.0, *)
 protocol MultiNetworkProvider: AnyObject, HostProvider {
@@ -41,7 +41,9 @@ extension MultiNetworkProvider {
                 guard let self = self else { return .anyFail(error: error) }
 
                 if let moyaError = error as? MoyaError, case .statusCode(let resp) = moyaError {
-                    Log.network("Switchable publisher catched error: \(moyaError). Response message: \(String(describing: String(data: resp.data, encoding: .utf8)))")
+                    NetworkLogger.error("Message: \(String(describing: String(data: resp.data, encoding: .utf8)))", error: moyaError)
+                } else {
+                    NetworkLogger.error(error: error)
                 }
 
                 if case WalletError.noAccount = error {
@@ -52,14 +54,12 @@ extension MultiNetworkProvider {
                     return .anyFail(error: error)
                 }
 
-                Log.network("Switchable publisher catched error: \(error)")
-
                 let beforeSwitchIfNeededHost = host
 
                 if let nextHost = switchProviderIfNeeded(for: currentHost) {
                     // Send event if api did switched by host value
                     if nextHost != beforeSwitchIfNeededHost {
-                        Log.network("Switching to next publisher on host: \(nextHost)")
+                        NetworkLogger.info("Next host: \(nextHost)")
 
                         ExceptionHandler.shared.handleAPISwitch(
                             currentHost: currentHost,
@@ -78,8 +78,8 @@ extension MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    // NOTE: There also copy of this behaviour in the wild, if you want to update something
-    // in the code, don't forget to update also Solano.Swift framework, class NetworkingRouter
+    /// NOTE: There also copy of this behaviour in the wild, if you want to update something
+    /// in the code, don't forget to update also Solano.Swift framework, class NetworkingRouter
     private func switchProviderIfNeeded(for errorHost: String) -> String? {
         if errorHost != host { // Do not switch the provider, if it was switched already
             return providers[currentProviderIndex].host

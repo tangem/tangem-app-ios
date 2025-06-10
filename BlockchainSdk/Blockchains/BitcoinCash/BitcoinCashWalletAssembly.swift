@@ -7,46 +7,55 @@
 //
 
 import Foundation
-import TangemSdk
-import stellarsdk
-import BitcoinCore
 
 struct BitcoinCashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        return try BitcoinWalletManager(wallet: input.wallet).then {
-            let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-            let bitcoinManager = BitcoinManager(
-                networkParams: input.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams(),
-                walletPublicKey: compressed,
-                compressedWalletPublicKey: compressed,
-                bip: .bip44
-            )
+        let networkParams: UTXONetworkParams = input.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
 
-            $0.txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
+        let unspentOutputManager: UnspentOutputManager = .bitcoinCash(
+            address: input.wallet.defaultAddress,
+            isTestnet: input.isTestnet
+        )
 
-            // [REDACTED_TODO_COMMENT]
-            // Maybe https://developers.cryptoapis.io/technical-documentation/general-information/what-we-support
-            let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
-                switch providerType {
-                case .nowNodes:
-                    if let bitcoinCashAddressService = AddressServiceFactory(blockchain: input.blockchain).makeAddressService() as? BitcoinCashAddressService {
-                        partialResult.append(
-                            networkProviderAssembly.makeBitcoinCashNowNodesNetworkProvider(
-                                input: input,
-                                bitcoinCashAddressService: bitcoinCashAddressService
-                            )
-                        )
-                    }
-                case .blockchair:
-                    partialResult.append(
-                        contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(endpoint: .bitcoinCash, with: input)
+        let txBuilder = BitcoinTransactionBuilder(
+            network: networkParams,
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.bitcoinCash)
+        )
+
+        // [REDACTED_TODO_COMMENT]
+        // Maybe https://developers.cryptoapis.io/technical-documentation/general-information/what-we-support
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
+            switch providerType {
+            case .nowNodes:
+                partialResult.append(
+                    networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
+                        with: input.networkInput,
+                        for: .nowNodes,
+                        bitcoinCashAddressService: BitcoinCashAddressService(networkParams: networkParams)
                     )
-                default:
-                    return
-                }
+                )
+            case .getBlock:
+                partialResult.append(
+                    networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
+                        with: input.networkInput,
+                        for: .getBlock,
+                        bitcoinCashAddressService: BitcoinCashAddressService(networkParams: networkParams)
+                    )
+                )
+            case .blockchair:
+                partialResult.append(
+                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
+                        endpoint: .bitcoinCash,
+                        with: input.networkInput
+                    )
+                )
+            default:
+                return
             }
-
-            $0.networkService = BitcoinCashNetworkService(providers: providers)
         }
+
+        let networkService = BitcoinCashNetworkService(providers: providers)
+        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
