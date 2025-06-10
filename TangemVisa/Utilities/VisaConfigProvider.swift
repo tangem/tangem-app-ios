@@ -39,6 +39,15 @@ class VisaConfigProvider {
     func getTxHistoryAPIAdditionalHeaders() -> [String: String] {
         config.txHistoryAPIAdditionalHeaders
     }
+
+    func getRSAPublicKey(apiType: VisaAPIType) -> String {
+        switch apiType {
+        case .prod:
+            return config.rsaPublicKey.prod
+        case .stage, .dev:
+            return config.rsaPublicKey.dev
+        }
+    }
 }
 
 private struct VisaConfig: Decodable {
@@ -47,7 +56,13 @@ private struct VisaConfig: Decodable {
         let bridgeProcessor: String
     }
 
+    struct RSAPublicKeys: Decodable {
+        let prod: String
+        let dev: String
+    }
+
     let testnet: Addresses
     let mainnet: Addresses
     let txHistoryAPIAdditionalHeaders: [String: String]
+    let rsaPublicKey: RSAPublicKeys
 }

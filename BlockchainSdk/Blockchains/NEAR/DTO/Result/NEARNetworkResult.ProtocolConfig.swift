@@ -9,8 +9,8 @@
 import Foundation
 
 extension NEARNetworkResult {
-    // There are many more fields in this response, but we only
-    // care about the ones required for the gas price calculation.
+    /// There are many more fields in this response, but we only
+    /// care about the ones required for the gas price calculation.
     struct ProtocolConfig: Decodable {
         struct RuntimeConfig: Decodable {
             let transactionCosts: TransactionCosts
