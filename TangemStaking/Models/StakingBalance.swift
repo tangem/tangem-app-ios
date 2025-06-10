@@ -11,25 +11,31 @@ import Foundation
 public struct StakingBalance: Hashable {
     public let item: StakingTokenItem
     public let amount: Decimal
+    public let accountAddress: String?
     public let balanceType: StakingBalanceType
     public let validatorType: StakingValidatorType
     public let inProgress: Bool
     public let actions: [StakingPendingActionInfo]
+    public let actionConstraints: [StakingPendingActionConstraint]?
 
     public init(
         item: StakingTokenItem,
         amount: Decimal,
+        accountAddress: String? = nil,
         balanceType: StakingBalanceType,
         validatorType: StakingValidatorType,
         inProgress: Bool,
-        actions: [StakingPendingActionInfo]
+        actions: [StakingPendingActionInfo],
+        actionConstraints: [StakingPendingActionConstraint]? = nil
     ) {
         self.item = item
         self.amount = amount
+        self.accountAddress = accountAddress
         self.balanceType = balanceType
         self.validatorType = validatorType
         self.inProgress = inProgress
         self.actions = actions
+        self.actionConstraints = actionConstraints
     }
 }
 

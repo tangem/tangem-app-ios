@@ -14,7 +14,7 @@ import TangemVisa
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
     @Published var state: WalletManagerState = .loading
-    @Published var walletModels: [WalletModel] = []
+    @Published var walletModels: [any WalletModel] = []
 
     var cardTokens: [BlockchainSdk.Token] = []
     var currentHost: String = "tangem.com"
@@ -33,7 +33,8 @@ class FakeWalletManager: WalletManager {
             config: Wallet2Config(
                 card: CardDTO(card: CardMock.wallet.card),
                 isDemo: false
-            )
+            ),
+            userWalletId: UserWalletId(value: Data())
         ).makeWalletModels(from: self)
 
         bind()
@@ -41,7 +42,7 @@ class FakeWalletManager: WalletManager {
     }
 
     func scheduleSwitchFromLoadingState() {
-        print("Scheduling switch from loading state")
+        AppLogger.debug("Scheduling switch from loading state")
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             self.state = .loaded
         }
@@ -51,11 +52,14 @@ class FakeWalletManager: WalletManager {
 
     func update() {}
 
-    func updatePublisher() -> AnyPublisher<WalletManagerState, Never> {
-        print("Receive update request")
+    func updatePublisher() -> AnyPublisher<Void, Never> {
+        AppLogger.debug("Receive update request")
 
-        return .just(output: nextState())
+        return .just(output: ())
             .delay(for: 5, scheduler: DispatchQueue.main)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.state = self?.nextState() ?? .initial
+            })
             .eraseToAnyPublisher()
     }
 

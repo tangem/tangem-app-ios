@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import Moya
 import SwiftCBOR
+import TangemNetworkUtils
 
 /// https://docs.cardano.org/cardano-components/cardano-rosetta/get-started-rosetta
 class RosettaNetworkProvider: CardanoNetworkProvider {
@@ -17,7 +18,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
         url.hostOrUnknown
     }
 
-    private let provider: NetworkProvider<RosettaTarget>
+    private let provider: TangemProvider<RosettaTarget>
     private let url: URL
     private let cardanoResponseMapper: CardanoResponseMapper
 
@@ -29,11 +30,11 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
 
     init(
         url: URL,
-        configuration: NetworkProviderConfiguration,
+        configuration: TangemProviderConfiguration,
         cardanoResponseMapper: CardanoResponseMapper
     ) {
         self.url = url
-        provider = NetworkProvider<RosettaTarget>(configuration: configuration)
+        provider = TangemProvider<RosettaTarget>(configuration: configuration)
         self.cardanoResponseMapper = cardanoResponseMapper
     }
 
@@ -69,7 +70,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
 
     func send(transaction: Data) -> AnyPublisher<String, Error> {
         let txHex: String = CBOR.array(
-            [CBOR.utf8String(transaction.hexString.lowercased())]
+            [CBOR.utf8String(transaction.hex())]
         ).encode().toHexString()
 
         let submitBody = RosettaSubmitBody(networkIdentifier: .mainNet, signedTransaction: txHex)
@@ -79,19 +80,6 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
             .map(RosettaSubmitResponse.self, using: decoder)
             .eraseError()
             .map { $0.transactionIdentifier.hash ?? "" }
-            .eraseToAnyPublisher()
-    }
-
-    private func balancePublisher(for address: String) -> AnyPublisher<RosettaBalanceResponse, Error> {
-        provider
-            .requestPublisher(request(for: .address(addressBody: RosettaAddressBody(
-                networkIdentifier: .mainNet,
-                accountIdentifier: RosettaAccountIdentifier(address: address)
-            )
-            )))
-            .filterSuccessfulStatusAndRedirectCodes()
-            .map(RosettaBalanceResponse.self, using: decoder)
-            .eraseError()
             .eraseToAnyPublisher()
     }
 

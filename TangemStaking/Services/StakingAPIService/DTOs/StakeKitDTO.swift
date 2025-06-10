@@ -44,6 +44,7 @@ enum StakeKitDTO {
             case jailed
             case deactivating
             case inactive
+            case full
         }
     }
 
@@ -83,6 +84,24 @@ enum StakeKitDTO {
                 self.pAddressBech = pAddressBech
             }
         }
+    }
+
+    struct Action: Decodable {
+        let addresses: Address
+        let amount: String?
+        let createdAt: String?
+        let currentStepIndex: Int
+        let id: String
+        let inputToken: Token?
+        let integrationId: String
+        let status: StakeKitDTO.Actions.ActionStatus
+        let tokenId: String?
+        let transactions: [Transaction.Response]
+        let type: Actions.ActionType
+        let USDAmount: String?
+        let validatorAddress: String?
+        let validatorAddresses: [String]?
+        let accountAddresses: [String]?
     }
 
     struct Required: Decodable {

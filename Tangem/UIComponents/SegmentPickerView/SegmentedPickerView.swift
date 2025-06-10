@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
+import TangemUI
 
-/*
+/**
  https://github.com/Inxel/CustomizableSegmentedControl
  */
 public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView: View, SegmentContent: View>: View {

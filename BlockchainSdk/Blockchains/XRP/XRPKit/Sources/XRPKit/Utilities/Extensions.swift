@@ -76,11 +76,11 @@ extension Byte {
 }
 
 extension String {
-    /// Create `Data` from hexadecimal string representation
-    ///
-    /// This creates a `Data` object from hex string. Note, if the string has any spaces or non-hex characters (e.g. starts with '<' and with a '>'), those are ignored and only hex characters are processed.
-    ///
-    /// - returns: Data represented by this hexadecimal string.
+    // Create `Data` from hexadecimal string representation
+    //
+    // This creates a `Data` object from hex string. Note, if the string has any spaces or non-hex characters (e.g. starts with '<' and with a '>'), those are ignored and only hex characters are processed.
+    //
+    // - returns: Data represented by this hexadecimal string.
 
     var hexadecimal: Data? {
         var data = Data(capacity: count / 2)
@@ -99,7 +99,7 @@ extension String {
 }
 
 extension Data {
-    /// Hexadecimal string representation of `Data` object.
+    // Hexadecimal string representation of `Data` object.
 
     var hexadecimal: String {
         return map { String(format: "%02x", $0) }

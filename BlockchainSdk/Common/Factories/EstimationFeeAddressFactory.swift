@@ -42,7 +42,7 @@ struct EstimationFeeAddressFactory {
         case .bitcoin:
             return "bc1qkrc5kmpq546wr2xk0errg58yw9jjq7thvhdk5k"
         case .litecoin:
-            return "MSqjXH6toL4kHqsRo3mWaWMkhmiH9GQxLR"
+            return "LeAXZ4WKNy8zeybFkD6scFpBSmCPmENUEW"
         case .bitcoinCash:
             return "bitcoincash:qrn96yyxa93t6sqmehvls6746qafkcsuku6zmd9460"
         case .dogecoin:
@@ -57,7 +57,9 @@ struct EstimationFeeAddressFactory {
              .kava, .cronos, .telos, .octa, .shibarium, .disChain,
              .areon, .playa3ullGames, .pulsechain, .aurora, .manta,
              .zkSync, .moonbeam, .polygonZkEVM, .moonriver, .mantle,
-             .flare, .taraxa, .base, .blast, .cyber, .energyWebEVM, .core, .canxium:
+             .flare, .taraxa, .base, .blast, .cyber, .energyWebEVM,
+             .core, .canxium, .chiliz, .xodex, .odysseyChain, .bitrock,
+             .apeChain, .sonic, .vanar, .zkLinkNova:
             return "0x52bb4012854f808CF9BAbd855e44E506dAf6C077"
         case .ethereumClassic:
             return "0xc49722a6f4Fe5A1347710dEAAa1fafF4c275689b"
@@ -108,6 +110,14 @@ struct EstimationFeeAddressFactory {
             return "sei1lhjvds604fvac32j4eygpr820lyc82dlfv0ea4"
         case .energyWebX:
             return "5CogUCbb5PYYbEHhDVGDN6JRRYBkd4sFRVc4wwP8oy5Su34Z"
+        case .clore:
+            return "AJfAu7RJxiTowM9qVaTbVuS5JCPCpV3p7M"
+        case .fact0rn:
+            return "fact1q69h3nzh7rl2uv09zp5pw26vw58wdcl2j4lyag0"
+        case .alephium:
+            return "16tfjvsTi34r5bhifdBtY793n3fmrM7EtvvtE8XUN1Hv1"
+        case .pepecoin:
+            return "PgbtQfZaNzLtwQ3hXBrj1KWhxBgaUEM7G6"
         }
     }
 }

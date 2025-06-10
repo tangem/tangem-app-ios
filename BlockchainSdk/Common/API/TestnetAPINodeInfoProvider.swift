@@ -7,17 +7,18 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct TestnetAPINodeInfoProvider {
     let blockchain: Blockchain
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func urls() -> [NodeInfo]? {
         guard blockchain.isTestnet else {
             return nil
         }
 
-        let keysInfoProvider = APIKeysInfoProvider(blockchain: blockchain, config: config)
+        let keysInfoProvider = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig)
         switch blockchain {
         case .cosmos:
             return [
@@ -76,8 +77,8 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .ethereum:
             return [
-                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(config.nowNodesApiKey)")!),
-                .init(url: URL(string: "https://goerli.infura.io/v3/\(config.infuraProjectId)")!),
+                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(keysConfig.nowNodesApiKey)")!),
+                .init(url: URL(string: "https://goerli.infura.io/v3/\(keysConfig.infuraProjectId)")!),
             ]
         case .ethereumClassic:
             return [
@@ -240,11 +241,49 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://testnet.phantom-rpc.com/rpc")!),
             ]
+        case .chiliz:
+            return [
+                .init(url: URL(string: "https://spicy-rpc.chiliz.com")!),
+                .init(url: URL(string: "https://chiliz-spicy.publicnode.com/")!),
+            ]
+        case .odysseyChain:
+            return [
+                .init(url: URL(string: "https://testnode.dioneprotocol.com/ext/bc/D/rpc")!),
+            ]
+        case .bitrock:
+            return [
+                .init(url: URL(string: "https://testnet.bit-rock.io")!),
+            ]
+        case .apeChain:
+            return [
+                .init(url: URL(string: "https://curtis.rpc.caldera.xyz/http")!),
+            ]
+        case .sonic:
+            return [
+                .init(url: URL(string: "https://sonic-blaze-rpc.publicnode.com")!),
+            ]
+        case .alephium:
+            return [
+                .init(url: URL(string: "https://node.testnet.alephium.org/")!),
+            ]
+        case .vanar:
+            return [
+                .init(url: URL(string: "https://rpc-vanguard.vanarchain.com")!),
+            ]
+        case .zkLinkNova:
+            return [
+                .init(url: URL(string: "https://sepolia.rpc.zklink.io")!),
+            ]
+        case .pepecoin:
+            return [
+                .init(url: URL(string: " https://testnet.pepeblocks.com")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
              .terraV1, .terraV2, .cronos, .octa, .playa3ullGames, .radiant, .joystream,
-             .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium:
+             .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium, .xodex, .clore,
+             .fact0rn:
             return nil
         }
     }
