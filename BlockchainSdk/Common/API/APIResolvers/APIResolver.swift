@@ -10,16 +10,16 @@ import Foundation
 
 struct APIResolver {
     let blockchain: Blockchain
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolveProviders<T>(apiInfos: [NetworkProviderType], factory: (NodeInfo, NetworkProviderType?) -> T?) -> [T] {
         if blockchain.isTestnet {
-            return TestnetAPINodeInfoProvider(blockchain: blockchain, config: config).urls()?.compactMap {
+            return TestnetAPINodeInfoProvider(blockchain: blockchain, keysConfig: keysConfig).urls()?.compactMap {
                 factory($0, nil)
             } ?? []
         }
 
-        let resolver = APINodeInfoResolver(blockchain: blockchain, config: config)
+        let resolver = APINodeInfoResolver(blockchain: blockchain, keysConfig: keysConfig)
         return apiInfos.compactMap {
             guard let nodeInfo = resolver.resolve(for: $0) else {
                 return nil

@@ -14,7 +14,7 @@ struct RskAddressService {
     private func toChecksumAddress(_ address: String) -> String? {
         let lowercasedAddress = address.lowercased()
         let addressToHash = "30\(lowercasedAddress)"
-        guard let hash = addressToHash.data(using: .utf8)?.sha3(.keccak256).hexString.lowercased().removeHexPrefix() else {
+        guard let hash = addressToHash.data(using: .utf8)?.sha3(.keccak256).hex().removeHexPrefix() else {
             return nil
         }
 
@@ -41,12 +41,16 @@ struct RskAddressService {
 @available(iOS 13.0, *)
 extension RskAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        // skip secp256k1 prefix
         let walletPublicKey = try Secp256k1Key(with: publicKey.blockchainKey).decompress()
+        // Skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
         let addressBytes = keccak[12...]
-        let address = addressBytes.hexString.addHexPrefix()
-        let checksumAddress = toChecksumAddress(address)!
+        let address = addressBytes.hex().addHexPrefix()
+
+        guard let checksumAddress = toChecksumAddress(address) else {
+            throw Error.failedToGetChecksumAddress
+        }
+
         return PlainAddress(value: checksumAddress, publicKey: publicKey, type: addressType)
     }
 }
@@ -57,7 +61,7 @@ extension RskAddressService: AddressProvider {
 extension RskAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         guard !address.isEmpty,
-              address.hasHexPrefix(),
+              address.hasHexPrefixStrictCheck(),
               address.count == 42
         else {
             return false
@@ -67,12 +71,18 @@ extension RskAddressService: AddressValidator {
            checksummed == address {
             return true
         } else {
-            let cleanHex = address.stripHexPrefix()
+            let cleanHex = address.removeHexPrefix()
             if cleanHex.lowercased() != cleanHex, cleanHex.uppercased() != cleanHex {
                 return false
             }
         }
 
         return true
+    }
+}
+
+extension RskAddressService {
+    enum Error: LocalizedError {
+        case failedToGetChecksumAddress
     }
 }
