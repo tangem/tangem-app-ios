@@ -19,6 +19,7 @@ struct WalletSelectorItemView: View {
         } label: {
             contentButton
         }
+        .accessibilityIdentifier(viewModel.name)
     }
 
     // MARK: - Private Implementation

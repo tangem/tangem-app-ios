@@ -281,6 +281,7 @@
 "exсhange_token_description" = "ポートフォリオ内のアセットをこのトークンと交換する";
 "express_by_provider_placeholder" = "提供元 %@";
 "express_cex_status_button_title" = "ステータス";
+"express_choose_provider" = "Choose provider";
 "express_choose_providers_subtitle" = "プロバイダーが取引を促進します";
 "express_choose_providers_title" = "プロバイダー";
 "express_error_provider_amount_roundup" = "エラー%1$@ 。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
@@ -339,8 +340,8 @@
 "express_status_hide_button_text" = "この取引を非表示にする";
 "express_status_hide_dialog_text" = "一度非表示にすると、取引状況を再度表示することはできません。代わりに、スワイプして閉じることができます。";
 "express_status_hide_dialog_title" = "取引状況を非表示にしますか？";
-"express_swap_not_supported_text" = "This token is not supported. Please choose a different token to swap.";
-"express_swap_not_supported_title" = "%@ is not supported";
+"express_swap_not_supported_text" = "このトークンはサポートされていません。別のトークンを選択してスワップしてください。";
+"express_swap_not_supported_title" = "%@はサポートされていません";
 "express_swap_with" = "スワップする";
 "express_token_list_empty_search" = "トークンが見つかりません。別のリクエストをお試しください。";
 "express_transaction_id_copied" = "取引IDをコピーしました";
@@ -969,7 +970,7 @@
 "story_web3_title" = "Web3.0対応";
 "sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
 "sui_not_enough_coin_for_fee_title" = "残高不足";
-"swap_fixed_rate" = "Fixed Rate";
+"swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_promo_text" = "より多くのトークンをより良いレートで、ウォレット内にて直接交換します。";
 "swap_promo_title" = "新しいスワッププロバイダーが利用可能になりました！";
@@ -1291,6 +1292,7 @@
 "wc_alert_domain_issues_description" = "このドメインは検証できません。承認前にリクエスト内容をよく確認してください。";
 "wc_alert_session_disconnected_description" = "ブラウザに戻り、WalletConnect経由で再接続してください。";
 "wc_alert_session_disconnected_title" = "WalletConnectセッションが接続解除されました";
+"wc_alert_sign_anyway" = "Sign anyway";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
