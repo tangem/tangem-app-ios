@@ -10,12 +10,10 @@ import Foundation
 
 struct VeChainWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let blockchain = input.blockchain
-        let sdkConfig = input.blockchainSdkConfig
-        let networkConfig = input.networkConfig
-        let providers: [VeChainNetworkProvider] = APIResolver(blockchain: blockchain, config: sdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                VeChainNetworkProvider(baseURL: nodeInfo.url, configuration: networkConfig)
+        let blockchain = input.wallet.blockchain
+        let providers: [VeChainNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                VeChainNetworkProvider(baseURL: nodeInfo.url, configuration: input.networkInput.tangemProviderConfig)
             }
 
         let networkService = VeChainNetworkService(

@@ -9,5 +9,5 @@
 import Foundation
 
 protocol BitcoinScriptAddressProvider {
-    func makeScriptAddress(from scriptHash: Data) throws -> String
+    func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript)
 }

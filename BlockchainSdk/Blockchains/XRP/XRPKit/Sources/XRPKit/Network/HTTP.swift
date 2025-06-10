@@ -14,7 +14,7 @@ import CoreFoundation
 #endif
 
 class HTTP {
-    // http call to test linux cross platform
+    /// http call to test linux cross platform
     static func post(url: URL, parameters: [String: Any], completion: @escaping ((Result<Any, Error>) -> Void)) {
         let httpBody = try! JSONSerialization.data(withJSONObject: parameters, options: [])
         var request = URLRequest(url: url)

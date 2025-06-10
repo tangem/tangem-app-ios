@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import TangemNetworkUtils
 
 class CosmosRestProvider: HostProvider {
     var host: String {
@@ -16,11 +17,11 @@ class CosmosRestProvider: HostProvider {
     }
 
     private let url: URL
-    private let provider: NetworkProvider<CosmosTarget>
+    private let provider: TangemProvider<CosmosTarget>
 
-    init(url: String, configuration: NetworkProviderConfiguration) {
+    init(url: String, configuration: TangemProviderConfiguration) {
         self.url = URL(string: url)!
-        provider = NetworkProvider<CosmosTarget>(configuration: configuration)
+        provider = TangemProvider<CosmosTarget>(configuration: configuration)
     }
 
     func accounts(address: String) -> AnyPublisher<CosmosAccountResponse?, Error> {

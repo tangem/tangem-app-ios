@@ -23,7 +23,7 @@
 //
 import Foundation
 
-// Returns 1 if x1 is greater than or equal to x2, 0 otherwise.
+/// Returns 1 if x1 is greater than or equal to x2, 0 otherwise.
 struct OpGreaterThanOrEqual: OpCodeProtocol {
     var value: UInt8 { return 0xa2 }
     var name: String { return "OP_GREATERTHANOREQUAL" }
