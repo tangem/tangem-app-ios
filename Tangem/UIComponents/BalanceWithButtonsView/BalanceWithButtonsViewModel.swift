@@ -8,41 +8,61 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
-    @Published var isLoadingBalance = true
-    @Published var isLoadingFiatBalance = true
-
-    @Published var cryptoBalance = ""
-    @Published var fiatBalance: AttributedString = .init(BalanceFormatter.defaultEmptyBalanceString)
+    @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
+    @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
 
     @Published var buttons: [FixedSizeButtonWithIconInfo] = []
 
     @Published var balanceTypeValues: [BalanceType]?
     @Published var selectedBalanceType: BalanceType = .all
 
-    private let balancesPublisher: AnyPublisher<LoadingValue<Balances>, Never>
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
+    private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
+    private weak var balanceTypeSelectorProvider: BalanceTypeSelectorProvider?
 
-    private let formatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     init(
-        balancesPublisher: AnyPublisher<LoadingValue<Balances>, Never>,
-        buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
+        buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>,
+        balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
+        balanceTypeSelectorProvider: BalanceTypeSelectorProvider
     ) {
-        self.balancesPublisher = balancesPublisher
         self.buttonsPublisher = buttonsPublisher
+        self.balanceProvider = balanceProvider
+        self.balanceTypeSelectorProvider = balanceTypeSelectorProvider
 
         bind()
     }
 
     private func bind() {
+        guard let balanceProvider else {
+            return
+        }
+
         Publishers
-            .CombineLatest(balancesPublisher, $selectedBalanceType)
+            .CombineLatest3(
+                balanceProvider.totalCryptoBalancePublisher,
+                balanceProvider.availableCryptoBalancePublisher,
+                $selectedBalanceType
+            )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] balances, type in
-                self?.setupBalances(balances: balances, type: type)
+            .sink { [weak self] all, available, type in
+                self?.setupCryptoBalances(all: all, available: available, type: type)
+            }
+            .store(in: &bag)
+
+        Publishers
+            .CombineLatest3(
+                balanceProvider.totalFiatBalancePublisher,
+                balanceProvider.availableFiatBalancePublisher,
+                $selectedBalanceType
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] all, available, type in
+                self?.setupFiatBalances(all: all, available: available, type: type)
             }
             .store(in: &bag)
 
@@ -54,50 +74,41 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    private func setupEmptyBalances() {
-        fiatBalance = .init(BalanceFormatter.defaultEmptyBalanceString)
-        cryptoBalance = BalanceFormatter.defaultEmptyBalanceString
-    }
+    private func setupCryptoBalances(
+        all: FormattedTokenBalanceType,
+        available: FormattedTokenBalanceType,
+        type: BalanceType
+    ) {
+        let shouldShowBalanceSelector = balanceTypeSelectorProvider?.shouldShowBalanceSelector == true
+        balanceTypeValues = shouldShowBalanceSelector ? BalanceType.allCases : nil
 
-    private func setupBalances(balances: LoadingValue<Balances>, type: BalanceType) {
-        switch balances {
-        case .loading:
-            // Do nothing to avoid skeletons when PRT
+        switch cryptoBalance {
+        case .loaded where all.isLoading || available.isLoading:
+            // Do nothing. Ignore if we have value and new value is loading
             break
-
-        case .loaded(let balances):
-            isLoadingBalance = false
-            isLoadingFiatBalance = false
-            updateBalances(balances: balances, type: type)
-
-        case .failedToLoad:
-            isLoadingBalance = false
-            isLoadingFiatBalance = false
-            setupEmptyBalances()
+        default:
+            let builder = LoadableTokenBalanceViewStateBuilder()
+            cryptoBalance = builder.build(type: type == .all ? all : available)
         }
     }
 
-    private func updateBalances(balances: Balances, type: BalanceType) {
-        let hasChoose = balances.all != balances.available
-        balanceTypeValues = hasChoose ? BalanceType.allCases : nil
-
-        switch selectedBalanceType {
-        case .all:
-            cryptoBalance = balances.all.crypto
-            fiatBalance = formatter.formatAttributedTotalBalance(fiatBalance: balances.all.fiat)
-        case .available:
-            cryptoBalance = balances.available.crypto
-            fiatBalance = formatter.formatAttributedTotalBalance(fiatBalance: balances.available.fiat)
+    private func setupFiatBalances(
+        all: FormattedTokenBalanceType,
+        available: FormattedTokenBalanceType,
+        type: BalanceType
+    ) {
+        switch fiatBalance {
+        case .loaded where all.isLoading || available.isLoading:
+            // Do nothing. Ignore if we have value and new value is loading
+            break
+        default:
+            let builder = LoadableTokenBalanceViewStateBuilder()
+            fiatBalance = builder.buildAttributedTotalBalance(type: type == .all ? all : available)
         }
     }
 }
 
 extension BalanceWithButtonsViewModel {
-    struct Balances: Hashable {
-        let all: WalletModel.BalanceFormatted
-        let available: WalletModel.BalanceFormatted
-    }
-
     enum BalanceType: String, CaseIterable, Hashable, Identifiable {
         case all
         case available
