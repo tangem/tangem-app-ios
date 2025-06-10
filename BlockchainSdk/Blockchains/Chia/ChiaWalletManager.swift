@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import WalletCore
+import TangemLocalization
 
 final class ChiaWalletManager: BaseManager, WalletManager {
     // MARK: - Properties
@@ -28,7 +29,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
     init(wallet: Wallet, networkService: ChiaNetworkService, txBuilder: ChiaTransactionBuilder) throws {
         self.networkService = networkService
         self.txBuilder = txBuilder
-        puzzleHash = try ChiaPuzzleUtils().getPuzzleHash(from: wallet.address).hexString.lowercased()
+        puzzleHash = try ChiaPuzzleUtils().getPuzzleHash(from: wallet.address).hex()
         super.init(wallet: wallet)
     }
 
@@ -73,7 +74,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 
                 return networkService
                     .send(spendBundle: spendBundle)
-                    .mapSendError(tx: encodedTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedTransactionData?.hex())
                     .eraseToAnyPublisher()
             }
             .map { [weak self] hash in
@@ -128,7 +129,7 @@ private extension ChiaWalletManager {
 // MARK: - WithdrawalNotificationProvider
 
 extension ChiaWalletManager: WithdrawalNotificationProvider {
-    // Chia, kaspa have the same logic
+    /// Chia, kaspa have the same logic
     @available(*, deprecated, message: "Use MaximumAmountRestrictable")
     func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
         let availableAmount = txBuilder.availableAmount()
