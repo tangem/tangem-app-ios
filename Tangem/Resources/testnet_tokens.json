@@ -725,6 +725,18 @@
             ]
         },
         {
+            "id": "radiant",
+            "symbol": "RXD",
+            "name": "Radiant",
+            "networks":
+            [
+                {
+                    "networkId": "radiant/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
            "id":"pepecoin-network",
            "name":"Pepecoin",
            "symbol":"PEP",
