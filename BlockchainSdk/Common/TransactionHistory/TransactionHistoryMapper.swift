@@ -25,3 +25,15 @@ protocol TransactionHistoryMapper {
 extension TransactionHistoryMapper {
     func reset() {}
 }
+
+// MARK: - Error
+
+enum TransactionHistoryMapperError: LocalizedError {
+    case notFound(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .notFound(let message): "\(message) not found"
+        }
+    }
+}
