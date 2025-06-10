@@ -66,7 +66,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .flatMap { manager, transaction in
             manager.networkService
                 .send(transaction: transaction)
-                .mapSendError(tx: transaction.hexString.lowercased())
+                .mapSendError(tx: transaction.hex())
         }
         .handleEvents(receiveOutput: { [weak self] hash in
             let mapper = PendingTransactionRecordMapper()
@@ -198,9 +198,9 @@ class CosmosWalletManager: BaseManager, WalletManager {
 
 extension CosmosWalletManager: ThenProcessable {}
 
-// MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
+// MARK: - StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider
 
-extension CosmosWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension CosmosWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -214,7 +214,9 @@ extension CosmosWalletManager: StakeKitTransactionSender, StakeKitTransactionSen
         return try CosmosStakeKitTransactionHelper(builder: txBuilder)
             .buildForSend(stakingTransaction: transaction, signature: unmarshal)
     }
+}
 
+extension CosmosWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
