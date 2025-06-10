@@ -16,13 +16,15 @@ final class HederaTransactionBuilder {
     private let publicKey: Data
     private let curve: EllipticCurve
     private let isTestnet: Bool
+    private let timeout: TimeInterval
 
     private lazy var client: Client = isTestnet ? Client.forTestnet() : Client.forMainnet()
 
-    init(publicKey: Data, curve: EllipticCurve, isTestnet: Bool) {
+    init(publicKey: Data, curve: EllipticCurve, isTestnet: Bool, timeout: TimeInterval = 60) {
         self.publicKey = publicKey
         self.curve = curve
         self.isTestnet = isTestnet
+        self.timeout = timeout
     }
 
     func buildTokenAssociationForSign(
@@ -44,7 +46,7 @@ final class HederaTransactionBuilder {
             .nodeAccountIdsIfNotEmpty(nodeAccountIds)
             .freezeWith(client)
 
-        return CompiledTransaction(curve: curve, client: client, innerTransaction: tokenAssociateTransaction)
+        return CompiledTransaction(curve: curve, timeout: timeout, client: client, innerTransaction: tokenAssociateTransaction)
     }
 
     /// Build transaction for signing.
@@ -55,8 +57,14 @@ final class HederaTransactionBuilder {
         validStartDate: UnixTimestamp,
         nodeAccountIds: [Int]?
     ) throws -> CompiledTransaction {
-        // At the moment, we intentionally don't support custom fees for HTS tokens (HIP-18 https://hips.hedera.com/HIP/hip-18.html)
-        let feeValue = transaction.fee.amount.value * pow(Decimal(10), transaction.fee.amount.decimals)
+        guard let feeParams = transaction.fee.parameters as? HederaFeeParams else {
+            throw WalletError.failedToBuildTx
+        }
+
+        // deduct additionalHBARFee, since it's for UI only
+        let fee = transaction.fee.amount.value - feeParams.additionalHBARFee
+
+        let feeValue = fee * pow(Decimal(10), transaction.fee.amount.decimals)
         // Hedera fee calculation involves conversion from USD to HBar units, which ultimately results in a loss of precision.
         // Therefore, the fee value is always approximate and rounding of the fee value is mandatory.
         let feeRoundedValue = feeValue.rounded(roundingMode: .up)
@@ -85,10 +93,10 @@ final class HederaTransactionBuilder {
 
         logTransferTransaction(transferTransaction)
 
-        /// Capturing an existing `Hedera.Client` instance here is not required but may come in handy
-        /// because the client may already have some useful internal state at this point
-        /// (like the list of ready-to-use GRCP nodes with health checks already performed)
-        return CompiledTransaction(curve: curve, client: client, innerTransaction: transferTransaction)
+        // Capturing an existing `Hedera.Client` instance here is not required but may come in handy
+        // because the client may already have some useful internal state at this point
+        // (like the list of ready-to-use GRCP nodes with health checks already performed)
+        return CompiledTransaction(curve: curve, timeout: timeout, client: client, innerTransaction: transferTransaction)
     }
 
     func buildForSend(transaction: CompiledTransaction, signatures: [Data]) throws -> CompiledTransaction {
@@ -113,13 +121,13 @@ final class HederaTransactionBuilder {
     private func makeTransactionId(accountId: Hedera.AccountId, validStartDate: UnixTimestamp) throws -> Hedera.TransactionId {
         let (validStartDateNSec, multiplicationOverflow) = UInt64(validStartDate.seconds).multipliedReportingOverflow(by: NSEC_PER_SEC)
         if multiplicationOverflow {
-            Log.debug("\(#fileID): Unable to create tx id due to multiplication overflow of '\(validStartDate)'")
+            BSDKLogger.error(error: "Unable to create tx id due to multiplication overflow of '\(validStartDate)'")
             throw WalletError.failedToBuildTx
         }
 
         let (unixTimestampNSec, addingOverflow) = validStartDateNSec.addingReportingOverflow(UInt64(validStartDate.nanoseconds))
         if addingOverflow {
-            Log.debug("\(#fileID): Unable to create tx id due to adding overflow of '\(validStartDate)'")
+            BSDKLogger.error(error: "Unable to create tx id due to adding overflow of '\(validStartDate)'")
             throw WalletError.failedToBuildTx
         }
 
@@ -157,7 +165,7 @@ final class HederaTransactionBuilder {
         let nodeAccountIds = transaction.nodeAccountIds?.toSet() ?? []
         let transactionId = transaction.transactionId?.toString() ?? "unknown"
         let networkNodes = client.network.filter { nodeAccountIds.contains($0.value) }
-        Log.debug("\(#fileID): Constructed tx '\(transactionId)' with the following network nodes: \(networkNodes)")
+        BSDKLogger.info("Constructed tx '\(transactionId)' with the following network nodes: \(networkNodes)")
     }
 }
 
@@ -172,15 +180,18 @@ extension HederaTransactionBuilder {
     /// Auxiliary type that hides all implementation details (including dependency on `Hedera iOS SDK`).
     struct CompiledTransaction {
         private let curve: EllipticCurve
+        private let timeout: TimeInterval
         private let client: Hedera.Client
         private let innerTransaction: Hedera.Transaction
 
         fileprivate init(
             curve: EllipticCurve,
+            timeout: TimeInterval,
             client: Hedera.Client,
             innerTransaction: Hedera.Transaction
         ) {
             self.curve = curve
+            self.timeout = timeout
             self.client = client
             self.innerTransaction = innerTransaction
         }
@@ -204,7 +215,7 @@ extension HederaTransactionBuilder {
 
         func sendAndGetHash() async throws -> String {
             return try await innerTransaction
-                .execute(client)
+                .execute(client, timeout)
                 .transactionId
                 .toString()
         }
@@ -225,7 +236,7 @@ private extension Hedera.Transaction {
     }
 }
 
-private extension Hedera.EntityId {
+extension Hedera.EntityId {
     /// A dumb convenience factory method for parsing entity IDs in both `<shard>.<realm>.<last>` (Hedera native)
     /// and `[0x]40*HEXDIG` (Solidity/EVM) forms.
     static func fromSolidityAddressOrString<S: StringProtocol>(_ input: S) throws -> Self {
