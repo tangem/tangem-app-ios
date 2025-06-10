@@ -1,0 +1,16 @@
+//
+//  ALPH+UnlockScriptWithAssets.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+extension ALPH {
+    struct UnlockScriptWithAssets {
+        let fromUnlockScript: UnlockScript
+        let assets: [(AssetOutputRef, AssetOutput)]
+    }
+}
