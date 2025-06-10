@@ -23,7 +23,7 @@
 //
 import Foundation
 
-// Returns 1 if x is within the specified range (left-inclusive), 0 otherwise.
+/// Returns 1 if x is within the specified range (left-inclusive), 0 otherwise.
 struct OpWithin: OpCodeProtocol {
     var value: UInt8 { return 0xa5 }
     var name: String { return "OP_WITHIN" }

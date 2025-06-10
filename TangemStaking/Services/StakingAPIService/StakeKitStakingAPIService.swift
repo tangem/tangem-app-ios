@@ -8,19 +8,19 @@
 
 import Foundation
 import Moya
-import TangemFoundation
+import TangemNetworkUtils
 
 class StakeKitStakingAPIService: StakingAPIService {
-    private let provider: MoyaProvider<StakeKitTarget>
+    private let provider: TangemProvider<StakeKitTarget>
     private let credential: StakingAPICredential
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .customIso8601
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
         return decoder
     }()
 
-    init(provider: MoyaProvider<StakeKitTarget>, credential: StakingAPICredential) {
+    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential) {
         self.provider = provider
         self.credential = credential
     }
@@ -35,6 +35,10 @@ class StakeKitStakingAPIService: StakingAPIService {
 
     func getBalances(request: StakeKitDTO.Balances.Request) async throws -> [StakeKitDTO.Balances.Response] {
         try await _request(target: .getBalances(request))
+    }
+
+    func actions(request: StakeKitDTO.Actions.List.Request) async throws -> StakeKitDTO.Actions.List.Response {
+        try await _request(target: .actions(request))
     }
 
     func estimateGasEnterAction(request: StakeKitDTO.EstimateGas.Enter.Request) async throws -> StakeKitDTO.EstimateGas.Enter.Response {
@@ -127,11 +131,4 @@ extension StakeKitHTTPError: LocalizedError {
         case .badStatusCode(let response, let code): response ?? "HTTP error \(code)"
         }
     }
-}
-
-extension JSONDecoder.DateDecodingStrategy {
-    static var customIso8601: JSONDecoder.DateDecodingStrategy = {
-        let dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-        return .formatted(dateFormatter)
-    }()
 }

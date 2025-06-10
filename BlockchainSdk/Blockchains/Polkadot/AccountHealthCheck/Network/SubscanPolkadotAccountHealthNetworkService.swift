@@ -8,11 +8,12 @@
 
 import Foundation
 import enum Moya.MoyaError
+import TangemNetworkUtils
 
 public final class SubscanPolkadotAccountHealthNetworkService {
     private typealias SkipRetryIf = (_ error: Error) -> Bool
 
-    private let provider = NetworkProvider<SubscanAPITarget>()
+    private let provider = TangemProvider<SubscanAPITarget>(configuration: .ephemeralConfiguration)
 
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
@@ -194,7 +195,7 @@ private extension SubscanPolkadotAccountHealthNetworkService {
 // MARK: - Convenience extensions
 
 private extension MoyaError {
-    // Just a copy-paste from MoyaError.swift (it has `internal` access level)
+    /// Just a copy-paste from MoyaError.swift (it has `internal` access level)
     var underlyingError: Swift.Error? {
         switch self {
         case .imageMapping,

@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import TangemLogger
+import TangemFoundation
 
 actor CommonExpressManager {
     // MARK: - Dependencies
@@ -15,13 +17,13 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
-    private let logger: Logger
     private let analyticsLogger: ExpressAnalyticsLogger
 
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
     private var _approvePolicy: ExpressApprovePolicy = .unlimited
+    private var _feeOption: ExpressFee.Option = .market
     private var _amount: Decimal?
 
     private var allProviders: [ExpressAvailableProvider] = []
@@ -35,13 +37,11 @@ actor CommonExpressManager {
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
-        logger: Logger,
         analyticsLogger: ExpressAnalyticsLogger
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
-        self.logger = logger
         self.analyticsLogger = analyticsLogger
     }
 }
@@ -63,10 +63,6 @@ extension CommonExpressManager: ExpressManager {
 
     func getAllProviders() -> [ExpressAvailableProvider] {
         return allProviders
-    }
-
-    func getApprovePolicy() -> ExpressApprovePolicy {
-        return _approvePolicy
     }
 
     func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
@@ -93,14 +89,27 @@ extension CommonExpressManager: ExpressManager {
 
     func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
-            log("ApprovePolicy already is \(approvePolicy)")
+            ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
         }
 
         _approvePolicy = approvePolicy
 
         let request = try makeRequest()
-        await selectedProvider?.manager.update(request: request, approvePolicy: _approvePolicy)
+        await selectedProvider?.manager.update(request: request)
+        return try await selectedProviderState()
+    }
+
+    func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerState {
+        guard _feeOption != feeOption else {
+            ExpressLogger.info(self, "ExpressFeeOption already is \(feeOption)")
+            return try await selectedProviderState()
+        }
+
+        _feeOption = feeOption
+
+        let request = try makeRequest()
+        await selectedProvider?.manager.update(request: request)
         return try await selectedProviderState()
     }
 
@@ -124,7 +133,7 @@ private extension CommonExpressManager {
     /// Return the state which checking the all properties
     func updateState(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
         guard let pair = _pair else {
-            log("ExpressManagerSwappingPair not found")
+            ExpressLogger.error(self, error: "ExpressManagerSwappingPair not found")
             throw ExpressManagerError.pairNotFound
         }
 
@@ -134,12 +143,12 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         guard let amount = _amount, amount > 0 else {
-            log("Amount isn't set. Return .idle state")
+            ExpressLogger.warning(self, "Amount isn't set. Return .idle state")
             return .idle
         }
 
         let request = try makeRequest()
-        await updateStatesInProviders(request: request, approvePolicy: _approvePolicy)
+        await updateStatesInProviders(request: request)
 
         try Task.checkCancellation()
 
@@ -154,7 +163,7 @@ private extension CommonExpressManager {
         }
 
         let state = await selectedProvider.getState()
-        log("Selected provider state: \(state)")
+        ExpressLogger.info(self, "Selected provider state: \(state)")
 
         switch state {
         case .idle:
@@ -178,15 +187,18 @@ private extension CommonExpressManager {
         // Setup providers manager only once
         if availableProviders.isEmpty {
             let providers = try await expressRepository.providers()
-            allProviders = providers
-                .map { provider in
-                    ExpressAvailableProvider(
-                        provider: provider,
-                        isBest: false,
-                        isAvailable: availableProviderIds.contains(provider.id),
-                        manager: expressProviderManagerFactory.makeExpressProviderManager(provider: provider)
-                    )
+            allProviders = providers.compactMap { provider in
+                guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider) else {
+                    return nil
                 }
+
+                return ExpressAvailableProvider(
+                    provider: provider,
+                    isBest: false,
+                    isAvailable: availableProviderIds.contains(provider.id),
+                    manager: manager
+                )
+            }
         }
 
         allProviders.forEach { provider in
@@ -209,7 +221,7 @@ private extension CommonExpressManager {
         let bestRate = await bestByRateProvider()
         availableProviders.forEach { provider in
             provider.isBest = provider.provider == bestRate?.provider
-            log("Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
+            ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
     }
 
@@ -265,15 +277,15 @@ private extension CommonExpressManager {
         return nil
     }
 
-    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest, approvePolicy: ExpressApprovePolicy) async {
+    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
         let providers = availableProviders.map { $0.provider.name }.joined(separator: ", ")
-        log("Start a parallel updating in providers: \(providers) with request \(request)")
+        ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
 
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { [weak self] taskGroup in
             await self?.availableProviders.forEach { provider in
                 taskGroup.addTask {
-                    await provider.manager.update(request: request, approvePolicy: approvePolicy)
+                    await provider.manager.update(request: request)
                 }
             }
         }
@@ -291,16 +303,22 @@ private extension CommonExpressManager {
             throw ExpressManagerError.amountNotFound
         }
 
-        return ExpressManagerSwappingPairRequest(pair: pair, amount: amount)
+        return ExpressManagerSwappingPairRequest(
+            pair: pair,
+            amount: amount,
+            feeOption: _feeOption,
+            approvePolicy: _approvePolicy
+        )
     }
 
     func clearCache() {
         selectedProvider = nil
+        _feeOption = .market
     }
 }
 
-extension CommonExpressManager {
-    func log(_ args: Any) {
-        logger.debug("\(self) \(args)")
-    }
+// MARK: - CustomStringConvertible
+
+extension CommonExpressManager: @preconcurrency CustomStringConvertible {
+    var description: String { objectDescription(self) }
 }

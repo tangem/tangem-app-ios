@@ -7,21 +7,21 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
+import TangemNetworkUtils
 
 struct TezosWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
+        let blockchain = input.wallet.blockchain
         return try TezosWalletManager(wallet: input.wallet).then {
-            $0.txBuilder = try TezosTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, curve: input.blockchain.curve)
+            $0.txBuilder = try TezosTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, curve: blockchain.curve)
 
-            let linkResolver = APINodeInfoResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            let providers: [TezosJsonRpcProvider] = input.apiInfo.compactMap {
+            let linkResolver = APINodeInfoResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            let providers: [TezosJsonRpcProvider] = input.networkInput.apiInfo.compactMap {
                 guard let nodeInfo = linkResolver.resolve(for: $0) else {
                     return nil
                 }
 
-                return TezosJsonRpcProvider(host: nodeInfo.link, configuration: input.networkConfig)
+                return TezosJsonRpcProvider(host: nodeInfo.link, configuration: input.networkInput.tangemProviderConfig)
             }
 
             $0.networkService = TezosNetworkService(

@@ -39,7 +39,7 @@ final class SimpleAccountCreator: AccountCreator {
                         )
 
                         var request = try URLRequest(
-                            url: "https://devapi.tangem-tech.com/v1/user-network-account",
+                            url: "https://api.tests-d.com/v1/user-network-account",
                             method: .post,
                             headers: [
                                 "card_id": card.cardId,
@@ -64,8 +64,7 @@ final class SimpleAccountCreator: AccountCreator {
                         throw WalletError.failedToParseNetworkResponse()
                     }
 
-                    Log.debug("\(#fileID): got network response with code \(response.statusCode): \(data.utf8String ?? "")")
-
+                    BSDKLogger.info("Got network response with code \(response.statusCode): \(data.utf8String ?? "")")
                     return try JSONDecoder().decode(CreateAccountResult.self, from: data)
                 }
                 .tryMap { createAccount in

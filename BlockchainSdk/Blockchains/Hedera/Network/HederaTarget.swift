@@ -23,6 +23,7 @@ extension HederaTarget {
         case getTokens(accountId: String, entitiesLimit: Int)
         case getExchangeRate
         case getTransactionInfo(transactionHash: String)
+        case getTokenDetails(tokenAddress: String)
     }
 }
 
@@ -35,7 +36,8 @@ extension HederaTarget: TargetType {
              .getAccountBalance,
              .getTokens,
              .getExchangeRate,
-             .getTransactionInfo:
+             .getTransactionInfo,
+             .getTokenDetails:
             return configuration.url
         }
     }
@@ -52,6 +54,8 @@ extension HederaTarget: TargetType {
             return "network/exchangerate"
         case .getTransactionInfo(let transactionHash):
             return "transactions/\(transactionHash)"
+        case .getTokenDetails(let tokenId):
+            return "tokens/\(tokenId)"
         }
     }
 
@@ -61,7 +65,8 @@ extension HederaTarget: TargetType {
              .getTokens,
              .getExchangeRate,
              .getAccountBalance,
-             .getTransactionInfo:
+             .getTransactionInfo,
+             .getTokenDetails:
             return .get
         }
     }
@@ -85,7 +90,8 @@ extension HederaTarget: TargetType {
             ]
             return .requestParameters(parameters: parameters, encoding: URLEncoding.tangem)
         case .getExchangeRate,
-             .getTransactionInfo:
+             .getTransactionInfo,
+             .getTokenDetails:
             return .requestPlain
         }
     }
@@ -101,7 +107,8 @@ extension HederaTarget: TargetType {
              .getAccountBalance,
              .getTokens,
              .getExchangeRate,
-             .getTransactionInfo:
+             .getTransactionInfo,
+             .getTokenDetails:
             if let headersKeyInfo = configuration.headers {
                 headers[headersKeyInfo.headerName] = headersKeyInfo.headerValue
             }

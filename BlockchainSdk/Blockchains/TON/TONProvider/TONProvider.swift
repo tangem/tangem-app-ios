@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TonSwift
+import TangemNetworkUtils
 
 struct TONProvider: HostProvider {
     /// Blockchain API host
@@ -22,13 +23,13 @@ struct TONProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<TONProviderTarget>
+    private let network: TangemProvider<TONProviderTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration
+        networkConfig: TangemProviderConfiguration
     ) {
         self.node = node
         network = .init(configuration: networkConfig)

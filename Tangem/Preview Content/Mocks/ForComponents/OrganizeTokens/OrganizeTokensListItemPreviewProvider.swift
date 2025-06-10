@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 struct OrganizeTokensListItemPreviewProvider {
     func singleSmallHeaderlessSection() -> [OrganizeTokensListSection] {
@@ -21,7 +22,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -44,7 +45,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: true
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -67,7 +68,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -87,7 +88,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: false,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -97,7 +98,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -115,7 +116,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -138,7 +139,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -151,7 +152,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .arbitrum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -164,7 +165,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .litecoin,
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -177,7 +178,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .stellar(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -190,7 +191,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -203,7 +204,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumPoW(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -216,7 +217,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereumClassic(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -229,7 +230,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoinCash,
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -242,7 +243,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .binance(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -255,7 +256,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .cardano(extended: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -268,7 +269,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bsc(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -281,7 +282,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dogecoin,
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -294,7 +295,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .polygon(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -307,7 +308,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .avalanche(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -320,7 +321,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .solana(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -333,7 +334,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .fantom(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: false,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -346,7 +347,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .polkadot(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -359,7 +360,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .azero(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -372,7 +373,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .tron(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -385,7 +386,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
                         isNetworkUnreachable: false,
@@ -398,7 +399,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .optimism(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: true,
                         isNetworkUnreachable: false,
@@ -411,7 +412,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ton(curve: .ed25519_slip0010, testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -424,7 +425,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .kava(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -437,7 +438,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .cosmos(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -460,7 +461,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .bitcoin(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -480,7 +481,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -490,7 +491,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil
@@ -514,7 +515,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -534,7 +535,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -544,7 +545,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -568,7 +569,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -588,7 +589,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -598,7 +599,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil
@@ -622,7 +623,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -642,7 +643,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -652,7 +653,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -676,7 +677,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .ethereum(testnet: false),
                             isCustom: false
                         ),
-                        balance: .loading,
+                        balance: .loading(),
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: true,
@@ -696,7 +697,7 @@ struct OrganizeTokensListItemPreviewProvider {
                             in: .dash(testnet: false),
                             isCustom: false
                         ),
-                        balance: .noData,
+                        balance: .empty,
                         hasDerivation: true,
                         isTestnet: false,
                         isNetworkUnreachable: false,
@@ -706,7 +707,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil
@@ -728,7 +729,7 @@ struct OrganizeTokensListItemPreviewProvider {
 private extension OrganizeTokensListItemViewModel.Identifier {
     static func random() -> Self {
         return .init(
-            walletModelId: .random(in: 0 ..< Int.max),
+            walletModelId: Int.random(in: 0 ..< Int.max).description,
             inGroupedSection: .random()
         )
     }

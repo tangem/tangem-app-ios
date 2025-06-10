@@ -8,7 +8,6 @@
 //
 
 import Foundation
-import TangemSdk
 
 private struct Definitions {
     var TYPES: [String: Int]
@@ -66,7 +65,7 @@ private struct FieldInfo {
 }
 
 class Serializer {
-    // instance variables
+    /// instance variables
     private var definitions: Definitions!
 
     init() {
@@ -77,7 +76,7 @@ class Serializer {
                 definitions = Definitions(dict: jsonResult)
             }
         } catch {
-            Log.error(error)
+            BSDKLogger.error(error: error)
         }
     }
 
@@ -330,7 +329,7 @@ class Serializer {
         /*
          Serializes a string of hex as binary data with a length prefix.
          */
-        return vlEncode(contents: hexBlob.hexadecimal!)
+        return vlEncode(contents: Data(hexString: hexBlob))
     }
 
     private func currencyCodeToBytes(code: String) -> Data {
@@ -363,7 +362,7 @@ class Serializer {
     }
 
     private func hashToBytes(hexString: String) -> Data {
-        return hexString.hexadecimal!
+        return Data(hexString: hexString)
     }
 
     private func objectToBytes(wrapper: TypeWrapper) -> Data {
@@ -538,13 +537,5 @@ class Serializer {
         return fieldAsBytes.reduce(Data()) { result, newData -> Data in
             return result + newData
         }
-    }
-
-    private func printBytes(_ bytes: [Data]) {
-        let combined = bytes.reduce(Data()) { result, newData -> Data in
-            return result + newData
-        }
-        print(combined.hexadecimal)
-        print("\n")
     }
 }

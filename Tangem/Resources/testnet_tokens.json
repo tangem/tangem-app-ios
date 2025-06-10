@@ -735,6 +735,18 @@
                     "exchangeable": false
                 }
             ]
+        },
+        {
+           "id":"pepecoin-network",
+           "name":"Pepecoin",
+           "symbol":"PEP",
+           "active":true,
+           "networks":[
+              {
+                 "networkId":"pepecoin",
+                 "exchangeable":false
+              }
+           ]
         }
     ],
     "total": 0,

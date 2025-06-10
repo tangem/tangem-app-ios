@@ -60,7 +60,7 @@ public struct Amount: CustomStringConvertible, Hashable, Comparable {
             return "0x0"
         }
 
-        return encoded?.hexString.stripLeadingZeroes().addHexPrefix()
+        return encoded?.hex().stripLeadingZeroes().addHexPrefix()
     }
 
     public var isZero: Bool {
@@ -195,5 +195,13 @@ public extension Amount {
 
     static func maxCoin(for blockchain: Blockchain) -> Amount {
         .init(with: blockchain, type: .coin, value: Decimal.greatestFiniteMagnitude)
+    }
+}
+
+public extension Amount {
+    func asSmallest() -> Amount {
+        let decimalValue = pow(10, decimals)
+        let value = value * decimalValue
+        return Amount(with: self, value: value)
     }
 }

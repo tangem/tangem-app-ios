@@ -49,4 +49,10 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
             provider.checkAccountCreated(account: account)
         }
     }
+
+    func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
+        providerPublisher { provider in
+            provider.checkAccountDestinationTag(account: account)
+        }
+    }
 }

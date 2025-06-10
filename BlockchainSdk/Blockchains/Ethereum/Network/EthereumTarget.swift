@@ -8,10 +8,15 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 struct EthereumTarget: TargetType {
-    let targetType: EthereumTargetType
-    let baseURL: URL
+    private let targetType: EthereumTargetType
+    private let node: NodeInfo
+
+    var baseURL: URL {
+        node.url
+    }
 
     var path: String {
         return ""
@@ -28,9 +33,18 @@ struct EthereumTarget: TargetType {
     }
 
     var headers: [String: String]? {
-        [
-            "Content-Type": "application/json",
-        ]
+        var headers = ["Content-Type": "application/json"]
+
+        if let headersKeyInfo = node.headers {
+            headers[headersKeyInfo.headerName] = headersKeyInfo.headerValue
+        }
+
+        return headers
+    }
+
+    init(targetType: EthereumTargetType, node: NodeInfo) {
+        self.targetType = targetType
+        self.node = node
     }
 }
 
@@ -60,7 +74,7 @@ private extension EthereumTarget {
         }
     }
 
-    // the params have to be nested in an array
+    /// the params have to be nested in an array
     var params: AnyEncodable {
         switch targetType {
         case .balance(let address):
@@ -97,5 +111,11 @@ extension EthereumTarget {
 
         /// https://www.quicknode.com/docs/ethereum/eth_feeHistory
         case feeHistory
+    }
+}
+
+extension EthereumTarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        rpcMethod
     }
 }
