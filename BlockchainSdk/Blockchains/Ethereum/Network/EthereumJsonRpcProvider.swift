@@ -10,19 +10,19 @@ import Foundation
 import Combine
 import BigInt
 import Moya
+import TangemNetworkUtils
 
-class EthereumJsonRpcProvider: HostProvider {
-    let url: URL
+final class EthereumJsonRpcProvider: HostProvider {
+    private let node: NodeInfo
+    private let provider: TangemProvider<EthereumTarget>
 
     var host: String {
-        url.hostOrUnknown
+        node.url.hostOrUnknown
     }
 
-    private let provider: NetworkProvider<EthereumTarget>
-
-    init(url: URL, configuration: NetworkProviderConfiguration) {
-        self.url = url
-        provider = NetworkProvider<EthereumTarget>(configuration: configuration)
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
+        self.node = node
+        provider = TangemProvider<EthereumTarget>(configuration: configuration)
     }
 
     func call(contractAddress: String, encodedData: String) -> AnyPublisher<String, Error> {
@@ -62,7 +62,7 @@ class EthereumJsonRpcProvider: HostProvider {
     }
 
     private func requestPublisher<Result: Decodable>(for targetType: EthereumTarget.EthereumTargetType) -> AnyPublisher<Result, Error> {
-        let target = EthereumTarget(targetType: targetType, baseURL: url)
+        let target = EthereumTarget(targetType: targetType, node: node)
 
         return provider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()

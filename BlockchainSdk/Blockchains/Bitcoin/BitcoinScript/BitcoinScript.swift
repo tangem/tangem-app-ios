@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdk
 
 struct BitcoinScript {
     let chunks: [BitcoinScriptChunk]
