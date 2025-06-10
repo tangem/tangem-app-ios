@@ -133,31 +133,17 @@ extension SendCoordinator {
     }
 }
 
-// MARK: - SendRoutable
+// MARK: - SendFeeRoutable
 
-extension SendCoordinator: @preconcurrency SendRoutable {
-    func dismiss(reason: SendDismissReason) {
-        let dismissOptions = mapDismissReasonToDismissOptions(reason)
-        dismiss(with: dismissOptions)
-    }
-
-    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
-    }
-
+extension SendCoordinator: SendFeeRoutable {
     func openFeeExplanation(url: URL) {
         safariManager.openURL(url)
     }
+}
 
-    func openExplorer(url: URL) {
-        safariManager.openURL(url)
-    }
+// MARK: - SendDestinationRoutable
 
-    func openShareSheet(url: URL) {
-        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
-    }
-
+extension SendCoordinator: SendDestinationRoutable {
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
         guard qrScanViewCoordinator == nil else {
             AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
@@ -175,6 +161,28 @@ extension SendCoordinator: @preconcurrency SendRoutable {
         qrScanViewCoordinator.start(with: options)
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
+    }
+}
+
+// MARK: - SendRoutable
+
+extension SendCoordinator: @preconcurrency SendRoutable {
+    func dismiss(reason: SendDismissReason) {
+        let dismissOptions = mapDismissReasonToDismissOptions(reason)
+        dismiss(with: dismissOptions)
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+    }
+
+    func openExplorer(url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openShareSheet(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
