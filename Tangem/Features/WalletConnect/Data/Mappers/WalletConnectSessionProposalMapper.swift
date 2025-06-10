@@ -6,9 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import struct ReownWalletKit.ProposalNamespace
-import struct ReownWalletKit.Session
-import struct ReownWalletKit.SessionNamespace
+import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectSessionProposalMapper {
@@ -24,7 +22,7 @@ enum WalletConnectSessionProposalMapper {
         return Self.mapDomainBlockchains(from: optionalNamespaces)
     }
 
-    static func mapUnsupportedBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
+    static func mapUnsupportedRequiredBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
         let unsupportedBlockchainNames: [String] = reownSessionProposal.requiredNamespaces.reduce([]) { partialResult, reownSessionNamespace in
             guard let reownBlockchains = reownSessionNamespace.value.chains else { return partialResult }
 
@@ -71,6 +69,21 @@ enum WalletConnectSessionProposalMapper {
         } ?? []
 
         return Array(requiredEvents.union(optionalEvents))
+    }
+
+    static func mapRejectionReason(fromDomain reason: WalletConnectDAppSessionProposalRejectionReason) -> ReownWalletKit.RejectionReason {
+        switch reason {
+        case .userInitiated:
+            .userRejected
+
+        case .unsupportedDAppDomain:
+            // [REDACTED_USERNAME], ReownWalletKit does not provide a suitable rejection reason for unsupported domain case.
+            // RejectionReason.userRejected is used as a fallback.
+            .userRejected
+
+        case .unsupportedBlockchains:
+            .unsupportedChains
+        }
     }
 
     // MARK: - Private methods
