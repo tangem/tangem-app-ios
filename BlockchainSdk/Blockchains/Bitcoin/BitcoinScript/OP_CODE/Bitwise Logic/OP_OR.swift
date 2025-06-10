@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Boolean OR between each bit of the inputs
+/// Boolean OR between each bit of the inputs
 struct OpOr: OpCodeProtocol {
     var value: UInt8 { return 0x85 }
     var name: String { return "OP_OR" }

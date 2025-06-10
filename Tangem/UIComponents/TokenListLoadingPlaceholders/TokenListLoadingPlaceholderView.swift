@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TokenListLoadingPlaceholderView: View {
     var body: some View {
