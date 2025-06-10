@@ -54,27 +54,3 @@ class CardanoNetworkService: MultiNetworkProvider, CardanoNetworkProvider {
         providerPublisher { $0.send(transaction: transaction) }
     }
 }
-
-struct CardanoAddressResponse: Hashable {
-    let balance: UInt64
-    let tokenBalances: [Token: UInt64]
-    let recentTransactionsHashes: [String]
-    let unspentOutputs: [CardanoUnspentOutput]
-}
-
-struct CardanoUnspentOutput: Hashable {
-    let address: String
-    let amount: UInt64
-    let outputIndex: UInt64
-    let transactionHash: String
-    let assets: [Asset]
-}
-
-extension CardanoUnspentOutput {
-    struct Asset: Hashable {
-        let policyID: String
-        /// Token/Asset symbol in hexadecimal format `ASCII` encoding e.g. `41474958 = AGIX`
-        let assetNameHex: String
-        let amount: UInt64
-    }
-}

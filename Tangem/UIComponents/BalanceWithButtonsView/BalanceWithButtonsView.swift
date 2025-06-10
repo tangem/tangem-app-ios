@@ -6,8 +6,10 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import TangemLocalization
+import SwiftUI
+import TangemAssets
 
 struct BalanceWithButtonsView: View {
     @ObservedObject var viewModel: BalanceWithButtonsViewModel
@@ -23,14 +25,27 @@ struct BalanceWithButtonsView: View {
                     balancePicker
                 }
 
-                BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
+                LoadableTokenBalanceView(
+                    state: viewModel.fiatBalance,
+                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
+                    loader: .init(
+                        size: .init(width: 102, height: 24),
+                        padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
+                        cornerRadius: 6
+                    )
+                )
 
-                SensitiveText(viewModel.cryptoBalance)
-                    .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                LoadableTokenBalanceView(
+                    state: viewModel.cryptoBalance,
+                    style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
+                    loader: .init(
+                        size: .init(width: 70, height: 12),
+                        padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
+                    )
+                )
             }
 
-            ScrollableButtonsView(itemsHorizontalOffset: 14, buttonsInfo: viewModel.buttons)
+            ScrollableButtonsView(itemsHorizontalOffset: 14, itemsVerticalOffset: 3, buttonsInfo: viewModel.buttons)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 14)
