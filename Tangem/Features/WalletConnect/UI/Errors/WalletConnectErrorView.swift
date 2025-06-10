@@ -22,9 +22,10 @@ struct WalletConnectErrorView: View {
         }
         .background(Colors.Background.tertiary)
         .frame(maxWidth: .infinity)
-        .onOpenURL { url in
-            viewModel.handle(viewEvent: .linkTapped(url))
-        }
+        .environment(\.openURL, OpenURLAction { _ in
+            viewModel.handle(viewEvent: .contactSupportLinkTapped)
+            return .handled
+        })
     }
 
     private var navigationBar: some View {
