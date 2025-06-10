@@ -1,5 +1,5 @@
 //
-//  WalletConnectDAppConnectionProposalViewModel.swift
+//  WalletConnectDAppConnectionViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Combine
 
 @MainActor
-final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
+final class WalletConnectDAppConnectionViewModel: ObservableObject {
     private let hapticFeedbackGenerator: any WalletConnectHapticFeedbackGenerator
     private let userWallets: [any UserWalletModel]
     private var selectedUserWallet: any UserWalletModel
@@ -22,11 +22,10 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
 
     private var connectionRequestViewModelCancellable: AnyCancellable?
 
-    @Published private(set) var state: WalletConnectDAppConnectionProposalViewState
+    @Published private(set) var state: WalletConnectDAppConnectionViewState
 
     init(
-        getDAppConnectionProposalUseCase: WalletConnectGetDAppConnectionProposalUseCase,
-        connectDAppUseCase: WalletConnectConnectDAppUseCase,
+        interactor: WalletConnectDAppConnectionInteractor,
         hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         userWallets: [any UserWalletModel],
         selectedUserWallet: some UserWalletModel,
@@ -34,9 +33,7 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     ) {
         connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
             state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: userWallets.count > 1),
-            getDAppConnectionProposalUseCase: getDAppConnectionProposalUseCase,
-            resolveAvailableBlockchainsUseCase: WalletConnectResolveAvailableBlockchainsUseCase(),
-            connectDAppUseCase: connectDAppUseCase,
+            interactor: interactor,
             hapticFeedbackGenerator: hapticFeedbackGenerator,
             selectedUserWallet: selectedUserWallet
         )
@@ -51,8 +48,8 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
         setupConnectionRequestViewModel()
     }
 
-    func beginDAppProposalLoading() {
-        connectionRequestViewModel.handle(viewEvent: .dAppProposalLoadingRequested)
+    func loadDAppProposal() {
+        connectionRequestViewModel.loadDAppConnectionProposal()
     }
 
     func switchToConnectionRequest() {
@@ -70,12 +67,11 @@ final class WalletConnectDAppConnectionProposalViewModel: ObservableObject {
     }
 }
 
-// MARK: - WalletConnectDAppConnectionProposalRoutable
+// MARK: - WalletConnectDAppConnectionRoutable
 
-extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnectionProposalRoutable {
+extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRoutable {
     func openConnectionRequest() {
         connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
-
         state = .connectionRequest(connectionRequestViewModel)
     }
 
@@ -117,28 +113,51 @@ extension WalletConnectDAppConnectionProposalViewModel: WalletConnectDAppConnect
         state = .networkSelector(networksSelectorViewModel)
     }
 
-    func openErrorScreen(error: some Error) {
-        // [REDACTED_TODO_COMMENT]
+    func displaySuccessfulDAppConnection(with dAppName: String) {
+        WalletConnectModuleFactory.makeSuccessToast(with: "\(dAppName) has been connected")
+            .present(layout: .top(padding: 20), type: .temporary())
+    }
+
+    func displayProposalLoadingError(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) {
+        if let errorToast = WalletConnectModuleFactory.makeDAppProposalLoadingErrorToast(proposalLoadingError) {
+            errorToast.present(layout: .top(padding: 20), type: .temporary())
+            // [REDACTED_USERNAME], since we can't do anything unless proposal loads successfully, we need to dismiss entire flow...
+            dismiss()
+        }
+
+        if let errorViewModel = WalletConnectModuleFactory.makeDAppProposalLoadingErrorViewModel(
+            proposalLoadingError,
+            closeAction: { [weak self] in
+                self?.dismiss()
+            }
+        ) {
+            state = .error(errorViewModel)
+        }
+    }
+
+    func displayProposalApprovalError(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) {
+        if let errorToast = WalletConnectModuleFactory.makeDAppProposalApprovalErrorToast(proposalApprovalError) {
+            errorToast.present(layout: .top(padding: 20), type: .temporary())
+        }
+
+        if let errorViewModel = WalletConnectModuleFactory.makeDAppProposalApprovalErrorViewModel(
+            proposalApprovalError,
+            closeAction: { [weak self] in
+                self?.dismiss()
+            }
+        ) {
+            state = .error(errorViewModel)
+        }
     }
 
     func dismiss() {
         dismissFlowAction()
     }
-
-    func showErrorToast(with message: String) {
-        Toast(view: WarningToast(text: message))
-            .present(layout: .top(padding: 20), type: .temporary())
-    }
-
-    func showSuccessToast(with message: String) {
-        Toast(view: SuccessToast(text: message))
-            .present(layout: .top(padding: 20), type: .temporary())
-    }
 }
 
 // MARK: - Factory methods
 
-extension WalletConnectDAppConnectionProposalViewModel {
+extension WalletConnectDAppConnectionViewModel {
     private func makeWalletSelectorViewModel() -> WalletConnectWalletSelectorViewModel {
         WalletConnectWalletSelectorViewModel(
             userWallets: userWallets,
