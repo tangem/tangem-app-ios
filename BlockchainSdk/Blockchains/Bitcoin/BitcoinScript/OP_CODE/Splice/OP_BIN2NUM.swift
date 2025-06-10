@@ -24,7 +24,7 @@
 
 import Foundation
 
-// convert byte sequence x into a numeric value
+/// convert byte sequence x into a numeric value
 struct OpBin2Num: OpCodeProtocol {
     var value: UInt8 { return 0x81 }
     var name: String { return "OP_BIN2NUM" }
