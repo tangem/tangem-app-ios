@@ -8,61 +8,91 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
+/// https://api.kaspa.org/docs#/
 class KaspaNetworkProvider: HostProvider {
     var host: String {
         url.hostOrUnknown
     }
 
     private let url: URL
-    private let provider: NetworkProvider<KaspaTarget>
+    private let isTestnet: Bool
+    private let provider: TangemProvider<KaspaTarget>
 
-    init(url: URL, networkConfiguration: NetworkProviderConfiguration) {
+    init(url: URL, isTestnet: Bool, networkConfiguration: TangemProviderConfiguration) {
         self.url = url
-        provider = NetworkProvider<KaspaTarget>(configuration: networkConfiguration)
+        self.isTestnet = isTestnet
+        provider = TangemProvider<KaspaTarget>(configuration: networkConfiguration)
+        provider.session.sessionConfiguration.timeoutIntervalForRequest = 30
     }
 
-    func currentBlueScore() -> AnyPublisher<KaspaBlueScoreResponse, Error> {
-        requestPublisher(for: .blueScore)
-    }
-
-    func balance(address: String) -> AnyPublisher<KaspaBalanceResponse, Error> {
-        requestPublisher(for: .balance(address: address))
-    }
-
-    func utxos(address: String) -> AnyPublisher<[KaspaUnspentOutputResponse], Error> {
-        requestPublisher(for: .utxos(address: address))
-    }
-
-    func send(transaction: KaspaTransactionRequest) -> AnyPublisher<KaspaTransactionResponse, Error> {
+    func send(transaction: KaspaDTO.Send.Request) -> AnyPublisher<KaspaDTO.Send.Response, Error> {
         requestPublisher(for: .transactions(transaction: transaction))
     }
 
-    func transactionInfo(hash: String) -> AnyPublisher<KaspaTransactionInfoResponse, Error> {
-        requestPublisher(for: .transaction(hash: hash))
-    }
-
-    func mass(data: KaspaTransactionData) -> AnyPublisher<KaspaMassResponse, Error> {
+    func mass(data: KaspaDTO.Send.Request.Transaction) -> AnyPublisher<KaspaDTO.Mass.Response, Error> {
         requestPublisher(for: .mass(data: data))
     }
 
-    func feeEstimate() -> AnyPublisher<KaspaFeeEstimateResponse, Error> {
+    func feeEstimate() -> AnyPublisher<KaspaDTO.EstimateFee.Response, Error> {
         requestPublisher(for: .feeEstimate)
     }
+}
 
-    private func requestPublisher<T: Decodable>(for request: KaspaTarget.Request) -> AnyPublisher<T, Error> {
+// MARK: - UTXONetworkAddressInfoProvider
+
+extension KaspaNetworkProvider: UTXONetworkAddressInfoProvider {
+    func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
+        requestPublisher(for: .utxos(address: address))
+            .withWeakCaptureOf(self)
+            .map { $0.mapToUnspentOutputs(outputs: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    func getTransactionInfo(hash: String, address: String) -> AnyPublisher<TransactionRecord, any Error> {
+        requestPublisher(for: .transaction(hash: hash, request: .init()))
+            .withWeakCaptureOf(self)
+            .tryMap { try $0.mapToTransactionRecord(transaction: $1, address: address) }
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension KaspaNetworkProvider {
+    func requestPublisher<T: Decodable>(for request: KaspaTarget.Request) -> AnyPublisher<T, Error> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         return provider.requestPublisher(KaspaTarget(request: request, baseURL: url))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(T.self, using: decoder)
-            .mapError { moyaError in
-                if case .objectMapping = moyaError {
-                    return WalletError.failedToParseNetworkResponse()
-                }
-                return moyaError
+            .eraseError()
+    }
+}
+
+// MARK: - Mapping
+
+private extension KaspaNetworkProvider {
+    func mapToUnspentOutputs(outputs: [KaspaDTO.UTXO.Response]) -> [UnspentOutput] {
+        outputs.compactMap { output in
+            Decimal(stringValue: output.utxoEntry.amount).map { amount in
+                UnspentOutput(
+                    blockId: output.utxoEntry.blockDaaScore.flatMap { Int($0) } ?? -1,
+                    txId: output.outpoint.transactionId,
+                    index: output.outpoint.index,
+                    amount: amount.uint64Value
+                )
             }
-            .eraseToAnyPublisher()
+        }
+    }
+
+    func mapToTransactionRecord(
+        transaction: KaspaDTO.TransactionInfo.Response,
+        address: String
+    ) throws -> TransactionRecord {
+        try KaspaTransactionRecordMapper(isTestnet: isTestnet)
+            .mapToTransactionRecord(transaction: transaction, address: address)
     }
 }
