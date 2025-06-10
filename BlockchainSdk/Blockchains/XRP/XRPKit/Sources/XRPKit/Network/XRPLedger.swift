@@ -18,7 +18,7 @@ struct XRPLedger {
     static var ws: XRPWebSocket = WebSocket()
     #endif
 
-    // JSON-RPC
+    /// JSON-RPC
     private static var url: URL = .xrpl_rpc_Testnet
 
     private init() {}

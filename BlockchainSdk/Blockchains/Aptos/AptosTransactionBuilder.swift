@@ -8,7 +8,6 @@
 
 import Foundation
 import WalletCore
-import TangemSdk
 import TangemFoundation
 
 final class AptosTransactionBuilder {
@@ -56,7 +55,7 @@ final class AptosTransactionBuilder {
         let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
-            Log.debug("AptosPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
+            BSDKLogger.error("AptosPreSigningOutput has a error", error: preSigningOutput.errorMessage)
             throw WalletError.failedToBuildTx
         }
 
@@ -81,7 +80,7 @@ final class AptosTransactionBuilder {
         let signingOutput = try AptosSigningOutput(serializedData: compiledTransaction)
 
         guard signingOutput.error == .ok, signingOutput.hasAuthenticator else {
-            Log.debug("AptosSigningOutput has a error")
+            BSDKLogger.error(error: "AptosSigningOutput has a error")
             throw WalletError.failedToBuildTx
         }
 
@@ -100,7 +99,7 @@ final class AptosTransactionBuilder {
     ) throws -> AptosTransactionInfo {
         AptosTransactionInfo(
             sequenceNumber: sequenceNumber,
-            publicKey: publicKey.hexString,
+            publicKey: publicKey.hex(),
             sourceAddress: walletAddress,
             destinationAddress: destination,
             amount: (amount.value * decimalValue).roundedDecimalNumber.uint64Value,
@@ -114,7 +113,7 @@ final class AptosTransactionBuilder {
 
     // MARK: - Private Implementation
 
-    /*
+    /**
      This links describe basic structure transaction Aptos Blockchain
      - https://aptos.dev/concepts/txns-states
      */
@@ -149,7 +148,7 @@ final class AptosTransactionBuilder {
 }
 
 extension AptosTransactionBuilder {
-    /*
+    /**
      - For chainId documentation link https://aptos.dev/nodes/networks/
      */
     enum Constants {

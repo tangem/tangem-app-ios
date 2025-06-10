@@ -7,37 +7,34 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct RavencoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        try RavencoinWalletManager(wallet: input.wallet).then {
-            let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
+        let unspentOutputManager: UnspentOutputManager = .ravencoin(address: input.wallet.defaultAddress, isTestnet: input.wallet.blockchain.isTestnet)
 
-            let bitcoinManager = BitcoinManager(
-                networkParams: input.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
-                walletPublicKey: input.wallet.publicKey.blockchainKey,
-                compressedWalletPublicKey: compressedKey,
-                bip: .bip44
-            )
+        let txBuilder = BitcoinTransactionBuilder(
+            network: input.wallet.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.ravencoin)
+        )
 
-            $0.txBuilder = BitcoinTransactionBuilder(
-                bitcoinManager: bitcoinManager,
-                addresses: input.wallet.addresses
-            )
-
-            let blockchain = input.blockchain
-            let providers: [AnyBitcoinNetworkProvider] = APIResolver(blockchain: blockchain, config: input.blockchainSdkConfig)
-                .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, providerType in
+                switch providerType {
+                case .nowNodes:
+                    networkProviderAssembly.makeBlockBookUTXOProvider(
+                        with: input.networkInput,
+                        for: .nowNodes
+                    )
+                default:
                     RavencoinNetworkProvider(
                         host: nodeInfo.link,
-                        provider: .init(configuration: input.networkConfig)
+                        provider: .init(configuration: input.networkInput.tangemProviderConfig)
                     )
-                    .eraseToAnyBitcoinNetworkProvider()
                 }
+            }
 
-            $0.networkService = BitcoinNetworkService(providers: providers)
-        }
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
