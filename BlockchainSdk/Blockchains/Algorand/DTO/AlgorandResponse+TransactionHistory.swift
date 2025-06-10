@@ -52,7 +52,7 @@ enum AlgorandTransactionHistory {
                 fee = try container.decode(UInt64.self, forKey: .fee)
                 genesisHash = try container.decodeIfPresent(String.self, forKey: .genesisHash)
                 id = try container.decodeIfPresent(String.self, forKey: .id)
-                paymentTransaction = try container.decode(PaymentTransaction?.self, forKey: .paymentTransaction)
+                paymentTransaction = try container.decodeIfPresent(PaymentTransaction.self, forKey: .paymentTransaction)
                 roundTime = try container.decodeIfPresent(Date.self, forKey: .roundTime)
                 sender = try container.decode(String.self, forKey: .sender)
                 txType = try container.decode(String.self, forKey: .txType)
