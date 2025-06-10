@@ -9,21 +9,22 @@
 import Foundation
 import Combine
 import TangemSdk
+import TangemFoundation
 
 class CommonStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let provider: StakingAPIProvider
-    private let repository: StakingPendingTransactionsRepository
-    private let logger: Logger
     private let analyticsLogger: StakingAnalyticsLogger
+
+    private(set) var balances: [StakingBalance]?
 
     // MARK: Private
 
     private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
     private var canStakeMore: Bool {
         switch wallet.item.network {
-        case .solana, .cosmos, .tron, .ethereum, .binance: true
+        case .solana, .cosmos, .tron, .ethereum, .binance, .ton: true
         default: false
         }
     }
@@ -32,15 +33,11 @@ class CommonStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakingAPIProvider,
-        repository: StakingPendingTransactionsRepository,
-        logger: Logger,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
         self.provider = provider
-        self.repository = repository
-        self.logger = logger
         self.analyticsLogger = analyticsLogger
     }
 }
@@ -65,21 +62,17 @@ extension CommonStakingManager: StakingManager {
         }
     }
 
-    func updateState() async {
-        updateState(.loading)
+    func updateState(loadActions: Bool) async {
+        await updateState(.loading)
         do {
             async let balances = provider.balances(wallet: wallet)
             async let yield = provider.yield(integrationId: integrationId)
-
-            try await repository.checkIfConfirmed(balances: balances)
-            try await updateState(state(balances: balances, yield: yield))
+            async let actions = loadActions ? provider.actions(wallet: wallet) : []
+            try await updateState(state(balances: balances, yield: yield, actions: actions))
         } catch {
-            analyticsLogger.logError(
-                error,
-                currencySymbol: wallet.item.symbol
-            )
-            logger.error(error)
-            updateState(.loadingError(error.localizedDescription))
+            analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
+            StakingLogger.error(self, error: error)
+            await updateState(.loadingError(error.localizedDescription))
         }
     }
 
@@ -106,7 +99,7 @@ extension CommonStakingManager: StakingManager {
                 type: type
             )
         default:
-            log("Invalid staking manager state: \(state), for action: \(action)")
+            StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
             throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
         }
     }
@@ -134,19 +127,13 @@ extension CommonStakingManager: StakingManager {
         }
     }
 
-    func transactionDidSent(action: StakingAction) {
-        repository.transactionDidSent(action: action, integrationId: integrationId)
+    func transactionDetails(id: String) async throws -> StakingTransactionInfo {
+        try await execute(try await provider.transaction(id: id))
+    }
 
-        // We will update the state without requesting the API
-        switch state {
-        case .loading, .notEnabled, .temporaryUnavailable, .loadingError:
-            break
-        case .availableToStake(let yieldInfo):
-            let balances = cachedStakingBalances(yield: yieldInfo)
-            updateState(.staked(.init(balances: balances, yieldInfo: yieldInfo, canStakeMore: canStakeMore)))
-        case .staked(let staked):
-            let balances = cachedStakingBalances(yield: staked.yieldInfo) + staked.balances
-            updateState(.staked(.init(balances: balances, yieldInfo: staked.yieldInfo, canStakeMore: canStakeMore)))
+    func transactionDidSent(action: StakingAction) {
+        runTask(in: self) {
+            await $0.updateState(loadActions: true)
         }
     }
 }
@@ -154,23 +141,51 @@ extension CommonStakingManager: StakingManager {
 // MARK: - Private
 
 private extension CommonStakingManager {
+    @MainActor
     func updateState(_ state: StakingManagerState) {
-        log("Update state to \(state)")
+        StakingLogger.info(self, "Update state to \(state)")
         _state.send(state)
+        updateBalances(state)
     }
 
-    func state(balances: [StakingBalanceInfo], yield: YieldInfo) -> StakingManagerState {
+    func updateBalances(_ state: StakingManagerState) {
+        switch state {
+        case .loading:
+            break
+        case .staked(let stakeInfo):
+            balances = stakeInfo.balances
+        case .availableToStake,
+             .loadingError,
+             .notEnabled,
+             .temporaryUnavailable:
+            balances = nil
+        }
+    }
+
+    func state(balances: [StakingBalanceInfo], yield: YieldInfo, actions: [PendingAction]?) -> StakingManagerState {
         guard yield.isAvailable else {
             return .temporaryUnavailable(yield)
         }
 
-        let balances = prepareStakingBalances(balances: balances, yield: yield)
+        let stakingBalances = balances.map { balance in
+            mapToStakingBalance(balance: balance, yield: yield)
+        }
 
-        guard !balances.isEmpty else {
+        let pendingActionsHandler = StakingPendingActionsHandlerProvider().makeStakingPendingActionsHandler(
+            network: yield.item.network
+        )
+
+        let mergedBalances = pendingActionsHandler.mergeBalancesAndPendingActions(
+            balances: stakingBalances,
+            actions: actions,
+            yield: yield
+        )
+
+        guard !mergedBalances.isEmpty else {
             return .availableToStake(yield)
         }
 
-        return .staked(.init(balances: balances, yieldInfo: yield, canStakeMore: canStakeMore))
+        return .staked(.init(balances: mergedBalances, yieldInfo: yield, canStakeMore: canStakeMore))
     }
 
     func getStakeTransactionInfo(request: ActionGenericRequest) async throws -> StakingTransactionAction {
@@ -199,15 +214,27 @@ private extension CommonStakingManager {
         // Otherwise we may get the 404 error
         try await Task.sleep(nanoseconds: Constants.delay)
 
-        let transactions = try await action.transactions.asyncMap { transaction in
-            try await execute(try await provider.patchTransaction(id: transaction.id))
+        let transactions = try await withThrowingTaskGroup(of: StakingTransactionInfo.self) { group in
+            action.transactions.forEach { transaction in
+                group.addTask {
+                    try Task.checkCancellation()
+                    return try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
+                }
+            }
+
+            var transactions = [StakingTransactionInfo]()
+            for try await transaction in group {
+                transactions.append(transaction)
+            }
+
+            return transactions
         }
 
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
             validator: request.validator,
-            transactions: transactions
+            transactions: transactions.sorted(by: \.stepIndex)
         )
     }
 
@@ -217,15 +244,25 @@ private extension CommonStakingManager {
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
              .unlockLocked(let passthrough),
-             .restake(let passthrough):
+             .restake(let passthrough),
+             .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
             let action = try await getPendingTransactionAction(request: request)
             return action
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
-            let actions = try await passthroughs.asyncMap { passthrough in
-                let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
-                let action = try await getPendingTransactionAction(request: request)
-                return action
+            let actions = try await withThrowingTaskGroup(of: StakingTransactionAction.self) { group in
+                for passthrough in passthroughs {
+                    let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
+                    group.addTask {
+                        try await self.getPendingTransactionAction(request: request)
+                    }
+                }
+
+                var actions = [StakingTransactionAction]()
+                for try await action in group {
+                    actions.append(action)
+                }
+                return actions
             }
 
             return mapToStakingTransactionAction(
@@ -261,7 +298,8 @@ private extension CommonStakingManager {
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
              .unlockLocked(let passthrough),
-             .restake(let passthrough):
+             .restake(let passthrough),
+             .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
             return try await execute(try await provider.estimatePendingFee(request: request))
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
@@ -322,40 +360,36 @@ private extension CommonStakingManager {
             return validator.map { .validator($0) } ?? .disabled
         }()
 
-        let inProgress = repository.hasPending(balance: balance)
-
         return StakingBalance(
             item: balance.item,
             amount: balance.amount,
+            accountAddress: balance.accountAddress,
             balanceType: balance.balanceType,
             validatorType: validatorType,
-            inProgress: inProgress,
-            actions: balance.actions
+            inProgress: false,
+            actions: balance.actions,
+            actionConstraints: balance.actionConstraints
         )
     }
 
-    func mapToStakingBalance(record: StakingPendingTransactionRecord, yield: YieldInfo) -> StakingBalance {
+    func mapToStakingBalance(
+        action: PendingAction,
+        yield: YieldInfo,
+        balanceType: StakingBalanceType
+    ) -> StakingBalance {
         let validatorType: StakingValidatorType = {
-            guard let address = record.validator.address, let name = record.validator.name else {
+            guard let address = action.validatorAddress,
+                  let validator = yield.validators.first(where: { $0.address == address }) else {
                 return .empty
             }
 
-            return .validator(
-                .init(
-                    address: address,
-                    name: name,
-                    preferred: true,
-                    partner: false,
-                    iconURL: record.validator.iconURL,
-                    apr: record.validator.apr
-                )
-            )
+            return .validator(validator)
         }()
 
         return StakingBalance(
             item: yield.item,
-            amount: record.amount,
-            balanceType: .pending,
+            amount: action.amount,
+            balanceType: balanceType,
             validatorType: validatorType,
             inProgress: true,
             actions: []
@@ -376,24 +410,6 @@ private extension CommonStakingManager {
             validator: validator,
             transactions: transactions
         )
-    }
-
-    func prepareStakingBalances(balances: [StakingBalanceInfo], yield: YieldInfo) -> [StakingBalance] {
-        let cached = cachedStakingBalances(yield: yield)
-
-        let active = balances.map { balance in
-            mapToStakingBalance(balance: balance, yield: yield)
-        }
-
-        return cached + active
-    }
-
-    func cachedStakingBalances(yield: YieldInfo) -> [StakingBalance] {
-        repository.records
-            .filter { $0.integrationId == yield.id && $0.type == .stake }
-            .map { record in
-                mapToStakingBalance(record: record, yield: yield)
-            }
     }
 }
 
@@ -425,9 +441,9 @@ private extension CommonStakingManager {
 
 // MARK: - Log
 
-private extension CommonStakingManager {
-    func log(_ args: Any) {
-        logger.debug("[Staking] \(self) \(wallet.item) \(args)")
+extension CommonStakingManager: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: ["item": wallet.item])
     }
 }
 

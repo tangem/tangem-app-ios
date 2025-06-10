@@ -8,102 +8,139 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
+import WalletCore
 
+/// Decoder:
+/// https://learnmeabitcoin.com/tools/
+/// https://www.blockchain.com/explorer/assets/btc/decode-transaction
 class BitcoinTransactionBuilder {
-    var unspentOutputs: [BitcoinUnspentOutput]? {
-        didSet {
-            let utxoDTOs: [UtxoDTO]? = unspentOutputs?.map {
-                return UtxoDTO(
-                    hash: Data(Data(hex: $0.transactionHash).reversed()),
-                    index: $0.outputIndex,
-                    value: Int($0.amount),
-                    script: Data(hex: $0.outputScript)
-                )
+    private let network: UTXONetworkParams
+    private let unspentOutputManager: UnspentOutputManager
+    private let builderType: BuilderType
+    private let sequence: SequenceType
+
+    private var signHashType: UTXONetworkParamsSignHashType { network.signHashType }
+
+    init(
+        network: UTXONetworkParams,
+        unspentOutputManager: UnspentOutputManager,
+        builderType: BuilderType,
+        sequence: SequenceType = .rbf
+    ) {
+        self.network = network
+        self.unspentOutputManager = unspentOutputManager
+        self.builderType = builderType
+        self.sequence = sequence
+    }
+
+    func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
+        let satoshi = amount.asSmallest().value.intValue()
+        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
+        return preImage.fee
+    }
+
+    func buildForSign(transaction: Transaction) async throws -> [Data] {
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
+
+        let hashes: [Data] = try {
+            switch builderType {
+            case .walletCore(let coinType) where possibleToUseWalletCore:
+                let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
+                return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
+            case .custom, .walletCore:
+                let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
+                return try builderType.preImageHashes(transaction: preImage)
             }
-            if let utxos = utxoDTOs {
-                let spendingScripts: [Script] = walletScripts.compactMap { script in
-                    let chunks = script.chunks.enumerated().map { index, chunk in
-                        Chunk(scriptData: script.data, index: index, payloadRange: chunk.range)
-                    }
-                    return Script(with: script.data, chunks: chunks)
+        }()
+
+        return hashes
+    }
+
+    func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let signatures = try map(scripts: preImage.inputs.map { $0.script }, signatures: signatures)
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
+
+        let encoded: Data = try {
+            switch builderType {
+            case .walletCore(let coinType) where possibleToUseWalletCore:
+                let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
+                return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
+            case .custom, .walletCore:
+                let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
+                return try builderType.compile(transaction: preImage, signatures: signatures)
+            }
+        }()
+
+        return encoded
+    }
+}
+
+// MARK: - Private
+
+private extension BitcoinTransactionBuilder {
+    func map(scripts: [UTXOLockingScript], signatures: [SignatureInfo]) throws -> [SignatureInfo] {
+        guard scripts.count == signatures.count else {
+            throw Error.wrongSignaturesCount
+        }
+
+        return try zip(scripts, signatures).map { script, signature in
+            let publicKey: Data = try {
+                switch script.spendable {
+                // If we're spending an output which was received on address which was generated for the compressed public key,
+                // we need to `compress()` the public key that was used for signing
+                case .publicKey(let publicKey) where Secp256k1Key.isCompressed(publicKey: publicKey):
+                    return try Secp256k1Key(with: signature.publicKey).compress()
+
+                case .publicKey(let publicKey):
+                    return publicKey
+
+                // The redeemScript is used only for Twin cards
+                // We always use the compressed public key from `SignatureInfo`
+                // This is important to identify which of the two cards was used for signing
+                case .redeemScript:
+                    return try Secp256k1Key(with: signature.publicKey).compress()
+
+                case .none:
+                    throw UTXOTransactionSerializerError.spendableScriptNotFound
                 }
-                bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: spendingScripts)
+            }()
+
+            return try SignatureInfo(signature: signature.der(), publicKey: publicKey, hash: signature.hash)
+        }
+    }
+
+    // The WalletCoreUTXOTransactionSerializer supports only compressed publicKey
+    // [REDACTED_TODO_COMMENT]
+    func possibleToUseWalletCore(for preImage: PreImageTransaction) throws -> Bool {
+        let hasExtendedPublicKey = try preImage.inputs.contains { input in
+            switch input.script.spendable {
+            case .none: throw UTXOTransactionSerializerError.spendableScriptNotFound
+            case .publicKey(let data): Secp256k1Key.isExtended(publicKey: data)
+            case .redeemScript: false
+            }
+        }
+
+        return !hasExtendedPublicKey
+    }
+}
+
+extension BitcoinTransactionBuilder {
+    enum Error: LocalizedError {
+        case wrongSignaturesCount
+
+        var errorDescription: String? {
+            switch self {
+            case .wrongSignaturesCount: "Wrong signatures count"
             }
         }
     }
+}
 
-    var bitcoinManager: BitcoinManager
-
-    private(set) var changeScript: Data?
-    private let walletScripts: [BitcoinScript]
-
-    init(bitcoinManager: BitcoinManager, addresses: [Address]) {
-        self.bitcoinManager = bitcoinManager
-
-        let scriptAddresses = addresses.compactMap { $0 as? BitcoinScriptAddress }
-        let scripts = scriptAddresses.map { $0.script }
-        let defaultScriptData = scriptAddresses
-            .first(where: { $0.type == .default })
-            .map { $0.script.data }
-
-        walletScripts = scripts
-        changeScript = defaultScriptData?.sha256()
-    }
-
-    func buildForSign(transaction: Transaction, sequence: Int?, sortType: TransactionDataSortType = .bip69) -> [Data]? {
-        do {
-            guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else { return nil }
-
-            let hashes = try bitcoinManager.buildForSign(
-                target: transaction.destinationAddress,
-                amount: transaction.amount.value,
-                feeRate: parameters.rate,
-                sortType: sortType,
-                changeScript: changeScript,
-                sequence: sequence
-            )
-            return hashes
-        } catch {
-            Log.error(error)
-            return nil
-        }
-    }
-
-    func buildForSend(transaction: Transaction, signatures: [Data], sequence: Int?, sortType: TransactionDataSortType = .bip69) -> Data? {
-        guard let signatures = convertToDER(signatures),
-              let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
-            return nil
-        }
-
-        do {
-            return try bitcoinManager.buildForSend(
-                target: transaction.destinationAddress,
-                amount: transaction.amount.value,
-                feeRate: parameters.rate,
-                sortType: sortType,
-                derSignatures: signatures,
-                changeScript: changeScript,
-                sequence: sequence
-            )
-        } catch {
-            Log.error(error)
-            return nil
-        }
-    }
-
-    private func convertToDER(_ signatures: [Data]) -> [Data]? {
-        var derSigs = [Data]()
-
-        let utils = Secp256k1Utils()
-        for signature in signatures {
-            guard let signDer = try? utils.serializeDer(signature) else {
-                return nil
-            }
-
-            derSigs.append(signDer)
-        }
-
-        return derSigs
+extension BitcoinTransactionBuilder {
+    enum BuilderType {
+        case walletCore(CoinType)
+        case custom
     }
 }

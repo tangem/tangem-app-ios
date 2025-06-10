@@ -7,7 +7,9 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import MarkdownUI
+import TangemAssets
 
 struct DescriptionBottomSheetInfo: Identifiable, Equatable {
     let id: UUID = .init()
@@ -53,7 +55,7 @@ struct DescriptionBottomSheetView: View {
     }
 }
 
-// View components
+/// View components
 private extension DescriptionBottomSheetView {
     @ViewBuilder
     var headerView: some View {
@@ -82,6 +84,7 @@ private extension DescriptionBottomSheetView {
         }
     }
 
+    /// - Note: Can't be replaced with `TangemUI.CloseButton` due to use of custom paddings.
     var closeButton: some View {
         Button(action: {
             dismissSheetAction()
