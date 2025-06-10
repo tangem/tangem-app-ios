@@ -17,7 +17,7 @@ struct SolanaAddressService {}
 extension SolanaAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         try publicKey.blockchainKey.validateAsEdKey()
-        let address = Base58.encode(publicKey.blockchainKey.bytes)
+        let address = Base58.encode(publicKey.blockchainKey)
 
         return PlainAddress(value: address, publicKey: publicKey, type: addressType)
     }

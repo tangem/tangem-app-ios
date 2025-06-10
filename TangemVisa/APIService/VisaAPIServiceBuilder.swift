@@ -10,13 +10,43 @@ import Foundation
 import Moya
 
 public struct VisaAPIServiceBuilder {
-    public init() {}
+    private let isMockedAPIEnabled: Bool
+    private let apiType: VisaAPIType
 
-    public func build(isTestnet: Bool, urlSessionConfiguration: URLSessionConfiguration, logger: VisaLogger) -> VisaAPIService {
-        let logger = InternalLogger(logger: logger)
-        let provider = MoyaProvider<VisaAPITarget>(session: Session(configuration: urlSessionConfiguration))
-        let additionalAPIHeaders = (try? VisaConfigProvider.shared().getTxHistoryAPIAdditionalHeaders()) ?? [:]
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
+        self.isMockedAPIEnabled = isMockedAPIEnabled
+    }
 
-        return CommonVisaAPIService(isTestnet: isTestnet, additionalAPIHeaders: additionalAPIHeaders, provider: provider, logger: logger)
+    public func buildTransactionHistoryService(
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
+        isTestnet: Bool,
+        urlSessionConfiguration: URLSessionConfiguration
+    ) -> VisaTransactionHistoryAPIService {
+        return CommonTransactionHistoryService(
+            apiType: apiType,
+            authorizationTokensHandler: authorizationTokensHandler,
+            apiService: .init(
+                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
+            )
+        )
+    }
+
+    /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
+    public func buildAuthorizationService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationService {
+        if isMockedAPIEnabled {
+            return AuthorizationServiceMock()
+        }
+
+        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
+    }
+
+    public func buildAuthorizationTokenRefreshService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationTokenRefreshService {
+        if isMockedAPIEnabled {
+            return AuthorizationServiceMock()
+        }
+
+        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
 }

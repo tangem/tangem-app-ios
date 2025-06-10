@@ -8,12 +8,14 @@
 
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
+import TangemUI
 
 struct TokenItemViewLeadingComponent: View {
     let name: String
     let imageURL: URL?
     let customTokenColor: Color?
-    let blockchainIconName: String?
+    let blockchainIconAsset: ImageType?
     let hasMonochromeIcon: Bool
     let isCustom: Bool
     let networkBorderColor: Color
@@ -22,7 +24,7 @@ struct TokenItemViewLeadingComponent: View {
         name: String,
         imageURL: URL?,
         customTokenColor: Color?,
-        blockchainIconName: String?,
+        blockchainIconAsset: ImageType?,
         hasMonochromeIcon: Bool,
         isCustom: Bool,
         networkBorderColor: Color = Colors.Background.primary
@@ -30,7 +32,7 @@ struct TokenItemViewLeadingComponent: View {
         self.name = name
         self.imageURL = imageURL
         self.customTokenColor = customTokenColor
-        self.blockchainIconName = blockchainIconName
+        self.blockchainIconAsset = blockchainIconAsset
         self.hasMonochromeIcon = hasMonochromeIcon
         self.isCustom = isCustom
         self.networkBorderColor = networkBorderColor
@@ -40,7 +42,7 @@ struct TokenItemViewLeadingComponent: View {
         TokenIcon(
             tokenIconInfo: .init(
                 name: name,
-                blockchainIconName: blockchainIconName,
+                blockchainIconAsset: blockchainIconAsset,
                 imageURL: imageURL,
                 isCustom: isCustom,
                 customTokenColor: customTokenColor,
@@ -49,5 +51,17 @@ struct TokenItemViewLeadingComponent: View {
             size: .init(bothDimensions: 36.0)
         )
         .saturation(hasMonochromeIcon ? 0 : 1)
+    }
+}
+
+extension TokenItemViewLeadingComponent {
+    init(from tokenItemViewModel: TokenItemViewModel, networkBorderColor: Color = Colors.Background.primary) {
+        name = tokenItemViewModel.name
+        imageURL = tokenItemViewModel.imageURL
+        customTokenColor = tokenItemViewModel.customTokenColor
+        blockchainIconAsset = tokenItemViewModel.blockchainIconAsset
+        hasMonochromeIcon = tokenItemViewModel.hasMonochromeIcon
+        isCustom = tokenItemViewModel.isCustom
+        self.networkBorderColor = networkBorderColor
     }
 }

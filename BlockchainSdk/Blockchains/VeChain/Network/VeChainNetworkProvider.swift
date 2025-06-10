@@ -8,17 +8,18 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 struct VeChainNetworkProvider {
     private let baseURL: URL
-    private let provider: NetworkProvider<VeChainTarget>
+    private let provider: TangemProvider<VeChainTarget>
 
     init(
         baseURL: URL,
-        configuration: NetworkProviderConfiguration
+        configuration: TangemProviderConfiguration
     ) {
         self.baseURL = baseURL
-        provider = NetworkProvider<VeChainTarget>(configuration: configuration)
+        provider = TangemProvider<VeChainTarget>(configuration: configuration)
     }
 
     func getAccountInfo(address: String) -> AnyPublisher<VeChainNetworkResult.AccountInfo, Error> {

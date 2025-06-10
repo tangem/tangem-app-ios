@@ -10,12 +10,11 @@ import Foundation
 
 struct NEARWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let blockchain = input.blockchain
-        let networkConfig = input.networkConfig
+        let blockchain = input.wallet.blockchain
 
-        let providers: [NEARNetworkProvider] = APIResolver(blockchain: blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                return NEARNetworkProvider(baseURL: nodeInfo.url, configuration: networkConfig)
+        let providers: [NEARNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                return NEARNetworkProvider(baseURL: nodeInfo.url, configuration: input.networkInput.tangemProviderConfig)
             }
 
         let networkService = NEARNetworkService(blockchain: blockchain, providers: providers)

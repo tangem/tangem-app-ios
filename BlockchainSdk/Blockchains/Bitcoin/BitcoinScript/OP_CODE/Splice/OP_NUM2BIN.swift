@@ -24,7 +24,7 @@
 
 import Foundation
 
-// convert numeric value a into byte sequence of length b
+/// convert numeric value a into byte sequence of length b
 struct OpNum2Bin: OpCodeProtocol {
     var value: UInt8 { return 0x80 }
     var name: String { return "OP_NUM2BIN" }

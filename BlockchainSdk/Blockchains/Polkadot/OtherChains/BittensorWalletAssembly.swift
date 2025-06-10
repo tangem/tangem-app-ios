@@ -10,38 +10,36 @@ import Foundation
 
 struct BittensorWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        guard let network = PolkadotNetwork(blockchain: input.blockchain),
+        guard let network = PolkadotNetwork(blockchain: input.wallet.blockchain),
               case .bittensor = network else {
             throw WalletError.empty
         }
 
         return PolkadotWalletManager(network: network, wallet: input.wallet).then {
             let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
-            let networkConfig = input.networkConfig
 
-            let blockchain = input.blockchain
-            let config = input.blockchainSdkConfig
+            let blockchain = input.wallet.blockchain
 
-            var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, config: config)
-                .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                    PolkadotJsonRpcProvider(node: nodeInfo, configuration: input.networkConfig)
+            var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+                .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                    PolkadotJsonRpcProvider(node: nodeInfo, configuration: input.networkInput.tangemProviderConfig)
                 }
 
-            let dwellirResolver = DwellirAPIResolver(config: input.blockchainSdkConfig)
+            let dwellirResolver = DwellirAPIResolver(keysConfig: input.networkInput.keysConfig)
 
             if let dwellirNodeInfo = dwellirResolver.resolve() {
-                providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: networkConfig))
+                providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: input.networkInput.tangemProviderConfig))
             }
 
-            let onfinalityResolver = OnfinalityAPIResolver(config: input.blockchainSdkConfig)
+            let onfinalityResolver = OnfinalityAPIResolver(keysConfig: input.networkInput.keysConfig)
 
             if let onfinalityNodeInfo = onfinalityResolver.resolve() {
-                providers.append(PolkadotJsonRpcProvider(node: onfinalityNodeInfo, configuration: networkConfig))
+                providers.append(PolkadotJsonRpcProvider(node: onfinalityNodeInfo, configuration: input.networkInput.tangemProviderConfig))
             }
 
             $0.networkService = PolkadotNetworkService(providers: providers, network: network)
             $0.txBuilder = PolkadotTransactionBuilder(
-                blockchain: input.blockchain,
+                blockchain: input.wallet.blockchain,
                 walletPublicKey: input.wallet.publicKey.blockchainKey,
                 network: network,
                 runtimeVersionProvider: runtimeVersionProvider

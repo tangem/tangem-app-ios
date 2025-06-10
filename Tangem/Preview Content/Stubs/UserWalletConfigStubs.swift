@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct UserWalletConfigStubs {
+enum UserWalletConfigStubs {
     static var walletV2Stub: UserWalletConfig = Wallet2Config(
         card: .init(card: CardMock.wallet2.card),
         isDemo: false
@@ -33,6 +33,7 @@ struct UserWalletConfigStubs {
     )
 
     static var visaStub: UserWalletConfig = VisaConfig(
-        card: .init(card: CardMock.visa.card)
+        card: .init(card: CardMock.visa.card),
+        activationLocalState: .activated(authTokens: .init(accessToken: "", refreshToken: "", authorizationType: .cardId))
     )
 }

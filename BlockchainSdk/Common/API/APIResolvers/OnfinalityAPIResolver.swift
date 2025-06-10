@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct OnfinalityAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve() -> NodeInfo? {
         guard let url = URL(string: "https://bittensor-finney.api.onfinality.io/rpc/") else {
@@ -20,7 +21,7 @@ struct OnfinalityAPIResolver {
             url: url,
             keyInfo: APIHeaderKeyInfo(
                 headerName: Constants.onfinalityApiKeyHeaderName,
-                headerValue: config.bittensorOnfinalityKey
+                headerValue: keysConfig.bittensorOnfinalityKey
             )
         )
     }

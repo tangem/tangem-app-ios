@@ -1,6 +1,6 @@
 import Foundation
 
-/**
+/*
  Class represents the ProtocolVersion
  */
 
@@ -26,7 +26,7 @@ class ProtocolVersion {
         protocolString = str
     }
 
-    /**
+    /*
      Get ProtocolVersion object from  string
      - Parameter :  a  String represents the ProtocolVersion object
      - Returns:  ProtocolVersion object

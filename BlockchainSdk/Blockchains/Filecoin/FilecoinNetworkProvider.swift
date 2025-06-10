@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemNetworkUtils
 
 final class FilecoinNetworkProvider: HostProvider {
     var host: String {
@@ -15,14 +16,14 @@ final class FilecoinNetworkProvider: HostProvider {
     }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<FilecoinTarget>
+    private let provider: TangemProvider<FilecoinTarget>
 
     init(
         node: NodeInfo,
-        configuration: NetworkProviderConfiguration
+        configuration: TangemProviderConfiguration
     ) {
         self.node = node
-        provider = NetworkProvider<FilecoinTarget>(configuration: configuration)
+        provider = TangemProvider<FilecoinTarget>(configuration: configuration)
     }
 
     func getActorInfo(address: String) -> AnyPublisher<FilecoinResponse.GetActorInfo, Error> {

@@ -10,8 +10,11 @@ import Foundation
 import Combine
 import TangemSdk
 import BlockchainSdk
+import TangemAssets
+import TangemNFT
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
+    var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
     var name: String { "" }
@@ -19,6 +22,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
+    var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
@@ -46,6 +50,10 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var refcodeProvider: RefcodeProvider? {
+        return nil
     }
 
     var userWalletName: String { _userWalletNamePublisher.value }
@@ -88,8 +96,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         _updatePublisher.send(())
     }
 
-    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
-        .just(output: .loading)
+    var totalBalance: TotalBalanceState {
+        .loading(cached: .none)
+    }
+
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
+        .just(output: totalBalance)
     }
 
     func validate() -> Bool {

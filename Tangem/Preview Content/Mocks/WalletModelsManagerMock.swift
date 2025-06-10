@@ -10,8 +10,9 @@ import Foundation
 import Combine
 
 struct WalletModelsManagerMock: WalletModelsManager {
-    var walletModels: [WalletModel] { [] }
-    var walletModelsPublisher: AnyPublisher<[WalletModel], Never> { .just(output: []) }
+    var isInitialized: Bool { true }
+    var walletModels: [any WalletModel] { [] }
+    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: []) }
 
     func updateAll(silent: Bool, completion: @escaping () -> Void) {}
 }

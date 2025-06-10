@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Copies the second-to-top stack item to the top.
+/// Copies the second-to-top stack item to the top.
 struct OpOver: OpCodeProtocol {
     var value: UInt8 { return 0x78 }
     var name: String { return "OP_OVER" }

@@ -10,11 +10,14 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-extension WalletModel {
-    static let mockETH = WalletModel(
+extension CommonWalletModel {
+    static let mockETH = CommonWalletModel(
         walletManager: EthereumWalletManagerMock(),
         stakingManager: StakingManagerMock(),
+        featureManager: WalletModelFeaturesManagerMock(),
         transactionHistoryService: nil,
+        sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
+        tokenBalancesRepository: TokenBalancesRepositoryMock(),
         amountType: .coin,
         shouldPerformHealthCheck: false,
         isCustom: false
@@ -26,7 +29,7 @@ class EthereumWalletManagerMock: WalletManager {
 
     func update() {}
 
-    func updatePublisher() -> AnyPublisher<BlockchainSdk.WalletManagerState, Never> {
+    func updatePublisher() -> AnyPublisher<Void, Never> {
         Empty().eraseToAnyPublisher()
     }
 
@@ -36,8 +39,6 @@ class EthereumWalletManagerMock: WalletManager {
 
     func addToken(_ token: BlockchainSdk.Token) {}
 
-    func addTokens(_ tokens: [BlockchainSdk.Token]) {}
-
     var wallet: BlockchainSdk.Wallet = .init(
         blockchain: .ethereum(testnet: false),
         addresses: [.default: PlainAddress(
@@ -46,8 +47,9 @@ class EthereumWalletManagerMock: WalletManager {
             type: .default
         )]
     )
+    var state: WalletManagerState { .initial }
     var walletPublisher: AnyPublisher<BlockchainSdk.Wallet, Never> { .just(output: wallet) }
-    var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: .initial) }
+    var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: state) }
     var currentHost: String { "" }
     var outputsCount: Int? { nil }
 

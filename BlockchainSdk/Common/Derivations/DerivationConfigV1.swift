@@ -50,7 +50,12 @@ struct DerivationConfigV1: DerivationConfig {
              .base,
              .cyber,
              .blast,
-             .canxium:
+             .canxium,
+             .chiliz,
+             .xodex,
+             .apeChain,
+             .vanar,
+             .zkLinkNova:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
             return "m/44'/61'/0'/0/0"
@@ -146,6 +151,20 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/1116'/0'/0/0"
         case .casper:
             return "m/44'/506'/0'/0/0"
+        case .clore:
+            return "m/44'/1313'/0'/0/0"
+        case .fact0rn:
+            return "m/84'/42069'/0'/0/0"
+        case .odysseyChain:
+            return "m/44'/695'/0'/0/0"
+        case .bitrock:
+            return "m/44'/7171666'/0'/0/0"
+        case .sonic:
+            return "m/44'/10007'/0'/0/0"
+        case .alephium:
+            return "m/44'/1234'/0'/0/0"
+        case .pepecoin:
+            return "m/44'/3434'/0'/0/0"
         }
     }
 }

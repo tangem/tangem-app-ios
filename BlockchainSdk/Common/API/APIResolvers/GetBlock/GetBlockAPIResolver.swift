@@ -9,7 +9,7 @@
 import Foundation
 
 struct GetBlockAPIResolver {
-    let credentials: BlockchainSdkConfig.GetBlockCredentials
+    let credentials: BlockchainSdkKeysConfig.GetBlockCredentials
 
     func resolve(for blockchain: Blockchain) -> NodeInfo? {
         guard let url = generateURL(for: blockchain) else {
@@ -30,9 +30,10 @@ struct GetBlockAPIResolver {
 
     private func getCredentials(for blockchain: Blockchain) -> String? {
         switch blockchain {
-        case .cosmos, .tron, .algorand, .aptos:
+        case .cosmos, .tron, .algorand, .aptos, .tezos:
             return credentials.credential(for: blockchain, type: .rest)
-        case .near, .ton, .ethereum, .ethereumClassic, .rsk, .bsc, .polygon, .fantom, .gnosis, .cronos, .zkSync, .moonbeam, .polygonZkEVM, .avalanche, .base, .xrp, .blast, .filecoin, .solana:
+        case .near, .ton, .ethereum, .ethereumClassic, .rsk, .bsc, .polygon, .fantom, .gnosis, .cronos, .zkSync, .moonbeam, .polygonZkEVM, .avalanche, .base, .xrp, .blast, .filecoin, .solana,
+             .arbitrum, .bitcoinCash, .kusama, .optimism, .polkadot, .shibarium, .sui, .telos:
             return credentials.credential(for: blockchain, type: .jsonRpc)
         case .cardano:
             return credentials.credential(for: blockchain, type: .rosetta)

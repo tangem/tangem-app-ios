@@ -23,7 +23,7 @@
 //
 import Foundation
 
-// If both a and b are not "" (null string), the output is 1. Otherwise 0.
+/// If both a and b are not "" (null string), the output is 1. Otherwise 0.
 struct OpBoolAnd: OpCodeProtocol {
     var value: UInt8 { return 0x9a }
     var name: String { return "OP_BOOLAND" }

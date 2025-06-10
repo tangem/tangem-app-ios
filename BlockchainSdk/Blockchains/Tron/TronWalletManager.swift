@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import TangemSdk
-import TangemFoundation
 
 class TronWalletManager: BaseManager, WalletManager {
     var networkService: TronNetworkService!
@@ -54,7 +53,7 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapSendError(tx: data.hexString)
+                .mapSendError(tx: data.hex())
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
@@ -221,7 +220,7 @@ class TronWalletManager: BaseManager, WalletManager {
 
             return unmarshalledSignature
         } catch {
-            Log.error(error)
+            BSDKLogger.error(error: error)
             return Data()
         }
     }
@@ -240,10 +239,10 @@ private class DummySigner: TransactionSigner {
         privateKey = keyPair.privateKey
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
         do {
             let signature = try Secp256k1Utils().sign(hash, with: privateKey)
-            return Just(signature)
+            return Just(.init(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash))
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         } catch {
@@ -251,7 +250,14 @@ private class DummySigner: TransactionSigner {
         }
     }
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        fatalError()
+    }
+
+    func sign(
+        dataToSign: [SignData],
+        seedKey: Data
+    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
         fatalError()
     }
 }
@@ -283,7 +289,7 @@ extension TronWalletManager: TronTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TronWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension TronWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -295,7 +301,9 @@ extension TronWalletManager: StakeKitTransactionSender, StakeKitTransactionSende
         let unmarshalled = unmarshal(signature.signature, hash: signature.hash, publicKey: wallet.publicKey)
         return try txBuilder.buildForSend(rawData: rawData, signature: unmarshalled)
     }
+}
 
+extension TronWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.broadcastHex(rawTransaction).async().txid
     }

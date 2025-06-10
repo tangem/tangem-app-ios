@@ -7,6 +7,10 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct ReceiveBottomSheetView: View {
     @ObservedObject var viewModel: ReceiveBottomSheetViewModel
@@ -37,20 +41,39 @@ struct ReceiveBottomSheetView: View {
 
                     Image(uiImage: info.addressQRImage)
                         .resizable()
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .padding(.horizontal, 48)
+                        .frame(width: 220, height: 220)
                         .padding(.top, 18)
 
                     SUILabel(viewModel.stringForAddress(info.address))
                         .padding(.horizontal, 60)
                         .padding(.top, 20)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.copyToClipboard()
+                        }
 
-                    Text(viewModel.warningMessageFull)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 44)
-                        .padding(.top, 12)
-                        .padding(.bottom, 28)
-                        .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    if let memoWarningMessage = viewModel.memoWarningMessage {
+                        Text(memoWarningMessage)
+                            .padding(.top, 12)
+                            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    }
+
+                    NotificationView(
+                        input: .init(
+                            style: .plain,
+                            severity: .info,
+                            settings: .init(
+                                event: ReceiveNotificationEvent(
+                                    assetSymbol: viewModel.assetSymbol,
+                                    networkName: viewModel.networkName
+                                ),
+                                dismissAction: nil
+                            )
+                        )
+                    )
+                    .padding(.top, 12)
+                    .padding(.bottom, 28)
+                    .padding(.horizontal, 16)
                 }
             }
             .padding(.top, 24)
@@ -60,7 +83,7 @@ struct ReceiveBottomSheetView: View {
             HStack(spacing: 12) {
                 MainButton(
                     title: Localization.commonCopy,
-                    icon: .leading(Assets.copy),
+                    icon: .leading(Assets.Glyphs.copy),
                     style: .secondary,
                     action: viewModel.copyToClipboard
                 )
@@ -83,6 +106,7 @@ struct ReceiveBottomSheetView: View {
 struct ReceiveBottomSheet_Previews: PreviewProvider {
     static var btcAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
+            flow: .crypto,
             tokenItem: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(
@@ -103,6 +127,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
 
     static var singleAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
+            flow: .nft,
             tokenItem: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(

@@ -7,10 +7,12 @@
 //
 
 import Combine
+import TangemLocalization
 import SwiftUI
 import BlockchainSdk
-
-typealias WalletModelId = Int
+import TangemAssets
+import TangemFoundation
+import struct TangemUI.TokenIconInfo
 
 protocol TokenItemContextActionsProvider: AnyObject {
     func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenContextActionsSection]
@@ -23,8 +25,8 @@ protocol TokenItemContextActionDelegate: AnyObject {
 final class TokenItemViewModel: ObservableObject, Identifiable {
     let id: WalletModelId
 
-    @Published var balanceCrypto: LoadableTextView.State = .loading
-    @Published var balanceFiat: LoadableTextView.State = .loading
+    @Published var balanceCrypto: LoadableTokenBalanceView.State
+    @Published var balanceFiat: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
     @Published var hasPendingTransactions: Bool = false
@@ -34,13 +36,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
+    let tokenItem: TokenItem
+
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
-    var blockchainIconName: String? { tokenIcon.blockchainIconName }
-    var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
+    var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
+    var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || tokenItem.blockchain.isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
-    var tokenItem: TokenItem { infoProvider.tokenItem }
 
     var hasError: Bool { missingDerivation || networkUnreachable }
     var errorMessage: String? {
@@ -57,39 +60,45 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private let tokenIcon: TokenIconInfo
-    private let isTestnetToken: Bool
-    private let tokenTapped: (WalletModelId) -> Void
-    private let infoProvider: TokenItemInfoProvider
     private let priceChangeUtility = PriceChangeUtility()
+    private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
-
     private var bag = Set<AnyCancellable>()
+
+    private weak var infoProvider: TokenItemInfoProvider?
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
+    private let tokenTapped: (WalletModelId.ID) -> Void
+
     init(
-        id: Int,
+        id: WalletModelId,
+        tokenItem: TokenItem,
         tokenIcon: TokenIconInfo,
-        isTestnetToken: Bool,
         infoProvider: TokenItemInfoProvider,
-        tokenTapped: @escaping (WalletModelId) -> Void,
         contextActionsProvider: TokenItemContextActionsProvider,
-        contextActionsDelegate: TokenItemContextActionDelegate
+        contextActionsDelegate: TokenItemContextActionDelegate,
+        tokenTapped: @escaping (WalletModelId.ID) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
-        self.isTestnetToken = isTestnetToken
+        self.tokenItem = tokenItem
         self.infoProvider = infoProvider
-        self.tokenTapped = tokenTapped
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
+        self.tokenTapped = tokenTapped
 
-        setupState(infoProvider.tokenItemState)
+        loadableTokenBalanceViewStateBuilder = .init()
+        balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)
+        balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.fiatBalanceType)
+
+        setupView(infoProvider.balance)
+        setupPrice(infoProvider.quote)
         bind()
     }
 
     func tapAction() {
-        tokenTapped(id)
+        tokenTapped(id.id)
     }
 
     func didTapContextAction(_ actionType: TokenActionType) {
@@ -97,80 +106,100 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider.tokenItemStatePublisher
+        infoProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
-            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink(receiveValue: weakify(self, forFunction: TokenItemViewModel.setupState(_:)))
+            .sink(receiveValue: { [weak self] type in
+                self?.setupView(type)
+            })
             .store(in: &bag)
 
-        infoProvider.actionsUpdatePublisher
+        infoProvider?
+            .balanceTypePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.buildContextActions()
+            .sink(receiveValue: { [weak self] type in
+                self?.setupBalance(type)
+            })
+            .store(in: &bag)
+
+        infoProvider?
+            .fiatBalanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupFiatBalance(type)
+            })
+            .store(in: &bag)
+
+        infoProvider?
+            .quotePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupPrice(type)
+            })
+            .store(in: &bag)
+
+        infoProvider?.actionsUpdatePublisher
+            .receive(on: DispatchQueue.global())
+            .withWeakCaptureOf(self)
+            .map { $0.0.contextActionsProvider?.buildContextActions(for: $0.0) }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] actions in
+                self?.contextActionSections = actions ?? []
             }
             .store(in: &bag)
 
-        infoProvider.isStakedPublisher
+        infoProvider?.isStakedPublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] isStaked in
-                guard let self else { return }
-                self.isStaked = isStaked
-                // balances may be updated on changing staking state
-                setupState(infoProvider.tokenItemState)
-            })
+            .assign(to: \.isStaked, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        infoProvider?.hasPendingTransactions
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
-    private func setupState(_ state: TokenItemViewState) {
-        switch state {
-        case .noDerivation:
+    private func setupView(_ type: TokenBalanceType) {
+        switch type {
+        case .empty(.noDerivation):
             missingDerivation = true
-            networkUnreachable = false
-            updateBalances()
-            updatePriceChange()
-        case .networkError:
+        default:
             missingDerivation = false
-            networkUnreachable = true
-        case .notLoaded:
-            missingDerivation = false
-            networkUnreachable = false
-        case .loaded, .noAccount:
-            missingDerivation = false
-            networkUnreachable = false
-            updateBalances()
-            updatePriceChange()
-        case .loading:
-            break
         }
-
-        updatePendingTransactionsStateIfNeeded()
-        buildContextActions()
     }
 
-    private func updatePendingTransactionsStateIfNeeded() {
-        hasPendingTransactions = infoProvider.hasPendingTransactions
+    private func setupBalance(_ type: FormattedTokenBalanceType) {
+        balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: type)
     }
 
-    private func updateBalances() {
-        balanceCrypto = .loaded(text: infoProvider.balance)
-        balanceFiat = .loaded(text: infoProvider.fiatBalance)
+    private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
+        balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: type, icon: .leading)
     }
 
-    private func updatePriceChange() {
-        guard let quote = infoProvider.quote else {
+    private func setupPrice(_ rate: WalletModelRate) {
+        switch rate {
+        case .loading(.none):
+            tokenPrice = .loading
+            priceChangeState = .loading
+        // If we have a cached rate we just show it
+        // Exactly the loading animation will show on fiat balance
+        case .loading(.some(let quote)), .failure(.some(let quote)), .loaded(let quote):
+            tokenPrice = .loaded(text: priceFormatter.formatPrice(quote.price))
+            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
+        case .custom, .failure(.none):
             tokenPrice = .noData
             priceChangeState = .empty
-            return
         }
-
-        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
-
-        let priceText = priceFormatter.formatPrice(quote.price)
-        tokenPrice = .loaded(text: priceText)
     }
 
     private func buildContextActions() {
         contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension TokenItemViewModel: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self, userInfo: ["id": id])
     }
 }

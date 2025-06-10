@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CardInfoPagePreviewView: View {
     @ObservedObject var viewModel: CardInfoPagePreviewViewModel

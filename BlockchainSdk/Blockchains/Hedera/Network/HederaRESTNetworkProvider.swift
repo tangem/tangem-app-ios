@@ -8,18 +8,19 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 /// Provider for Hedera Mirror Nodes (REST) https://docs.hedera.com/hedera/sdks-and-apis/rest-api
 struct HederaRESTNetworkProvider {
     private let targetConfiguration: NodeInfo
-    private let provider: NetworkProvider<HederaTarget>
+    private let provider: TangemProvider<HederaTarget>
 
     init(
         targetConfiguration: NodeInfo,
-        providerConfiguration: NetworkProviderConfiguration
+        providerConfiguration: TangemProviderConfiguration
     ) {
         self.targetConfiguration = targetConfiguration
-        provider = NetworkProvider<HederaTarget>(configuration: providerConfiguration)
+        provider = TangemProvider<HederaTarget>(configuration: providerConfiguration)
     }
 
     func getAccounts(publicKey: String) -> some Publisher<HederaNetworkResult.AccountsInfo, Error> {
@@ -40,6 +41,10 @@ struct HederaRESTNetworkProvider {
 
     func getTransactionInfo(transactionHash: String) -> some Publisher<HederaNetworkResult.TransactionsInfo, Error> {
         return requestPublisher(for: .getTransactionInfo(transactionHash: transactionHash))
+    }
+
+    func getTokensDetails(tokenAddress: String) -> some Publisher<HederaNetworkResult.TokenDetails, Error> {
+        return requestPublisher(for: .getTokenDetails(tokenAddress: tokenAddress))
     }
 
     private func requestPublisher<T: Decodable>(

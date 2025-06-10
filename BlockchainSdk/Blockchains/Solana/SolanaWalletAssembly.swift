@@ -9,19 +9,20 @@
 import Foundation
 import TangemSdk
 import SolanaSwift
+import TangemNetworkUtils
 
 struct SolanaWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         return SolanaWalletManager(wallet: input.wallet).then {
             let endpoints: [RPCEndpoint]
-            if input.blockchain.isTestnet {
+            if input.wallet.blockchain.isTestnet {
                 endpoints = [
                     .devnetSolana,
                     .devnetGenesysGo,
                 ]
             } else {
-                let nodeInfoResolver = APINodeInfoResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-                endpoints = input.apiInfo.compactMap {
+                let nodeInfoResolver = APINodeInfoResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+                endpoints = input.networkInput.apiInfo.compactMap {
                     if case .solana = $0 {
                         return RPCEndpoint.mainnetBetaSolana
                     }
@@ -66,11 +67,12 @@ struct SolanaWalletAssembly: WalletManagerAssembly {
             }
 
             let apiLogger = SolanaApiLoggerUtil()
-            let networkRouter = NetworkingRouter(endpoints: endpoints, apiLogger: apiLogger)
+            let session = TangemURLSessionBuilder.makeSession(configuration: .ephemeralConfiguration)
+            let networkRouter = NetworkingRouter(endpoints: endpoints, session: session, apiLogger: apiLogger)
             let accountStorage = SolanaDummyAccountStorage()
 
             $0.solanaSdk = Solana(router: networkRouter, accountStorage: accountStorage)
-            $0.networkService = SolanaNetworkService(solanaSdk: $0.solanaSdk, blockchain: input.blockchain, hostProvider: networkRouter)
+            $0.networkService = SolanaNetworkService(solanaSdk: $0.solanaSdk, blockchain: input.wallet.blockchain, hostProvider: networkRouter)
         }
     }
 }

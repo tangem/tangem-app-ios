@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUI
 
 struct TokenItemView: View {
     @ObservedObject private var viewModel: TokenItemViewModel
@@ -22,14 +24,7 @@ struct TokenItemView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: Constants.spacerLength) {
-            TokenItemViewLeadingComponent(
-                name: viewModel.name,
-                imageURL: viewModel.imageURL,
-                customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: viewModel.blockchainIconName,
-                hasMonochromeIcon: viewModel.hasMonochromeIcon,
-                isCustom: viewModel.isCustom
-            )
+            TokenItemViewLeadingComponent(from: viewModel)
 
             VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -42,7 +37,7 @@ struct TokenItemView: View {
                             .lineLimit(1)
 
                         if viewModel.hasPendingTransactions {
-                            Assets.pendingTxIndicator.image
+                            ProgressDots(style: .small)
                         }
                     }
                     .frame(minWidth: 0.3 * textBlockSize.width, alignment: .leading)
@@ -62,12 +57,10 @@ struct TokenItemView: View {
                                     .frame(width: 12, height: 12)
                             }
 
-                            LoadableTextView(
+                            LoadableTokenBalanceView(
                                 state: viewModel.balanceFiat,
-                                font: Fonts.Regular.subheadline,
-                                textColor: Colors.Text.primary1,
-                                loaderSize: .init(width: 40, height: 12),
-                                isSensitiveText: true
+                                style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                                loader: .init(size: .init(width: 40, height: 12))
                             )
                             .layoutPriority(3)
                         }
@@ -95,12 +88,10 @@ struct TokenItemView: View {
 
                         Spacer(minLength: Constants.spacerLength)
 
-                        LoadableTextView(
+                        LoadableTokenBalanceView(
                             state: viewModel.balanceCrypto,
-                            font: Fonts.Regular.caption1,
-                            textColor: Colors.Text.tertiary,
-                            loaderSize: .init(width: 40, height: 12),
-                            isSensitiveText: true
+                            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                            loader: .init(size: .init(width: 40, height: 12))
                         )
                         .layoutPriority(3)
                     }

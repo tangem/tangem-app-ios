@@ -72,6 +72,34 @@ struct NowNodesAPIResolver {
             link = "https://fil.nownodes.io/\(apiKey)/rpc/v1"
         case .casper:
             link = "https://casper.nownodes.io/\(apiKey)/rpc"
+        case .aurora:
+            link = "https://aurora.nownodes.io/\(apiKey)"
+        case .cardano:
+            link = "https://ada.nownodes.io/\(apiKey)"
+        case .ethereumClassic:
+            link = "https://etc.nownodes.io/\(apiKey)"
+        case .flare:
+            link = "https://flr.nownodes.io/\(apiKey)/ext/bc/C/rpc"
+        case .kaspa:
+            link = "https://kas.nownodes.io/\(apiKey)"
+        case .kava:
+            link = "https://kava-evm.nownodes.io/\(apiKey)"
+        case .kusama:
+            link = "https://ksm.nownodes.io/\(apiKey)"
+        case .pulsechain:
+            link = "https://pulse.nownodes.io/\(apiKey)"
+        case .ravencoin:
+            link = "https://rvn.nownodes.io/\(apiKey)"
+        case .sui:
+            link = "https://sui.nownodes.io/\(apiKey)"
+        case .tezos:
+            link = "https://xtz.nownodes.io/\(apiKey)"
+        case .odysseyChain:
+            link = "https://odyssey.nownodes.io/ext/bc/D/rpc"
+        case .sonic:
+            link = "https://ftm-sonic.nownodes.io"
+        case .alephium:
+            link = "https://alephium.nownodes.io/\(apiKey)"
         default:
             return nil
         }
