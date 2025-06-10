@@ -8,6 +8,7 @@
 
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 enum ActionButtonModel: Hashable {
     case buy
@@ -33,6 +34,17 @@ enum ActionButtonModel: Hashable {
             Assets.exchangeMini
         case .sell:
             Assets.dollarMini
+        }
+    }
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .buy:
+            AccessibilityIdentifiers.Main.buyTitle
+        case .swap:
+            AccessibilityIdentifiers.Main.exchangeTitle
+        case .sell:
+            AccessibilityIdentifiers.Main.sellTitle
         }
     }
 }
