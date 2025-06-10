@@ -8,24 +8,25 @@
 
 import Foundation
 import TangemSdk
-import stellarsdk
-import BitcoinCore
-import SolanaSwift
+import TangemNetworkUtils
 
 @available(iOS 13.0, *)
 public class WalletManagerFactory {
-    private let config: BlockchainSdkConfig
+    private let blockchainSdkKeysConfig: BlockchainSdkKeysConfig
     private let dependencies: BlockchainSdkDependencies
+    private let tangemProviderConfiguration: TangemProviderConfiguration
     private let apiList: APIList
 
     // MARK: - Init
 
     public init(
-        config: BlockchainSdkConfig,
+        blockchainSdkKeysConfig: BlockchainSdkKeysConfig,
+        tangemProviderConfiguration: TangemProviderConfiguration = TangemProviderConfiguration.ephemeralConfiguration,
         dependencies: BlockchainSdkDependencies,
         apiList: APIList
     ) {
-        self.config = config
+        self.blockchainSdkKeysConfig = blockchainSdkKeysConfig
+        self.tangemProviderConfiguration = tangemProviderConfiguration
         self.dependencies = dependencies
         self.apiList = apiList
     }
@@ -57,13 +58,21 @@ private extension WalletManagerFactory {
         pairPublicKey: Data? = nil
     ) throws -> WalletManager {
         let blockchain = wallet.blockchain
+
+        let networkInput = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfiguration
+        )
+
         let input = WalletManagerAssemblyInput(
             wallet: wallet,
             pairPublicKey: pairPublicKey,
-            blockchainSdkConfig: config,
             blockchainSdkDependencies: dependencies,
-            apiInfo: apiList[blockchain.networkId] ?? []
+            networkInput: networkInput
         )
+
         return try blockchain.assembly.make(with: input)
     }
 }
@@ -92,13 +101,21 @@ public extension WalletManagerFactory {
         }
 
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
+
+        let networkInput = NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfiguration
+        )
+
         let input = WalletManagerAssemblyInput(
             wallet: wallet,
             pairPublicKey: nil,
-            blockchainSdkConfig: config,
             blockchainSdkDependencies: dependencies,
-            apiInfo: apiList[blockchain.networkId] ?? []
+            networkInput: networkInput
         )
+
         return try blockchain.assembly.make(with: input)
     }
 }

@@ -40,6 +40,10 @@ class FakeUserTokensManager: UserTokensManager {
         userTokenListManager.userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        userTokenListManager.userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
         userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
     }
@@ -62,7 +66,7 @@ class FakeUserTokensManager: UserTokensManager {
 // MARK: - UserTokensReordering protocol conformance
 
 extension FakeUserTokensManager: UserTokensReordering {
-    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 
