@@ -281,6 +281,7 @@
 "exсhange_token_description" = "Convertissez une de vos devises en une autre";
 "express_by_provider_placeholder" = "Fourni par %@";
 "express_cex_status_button_title" = "Statut";
+"express_choose_provider" = "Choose provider";
 "express_choose_providers_subtitle" = "Tangem propose des échanges de jetons via des fournisseurs tiers selon les conditions de chaque fournisseur";
 "express_choose_providers_title" = "Fournisseur";
 "express_error_provider_amount_roundup" = "Erreur %1$@. Le fournisseur sélectionné ne peut pas traiter la transaction spécifiée. Veuillez arrondir la valeur à %2$@ ou la modifier";
@@ -1291,6 +1292,7 @@
 "wc_alert_domain_issues_description" = "This domain cannot be verified. Check the request carefully approving.";
 "wc_alert_session_disconnected_description" = "Please return to your browser and reconnect via WalletConnect.";
 "wc_alert_session_disconnected_title" = "WalletConnect session was disconnected";
+"wc_alert_sign_anyway" = "Sign anyway";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";

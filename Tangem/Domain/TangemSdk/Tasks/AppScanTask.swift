@@ -193,7 +193,6 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { result in
             switch result {
             case .success(let response):
-
                 if let walletData = session.environment.walletData {
                     let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
                     self.walletData = .twin(walletData, twinData)
