@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor WebSocketConnection {
     private let url: URL
@@ -29,7 +30,7 @@ actor WebSocketConnection {
 
     func send(_ message: URLSessionWebSocketTask.Message) async throws {
         let webSocketTask = try await setupWebSocketTask()
-        log("Send: \(message)")
+        BSDKLogger.info(self, "Send: \(message)")
 
         // Send a message
         try await webSocketTask.send(message: message)
@@ -46,7 +47,7 @@ actor WebSocketConnection {
 
         // Get a message from the last response
         let response = try await webSocket.receive()
-        log("Receive: \(response)")
+        BSDKLogger.info(self, "Receive: \(response)")
 
         let data = try mapToData(from: response)
         return data
@@ -85,11 +86,11 @@ private extension WebSocketConnection {
 
         switch ping {
         case .message(_, let message):
-            log("Send ping: \(message)")
+            BSDKLogger.info(self, "Send ping: \(message)")
             try await webSocket.send(message: message)
 
         case .plain:
-            log("Send plain ping")
+            BSDKLogger.info(self, "Send plain ping")
             try await webSocket.sendPing()
         }
 
@@ -99,16 +100,16 @@ private extension WebSocketConnection {
     func setupWebSocketTask() async throws -> URLSessionWebSocketTaskWrapper {
         if let _sessionWebSocketTask {
             let socket = try await _sessionWebSocketTask.value
-            log("Return existed \(socket)")
+            BSDKLogger.info(self, "Return existed \(socket)")
             return socket
         }
 
         let connectingTask = Task {
             let socket = URLSessionWebSocketTaskWrapper(url: url)
 
-            log("\(socket) start connect")
+            BSDKLogger.info(self, "\(socket) start connect")
             try await socket.connect()
-            log("\(socket) did open")
+            BSDKLogger.info(self, "\(socket) did open")
 
             return socket
         }
@@ -140,26 +141,22 @@ private extension WebSocketConnection {
         _sessionWebSocketTask?.cancel()
         _sessionWebSocketTask = nil
     }
-
-    nonisolated func log(_ args: Any) {
-        print("\(self) [\(args)]")
-    }
 }
 
 // MARK: - CustomStringConvertible
 
 extension WebSocketConnection: CustomStringConvertible {
     nonisolated var description: String {
-        objectDescription(self)
+        TangemFoundation.objectDescription(self)
     }
 }
 
-// MARK: - Model
+// MARK: - Ping
 
 extension WebSocketConnection {
     enum Ping {
-        case plain(interval: TimeInterval)
-        case message(interval: TimeInterval, message: URLSessionWebSocketTask.Message)
+        case plain(interval: TimeInterval = Constants.interval)
+        case message(interval: TimeInterval = Constants.interval, message: URLSessionWebSocketTask.Message)
 
         var interval: TimeInterval {
             switch self {
@@ -169,6 +166,15 @@ extension WebSocketConnection {
                 return interval
             }
         }
+    }
+}
+
+// MARK: - Ping + Constants
+
+extension WebSocketConnection.Ping {
+    enum Constants {
+        static let id: Int = -1
+        static let interval: TimeInterval = 5
     }
 }
 

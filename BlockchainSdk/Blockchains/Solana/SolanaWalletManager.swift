@@ -20,13 +20,16 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     var usePriorityFees = !NFCUtils.isPoorNfcQualityDevice
 
-    // It is taken into account in the calculation of the account rent commission for the sender
+    /// Dictionary storing token account space requirements for each mint address.
+    /// Used when sending tokens to accounts that don't exist yet to calculate minimum rent.
+    /// Key is mint address, value is required space in bytes.
+    var ownerTokenAccountSpacesByMint: [String: UInt64] = [:]
+
+    /// It is taken into account in the calculation of the account rent commission for the sender
     private var mainAccountRentExemption: Decimal = 0
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let transactionIDs = wallet.pendingTransactions.map { $0.hash }
-
-        cancellable = networkService.getInfo(accountId: wallet.address, tokens: cardTokens, transactionIDs: transactionIDs)
+        cancellable = networkService.getInfo(accountId: wallet.address, tokens: cardTokens)
             .sink { [weak self] in
                 switch $0 {
                 case .failure(let error):
@@ -43,6 +46,9 @@ class SolanaWalletManager: BaseManager, WalletManager {
     private func updateWallet(info: SolanaAccountInfoResponse) {
         mainAccountRentExemption = info.mainAccountRentExemption
 
+        // Store token account sizes for define minimal rent when destination token account is not created
+        ownerTokenAccountSpacesByMint = info.tokensByMint.reduce(into: [:]) { $0[$1.key] = $1.value.space }
+
         wallet.add(coinValue: info.balance)
 
         for cardToken in cardTokens {
@@ -51,9 +57,7 @@ class SolanaWalletManager: BaseManager, WalletManager {
             wallet.add(tokenValue: balance, for: cardToken)
         }
 
-        wallet.removePendingTransaction { hash in
-            info.confirmedTransactionIDs.contains(hash)
-        }
+        wallet.clearPendingTransaction()
     }
 }
 
@@ -80,6 +84,7 @@ extension SolanaWalletManager: TransactionSender {
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                 wallet.addPendingTransaction(record)
+
                 return TransactionSendResult(hash: hash)
             }
             .eraseSendError()
@@ -90,18 +95,11 @@ extension SolanaWalletManager: TransactionSender {
         destinationAccountInfo(destination: destination, amount: amount)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, destinationAccountInfo in
-                let feeParameters = walletManager.feeParameters(destinationAccountInfo: destinationAccountInfo)
-                let decimalValue: Decimal = pow(10, amount.decimals)
-                let intAmount = (amount.value * decimalValue).rounded().uint64Value
-
-                return walletManager.networkService.getFeeForMessage(
-                    amount: intAmount,
-                    computeUnitLimit: feeParameters.computeUnitLimit,
-                    computeUnitPrice: feeParameters.computeUnitPrice,
-                    destinationAddress: destination,
-                    fromPublicKey: PublicKey(data: walletManager.wallet.publicKey.blockchainKey)!
+                walletManager.getNetworkFee(
+                    amount: amount,
+                    destination: destination,
+                    destinationAccountInfo: destinationAccountInfo
                 )
-                .map { (feeForMessage: $0, feeParameters: feeParameters) }
             }
             .withWeakCaptureOf(self)
             .map { walletManager, feeInfo -> [Fee] in
@@ -216,14 +214,20 @@ private extension SolanaWalletManager {
         let tokens: [Token] = amountType.token.map { [$0] } ?? []
 
         return networkService
-            .getInfo(accountId: destination, tokens: tokens, transactionIDs: [])
-            .map { info in
+            .getInfo(accountId: destination, tokens: tokens)
+            .withWeakCaptureOf(self)
+            .map { manager, info in
                 switch amountType {
                 case .coin:
                     return AccountExistsInfo(isExist: info.accountExists, space: nil)
                 case .token(let token):
-                    let existingTokenAccount = info.tokensByMint[token.contractAddress]
-                    return AccountExistsInfo(isExist: existingTokenAccount != nil, space: existingTokenAccount?.space)
+                    if let existingTokenAccount = info.tokensByMint[token.contractAddress] {
+                        return AccountExistsInfo(isExist: true, space: existingTokenAccount.space)
+                    } else {
+                        // The size of every token account for the same token will be the same
+                        // Therefore, we take the sender's token account size
+                        return AccountExistsInfo(isExist: false, space: manager.ownerTokenAccountSpacesByMint[token.contractAddress])
+                    }
                 case .reserve, .feeResource:
                     return AccountExistsInfo(isExist: false, space: nil)
                 }
@@ -251,6 +255,22 @@ private extension SolanaWalletManager {
         }
     }
 
+    private func getNetworkFee(amount: Amount, destination: String, destinationAccountInfo: DestinationAccountInfo) -> AnyPublisher<(feeForMessage: Decimal, feeParameters: SolanaFeeParameters), Error> {
+        let feeParameters = feeParameters(destinationAccountInfo: destinationAccountInfo)
+        let decimalValue: Decimal = pow(10, amount.decimals)
+        let intAmount = (amount.value * decimalValue).rounded().uint64Value
+
+        return networkService.getFeeForMessage(
+            amount: intAmount,
+            computeUnitLimit: feeParameters.computeUnitLimit,
+            computeUnitPrice: feeParameters.computeUnitPrice,
+            destinationAddress: destination,
+            fromPublicKey: PublicKey(data: wallet.publicKey.blockchainKey)!
+        )
+        .map { (feeForMessage: $0, feeParameters: feeParameters) }
+        .eraseToAnyPublisher()
+    }
+
     func feeParameters(destinationAccountInfo: DestinationAccountInfo) -> SolanaFeeParameters {
         let computeUnitLimit: UInt32?
         let computeUnitPrice: UInt64?
@@ -274,16 +294,8 @@ private extension SolanaWalletManager {
 
 extension SolanaWalletManager: RentProvider {
     func minimalBalanceForRentExemption() -> AnyPublisher<Amount, Error> {
-        networkService.minimalBalanceForRentExemption()
-            .tryMap { [weak self] balance in
-                guard let self = self else {
-                    throw WalletError.empty
-                }
-
-                let blockchain = wallet.blockchain
-                return Amount(with: blockchain, type: .coin, value: balance)
-            }
-            .eraseToAnyPublisher()
+        let amountValue = Amount(with: wallet.blockchain, value: mainAccountRentExemption)
+        return .justWithError(output: amountValue).eraseToAnyPublisher()
     }
 
     func rentAmount() -> AnyPublisher<Amount, Error> {
@@ -297,6 +309,12 @@ extension SolanaWalletManager: RentProvider {
                 return Amount(with: blockchain, type: .coin, value: fee)
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension SolanaWalletManager: RentExtemptionRestrictable {
+    var minimalAmountForRentExemption: Amount {
+        Amount(with: wallet.blockchain, value: mainAccountRentExemption)
     }
 }
 
@@ -316,46 +334,39 @@ private extension SolanaWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension SolanaWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
-    typealias RawTransaction = String
+extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+    struct RawTransactionData: CustomStringConvertible {
+        let serializedData: String
+        let blockhashDate: Date
+
+        var description: String {
+            serializedData
+        }
+    }
+
+    typealias RawTransaction = RawTransactionData
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
-        SolanaStakeKitTransactionHelper().prepareForSign(transaction.unsignedData)
+        try SolanaStakeKitTransactionHelper().prepareForSign(transaction.unsignedData)
     }
 
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
-        SolanaStakeKitTransactionHelper().prepareForSend(transaction.unsignedData, signature: signature.signature)
-    }
-
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
-        try await networkService.sendRaw(base64serializedTransaction: rawTransaction).async()
+        let signedTransaction = try SolanaStakeKitTransactionHelper().prepareForSend(
+            transaction.unsignedData,
+            signature: signature.signature
+        )
+        return RawTransactionData(
+            serializedData: signedTransaction,
+            blockhashDate: transaction.params.solanaBlockhashDate
+        )
     }
 }
 
-/*
- // [REDACTED_TODO_COMMENT]
-
- // MARK: - MinimumBalanceRestrictable
-
- extension SolanaWalletManager: MinimumBalanceRestrictable {
-     var minimumBalance: Amount {
-         Amount(with: wallet.blockchain, value: mainAccountRentExemption)
-     }
-
-     // Required to determine the remaining rent when sending the token
-     func validateMinimumBalance(amount: Amount, fee: Amount) throws {
-         guard case .token = amount.type else {
-             return
-         }
-
-         guard let balance = wallet.amounts[.coin] else {
-             throw ValidationError.balanceNotFound
-         }
-
-         let remainderBalance = balance - fee
-         if remainderBalance < minimumBalance {
-             throw ValidationError.amountExceedsBalance
-         }
-     }
- }
- */
+extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+        try await networkService.sendRaw(
+            base64serializedTransaction: rawTransaction.serializedData,
+            startSendingTimestamp: rawTransaction.blockhashDate
+        ).async()
+    }
+}

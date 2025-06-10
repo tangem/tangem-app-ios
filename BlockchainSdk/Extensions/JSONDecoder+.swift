@@ -19,14 +19,6 @@ extension JSONDecoder.DateDecodingStrategy {
     }
 }
 
-extension Encodable {
-    func asDictionary(encoder: JSONEncoder = JSONEncoder()) throws -> [String: Any] {
-        let data = try encoder.encode(self)
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-        return dictionary as? [String: Any] ?? [:]
-    }
-}
-
 extension JSONDecoder {
     static var withSnakeCaseStrategy: JSONDecoder {
         let encoder = JSONDecoder()

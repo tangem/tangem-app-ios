@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 public enum AddressType: String, Equatable {
     case `default`
