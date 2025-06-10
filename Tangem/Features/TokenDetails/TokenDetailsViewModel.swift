@@ -15,7 +15,6 @@ import TangemStaking
 import TangemFoundation
 import TangemLocalization
 import struct TangemUIUtils.ActionSheetBinder
-import struct TangemUIUtils.ActionSheetBinder
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
