@@ -8,23 +8,24 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 struct TONWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let blockchain = input.blockchain
-        let config = input.blockchainSdkConfig
+        let blockchain = input.wallet.blockchain
 
-        let providers: [TONProvider] = APIResolver(blockchain: blockchain, config: config)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                TONProvider(node: nodeInfo, networkConfig: input.networkConfig)
+        let providers: [TONProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                TONProvider(node: nodeInfo, networkConfig: input.networkInput.tangemProviderConfig)
             }
+
+        let transactionBuilder = TONTransactionBuilder(wallet: input.wallet)
 
         return try TONWalletManager(
             wallet: input.wallet,
+            transactionBuilder: transactionBuilder,
             networkService: .init(
                 providers: providers,
-                blockchain: input.blockchain
+                blockchain: blockchain
             )
         )
     }

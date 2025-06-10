@@ -24,7 +24,7 @@
 
 import Foundation
 
-// If the top stack value is not 0, duplicate it.
+/// If the top stack value is not 0, duplicate it.
 struct OpIfDup: OpCodeProtocol {
     var value: UInt8 { return 0x73 }
     var name: String { return "OP_IFDUP" }
