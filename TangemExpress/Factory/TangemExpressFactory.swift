@@ -9,7 +9,7 @@
 import Foundation
 import Moya
 import TangemSdk
-import BlockchainSdk
+import TangemNetworkUtils
 
 public struct TangemExpressFactory {
     public init() {}
@@ -21,17 +21,12 @@ public struct TangemExpressFactory {
         allowanceProvider: ExpressAllowanceProvider,
         feeProvider: FeeProvider,
         expressRepository: ExpressRepository,
-        logger: Logger? = nil,
-        analyticsLogger: ExpressAnalyticsLogger? = nil
+        analyticsLogger: ExpressAnalyticsLogger
     ) -> ExpressManager {
-        let logger: Logger = logger ?? CommonLogger()
-        let analyticsLogger: ExpressAnalyticsLogger = analyticsLogger ?? CommonExpressAnalyticsLogger()
-
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: feeProvider,
-            logger: logger,
             mapper: .init()
         )
 
@@ -39,7 +34,6 @@ public struct TangemExpressFactory {
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
-            logger: logger,
             analyticsLogger: analyticsLogger
         )
     }
@@ -50,13 +44,13 @@ public struct TangemExpressFactory {
         expressAPIProvider: ExpressAPIProvider,
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
-        logger: Logger
+        analyticsLogger: ExpressAnalyticsLogger
     ) -> OnrampManager {
         CommonOnrampManager(
             apiProvider: expressAPIProvider,
             onrampRepository: onrampRepository,
             dataRepository: dataRepository,
-            logger: logger
+            analyticsLogger: analyticsLogger
         )
     }
 
@@ -74,11 +68,9 @@ public struct TangemExpressFactory {
 
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
-        deviceInfo: ExpressDeviceInfo,
         configuration: URLSessionConfiguration,
         expressAPIType: ExpressAPIType,
-        exchangeDataDecoder: ExpressExchangeDataDecoder,
-        logger: Logger? = nil
+        exchangeDataDecoder: ExpressExchangeDataDecoder
     ) -> ExpressAPIProvider {
         let plugins: [PluginType] = [
             ExpressAuthorizationPlugin(
@@ -87,13 +79,10 @@ public struct TangemExpressFactory {
                 sessionId: credential.sessionId,
                 refcode: credential.refcode
             ),
-            ExpressDeviceInfoPlugin(deviceInfo: deviceInfo),
-            TangemNetworkLoggerPlugin(configuration: .init(
-                output: TangemNetworkLoggerPlugin.tangemSdkLoggerOutput,
-                logOptions: .verbose
-            )),
+            DeviceInfoPlugin(),
+            TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
-        let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: plugins)
+        let provider = TangemProvider<ExpressAPITarget>(plugins: plugins, sessionConfiguration: configuration)
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
@@ -113,16 +102,6 @@ public struct ExpressAPICredential {
         self.userId = userId
         self.sessionId = sessionId
         self.refcode = refcode
-    }
-}
-
-public struct ExpressDeviceInfo {
-    let platform: String
-    let version: String
-
-    public init(platform: String, version: String) {
-        self.platform = platform
-        self.version = version
     }
 }
 

@@ -7,12 +7,15 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct EVMSmartContractInteractorFactory {
-    private let config: BlockchainSdkConfig
+    private let blockchainSdkKeysConfig: BlockchainSdkKeysConfig
+    private let tangemProviderConfig: TangemProviderConfiguration
 
-    public init(config: BlockchainSdkConfig) {
-        self.config = config
+    public init(blockchainSdkKeysConfig: BlockchainSdkKeysConfig, tangemProviderConfig: TangemProviderConfiguration) {
+        self.blockchainSdkKeysConfig = blockchainSdkKeysConfig
+        self.tangemProviderConfig = tangemProviderConfig
     }
 
     public func makeInteractor(for blockchain: Blockchain, apiInfo: [NetworkProviderType]) throws -> EVMSmartContractInteractor {
@@ -23,13 +26,12 @@ public struct EVMSmartContractInteractorFactory {
         let networkAssembly = NetworkProviderAssembly()
         let networkService = EthereumNetworkService(
             decimals: blockchain.decimalCount,
-            providers: networkAssembly.makeEthereumJsonRpcProviders(with: EVMNetworkProviderAssemblyInput(
+            providers: networkAssembly.makeEthereumJsonRpcProviders(with: NetworkProviderAssembly.Input(
                 blockchain: blockchain,
-                blockchainSdkConfig: config,
-                networkConfig: config.networkProviderConfiguration(for: blockchain),
-                apiInfo: apiInfo
+                keysConfig: blockchainSdkKeysConfig,
+                apiInfo: apiInfo,
+                tangemProviderConfig: tangemProviderConfig
             )),
-            blockcypherProvider: nil,
             abiEncoder: WalletCoreABIEncoder()
         )
 
@@ -44,14 +46,5 @@ extension EVMSmartContractInteractorFactory {
         var errorDescription: String? {
             rawValue
         }
-    }
-}
-
-private extension EVMSmartContractInteractorFactory {
-    struct EVMNetworkProviderAssemblyInput: NetworkProviderAssemblyInput {
-        var blockchain: Blockchain
-        var blockchainSdkConfig: BlockchainSdkConfig
-        var networkConfig: NetworkProviderConfiguration
-        var apiInfo: [NetworkProviderType]
     }
 }

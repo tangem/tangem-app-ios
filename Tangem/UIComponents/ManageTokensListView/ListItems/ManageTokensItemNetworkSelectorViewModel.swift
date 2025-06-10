@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     @Published var isSelected: Bool
@@ -19,8 +19,8 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     let position: ItemPosition
     let isCopied: Binding<Bool>
     let isMain: Bool
-    let imageName: String
-    let imageNameSelected: String
+    let imageAsset: ImageType
+    let imageAssetSelected: ImageType
     let networkName: String
     let contractName: String?
     let hasContextMenu: Bool
@@ -31,15 +31,22 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     private var isSelectedBinding: Binding<Bool>
     private var bag = Set<AnyCancellable>()
 
-    init(tokenItem: TokenItem, isReadonly: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
+    init(
+        tokenItem: TokenItem,
+        isReadonly: Bool,
+        isSelected: Binding<Bool>,
+        isCopied: Binding<Bool> = .constant(false),
+        position: ItemPosition = .middle,
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
         isSelectedBinding = isSelected
         self.isCopied = isCopied
         self.position = position
         isMain = tokenItem.isBlockchain
-        imageName = tokenItem.blockchain.iconName
-        imageNameSelected = tokenItem.blockchain.iconNameFilled
+        imageAsset = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: false)
+        imageAssetSelected = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: true)
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
         hasContextMenu = tokenItem.isToken

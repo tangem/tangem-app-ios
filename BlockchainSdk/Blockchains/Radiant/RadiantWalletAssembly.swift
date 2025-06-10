@@ -11,24 +11,52 @@ import TangemSdk
 
 struct RadiantWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
+        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, _ in
                 ElectrumWebSocketProvider(url: nodeInfo.url)
             })
 
+        let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
+            ElectrumUTXONetworkProvider(
+                blockchain: input.wallet.blockchain,
+                provider: $0,
+                converter: .init(lockingScriptBuilder: .radiant()),
+                settings: Constants.electrumSettings
+            )
+        }
+
         let publicKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
+        let unspentOutputManager: UnspentOutputManager = .radiant(address: input.wallet.defaultAddress)
         let transactionBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey,
-            decimalValue: input.blockchain.decimalValue
+            unspentOutputManager: unspentOutputManager,
+            decimalValue: input.wallet.blockchain.decimalValue
         )
 
-        return try RadiantWalletManager(
+        return RadiantWalletManager(
             wallet: input.wallet,
             transactionBuilder: transactionBuilder,
-            networkService: RadiantNetworkService(
-                electrumProvider: .init(providers: socketManagers)
-            )
+            unspentOutputManager: unspentOutputManager,
+            networkService: MultiUTXONetworkProvider(providers: providers)
+        )
+    }
+}
+
+// MARK: - Constants
+
+extension RadiantWalletAssembly {
+    enum Constants {
+        /*
+         This minimal rate fee for successful transaction from constant
+         -  Relying on answers from blockchain developers and costs from the official application (Electron-Radiant).
+         - 10000 satoshi per byte or 0.1 RXD per KB.
+         */
+
+        static let electrumSettings: ElectrumUTXONetworkProvider.Settings = .init(
+            recommendedFeePer1000Bytes: .init(stringValue: "0.1")!,
+            normalFeeMultiplier: .init(stringValue: "1.5")!,
+            priorityFeeMultiplier: .init(stringValue: "2")!
         )
     }
 }
