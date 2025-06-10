@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct PushNotificationsPermissionRequestView: View {
     @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
@@ -94,12 +95,14 @@ struct PushNotificationsPermissionRequestView: View {
             title: viewModel.allowButtonTitle,
             action: viewModel.didTapAllow
         )
+        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.allowButton)
 
         MainButton(
             title: viewModel.laterButtonTitle,
             style: .secondary,
             action: viewModel.didTapLater
         )
+        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.laterButton)
     }
 
     private var iconColor: Color {
