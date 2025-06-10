@@ -81,7 +81,6 @@ private extension CommonExpressAvailabilityProvider {
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .sink(receiveValue: { provider, queueItems in
-
                 let allCurrencies: CurrenciesSet = queueItems.reduce(into: []) { result, queueItem in
                     let joined = result.union(queueItem.currencies)
                     result = joined

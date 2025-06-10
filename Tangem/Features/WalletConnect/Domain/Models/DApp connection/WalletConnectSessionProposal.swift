@@ -9,11 +9,12 @@
 import enum BlockchainSdk.Blockchain
 
 struct WalletConnectSessionProposal {
+    let id: String
     let requiredBlockchains: Set<Blockchain>
     let optionalBlockchains: Set<Blockchain>
 
     let dAppConnectionRequestFactory: (
         _ selectedBlockchains: any Sequence<Blockchain>,
         _ selectedUserWallet: any UserWalletModel
-    ) throws -> WalletConnectDAppConnectionRequest
+    ) throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppConnectionRequest
 }
