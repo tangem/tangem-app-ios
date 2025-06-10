@@ -50,12 +50,12 @@ extension CommonWCService: WCService {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
-        try await v2Service.acceptSessionProposal(with: proposalId, namespaces: namespaces, userWalletID)
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
+        try await v2Service.approveSessionProposal(with: proposalID, namespaces: namespaces, userWalletID)
     }
 
-    func rejectSessionProposal(with proposalId: String) async throws {
-        try await v2Service.rejectSessionProposal(with: proposalId)
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
+        try await v2Service.rejectSessionProposal(with: proposalID, reason: reason)
     }
 
     func disconnectSession(with id: Int) async {
@@ -78,8 +78,8 @@ extension CommonWCService: IncomingActionResponder {
         UIApplication.mainWindow?.endEditing(true)
 
         Task { @MainActor in
-            guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionProposalViewModel(forURI: uri, source: .deeplink) else { return }
-            viewModel.beginDAppProposalLoading()
+            guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: .deeplink) else { return }
+            viewModel.loadDAppProposal()
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
 
