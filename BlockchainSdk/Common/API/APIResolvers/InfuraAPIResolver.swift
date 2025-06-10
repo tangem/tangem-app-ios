@@ -9,14 +9,14 @@
 import Foundation
 
 struct InfuraAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(for blockchain: Blockchain) -> NodeInfo? {
         switch blockchain {
         case .ethereum:
-            return .init(url: URL(string: "https://mainnet.infura.io/v3/\(config.infuraProjectId)")!)
+            return .init(url: URL(string: "https://mainnet.infura.io/v3/\(keysConfig.infuraProjectId)")!)
         case .arbitrum:
-            return .init(url: URL(string: "https://arbitrum-mainnet.infura.io/v3/\(config.infuraProjectId)")!)
+            return .init(url: URL(string: "https://arbitrum-mainnet.infura.io/v3/\(keysConfig.infuraProjectId)")!)
         default:
             return nil
         }
