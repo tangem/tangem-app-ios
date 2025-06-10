@@ -10,17 +10,15 @@ import Combine
 import struct Foundation.URL
 
 @MainActor
-final class WalletConnectErrorViewModel: ObservableObject {
-    private let supportURL: URL
-    private let openURLAction: (URL) -> Void
+final class WalletConnectErrorViewModel {
+    private let contactSupportAction: () -> Void
     private let closeAction: () -> Void
 
-    @Published private(set) var state: WalletConnectErrorViewState
+    let state: WalletConnectErrorViewState
 
-    init(state: WalletConnectErrorViewState, supportURL: URL, openURLAction: @escaping (URL) -> Void, closeAction: @escaping () -> Void) {
+    init(state: WalletConnectErrorViewState, contactSupportAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
         self.state = state
-        self.supportURL = supportURL
-        self.openURLAction = openURLAction
+        self.contactSupportAction = contactSupportAction
         self.closeAction = closeAction
     }
 }
@@ -33,16 +31,11 @@ extension WalletConnectErrorViewModel {
         case .closeButtonTapped:
             closeAction()
 
-        case .linkTapped(let url):
-            handleLinkTapped(url)
+        case .contactSupportLinkTapped:
+            contactSupportAction()
 
         case .buttonTapped:
             closeAction()
         }
-    }
-
-    private func handleLinkTapped(_ url: URL) {
-        guard url == supportURL else { return }
-        openURLAction(url)
     }
 }
