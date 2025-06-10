@@ -96,6 +96,7 @@ extension WalletConnectDAppDomainVerificationViewModel {
 
         state.buttons[connectAnywayButtonIndex].isLoading = true
 
+        connectAnywayTask?.cancel()
         connectAnywayTask = Task { [weak self] in
             await connectAnywayAction()
             self?.state.buttons[connectAnywayButtonIndex].isLoading = false
