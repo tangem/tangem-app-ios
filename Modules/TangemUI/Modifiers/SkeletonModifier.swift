@@ -1,0 +1,88 @@
+//
+//  TangemSkeletonModifier.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2022 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import SwiftUI
+
+public extension View {
+    @ViewBuilder
+    func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3, paddings: EdgeInsets = EdgeInsets()) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .size(size: size, paddings: paddings), radius: radius)
+        )
+    }
+
+    @ViewBuilder
+    func skeletonable(isShown: Bool, width: CGFloat? = nil, height: CGFloat? = nil, radius: CGFloat = 3) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .overlay(width: width, height: height), radius: radius)
+        )
+    }
+}
+
+// MARK: Modifier for View
+
+struct SkeletonModifier: ViewModifier {
+    private let isShown: Bool
+    private let modificationType: ModificationType
+    private let radius: CGFloat
+
+    init(isShown: Bool, modificationType: ModificationType, radius: CGFloat) {
+        self.isShown = isShown
+        self.modificationType = modificationType
+        self.radius = radius
+    }
+
+    func body(content: Content) -> some View {
+        // We have to maintain the structural identity of the modified `content` view to avoid glitches
+        // when 'skeleton view' is being hidden/shown during ongoing animation.
+        //
+        // DO NOT use any conditional statements (`if`, `switch`, etc) to show/hide 'skeleton view' here;
+        // this will result in `_ConditionalContent` being used as an underlying view type,
+        // effectively changing the structural identity of the modified `content` view.
+        //
+        // See https://www.objc.io/blog/2021/08/24/conditional-view-modifiers/ for details
+        switch modificationType {
+        case .overlay(let width, let height):
+            content
+                .overlay(
+                    SkeletonView()
+                        .cornerRadius(radius)
+                        .frame(width: width, height: height)
+                        .hidden(!isShown)
+                )
+        case .size(let size, let paddings):
+            // 'skeleton view' should control the layout of `ZStack` only if it's being shown;
+            // otherwise, the layout should be controlled by the `content` view.
+            //
+            // We use different layout priorities here to achieve this behavior.
+            let contentLayoutPriority = isShown ? 0.0 : 1.0
+            let skeletonViewLayoutPriority = isShown ? 1.0 : 0.0
+
+            ZStack {
+                content
+                    .hidden(isShown)
+                    .layoutPriority(contentLayoutPriority)
+
+                SkeletonView()
+                    .frame(size: size)
+                    .cornerRadius(radius)
+                    .padding(paddings)
+                    .hidden(!isShown)
+                    .layoutPriority(skeletonViewLayoutPriority)
+            }
+        }
+    }
+}
+
+extension SkeletonModifier {
+    enum ModificationType {
+        case size(size: CGSize, paddings: EdgeInsets)
+        case overlay(width: CGFloat? = nil, height: CGFloat? = nil)
+    }
+}
