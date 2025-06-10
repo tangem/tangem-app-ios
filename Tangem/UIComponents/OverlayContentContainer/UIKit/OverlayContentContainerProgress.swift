@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-// Internal state used only by `OverlayContentContainerViewController`, do not use.
+/// Internal state used only by `OverlayContentContainerViewController`, do not use.
 struct OverlayContentContainerProgress {
     struct AnimationContext {
         var duration: TimeInterval
