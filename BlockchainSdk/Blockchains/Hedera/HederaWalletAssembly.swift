@@ -11,17 +11,20 @@ import Foundation
 struct HederaWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let wallet = input.wallet
-        let blockchain = input.blockchain
+        let blockchain = input.wallet.blockchain
         let isTestnet = blockchain.isTestnet
-        let networkConfig = input.networkConfig
+        let networkConfig = input.networkInput.tangemProviderConfig
         let dependencies = input.blockchainSdkDependencies
 
-        let restProviders = APIResolver(blockchain: blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+        let restProviders = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                 HederaRESTNetworkProvider(targetConfiguration: nodeInfo, providerConfiguration: networkConfig)
             }
 
-        let consensusProvider = HederaConsensusNetworkProvider(isTestnet: isTestnet)
+        let consensusProvider = HederaConsensusNetworkProvider(
+            isTestnet: isTestnet,
+            timeout: networkConfig.urlSessionConfiguration.timeoutIntervalForRequest
+        )
 
         let networkService = HederaNetworkService(
             consensusProvider: consensusProvider,
@@ -31,7 +34,8 @@ struct HederaWalletAssembly: WalletManagerAssembly {
         let transactionBuilder = HederaTransactionBuilder(
             publicKey: wallet.publicKey.blockchainKey,
             curve: blockchain.curve,
-            isTestnet: isTestnet
+            isTestnet: isTestnet,
+            timeout: networkConfig.urlSessionConfiguration.timeoutIntervalForRequest
         )
 
         return HederaWalletManager(

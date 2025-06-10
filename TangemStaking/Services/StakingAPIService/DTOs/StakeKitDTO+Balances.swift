@@ -20,12 +20,14 @@ extension StakeKitDTO {
             let integrationId: String?
 
             struct Balance: Decodable {
+                let accountAddress: String?
                 let groupId: String
                 let type: BalanceType
                 let amount: String
                 let date: Date?
                 let pricePerShare: String
                 let pendingActions: [PendingAction]
+                let pendingActionConstraints: [PendingActionConstant]?
                 let token: Token
                 let validatorAddress: String?
                 let validatorAddresses: [String]?
@@ -46,6 +48,11 @@ extension StakeKitDTO {
                     let type: Actions.ActionType
                     let passthrough: String
                     let args: Actions.ActionArgs?
+                }
+
+                struct PendingActionConstant: Decodable {
+                    let type: Actions.ActionType
+                    let amount: Actions.ActionArgs.Amount
                 }
             }
         }

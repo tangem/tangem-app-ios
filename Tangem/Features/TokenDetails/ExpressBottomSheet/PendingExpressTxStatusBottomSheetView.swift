@@ -1,0 +1,211 @@
+//
+//  PendingExpressTxStatusBottomSheetView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemLocalization
+import TangemAssets
+import TangemUIUtils
+
+struct PendingExpressTxStatusBottomSheetView: View {
+    @ObservedObject var viewModel: PendingExpressTxStatusBottomSheetViewModel
+
+    /// This animation is created explicitly to synchronise them with the delayed appearance of the notification
+    private var animation: Animation {
+        .easeInOut(duration: viewModel.animationDuration)
+    }
+
+    var body: some View {
+        content
+            .onAppear(perform: viewModel.onAppear)
+            // This animations are set explicitly to synchronise them with the delayed appearance of the notification
+            .animation(animation, value: viewModel.statusesList)
+            .animation(animation, value: viewModel.currentStatusIndex)
+            .animation(animation, value: viewModel.notificationViewInputs)
+            .animation(animation, value: viewModel.showGoToProviderHeaderButton)
+            .bindAlert($viewModel.hideTransactionAlert)
+    }
+
+    private var content: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 12) {
+                Text(viewModel.sheetTitle)
+                    .style(Fonts.Regular.headline, color: Colors.Text.primary1)
+
+                Text(Localization.expressExchangeStatusSubtitle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 50)
+            .padding(.vertical, 10)
+
+            VStack(spacing: 14) {
+                amountsView
+
+                providerView
+
+                statusesView
+
+                ForEach(viewModel.notificationViewInputs) {
+                    NotificationView(input: $0)
+                        .transition(.bottomNotificationTransition)
+                }
+
+                hideTransaction
+                    .padding(.top, 10)
+            }
+            .padding(.vertical, 22)
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var amountsView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 0) {
+                Text(Localization.expressEstimatedAmount)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                Spacer(minLength: 8)
+
+                Text(viewModel.timeString)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            }
+
+            HStack(spacing: 12) {
+                PendingExpressTxTokenInfoView(
+                    tokenIconInfo: viewModel.sourceTokenIconInfo,
+                    amountText: viewModel.sourceAmountText,
+                    fiatAmountTextState: viewModel.sourceFiatAmountTextState
+                )
+
+                Assets.arrowRightMini.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 12))
+                    .foregroundColor(Colors.Icon.informative)
+
+                PendingExpressTxTokenInfoView(
+                    tokenIconInfo: viewModel.destinationTokenIconInfo,
+                    amountText: viewModel.destinationAmountText,
+                    fiatAmountTextState: viewModel.destinationFiatAmountTextState
+                )
+            }
+        }
+        .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    private var providerView: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text(Localization.expressProvider)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                Spacer()
+
+                if let transactionID = viewModel.transactionID {
+                    PendingExpressTxIdCopyButtonView(viewModel: .init(transactionID: transactionID))
+                }
+            }
+
+            ProviderRowView(viewModel: viewModel.providerRowViewModel)
+        }
+        .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    private var statusesView: some View {
+        PendingExpressTxStatusView(
+            title: viewModel.statusViewTitle,
+            statusesList: viewModel.statusesList,
+            topTrailingAction: .goToProvider(action: viewModel.openProviderFromStatusHeader)
+        )
+        // This prevents notification to appear and disappear on top of the statuses list
+        .zIndex(5)
+    }
+}
+
+// Hide transaction manually
+
+private extension PendingExpressTxStatusBottomSheetView {
+    @ViewBuilder
+    var hideTransaction: some View {
+        if viewModel.isHideButtonShowed {
+            Button(
+                action: viewModel.showHideTransactionAlert,
+                label: {
+                    Text(Localization.expressStatusHideButtonText)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                }
+            )
+        }
+    }
+}
+
+struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
+    static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = {
+        let factory = PendingExpressTransactionFactory()
+        let userWalletId = "21321"
+        let tokenItem = TokenItem.blockchain(.init(.polygon(testnet: false), derivationPath: nil))
+        let record = ExpressPendingTransactionRecord(
+            userWalletId: userWalletId,
+            expressTransactionId: "1bd298ee-2e99-406e-a25f-a715bb87e806",
+            transactionType: .send,
+            transactionHash: "13213124321",
+            sourceTokenTxInfo: .init(
+                tokenItem: tokenItem,
+                amountString: "10",
+                isCustom: true
+            ),
+            destinationTokenTxInfo: .init(
+                tokenItem: .token(.shibaInuMock, .init(.ethereum(testnet: false), derivationPath: nil)),
+                amountString: "1",
+                isCustom: false
+            ),
+            feeString: "0.021351",
+            provider: ExpressPendingTransactionRecord.Provider(
+                id: "changenow",
+                name: "ChangeNow",
+                iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/changenow_512.png"),
+                type: .cex
+            ),
+            date: Date(),
+            externalTxId: "a34883e049a416",
+            externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416",
+            averageDuration: nil,
+            isHidden: false,
+            transactionStatus: .awaitingDeposit
+        )
+        let transactionParams = PendingExpressTransactionParams(
+            externalStatus: .sending,
+            averageDuration: nil,
+            createdAt: nil
+        )
+        let pendingTransaction = factory.buildPendingExpressTransaction(with: transactionParams, refundedTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), for: record)
+        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: nil)
+        return .init(
+            pendingTransaction: pendingTransaction.pendingTransaction,
+            currentTokenItem: tokenItem,
+            userWalletModel: CommonUserWalletModel.mock!,
+            pendingTransactionsManager: CommonPendingExpressTransactionsManager(
+                userWalletId: userWalletId,
+                walletModel: CommonWalletModel.mockETH,
+                expressAPIProvider: expressAPIProvider,
+                expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
+            ),
+            router: TokenDetailsCoordinator()
+        )
+    }()
+
+    static var previews: some View {
+        Group {
+            ZStack {
+                Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+
+                PendingExpressTxStatusBottomSheetView(viewModel: defaultViewModel)
+            }
+        }
+    }
+}
