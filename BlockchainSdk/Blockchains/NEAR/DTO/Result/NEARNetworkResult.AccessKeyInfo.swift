@@ -10,8 +10,8 @@ import Foundation
 
 extension NEARNetworkResult {
     struct AccessKeyInfo: Decodable {
-        // There are 2 types of `AccessKeyPermission` in NEAR currently: `FullAccess` and `FunctionCall`.
-        // We only care about `FullAccess` because `Function call` access keys cannot be used to transfer $NEAR.
+        /// There are 2 types of `AccessKeyPermission` in NEAR currently: `FullAccess` and `FunctionCall`.
+        /// We only care about `FullAccess` because `Function call` access keys cannot be used to transfer $NEAR.
         enum Permission: Decodable {
             case fullAccess
             case other

@@ -13,14 +13,14 @@ final class TronTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
     Mapper: BlockBookTransactionHistoryTotalPageCountExtractor,
     Mapper.Response == BlockBookAddressResponse {
-    private let blockBookProvider: BlockBookUtxoProvider
+    private let blockBookProvider: BlockBookUTXOProvider
     private let mapper: Mapper
 
     private var page: TransactionHistoryIndexPage?
     private var totalPageCount: Int = 0
 
     init(
-        blockBookProvider: BlockBookUtxoProvider,
+        blockBookProvider: BlockBookUTXOProvider,
         mapper: Mapper
     ) {
         self.blockBookProvider = blockBookProvider
@@ -131,7 +131,7 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
 
 private extension TronTransactionHistoryProvider {
     enum Constants {
-        // - Note: Tx history API has 1-based indexing (not 0-based indexing)
+        /// - Note: Tx history API has 1-based indexing (not 0-based indexing)
         static var initialPageNumber: Int { 1 }
     }
 }

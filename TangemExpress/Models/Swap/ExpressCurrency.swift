@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExpressCurrency: Hashable {
+public struct ExpressCurrency: Hashable, Codable {
     public let contractAddress: String
     public let network: String
 

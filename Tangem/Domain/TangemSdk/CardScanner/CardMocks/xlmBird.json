@@ -1,0 +1,75 @@
+{
+    "isAccessCodeSet" : false,
+    "linkedTerminalStatus" : "none",
+    "cardPublicKey" : "0000",
+    "settings" : {
+        "maxWalletsCount" : 1,
+        "isRemovingUserCodesAllowed" : true,
+        "isLinkedTerminalEnabled" : true,
+        "isFilesAllowed" : true,
+        "supportedEncryptionModes" : [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "securityDelay" : 15000,
+        "isBackupAllowed" : false,
+        "isSettingAccessCodeAllowed" : false,
+        "isHDWalletAllowed" : false,
+        "isKeysImportAllowed" : false,
+        "isSettingPasscodeAllowed" : true,
+        "isOverwritingIssuerExtraDataRestricted": true,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": false,
+        "isPermanentWallet": false,
+        "isKeysImportAllowed" : false
+    },
+    "supportedCurves" : [
+        "ed25519"
+    ],
+    "issuer" : {
+        "name" : "TANGEM",
+        "publicKey" : "0000"
+    },
+    "firmwareVersion" : {
+        "minor" : 5,
+        "patch" : 0,
+        "major" : 3,
+        "stringValue" : "3.05r",
+        "type" : "r"
+    },
+    "batchId" : "0052",
+    "isPasscodeSet" : false,
+    "manufacturer" : {
+        "name" : "TANGEM",
+        "manufactureDate" : "2020-03-12",
+        "signature" : "0000"
+    },
+    "attestation" : {
+        "cardKeyAttestation" : "verified",
+        "walletKeysAttestation" : "skipped",
+        "firmwareAttestation" : "skipped",
+        "cardUniquenessAttestation" : "skipped"
+    },
+    "cardId" : "CB00000000000000",
+    "wallets" : [
+        {
+            "totalSignedHashes" : 19,
+            "isImported" : false,
+            "hasBackup" : false,
+            "remainingSignatures" : 999981,
+            "derivedKeys" : {
+
+            },
+            "curve" : "ed25519",
+            "publicKey" : "9FE5BB2CC7D83C1DA10845AFD8A34B141FD8FD72500B95B1547E12B9BB8AAC3D",
+            "settings" : {
+                "isPermanent" : false
+            },
+            "index" : 0
+        }
+    ],
+    "userSettings" : {
+        "isUserCodeRecoveryAllowed" : false
+    }
+}

@@ -18,18 +18,12 @@ class ElectrumWebSocketProvider: HostProvider {
         return decoder
     }()
 
-    init(url: URL) {
-        let ping: WebSocketConnection.Ping = {
-            do {
-                let request = JSONRPC.Request(jsonrpc: .none, id: -1, method: Method.Server.ping.rawValue, params: [String]()) // Empty params
-                let message = try request.string(encoder: .init())
-                return .message(interval: Constants.pingInterval, message: .string(message))
-            } catch {
-                return .plain(interval: Constants.pingInterval)
-            }
-        }()
-
-        webSocketProvider = JSONRPCWebSocketProvider(url: url, ping: ping, timeoutInterval: Constants.timeoutInterval)
+    init(
+        url: URL,
+        ping: WebSocketConnection.Ping = ElectrumWebSocketProvider.ping(),
+        timeoutInterval: TimeInterval = Constants.timeoutInterval
+    ) {
+        webSocketProvider = JSONRPCWebSocketProvider(url: url, ping: ping, timeoutInterval: timeoutInterval)
     }
 
     func getBalance(identifier: Identifier) async throws -> ElectrumDTO.Response.Balance {
@@ -50,6 +44,10 @@ class ElectrumWebSocketProvider: HostProvider {
         }
     }
 
+    func getTransaction(hash: String) async throws -> ElectrumDTO.Response.Transaction {
+        try await send(method: Method.Blockchain.Transaction.get, parameter: [AnyEncodable(hash), AnyEncodable(true)])
+    }
+
     func getUnspents(identifier: Identifier) async throws -> [ElectrumDTO.Response.ListUnspent] {
         switch identifier {
         case .address(let address):
@@ -63,18 +61,21 @@ class ElectrumWebSocketProvider: HostProvider {
         try await send(method: Method.Blockchain.Transaction.broadcast, parameter: transactionHex)
     }
 
-    /*
+    /**
      Use for specify Radiant blockchain answer for example
+     ```
      {
          "jsonrpc": "2.0",
          "result": "8827bae7cc2409b2a49b38ca5482a0a1cb296f458e6e7eb669a30def0c9b63ee",
          "id": 5
      }
+     ```
      */
     func send(transactionHex: String) async throws -> String {
         try await send(method: Method.Blockchain.Transaction.broadcast, parameter: [transactionHex])
     }
 
+    /// https://electrumx.readthedocs.io/en/latest/protocol-methods.html?highlight=fee#blockchain-estimatefee
     func estimateFee(block: Int) async throws -> Decimal {
         try await send(method: Method.Blockchain.estimatefee, parameter: [block])
     }
@@ -101,13 +102,27 @@ private extension ElectrumWebSocketProvider {
 
 extension ElectrumWebSocketProvider {
     private enum Constants {
-        static let pingInterval: TimeInterval = 5
         static let timeoutInterval: TimeInterval = 30
     }
 
     enum Identifier {
         case address(_ address: String)
         case scriptHash(_ hash: String)
+    }
+}
+
+// MARK: - Ping
+
+extension ElectrumWebSocketProvider {
+    static func ping() -> WebSocketConnection.Ping {
+        do {
+            let request: JSONRPC.Request = .ping(method: Method.Server.ping.rawValue)
+            let message = try request.string(encoder: .init())
+            return .message(message: .string(message))
+        } catch {
+            BSDKLogger.error(error: error)
+            return .plain()
+        }
     }
 }
 
@@ -127,6 +142,7 @@ private extension ElectrumWebSocketProvider {
 
 private extension ElectrumWebSocketProvider.Method.Blockchain {
     enum Transaction: String {
+        case get = "blockchain.transaction.get"
         case broadcast = "blockchain.transaction.broadcast"
     }
 }

@@ -6,8 +6,10 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemLocalization
+import TangemAssets
+import TangemUI
 
 struct UndoToastView: View {
     let settings: UndoToastSettings

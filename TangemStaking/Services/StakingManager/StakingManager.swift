@@ -11,14 +11,23 @@ import Combine
 
 public protocol StakingManager {
     var state: StakingManagerState { get }
+    var balances: [StakingBalance]? { get }
+
     var statePublisher: AnyPublisher<StakingManagerState, Never> { get }
     var allowanceAddress: String? { get }
 
-    func updateState() async
+    func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
+    func transactionDetails(id: String) async throws -> StakingTransactionInfo
 
     func transactionDidSent(action: StakingAction)
+}
+
+public extension StakingManager {
+    func updateState() async {
+        await updateState(loadActions: false)
+    }
 }
 
 public enum StakingManagerState: Hashable, CustomStringConvertible {
@@ -41,12 +50,30 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         }
     }
 
-    public var balances: [StakingBalance]? {
-        guard case .staked(let stakeInfo) = self else {
-            return nil
+    public var isLoading: Bool {
+        switch self {
+        case .loading:
+            return true
+        default:
+            return false
         }
+    }
 
-        return stakeInfo.balances
+    public var isSuccessfullyLoaded: Bool {
+        switch self {
+        case .staked, .availableToStake:
+            return true
+        default:
+            return false
+        }
+    }
+
+    public func stakesCount(for validator: ValidatorInfo) -> Int? {
+        switch self {
+        case .staked(let staked):
+            staked.balances.filter { $0.validatorType.validator?.address == validator.address }.count
+        default: nil
+        }
     }
 
     public var description: String {

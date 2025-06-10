@@ -6,15 +6,15 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import UIKit
 import SwiftUI
+import TangemLocalization
 import Combine
 import CombineExt
+import TangemAssets
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let addressInfos: [ReceiveAddressInfo]
-    let networkWarningMessage: String
+    let memoWarningMessage: String?
 
     let id = UUID()
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
@@ -29,21 +29,27 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
+    private let flow: Flow
 
-    var warningMessageFull: String {
-        Localization.receiveBottomSheetWarningMessageFull(tokenItem.currencySymbol)
+    var assetSymbol: String {
+        switch flow {
+        case .nft:
+            Localization.detailsNftTitle
+        case .crypto:
+            tokenItem.currencySymbol
+        }
     }
 
-    init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
+    var networkName: String {
+        tokenItem.networkName
+    }
+
+    init(flow: Flow, tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         self.tokenItem = tokenItem
         iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
-
-        networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
-            tokenItem.name,
-            tokenItem.currencySymbol,
-            tokenItem.networkName
-        )
+        self.flow = flow
+        memoWarningMessage = tokenItem.blockchain.hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
 
         bind()
     }
@@ -59,7 +65,15 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         } else {
             name = tokenItem.name
         }
-        return Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
+
+        return switch flow {
+        case .nft:
+            Localization.receiveBottomSheetWarningMessageCompact(Localization.detailsNftTitle, tokenItem.networkName)
+        case .crypto where tokenItem.blockchain.isL2EthereumNetwork:
+            Localization.receiveBottomSheetWarningMessageCompact(name, tokenItem.networkName)
+        case .crypto:
+            Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
+        }
     }
 
     func stringForAddress(_ address: String) -> NSAttributedString {
@@ -101,5 +115,12 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
             .assign(to: \.currentIndex, on: self, ownership: .weak)
+    }
+}
+
+extension ReceiveBottomSheetViewModel {
+    enum Flow {
+        case nft
+        case crypto
     }
 }

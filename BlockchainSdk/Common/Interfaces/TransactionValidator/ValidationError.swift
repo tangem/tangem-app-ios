@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 public enum ValidationError: Hashable, LocalizedError {
     case balanceNotFound
@@ -30,37 +31,33 @@ public enum ValidationError: Hashable, LocalizedError {
     case insufficientFeeResource(type: FeeResourceType, current: Decimal, max: Decimal)
     case amountExceedsFeeResourceCapacity(type: FeeResourceType, availableAmount: Decimal)
     case feeExceedsMaxFeeResource
+    case remainingAmountIsLessThanRentExemption(amount: Amount)
+
+    case destinationMemoRequired
 
     public var errorDescription: String? {
         switch self {
-        case .balanceNotFound, .cardanoInsufficientBalanceToSendToken, .cardanoHasTokens:
-            return WalletError.empty.localizedDescription
-        case .amountExceedsBalance:
-            return Localization.sendValidationAmountExceedsBalance
-        case .dustAmount(let minimumAmount):
-            return Localization.sendErrorDustAmountFormat(minimumAmount.description)
-        case .dustChange(let minimumAmount):
-            return Localization.sendErrorDustChangeFormat(minimumAmount.description)
-        case .minimumBalance(let minimumBalance):
-            return Localization.sendErrorMinimumBalanceFormat(minimumBalance.string(roundingMode: .plain))
-        case .feeExceedsBalance, .feeExceedsMaxFeeResource:
-            return Localization.sendValidationInvalidFee
-        case .invalidAmount, .amountExceedsFeeResourceCapacity:
-            return Localization.sendValidationInvalidAmount
-        case .invalidFee:
-            return Localization.sendErrorInvalidFeeValue
-        case .totalExceedsBalance:
-            return Localization.sendValidationInvalidTotal
-        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
-            return Localization.commonUtxoValidateWithdrawalMessageWarning(
-                blockchainName, maxUtxo, newAmount.description
-            )
-        case .reserve(let amount):
-            return Localization.sendErrorNoTargetAccount(amount.description)
-        case .insufficientFeeResource(.mana, let current, let max):
-            return Localization.koinosInsufficientManaToSendKoinDescription(current, max)
-        case .minimumRestrictAmount:
-            return Localization.sendValidationInvalidAmount
+        case .balanceNotFound,
+             .cardanoInsufficientBalanceToSendToken,
+             .remainingAmountIsLessThanRentExemption,
+             .cardanoHasTokens,
+             .amountExceedsBalance,
+             .dustAmount,
+             .dustChange,
+             .minimumBalance,
+             .feeExceedsBalance,
+             .feeExceedsMaxFeeResource,
+             .invalidAmount,
+             .amountExceedsFeeResourceCapacity,
+             .totalExceedsBalance,
+             .invalidFee,
+             .maximumUTXO,
+             .reserve,
+             .insufficientFeeResource,
+             .minimumRestrictAmount,
+             .destinationMemoRequired:
+            assertionFailure("Potential text loss detected. Please ensure all UI strings and localizations are preserved.")
+            return .none // displayed as notification
         }
     }
 }
