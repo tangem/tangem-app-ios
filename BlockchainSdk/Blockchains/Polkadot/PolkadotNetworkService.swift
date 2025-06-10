@@ -24,35 +24,24 @@ class PolkadotNetworkService: MultiNetworkProvider {
     }
 
     func getInfo(for address: String) -> AnyPublisher<BigUInt, Error> {
-        providerPublisher { provider in
-            Just(())
-                .tryMap { [weak self] _ -> Data in
-                    guard let self = self else {
-                        throw WalletError.empty
-                    }
-                    return try storageKey(forAddress: address)
+        providerPublisher { [weak self] provider in
+            guard let self else {
+                return .emptyFail
+            }
+
+            return Result { try self.storageKey(forAddress: address) }
+                .publisher
+                .flatMap { key -> AnyPublisher<String?, Error> in
+                    provider.storage(key: key.hex().addHexPrefix())
                 }
-                .flatMap { key -> AnyPublisher<String, Error> in
-                    return provider.storage(key: key.hexString.addHexPrefix())
-                }
-                .tryMap { [weak self] storage -> PolkadotAccountInfo in
-                    guard let self = self else {
-                        throw WalletError.empty
-                    }
-                    return try codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
-                }
-                .map(\.data.free)
-                .tryCatch { error -> AnyPublisher<BigUInt, Error> in
-                    if let walletError = error as? WalletError {
-                        switch walletError {
-                        case .empty:
-                            return .justWithError(output: 0)
-                        default:
-                            break
-                        }
+                .withWeakCaptureOf(self)
+                .tryMap { service, storage in
+                    if let storage {
+                        let info = try service.codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+                        return info.data.free
                     }
 
-                    throw error
+                    return 0
                 }
                 .eraseToAnyPublisher()
         }
@@ -98,14 +87,16 @@ class PolkadotNetworkService: MultiNetworkProvider {
         }
     }
 
-    func fee(for extrinsic: Data) -> AnyPublisher<UInt64, Error> {
+    func fee(for extrinsic: Data) -> AnyPublisher<PolkadotQueriedInfo, Error> {
         providerPublisher { provider in
-            provider.queryInfo(extrinsic.hexString.addHexPrefix())
-                .tryMap {
-                    guard let fee = UInt64($0.partialFee) else {
-                        throw WalletError.failedToGetFee
-                    }
-                    return fee
+            // Payload length param is redundant, but required
+            // https://forum.polkadot.network/t/new-json-rpc-api-mega-q-a/3048/2#how-do-i-get-the-metadata-the-account-nonce-or-the-payment-fees-with-the-new-api-6
+            let payload = extrinsic + extrinsic.count.bytes4LE
+            return provider
+                .queryInfo(payload.hex().addHexPrefix())
+                .withWeakCaptureOf(self)
+                .tryMap { networkService, output in
+                    try networkService.codec.decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
                 }
                 .eraseToAnyPublisher()
         }
@@ -113,7 +104,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
 
     func submitExtrinsic(data: Data) -> AnyPublisher<String, Error> {
         providerPublisher { provider in
-            provider.submitExtrinsic(data.hexString.addHexPrefix())
+            provider.submitExtrinsic(data.hex().addHexPrefix())
         }
     }
 

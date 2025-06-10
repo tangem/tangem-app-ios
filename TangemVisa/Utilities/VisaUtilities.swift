@@ -7,17 +7,34 @@
 //
 
 import Foundation
+import TangemSdk
 import BlockchainSdk
 
 public struct VisaUtilities {
     private let isTestnet: Bool
 
+    // [REDACTED_TODO_COMMENT]
+    // Right now dApp is not ready, so we don't have actual page
+    public let walletConnectURL = URL(string: "https://tangem.com/pay")!
+
     public init(isTestnet: Bool) {
         self.isTestnet = isTestnet
     }
 
+    public var mandatoryCurve: EllipticCurve {
+        .secp256k1
+    }
+
     public var tokenId: String {
         "tether"
+    }
+
+    public var visaDefaultDerivationStyle: DerivationStyle {
+        .v3
+    }
+
+    public var visaDefaultDerivationPath: DerivationPath? {
+        visaBlockchain.derivationPath(for: visaDefaultDerivationStyle)
     }
 
     public var mockToken: Token {
@@ -32,5 +49,60 @@ public struct VisaUtilities {
 
     public var visaBlockchain: Blockchain {
         .polygon(testnet: isTestnet)
+    }
+
+    public var addressService: AddressService {
+        AddressServiceFactory(blockchain: visaBlockchain).makeAddressService()
+    }
+
+    var visaBatchPrefix: String { "AE" }
+
+    var visaAdditionalBatches: [String] {
+        [
+            "FFFC",
+        ]
+    }
+
+    public func visaDerivationPath(style: DerivationStyle) -> DerivationPath? {
+        visaBlockchain.derivationPath(for: style)
+    }
+
+    public func isVisaCard(_ card: Card) -> Bool {
+        return isVisaCard(firmwareVersion: card.firmwareVersion, batchId: card.batchId)
+    }
+
+    public func isVisaCard(firmwareVersion: FirmwareVersion, batchId: String) -> Bool {
+        return FirmwareVersion.visaRange.contains(firmwareVersion.doubleValue)
+            && (batchId.starts(with: visaBatchPrefix) || visaAdditionalBatches.contains(batchId))
+    }
+
+    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaUtilitiesError) -> Address {
+        guard let visaDefaultDerivationPath else {
+            throw VisaUtilitiesError.failedToCreateDerivation
+        }
+
+        do {
+            let hdKey = Wallet.PublicKey.HDKey(path: visaDefaultDerivationPath, extendedPublicKey: extendedKey)
+            let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(hdKey))
+            let walletAddress = try addressService.makeAddress(for: publicKey, with: .default)
+            return walletAddress
+        } catch {
+            throw .failedToCreateAddress(error)
+        }
+    }
+
+    public func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
+        guard let derivationPath = visaDefaultDerivationPath else {
+            throw VisaActivationError.missingDerivationPath
+        }
+
+        guard
+            let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }),
+            let derivedKey = wallet.derivedKeys[derivationPath]
+        else {
+            throw VisaActivationError.missingWallet
+        }
+
+        return try makeAddress(seedKey: wallet.publicKey, extendedKey: derivedKey)
     }
 }
