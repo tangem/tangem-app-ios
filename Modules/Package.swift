@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.0"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.1"),
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
@@ -39,6 +39,10 @@ let package = Package(
 /// Valid examples are `CommonUI`, `Utils`, `NetworkLayer`, `ModelData`, etc.
 var serviceModules: [PackageDescription.Target] {
     [
+        .tangemTarget(
+            name: "TangemAccessibilityIdentifiers",
+            dependencies: []
+        ),
         .tangemTarget(
             name: "TangemAssets",
             dependencies: [
@@ -105,6 +109,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemUIUtils",
                 "TangemLocalization",
+                "TangemAccessibilityIdentifiers",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
