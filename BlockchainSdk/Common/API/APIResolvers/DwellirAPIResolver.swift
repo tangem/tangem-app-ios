@@ -9,10 +9,10 @@
 import Foundation
 
 struct DwellirAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve() -> NodeInfo? {
-        guard let url = URL(string: "https://api-bittensor-mainnet.dwellir.com/\(config.bittensorDwellirKey)/") else {
+        guard let url = URL(string: "https://api-bittensor-mainnet.dwellir.com/\(keysConfig.bittensorDwellirKey)/") else {
             return nil
         }
 

@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemAssets
 
 public struct TokenItemMenuActions: View {
     // MARK: - Properties

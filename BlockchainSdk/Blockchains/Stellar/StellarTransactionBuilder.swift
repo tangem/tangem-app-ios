@@ -14,7 +14,7 @@ import Combine
 class StellarTransactionBuilder {
     var sequence: Int64?
     var useTimebounds = true
-    // for tests
+    /// for tests
     var specificTxTime: TimeInterval?
 
     private let walletPublicKey: Data
