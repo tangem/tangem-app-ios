@@ -1,5 +1,5 @@
 //
-//  WalletConnectDAppConnectionProposalView.swift
+//  WalletConnectDAppConnectionView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct WalletConnectDAppConnectionProposalView: View {
-    @ObservedObject var viewModel: WalletConnectDAppConnectionProposalViewModel
+struct WalletConnectDAppConnectionView: View {
+    @ObservedObject var viewModel: WalletConnectDAppConnectionViewModel
 
     var body: some View {
         contentStateView
@@ -37,6 +37,10 @@ struct WalletConnectDAppConnectionProposalView: View {
 
             case .networkSelector(let viewModel):
                 WalletConnectNetworksSelectorView(viewModel: viewModel)
+                    .transition(.walletSelector)
+
+            case .error(let viewModel):
+                WalletConnectErrorView(viewModel: viewModel)
                     .transition(.walletSelector)
             }
         }
