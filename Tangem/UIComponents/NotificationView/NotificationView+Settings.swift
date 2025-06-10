@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUI
 
 extension NotificationView {
     typealias NotificationAction = (NotificationViewId) -> Void
@@ -73,7 +75,7 @@ extension NotificationView {
         case secondary
         case action
 
-        // Customs
+        /// Customs
         case ring
 
         @ViewBuilder

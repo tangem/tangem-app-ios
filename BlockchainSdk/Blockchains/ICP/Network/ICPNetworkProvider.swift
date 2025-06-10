@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import IcpKit
+import TangemNetworkUtils
 
 struct ICPNetworkProvider: HostProvider {
     /// Blockchain API host
@@ -22,7 +23,7 @@ struct ICPNetworkProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<ICPProviderTarget>
+    private let network: TangemProvider<ICPProviderTarget>
 
     private let responseParser: ICPResponseParser
 
@@ -30,7 +31,7 @@ struct ICPNetworkProvider: HostProvider {
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration,
+        networkConfig: TangemProviderConfiguration,
         responseParser: ICPResponseParser
     ) {
         self.node = node

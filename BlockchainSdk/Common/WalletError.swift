@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemLocalization
 
 public enum WalletError: Error, LocalizedError {
     case noAccount(message: String, amountToCreate: Decimal)
@@ -18,8 +19,8 @@ public enum WalletError: Error, LocalizedError {
     case failedToCalculateTxSize
     case empty
     case blockchainUnavailable(underlyingError: Error)
-
     case accountNotActivated
+    case addressesIsEmpty
 
     public var errorDescription: String? {
         switch self {
@@ -36,7 +37,8 @@ public enum WalletError: Error, LocalizedError {
         case .failedToCalculateTxSize,
              .failedToParseNetworkResponse,
              .blockchainUnavailable,
-             .accountNotActivated:
+             .accountNotActivated,
+             .addressesIsEmpty:
             return Localization.genericErrorCode(errorCodeDescription)
         }
     }
@@ -61,6 +63,8 @@ public enum WalletError: Error, LocalizedError {
             return 8
         case .accountNotActivated:
             return 9
+        case .addressesIsEmpty:
+            return 10
         }
     }
 
