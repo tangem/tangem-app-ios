@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemUI
+import TangemUIUtils
 
 struct CardsInfoPagerView<
     Data, ID, Header, Body, BottomOverlay
@@ -292,7 +294,7 @@ struct CardsInfoPagerView<
                     .id(expandedHeaderScrollTargetIdentifier)
 
                 makeHeader(with: geometryProxy)
-                    .gesture(
+                    .highPriorityGesture(
                         makeDragGesture(with: geometryProxy),
                         including: isHorizontalScrollDisabled ? .subviews : .all
                     )

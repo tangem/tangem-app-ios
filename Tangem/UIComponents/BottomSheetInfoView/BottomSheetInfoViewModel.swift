@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 struct BottomSheetInfoViewModel: Identifiable {
     // MARK: - Access

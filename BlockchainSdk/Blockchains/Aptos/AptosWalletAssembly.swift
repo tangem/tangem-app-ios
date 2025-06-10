@@ -10,22 +10,20 @@ import Foundation
 
 struct AptosWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let chainId: AptosChainId = input.blockchain.isTestnet ? .testnet : .mainnet
+        let chainId: AptosChainId = input.wallet.blockchain.isTestnet ? .testnet : .mainnet
 
-        let blockchain = input.blockchain
-        let config = input.blockchainSdkConfig
-        let networkConfig = input.networkConfig
-        let apiResolver = APIResolver(blockchain: blockchain, config: config)
+        let blockchain = input.wallet.blockchain
+        let apiResolver = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
         let providers: [AptosNetworkProvider] = apiResolver.resolveProviders(
-            apiInfos: input.apiInfo,
+            apiInfos: input.networkInput.apiInfo,
             factory: { nodeInfo, _ in
-                AptosNetworkProvider(node: nodeInfo, networkConfig: networkConfig)
+                AptosNetworkProvider(node: nodeInfo, networkConfig: input.networkInput.tangemProviderConfig)
             }
         )
 
         let txBuilder = AptosTransactionBuilder(
             publicKey: input.wallet.publicKey.blockchainKey,
-            decimalValue: input.blockchain.decimalValue,
+            decimalValue: input.wallet.blockchain.decimalValue,
             walletAddress: input.wallet.address,
             chainId: chainId
         )

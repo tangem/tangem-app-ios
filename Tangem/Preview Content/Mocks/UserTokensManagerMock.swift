@@ -34,6 +34,10 @@ struct UserTokensManagerMock: UserTokensManager {
         return false
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        return false
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
         []
     }
@@ -50,7 +54,7 @@ struct UserTokensManagerMock: UserTokensManager {
 // MARK: - UserTokensReordering protocol conformance
 
 extension UserTokensManagerMock: UserTokensReordering {
-    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 

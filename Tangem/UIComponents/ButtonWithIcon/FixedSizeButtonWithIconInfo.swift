@@ -7,20 +7,31 @@
 //
 
 import Foundation
+import TangemAssets
 
 struct FixedSizeButtonWithIconInfo {
     typealias ButtonAction = () -> Void
     let title: String
     let icon: ImageType
     let style: FixedSizeButtonWithLeadingIcon.Style
+    let shouldShowBadge: Bool
     let action: ButtonAction
     let longPressAction: ButtonAction?
-    var disabled: Bool
+    let disabled: Bool
 
-    init(title: String, icon: ImageType, disabled: Bool, style: FixedSizeButtonWithLeadingIcon.Style = .default, action: @escaping ButtonAction, longPressAction: ButtonAction? = nil) {
+    init(
+        title: String,
+        icon: ImageType,
+        disabled: Bool,
+        style: FixedSizeButtonWithLeadingIcon.Style = .default,
+        shouldShowBadge: Bool = false,
+        action: @escaping ButtonAction,
+        longPressAction: ButtonAction? = nil
+    ) {
         self.title = title
         self.icon = icon
         self.style = style
+        self.shouldShowBadge = shouldShowBadge
         self.disabled = disabled
         self.action = action
         self.longPressAction = longPressAction
@@ -37,6 +48,7 @@ extension FixedSizeButtonWithIconInfo: Hashable {
         hasher.combine(title)
         hasher.combine(icon)
         hasher.combine(disabled)
+        hasher.combine(shouldShowBadge)
         hasher.combine(style)
     }
 

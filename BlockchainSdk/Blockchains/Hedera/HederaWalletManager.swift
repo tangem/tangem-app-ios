@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import TangemSdk
+import CombineExt
 import struct Hedera.AccountId
 
 final class HederaWalletManager: BaseManager {
@@ -28,13 +28,13 @@ final class HederaWalletManager: BaseManager {
             .publicKey
             .blockchainKey
             .getSha256()
-            .hexString
+            .hex()
     }
 
-    // Public key as a masked string (only the last four characters are revealed), suitable for use in logs
+    /// Public key as a masked string (only the last four characters are revealed), suitable for use in logs
     private lazy var maskedPublicKey: String = {
         let length = 4
-        let publicKey = wallet.publicKey.blockchainKey.hexString
+        let publicKey = wallet.publicKey.blockchainKey.hex()
 
         return publicKey
             .dropLast(length)
@@ -220,7 +220,7 @@ final class HederaWalletManager: BaseManager {
         let maskedPublicKey = maskedPublicKey
 
         if let accountId = wallet.address.nilIfEmpty {
-            Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) obtained from the Wallet")
+            BSDKLogger.error(error: "Hedera account ID for public key \(maskedPublicKey) obtained from the Wallet")
             return Just.justWithError(output: accountId)
         }
 
@@ -228,7 +228,7 @@ final class HederaWalletManager: BaseManager {
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { walletManager, accountId in
                 walletManager.updateWalletAddress(accountId: accountId)
-                Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) saved to the Wallet")
+                BSDKLogger.info("Hedera account ID for public key \(maskedPublicKey) saved to the Wallet")
             })
             .map(\.1)
             .eraseToAnyPublisher()
@@ -261,7 +261,7 @@ final class HederaWalletManager: BaseManager {
                 // is always fetched using `nilIfEmpty` helper
                 await walletManager.dataStorage.store(key: accountIdStorageKey, value: "")
                 await walletManager.dataStorage.store(key: resetVersionStorageKey, value: Constants.accountIdResetVersion)
-                Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) was reset")
+                BSDKLogger.info("Hedera account ID for public key \(maskedPublicKey) was reset")
             }
             .mapToVoid()
             .replaceEmpty(with: ()) // Continue the reactive stream normally even if the `.filter` statement above returns false
@@ -280,7 +280,7 @@ final class HederaWalletManager: BaseManager {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, accountId in
                 if let accountId = accountId?.nilIfEmpty {
-                    Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) obtained from the data storage")
+                    BSDKLogger.error(error: "Hedera account ID for public key \(maskedPublicKey) obtained from the data storage")
                     return Just.justWithError(output: accountId)
                 }
 
@@ -289,7 +289,7 @@ final class HederaWalletManager: BaseManager {
                     .withWeakCaptureOf(walletManager)
                     .asyncMap { walletManager, accountId in
                         await walletManager.dataStorage.store(key: storageKey, value: accountId)
-                        Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) saved to the data storage")
+                        BSDKLogger.error(error: "Hedera account ID for public key \(maskedPublicKey) saved to the data storage")
                         return accountId
                     }
                     .eraseToAnyPublisher()
@@ -307,12 +307,12 @@ final class HederaWalletManager: BaseManager {
             .map(\.accountId)
             .handleEvents(
                 receiveOutput: { _ in
-                    Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) obtained from the mirror node")
+                    BSDKLogger.info("Hedera account ID for public key \(maskedPublicKey) obtained from the mirror node")
                 },
                 receiveFailure: { error in
-                    Log.error(
+                    BSDKLogger.error(error:
                         """
-                        \(#fileID): Failed to obtain Hedera account ID for public key \(maskedPublicKey) \
+                        Failed to obtain Hedera account ID for public key \(maskedPublicKey) \
                         from the mirror node due to error: \(error.localizedDescription)
                         """
                     )
@@ -348,12 +348,12 @@ final class HederaWalletManager: BaseManager {
             }
             .handleEvents(
                 receiveOutput: { _ in
-                    Log.debug("\(#fileID): Hedera account ID for public key \(maskedPublicKey) obtained by creating account")
+                    BSDKLogger.info("Hedera account ID for public key \(maskedPublicKey) obtained by creating account")
                 },
                 receiveFailure: { error in
-                    Log.error(
+                    BSDKLogger.error(error:
                         """
-                        \(#fileID): Failed to obtain Hedera account ID for public key \(maskedPublicKey) \
+                        Failed to obtain Hedera account ID for public key \(maskedPublicKey) \
                         by creating account due to error: \(error.localizedDescription)
                         """
                     )
@@ -400,33 +400,56 @@ final class HederaWalletManager: BaseManager {
         }
     }
 
+    private func assetRequiresAssociation(_ asset: Asset) -> Bool {
+        switch asset {
+        case .coin, .reserve, .feeResource:
+            return false
+        case .token(let token):
+            return !(associatedTokens ?? []).contains(token.contractAddress)
+        }
+    }
+
     // MARK: - Transaction dependencies and building
 
     private func getFee(amount: Amount, doesAccountExistPublisher: some Publisher<Bool, Error>) -> AnyPublisher<[Fee], Error> {
         let transferFeeBase: Decimal
+        var tokenCustomFeesPublisher: AnyPublisher<HederaTokenCustomFeesInfo?, Error> = .justWithError(output: nil)
         switch amount.type {
         case .coin:
             transferFeeBase = Constants.cryptoTransferServiceCostInUSD
-        case .token:
+        case .token(let token):
             transferFeeBase = Constants.tokenTransferServiceCostInUSD
+            tokenCustomFeesPublisher = networkService.getTokensCustomFeesInfo(tokenAddress: token.contractAddress)
+                .map(Optional.init)
+                .eraseToAnyPublisher()
         case .reserve, .feeResource:
             return .anyFail(error: WalletError.failedToGetFee)
         }
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             networkService.getExchangeRate(),
-            doesAccountExistPublisher
+            doesAccountExistPublisher,
+            tokenCustomFeesPublisher
         )
         .withWeakCaptureOf(self)
         .tryMap { walletManager, input in
-            let (exchangeRate, doesAccountExist) = input
-            let feeBase = doesAccountExist ? transferFeeBase : Constants.cryptoCreateServiceCostInUSD
-            let feeValue = exchangeRate.nextHBARPerUSD * feeBase * Constants.maxFeeMultiplier
+            let (exchangeRate, doesAccountExist, tokenCustomFeesInfo) = input
+
+            var feeBase = doesAccountExist ? transferFeeBase : Constants.cryptoCreateServiceCostInUSD
+
+            if tokenCustomFeesInfo?.hasTokenCustomFees == true {
+                feeBase += Constants.customFeeTokenTransferServiceCostInUSD
+            }
+
+            // this goes on UI only, will be deducted later, see transactionBuilder -> buildTransferTransactionForSign
+            let additionalHBARFee = tokenCustomFeesInfo?.additionalHBARFee ?? .zero
+
+            let feeValue = exchangeRate.nextHBARPerUSD * feeBase * Constants.maxFeeMultiplier + additionalHBARFee
             // Hedera fee calculation involves conversion from USD to HBar units, which ultimately results in a loss of precision.
             // Therefore, the fee value is always approximate and rounding of the fee value is mandatory.
             let feeRoundedValue = feeValue.rounded(blockchain: walletManager.wallet.blockchain, roundingMode: .up)
             let feeAmount = Amount(with: walletManager.wallet.blockchain, value: feeRoundedValue)
-            let fee = Fee(feeAmount)
+            let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: additionalHBARFee))
 
             return [fee]
         }
@@ -472,7 +495,7 @@ final class HederaWalletManager: BaseManager {
             let (signatures, compiledTransaction) = input
             return try walletManager
                 .transactionBuilder
-                .buildForSend(transaction: compiledTransaction, signatures: signatures)
+                .buildForSend(transaction: compiledTransaction, signatures: signatures.map(\.signature))
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, compiledTransaction in
@@ -481,7 +504,7 @@ final class HederaWalletManager: BaseManager {
             return walletManager
                 .networkService
                 .send(transaction: compiledTransaction)
-                .mapSendError(tx: transactionRawData?.hexString)
+                .mapSendError(tx: transactionRawData?.hex())
                 .eraseToAnyPublisher()
         }
     }
@@ -533,17 +556,8 @@ extension HederaWalletManager: WalletManager {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension HederaWalletManager: AssetRequirementsManager {
-    func hasRequirements(for asset: Asset) -> Bool {
-        switch asset {
-        case .coin, .reserve, .feeResource:
-            return false
-        case .token(let token):
-            return !(associatedTokens ?? []).contains(token.contractAddress)
-        }
-    }
-
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
-        guard hasRequirements(for: asset) else {
+        guard assetRequiresAssociation(asset) else {
             return nil
         }
 
@@ -552,7 +566,7 @@ extension HederaWalletManager: AssetRequirementsManager {
             return nil
         case .token:
             guard let tokenAssociationFeeExchangeRate else {
-                return .paidTransaction
+                return .paidTransactionWithFee(blockchain: wallet.blockchain, transactionAmount: nil, feeAmount: nil)
             }
 
             let feeValue = tokenAssociationFeeExchangeRate * Constants.tokenAssociateServiceCostInUSD
@@ -561,12 +575,12 @@ extension HederaWalletManager: AssetRequirementsManager {
             let feeRoundedValue = feeValue.rounded(blockchain: wallet.blockchain, roundingMode: .up)
             let feeAmount = Amount(with: wallet.blockchain, value: feeRoundedValue)
 
-            return .paidTransactionWithFee(feeAmount: feeAmount)
+            return .paidTransactionWithFee(blockchain: wallet.blockchain, transactionAmount: nil, feeAmount: feeAmount)
         }
     }
 
     func fulfillRequirements(for asset: Asset, signer: any TransactionSigner) -> AnyPublisher<Void, Error> {
-        guard hasRequirements(for: asset) else {
+        guard assetRequiresAssociation(asset) else {
             return .justWithError(output: ())
         }
 
@@ -605,6 +619,7 @@ private extension HederaWalletManager {
         /// https://docs.hedera.com/hedera/networks/mainnet/fees
         static let cryptoTransferServiceCostInUSD = Decimal(stringValue: "0.0001")!
         static let tokenTransferServiceCostInUSD = Decimal(stringValue: "0.001")!
+        static let customFeeTokenTransferServiceCostInUSD = Decimal(stringValue: "0.001")!
         static let cryptoCreateServiceCostInUSD = Decimal(stringValue: "0.05")!
         static let tokenAssociateServiceCostInUSD = Decimal(stringValue: "0.05")!
         /// Hedera fees are low, allow 10% safety margin to allow usage of not precise fee estimate.
