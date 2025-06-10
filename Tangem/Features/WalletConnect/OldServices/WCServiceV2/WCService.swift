@@ -18,8 +18,8 @@ protocol WCService {
 
     func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal
     // [REDACTED_TODO_COMMENT]
-    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws
-    func rejectSessionProposal(with proposalId: String) async throws
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
 
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
