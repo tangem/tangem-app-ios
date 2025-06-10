@@ -9,10 +9,11 @@
 import Foundation
 import Moya
 import Combine
+import TangemNetworkUtils
 
 class AdaliteNetworkProvider: CardanoNetworkProvider {
     private let url: URL
-    private let provider: NetworkProvider<AdaliteTarget>
+    private let provider: TangemProvider<AdaliteTarget>
     private let cardanoResponseMapper: CardanoResponseMapper
 
     var host: String {
@@ -21,11 +22,11 @@ class AdaliteNetworkProvider: CardanoNetworkProvider {
 
     init(
         url: URL,
-        configuration: NetworkProviderConfiguration,
+        configuration: TangemProviderConfiguration,
         cardanoResponseMapper: CardanoResponseMapper
     ) {
         self.url = url
-        provider = NetworkProvider<AdaliteTarget>(configuration: configuration)
+        provider = TangemProvider<AdaliteTarget>(configuration: configuration)
         self.cardanoResponseMapper = cardanoResponseMapper
     }
 

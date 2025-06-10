@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct DetentBottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     typealias Sheet = DetentBottomSheetContainer<ContentView>
