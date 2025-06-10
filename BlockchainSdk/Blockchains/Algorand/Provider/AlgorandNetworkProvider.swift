@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 struct AlgorandNetworkProvider: HostProvider {
     // MARK: - HostProvider
@@ -23,13 +24,13 @@ struct AlgorandNetworkProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<AlgorandProviderTarget>
+    private let network: TangemProvider<AlgorandProviderTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration
+        networkConfig: TangemProviderConfiguration
     ) {
         self.node = node
         network = .init(configuration: networkConfig)

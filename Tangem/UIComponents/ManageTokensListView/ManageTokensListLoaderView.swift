@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct ManageTokensItemSkeletonView: View {
     var body: some View {

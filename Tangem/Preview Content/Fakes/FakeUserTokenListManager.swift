@@ -53,7 +53,7 @@ class FakeUserTokenListManager: UserTokenListManager {
                     name: walletModel.tokenItem.name,
                     symbol: walletModel.tokenItem.currencySymbol,
                     decimalCount: walletModel.tokenItem.blockchain.decimalCount,
-                    blockchainNetwork: walletModel.blockchainNetwork,
+                    blockchainNetwork: walletModel.tokenItem.blockchainNetwork,
                     contractAddress: walletModel.tokenItem.contractAddress
                 )
             }

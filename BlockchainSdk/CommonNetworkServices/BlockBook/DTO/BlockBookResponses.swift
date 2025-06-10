@@ -106,7 +106,8 @@ extension BlockBookAddressResponse {
         let txid: String?
         let sequence: Int?
         let n: Int
-        let addresses: [String]
+        // Might be `nil` if it is coinbase(mining) transaction
+        let addresses: [String]?
         let isAddress: Bool
         let value: String?
         let hex: String?
@@ -118,7 +119,8 @@ extension BlockBookAddressResponse {
         let value: String
         let n: Int
         let hex: String?
-        let addresses: [String]
+        // Might be `nil` if it is coinbase(mining) transaction
+        let addresses: [String]?
         let isAddress: Bool
         let spent: Bool?
         let isOwn: Bool?
@@ -191,19 +193,8 @@ struct BlockBookUnspentTxResponse: Decodable {
     let scriptPubKey: String?
 }
 
-struct BlockBookFeeResponse: Decodable {
+struct BlockBookFeeRateResponse: Decodable {
     struct Result: Decodable {
-        let feerate: Double
+        let feerate: Decimal
     }
-
-    let result: Result
-}
-
-struct SendResponse: Decodable {
-    let result: String
-}
-
-struct NodeEstimateFeeResponse: Decodable {
-    let result: Decimal
-    let id: String
 }

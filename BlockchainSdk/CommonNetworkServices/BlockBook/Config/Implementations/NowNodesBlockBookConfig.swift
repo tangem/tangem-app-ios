@@ -8,7 +8,7 @@
 
 import Foundation
 
-// https://nownodes.io/nodes
+/// https://nownodes.io/nodes
 struct NowNodesBlockBookConfig: BlockBookConfig {
     let apiKeyHeaderName: String?
     let apiKeyHeaderValue: String?
@@ -42,6 +42,7 @@ extension NowNodesBlockBookConfig {
              .ethereumPoW,
              .ethereumClassic,
              .avalanche,
+             .ravencoin,
              .tron:
             return BlockBookNode(
                 rpcNode: "https://\(prefix).\(host)",
@@ -50,7 +51,7 @@ extension NowNodesBlockBookConfig {
         case .bsc:
             return BlockBookNode(
                 rpcNode: "https://bsc.\(host)",
-                restNode: "https://bsc-blockbook.\(host)"
+                restNode: "https://tangem-bsc-bb.\(host)"
             )
         case .arbitrum:
             // L2 blockchains use `currencySymbol` from their L1s, so we can't just
@@ -66,7 +67,7 @@ extension NowNodesBlockBookConfig {
 
     func path(for request: BlockBookTarget.Request) -> String {
         switch request {
-        case .fees, .sendNode:
+        case .rpc:
             return ""
         default:
             return "/api/v2"

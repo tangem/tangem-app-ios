@@ -6,8 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
+import TangemUI
 
 struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel
@@ -54,6 +55,7 @@ struct SettingsUserWalletRowView: View {
         switch viewModel.icon {
         case .loading:
             Color.clear
+
         case .loaded(let image):
             image.image
                 .resizable()
@@ -77,16 +79,14 @@ struct SettingsUserWalletRowView: View {
                 Text(viewModel.cardsCount)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                if viewModel.balanceState != .noData {
+                if viewModel.balanceState != .empty {
                     Text(AppConstants.dotSign)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                    LoadableTextView(
+                    LoadableTokenBalanceView(
                         state: viewModel.balanceState,
-                        font: Fonts.Regular.caption1,
-                        textColor: Colors.Text.tertiary,
-                        loaderSize: CGSize(width: 40, height: 12),
-                        isSensitiveText: true
+                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        loader: .init(size: CGSize(width: 40, height: 12))
                     )
                 }
             }
@@ -105,7 +105,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 3,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    totalBalancePublisher: .just(output: .loading),
+                    totalBalancePublisher: .just(output: .loading(cached: .none)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
                 )
@@ -116,7 +116,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
                 )
@@ -127,7 +127,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
-                    totalBalancePublisher: .just(output: .loaded(.init(balance: 96.75, currencyCode: "USD", hasError: false, allTokensBalancesIncluded: true))),
+                    totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
                     tapAction: {}
                 )
@@ -138,7 +138,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
-                    totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
                         .delay(for: 4, scheduler: DispatchQueue.main)
                         .eraseToAnyPublisher(),

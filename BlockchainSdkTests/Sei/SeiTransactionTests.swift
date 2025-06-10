@@ -6,18 +6,18 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import WalletCore
 @testable import BlockchainSdk
+import Testing
 
-final class SeiTransactionTests: XCTestCase {
-    private var cosmosChain: CosmosChain!
-    private var blockchain: BlockchainSdk.Blockchain!
-    private var privateKey: PrivateKey!
-    private var publicKey: PublicKey!
-    private var txBuilder: CosmosTransactionBuilder!
+struct SeiTransactionTests {
+    private let cosmosChain: CosmosChain
+    private let blockchain: BlockchainSdk.Blockchain
+    private let privateKey: PrivateKey
+    private let publicKey: PublicKey
+    private let txBuilder: CosmosTransactionBuilder
 
-    override func setUp() {
+    init() {
         cosmosChain = CosmosChain.sei(testnet: true)
         blockchain = cosmosChain.blockchain
         privateKey = PrivateKey(data: Data(hexString: "80e81ea269e66a0a05b11236df7919fb7fbeedba87452d667489d7403a02f005"))!
@@ -28,18 +28,19 @@ final class SeiTransactionTests: XCTestCase {
         )
     }
 
-    func testSeiTransaction() throws {
+    @Test
+    func correctCoinTransaction() throws {
         let transaction = try makeSeiTransaction(txBuilder: txBuilder)
         let dataForSign = try txBuilder.buildForSign(transaction: transaction)
 
-        XCTAssertEqual(dataForSign.hexString.lowercased(), "9a2af4a0e1519d73a5f44ee99e9e9b11077f1779b4486bb4bf7949d65516e3ad")
+        #expect(dataForSign.hex() == "9a2af4a0e1519d73a5f44ee99e9e9b11077f1779b4486bb4bf7949d65516e3ad")
 
-        let signature = try XCTUnwrap(privateKey.sign(digest: dataForSign, curve: cosmosChain.coin.curve))
-        XCTAssertEqual(signature.hexString.lowercased(), "07e4d05edf18cb3ab8f41f03337f5177587a65ac1b4a555e129f276752afcf14230d53ed9c970edec3ec843414a7695566eb31e7fae89065c67386d7c32afe6a00")
+        let signature = try #require(privateKey.sign(digest: dataForSign, curve: cosmosChain.coin.curve))
+        #expect(signature.hex() == "07e4d05edf18cb3ab8f41f03337f5177587a65ac1b4a555e129f276752afcf14230d53ed9c970edec3ec843414a7695566eb31e7fae89065c67386d7c32afe6a00")
 
         let transactionData = try txBuilder.buildForSend(transaction: transaction, signature: signature)
 
-        let transactionString = try XCTUnwrap(String(data: transactionData, encoding: .utf8))
+        let transactionString = try #require(String(data: transactionData, encoding: .utf8))
         let expectedOutput =
             """
             {
@@ -48,23 +49,16 @@ final class SeiTransactionTests: XCTestCase {
             }
             """
 
-        XCTAssertJSONEqual(transactionString, expectedOutput)
+        expectJSONEqual(transactionString, expectedOutput)
     }
 
-    func testTransactionSize() throws {
+    @Test
+    func transactionSize() throws {
         let sizeTester = TransactionSizeTesterUtility()
         let transaction = try makeSeiTransaction(txBuilder: txBuilder)
         let dataForSign = try txBuilder.buildForSign(transaction: transaction)
 
         sizeTester.testTxSize(dataForSign)
-    }
-
-    override func tearDown() {
-        cosmosChain = nil
-        blockchain = nil
-        privateKey = nil
-        publicKey = nil
-        txBuilder = nil
     }
 }
 

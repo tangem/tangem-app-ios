@@ -8,7 +8,6 @@
 
 import Foundation
 import Hedera
-import TangemSdk
 
 final class HederaAddressService: AddressService {
     private let isTestnet: Bool
@@ -20,7 +19,7 @@ final class HederaAddressService: AddressService {
     }
 
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        Log.warning(
+        BSDKLogger.warning(
             """
             Address for the Hedera blockchain (Testnet: \(isTestnet)) is requested but can't be provided. \
             Obtain actual address using `Wallet.address`
@@ -31,9 +30,16 @@ final class HederaAddressService: AddressService {
 
     func validate(_ address: String) -> Bool {
         do {
-            try AccountId
-                .fromString(address)
-                .validateChecksum(client)
+            let accountId = try AccountId.fromSolidityAddressOrString(address)
+            try accountId.validateChecksum(client)
+            // For now, we’ve decided to accept as valid only shard 0 / realm 0 addresses.
+            // Also ensure `num` fits into Int64; otherwise `AccountId.toProtobuf()` crashes on overflow.
+            guard accountId.shard == 0,
+                  accountId.realm == 0,
+                  Int64(exactly: accountId.num) != nil
+            else {
+                return false
+            }
             return true
         } catch {
             return false
