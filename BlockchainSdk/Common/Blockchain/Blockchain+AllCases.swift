@@ -88,6 +88,18 @@ public extension Blockchain {
         case .core: break
         case .canxium: break
         case .casper: break
+        case .chiliz: break
+        case .xodex: break
+        case .clore: break
+        case .fact0rn: break
+        case .odysseyChain: break
+        case .bitrock: break
+        case .apeChain: break
+        case .sonic: break
+        case .alephium: break
+        case .vanar: break
+        case .zkLinkNova: break
+        case .pepecoin: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -169,6 +181,18 @@ public extension Blockchain {
             .core(testnet: false),
             .canxium,
             .casper(curve: .secp256k1, testnet: false),
+            .chiliz(testnet: false),
+            .xodex,
+            .clore,
+            .fact0rn,
+            .odysseyChain(testnet: false),
+            .bitrock(testnet: false),
+            .apeChain(testnet: false),
+            .zkLinkNova(testnet: false),
+            .sonic(testnet: false),
+            .alephium(testnet: false),
+            .vanar(testnet: false),
+            .pepecoin(testnet: false),
         ]
     }
 }
