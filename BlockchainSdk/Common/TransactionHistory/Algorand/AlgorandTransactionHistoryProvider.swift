@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 final class AlgorandTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
@@ -18,7 +19,7 @@ final class AlgorandTransactionHistoryProvider<Mapper> where
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<AlgorandIndexProviderTarget>
+    private let network: TangemProvider<AlgorandIndexProviderTarget>
     private let mapper: Mapper
 
     private var page: TransactionHistoryLinkedPage?
@@ -27,7 +28,7 @@ final class AlgorandTransactionHistoryProvider<Mapper> where
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration,
+        networkConfig: TangemProviderConfiguration,
         mapper: Mapper
     ) {
         self.node = node

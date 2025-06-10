@@ -58,7 +58,7 @@ struct PendingTransactionRecordMapper {
             fee: stakeKitTransaction.fee,
             date: date,
             isIncoming: isIncoming,
-            transactionType: .stake(validator: stakeKitTransaction.params?.validator),
+            transactionType: .stake(validator: stakeKitTransaction.params.validator),
             transactionParams: stakeKitTransaction.params
         )
     }
@@ -77,6 +77,53 @@ struct PendingTransactionRecordMapper {
             isIncoming: pendingTransaction.isIncoming,
             transactionType: .transfer,
             transactionParams: pendingTransaction.transactionParams
+        )
+    }
+
+    func mapToPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) -> PendingTransactionRecord {
+        let isIncoming = !transaction.isOutgoing
+        let outs = transaction.destination.destinations
+        let source: String = {
+            if transaction.isOutgoing {
+                return address
+            }
+
+            return transaction.source.sources.first(where: { $0.address != address })?.address ?? .unknown
+        }()
+
+        let destination: String = {
+            if isIncoming {
+                return address
+            }
+
+            return outs.first(where: { $0.address.string != address })?.address.string ?? .unknown
+        }()
+
+        let value: Decimal = {
+            if isIncoming {
+                // All outs which was sent only to `wallet` address
+                return outs.filter { $0.address.string == address }.reduce(0) { $0 + $1.amount }
+            }
+
+            // All outs which was sent only to `other` addresses
+            return outs.filter { $0.address.string != address }.reduce(0) { $0 + $1.amount }
+        }()
+
+        let type: PendingTransactionRecord.TransactionType = switch transaction.type {
+        case .transfer: .transfer
+        case .contractMethodIdentifier, .contractMethodName: .operation
+        case .staking(_, let validator): .stake(validator: validator)
+        }
+
+        return PendingTransactionRecord(
+            hash: transaction.hash,
+            source: source,
+            destination: destination,
+            amount: .init(with: blockchain, type: .coin, value: value),
+            fee: transaction.fee,
+            date: transaction.date ?? Date(),
+            isIncoming: isIncoming,
+            transactionType: type
         )
     }
 }
