@@ -58,6 +58,7 @@ class EthereumTransactionBuilder {
             )
 
             return try buildTxCompilerPreSigningOutput(input: input).data
+
         case .reserve, .feeResource:
             throw BlockchainSdkError.notImplemented
         }
@@ -129,7 +130,7 @@ class EthereumTransactionBuilder {
         let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         if preSigningOutput.error != .ok {
-            Log.debug("EthereumPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
+            BSDKLogger.error("EthereumPreSigningOutput has a error", error: preSigningOutput.errorMessage)
             throw EthereumTransactionBuilderError.walletCoreError(message: preSigningOutput.errorMessage)
         }
 
@@ -154,7 +155,7 @@ class EthereumTransactionBuilder {
         // It's strange but we can't use `unmarshal.v` here because WalletCore throw a error.
         // And we have to add one zero byte to the signature because
         // WalletCore has a validation on the signature count.
-        // // https://github.com/tangem/wallet-core/blob/996bd5ab37f27e7f6e240a4ec9d0788dfb124e89/src/PublicKey.h#L35
+        // https://github.com/tangem-developments/wallet-core/blob/996bd5ab37f27e7f6e240a4ec9d0788dfb124e89/src/PublicKey.h#L35
         let v = BigUInt(unmarshal.v) - 27
         let encodedV = v == .zero ? Data([UInt8.zero]) : v.serialize()
         let signature = unmarshal.r + unmarshal.s + encodedV
@@ -175,7 +176,7 @@ class EthereumTransactionBuilder {
         let output = try EthereumSigningOutput(serializedData: compileWithSignatures)
 
         if output.error != .ok {
-            Log.debug("EthereumSigningOutput has a error: \(output.errorMessage)")
+            BSDKLogger.error("EthereumSigningOutput has a error", error: output.errorMessage)
             throw EthereumTransactionBuilderError.walletCoreError(message: output.errorMessage)
         }
 
@@ -210,6 +211,7 @@ private extension EthereumTransactionBuilder {
                 nonce: nonce,
                 data: parameters.data
             )
+
         case .token(let token):
             let contract = transaction.contractAddress ?? token.contractAddress
             let method = TransferERC20TokenMethod(destination: transaction.destinationAddress, amount: amountValue)
