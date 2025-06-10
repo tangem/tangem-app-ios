@@ -11,19 +11,19 @@ import TangemSdk
 
 struct KoinosWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let blockchain = input.blockchain
+        let blockchain = input.wallet.blockchain
         let isTestnet = blockchain.isTestnet
         let koinosNetworkParams = KoinosNetworkParams(isTestnet: isTestnet)
 
         return KoinosWalletManager(
             wallet: input.wallet,
             networkService: KoinosNetworkService(
-                providers: APIResolver(blockchain: blockchain, config: input.blockchainSdkConfig)
-                    .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+                providers: APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+                    .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                         KoinosNetworkProvider(
                             node: nodeInfo,
                             koinosNetworkParams: koinosNetworkParams,
-                            configuration: input.networkConfig
+                            configuration: input.networkInput.tangemProviderConfig
                         )
                     }
             ),

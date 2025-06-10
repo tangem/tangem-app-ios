@@ -7,11 +7,11 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUI
 
 struct WalletSelectorItemView: View {
     @ObservedObject var viewModel: WalletSelectorItemViewModel
-
-    private let maxImageWidth = 50.0
 
     var body: some View {
         Button {
@@ -53,12 +53,10 @@ struct WalletSelectorItemView: View {
                 Text(AppConstants.dotSign)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                LoadableTextView(
+                LoadableTokenBalanceView(
                     state: viewModel.balanceState,
-                    font: Fonts.Regular.caption1,
-                    textColor: Colors.Text.tertiary,
-                    loaderSize: CGSize(width: 40, height: 12),
-                    isSensitiveText: true
+                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    loader: .init(size: CGSize(width: 40, height: 12))
                 )
             }
             .lineLimit(1)
@@ -91,6 +89,7 @@ struct WalletSelectorItemView: View {
         switch viewModel.icon {
         case .loading:
             Color.clear
+
         case .loaded(let image):
             image.image
                 .resizable()

@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct TONAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(blockchain: Blockchain) -> NodeInfo? {
         guard case .ton = blockchain else {
@@ -18,7 +19,7 @@ struct TONAPIResolver {
 
         return .init(
             url: URL(string: "https://toncenter.com/api/v2")!,
-            keyInfo: APIKeysInfoProvider(blockchain: blockchain, config: config).apiKeys(for: .ton)
+            keyInfo: APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: .ton)
         )
     }
 }

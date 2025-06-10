@@ -1,51 +1,61 @@
+//
+//  BitcoinWalletAssembly.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
 import Foundation
-import TangemSdk
-import stellarsdk
-import BitcoinCore
 
 struct BitcoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        return try BitcoinWalletManager(wallet: input.wallet).then {
-            let network: BitcoinNetwork = input.blockchain.isTestnet ? .testnet : .mainnet
-            let bitcoinManager = BitcoinManager(
-                networkParams: network.networkParams,
-                walletPublicKey: input.wallet.publicKey.blockchainKey,
-                compressedWalletPublicKey: try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress(),
-                bip: input.pairPublicKey == nil ? .bip84 : .bip141
-            )
+        let unspentOutputManager: UnspentOutputManager = .bitcoin(
+            address: input.wallet.defaultAddress,
+            isTestnet: input.wallet.blockchain.isTestnet
+        )
 
-            $0.txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
+        let txBuilder = BitcoinTransactionBuilder(
+            network: input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinNetworkParams(),
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.bitcoin)
+        )
 
-            let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
-                switch providerType {
-                case .nowNodes:
-                    partialResult.append(networkProviderAssembly.makeBlockBookUtxoProvider(with: input, for: .nowNodes).eraseToAnyBitcoinNetworkProvider())
-                case .getBlock:
-                    if input.blockchain.isTestnet {
-                        break
-                    }
-
-                    partialResult.append(networkProviderAssembly.makeBlockBookUtxoProvider(with: input, for: .getBlock).eraseToAnyBitcoinNetworkProvider())
-                case .blockchair:
-                    partialResult.append(
-                        contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
-                            endpoint: .bitcoin(testnet: input.blockchain.isTestnet),
-                            with: input
-                        )
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
+            switch providerType {
+            case .nowNodes:
+                partialResult.append(
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .nowNodes)
+                )
+            case .getBlock where !input.wallet.blockchain.isTestnet:
+                partialResult.append(
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .getBlock)
+                )
+            case .blockchair:
+                partialResult.append(
+                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
+                        endpoint: .bitcoin(testnet: input.wallet.blockchain.isTestnet),
+                        with: input.networkInput
                     )
-                case .blockcypher:
-                    partialResult.append(
-                        networkProviderAssembly.makeBlockcypherNetworkProvider(
-                            endpoint: .bitcoin(testnet: input.blockchain.isTestnet),
-                            with: input
-                        ).eraseToAnyBitcoinNetworkProvider()
+                )
+            case .blockcypher:
+                partialResult.append(
+                    networkProviderAssembly.makeBlockcypherNetworkProvider(
+                        endpoint: .bitcoin(testnet: input.wallet.blockchain.isTestnet),
+                        with: input.networkInput
                     )
-                default:
-                    break
-                }
+                )
+            default:
+                break
             }
-
-            $0.networkService = BitcoinNetworkService(providers: providers)
         }
+
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

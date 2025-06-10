@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemAssets
 
 struct TransactionsListView: View {
     let state: State
