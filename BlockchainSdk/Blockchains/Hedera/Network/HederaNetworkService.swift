@@ -27,7 +27,7 @@ final class HederaNetworkService {
     func getAccountInfo(publicKey: Data) -> some Publisher<HederaAccountInfo, Error> {
         return providerPublisher { provider in
             return provider
-                .getAccounts(publicKey: publicKey.hexString)
+                .getAccounts(publicKey: publicKey.hex())
                 .eraseToAnyPublisher()
         }
         .tryMap { accounts in
@@ -147,6 +147,35 @@ final class HederaNetworkService {
         }
         .catch { _ in
             return fallbackTransactionInfoPublisher
+        }
+    }
+
+    func getTokensCustomFeesInfo(tokenAddress: String) -> some Publisher<HederaTokenCustomFeesInfo, Error> {
+        providerPublisher { provider in
+            provider.getTokensDetails(tokenAddress: tokenAddress)
+                .tryMap { tokenDetails in
+                    let customFees = tokenDetails.customFees
+
+                    guard !customFees.fixedFees.contains(where: { customFee in
+                        customFee.denominatingTokenId != nil && customFee.denominatingTokenId != tokenAddress
+                    }) else {
+                        throw HederaError.fixedFeeInAnotherToken
+                    }
+
+                    let hasTokenCustomFees = !customFees.fixedFees.isEmpty || !customFees.fractionalFees.isEmpty
+
+                    let additionalHBARFee = customFees.fixedFees.reduce(into: Decimal.zero) { result, customFee in
+                        if customFee.denominatingTokenId == nil {
+                            result += customFee.amount ?? .zero
+                        }
+                    }
+
+                    return HederaTokenCustomFeesInfo(
+                        hasTokenCustomFees: hasTokenCustomFees,
+                        additionalHBARFee: additionalHBARFee
+                    )
+                }
+                .eraseToAnyPublisher()
         }
     }
 

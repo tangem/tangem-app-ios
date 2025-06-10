@@ -8,9 +8,12 @@
 
 import Foundation
 import Combine
+import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class UserWalletModelMock: UserWalletModel {
+    var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
     var name: String { "" }
@@ -20,11 +23,15 @@ class UserWalletModelMock: UserWalletModel {
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
 
+    var totalBalance: TotalBalanceState { .empty }
+
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
 
     var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+
+    var nftManager: NFTManager { NFTManagerStub() }
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 
@@ -44,7 +51,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
 
-    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> { Empty().eraseToAnyPublisher() }
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
 
     var cardsCount: Int { 3 }
 
@@ -64,6 +71,10 @@ class UserWalletModelMock: UserWalletModel {
 
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var refcodeProvider: RefcodeProvider? {
+        return nil
     }
 
     var totalSignedHashes: Int { 0 }
