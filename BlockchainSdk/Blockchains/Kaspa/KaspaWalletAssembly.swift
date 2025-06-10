@@ -11,20 +11,39 @@ import TangemSdk
 
 struct KaspaWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        KaspaWalletManager(wallet: input.wallet).then { walletManager in
-            let blockchain = input.blockchain
+        let blockchain = input.wallet.blockchain
 
-            walletManager.txBuilder = KaspaTransactionBuilder(blockchain: blockchain)
+        let providers = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                KaspaNetworkProvider(
+                    url: nodeInfo.url,
+                    isTestnet: blockchain.isTestnet,
+                    networkConfiguration: input.networkInput.tangemProviderConfig
+                )
+            }
 
-            let providers = APIResolver(blockchain: blockchain, config: input.blockchainSdkConfig)
-                .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                    KaspaNetworkProvider(
-                        url: nodeInfo.url,
-                        networkConfiguration: input.networkConfig
-                    )
-                }
+        let providerKRC20URL = blockchain.isTestnet ? URL("https://tn10api.kasplex.org/v1")! : URL("https://api.kasplex.org/v1/")!
+        let providersKRC20 = [
+            KaspaNetworkProviderKRC20(
+                url: providerKRC20URL,
+                networkConfiguration: input.networkInput.tangemProviderConfig
+            ),
+        ]
 
-            walletManager.networkService = KaspaNetworkService(providers: providers, blockchain: blockchain)
-        }
+        let unspentOutputManager: UnspentOutputManager = .kaspa(address: input.wallet.defaultAddress)
+        let txBuilder = KaspaTransactionBuilder(
+            walletPublicKey: input.wallet.publicKey,
+            unspentOutputManager: unspentOutputManager,
+            isTestnet: blockchain.isTestnet
+        )
+
+        return KaspaWalletManager(
+            wallet: input.wallet,
+            networkService: KaspaNetworkService(providers: providers),
+            networkServiceKRC20: KaspaNetworkServiceKRC20(providers: providersKRC20),
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            dataStorage: input.blockchainSdkDependencies.dataStorage
+        )
     }
 }

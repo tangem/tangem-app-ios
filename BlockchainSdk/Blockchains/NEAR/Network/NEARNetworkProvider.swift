@@ -8,17 +8,18 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 struct NEARNetworkProvider {
     private let baseURL: URL
-    private let provider: NetworkProvider<NEARTarget>
+    private let provider: TangemProvider<NEARTarget>
 
     init(
         baseURL: URL,
-        configuration: NetworkProviderConfiguration
+        configuration: TangemProviderConfiguration
     ) {
         self.baseURL = baseURL
-        provider = NetworkProvider<NEARTarget>(configuration: configuration)
+        provider = TangemProvider<NEARTarget>(configuration: configuration)
     }
 
     func getProtocolConfig() -> AnyPublisher<NEARNetworkResult.ProtocolConfig, Error> {

@@ -12,6 +12,7 @@ import CryptoKit
 import TangemSdk
 import BigInt
 import TangemFoundation
+import TangemLocalization
 
 class PolkadotWalletManager: BaseManager, WalletManager {
     private let network: PolkadotNetwork
@@ -84,7 +85,7 @@ extension PolkadotWalletManager: TransactionSender {
             }
             return networkService
                 .submitExtrinsic(data: image)
-                .mapSendError(tx: image.hexString)
+                .mapSendError(tx: image.hex())
                 .eraseToAnyPublisher()
         }
         .tryMap { [weak self] hash in
@@ -98,22 +99,27 @@ extension PolkadotWalletManager: TransactionSender {
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        let blockchain = wallet.blockchain
-        return networkService.blockchainMeta(for: destination)
-            .flatMap { [weak self] meta -> AnyPublisher<Data, Error> in
-                guard let self = self else {
-                    return .emptyFail
-                }
-                return sign(amount: amount, destination: destination, meta: meta, signer: Ed25519DummyTransactionSigner())
+        networkService
+            .blockchainMeta(for: destination)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, meta in
+                walletManager.sign(amount: amount, destination: destination, meta: meta, signer: Ed25519DummyTransactionSigner())
             }
-            .flatMap { [weak self] image -> AnyPublisher<UInt64, Error> in
-                guard let self = self else {
-                    return .emptyFail
-                }
-                return networkService.fee(for: image)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, image in
+                walletManager.networkService.fee(for: image).map { $0.partialFee }
             }
-            .map { intValue in
-                let feeAmount = Amount(with: blockchain, value: Decimal(intValue) / blockchain.decimalValue)
+            .withWeakCaptureOf(self)
+            .tryMap { walletManager, bigUIntValue in
+                guard let feeDecimalValue = bigUIntValue.decimal else {
+                    throw WalletError.failedToGetFee
+                }
+
+                let feeAmount = Amount(
+                    with: walletManager.wallet.blockchain,
+                    value: feeDecimalValue / walletManager.wallet.blockchain.decimalValue
+                )
+
                 return [Fee(feeAmount)]
             }
             .eraseToAnyPublisher()
@@ -172,15 +178,23 @@ extension PolkadotWalletManager: ThenProcessable {}
 private class Ed25519DummyTransactionSigner: TransactionSigner {
     private let privateKey = Data(repeating: 0, count: 32)
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        Fail(error: WalletError.empty).eraseToAnyPublisher()
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
         Just<Data>(hash)
             .tryMap { hash in
-                try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).signature(for: hash)
+                let signature = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).signature(for: hash)
+                return SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
             }
             .eraseToAnyPublisher()
+    }
+
+    func sign(
+        dataToSign: [SignData],
+        seedKey: Data
+    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
     }
 }
