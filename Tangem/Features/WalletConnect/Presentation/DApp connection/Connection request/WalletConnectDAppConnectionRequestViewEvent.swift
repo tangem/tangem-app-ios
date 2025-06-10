@@ -8,9 +8,6 @@
 
 enum WalletConnectDAppConnectionRequestViewEvent {
     case navigationCloseButtonTapped
-
-    case dAppProposalLoadingRequested
-
     case verifiedDomainIconTapped
 
     case connectionRequestSectionHeaderTapped
