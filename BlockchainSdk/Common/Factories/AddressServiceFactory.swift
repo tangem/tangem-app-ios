@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import BitcoinCore
-import WalletCore
 
 public struct AddressServiceFactory {
     private let blockchain: Blockchain
@@ -22,11 +20,10 @@ public struct AddressServiceFactory {
 
         switch blockchain {
         case .bitcoin:
-            let network: BitcoinNetwork = isTestnet ? .testnet : .mainnet
-            let networkParams = network.networkParams
-            return BitcoinAddressService(networkParams: networkParams)
+            let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
+            return BitcoinAddressService(networkParams: network)
         case .litecoin:
-            return BitcoinAddressService(networkParams: LitecoinNetworkParams())
+            return LitecoinAddressService(networkParams: LitecoinNetworkParams())
         case .stellar:
             return StellarAddressService()
         case .ethereum,
@@ -62,12 +59,20 @@ public struct AddressServiceFactory {
              .blast,
              .energyWebEVM,
              .core,
-             .canxium:
+             .canxium,
+             .chiliz,
+             .xodex,
+             .odysseyChain,
+             .bitrock,
+             .apeChain,
+             .sonic,
+             .vanar,
+             .zkLinkNova:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
         case .bitcoinCash:
-            let networkParams: INetwork = isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
+            let networkParams: UTXONetworkParams = isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
             return BitcoinCashAddressService(networkParams: networkParams)
         case .binance:
             return BinanceAddressService(testnet: isTestnet)
@@ -99,7 +104,7 @@ public struct AddressServiceFactory {
         case .kaspa:
             return KaspaAddressService(isTestnet: isTestnet)
         case .ravencoin:
-            let networkParams: INetwork = isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams()
+            let networkParams: UTXONetworkParams = isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams()
             return BitcoinLegacyAddressService(networkParams: networkParams)
         case .cosmos,
              .terraV1,
@@ -107,10 +112,9 @@ public struct AddressServiceFactory {
              .veChain,
              .internetComputer,
              .algorand,
-             .sei:
+             .sei,
+             .ton:
             return WalletCoreAddressService(blockchain: blockchain)
-        case .ton:
-            return TonAddressService()
         case .aptos:
             return AptosCoreAddressService()
         case .ducatus:
@@ -132,8 +136,8 @@ public struct AddressServiceFactory {
         case .bittensor(let curve):
             return PolkadotAddressService(network: .bittensor(curve: curve))
         case .koinos:
-            let network: BitcoinNetwork = isTestnet ? .testnet : .mainnet
-            return KoinosAddressService(networkParams: network.networkParams)
+            let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
+            return KoinosAddressService(networkParams: network)
         case .sui:
             return SuiAddressService()
         case .filecoin:
@@ -142,6 +146,14 @@ public struct AddressServiceFactory {
             return PolkadotAddressService(network: .energyWebX(curve: curve))
         case .casper(let curve, _):
             return CasperAddressService(curve: curve)
+        case .clore:
+            return BitcoinLegacyAddressService(networkParams: CloreMainNetworkParams())
+        case .fact0rn:
+            return Fact0rnAddressService()
+        case .alephium:
+            return AlephiumAddressService()
+        case .pepecoin:
+            return PepecoinAddressService(isTestnet: isTestnet)
         }
     }
 }

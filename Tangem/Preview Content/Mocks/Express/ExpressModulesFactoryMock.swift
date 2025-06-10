@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
-    private let initialWalletModel: WalletModel = .mockETH
+    private let initialWalletModel: any WalletModel = CommonWalletModel.mockETH
     private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
@@ -74,7 +75,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
                 selectedPolicy: selectedPolicy
             ),
             feeFormatter: feeFormatter,
-            logger: logger,
             approveViewModelInput: expressInteractor,
             coordinator: coordinator
         )
@@ -105,10 +105,18 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     }
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
-        CommonPendingExpressTransactionsManager(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            walletModel: initialWalletModel,
-            expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
+        CompoundPendingTransactionsManager(
+            first: CommonPendingExpressTransactionsManager(
+                userWalletId: userWalletModel.userWalletId.stringValue,
+                walletModel: initialWalletModel,
+                expressAPIProvider: makeExpressAPIProvider(),
+                expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
+            ),
+            second: CommonPendingOnrampTransactionsManager(
+                userWalletId: userWalletModel.userWalletId.stringValue,
+                walletModel: initialWalletModel,
+                expressAPIProvider: makeExpressAPIProvider()
+            )
         )
     }
 }
@@ -138,7 +146,6 @@ private extension ExpressModulesFactoryMock {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TangemSigner { TangemSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
-    var logger: Logger { AppLog.shared }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -159,31 +166,36 @@ private extension ExpressModulesFactoryMock {
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId, logger: logger)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletModel: userWalletModel
+        )
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
+        let analyticsLogger = ExpressAnalyticsLoggerMock()
+
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
-            logger: logger
+            analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
             initialWallet: initialWalletModel,
+            destinationWallet: nil,
             expressManager: expressManager,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
+            expressAnalyticsLogger: analyticsLogger,
             expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
-            signer: signer,
-            logger: logger
+            signer: signer
         )
 
         return interactor
