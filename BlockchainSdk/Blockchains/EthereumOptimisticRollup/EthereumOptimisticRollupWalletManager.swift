@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-// Used by Optimism, Base, and other Ethereum L2s with optimistic rollups.
+/// Used by Optimism, Base, and other Ethereum L2s with optimistic rollups.
 final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
     /// We are override this method to combine the two fee's layers in the `Optimistic-Ethereum` network.
     /// Read more:

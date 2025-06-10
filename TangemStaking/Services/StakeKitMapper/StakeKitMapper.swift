@@ -65,6 +65,7 @@ struct StakeKitMapper {
         case .unlockLocked: .unlockLocked
         case .restake: .restake
         case .claimUnstaked: .claimUnstaked
+        case .stake: .stake
         }
     }
 
@@ -126,6 +127,32 @@ struct StakeKitMapper {
         )
     }
 
+    func mapToPendingActions(from response: StakeKitDTO.Actions.List.Response) throws -> [PendingAction] {
+        try response.data.compactMap { action in
+            guard let amountString = action.amount, let amount = Decimal(string: amountString) else {
+                throw StakeKitMapperError.noData("PendingAction.amount not found")
+            }
+
+            // just to make sure zero or negative amount will not be displayed on UI
+            guard amount > 0 else { return nil }
+
+            let actionTransaction: [ActionTransaction] = action.transactions.map { transaction in
+                ActionTransaction(id: transaction.id, stepIndex: transaction.stepIndex)
+            }
+
+            return try PendingAction(
+                id: action.id,
+                accountAddresses: action.accountAddresses,
+                status: mapToActionStatus(from: action.status),
+                amount: amount,
+                type: mapToActionType(from: action.type),
+                currentStepIndex: action.currentStepIndex,
+                transactions: actionTransaction,
+                validatorAddress: action.validatorAddress ?? action.validatorAddresses?.first
+            )
+        }
+    }
+
     func mapToPendingAction(from response: StakeKitDTO.Actions.Pending.Response) throws -> PendingAction {
         guard let transactions = response.transactions?.filter({ $0.status != .skipped }),
               !transactions.isEmpty else {
@@ -144,8 +171,10 @@ struct StakeKitMapper {
             id: response.id,
             status: mapToActionStatus(from: response.status),
             amount: amount,
+            type: mapToActionType(from: response.type),
             currentStepIndex: response.currentStepIndex,
-            transactions: actionTransaction
+            transactions: actionTransaction,
+            validatorAddress: response.validatorAddress ?? response.validatorAddresses?.first
         )
     }
 
@@ -169,7 +198,10 @@ struct StakeKitMapper {
             actionId: stakeId,
             network: response.network.rawValue,
             unsignedTransactionData: mapToTransactionUnsignedData(from: unsignedTransaction, network: response.network),
-            fee: fee
+            fee: fee,
+            type: response.type.rawValue,
+            status: response.status.rawValue,
+            stepIndex: response.stepIndex
         )
     }
 
@@ -193,25 +225,41 @@ struct StakeKitMapper {
             return try StakingBalanceInfo(
                 item: mapToStakingTokenItem(from: balance.token),
                 amount: amount,
+                accountAddress: balance.accountAddress,
                 balanceType: mapToBalanceType(from: balance),
                 validatorAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
-                actions: mapToStakingBalanceInfoPendingAction(from: balance)
+                actions: mapToStakingBalanceInfoPendingAction(from: balance),
+                actionConstraints: mapToBalanceConstraints(from: balance.pendingActionConstraints)
             )
         }
     }
 
-    func mapToStakingBalanceInfoPendingAction(from balance: StakeKitDTO.Balances.Response.Balance) throws -> [StakingPendingActionInfo] {
+    func mapToStakingBalanceInfoPendingAction(
+        from balance: StakeKitDTO.Balances.Response.Balance
+    ) throws -> [StakingPendingActionInfo] {
         try balance.pendingActions.compactMap { action in
-            switch action.type {
-            case .withdraw: .init(type: .withdraw, passthrough: action.passthrough)
-            case .claimRewards: .init(type: .claimRewards, passthrough: action.passthrough)
-            case .restakeRewards: .init(type: .restakeRewards, passthrough: action.passthrough)
-            case .voteLocked, .revote: .init(type: .voteLocked, passthrough: action.passthrough)
-            case .unlockLocked: .init(type: .unlockLocked, passthrough: action.passthrough)
-            case .restake: .init(type: .restake, passthrough: action.passthrough)
-            case .claimUnstaked: .init(type: .claimUnstaked, passthrough: action.passthrough)
-            default: throw StakeKitMapperError.noData("PendingAction.type \(action.type) doesn't supported")
-            }
+            StakingPendingActionInfo(
+                type: try mapToActionType(from: action.type),
+                passthrough: action.passthrough
+            )
+        }
+    }
+
+    func mapToActionType(
+        from actionType: StakeKitDTO.Actions.ActionType
+    ) throws -> StakingPendingActionInfo.ActionType {
+        switch actionType {
+        case .stake: .stake
+        case .vote: .vote
+        case .unstake: .unstake
+        case .withdraw: .withdraw
+        case .claimRewards: .claimRewards
+        case .restakeRewards: .restakeRewards
+        case .voteLocked, .revote: .voteLocked
+        case .unlockLocked: .unlockLocked
+        case .restake: .restake
+        case .claimUnstaked: .claimUnstaked
+        default: throw StakeKitMapperError.noData("PendingAction.type \(actionType) doesn't supported")
         }
     }
 
@@ -233,6 +281,17 @@ struct StakeKitMapper {
             return .unstaked
         case .rewards:
             return .rewards
+        }
+    }
+
+    func mapToBalanceConstraints(
+        from balanceConstraints: [StakeKitDTO.Balances.Response.Balance.PendingActionConstant]?
+    ) throws -> [StakingPendingActionConstraint]? {
+        try balanceConstraints?.map {
+            StakingPendingActionConstraint(
+                type: try mapToActionType(from: $0.type),
+                amount: .init(minimum: $0.amount.minimum, maximum: $0.amount.maximum)
+            )
         }
     }
 
@@ -290,8 +349,19 @@ struct StakeKitMapper {
             preferred: validator.preferred ?? false,
             partner: validator.name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == StakingConstants.partnerName,
             iconURL: validator.image.flatMap { URL(string: $0) },
-            apr: validator.apr
+            apr: validator.apr,
+            status: mapValidatorStatus(validator.status)
         )
+    }
+
+    private func mapValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
+        switch status {
+        case .active: .active
+        case .jailed: .jailed
+        case .deactivating: .deactivating
+        case .inactive: .inactive
+        case .full: .full
+        }
     }
 
     // MARK: - Inner types
@@ -368,6 +438,7 @@ struct StakeKitMapper {
         case .tron: .daily
         case .binance: .daily
         case .ethereum where item.contractAddress == StakingConstants.polygonContractAddress: .daily
+        case .ton: .days(min: 1, max: 2)
         default: .generic(type.rawValue)
         }
     }

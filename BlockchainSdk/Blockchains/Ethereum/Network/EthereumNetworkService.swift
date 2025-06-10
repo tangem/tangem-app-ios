@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import CombineExt
 import BigInt
 import TangemFoundation
 
@@ -17,18 +18,15 @@ class EthereumNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
 
     private let decimals: Int
-    private let ethereumInfoNetworkProvider: EthereumAdditionalInfoProvider?
     private let abiEncoder: ABIEncoder
 
     init(
         decimals: Int,
         providers: [EthereumJsonRpcProvider],
-        blockcypherProvider: BlockcypherNetworkProvider?,
         abiEncoder: ABIEncoder
     ) {
         self.providers = providers
         self.decimals = decimals
-        ethereumInfoNetworkProvider = blockcypherProvider
         self.abiEncoder = abiEncoder
     }
 
@@ -169,14 +167,6 @@ class EthereumNetworkService: MultiNetworkProvider {
             .collect()
             .map { $0.reduce(into: [Token: Result<Decimal, Error>]()) { $0[$1.0] = $1.1 }}
             .eraseToAnyPublisher()
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        guard let networkProvider = ethereumInfoNetworkProvider else {
-            return Fail(error: ETHError.unsupportedFeature).eraseToAnyPublisher()
-        }
-
-        return networkProvider.getSignatureCount(address: address)
     }
 
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> {

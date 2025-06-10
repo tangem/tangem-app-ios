@@ -8,28 +8,7 @@
 
 import Foundation
 import Combine
-
-@available(iOS 13.0, *)
-extension Publisher {
-    func withWeakCaptureOf<Object>(
-        _ object: Object
-    ) -> Publishers.CompactMap<Self, (Object, Self.Output)> where Object: AnyObject {
-        return compactMap { [weak object] output in
-            guard let object = object else { return nil }
-
-            return (object, output)
-        }
-    }
-
-    func mapToVoid() -> Publishers.Map<Self, Void> {
-        map { _ in () }
-    }
-
-    func mapToResult() -> some Publisher<Result<Self.Output, Self.Failure>, Never> {
-        return map(Result.success)
-            .catch { Just(Result.failure($0)) }
-    }
-}
+import CombineExt
 
 extension Publisher where Failure == Swift.Error {
     func asyncMap<T>(
@@ -100,7 +79,7 @@ extension Publisher {
 }
 
 extension Publisher where Failure == Error {
-    /*
+    /**
      This method is used to override a network error when sending a transaction.
      Use only pair with send method for {{Blockchain}}NetworkService.
      */
@@ -110,13 +89,35 @@ extension Publisher where Failure == Error {
         }
     }
 
-    /*
+    /**
      This method is used to override a network error when sending a transaction after all chains publishers.
      */
     func eraseSendError() -> Publishers.MapError<Self, SendTxError> {
         mapError { error in
             SendTxErrorFactory().make(error: error)
         }
+    }
+}
+
+extension Publisher {
+    /// 'Inserts' the publisher produced by the `otherPublisherFactory` closure into the reactive stream,
+    /// for both successful and failed paths.
+    func wire<T, U>(otherPublisherFactory: @escaping () -> some Publisher<T, U>) -> some Publisher<Output, Failure> {
+        return self
+            .catch { error in
+                return otherPublisherFactory()
+                    .mapError { _ in
+                        return error // Replace errors from `otherPublisherFactory` with the original error
+                    }
+                    .flatMap { _ in
+                        return Fail(error: error) // Replace outputs from `otherPublisherFactory` with the original error
+                    }
+            }
+            .flatMap { output in
+                return otherPublisherFactory()
+                    .mapToValue(output) // Replace outputs from `otherPublisherFactory` with the original output
+                    .replaceError(with: output) // Replace errors from `otherPublisherFactory` with the original output
+            }
     }
 }
 
