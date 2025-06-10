@@ -17,9 +17,9 @@ struct AlgorandExternalLinkProvider: ExternalLinkProvider {
 
     private var baseExplorerHost: String {
         if isTestnet {
-            return "explorer.bitquery.io/algorand_testnet"
+            return "testnet.explorer.perawallet.app"
         } else {
-            return "explorer.bitquery.io/algorand"
+            return "allo.info"
         }
     }
 

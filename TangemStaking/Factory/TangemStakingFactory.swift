@@ -8,7 +8,7 @@
 
 import Foundation
 import Moya
-import class BlockchainSdk.TangemNetworkLoggerPlugin
+import TangemNetworkUtils
 
 public struct TangemStakingFactory {
     public init() {}
@@ -17,42 +17,23 @@ public struct TangemStakingFactory {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakingAPIProvider,
-        repository: any StakingPendingTransactionsRepository,
-        logger: Logger,
         analyticsLogger: StakingAnalyticsLogger
     ) -> StakingManager {
         CommonStakingManager(
             integrationId: integrationId,
             wallet: wallet,
             provider: provider,
-            repository: repository,
-            logger: logger,
             analyticsLogger: analyticsLogger
         )
     }
 
-    public func makeStakingPendingTransactionsRepository(
-        storage: any StakingPendingTransactionsStorage,
-        logger: any Logger
-    ) -> StakingPendingTransactionsRepository {
-        CommonStakingPendingTransactionsRepository(storage: storage, logger: logger)
-    }
-
     public func makeStakingAPIProvider(
         credential: StakingAPICredential,
-        configuration: URLSessionConfiguration
+        configuration: URLSessionConfiguration,
+        plugins: [PluginType]
     ) -> StakingAPIProvider {
-        let plugins: [PluginType] = [
-            TangemNetworkLoggerPlugin(configuration: .init(
-                output: TangemNetworkLoggerPlugin.tangemSdkLoggerOutput,
-                logOptions: .verbose
-            )),
-        ]
-        let provider = MoyaProvider<StakeKitTarget>(session: Session(configuration: configuration), plugins: plugins)
-        let service = StakeKitStakingAPIService(
-            provider: provider,
-            credential: credential
-        )
+        let provider = TangemProvider<StakeKitTarget>(plugins: plugins, sessionConfiguration: configuration)
+        let service = StakeKitStakingAPIService(provider: provider, credential: credential)
         let mapper = StakeKitMapper()
         return CommonStakingAPIProvider(service: service, mapper: mapper)
     }

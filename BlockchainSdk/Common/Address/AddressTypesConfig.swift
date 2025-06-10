@@ -90,7 +90,19 @@ struct AddressTypesConfig {
              .energyWebX,
              .core,
              .canxium,
-             .casper:
+             .casper,
+             .chiliz,
+             .xodex,
+             .clore,
+             .fact0rn,
+             .odysseyChain,
+             .bitrock,
+             .apeChain,
+             .sonic,
+             .alephium,
+             .vanar,
+             .zkLinkNova,
+             .pepecoin:
             return [.default]
         }
     }
