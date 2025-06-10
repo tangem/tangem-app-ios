@@ -32,14 +32,6 @@ public struct Token: Hashable, Equatable, Codable {
         decimalCount = sdkToken.decimals
     }
 
-    init(_ blockhairToken: BlockchairToken, blockchain: Blockchain) {
-        id = nil
-        name = blockhairToken.name
-        symbol = blockhairToken.symbol
-        contractAddress = blockhairToken.address
-        decimalCount = blockhairToken.decimals
-    }
-
     public func hash(into hasher: inout Hasher) {
         hasher.combine(contractAddress.lowercased())
     }

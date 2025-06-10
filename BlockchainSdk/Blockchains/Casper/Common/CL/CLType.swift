@@ -209,21 +209,21 @@ enum CLTypeHelper {
         case .tuple3(let cLTypeTuple1, let cLTypeTuple2, let cLTypeTuple3):
             ret = "{\"Tuple3\": ["
             if CLValue.isCLTypePrimitive(clType1: cLTypeTuple1) {
-                let clTypeStr1: String = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple1) + "\""
+                let clTypeStr1 = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple1) + "\""
                 ret = ret + "\(clTypeStr1), "
             } else {
                 let clTypeStr1: [String: Any] = CLTypeHelper.CLTypeCompoundToJson(clType: cLTypeTuple1)
                 ret = ret + "\(clTypeStr1), "
             }
             if CLValue.isCLTypePrimitive(clType1: cLTypeTuple2) {
-                let clTypeStr2: String = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple2) + "\""
+                let clTypeStr2 = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple2) + "\""
                 ret = ret + "\(clTypeStr2), "
             } else {
                 let clTypeStr2: [String: Any] = CLTypeHelper.CLTypeCompoundToJson(clType: cLTypeTuple2)
                 ret = ret + "\(clTypeStr2), "
             }
             if CLValue.isCLTypePrimitive(clType1: cLTypeTuple3) {
-                let clTypeStr3: String = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple3) + "\""
+                let clTypeStr3 = "\"" + CLTypeHelper.CLTypePrimitiveToJson(clType: cLTypeTuple3) + "\""
                 ret = ret + "\(clTypeStr3)]"
             } else {
                 let clTypeStr3: [String: Any] = CLTypeHelper.CLTypeCompoundToJson(clType: cLTypeTuple3)
@@ -278,7 +278,7 @@ enum CLTypeHelper {
         return "NONE"
     }
 
-    /**
+    /*
         Function to get  json object from CLType object
        - Parameter: CLType object
        - Returns: json object representing the current deploy object, in form of [String: Any]
@@ -419,7 +419,7 @@ enum CLTypeHelper {
         }
     }
 
-    /**
+    /*
      Get CLType from Json string
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
@@ -436,7 +436,7 @@ enum CLTypeHelper {
         return ret
     }
 
-    /**
+    /*
      Get CLType primitive (CLType with no recursive type inside) from Json string
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
@@ -499,7 +499,7 @@ enum CLTypeHelper {
         return clType
     }
 
-    /**
+    /*
      Get CLType compound from Json string, which are the recursive CLType such as List(CLType), Map(CLType, CLType), Tuple1(CLType), Tuple2(CLType, CLType), Tuple3(CLType, CLType, CLType)...
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
@@ -583,13 +583,13 @@ enum CLTypeHelper {
                 let errCLType = CLTypeHelper.jsonToCLType(from: resultCLType, keyStr: "err")
                 return .resultClType(okCLType, errCLType)
             } else {
-                NSLog("parse result cltype error")
+                BSDKLogger.error(error: "parse result cltype error")
             }
         }
         return .none
     }
 
-    /**
+    /*
      Get CLType  from Json string. If the Json string can convert to CLType primitive, then return the CLType primitive, otherwise return the CLType getting from the CLType compound
      - Parameter: a Json String represent the CLType object
      - Returns: CLType object
@@ -607,7 +607,7 @@ enum CLTypeHelper {
         return ret
     }
 
-    /**
+    /*
      Get CLType primitive from String
      - Parameter: a  String represent the CLType object
      - Returns: CLType object

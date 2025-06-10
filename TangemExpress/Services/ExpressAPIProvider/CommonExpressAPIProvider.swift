@@ -25,8 +25,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     /// Requests from Express API `exchangeAvailable` state for currencies included in filter
     /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
-    func assets(with filter: [ExpressCurrency]) async throws -> [ExpressAsset] {
-        let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
+    func assets(currencies: Set<ExpressCurrency>) async throws -> [ExpressAsset] {
+        let tokens = currencies.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Swap.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
         let assets: [ExpressAsset] = response.map(expressAPIMapper.mapToExpressAsset(response:))
@@ -42,9 +42,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return pairs
     }
 
-    func providers() async throws -> [ExpressProvider] {
+    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] {
         let response = try await expressAPIService.providers()
-        let providers = response.map(expressAPIMapper.mapToExpressProvider(provider:))
+        let providers = response
+            .map(expressAPIMapper.mapToExpressProvider(provider:))
+            .filter { branch.supportedProviderTypes.contains($0.type) }
+
         return providers
     }
 
@@ -75,7 +78,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let requestId: String = UUID().uuidString
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
-            fromAddress: item.source.defaultAddress,
+            fromAddress: item.source.defaultAddressString,
             fromContractAddress: item.source.expressCurrency.contractAddress,
             fromNetwork: item.source.expressCurrency.network,
             toContractAddress: item.destination.expressCurrency.contractAddress,
@@ -85,8 +88,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromDecimals: item.source.decimalCount,
             providerId: item.providerInfo.id,
             rateType: .float,
-            toAddress: item.destination.defaultAddress,
-            refundAddress: item.source.defaultAddress,
+            toAddress: item.destination.defaultAddressString,
+            refundAddress: item.source.defaultAddressString,
             refundExtraId: nil // There is no memo on the client side
         )
 
@@ -107,7 +110,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             txHash: result.hash,
             txId: result.data.expressTransactionId,
             fromNetwork: result.source.expressCurrency.network,
-            fromAddress: result.source.defaultAddress,
+            fromAddress: result.source.defaultAddressString,
             payinAddress: result.data.destinationAddress,
             payinExtraId: result.data.extraDestinationId
         )
@@ -137,7 +140,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func onrampPaymentMethods() async throws -> [OnrampPaymentMethod] {
         let response = try await expressAPIService.onrampPaymentMethods()
-        let methods = response.map(expressAPIMapper.mapToOnrampPaymentMethod(response:))
+        let methods = response.compactMap(expressAPIMapper.mapToOnrampPaymentMethod(response:))
         return methods
     }
 
@@ -154,9 +157,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromCurrencyCode: item.pairItem.fiatCurrency.identity.code,
             toContractAddress: item.pairItem.destination.expressCurrency.contractAddress,
             toNetwork: item.pairItem.destination.expressCurrency.network,
-            paymentMethod: item.paymentMethod.identity.code,
+            paymentMethod: item.paymentMethod.id,
             countryCode: item.pairItem.country.identity.code,
-            fromAmount: item.destinationAmountWEI(),
+            fromPrecision: item.pairItem.fiatCurrency.precision,
+            fromAmount: item.sourceAmountWEI(),
             toDecimals: item.pairItem.destination.decimalCount,
             providerId: item.providerInfo.id
         )
@@ -172,16 +176,17 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromCurrencyCode: item.quotesItem.pairItem.fiatCurrency.identity.code,
             toContractAddress: item.quotesItem.pairItem.destination.expressCurrency.contractAddress,
             toNetwork: item.quotesItem.pairItem.destination.expressCurrency.network,
-            paymentMethod: item.quotesItem.paymentMethod.identity.code,
+            paymentMethod: item.quotesItem.paymentMethod.id,
             countryCode: item.quotesItem.pairItem.country.identity.code,
             fromAmount: item.quotesItem.sourceAmountWEI(),
+            fromPrecision: item.quotesItem.pairItem.fiatCurrency.precision,
             toDecimals: item.quotesItem.pairItem.destination.decimalCount,
             providerId: item.quotesItem.providerInfo.id,
-            toAddress: item.quotesItem.pairItem.destination.defaultAddress,
+            toAddress: item.quotesItem.pairItem.destination.defaultAddressString,
             toExtraId: nil, // There is no memo on the client side
-            redirectUrl: item.redirectSettings.successURL,
+            redirectUrl: item.redirectSettings.redirectURL,
             language: item.redirectSettings.language,
-            theme: item.redirectSettings.theme,
+            theme: item.redirectSettings.theme.rawValue,
             requestId: requestId
         )
 
@@ -190,7 +195,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return data
     }
 
-    func onrampStatus(transactionId: String) async throws {
-        // [REDACTED_TODO_COMMENT]
+    func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
+        let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
+        let response = try await expressAPIService.onrampStatus(request: request)
+        return try expressAPIMapper.mapToOnrampTransaction(response: response)
     }
 }

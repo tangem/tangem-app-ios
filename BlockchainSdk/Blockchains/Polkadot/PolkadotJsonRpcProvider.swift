@@ -9,19 +9,20 @@
 import Foundation
 import Combine
 import Moya
+import TangemNetworkUtils
 
 class PolkadotJsonRpcProvider: HostProvider {
     var host: String { node.url.hostOrUnknown }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<PolkadotTarget>
+    private let provider: TangemProvider<PolkadotTarget>
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<PolkadotTarget>(configuration: configuration)
+        provider = TangemProvider<PolkadotTarget>(configuration: configuration)
     }
 
-    func storage(key: String) -> AnyPublisher<String, Error> {
+    func storage(key: String) -> AnyPublisher<String?, Error> {
         requestPublisher(for: .storage(key: key))
     }
 
@@ -37,7 +38,7 @@ class PolkadotJsonRpcProvider: HostProvider {
         requestPublisher(for: .accountNextIndex(address: address))
     }
 
-    func queryInfo(_ extrinsic: String) -> AnyPublisher<PolkadotQueriedInfo, Error> {
+    func queryInfo(_ extrinsic: String) -> AnyPublisher<String, Error> {
         requestPublisher(for: .queryInfo(extrinsic: extrinsic))
     }
 
@@ -52,18 +53,8 @@ class PolkadotJsonRpcProvider: HostProvider {
     private func requestPublisher<T: Codable>(for target: PolkadotTarget.Target) -> AnyPublisher<T, Error> {
         return provider.requestPublisher(PolkadotTarget(node: node, target: target))
             .filterSuccessfulStatusAndRedirectCodes()
-            .map(PolkadotJsonRpcResponse<T>.self)
-            .tryMap {
-                if let error = $0.error?.error {
-                    throw error
-                }
-
-                guard let result = $0.result else {
-                    throw WalletError.empty
-                }
-
-                return result
-            }
+            .map(JSONRPC.Response<T, JSONRPC.APIError>.self)
+            .tryMap { try $0.result.get() }
             .eraseToAnyPublisher()
     }
 }

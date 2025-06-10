@@ -47,7 +47,7 @@ extension StakeKitDTO {
             let signatureVerification: Required?
 
             struct Amount: Decodable {
-                let required: Bool
+                let required: Bool?
                 let minimum: Decimal
                 let maximum: Decimal?
             }
@@ -159,6 +159,23 @@ extension StakeKitDTO {
                 self.validatorAddresses = validatorAddresses
                 self.inputToken = inputToken
                 self.tronResource = tronResource
+            }
+        }
+
+        enum List {
+            struct Request: Encodable {
+                let walletAddress: String
+                let network: StakeKitNetworkType
+                let status: ActionStatus
+                let limit: Int
+                let sort: String
+            }
+
+            struct Response: Decodable {
+                let page: Int
+                let data: [Action]
+                let hasNextPage: Bool
+                let limit: Int
             }
         }
     }

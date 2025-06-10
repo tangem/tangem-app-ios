@@ -1,6 +1,6 @@
 import Foundation
 
-/**
+/*
  Class represents the DeployInfo
  */
 
@@ -11,7 +11,7 @@ class CSPRDeployInfo {
     var source: URef = .init()
     var gas: U512Class = .init()
 
-    /**
+    /*
      Get DeployInfo object from Json string
      - Parameter : a Json String represents the DeployInfo object
      - Returns: DeployInfo object

@@ -8,12 +8,13 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 final class PolygonTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
     Mapper.Response == PolygonTransactionHistoryResult {
     private let mapper: Mapper
-    private let networkProvider: NetworkProvider<PolygonTransactionHistoryTarget>
+    private let networkProvider: TangemProvider<PolygonTransactionHistoryTarget>
     private let targetConfiguration: PolygonTransactionHistoryTarget.Configuration
 
     private var page: TransactionHistoryIndexPage?
@@ -21,7 +22,7 @@ final class PolygonTransactionHistoryProvider<Mapper> where
 
     init(
         mapper: Mapper,
-        networkConfiguration: NetworkProviderConfiguration,
+        networkConfiguration: TangemProviderConfiguration,
         targetConfiguration: PolygonTransactionHistoryTarget.Configuration
     ) {
         self.mapper = mapper

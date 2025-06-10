@@ -7,9 +7,10 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnboardingFeatureDescriptionView: View {
-    let icon: ImageType
+    let iconImage: Image
     var title: String? = nil
     let description: String
 
@@ -27,7 +28,7 @@ struct OnboardingFeatureDescriptionView: View {
                 .frame(width: iconSize, height: iconSize)
                 .cornerRadius(iconSize / 2)
                 .overlay(
-                    icon.image
+                    iconImage
                         .resizable()
                         .renderingMode(.template)
                         .foregroundColor(Colors.Text.primary1)
