@@ -47,7 +47,7 @@ struct SuiInspectTransaction: Codable {
 }
 
 struct SuiTransaction: Codable {
-    // SubTypes
+    /// SubTypes
     struct Transaction: Codable {
         struct SuiTransactionInput: Codable {
             let type: String

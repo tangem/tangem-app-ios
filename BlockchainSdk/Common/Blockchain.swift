@@ -8,13 +8,12 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 import enum WalletCore.CoinType
 
 // MARK: - Base
 
+/// This enum should be indirect because of memory issues on iOS15
 @available(iOS 13.0, *)
-// This enum should be indirect because of memory issues on iOS15
 public indirect enum Blockchain: Equatable, Hashable {
     case bitcoin(testnet: Bool)
     case litecoin
@@ -93,6 +92,18 @@ public indirect enum Blockchain: Equatable, Hashable {
     case core(testnet: Bool)
     case canxium
     case casper(curve: EllipticCurve, testnet: Bool)
+    case chiliz(testnet: Bool)
+    case xodex
+    case clore
+    case fact0rn
+    case odysseyChain(testnet: Bool)
+    case bitrock(testnet: Bool)
+    case apeChain(testnet: Bool)
+    case sonic(testnet: Bool)
+    case alephium(testnet: Bool)
+    case vanar(testnet: Bool)
+    case zkLinkNova(testnet: Bool)
+    case pepecoin(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -136,7 +147,16 @@ public indirect enum Blockchain: Equatable, Hashable {
              .sei(let testnet),
              .kaspa(let testnet),
              .energyWebEVM(let testnet),
-             .core(let testnet):
+             .core(let testnet),
+             .chiliz(let testnet),
+             .odysseyChain(let testnet),
+             .bitrock(let testnet),
+             .apeChain(let testnet),
+             .sonic(let testnet),
+             .alephium(let testnet),
+             .vanar(let testnet),
+             .zkLinkNova(let testnet),
+             .pepecoin(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -159,7 +179,10 @@ public indirect enum Blockchain: Equatable, Hashable {
              .bittensor,
              .filecoin,
              .energyWebX,
-             .canxium:
+             .canxium,
+             .xodex,
+             .clore,
+             .fact0rn:
             return false
         case .stellar(_, let testnet),
              .hedera(_, let testnet),
@@ -216,7 +239,10 @@ public indirect enum Blockchain: Equatable, Hashable {
              .dash,
              .kaspa,
              .ravencoin,
-             .ducatus:
+             .ducatus,
+             .fact0rn,
+             .sui,
+             .pepecoin:
             return true
         default:
             return false
@@ -238,7 +264,11 @@ public indirect enum Blockchain: Equatable, Hashable {
              .dash,
              .kaspa,
              .ravencoin,
-             .ducatus:
+             .ducatus,
+             .radiant,
+             .fact0rn,
+             .sui,
+             .pepecoin:
             return true
         default:
             return false
@@ -260,7 +290,10 @@ public indirect enum Blockchain: Equatable, Hashable {
              .radiant,
              .internetComputer,
              .koinos,
-             .aptos:
+             .aptos,
+             .clore,
+             .fact0rn,
+             .pepecoin:
             return 8
         case .ethereum,
              .ethereumClassic,
@@ -301,7 +334,16 @@ public indirect enum Blockchain: Equatable, Hashable {
              .energyWebEVM,
              .energyWebX,
              .core,
-             .canxium:
+             .canxium,
+             .chiliz,
+             .xodex,
+             .odysseyChain,
+             .bitrock,
+             .apeChain,
+             .sonic,
+             .alephium,
+             .vanar,
+             .zkLinkNova:
             return 18
         case .cardano,
              .xrp,
@@ -348,7 +390,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .polygonZkEVM,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .zkLinkNova:
             return "ETH"
         case .ethereumClassic:
             return "ETC"
@@ -474,6 +517,28 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "CAU"
         case .casper:
             return "CSPR"
+        case .chiliz:
+            return "CHZ"
+        case .xodex:
+            return "XODEX"
+        case .clore:
+            return "CLORE"
+        case .fact0rn:
+            return "FACT"
+        case .odysseyChain:
+            return "DIONE"
+        case .bitrock:
+            return "BROCK"
+        case .apeChain:
+            return "APE"
+        case .sonic:
+            return "S"
+        case .alephium:
+            return "ALPH"
+        case .vanar:
+            return isTestnet ? "VG" : "VANRY"
+        case .pepecoin:
+            return "PEP"
         }
     }
 
@@ -531,6 +596,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "XDC Network"
         case .arbitrum:
             return "Arbitrum One" + testnetSuffix
+        case .areon:
+            return "Areon Network" + testnetSuffix
         case .playa3ullGames:
             return "PLAYA3ULL GAMES"
         case .pulsechain:
@@ -552,6 +619,20 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Energy Web Chain" + (isTestnet ? " Volta Testnet" : "")
         case .energyWebX:
             return "Energy Web X" + (isTestnet ? " Paseo Testnet" : "")
+        case .chiliz:
+            return "Chiliz" + (isTestnet ? "Spicy Testnet " : "")
+        case .odysseyChain:
+            return "Odyssey Chain" + testnetSuffix
+        case .bitrock:
+            return "Bitrock" + testnetSuffix
+        case .apeChain:
+            return isTestnet ? "Curtis Testnet" : "ApeChain"
+        case .sonic:
+            return "Sonic" + (isTestnet ? " Blaze Testnet" : "")
+        case .vanar:
+            return isTestnet ? "Vanguard Testnet" : "Vanar Chain"
+        case .zkLinkNova:
+            return isTestnet ? "zkLink Nova Sepolia Testnet" : "zkLink Nova"
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -569,6 +650,10 @@ public indirect enum Blockchain: Equatable, Hashable {
             "Toncoin"
         case .fantom:
             "Fantom"
+        case .odysseyChain:
+            "Dione"
+        case .apeChain:
+            "ApeCoin"
         default:
             displayName
         }
@@ -624,6 +709,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .veChain: return "VIP180"
         case .xdc: return "XRC20"
         case .hedera: return "HTS"
+        case .kaspa: return "KRC20"
         default:
             return nil
         }
@@ -641,7 +727,9 @@ public indirect enum Blockchain: Equatable, Hashable {
              .veChain,
              .hedera,
              .ton,
-             .cardano:
+             .cardano,
+             .kaspa,
+             .sui:
             return true
         case _ where isEvm:
             return true
@@ -657,6 +745,34 @@ public indirect enum Blockchain: Equatable, Hashable {
             return false
         default:
             return canHandleTokens
+        }
+    }
+
+    public var hasMemo: Bool {
+        switch self {
+        case .stellar,
+             .binance,
+             .ton,
+             .cosmos,
+             .terraV1,
+             .terraV2,
+             .algorand,
+             .hedera,
+             .sei,
+             .internetComputer,
+             .casper:
+            true
+        default:
+            false
+        }
+    }
+
+    public var hasDestinationTag: Bool {
+        switch self {
+        case .xrp:
+            true
+        default:
+            false
         }
     }
 
@@ -710,10 +826,20 @@ public indirect enum Blockchain: Equatable, Hashable {
     // [REDACTED_TODO_COMMENT]
     var allowsFeeSelection: Bool {
         switch self {
-        case .telos:
+        case .telos, .xodex:
             return false
         default:
             return true
+        }
+    }
+
+    /// This parameter is used to process the commission parameter when sending the token
+    public var allowsZeroFeePaid: Bool {
+        switch self {
+        case .xodex:
+            return true
+        default:
+            return false
         }
     }
 }
@@ -724,8 +850,8 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
-    // Only for Ethereum compatible blockchains
-    // https://chainlist.org
+    /// Only for Ethereum compatible blockchains
+    /// https://chainlist.org
     var chainId: Int? {
         switch self {
         case .ethereum: return isTestnet ? 5 : 1
@@ -765,6 +891,14 @@ public extension Blockchain {
         case .energyWebEVM: return isTestnet ? 73799 : 246
         case .core: return isTestnet ? 1115 : 1116
         case .canxium: return 3003
+        case .chiliz: return isTestnet ? 88882 : 88888
+        case .xodex: return 2415
+        case .odysseyChain: return isTestnet ? 131313 : 153153
+        case .bitrock: return isTestnet ? 7771 : 7171
+        case .apeChain: return isTestnet ? 33111 : 33139
+        case .sonic: return isTestnet ? 57054 : 146
+        case .vanar: return isTestnet ? 78600 : 2040
+        case .zkLinkNova: return isTestnet ? 810181 : 810180
         default:
             return nil
         }
@@ -780,14 +914,15 @@ public extension Blockchain {
              .polygonZkEVM,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .zkLinkNova:
             return true
         default:
             return false
         }
     }
 
-    // Only for Ethereum compatible blockchains
+    /// Only for Ethereum compatible blockchains
     var supportsEIP1559: Bool {
         guard isEvm else {
             return false
@@ -828,12 +963,21 @@ public extension Blockchain {
         case .base: return true
         case .cyber: return false
         case .blast: return false
-        /// By default, eth_feeHistory returns the error:
-        /// "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
-        /// To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
-        /// This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
+        // By default, eth_feeHistory returns the error:
+        // "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
+        // To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
+        // This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
         case .energyWebEVM: return false // eth_feeHistory all zeroes
         case .core: return false
+        case .chiliz: return false
+        case .xodex: return false
+        case .canxium: return true
+        case .odysseyChain: return true
+        case .bitrock: return false // eth_feeHistory all zeroes
+        case .apeChain: return true
+        case .vanar: return false // eth_feeHistory baseFeePerGas is zeroes
+        case .sonic: return true
+        case .zkLinkNova: return false // eth_feeHistory method returns error
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -847,7 +991,7 @@ public extension Blockchain {
 public extension Blockchain {
     func derivationPath(for style: DerivationStyle) -> DerivationPath? {
         guard curve.supportsDerivation else {
-            Log.debug("Wrong attempt to get a `DerivationPath` for a unsupported derivation curve")
+            BSDKLogger.error(error: "Wrong attempt to get a `DerivationPath` for a unsupported derivation curve")
             return nil
         }
 
@@ -973,6 +1117,18 @@ extension Blockchain: Codable {
         case .core: return "core"
         case .canxium: return "canxium"
         case .casper: return "casper-network"
+        case .chiliz: return "chiliz"
+        case .xodex: return "xodex"
+        case .clore: return "clore-ai"
+        case .fact0rn: return "fact0rn"
+        case .odysseyChain: return "dione"
+        case .bitrock: return "bitrock"
+        case .apeChain: return "apechain"
+        case .sonic: return "sonic"
+        case .alephium: return "alephium"
+        case .vanar: return "vanar-chain"
+        case .zkLinkNova: return "zklink"
+        case .pepecoin: return "pepecoin"
         }
     }
 
@@ -1071,6 +1227,18 @@ extension Blockchain: Codable {
         case "core": self = .core(testnet: isTestnet)
         case "canxium": self = .canxium
         case "casper-network": self = .casper(curve: curve, testnet: isTestnet)
+        case "chiliz": self = .chiliz(testnet: isTestnet)
+        case "xodex": self = .xodex
+        case "clore-ai": self = .clore
+        case "fact0rn": self = .fact0rn
+        case "dione": self = .odysseyChain(testnet: isTestnet)
+        case "bitrock": self = .bitrock(testnet: isTestnet)
+        case "apechain": self = .apeChain(testnet: isTestnet)
+        case "sonic": self = .sonic(testnet: isTestnet)
+        case "alephium": self = .alephium(testnet: isTestnet)
+        case "vanar-chain": self = .vanar(testnet: isTestnet)
+        case "zklink": self = .zkLinkNova(testnet: isTestnet)
+        case "pepecoin": self = .pepecoin(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1124,6 +1292,7 @@ public extension Blockchain {
         case "xtz": return .tezos(curve: curve)
         case "doge": return .dogecoin
         case "bsc": return .bsc(testnet: isTestnet)
+        case "clore-ai": return .clore
         // DO NOT ADD new blockchains here. This is legacy code and used only for Tangem Note and cards release before 4.12 firmware
         default: return nil
         }
@@ -1315,6 +1484,39 @@ private extension Blockchain {
             return "canxium"
         case .casper:
             return "casper-network"
+        case .chiliz:
+            return "chiliz"
+        case .xodex:
+            return "xodex"
+        case .clore:
+            return "clore-ai"
+        case .fact0rn:
+            return "fact0rn"
+        case .odysseyChain:
+            return "dione"
+        case .bitrock:
+            return "bitrock"
+        case .apeChain:
+            switch type {
+            case .network: return "apechain"
+            case .coin: return "apecoin"
+            }
+        case .sonic:
+            switch type {
+            case .network: return "sonic"
+            case .coin: return "sonic-3"
+            }
+        case .alephium:
+            return "alephium"
+        case .vanar:
+            return "vanar-chain"
+        case .zkLinkNova:
+            return "zklink"
+        case .pepecoin:
+            switch type {
+            case .network: return "pepecoin"
+            case .coin: return "pepecoin-network"
+            }
         }
     }
 
@@ -1370,7 +1572,15 @@ extension Blockchain {
              .telos,
              .energyWebEVM,
              .core,
-             .canxium:
+             .canxium,
+             .chiliz,
+             .xodex,
+             .odysseyChain,
+             .bitrock,
+             .apeChain,
+             .sonic,
+             .vanar,
+             .zkLinkNova:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
@@ -1432,6 +1642,14 @@ extension Blockchain {
             return FilecoinWalletAssembly()
         case .casper:
             return CasperWalletAssembly()
+        case .clore:
+            return CloreWalletAssembly()
+        case .fact0rn:
+            return Fact0rnWalletAssembly()
+        case .alephium:
+            return AlephiumWalletAssembly()
+        case .pepecoin:
+            return PepecoinWalletAssembly()
         }
     }
 }

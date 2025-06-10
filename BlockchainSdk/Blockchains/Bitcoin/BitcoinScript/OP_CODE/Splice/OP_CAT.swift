@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Concatenates two strings.
+/// Concatenates two strings.
 struct OpConcatenate: OpCodeProtocol {
     var value: UInt8 { return 0x7e }
     var name: String { return "OP_CAT" }
