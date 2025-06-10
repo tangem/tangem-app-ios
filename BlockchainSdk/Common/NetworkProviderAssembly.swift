@@ -7,82 +7,83 @@
 //
 
 import Foundation
-
-protocol NetworkProviderAssemblyInput {
-    var blockchain: Blockchain { get }
-    var blockchainSdkConfig: BlockchainSdkConfig { get }
-    var networkConfig: NetworkProviderConfiguration { get }
-    var apiInfo: [NetworkProviderType] { get }
-}
+import TangemNetworkUtils
 
 struct NetworkProviderAssembly {
     // [REDACTED_TODO_COMMENT]
-    func makeBlockBookUtxoProvider(with input: NetworkProviderAssemblyInput, for type: BlockBookProviderType) -> BlockBookUtxoProvider {
+    func makeBlockBookUTXOProvider(
+        with input: Input,
+        for type: BlockBookProviderType
+    ) -> BlockBookUTXOProvider {
         switch type {
         case .nowNodes:
-            return BlockBookUtxoProvider(
+            return BlockBookUTXOProvider(
                 blockchain: input.blockchain,
                 blockBookConfig: NowNodesBlockBookConfig(
                     apiKeyHeaderName: Constants.nowNodesApiKeyHeaderName,
-                    apiKeyHeaderValue: input.blockchainSdkConfig.nowNodesApiKey
+                    apiKeyHeaderValue: input.keysConfig.nowNodesApiKey
                 ),
-                networkConfiguration: input.networkConfig
+                networkConfiguration: input.tangemProviderConfig
             )
         case .getBlock:
-            return BlockBookUtxoProvider(
+            return BlockBookUTXOProvider(
                 blockchain: input.blockchain,
-                blockBookConfig: GetBlockBlockBookConfig(input.blockchainSdkConfig.getBlockCredentials),
-                networkConfiguration: input.networkConfig
+                blockBookConfig: GetBlockBlockBookConfig(input.keysConfig.getBlockCredentials),
+                networkConfiguration: input.tangemProviderConfig
+            )
+        case .clore(let url):
+            return CloreBlockBookUTXOProvider(
+                blockchain: input.blockchain,
+                blockBookConfig: CloreBlockBookConfig(urlNode: url),
+                networkConfiguration: input.tangemProviderConfig
             )
         }
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBitcoinCashNowNodesNetworkProvider(
-        input: NetworkProviderAssemblyInput,
+    func makeBitcoinCashBlockBookUTXOProvider(
+        with input: Input,
+        for type: BlockBookProviderType,
         bitcoinCashAddressService: BitcoinCashAddressService
-    ) -> AnyBitcoinNetworkProvider {
-        return BitcoinCashNowNodesNetworkProvider(
-            blockBookUtxoProvider: makeBlockBookUtxoProvider(with: input, for: .nowNodes),
+    ) -> UTXONetworkProvider {
+        BitcoinCashBlockBookUTXOProvider(
+            blockBookUTXOProvider: makeBlockBookUTXOProvider(with: input, for: type),
             bitcoinCashAddressService: bitcoinCashAddressService
-        ).eraseToAnyBitcoinNetworkProvider()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: NetworkProviderAssemblyInput) -> BlockcypherNetworkProvider {
-        return BlockcypherNetworkProvider(
-            endpoint: endpoint,
-            tokens: input.blockchainSdkConfig.blockcypherTokens,
-            configuration: input.networkConfig
         )
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: NetworkProviderAssemblyInput) -> [AnyBitcoinNetworkProvider] {
-        let apiKeys: [String?] = [nil] + input.blockchainSdkConfig.blockchairApiKeys
+    func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: Input) -> BlockcypherNetworkProvider {
+        BlockcypherNetworkProvider(
+            endpoint: endpoint,
+            tokens: input.keysConfig.blockcypherTokens,
+            blockchain: input.blockchain,
+            configuration: input.tangemProviderConfig
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: Input) -> [UTXONetworkProvider] {
+        let apiKeys: [String?] = [nil] + input.keysConfig.blockchairApiKeys
 
         return apiKeys.map {
-            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, configuration: input.networkConfig)
-                .eraseToAnyBitcoinNetworkProvider()
+            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, blockchain: input.blockchain, configuration: input.tangemProviderConfig)
         }
     }
 
-    func makeEthereumJsonRpcProviders(with input: NetworkProviderAssemblyInput) -> [EthereumJsonRpcProvider] {
-        return APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
+    func makeEthereumJsonRpcProviders(with input: Input) -> [EthereumJsonRpcProvider] {
+        return APIResolver(blockchain: input.blockchain, keysConfig: input.keysConfig)
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                EthereumJsonRpcProvider(url: nodeInfo.url, configuration: input.networkConfig)
+                EthereumJsonRpcProvider(node: nodeInfo, configuration: input.tangemProviderConfig)
             }
     }
 }
 
 extension NetworkProviderAssembly {
-    struct Input: NetworkProviderAssemblyInput {
-        let blockchainSdkConfig: BlockchainSdkConfig
+    struct Input {
         let blockchain: Blockchain
+        let keysConfig: BlockchainSdkKeysConfig
         let apiInfo: [NetworkProviderType]
-
-        var networkConfig: NetworkProviderConfiguration {
-            blockchainSdkConfig.networkProviderConfiguration(for: blockchain)
-        }
+        let tangemProviderConfig: TangemProviderConfiguration
     }
 }

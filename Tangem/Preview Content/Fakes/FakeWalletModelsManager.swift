@@ -11,17 +11,19 @@ import Combine
 import TangemSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
-    var walletModels: [WalletModel] {
+    var isInitialized: Bool { true }
+
+    var walletModels: [any WalletModel] {
         walletModelsSubject.value
     }
 
-    var walletModelsPublisher: AnyPublisher<[WalletModel], Never> {
+    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
         walletModelsSubject
             .delay(for: isDelayed ? 5.0 : 0.0, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
-    private let walletModelsSubject: CurrentValueSubject<[WalletModel], Never>
+    private let walletModelsSubject: CurrentValueSubject<[any WalletModel], Never>
     private let isDelayed: Bool
     private var updateAllSubscription: AnyCancellable?
 

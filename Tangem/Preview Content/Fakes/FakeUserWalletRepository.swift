@@ -13,6 +13,8 @@ import BlockchainSdk
 class FakeUserWalletRepository: UserWalletRepository {
     var selectedUserWalletId: UserWalletId?
 
+    var isLocked: Bool { false }
+
     var hasSavedWallets: Bool { true }
 
     var models: [UserWalletModel] = []
@@ -56,13 +58,13 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func updateSelection() {}
 
-    func logoutIfNeeded() {}
+    func lock() {}
 
     func add(_ userWalletModel: UserWalletModel) {}
 
     func addOrScan(scanner: CardScanner, completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
 
-    func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {}
+    func delete(_ userWalletId: UserWalletId) {}
 
     func clearNonSelectedUserWallets() {}
 

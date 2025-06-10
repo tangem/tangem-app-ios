@@ -7,9 +7,12 @@
 //
 
 import SwiftUI
+import TangemUI
+import TangemUIUtils
 
 struct AdaptiveSizeSheetModifier: ViewModifier {
     @StateObject private var viewModel = AdaptiveSizeSheetViewModel()
+
     func body(content: Content) -> some View {
         VStack(spacing: 0) {
             handler
@@ -28,15 +31,16 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
     }
 
     private func scrollableSheetContent(content: Content) -> some View {
-        ScrollView(viewModel.scrollViewAxis, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: false) {
             content
                 .padding(.bottom, viewModel.defaultBottomPadding)
                 .presentationDetents(contentHeight: viewModel.contentHeight, cornerRadius: viewModel.cornerRadius)
+                .padding(.bottom, viewModel.scrollableContentBottomPadding)
                 .readGeometry(\.size.height) {
                     viewModel.contentHeight = $0
                 }
-                .padding(.bottom, viewModel.scrollableContentBottomPadding)
         }
+        .scrollDisabledBackport(viewModel.contentHeight <= viewModel.containerHeight)
         .readGeometry(\.size.height) {
             viewModel.containerHeight = $0
         }
@@ -53,20 +57,6 @@ private extension View {
                 .presentationCornerRadiusBackport(cornerRadius)
         } else {
             self
-        }
-    }
-}
-
-@available(iOS 16.0, *)
-private extension View {
-    @ViewBuilder
-    func presentationCornerRadiusBackport(_ cornerRadius: CGFloat) -> some View {
-        if #available(iOS 16.4, *) {
-            presentationCornerRadius(cornerRadius)
-        } else {
-            presentationConfiguration { controller in
-                controller.preferredCornerRadius = cornerRadius
-            }
         }
     }
 }
