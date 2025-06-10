@@ -45,14 +45,48 @@ public class CommonIncomingActionManager {
     }
 
     private func handlePushNotificationEvent(_ event: PushNotificationsEvent) {
-        guard case .receivedResponse(let response) = event,
-              let deeplinkURL = response.notification.request.content.userInfo[Constants.deeplinkKey] as? String,
-              let url = URL(string: deeplinkURL)
+        guard case .receivedResponse(let response) = event else {
+            return
+        }
+
+        let userInfo = response.notification.request.content.userInfo
+
+        if let deeplinkURL = userInfo[Constants.deeplinkKey] as? String {
+            tryHandleDeeplinkUrlByDeeplinkKey(with: deeplinkURL)
+        } else {
+            // A temporary crutch, while the push of deeplink transactions is not formed on the back, but is collected locally
+            tryHandleDeeplinkUrlByTransactionPush(with: userInfo)
+        }
+    }
+
+    private func tryHandleDeeplinkUrlByDeeplinkKey(with deeplinkURL: String) {
+        if let url = URL(string: deeplinkURL) {
+            _handleDeeplink(url)
+        }
+    }
+
+    private func tryHandleDeeplinkUrlByTransactionPush(with userInfo: [AnyHashable: Any]) {
+        let constants = TransactionPushActionURLHelper.Constants.self
+
+        guard
+            let networkId = userInfo[constants.networkIdKey] as? String,
+            let tokenId = userInfo[constants.tokenIdKey] as? String,
+            let walletId = userInfo[constants.walletIdKey] as? String,
+            let type = userInfo[constants.typeKey] as? String,
+            type == constants.incomeTransaction
         else {
             return
         }
 
-        _handleDeeplink(url)
+        let transactionPushURLHelper = TransactionPushActionURLHelper(
+            type: type, // See documentation.
+            networkId: networkId,
+            tokenId: tokenId,
+            walletId: walletId
+        )
+
+        let handleUrl = transactionPushURLHelper.buildURL(scheme: .withoutRedirectUniversalLink)
+        _handleDeeplink(handleUrl)
     }
 }
 
