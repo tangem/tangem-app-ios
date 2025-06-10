@@ -9,6 +9,7 @@
 import Foundation
 
 struct KoinosAccountInfo {
+    let koinContractId: String
     let koinBalance: UInt64
     let mana: UInt64
 }

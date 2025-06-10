@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct PendingTransactionsListView: View {
     let items: [TransactionViewModel]
