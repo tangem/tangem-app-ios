@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import TangemUIUtils
+import TangemUI
 
 final class OverlayContentContainerViewController: UIViewController {
     // MARK: - Dependencies
@@ -95,6 +97,10 @@ final class OverlayContentContainerViewController: UIViewController {
         self.overlayCollapsedHeight = overlayCollapsedHeight
         self.overlayCornerRadius = overlayCornerRadius
         super.init(nibName: nil, bundle: nil)
+    }
+
+    deinit {
+        AppLogger.info("OverlayContentContainerViewController deinit")
     }
 
     @available(*, unavailable, message: "init(coder:) has not been implemented")
@@ -233,6 +239,15 @@ final class OverlayContentContainerViewController: UIViewController {
         animationContext.duration *= Constants.auxiliaryAnimationsDurationMultiplier
 
         updateProgress(verticalOffset: newVerticalOffset, animationContext: animationContext)
+    }
+
+    // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
+    // [REDACTED_INFO]
+    // https://forums.developer.apple.com/forums/thread/724598
+    func resetContentFrame() {
+        let viewFrame = contentViewController.view.frame
+        contentViewController.view.frame = .zero
+        contentViewController.view.frame = viewFrame
     }
 
     // MARK: - Setup

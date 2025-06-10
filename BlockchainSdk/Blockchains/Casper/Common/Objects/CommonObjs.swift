@@ -1,13 +1,13 @@
 import Foundation
 
-/**
+/*
  Class represents the Big number of type U512. The value is stored in String format and then parsed as number.
  */
 
 class U512Class {
     /// Value stored in string format, example "909889988788781234567899876543211223455566"
     var valueInStr: String = ""
-    /**
+    /*
      Generate a U512 class from number in String format
      - Parameter : number in String format
      - Returns: U512Class object
@@ -20,14 +20,14 @@ class U512Class {
     }
 }
 
-/**
+/*
  Class represents the Big number of type U256. The value is stored in String format and then parsed as number.
  */
 
 class U256Class {
     /// Value stored in string format, example "909889988788781234567899876543211223455566"
     var valueInStr: String = ""
-    /**
+    /*
      Generate a U256 class from number in String format
      - Parameter : number in String format
      - Returns: U256Class object
@@ -44,10 +44,10 @@ class U256Class {
  Class represents the Big number of type U256. The value is stored in String format and then parsed as number.
  */
 class U128Class {
-    /// Value stored in string format, example "909889988788781234567899876543211223455566"
+    // Value stored in string format, example "909889988788781234567899876543211223455566"
 
     var valueInStr: String = ""
-    /**
+    /*
      Generate a U128 class from number in String format
      - Parameter : number in String format
      - Returns: U128Class object

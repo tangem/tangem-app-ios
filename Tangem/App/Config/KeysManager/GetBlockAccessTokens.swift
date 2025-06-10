@@ -1,0 +1,28 @@
+//
+//  GetBlockAccessTokens.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import BlockchainSdk
+
+extension BlockchainSdkKeysConfig.GetBlockCredentials {
+    init(_ json: [String: [String: String]]) {
+        var credentials: [BlockchainSdkKeysConfig.GetBlockCredentials.Credential] = []
+
+        Blockchain.allMainnetCases.forEach { blockchain in
+            if let accessTokens = json[blockchain.codingKey] {
+                BlockchainSdkKeysConfig.GetBlockCredentials.TypeValue.allCases.forEach { type in
+                    if let token = accessTokens[type.rawValue] {
+                        credentials.append(.init(blockchain: blockchain, type: type, key: token))
+                    }
+                }
+            }
+        }
+
+        self.init(credentials: credentials)
+    }
+}
