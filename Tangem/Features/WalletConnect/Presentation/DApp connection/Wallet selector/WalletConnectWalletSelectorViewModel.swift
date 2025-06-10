@@ -70,6 +70,8 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
                     self?.state.wallets[index].imageState = .content(image)
                 }
             }
+
+            self?.walletImagesLoadingTask = nil
         }
     }
 
@@ -156,6 +158,7 @@ extension WalletConnectWalletSelectorViewModel {
     }
 }
 
+// [REDACTED_TODO_COMMENT]
 private extension WalletConnectWalletSelectorViewState {
     static func loading(userWallets: [any UserWalletModel], selectedWallet: some UserWalletModel) -> WalletConnectWalletSelectorViewState {
         WalletConnectWalletSelectorViewState(
