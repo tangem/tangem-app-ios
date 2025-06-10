@@ -1,5 +1,5 @@
 //
-//  WalletConnectDAppConnectionProposalRoutable.swift
+//  WalletConnectDAppConnectionRoutable.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,10 +7,11 @@
 //
 
 @MainActor
-protocol WalletConnectDAppConnectionProposalRoutable: AnyObject {
+protocol WalletConnectDAppConnectionRoutable: AnyObject {
     func openConnectionRequest()
 
     func openVerifiedDomain(for dAppName: String)
+
     func openDomainVerificationWarning(
         _ verificationStatus: WalletConnectDAppVerificationStatus,
         cancelAction: @escaping () async -> Void,
@@ -18,12 +19,13 @@ protocol WalletConnectDAppConnectionProposalRoutable: AnyObject {
     )
 
     func openWalletSelector()
+
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult)
 
-    func openErrorScreen(error: some Error)
+    func displaySuccessfulDAppConnection(with dAppName: String)
+
+    func displayProposalLoadingError(_ proposalLoadingError: WalletConnectDAppProposalLoadingError)
+    func displayProposalApprovalError(_ proposalConnectionError: WalletConnectDAppProposalApprovalError)
 
     func dismiss()
-
-    func showErrorToast(with message: String)
-    func showSuccessToast(with message: String)
 }

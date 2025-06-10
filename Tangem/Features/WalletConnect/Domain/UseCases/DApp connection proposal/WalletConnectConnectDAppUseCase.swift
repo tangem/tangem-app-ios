@@ -9,21 +9,21 @@
 import enum BlockchainSdk.Blockchain
 
 final class WalletConnectConnectDAppUseCase {
-    private let dAppConnectionService: any WalletConnectDAppConnectionService
+    private let dAppProposalApprovalService: any WalletConnectDAppProposalApprovalService
 
-    init(dAppConnectionService: some WalletConnectDAppConnectionService) {
-        self.dAppConnectionService = dAppConnectionService
+    init(dAppProposalApprovalService: some WalletConnectDAppProposalApprovalService) {
+        self.dAppProposalApprovalService = dAppProposalApprovalService
     }
 
     func callAsFunction(
         proposal: WalletConnectSessionProposal,
         selectedBlockchains: some Sequence<Blockchain>,
         selectedUserWallet: some UserWalletModel
-    ) async throws {
+    ) async throws(WalletConnectDAppProposalApprovalError) {
         let request = try proposal.dAppConnectionRequestFactory(selectedBlockchains, selectedUserWallet)
 
         // [REDACTED_TODO_COMMENT]
-        try await dAppConnectionService.connectDApp(with: request, selectedUserWallet.userWalletId.stringValue)
+        try await dAppProposalApprovalService.approveConnectionProposal(with: request, selectedUserWallet.userWalletId.stringValue)
 
         // [REDACTED_TODO_COMMENT]
     }
