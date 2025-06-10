@@ -88,4 +88,15 @@ class IncomingActionsTests: XCTestCase {
         let dismissURL2 = URL(string: "https://tangem.com/redirect_sell?transaction=xxxx")!
         XCTAssertTrue(helper.parse(dismissURL2) == .dismissSafari(dismissURL2))
     }
+
+    func testTransactionPushToken() {
+        let helper = TransactionPushActionURLHelper(
+            type: "income_transaction",
+            networkId: "ethereum",
+            tokenId: "ethereum",
+            walletId: "0000000000000000000000000000000000000000000000000000000000000000"
+        )
+
+        XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&wallet_id=0000000000000000000000000000000000000000000000000000000000000000&type=income_transaction")
+    }
 }
