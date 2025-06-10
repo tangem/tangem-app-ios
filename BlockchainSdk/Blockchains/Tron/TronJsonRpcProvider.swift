@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import TangemNetworkUtils
 
 class TronJsonRpcProvider: HostProvider {
     var host: String {
@@ -16,11 +17,11 @@ class TronJsonRpcProvider: HostProvider {
     }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<TronTarget>
+    private let provider: TangemProvider<TronTarget>
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<TronTarget>(configuration: configuration)
+        provider = TangemProvider<TronTarget>(configuration: configuration)
     }
 
     func getChainParameters() -> AnyPublisher<TronGetChainParametersResponse, Error> {

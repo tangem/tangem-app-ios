@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 
 class FilecoinNetworkService: MultiNetworkProvider {
     let providers: [FilecoinNetworkProvider]

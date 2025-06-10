@@ -9,14 +9,15 @@
 import Foundation
 import Moya
 import Combine
+import TangemNetworkUtils
 
 class TezosJsonRpcProvider: HostProvider {
     let host: String
-    private let provider: NetworkProvider<TezosTarget>
+    private let provider: TangemProvider<TezosTarget>
 
-    init(host: String, configuration: NetworkProviderConfiguration) {
+    init(host: String, configuration: TangemProviderConfiguration) {
         self.host = host
-        provider = NetworkProvider<TezosTarget>(configuration: configuration)
+        provider = TangemProvider<TezosTarget>(configuration: configuration)
     }
 
     func getInfo(address: String) -> AnyPublisher<TezosAddressResponse, Error> {

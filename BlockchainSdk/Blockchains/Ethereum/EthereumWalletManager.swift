@@ -53,7 +53,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             })
     }
 
-    // It can't be into extension because it will be overridden in the `OptimismWalletManager`
+    /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
     func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
         let fromPublisher = addressConverter.convertToETHAddressPublisher(defaultSourceAddress)
         let destinationPublisher = addressConverter.convertToETHAddressPublisher(destination)
@@ -72,7 +72,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             .eraseToAnyPublisher()
     }
 
-    // It can't be into extension because it will be overridden in the `MantleWalletManager`
+    /// It can't be into extension because it will be overridden in the `MantleWalletManager`
     /// Build and sign transaction
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
@@ -104,15 +104,14 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                         transaction: convertedTransaction,
                         signatureInfo: signatureInfo
                     )
-                    .hexString
-                    .lowercased()
+                    .hex()
                     .addHexPrefix()
             }
         }
         .eraseToAnyPublisher()
     }
 
-    // It can't be into extension because it will be overridden in the `MantleWalletManager`
+    /// It can't be into extension because it will be overridden in the `MantleWalletManager`
     func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> {
         let toPublisher = addressConverter.convertToETHAddressPublisher(to)
         let fromPublisher = addressConverter.convertToETHAddressPublisher(from)
@@ -213,7 +212,7 @@ private extension EthereumWalletManager {
             to: destination,
             from: from,
             value: value,
-            data: data?.hexString.addHexPrefix()
+            data: data?.hex().addHexPrefix()
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in
@@ -256,7 +255,7 @@ private extension EthereumWalletManager {
             to: destination,
             from: from,
             value: value,
-            data: data?.hexString.addHexPrefix()
+            data: data?.hex().addHexPrefix()
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in
@@ -376,22 +375,6 @@ extension EthereumWalletManager: TransactionSender {
     }
 }
 
-// MARK: - SignatureCountValidator
-
-extension EthereumWalletManager: SignatureCountValidator {
-    func validateSignatureCount(signedHashes: Int) -> AnyPublisher<Void, Error> {
-        addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getSignatureCount(address: convertedAddress)
-            }
-            .tryMap {
-                if signedHashes != $0 { throw BlockchainSdkError.signatureCountNotMatched }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - EthereumTransactionDataBuilder
 
 extension EthereumWalletManager: EthereumTransactionDataBuilder {
@@ -408,7 +391,7 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension EthereumWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = String
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -418,11 +401,12 @@ extension EthereumWalletManager: StakeKitTransactionSender, StakeKitTransactionS
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
         try EthereumStakeKitTransactionHelper(transactionBuilder: txBuilder)
             .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
-            .hexString
-            .lowercased()
+            .hex()
             .addHexPrefix()
     }
+}
 
+extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }

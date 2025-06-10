@@ -7,50 +7,61 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct APIKeysInfoProvider {
     let blockchain: Blockchain
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func apiKeys(for providerType: NetworkProviderType?) -> APIHeaderKeyInfo? {
         switch providerType {
         case .nowNodes:
-            return NowNodesAPIKeysInfoProvider(apiKey: config.nowNodesApiKey)
+            return NowNodesAPIKeysInfoProvider(apiKey: keysConfig.nowNodesApiKey)
                 .apiKeys(for: blockchain)
         case .arkhiaHedera:
             return .init(
                 headerName: Constants.xApiKeyHeaderName,
-                headerValue: config.hederaArkhiaApiKey
+                headerValue: keysConfig.hederaArkhiaApiKey
             )
         case .ton:
             return .init(
                 headerName: Constants.xApiKeyHeaderName,
-                headerValue: config.tonCenterApiKeys.getApiKey(for: blockchain.isTestnet)
+                headerValue: keysConfig.tonCenterApiKeys.getApiKey(for: blockchain.isTestnet)
             )
         case .tron:
             return .init(
                 headerName: "TRON-PRO-API-KEY",
-                headerValue: config.tronGridApiKey
+                headerValue: keysConfig.tronGridApiKey
             )
         case .tangemChia:
             return .init(
                 headerName: Constants.xApiKeyHeaderName,
-                headerValue: config.chiaTangemApiKeys.mainnetApiKey
+                headerValue: keysConfig.chiaTangemApiKeys.mainnetApiKey
+            )
+        case .tangemChia3:
+            return .init(
+                headerName: Constants.xApiKeyHeaderName,
+                headerValue: keysConfig.chiaTangemApiKeys.mainnetApiKey
             )
         case .fireAcademy:
             return .init(
                 headerName: Constants.xApiKeyHeaderName,
-                headerValue: config.fireAcademyApiKeys.getApiKey(for: blockchain.isTestnet)
+                headerValue: keysConfig.fireAcademyApiKeys.getApiKey(for: blockchain.isTestnet)
             )
         case .onfinality:
             return .init(
                 headerName: Constants.onfinalityApiKeyHeaderName,
-                headerValue: config.bittensorOnfinalityKey
+                headerValue: keysConfig.bittensorOnfinalityKey
             )
-        case .koinos:
+        case .koinosPro:
             return .init(
                 headerName: "apikey",
-                headerValue: config.koinosProApiKey
+                headerValue: keysConfig.koinosProApiKey
+            )
+        case .tangemAlephium:
+            return .init(
+                headerName: "x-api-key",
+                headerValue: keysConfig.tangemAlephiumApiKey
             )
         case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
             return nil

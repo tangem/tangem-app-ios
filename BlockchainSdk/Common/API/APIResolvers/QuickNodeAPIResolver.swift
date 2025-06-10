@@ -9,7 +9,7 @@
 import Foundation
 
 struct QuickNodeAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(for blockchain: Blockchain) -> NodeInfo? {
         guard let credentials = resolveCredentials(for: blockchain) else {
@@ -23,12 +23,12 @@ struct QuickNodeAPIResolver {
         return NodeInfo(url: url)
     }
 
-    private func resolveCredentials(for blockchain: Blockchain) -> BlockchainSdkConfig.QuickNodeCredentials? {
+    private func resolveCredentials(for blockchain: Blockchain) -> BlockchainSdkKeysConfig.QuickNodeCredentials? {
         switch blockchain {
         case .bsc:
-            return config.quickNodeBscCredentials
+            return keysConfig.quickNodeBscCredentials
         case .solana:
-            return config.quickNodeSolanaCredentials
+            return keysConfig.quickNodeSolanaCredentials
         default:
             return nil
         }

@@ -12,25 +12,6 @@ struct LineChartView: View {
     let color: Color
     let data: [Double]
 
-    private var linearGradient: LinearGradient {
-        LinearGradient(
-            colors: [color.opacity(0.25), Color.clear],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private var chartItems: [Item] {
-        data.indexed().map { index, element in
-            Item(id: index, value: element)
-        }
-    }
-
-    private var scaleY: (min: Double, max: Double) {
-        let values = chartItems.map { $0.value }
-        return (values.min() ?? .zero, values.max() ?? .zero)
-    }
-
     // MARK: - UI
 
     var body: some View {

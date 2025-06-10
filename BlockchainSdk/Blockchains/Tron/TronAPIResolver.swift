@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct TronAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(blockchain: Blockchain) -> NodeInfo? {
         guard case .tron = blockchain else {
@@ -18,7 +19,7 @@ struct TronAPIResolver {
 
         return .init(
             url: URL(string: "https://api.trongrid.io")!,
-            keyInfo: APIKeysInfoProvider(blockchain: blockchain, config: config).apiKeys(for: .tron)
+            keyInfo: APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: .tron)
         )
     }
 }

@@ -29,8 +29,8 @@ struct CasperAddressUtils {
 
     // MARK: - Private Implementation
 
-    // Separate bytes inside ByteArray to nibbles
-    // E.g. [0x01, 0x55, 0xFF, ...] -> [0x00, 0x01, 0x50, 0x05, 0xF0, 0x0F, ...]
+    /// Separate bytes inside ByteArray to nibbles
+    /// E.g. [0x01, 0x55, 0xFF, ...] -> [0x00, 0x01, 0x50, 0x05, 0xF0, 0x0F, ...]
     private func bytesToNibbles(bytes: [UInt8]) -> [UInt8] {
         let result: [UInt8] = bytes.reduce(into: []) { partialResult, byte in
             partialResult.append((byte & 0xFF) >> 4)
