@@ -256,9 +256,9 @@ extension WCServiceV2 {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
         WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-        let session = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
+        let session = try await WalletKit.instance.approve(proposalId: proposalID, namespaces: namespaces)
 
         WCLogger.info(LoggerStrings.sessionEstablished(session))
         let savedSession = session.mapToWCSavedSession(with: userWalletID)
@@ -266,10 +266,9 @@ extension WCServiceV2 {
         await sessionsStorage.save(savedSession)
     }
 
-    func rejectSessionProposal(with proposalId: String) async throws {
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
         do {
-            // [REDACTED_TODO_COMMENT]
-            try await WalletKit.instance.rejectSession(proposalId: proposalId, reason: .userRejected)
+            try await WalletKit.instance.rejectSession(proposalId: proposalID, reason: reason)
             WCLogger.info(LoggerStrings.userRejectWC)
         } catch {
             WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
