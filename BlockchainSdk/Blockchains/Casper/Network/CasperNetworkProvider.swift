@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemNetworkUtils
 
 final class CasperNetworkProvider: HostProvider {
     var host: String {
@@ -17,16 +18,16 @@ final class CasperNetworkProvider: HostProvider {
     // MARK: - Private Properties
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<CasperTarget>
+    private let provider: TangemProvider<CasperTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        configuration: NetworkProviderConfiguration
+        configuration: TangemProviderConfiguration
     ) {
         self.node = node
-        provider = NetworkProvider<CasperTarget>(configuration: configuration)
+        provider = TangemProvider<CasperTarget>(configuration: configuration)
     }
 
     // MARK: - Implementation

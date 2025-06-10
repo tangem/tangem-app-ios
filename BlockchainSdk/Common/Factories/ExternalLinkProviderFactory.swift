@@ -165,6 +165,30 @@ public struct ExternalLinkProviderFactory {
             return CanxiumExternalLinkProvider()
         case .casper:
             return CasperExternalLinkProvider(isTestnet: isTestnet)
+        case .chiliz:
+            return ChilizExternalLinkProvider(isTestnet: isTestnet)
+        case .xodex:
+            return XodexExternalLinkProvider()
+        case .clore:
+            return CloreExternalLinkProvider()
+        case .fact0rn:
+            return Fact0rnExternalLinkProvider()
+        case .odysseyChain:
+            return OdysseyChainExternalLinkProvider(isTestnet: isTestnet)
+        case .bitrock:
+            return BitrockExternalLinkProvider(isTestnet: isTestnet)
+        case .apeChain:
+            return ApeChainExternalLinkProvider(isTestnet: isTestnet)
+        case .sonic:
+            return SonicExternalLinkProvider(isTestnet: isTestnet)
+        case .alephium:
+            return AlephiumExternalLinkProvider()
+        case .vanar:
+            return VanarExternalLinkProvider(isTestnet: isTestnet)
+        case .zkLinkNova:
+            return ZKLinkNovaExternalLinkProvider(isTestnet: isTestnet)
+        case .pepecoin:
+            return PepecoinExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }

@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUIUtils
 
 struct FixedSizeButtonWithLeadingIcon: View {
     var body: some View {
