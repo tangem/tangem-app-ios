@@ -23,6 +23,8 @@ struct SendNewSummaryView: View {
                 destinationSectionView
 
                 feeSectionView
+
+                notificationsView
             }
 
             descriptionView
@@ -78,6 +80,16 @@ struct SendNewSummaryView: View {
                 SendNewFeeCompactView(viewModel: feeCompactViewModel)
             }
             .disabled(!feeCompactViewModel.canEditFee)
+        }
+    }
+
+    // MARK: - Notifications
+
+    @ViewBuilder
+    private var notificationsView: some View {
+        ForEach(viewModel.notificationInputs) { input in
+            NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
         }
     }
 
