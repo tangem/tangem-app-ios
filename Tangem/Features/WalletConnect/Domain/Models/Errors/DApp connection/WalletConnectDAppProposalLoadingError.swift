@@ -24,6 +24,9 @@ enum WalletConnectDAppProposalLoadingError: Error {
     /// The dApp has required blockchains that are not supported by the Tangem app.
     case unsupportedBlockchains(UnsupportedBlockchainsError)
 
+    /// The dApp does not specify any blockchains — neither required nor optional.
+    case noBlockchainsProvidedByDApp(NoBlockchainsProvidedByDAppError)
+
     /// The dApp connection proposal loading was explicitly cancelled by user.
     case cancelledByUser
 }
@@ -39,5 +42,10 @@ extension WalletConnectDAppProposalLoadingError {
         let proposalID: String
         let dAppName: String
         let blockchainNames: [String]
+    }
+
+    struct NoBlockchainsProvidedByDAppError {
+        let proposalID: String
+        let dAppName: String
     }
 }
