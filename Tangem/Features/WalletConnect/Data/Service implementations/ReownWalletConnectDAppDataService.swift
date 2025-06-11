@@ -31,10 +31,22 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             icon: WalletConnectDAppDataMapper.mapIconURL(from: reownSessionProposal)
         )
 
+        let requiredBlockchains = WalletConnectSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal)
+        let optionalBlockchains = WalletConnectSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal)
+
+        guard requiredBlockchains.isNotEmpty || optionalBlockchains.isNotEmpty else {
+            throw WalletConnectDAppProposalLoadingError.noBlockchainsProvidedByDApp(
+                .init(
+                    proposalID: reownSessionProposal.id,
+                    dAppName: reownSessionProposal.proposer.name
+                )
+            )
+        }
+
         let proposal = WalletConnectSessionProposal(
             id: reownSessionProposal.id,
-            requiredBlockchains: WalletConnectSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal),
-            optionalBlockchains: WalletConnectSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal),
+            requiredBlockchains: requiredBlockchains,
+            optionalBlockchains: optionalBlockchains,
             dAppConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet
                 throws(WalletConnectDAppProposalApprovalError) in
 
