@@ -20,7 +20,7 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
 
     private let dismissFlowAction: () -> Void
 
-    private var connectionRequestViewModelCancellable: AnyCancellable?
+    private var cancellables: Set<AnyCancellable>
 
     @Published private(set) var state: WalletConnectDAppConnectionViewState
 
@@ -45,6 +45,8 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
 
         self.dismissFlowAction = dismissFlowAction
 
+        cancellables = []
+
         setupConnectionRequestViewModel()
     }
 
@@ -52,18 +54,24 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
         connectionRequestViewModel.loadDAppConnectionProposal()
     }
 
-    func switchToConnectionRequest() {
-        state = .connectionRequest(connectionRequestViewModel)
-    }
-
     private func setupConnectionRequestViewModel() {
         connectionRequestViewModel.coordinator = self
 
-        connectionRequestViewModelCancellable = connectionRequestViewModel
-            .objectWillChange
-            .sink { [weak self] in
+        connectionRequestViewModel
+            .$state
+            .map { state in
+                (
+                    state.connectionRequestSection,
+                    state.dAppVerificationWarningSection,
+                    state.networksWarningSection,
+                    state.connectButton.isLoading
+                )
+            }
+            .removeDuplicates(by: ==)
+            .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
+            .store(in: &cancellables)
     }
 }
 
@@ -99,6 +107,16 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
             cancelAction: cancelAction,
             connectAnywayAction: connectAnywayAction
         )
+
+        viewModel
+            .$state
+            .map { state in
+                state.buttons
+            }
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
 
         state = .verifiedDomain(viewModel)
     }
