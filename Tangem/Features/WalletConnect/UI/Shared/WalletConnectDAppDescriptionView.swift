@@ -30,7 +30,6 @@ struct WalletConnectDAppDescriptionView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(height: Layout.height)
         .animation(.linear(duration: 0.2), value: viewModel)
     }
 
