@@ -99,8 +99,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 self?.hapticFeedbackGenerator.errorNotificationOccurred()
                 self?.coordinator?.displayProposalLoadingError(error)
             }
-
-            self?.dAppLoadingTask = nil
         }
     }
 
@@ -221,8 +219,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
         }
 
         let selectedBlockchains = blockchainsAvailabilityResult.retrieveSelectedBlockchains()
+        let allRequiredBlockchainsAreAvailable = blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
+        let atLeastOneBlockchainIsSelected = selectedBlockchains.isNotEmpty
 
-        guard selectedBlockchains.isNotEmpty else {
+        guard allRequiredBlockchainsAreAvailable, atLeastOneBlockchainIsSelected else {
             hapticFeedbackGenerator.warningNotificationOccurred()
             return
         }
@@ -246,7 +246,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
         dAppConnectionTask = Task { [weak self] in
             await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
             self?.state.connectButton.isLoading = false
-            self?.dAppConnectionTask = nil
         }
     }
 }
@@ -258,16 +257,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
         dAppProposal: WalletConnectDAppConnectionProposal,
         blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
     ) {
-        let allRequiredBlockchainsAreAvailable = blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
-        let atLeastOneBlockchainIsSelected = !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
-
         state = .content(
             proposal: dAppProposal,
             connectionRequestSectionIsExpanded: state.connectionRequestSection.isExpanded,
             selectedUserWalletName: selectedUserWallet.name,
             walletSelectionIsAvailable: state.walletSection.selectionIsAvailable,
-            blockchainsAvailabilityResult: blockchainsAvailabilityResult,
-            connectButtonIsEnabled: allRequiredBlockchainsAreAvailable && atLeastOneBlockchainIsSelected
+            blockchainsAvailabilityResult: blockchainsAvailabilityResult
         )
     }
 }
@@ -281,7 +276,7 @@ extension WalletConnectDAppConnectionRequestViewState {
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(state: .loading),
             networksWarningSection: nil,
-            connectButton: .connect(isEnabled: false, isLoading: false)
+            connectButton: .connect(isLoading: false)
         )
     }
 
@@ -290,8 +285,7 @@ extension WalletConnectDAppConnectionRequestViewState {
         connectionRequestSectionIsExpanded: Bool,
         selectedUserWalletName: String,
         walletSelectionIsAvailable: Bool,
-        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult,
-        connectButtonIsEnabled: Bool
+        blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
     ) -> WalletConnectDAppConnectionRequestViewState {
         WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
@@ -309,7 +303,7 @@ extension WalletConnectDAppConnectionRequestViewState {
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
             networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
-            connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
+            connectButton: .connect(isLoading: false)
         )
     }
 }
