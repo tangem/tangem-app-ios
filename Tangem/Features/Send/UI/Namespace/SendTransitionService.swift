@@ -40,6 +40,10 @@ class SendTransitionService {
         newTransition(direction: .next)
     }
 
+    var newDestinationSuggestedViewTransition: AnyTransition {
+        .opacity.animation(SendTransitionService.Constants.newAnimation)
+    }
+
     // MARK: - Amount
 
     var amountAuxiliaryViewTransition: AnyTransition {
