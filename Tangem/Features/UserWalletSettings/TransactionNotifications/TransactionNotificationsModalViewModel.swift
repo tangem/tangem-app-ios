@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
 
-final class TransactionNotificationsModalViewModel: Identifiable, ObservableObject {
+final class TransactionNotificationsModalViewModel: ObservableObject {
     // MARK: - Services
 
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -111,6 +111,4 @@ private extension TransactionNotificationsModalViewModel {
 
 // MARK: - FloatingSheetContentViewModel
 
-extension TransactionNotificationsModalViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { "TransactionNotificationsModalViewModel" }
-}
+extension TransactionNotificationsModalViewModel: FloatingSheetContentViewModel {}
