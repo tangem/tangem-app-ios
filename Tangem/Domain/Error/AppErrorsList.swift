@@ -91,8 +91,10 @@ extension WalletConnectDAppProposalLoadingError: UniversalError {
             107001004
         case .unsupportedBlockchains:
             107001005
-        case .cancelledByUser:
+        case .noBlockchainsProvidedByDApp:
             107001006
+        case .cancelledByUser:
+            107001007
         }
     }
 }
