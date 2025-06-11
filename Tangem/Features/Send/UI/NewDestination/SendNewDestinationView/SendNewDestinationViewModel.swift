@@ -206,7 +206,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
         }
 
         // Give some time to update UI fields
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.stepRouter?.destinationStepFulfilled()
         }
     }
