@@ -92,15 +92,5 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
 }
 
 // [REDACTED_TODO_COMMENT]
-extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { "WalletConnectConnectedDAppDetailsViewModel" }
-}
-
-extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { "WalletConnectErrorViewModel" }
-}
-
-extension WalletConnectDAppConnectionViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { "WalletConnectDAppConnectionViewModel" }
-    nonisolated var frameUpdateAnimation: Animation? { .timingCurve(0.76, 0, 0.24, 1, duration: 0.5) }
-}
+extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {}
+extension WalletConnectDAppConnectionViewModel: FloatingSheetContentViewModel {}
