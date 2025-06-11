@@ -55,6 +55,13 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
         do {
             return try await dAppDataService.getDAppDataAndProposal(for: uri, source: analyticsSource)
 
+        } catch WalletConnectDAppProposalLoadingError.unsupportedDomain(let unsupportedDomainError) {
+            try? await dAppProposalApprovalService.rejectConnectionProposal(
+                with: unsupportedDomainError.proposalID,
+                reason: .unsupportedDAppDomain
+            )
+            throw WalletConnectDAppProposalLoadingError.unsupportedDomain(unsupportedDomainError)
+
         } catch WalletConnectDAppProposalLoadingError.unsupportedBlockchains(let unsupportedBlockchainsError) {
             try? await dAppProposalApprovalService.rejectConnectionProposal(
                 with: unsupportedBlockchainsError.proposalID,
@@ -62,12 +69,12 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
             )
             throw WalletConnectDAppProposalLoadingError.unsupportedBlockchains(unsupportedBlockchainsError)
 
-        } catch WalletConnectDAppProposalLoadingError.unsupportedDomain(let unsupportedDomainError) {
+        } catch WalletConnectDAppProposalLoadingError.noBlockchainsProvidedByDApp(let noBlockchainsProvidedByDAppError) {
             try? await dAppProposalApprovalService.rejectConnectionProposal(
-                with: unsupportedDomainError.proposalID,
-                reason: .unsupportedDAppDomain
+                with: noBlockchainsProvidedByDAppError.proposalID,
+                reason: .unsupportedBlockchains
             )
-            throw WalletConnectDAppProposalLoadingError.unsupportedDomain(unsupportedDomainError)
+            throw WalletConnectDAppProposalLoadingError.noBlockchainsProvidedByDApp(noBlockchainsProvidedByDAppError)
 
         } catch {
             throw error

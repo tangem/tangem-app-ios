@@ -39,7 +39,7 @@ extension WalletConnectDAppConnectionRequestView {
                         .frame(width: 18, height: 24)
                         .foregroundStyle(Colors.Icon.informative)
                 }
-                .frame(height: 46)
+                .padding(.vertical, 12)
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
