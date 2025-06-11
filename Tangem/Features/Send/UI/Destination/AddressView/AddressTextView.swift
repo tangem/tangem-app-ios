@@ -119,6 +119,11 @@ extension TextViewWrapper {
             self.parent = parent
         }
 
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            // We always keep contentOffset is zero to avoid text jumping
+            scrollView.contentOffset = .zero
+        }
+
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text
         }
