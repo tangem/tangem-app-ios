@@ -46,6 +46,10 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
+    var shouldShowShareExploreButtons: Bool {
+        !tokenItem.blockchain.isTransactionAsync
+    }
+
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let userWalletModel: UserWalletModel
