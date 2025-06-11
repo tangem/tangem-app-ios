@@ -16,23 +16,6 @@ struct WalletConnectDAppDomainVerificationView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            navigationBar
-            content
-            actionButtons
-        }
-    }
-
-    private var navigationBar: some View {
-        WalletConnectNavigationBarView(
-            backgroundColor: Color.clear,
-            closeButtonAction: {
-                viewModel.handle(viewEvent: .navigationCloseButtonTapped)
-            }
-        )
-    }
-
-    private var content: some View {
-        VStack(spacing: .zero) {
             viewModel.state.iconAsset.image
                 .resizable()
                 .renderingMode(.template)
@@ -68,39 +51,10 @@ struct WalletConnectDAppDomainVerificationView: View {
             }
         }
         .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
         .padding(.top, 20)
         .padding(.bottom, viewModel.state.severity.contentBottomPadding)
         .padding(.horizontal, 32)
-    }
-
-    private var actionButtons: some View {
-        VStack(spacing: 8) {
-            ForEach(viewModel.state.buttons, id: \.self) { buttonState in
-                MainButton(
-                    title: buttonState.title,
-                    subtitle: nil,
-                    icon: nil,
-                    style: buttonState.style.toMainButtonStyle,
-                    size: .default,
-                    isLoading: buttonState.isLoading,
-                    isDisabled: false,
-                    handleActionWhenDisabled: false,
-                    action: {
-                        viewModel.handle(viewEvent: .actionButtonTapped(buttonState.role))
-                    }
-                )
-            }
-        }
-        .padding(16)
-    }
-}
-
-private extension WalletConnectDAppDomainVerificationViewState.Button.Style {
-    var toMainButtonStyle: MainButton.Style {
-        switch self {
-        case .primary: .primary
-        case .secondary: .secondary
-        }
     }
 }
 
