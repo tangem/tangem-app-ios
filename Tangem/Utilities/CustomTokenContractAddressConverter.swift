@@ -35,6 +35,10 @@ struct CustomTokenContractAddressConverter {
             } catch {
                 return originalAddress
             }
+        case .sui:
+            let converter = SuiContractAddressConverter()
+            let normalizeContractAddress = converter.convertIfNeeded(contractAddress: originalAddress)
+            return normalizeContractAddress
         case .bitcoin,
              .litecoin,
              .stellar,
