@@ -198,6 +198,7 @@ enum WalletConnectModuleFactory {
              .invalidDomainURL,
              .unsupportedDomain,
              .unsupportedBlockchains,
+             .noBlockchainsProvidedByDApp,
              .cancelledByUser:
             return nil
         }
@@ -261,6 +262,17 @@ enum WalletConnectModuleFactory {
                 icon: .blockchain,
                 title: Localization.wcAlertUnsupportedNetworksTitle,
                 subtitle: Localization.wcAlertUnsupportedNetworksDescription(unsupportedBlockchainsError.dAppName),
+                buttonStyle: .primary
+            )
+
+        case .noBlockchainsProvidedByDApp(let noBlockchainsProvidedByDAppError):
+            viewState = WalletConnectErrorViewState(
+                icon: .blockchain,
+                title: "No networks",
+                subtitle: """
+                \(noBlockchainsProvidedByDAppError.dAppName) does not specify any blockchains — neither required nor optional.
+                Please ensure you used the correct URI
+                """,
                 buttonStyle: .primary
             )
 
