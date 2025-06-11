@@ -1621,10 +1621,6 @@
 		B62D420A2CBC79DB00C2460E /* XRPLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E862CBC79D900C2460E /* XRPLResponse.swift */; };
 		B62D420B2CBC79DB00C2460E /* XRPTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E872CBC79D900C2460E /* XRPTransaction.swift */; };
 		B62D420C2CBC79DB00C2460E /* XRPWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E882CBC79D900C2460E /* XRPWallet.swift */; };
-		B62D420D2CBC79DB00C2460E /* HTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E8A2CBC79D900C2460E /* HTTP.swift */; };
-		B62D420E2CBC79DB00C2460E /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E8B2CBC79D900C2460E /* WebSocket.swift */; };
-		B62D420F2CBC79DB00C2460E /* WebSocket+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E8C2CBC79D900C2460E /* WebSocket+Convenience.swift */; };
-		B62D42102CBC79DB00C2460E /* XRPLedger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E8D2CBC79D900C2460E /* XRPLedger.swift */; };
 		B62D42112CBC79DB00C2460E /* SigningAlgorithm.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E8F2CBC79D900C2460E /* SigningAlgorithm.swift */; };
 		B62D42122CBC79DB00C2460E /* Entropy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E912CBC79D900C2460E /* Entropy.swift */; };
 		B62D42132CBC79DB00C2460E /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3E922CBC79D900C2460E /* Extensions.swift */; };
@@ -1889,7 +1885,6 @@
 		B65108B32CAC2A8100690C22 /* ShapeStyle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */; };
 		B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */; };
 		B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65591EC2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift */; };
-		B655F57A2CBC871F002391AF /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = B655F5792CBC871F002391AF /* secp256k1 */; };
 		B655F57C2CBC872E002391AF /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = B655F57B2CBC872E002391AF /* TweetNacl */; };
 		B655F5962CBC8E03002391AF /* config_alpha.json in Resources */ = {isa = PBXBuildFile; fileRef = B655F5862CBC8E03002391AF /* config_alpha.json */; };
 		B655F5972CBC8E03002391AF /* config_beta.json in Resources */ = {isa = PBXBuildFile; fileRef = B655F5872CBC8E03002391AF /* config_beta.json */; };
@@ -2047,7 +2042,6 @@
 		B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FC2CBDC6FE001113ED /* Moya */; };
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
-		B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */; };
 		B6C2D00B2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C2D00A2C816F080009FDFC /* MarketsTokenDetailsDateFormatterRepository.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
@@ -5310,10 +5304,6 @@
 		B62D3E862CBC79D900C2460E /* XRPLResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XRPLResponse.swift; sourceTree = "<group>"; };
 		B62D3E872CBC79D900C2460E /* XRPTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XRPTransaction.swift; sourceTree = "<group>"; };
 		B62D3E882CBC79D900C2460E /* XRPWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XRPWallet.swift; sourceTree = "<group>"; };
-		B62D3E8A2CBC79D900C2460E /* HTTP.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTP.swift; sourceTree = "<group>"; };
-		B62D3E8B2CBC79D900C2460E /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = "<group>"; };
-		B62D3E8C2CBC79D900C2460E /* WebSocket+Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WebSocket+Convenience.swift"; sourceTree = "<group>"; };
-		B62D3E8D2CBC79D900C2460E /* XRPLedger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XRPLedger.swift; sourceTree = "<group>"; };
 		B62D3E8F2CBC79D900C2460E /* SigningAlgorithm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SigningAlgorithm.swift; sourceTree = "<group>"; };
 		B62D3E912CBC79D900C2460E /* Entropy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entropy.swift; sourceTree = "<group>"; };
 		B62D3E922CBC79D900C2460E /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -7187,7 +7177,6 @@
 				B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */,
 				B6C0D3E12CBDC2E3001113ED /* TangemModules in Frameworks */,
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
-				B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
 				B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
@@ -7258,7 +7247,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B62D438A2CBC7F1500C2460E /* BlockchainSdk.framework in Frameworks */,
-				B655F57A2CBC871F002391AF /* secp256k1 in Frameworks */,
 				B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */,
 				B62D43C22CBC823A00C2460E /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				B655F57C2CBC872E002391AF /* TweetNacl in Frameworks */,
@@ -12222,17 +12210,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		B62D3E8E2CBC79D900C2460E /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				B62D3E8A2CBC79D900C2460E /* HTTP.swift */,
-				B62D3E8B2CBC79D900C2460E /* WebSocket.swift */,
-				B62D3E8C2CBC79D900C2460E /* WebSocket+Convenience.swift */,
-				B62D3E8D2CBC79D900C2460E /* XRPLedger.swift */,
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
 		B62D3E902CBC79D900C2460E /* SigningAlgorithms */ = {
 			isa = PBXGroup;
 			children = (
@@ -12258,7 +12235,6 @@
 			isa = PBXGroup;
 			children = (
 				B62D3E892CBC79D900C2460E /* Models */,
-				B62D3E8E2CBC79D900C2460E /* Network */,
 				B62D3E902CBC79D900C2460E /* SigningAlgorithms */,
 				B62D3E972CBC79D900C2460E /* Utilities */,
 			);
@@ -19177,7 +19153,6 @@
 			);
 			name = Tangem;
 			packageProductDependencies = (
-				B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */,
 				B63BAA6B2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper */,
 				0ABC61142C410AFD00065EBA /* TweetNacl */,
 				B620FC9F2C5D326D00AD0FD1 /* DGCharts */,
@@ -19309,7 +19284,6 @@
 			name = BlockchainSdkExample;
 			packageProductDependencies = (
 				B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */,
-				B655F5792CBC871F002391AF /* secp256k1 */,
 				B655F57B2CBC872E002391AF /* TweetNacl */,
 				B67E38C22CC71B5F00D660EB /* TangemSdk */,
 			);
@@ -19540,7 +19514,6 @@
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			packageReferences = (
-				B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */,
 				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
 				0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */,
 				B0B11A062C787FE70018A2A6 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
@@ -21984,7 +21957,6 @@
 				B62D3FE32CBC79DA00C2460E /* OP_EQUAL.swift in Sources */,
 				B62D3FE52CBC79DA00C2460E /* OP_INVERT.swift in Sources */,
 				B62D3FE12CBC79DA00C2460E /* OP_WITHIN.swift in Sources */,
-				B62D42102CBC79DB00C2460E /* XRPLedger.swift in Sources */,
 				B62D3FD32CBC79DA00C2460E /* OP_LESSTHAN.swift in Sources */,
 				B62D402C2CBC79DA00C2460E /* BitcoinExternalLinkProvider.swift in Sources */,
 				B62D40282CBC79DA00C2460E /* ScriptChunkHelper.swift in Sources */,
@@ -22143,7 +22115,6 @@
 				B62D41F82CBC79DB00C2460E /* VeChainExternalLinkProvider.swift in Sources */,
 				B62D404C2CBC79DA00C2460E /* CardanoFeeParameters.swift in Sources */,
 				B62D3FC22CBC79DA00C2460E /* BitcoinLegacyAddressService.swift in Sources */,
-				B62D420D2CBC79DB00C2460E /* HTTP.swift in Sources */,
 				B62D40E32CBC79DA00C2460E /* HederaNetworkResult.APIError.swift in Sources */,
 				B62D41B32CBC79DB00C2460E /* TezosTarget.swift in Sources */,
 				B62D40BC2CBC79DA00C2460E /* PulsechainExternalLinkProvider.swift in Sources */,
@@ -22781,7 +22752,6 @@
 				B62D3FD02CBC79DA00C2460E /* OP_DIV.swift in Sources */,
 				B62D42DA2CBC79DB00C2460E /* ThenProcessable.swift in Sources */,
 				B62D40232CBC79DA00C2460E /* BitcoinScriptBuilder.swift in Sources */,
-				B62D420E2CBC79DB00C2460E /* WebSocket.swift in Sources */,
 				F99007072CD3E1C700DFE2D3 /* KaspaKRC20.swift in Sources */,
 				B62D41092CBC79DA00C2460E /* KaspaTransactionBuilder.swift in Sources */,
 				B62D419E2CBC79DA00C2460E /* SuiNetworkProvider.swift in Sources */,
@@ -22823,7 +22793,6 @@
 				B62D40F72CBC79DA00C2460E /* ICPNetworkProvider.swift in Sources */,
 				B62D3FB42CBC79DA00C2460E /* AptosExternalLinkProvider.swift in Sources */,
 				B62D415A2CBC79DA00C2460E /* AzeroExternalLinkProvider.swift in Sources */,
-				B62D420F2CBC79DB00C2460E /* WebSocket+Convenience.swift in Sources */,
 				B62D41412CBC79DA00C2460E /* NEARNetworkProvider.swift in Sources */,
 				B62D409B2CBC79DA00C2460E /* EthereumTransactionParams.swift in Sources */,
 				B62D403B2CBC79DA00C2460E /* AdaliteBaseResponseDTO.swift in Sources */,
@@ -29081,7 +29050,7 @@
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.11.0;
+				minimumVersion = 8.3.2;
 			};
 		};
 		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
@@ -29089,7 +29058,7 @@
 			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.1;
+				minimumVersion = 4.5.2;
 			};
 		};
 		B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
@@ -29097,7 +29066,7 @@
 			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.2.0;
+				minimumVersion = 3.3.0;
 			};
 		};
 		B0B11A062C787FE70018A2A6 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
@@ -29105,7 +29074,7 @@
 			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.0;
+				minimumVersion = 2.4.1;
 			};
 		};
 		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
@@ -29136,8 +29105,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/valpackett/SwiftCBOR.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.5;
+				kind = exactVersion;
+				version = 0.5.0;
 			};
 		};
 		B62D344B2CBC675600C2460E /* XCRemoteSwiftPackageReference "stellar-ios-mac-sdk" */ = {
@@ -29145,7 +29114,7 @@
 			repositoryURL = "git@github.com:tangem-developments/stellar-ios-mac-sdk.git";
 			requirement = {
 				kind = exactVersion;
-				version = "3.0.7-tangem2";
+				version = "3.1.0-tangem1";
 			};
 		};
 		B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
@@ -29177,7 +29146,7 @@
 			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.0;
+				minimumVersion = 1.8.4;
 			};
 		};
 		B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
@@ -29200,8 +29169,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tesseract-one/ScaleCodec.swift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.1;
+				kind = exactVersion;
+				version = 0.2.1;
 			};
 		};
 		B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */ = {
@@ -29236,14 +29205,6 @@
 				minimumVersion = 15.0.0;
 			};
 		};
-		B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/GigaBitcoin/secp256k1.swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.12.0;
-			};
-		};
 		B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/Solana.Swift.git";
@@ -29273,7 +29234,7 @@
 			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.6.2;
+				minimumVersion = 1.13.6;
 			};
 		};
 		B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */ = {
@@ -29281,7 +29242,7 @@
 			repositoryURL = "https://github.com/amplitude/analytics-connector-ios.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 1.3.1;
 			};
 		};
 		B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
@@ -29289,7 +29250,7 @@
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.18;
+				minimumVersion = 0.9.19;
 			};
 		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
@@ -29313,7 +29274,7 @@
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.4.4;
+				version = 1.6.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -29453,11 +29414,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebasePerformance;
 		};
-		B655F5792CBC871F002391AF /* secp256k1 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
-			productName = secp256k1;
-		};
 		B655F57B2CBC872E002391AF /* TweetNacl */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */;
@@ -29566,11 +29522,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
 			productName = Moya;
-		};
-		B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
-			productName = secp256k1;
 		};
 		B6CAC1CB2CC336220001A427 /* SolanaSwift */ = {
 			isa = XCSwiftPackageProductDependency;
