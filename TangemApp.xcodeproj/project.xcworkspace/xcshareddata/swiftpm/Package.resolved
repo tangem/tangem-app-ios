@@ -1,5 +1,5 @@
 {
-  "originHash" : "06562fdc8da2f5be55d11f437b505ecfd769b856311b92665089ed1ebda9c8e0",
+  "originHash" : "93c4d76bc5b3b5e597a17e44cf05a991f515b254e669248c9ed4688e2ef00a4b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
-        "version" : "5.9.1"
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
       }
     },
     {
@@ -573,8 +573,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "56d7ddaac3f0a3650324faaf3f7dfe53ec3441a3",
-        "version" : "0.0.15"
+        "revision" : "2031ca22cd0c5d8d2c27becd8e2b6a717603c644",
+        "version" : "0.0.16"
       }
     },
     {
