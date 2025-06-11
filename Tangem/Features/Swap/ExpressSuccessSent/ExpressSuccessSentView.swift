@@ -79,21 +79,23 @@ struct ExpressSuccessSentView: View {
             Spacer()
 
             VStack(spacing: 10) {
-                HStack(spacing: 8) {
-                    MainButton(
-                        title: Localization.commonExplore,
-                        icon: .leading(Assets.compassExplore),
-                        style: .secondary,
-                        action: viewModel.openExplore
-                    )
-
-                    if viewModel.isStatusButtonVisible {
+                if viewModel.shouldShowShareExploreButtons {
+                    HStack(spacing: 8) {
                         MainButton(
-                            title: Localization.expressCexStatusButtonTitle,
-                            icon: .leading(Assets.share),
+                            title: Localization.commonExplore,
+                            icon: .leading(Assets.compassExplore),
                             style: .secondary,
-                            action: viewModel.openCEXStatus
+                            action: viewModel.openExplore
                         )
+
+                        if viewModel.isStatusButtonVisible {
+                            MainButton(
+                                title: Localization.expressCexStatusButtonTitle,
+                                icon: .leading(Assets.share),
+                                style: .secondary,
+                                action: viewModel.openCEXStatus
+                            )
+                        }
                     }
                 }
 
