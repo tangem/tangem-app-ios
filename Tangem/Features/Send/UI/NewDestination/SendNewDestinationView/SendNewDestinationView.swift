@@ -20,26 +20,22 @@ struct SendNewDestinationView: View {
                 SendNewDestinationAddressView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.addressDescription)
-                    .transition(transitionService.destinationAuxiliaryViewTransition)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .animation(SendTransitionService.Constants.newAnimation, value: viewModel.addressTextViewHeightModel.height)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendNewDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
                 DefaultFooterView(viewModel.additionalFieldDescription)
-                    .transition(transitionService.destinationAuxiliaryViewTransition)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .transition(transitionService.destinationAuxiliaryViewTransition)
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 if viewModel.shouldShowSuggestedDestination {
                     SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
-                        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
+                        .transition(transitionService.newDestinationSuggestedViewTransition)
                 }
             }
         }
