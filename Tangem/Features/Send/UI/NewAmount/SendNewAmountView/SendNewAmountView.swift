@@ -58,6 +58,7 @@ struct SendNewAmountView: View {
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                .trailingToolbarType(.none)
                 .focused($focused, equals: .crypto)
                 .frame(height: 42)
                 .transition(
@@ -73,6 +74,7 @@ struct SendNewAmountView: View {
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                .trailingToolbarType(.none)
                 .focused($focused, equals: .fiat)
                 .frame(height: 42)
                 .transition(
