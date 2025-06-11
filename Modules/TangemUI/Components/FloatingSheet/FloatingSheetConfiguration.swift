@@ -7,13 +7,24 @@
 //
 
 import SwiftUI
+import TangemAssets
 
-public struct FloatingSheetConfiguration {
+public struct FloatingSheetConfiguration: Equatable {
     public var maxHeightFraction: CGFloat
+    public var sheetFrameUpdateAnimation: Animation?
     public var sheetBackgroundColor: Color
     public var backgroundInteractionBehavior: BackgroundInteractionBehavior
     public var verticalSwipeBehavior: VerticalSwipeBehavior?
     public var keyboardHandlingEnabled: Bool
+
+    static let `default` = FloatingSheetConfiguration(
+        maxHeightFraction: 0.8,
+        sheetFrameUpdateAnimation: nil,
+        sheetBackgroundColor: Colors.Background.tertiary,
+        backgroundInteractionBehavior: FloatingSheetConfiguration.BackgroundInteractionBehavior.consumeTouches,
+        verticalSwipeBehavior: nil,
+        keyboardHandlingEnabled: true
+    )
 }
 
 extension FloatingSheetConfiguration {
@@ -33,14 +44,14 @@ extension FloatingSheetConfiguration {
 // MARK: - Nested types
 
 public extension FloatingSheetConfiguration {
-    enum BackgroundInteractionBehavior {
+    enum BackgroundInteractionBehavior: Equatable {
         case tapToDismiss
         case passTouchesThrough
         case consumeTouches
     }
 
-    struct VerticalSwipeBehavior {
-        public enum Target {
+    struct VerticalSwipeBehavior: Equatable {
+        public enum Target: Equatable {
             /// Does not have any effect when ``FloatingSheetConfiguration/backgroundInteractionBehavior`` is set
             /// to ``BackgroundInteractionBehavior/passTouchesThrough``.
             case background
@@ -54,22 +65,15 @@ public extension FloatingSheetConfiguration {
 
         var target: Target
         var threshold: CGFloat
-
-        public init(target: Target = .backgroundAndSheet, threshold: CGFloat = 100) {
-            self.target = target
-            self.threshold = threshold
-        }
     }
 }
 
-// MARK: - SwiftUI.EnvironmentValues entry
+// MARK: - SwiftUI.PreferenceKey
 
-extension EnvironmentValues {
-    @Entry var floatingSheetConfiguration = FloatingSheetConfiguration(
-        maxHeightFraction: 0.8,
-        sheetBackgroundColor: Color(.systemBackground),
-        backgroundInteractionBehavior: FloatingSheetConfiguration.BackgroundInteractionBehavior.tapToDismiss,
-        verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior(),
-        keyboardHandlingEnabled: true
-    )
+public struct FloatingSheetConfigurationPreferenceKey: PreferenceKey {
+    public static let defaultValue = FloatingSheetConfiguration.default
+
+    public static func reduce(value: inout FloatingSheetConfiguration, nextValue: () -> FloatingSheetConfiguration) {
+        value = nextValue()
+    }
 }
