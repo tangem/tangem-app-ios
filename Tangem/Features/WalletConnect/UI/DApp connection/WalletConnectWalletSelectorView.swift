@@ -14,13 +14,13 @@ import TangemUIUtils
 struct WalletConnectWalletSelectorView: View {
     @ObservedObject private var viewModel: WalletConnectWalletSelectorViewModel
 
+    private let scrollProxy: ScrollViewProxy
     private let initialSelectedScrollID: String?
-    private let scrollViewMaxHeight: CGFloat
-    @State private var navigationBarBottomSeparatorIsVisible = false
     @Namespace private var selectionNamespace
 
-    init(viewModel: WalletConnectWalletSelectorViewModel) {
+    init(viewModel: WalletConnectWalletSelectorViewModel, scrollProxy: ScrollViewProxy) {
         self.viewModel = viewModel
+        self.scrollProxy = scrollProxy
 
         // [REDACTED_USERNAME]: ScrollViewProxy.scrollTo(_:anchor:) does not allow to specify a content offset
         // scrolling to the next (if any) wallet after the selected one looks visually better
@@ -35,56 +35,29 @@ struct WalletConnectWalletSelectorView: View {
         } else {
             initialSelectedScrollID = nil
         }
-
-        scrollViewMaxHeight = Layout.navigationBarHeight
-            + Layout.contentTopPadding
-            + CGFloat(viewModel.state.wallets.count) * Layout.walletRowHeight
-            + CGFloat(viewModel.state.wallets.count - 1) * Layout.walletDividerHeight
-            + Layout.contentBottomPadding
     }
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            ScrollView(.vertical) {
-                VStack(spacing: .zero) {
-                    ForEach(indexed: viewModel.state.wallets.indexed()) { index, walletViewModel in
-                        ZStack(alignment: .bottom) {
-                            walletRowView(walletViewModel)
-                            walletsDivider(index)
-                            walletSelectionBorder(walletViewModel)
-                        }
-                        .animation(
-                            .easeInOut(duration: WalletConnectWalletSelectorViewModel.selectionAnimationDuration),
-                            value: walletViewModel.isSelected
-                        )
-                        .id(walletViewModel.id)
-                    }
+        VStack(spacing: .zero) {
+            ForEach(indexed: viewModel.state.wallets.indexed()) { index, walletViewModel in
+                ZStack(alignment: .bottom) {
+                    walletRowView(walletViewModel)
+                    walletsDivider(index)
+                    walletSelectionBorder(walletViewModel)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, Layout.contentTopPadding)
-                .padding(.bottom, Layout.contentBottomPadding)
-                .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .proMotion) { geometryInfo in
-                    updateNavigationBarBottomSeparatorVisibility(geometryInfo.frame.minY)
-                }
-            }
-            .safeAreaInset(edge: .top, spacing: .zero) {
-                navigationBar
-            }
-            .scrollBounceBehaviorBackport(.basedOnSize)
-            .frame(maxHeight: scrollViewMaxHeight)
-            .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
-            .onAppear {
-                scrollProxy.scrollTo(initialSelectedScrollID, anchor: .bottom)
+                .animation(
+                    .easeInOut(duration: WalletConnectWalletSelectorViewModel.selectionAnimationDuration),
+                    value: walletViewModel.isSelected
+                )
+                .id(walletViewModel.id)
             }
         }
-    }
-
-    private var navigationBar: some View {
-        WalletConnectNavigationBarView(
-            title: viewModel.state.navigationTitle,
-            bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
-        )
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
+        .onAppear {
+            scrollProxy.scrollTo(initialSelectedScrollID, anchor: .bottom)
+        }
     }
 
     private func walletRowView(_ walletViewModel: WalletConnectWalletSelectorViewState.UserWallet) -> some View {
@@ -103,8 +76,7 @@ struct WalletConnectWalletSelectorView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .lineLimit(1)
-            .padding(.horizontal, 14)
-            .frame(height: Layout.walletRowHeight)
+            .padding(14)
             .contentShape(.rect)
         }
         .disabled(walletViewModel.isLocked)
@@ -115,7 +87,7 @@ struct WalletConnectWalletSelectorView: View {
     private func walletsDivider(_ index: Int) -> some View {
         if index < viewModel.state.wallets.count - 1 {
             Divider()
-                .frame(height: Layout.walletDividerHeight)
+                .frame(height: 1)
                 .overlay(Colors.Stroke.primary)
                 .padding(.leading, 62)
                 .padding(.trailing, 14)
@@ -164,26 +136,5 @@ struct WalletConnectWalletSelectorView: View {
                 )
             }
         }
-    }
-
-    private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {
-        navigationBarBottomSeparatorIsVisible = scrollViewMinY < Layout.navigationBarHeight - Layout.contentTopPadding
-    }
-}
-
-extension WalletConnectWalletSelectorView {
-    private enum Layout {
-        /// 52
-        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
-        /// 12
-        static let contentTopPadding: CGFloat = 12
-        /// 16
-        static let contentBottomPadding: CGFloat = 16
-        /// 66
-        static let walletRowHeight: CGFloat = 66
-        /// 1
-        static let walletDividerHeight: CGFloat = 1
-
-        static let scrollViewCoordinateSpace = "WalletConnectWalletSelectorView.ScrollView"
     }
 }
