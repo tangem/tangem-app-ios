@@ -108,6 +108,8 @@
 "common_cancel" = "Abbrechen";
 "common_change" = "Ändern";
 "common_choose_action" = "Aktion wählen";
+"common_choose_network" = "Netzwerk auswählen";
+"common_choose_token" = "Token auswählen";
 "common_claim_rewards" = "Stakingbelohnungen beanspruchen";
 "common_claim" = "Beanspruchen";
 "common_close" = "Schließen";
@@ -140,7 +142,7 @@
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_go_to_provider" = "Zum Anbieter gehen";
 "common_go_to_token" = "Zum Token";
-"common_got_it" = "Got it";
+"common_got_it" = "Verstanden";
 "common_hide" = "Ausblenden";
 "common_hour" = "stunde";
 "common_import" = "Importieren";
@@ -197,7 +199,7 @@
 "common_submit" = "Einreichen";
 "common_success" = "Erfolgt";
 "common_support" = "Unterstützung";
-"common_supported_networks" = "Supported networks";
+"common_supported_networks" = "Unterstützte Netzwerke";
 "common_swap" = "Tauschen";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "Allgemeine Geschäftsbedingungen";
@@ -259,6 +261,7 @@
 "details_row_description_flip_to_hide" = "Flippe den Bildschirm deines Geräts nach unten, um Salden schnell ein- und auszublenden";
 "details_row_subtitle_signed_hashes_format" = "%@ Hasch";
 "details_row_title_cid" = "Geräte-ID";
+"details_row_title_contact_to_support_chat" = "Support-Chat öffnen";
 "details_row_title_contact_to_support" = "Kontakt zum Support";
 "details_row_title_create_backup_footer" = "Du kannst bis zu drei Karten oder Ringe in einer Wallet synchronisieren. Dies ist nur einmal möglich.";
 "details_row_title_create_backup" = "Weitere Karten oder Ringe verknüpfen";
@@ -323,6 +326,7 @@
 "express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
 "express_provider_best_rate" = "Bester Preis";
+"express_provider_fca_warning_list" = "Warnliste der FCA";
 "express_provider_max_amount" = "Verfügbar bis zu %@";
 "express_provider_min_amount" = "Erhältlich bei %@";
 "express_provider_not_available" = "Für dieses Paar nicht verfügbar";
@@ -335,6 +339,8 @@
 "express_status_hide_button_text" = "Diese Transaktion ausblenden";
 "express_status_hide_dialog_text" = "Sobald der Transaktionsstatus ausgeblendet ist, kann er nicht mehr angezeigt werden. Stattdessen kannst Du ihn durch einfaches Wischen schließen.";
 "express_status_hide_dialog_title" = "Diese Transaktion ausblenden";
+"express_swap_not_supported_text" = "This token is not supported. Please choose a different token to swap.";
+"express_swap_not_supported_title" = "%@ is not supported";
 "express_swap_with" = "Tauschen mit";
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
@@ -667,13 +673,13 @@
 "organize_tokens_sort_by_balance" = "Nach Guthaben";
 "organize_tokens_title" = "Token organisieren";
 "organize_tokens_ungroup" = "Gruppe löschen";
-"push_notifications_more_info" = "More info";
+"push_notifications_more_info" = "Mehr Infos";
 "push_notifications_permission_alert_description" = "Du kannst Benachrichtigungen für Tangem in den Einstellungen aktivieren.";
 "push_notifications_permission_alert_negative_button" = "Später aktivieren";
 "push_notifications_permission_alert_positive_button" = "Einstellungen";
 "push_notifications_permission_alert_title" = "Benachrichtigungen aktivieren";
-"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
-"push_transactions_notifications_title" = "Transaction Notifications";
+"push_transactions_notifications_description" = "Erhalte Benachrichtigungen über eingehende Transaktionen der unterstützten Netzwerke";
+"push_transactions_notifications_title" = "Transaktionsbenachrichtigungen";
 "qr_scanner_camera_denied_gallery_button" = "Wählen aus der Galerie aus";
 "qr_scanner_camera_denied_settings_button" = "Einstellungen";
 "qr_scanner_camera_denied_text" = "Du hast keinen Zugriff auf deine Kamera gewährt";
@@ -813,11 +819,14 @@
 "send_tron_account_activation_error" = "%1$@ ist ein Vermögenswert im Tron-Netzwerk. Um die Gebühr zu berechnen und eine Transaktion durchzuführen, musst du etwas Tron (TRX) auf deinem Konto einzahlen.";
 "send_validation_destination_tag_required_description" = "Um diese Transaktion für die angegebene Adresse abzuschließen, ist ein Ziel-Tag (Memo) erforderlich.";
 "send_validation_destination_tag_required_title" = "Ziel-Tag erforderlich";
+"send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaktion gesendet";
 "settings_card_settings_footer" = "Bereite das Scannen der Karte oder Ring vor, die du einrichten möchtest.";
 "settings_forget_wallet_footer" = "Hiermit wird die Wallet aus der Anwendung entfernt. Die Wallet selbst kann wieder hinzugefügt werden.";
 "settings_forget_wallet" = "Entferne diese Wallet";
 "settings_wallet_name_title" = "Name";
+"stake_token_description" = "Join staking with this token";
 "staking_active_footer" = "Um deine Vermögenswerte freizugeben, tippe auf den Block oben";
 "staking_active" = "Aktiv";
 "staking_amount_requirement_error" = "Die Anzahl der zu stakenden Krypros muss mindesten %@ betragen";
@@ -885,7 +894,7 @@
 "staking_notification_restake_text" = "Mit Restake kannst Du Dein Guthaben von einem Validator zu einem anderen verschieben, ohne dass Du den Stake aufheben musst.";
 "staking_notification_stake_entire_balance_text" = "Du bist dabei, Dein gesamtes Guthaben zu staken. Wir empfehlen, einen kleinen Betrag übrig zu lassen, um die Netzwerkgebühren für die Aufhebung des Stakes oder das Einfordern von Prämien abzudecken.";
 "staking_notification_ton_activate_account" = "Um mit dem Staking bei TON zu beginnen, führe zunächst eine ausgehende Transaktion in beliebiger Höhe durch – dadurch wird Deine Wallet aktiviert.";
-"staking_notification_ton_extra_reserve_info" = "Zusätzlich zur Netzwerkgebühr werden bis zu 0,2 TON benötigt, um alle Schritte der Transaktion abzuschließen. Nicht genutzte Beträge werden nach Abschluss der Transaktion zurückerstattet.";
+"staking_notification_ton_extra_reserve_info" = "Für den Abschluss der Transaktion können zusätzlich zur Netzwerkgebühr bis zu 0,2 TON erforderlich sein. Nicht genutzte Beträge werden zurückerstattet.";
 "staking_notification_ton_extra_reserve_is_required" = "Für diesen Vorgang sind zusätzlich zur Netzwerkgebühr 0,2 TON erforderlich. Bitte lade Dein Guthaben auf.";
 "staking_notification_ton_extra_reserve_title" = "0,2 Ton reserviert";
 "staking_notification_ton_have_to_unstake_all_text" = "Durch diese Aktion werden andere Positionen geschlossen oder gemäß den Netzwerkregeln in den Auszahlungsstatus versetzt.";
@@ -960,6 +969,7 @@
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
+"swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_promo_text" = "Tausche mehr Token zu besseren Kursen direkt in deiner Brieftasche.";
 "swap_promo_title" = "Neuer Swap-Anbieter verfügbar!";
@@ -1037,6 +1047,8 @@
 "transaction_history_transaction_from_address" = "von: %@";
 "transaction_history_transaction_to_address" = "zu: %@";
 "transaction_history_transaction_validator" = "Validierer: %@";
+"transaction_notifications_warning_description" = "Benachrichtigungen sind aktiviert, funktionieren aber erst, wenn Du Benachrichtigungen in Deinen Geräteeinstellungen zulässt.";
+"transaction_notifications_warning_title" = "Transaktionsbenachrichtigungen";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Der Mindesttransaktionsbetrag beträgt %1$@.";
 "tron_will_be_send_token_fee_description" = "Die Netzwerkgebühren für beliebte Token im Tron-Netzwerk können höher sein. Das Staking von TRX kann helfen, die Transaktionskosten zu senken.";
@@ -1053,10 +1065,13 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Diese Aktion ist unumkehrbar. Du hast keinen Zugriff mehr auf die alte Wallet.";
 "twins_scan_twin_with_number" = "Tippe auf die Doppelkarte oder Ring mit der Nummer %@ und entferne sie erst am Ende des Vorgangs.";
+"unexpected_error_description" = "Bitte versuche es später noch einmal. Sollte das Problem weiterhin bestehen, wende Dich bitte an den Support.";
+"unexpected_error_title" = "Etwas ist schiefgelaufen!";
 "universal_error" = "Es ist ein Fehler aufgetreten. Fehlercode: %@. Bitte kontaktiere unseren Support.";
 "unlock_wallet_description_full" = "Verwende %@ oder scanne eine Karte oder Ring, um Zugriff auf deine Wallet zu erhalten.";
 "unsupported_wc_version" = "Verbindung fehlgeschlagen: Diese dApp verwendet Wallet Connect Version 1.0, die nicht unterstützt wird. Bitte stelle sicher, dass die dApp Wallet Connect Version 2.0 unterstützt, um eine erfolgreiche Verbindung herzustellen.";
 "user_push_notification_agreement_argument_one" = "Bleib auf dem Laufenden mit den neuesten Funktionen und Neuigkeiten";
+"user_push_notification_agreement_argument_three" = "Genehmigung für Transaktionen anfordern";
 "user_push_notification_agreement_argument_two" = "Sei der Erste, der von neuen Aktionen erfährt";
 "user_push_notification_agreement_header" = "Möchtest du Push-Benachrichtigungen verwenden?";
 "user_wallet_list_add_button" = "Neues Wallet hinzufügen";
@@ -1173,7 +1188,7 @@
 "wallet_promo_banner_description" = "Greife auf 13.000+ Kryptowährungen zu. Kaufe, verkaufe, tausche und stake Sie mit einem einzigen Fingertipp.\nVerbinde bis zu drei Karten für ein Backup.";
 "wallet_promo_banner_title" = "Entdecke die Tangem Wallet";
 "wallet_settings_push_notifications_description" = "Bleib stets über eingehende Wallet-Transaktionen und Tangem-Updates auf dem Laufenden.";
-"wallet_settings_push_notifications_title" = "Push-Benachrichtigungen";
+"wallet_settings_push_notifications_title" = "Transaktionsbenachrichtigungen";
 "wallet_settings_title" = "Wallet-Einstellungen";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Verwende %@ oder scanne eine Karte oder Ring, um den Zugriff auf deine Wallet freizuschalten.";
@@ -1206,6 +1221,8 @@
 "warning_express_notification_invalid_reserve_amount_title" = "Der zu erhaltende Betrag muss mindestens %@ betragen";
 "warning_express_pair_unavailable_message" = "Dies kann passieren, weil der Anbieter derzeit nicht in der Lage ist, dein ausgewähltes Paar zu swappen. Bitte warte einen Moment und versuche es später erneut. (Code %@)";
 "warning_express_pair_unavailable_title" = "Ausgewähltes Paar vorübergehend nicht verfügbar";
+"warning_express_providers_fca_warning_description" = "Einige Anbieter sind nicht von der britischen Finanzaufsichtsbehörde (FCA) zugelassen. Sie sollten den Umgang mit ihnen vermeiden.";
+"warning_express_providers_fca_warning_title" = "Warnliste der FCA";
 "warning_express_refresh_required_title" = "Service vorübergehend nicht verfügbar";
 "warning_express_too_maximum_amount_title" = "Die Menge der zu tauschenden Token darf folgende Werte nicht überschreiten %@";
 "warning_express_too_minimal_amount_title" = "Der zu tauschende Betrag muss mindestens %@ betragen";
@@ -1243,6 +1260,7 @@
 "warning_rate_app_message" = "Deine Bewertung motiviert uns, die Tangem Wallet noch besser zu machen.";
 "warning_rate_app_title" = "Gefällt dir Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Du musst deinen Token zuordnen, bevor du Token erhalten kannst";
+"warning_receive_blocked_stelar_token_trustline_required_message" = "Du musst die trustline öffnen, bevor Du Token erhältst";
 "warning_rent_fee_title" = "Netzmietgebühr erforderlich";
 "warning_seedphrase_action_required_title" = "Handlungsbedarf";
 "warning_seedphrase_contacted_support" = "Hast Du innerhalb von 7 Tagen nach der Erstellung Ihres Wallets über die App Kontakt zum Support aufgenommen? Wenn ja oder wenn Du Dir nicht sicher bist, klicke auf „Ja“ und folge den Anweisungen.";
@@ -1256,6 +1274,10 @@
 "warning_some_networks_unreachable_message" = "Wischen Sie nach unten, um zu aktualisieren, oder versuchen Sie es später erneut.";
 "warning_some_networks_unreachable_title" = "Einige Netzwerke sind nicht erreichbar";
 "warning_some_token_balances_not_updated" = "Einige Token-Guthaben konnten nicht aktualisiert werden";
+"warning_stelar_token_required_min_coin_reserve" = "Erforderliche Mindest-XLM-Reserve %1$@";
+"warning_stellar_token_trustline_button_title" = "Trustline öffnen";
+"warning_stellar_token_trustline_subtiile" = "Trustline-Untermenü öffnen";
+"warning_stellar_token_trustline_tiile" = "Trustline-Titel öffnen";
 "warning_system_deprecation_title" = "Systemupdate erforderlich";
 "warning_system_deprecation_with_date_message" = "Der Support für deine Betriebssystemversion endet am %@ . Um zukünftige App-Updates zu erhalten, musst du auf die neueste Version aktualisieren.";
 "warning_system_update_message" = "Tangem empfiehlt die Installation des neuesten iOS-Updates für einen stabilen und sicheren Betrieb";
@@ -1282,8 +1304,10 @@
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_common_address" = "Vertragsadresse";
 "wc_common_connect" = "Verbinden";
+"wc_common_loading" = "Loading";
 "wc_common_network" = "Netzwerk";
 "wc_common_networks" = "Netzwerke";
+"wc_common_unlimited" = "Unlimited";
 "wc_common_wallet" = "Wallet";
 "wc_connected_networks" = "Verbundene Netzwerke";
 "wc_connection_reqeust_can_view_balance" = "Anzeige des Kontostands und der Aktivitäten in Deiner Wallet";
@@ -1299,6 +1323,7 @@
 "wc_disconnect_all_alert_desc" = "Text über die Trennung aller dApps";
 "wc_disconnect_all_alert_title" = "Alle dApps trennen";
 "wc_disconnect_all" = "Alle trennen";
+"wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Geschätzte Wallet-Änderungen";
 "wc_malicious_transaction" = "Böswillige/ gefährliche Transaktion";
 "wc_missing_required_network_description" = "Füge Deinem Profil für dieses Wallet das Netzwerk %@ hinzu";
