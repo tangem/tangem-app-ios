@@ -231,7 +231,7 @@ struct SendView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         VStack(spacing: 10) {
-            if let url = viewModel.transactionURL {
+            if let url = viewModel.transactionURL, viewModel.shouldShowShareExploreButtons {
                 HStack(spacing: 8) {
                     MainButton(
                         title: Localization.commonExplore,
