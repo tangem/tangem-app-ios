@@ -21,17 +21,10 @@ extension WalletConnectDAppConnectionRequestView {
         var body: some View {
             VStack(spacing: .zero) {
                 titleRow
+                    .transformEffect(.identity)
 
                 if case .content(let contentState) = viewModel, contentState.isExpanded {
                     expandableContent(contentState)
-                        .transition(
-                            .asymmetric(
-                                insertion: .move(edge: .bottom).animation(Animations.sectionSlideInsertion)
-                                    .combined(with: .opacity.animation(Animations.sectionOpacityInsertion)),
-                                removal: .opacity.animation(Animations.sectionOpacityRemoval)
-                                    .combined(with: .move(edge: .bottom).animation(Animations.sectionSlideRemoval))
-                            )
-                        )
                 }
             }
         }
@@ -61,10 +54,11 @@ extension WalletConnectDAppConnectionRequestView {
                             .frame(width: 18, height: 24)
                             .foregroundStyle(Colors.Icon.informative)
                             .rotationEffect(.degrees(contentState.isExpanded ? 90 : 0))
-                            .animation(Animations.sectionOpacityInsertion, value: contentState.isExpanded)
+                            .animation(titleRowArrowRotationAnimation, value: contentState.isExpanded)
                     }
                 }
-                .frame(height: 46)
+                .padding(.vertical, 12)
+                .lineLimit(1)
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
@@ -96,6 +90,10 @@ extension WalletConnectDAppConnectionRequestView {
             }
             .padding(.top, 8)
             .padding(.bottom, 14)
+            .transition(
+                .move(edge: .bottom)
+                    .combined(with: .opacity.animation(expandableContentOpacityAnimation))
+            )
         }
 
         private func connectionRequestBulletGroup(
@@ -131,5 +129,8 @@ extension WalletConnectDAppConnectionRequestView {
                 ? .linear(duration: 1).repeatForever(autoreverses: false)
                 : nil
         }
+
+        private let titleRowArrowRotationAnimation = Animation.curve(.easeOutStandard, duration: 0.3).delay(0.2)
+        private let expandableContentOpacityAnimation = Animation.curve(.easeOutStandard, duration: 0.3).delay(0.2)
     }
 }
