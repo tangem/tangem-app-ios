@@ -1,5 +1,5 @@
 //
-//  SendNewAmountCompactView.swift
+//  SendTokenAmountCompactView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import Combine
 import TangemUI
 import TangemAssets
 
-struct SendNewAmountCompactView: View {
-    @ObservedObject var viewModel: SendNewAmountCompactViewModel
+struct SendTokenAmountCompactView: View {
+    @ObservedObject var viewModel: SendTokenAmountCompactViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
