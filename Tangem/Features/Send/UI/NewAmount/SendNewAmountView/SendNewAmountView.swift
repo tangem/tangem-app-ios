@@ -20,6 +20,8 @@ struct SendNewAmountView: View {
     var body: some View {
         GroupedScrollView(spacing: 14) {
             content
+
+            receiveTokenView
         }
         .transition(transitionService.transitionToNewAmountStep())
         .onAppear(perform: viewModel.onAppear)
@@ -46,6 +48,15 @@ struct SendNewAmountView: View {
                 .padding(.vertical, 14)
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+    }
+
+    @ViewBuilder
+    private var receiveTokenView: some View {
+        GroupedSection(viewModel.receivedTokenViewModel) {
+            TokenWithAmountView(data: $0)
+        }
+        .backgroundColor(Colors.Background.action)
+        .innerContentPadding(14)
     }
 
     @ViewBuilder
