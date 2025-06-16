@@ -7,18 +7,15 @@
 //
 
 import Combine
-import SwiftUI
 
-public protocol FloatingSheetContentViewModel: ObservableObject, Identifiable {
+public protocol FloatingSheetContentViewModel: Identifiable {
     var id: String { get }
-    var frameUpdateAnimation: Animation? { get }
-    var frameUpdatePublisher: AnyPublisher<Void, Never> { get }
 }
 
-public extension FloatingSheetContentViewModel {
-    var frameUpdateAnimation: Animation? { .default }
+// MARK: - AnyObject default Identifiable implementation
 
-    var frameUpdatePublisher: AnyPublisher<Void, Never> {
-        objectWillChange.map { _ in }.eraseToAnyPublisher()
+public extension FloatingSheetContentViewModel where Self: AnyObject {
+    var id: String {
+        String(ObjectIdentifier(self).hashValue)
     }
 }
