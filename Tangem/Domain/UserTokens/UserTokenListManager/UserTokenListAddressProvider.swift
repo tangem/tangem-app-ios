@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 protocol UserTokenListExternalParametersProvider: AnyObject {
-    func provideTokenListAddressValues(by blockchainNetwork: BlockchainNetwork) -> [String]
+    func provideTokenListAddresses() -> [TokenItemId: [String]]?
 
     // Return is optional because parameter not supported current version backend
     // [REDACTED_TODO_COMMENT]
