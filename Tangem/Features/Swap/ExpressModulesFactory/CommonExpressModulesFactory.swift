@@ -150,6 +150,38 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     }
 }
 
+// MARK: Public
+
+extension CommonExpressModulesFactory {
+    func makeExpressInteractor() -> ExpressInteractor {
+        let expressManager = TangemExpressFactory().makeExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
+            analyticsLogger: analyticsLogger
+        )
+
+        let interactor = ExpressInteractor(
+            userWalletId: userWalletId,
+            initialWallet: initialWalletModel,
+            destinationWallet: destinationWalletModel,
+            expressManager: expressManager,
+            allowanceProvider: allowanceProvider,
+            feeProvider: expressFeeProvider,
+            expressRepository: expressRepository,
+            expressPendingTransactionRepository: pendingTransactionRepository,
+            expressDestinationService: expressDestinationService,
+            expressAnalyticsLogger: analyticsLogger,
+            expressTransactionBuilder: expressTransactionBuilder,
+            expressAPIProvider: expressAPIProvider,
+            signer: signer
+        )
+
+        return interactor
+    }
+}
+
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
@@ -199,34 +231,6 @@ private extension CommonExpressModulesFactory {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
-    }
-
-    func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = TangemExpressFactory().makeExpressManager(
-            expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
-            expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger
-        )
-
-        let interactor = ExpressInteractor(
-            userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: destinationWalletModel,
-            expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
-            expressRepository: expressRepository,
-            expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
-            expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
-            expressAPIProvider: expressAPIProvider,
-            signer: signer
-        )
-
-        return interactor
     }
 
     func makeAllowanceProvider() -> UpdatableAllowanceProvider {
