@@ -36,6 +36,7 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
+            receiveTokenInput: sendModel,
             flowKind: flowKind
         )
 
@@ -55,7 +56,6 @@ struct NewSendFlowBaseBuilder {
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
-            sendReceiveTokenCompactViewModel: nil,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -63,8 +63,7 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendAmountCompactViewModel: amount.compact,
-            sendReceiveTokenCompactViewModel: nil,
+            sendAmountCompactViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
             sendFeeCompactViewModel: fee.finish,
         )
