@@ -9,11 +9,26 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemHotSdk
+
+struct WalletInfo {
+    let name: String
+    let type: WalletInfoType
+}
+
+enum WalletInfoType {
+    case card(CardInfo)
+    case hot(HotWalletInfo)
+}
+
+struct HotWalletInfo {
+    let publicKey: Data
+    let wallets: [HotWallet]
+}
 
 struct CardInfo {
     var card: CardDTO
     var walletData: DefaultWalletData
-    var name: String
     var primaryCard: PrimaryCard?
 
     var cardIdFormatted: String {
