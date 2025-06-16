@@ -99,6 +99,10 @@ extension ExpressInteractor {
         _state.value
     }
 
+    func getSwappingPair() -> SwappingPair {
+        _swappingPair.value
+    }
+
     func getSender() -> any WalletModel {
         _swappingPair.value.sender
     }

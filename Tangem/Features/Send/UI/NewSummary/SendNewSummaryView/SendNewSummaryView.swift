@@ -38,26 +38,12 @@ struct SendNewSummaryView: View {
 
     @ViewBuilder
     private var amountSectionView: some View {
-        ZStack(alignment: .center) {
-            VStack(spacing: .zero) {
-                if let amountCompactViewModel = viewModel.sendAmountCompactViewModel {
-                    Button(action: viewModel.userDidTapAmount) {
-                        SendNewAmountCompactView(viewModel: amountCompactViewModel)
-                    }
-                }
-
-                if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
-                    Button(action: viewModel.userDidTapReceiveTokenAmount) {
-                        SendNewAmountCompactView(viewModel: receiveTokenViewModel)
-                    }
-                }
-            }
-
-            if let separatorStyle = viewModel.sendAmountsSeparator {
-                SendNewAmountCompactViewSeparator(style: separatorStyle)
-            }
+        GroupedSection(viewModel.sendAmountCompactViewModel) {
+            SendNewAmountCompactView(viewModel: $0)
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+        .backgroundColor(Colors.Background.action)
+        .innerContentPadding(0)
+        .horizontalPadding(0)
     }
 
     // MARK: - Destination
