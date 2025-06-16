@@ -10,27 +10,24 @@ import Foundation
 import TangemSdk
 
 class OnboardingInputFactory {
-    private let cardInfo: CardInfo
     private let userWalletModel: UserWalletModel?
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
     private let pushNotificationsInteractor: PushNotificationsInteractor
 
     init(
-        cardInfo: CardInfo,
         userWalletModel: UserWalletModel?,
         sdkFactory: TangemSdkFactory & BackupServiceFactory,
         onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
         pushNotificationsInteractor: PushNotificationsInteractor
     ) {
-        self.cardInfo = cardInfo
         self.userWalletModel = userWalletModel
         self.sdkFactory = sdkFactory
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
         self.pushNotificationsInteractor = pushNotificationsInteractor
     }
 
-    func makeOnboardingInput() -> OnboardingInput? {
+    func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {
@@ -60,12 +57,12 @@ class OnboardingInputFactory {
             cardInitializer: cardInitializer,
             pushNotificationsPermissionManager: permissionManager,
             steps: steps,
-            cardInput: makeCardInput(),
+            cardInput: makeCardInput(cardInfo: cardInfo),
             twinData: cardInfo.walletData.twinData
         )
     }
 
-    func makeBackupInput() -> OnboardingInput? {
+    func makeBackupInput(cardInfo: CardInfo) -> OnboardingInput? {
         guard let userWalletModel else { return nil }
 
         let backupService = sdkFactory.makeBackupService()
@@ -94,7 +91,7 @@ class OnboardingInputFactory {
         )
     }
 
-    private func makeCardInput() -> OnboardingInput.CardInput {
+    private func makeCardInput(cardInfo: CardInfo) -> OnboardingInput.CardInput {
         if let userWalletModel {
             return .userWalletModel(userWalletModel)
         }
