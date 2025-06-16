@@ -26,7 +26,7 @@ enum PreviewCard {
 
     var userWalletModel: UserWalletModel {
         let card = CardDTO(card: card)
-        let ci = CardInfo(card: card, walletData: walletData, name: "Name")
+        let ci = CardInfo(card: card, walletData: walletData)
         let vm = CommonUserWalletModelFactory().makeModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
