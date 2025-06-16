@@ -775,6 +775,9 @@
 "send_max_fee" = "Комиссия не превысит";
 "send_memo_destination_tag_error" = "Недопустимый Memo";
 "send_network_fee_warning_title" = "Покрытие сетевой комиссии";
+"send_nonce_footer" = "Уникальный номер транзакции. Измените, чтобы ускорить отправку или отменить зависшую операцию.";
+"send_nonce_hint" = "Введите nonce…";
+"send_nonce" = "Nonce";
 "send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса";
 "send_notification_exceed_balance_title" = "Недостаточно средств";
 "send_notification_existential_deposit_text" = "Для сохранения вашего аккаунта в блокчейне и защиты от возможных рисков необходим баланс не менее %@. Эта сумма останется на вашем счете и не может быть снята.";
