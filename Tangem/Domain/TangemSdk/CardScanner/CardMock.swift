@@ -47,12 +47,14 @@ enum CardMock: String, CaseIterable {
     }
 
     var cardInfo: CardInfo {
-        .init(card: CardDTO(card: card), walletData: walletData, name: rawValue)
+        .init(card: CardDTO(card: card), walletData: walletData)
     }
 
     var card: Card {
         decodeFromURL(url)!
     }
+
+    var name: String { rawValue }
 
     var walletData: DefaultWalletData {
         switch self {

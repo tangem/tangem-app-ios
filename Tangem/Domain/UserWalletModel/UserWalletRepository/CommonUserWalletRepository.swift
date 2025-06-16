@@ -84,32 +84,28 @@ class CommonUserWalletRepository: UserWalletRepository {
                 failedCardScanTracker.resetCounter()
                 sendEvent(.scan(isScanning: false))
 
-                var cardInfo = response.getCardInfo()
+                let cardInfo = response.getCardInfo()
                 updateAssociatedCard(for: cardInfo)
                 resetServices()
                 initializeAnalyticsContext(with: cardInfo)
-                let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                cardInfo.name = UserWalletNameIndexationHelper.suggestedName(
-                    config.name,
-                    names: models.map(\.name)
-                )
-
                 let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+
                 if let userWalletModel {
                     initializeServices(for: userWalletModel)
                 }
 
+                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
                 let factory = OnboardingInputFactory(
-                    cardInfo: cardInfo,
                     userWalletModel: userWalletModel,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config,
                     pushNotificationsInteractor: pushNotificationsInteractor
                 )
 
-                if let onboardingInput = factory.makeOnboardingInput() {
+                if let onboardingInput = factory.makeOnboardingInput(cardInfo: cardInfo) {
                     return .justWithError(output: .onboarding(onboardingInput))
                 } else if let userWalletModel {
                     return .justWithError(output: .success(userWalletModel))
@@ -378,7 +374,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     /// we can initialize it right after scan for more accurate analytics
     func initializeAnalyticsContext(with cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         let userWalletId = UserWalletIdFactory().userWalletId(config: config)
         let contextData = AnalyticsContextData(
             card: cardInfo.card,

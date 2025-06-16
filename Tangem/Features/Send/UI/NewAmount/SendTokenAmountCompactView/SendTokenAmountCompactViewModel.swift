@@ -1,5 +1,5 @@
 //
-//  SendNewAmountCompactViewModel.swift
+//  SendTokenAmountCompactViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
-class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
+class SendTokenAmountCompactViewModel: ObservableObject, Identifiable {
     let walletNameTitle: String
     let tokenIconInfo: TokenIconInfo
 
