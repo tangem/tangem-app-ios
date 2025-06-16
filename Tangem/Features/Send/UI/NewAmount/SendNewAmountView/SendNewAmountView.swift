@@ -20,6 +20,8 @@ struct SendNewAmountView: View {
     var body: some View {
         GroupedScrollView(spacing: 14) {
             content
+
+            receiveTokenView
         }
         .transition(transitionService.transitionToNewAmountStep())
         .onAppear(perform: viewModel.onAppear)
@@ -49,6 +51,15 @@ struct SendNewAmountView: View {
     }
 
     @ViewBuilder
+    private var receiveTokenView: some View {
+        GroupedSection(viewModel.receivedTokenViewModel) {
+            TokenWithAmountView(data: $0)
+        }
+        .backgroundColor(Colors.Background.action)
+        .innerContentPadding(14)
+    }
+
+    @ViewBuilder
     private var textField: some View {
         switch viewModel.amountType {
         case .crypto:
@@ -58,6 +69,7 @@ struct SendNewAmountView: View {
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                .trailingToolbarType(.none)
                 .focused($focused, equals: .crypto)
                 .frame(height: 42)
                 .transition(
@@ -73,6 +85,7 @@ struct SendNewAmountView: View {
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                .trailingToolbarType(.none)
                 .focused($focused, equals: .fiat)
                 .frame(height: 42)
                 .transition(

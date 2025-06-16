@@ -52,7 +52,7 @@ class VisaCustomerWalletApproveTask: CardSessionRunnable {
 private extension VisaCustomerWalletApproveTask {
     func proceedApprove(card: Card, in session: CardSession, completion: @escaping TaskResult) {
         let cardDTO = CardDTO(card: card)
-        let config = UserWalletConfigFactory(CardInfo(card: cardDTO, walletData: .none, name: "")).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: CardInfo(card: cardDTO, walletData: .none))
 
         guard let derivationStyle = config.derivationStyle else {
             proceedApproveWithLegacyCard(card: card, in: session, completion: completion)
