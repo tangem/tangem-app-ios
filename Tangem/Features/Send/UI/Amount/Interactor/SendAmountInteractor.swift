@@ -9,11 +9,15 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol SendAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
     var externalAmountPublisher: AnyPublisher<SendAmount?, Never> { get }
+
+    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> { get }
+    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
 
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
@@ -32,6 +36,7 @@ class CommonSendAmountInteractor {
     private weak var output: SendAmountOutput?
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
+    private let receiveTokenInput: SendReceiveTokenInput?
 
     private var type: SendAmountCalculationType
 
@@ -50,6 +55,7 @@ class CommonSendAmountInteractor {
         maxAmount: Decimal,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
+        receiveTokenInput: SendReceiveTokenInput?,
         type: SendAmountCalculationType
     ) {
         self.input = input
@@ -59,6 +65,7 @@ class CommonSendAmountInteractor {
         self.maxAmount = maxAmount
         self.validator = validator
         self.amountModifier = amountModifier
+        self.receiveTokenInput = receiveTokenInput
         self.type = type
 
         _cachedAmount = CurrentValueSubject(input.amount)
@@ -172,6 +179,22 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     var externalAmountPublisher: AnyPublisher<SendAmount?, Never> {
         _externalAmount.eraseToAnyPublisher()
+    }
+
+    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> {
+        guard let receiveTokenInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenInput.receiveTokenPublisher
+    }
+
+    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> {
+        guard let receiveTokenInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenInput.receiveAmountPublisher
     }
 
     func update(amount: Decimal?) -> SendAmount? {
