@@ -10,13 +10,19 @@ import Foundation
 import TangemNFT
 
 struct CommonUserWalletModelFactory {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
         let cardInfo = userWallet.cardInfo()
-        return makeModel(cardInfo: cardInfo, associatedCardIds: userWallet.associatedCardIds)
+        return makeModel(
+            cardInfo: cardInfo,
+            name: userWallet.name,
+            associatedCardIds: userWallet.associatedCardIds
+        )
     }
 
-    func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> UserWalletModel? {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+    func makeModel(cardInfo: CardInfo, name: String? = nil, associatedCardIds: Set<String> = []) -> UserWalletModel? {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
               let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
@@ -95,6 +101,7 @@ struct CommonUserWalletModelFactory {
 
         let model = CommonUserWalletModel(
             cardInfo: cardInfo,
+            name: name ?? fallbackName(config: config),
             config: config,
             userWalletId: userWalletId,
             associatedCardIds: associatedCardIds,
@@ -121,5 +128,12 @@ struct CommonUserWalletModelFactory {
         default:
             return model
         }
+    }
+
+    private func fallbackName(config: UserWalletConfig) -> String {
+        UserWalletNameIndexationHelper.suggestedName(
+            config.cardName,
+            names: userWalletRepository.models.map(\.name)
+        )
     }
 }
