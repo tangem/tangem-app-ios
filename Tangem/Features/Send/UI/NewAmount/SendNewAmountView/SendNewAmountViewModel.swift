@@ -23,6 +23,8 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
 
+    @Published var receivedTokenViewModel: TokenWithAmountViewData?
+
     lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
         tokenIconInfo: tokenIconInfo,
         title: tokenItem.name,
@@ -142,6 +144,18 @@ private extension SendNewAmountViewModel {
                 viewModel.setExternalAmount(amount)
             }
             .store(in: &bag)
+
+        Publishers.CombineLatest(
+            interactor.receivedTokenPublisher,
+            interactor.receivedTokenAmountPublisher
+        )
+        .withWeakCaptureOf(self)
+        .receive(on: DispatchQueue.main)
+        .sink { viewModel, args in
+            let (token, amount) = args
+            viewModel.updateReceivedToken(token: token, amount: amount)
+        }
+        .store(in: &bag)
     }
 
     func setExternalAmount(_ amount: SendAmount?) {
@@ -175,6 +189,35 @@ private extension SendNewAmountViewModel {
         fiatTextFieldViewModel.update(value: amount?.fiat)
 
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
+    }
+}
+
+// MARK: - Express
+
+extension SendNewAmountViewModel {
+    func updateReceivedToken(token: SendReceiveToken?, amount: LoadingResult<SendAmount?, Error>?) {
+        receivedTokenViewModel = token.map { token in
+            .init(
+                tokenIconInfo: token.tokenIconInfo,
+                title: token.tokenItem.name,
+                subtitle: "Will be sent to recipient",
+                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount)
+            )
+        }
+    }
+
+    func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
+        switch amount {
+        case .success(let success):
+            return .select(amount: success?.crypto?.stringValue) {
+                // Open token list
+                // [REDACTED_TODO_COMMENT]
+            }
+        case .none, .failure:
+            return nil
+        case .loading:
+            return .loading
+        }
     }
 }
 
