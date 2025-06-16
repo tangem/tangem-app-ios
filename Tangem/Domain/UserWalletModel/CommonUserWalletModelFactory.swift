@@ -132,7 +132,7 @@ struct CommonUserWalletModelFactory {
 
     private func fallbackName(config: UserWalletConfig) -> String {
         UserWalletNameIndexationHelper.suggestedName(
-            config.cardName,
+            config.name,
             names: userWalletRepository.models.map(\.name)
         )
     }
