@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 import Combine
 import BlockchainSdk
+import TangemExpress
+import TangemFoundation
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
@@ -44,6 +46,8 @@ class SendModel {
     private let transactionCreator: TransactionCreator
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
+    private let swapManager: SwapManager?
 
     private let flowKind: PredefinedValues.FlowKind
     private var bag: Set<AnyCancellable> = []
@@ -58,6 +62,8 @@ class SendModel {
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
+        sendReceiveTokenBuilder: SendReceiveTokenBuilder,
+        swapManager: SwapManager?,
         predefinedValues: PredefinedValues
     ) {
         self.tokenItem = tokenItem
@@ -67,6 +73,8 @@ class SendModel {
         self.transactionCreator = transactionCreator
         self.feeIncludedCalculator = feeIncludedCalculator
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
+        self.swapManager = swapManager
 
         flowKind = predefinedValues.flowKind
         _destination = .init(predefinedValues.destination)
@@ -102,6 +110,24 @@ private extension SendModel {
             }
             .sink { [weak self] result in
                 self?._transaction.send(result)
+            }
+            .store(in: &bag)
+
+        // MARK: - SwapManager
+
+        _amount
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] amount in
+                self?.swapManager?.update(amount: amount?.crypto)
+            }
+            .store(in: &bag)
+
+        _destination
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] destination in
+                self?.swapManager?.update(receiveAddress: destination?.value)
             }
             .store(in: &bag)
     }
@@ -261,6 +287,63 @@ extension SendModel: SendAmountInput {
 extension SendModel: SendAmountOutput {
     func amountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
+    }
+}
+
+// MARK: - SendReceiveTokenInput
+
+extension SendModel: SendReceiveTokenInput {
+    var receiveToken: SendReceiveToken? {
+        mapToReceiveToken(tokenItem: swapManager?.swappingPair.destination.value?.tokenItem)
+    }
+
+    var receiveTokenPublisher: AnyPublisher<SendReceiveToken?, Never> {
+        guard let swapManager else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return swapManager.swappingPairPublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToReceiveToken(tokenItem: $1.destination.value?.tokenItem) }
+            .eraseToAnyPublisher()
+    }
+
+    var receiveAmount: LoadingResult<SendAmount?, any Error> {
+        swapManager.map { mapToReceiveSendAmount(state: $0.state) } ?? .success(.none)
+    }
+
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
+        guard let swapManager else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return swapManager.statePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToReceiveSendAmount(state: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToReceiveToken(tokenItem: TokenItem?) -> SendReceiveToken? {
+        tokenItem.map { sendReceiveTokenBuilder.makeSendReceiveToken(tokenItem: $0) }
+    }
+
+    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
+        switch state {
+        case .idle, .restriction, .permissionRequired, .readyToSwap:
+            return .success(.none)
+        case .loading:
+            return .loading
+        case .previewCEX(_, let quote):
+            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: quote.expectAmount)))
+        }
+    }
+}
+
+// MARK: - SendReceiveTokenOutput
+
+extension SendModel: SendReceiveTokenOutput {
+    func userDidSelect(token: SendReceiveToken) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
