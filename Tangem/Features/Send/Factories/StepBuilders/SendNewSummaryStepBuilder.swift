@@ -25,7 +25,6 @@ struct SendNewSummaryStepBuilder {
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
-        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
@@ -42,7 +41,6 @@ struct SendNewSummaryStepBuilder {
             amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
@@ -69,7 +67,6 @@ private extension SendNewSummaryStepBuilder {
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
-        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> SendNewSummaryViewModel {
@@ -85,7 +82,6 @@ private extension SendNewSummaryStepBuilder {
             interactor: interactor,
             notificationManager: notificationManager,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
