@@ -30,8 +30,8 @@ extension OnboardingInput {
         var emailData: [EmailCollectedData] {
             switch self {
             case .cardInfo(let cardInfo):
-                let factory = UserWalletConfigFactory(cardInfo)
-                return factory.makeConfig().emailData
+                let factory = UserWalletConfigFactory()
+                return factory.makeConfig(cardInfo: cardInfo).emailData
             case .userWalletModel(let userWalletModel):
                 return userWalletModel.emailData
             case .cardId:
@@ -42,8 +42,8 @@ extension OnboardingInput {
         var demoBackupDisabledLocalizedReason: String? {
             switch self {
             case .cardInfo(let cardInfo):
-                let factory = UserWalletConfigFactory(cardInfo)
-                return factory.makeConfig().getFeatureAvailability(.backup).disabledLocalizedReason
+                let factory = UserWalletConfigFactory()
+                return factory.makeConfig(cardInfo: cardInfo).getFeatureAvailability(.backup).disabledLocalizedReason
             case .userWalletModel(let userWalletModel):
                 return userWalletModel.config.getDisabledLocalizedReason(for: .backup)
             case .cardId:
@@ -63,8 +63,8 @@ extension OnboardingInput {
         var config: UserWalletConfig? {
             switch self {
             case .cardInfo(let cardInfo):
-                let factory = UserWalletConfigFactory(cardInfo)
-                return factory.makeConfig()
+                let factory = UserWalletConfigFactory()
+                return factory.makeConfig(cardInfo: cardInfo)
             case .userWalletModel(let userWalletModel):
                 return userWalletModel.config
             case .cardId:
