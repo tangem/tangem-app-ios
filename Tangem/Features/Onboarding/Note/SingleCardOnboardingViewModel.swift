@@ -232,8 +232,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             guard let self else { return }
 
             switch result {
-            case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo)
+            case .success(let result):
+                initializeUserWallet(from: result)
                 walletCreatedWhileOnboarding = true
 
                 Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
