@@ -12,29 +12,9 @@ import TangemUI
 import TangemUIUtils
 
 struct WalletConnectErrorView: View {
-    @ObservedObject var viewModel: WalletConnectErrorViewModel
+    let viewModel: WalletConnectErrorViewModel
 
     var body: some View {
-        VStack(spacing: .zero) {
-            navigationBar
-            content
-            button
-        }
-        .background(Colors.Background.tertiary)
-        .frame(maxWidth: .infinity)
-        .environment(\.openURL, OpenURLAction { _ in
-            viewModel.handle(viewEvent: .contactSupportLinkTapped)
-            return .handled
-        })
-    }
-
-    private var navigationBar: some View {
-        WalletConnectNavigationBarView(
-            closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) }
-        )
-    }
-
-    private var content: some View {
         VStack(spacing: 24) {
             icon
 
@@ -52,6 +32,12 @@ struct WalletConnectErrorView: View {
         .padding(.top, 8)
         .padding(.horizontal, 32)
         .padding(.bottom, 44)
+        .background(Colors.Background.tertiary)
+        .frame(maxWidth: .infinity)
+        .environment(\.openURL, OpenURLAction { _ in
+            viewModel.handle(viewEvent: .contactSupportLinkTapped)
+            return .handled
+        })
     }
 
     private var icon: some View {
@@ -64,25 +50,5 @@ struct WalletConnectErrorView: View {
                 Circle()
                     .fill(viewModel.state.icon.color.opacity(0.1))
             }
-    }
-
-    private var button: some View {
-        MainButton(
-            title: viewModel.state.button.title,
-            style: viewModel.state.button.style.toMainButtonStyle,
-            size: .default,
-            action: { viewModel.handle(viewEvent: .buttonTapped) }
-        )
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
-    }
-}
-
-private extension WalletConnectErrorViewState.Button.Style {
-    var toMainButtonStyle: MainButton.Style {
-        switch self {
-        case .primary: .primary
-        case .secondary: .secondary
-        }
     }
 }
