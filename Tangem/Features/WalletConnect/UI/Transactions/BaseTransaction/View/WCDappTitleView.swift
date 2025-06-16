@@ -114,6 +114,6 @@ struct WCDappTitleView: View {
 
 private extension WCDappTitleView {
     func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
-        .timingCurve(0.65, 0, 0.35, 1, duration: duration)
+        .curve(.easeOutStandard, duration: duration)
     }
 }
