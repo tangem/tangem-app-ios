@@ -775,6 +775,9 @@
 "send_max_fee" = "Frais jusqu'à";
 "send_memo_destination_tag_error" = "Mémo invalide";
 "send_network_fee_warning_title" = "Couverture des frais de réseau";
+"send_nonce_footer" = "Unique number for each transaction. Use it to resend or cancel a pending transaction.";
+"send_nonce_hint" = "Enter nonce…";
+"send_nonce" = "Nonce";
 "send_notification_exceed_balance_text" = "Fonds insuffisants pour le transfert, car le total des frais et du montant du transfert dépasse le solde existant";
 "send_notification_exceed_balance_title" = "Le total dépasse le solde";
 "send_notification_existential_deposit_text" = "Un solde d'au moins %@ est requis pour conserver votre compte sur la blockchain afin d'éviter les risques de sécurité. Ce montant restera sur votre solde et ne pourra pas être retiré.";
