@@ -14,64 +14,16 @@ import TangemUIUtils
 struct WalletConnectNetworksSelectorView: View {
     @ObservedObject var viewModel: WalletConnectNetworksSelectorViewModel
 
-    @State private var scrollViewMaxHeight: CGFloat = 0
-    @State private var navigationBarBottomSeparatorIsVisible = false
-
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 14) {
-                requiredNetworksAreUnavailableSection
-                availableSection
-                notAddedSection
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, Layout.contentTopPadding)
-            .padding(.bottom, Layout.contentBottomPadding)
-            .readGeometry(\.self, inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace), throttleInterval: .proMotion) { geometryInfo in
-                withAnimation(WalletConnectDAppConnectionRequestView.Animations.sectionSlideInsertion) {
-                    updateScrollViewMaxHeight(geometryInfo.size.height)
-                }
-
-                updateNavigationBarBottomSeparatorVisibility(geometryInfo.frame.minY)
-            }
+        VStack(spacing: 14) {
+            requiredNetworksAreUnavailableSection
+            availableSection
+            notAddedSection
         }
-        .safeAreaInset(edge: .top, spacing: .zero) {
-            navigationBar
-        }
-        .safeAreaInset(edge: .bottom, spacing: .zero) {
-            doneButton
-        }
-        .scrollBounceBehaviorBackport(.basedOnSize)
-        .frame(maxHeight: scrollViewMaxHeight)
-        .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
-    }
-
-    private var navigationBar: some View {
-        WalletConnectNavigationBarView(
-            title: viewModel.state.navigationBarTitle,
-            bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
-            backButtonAction: { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
-        )
-    }
-
-    private var doneButton: some View {
-        MainButton(
-            title: viewModel.state.doneButton.title,
-            style: .primary,
-            isDisabled: !viewModel.state.doneButton.isEnabled,
-            action: { viewModel.handle(viewEvent: .doneButtonTapped) }
-        )
-        .padding(Layout.doneButtonPadding)
-        .background {
-            ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary.opacity(0.0),
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary,
-                ]
-            )
-            .padding(.top, 6)
-        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -116,8 +68,8 @@ struct WalletConnectNetworksSelectorView: View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(headerTitle)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .offset(y: 2)
-                .frame(height: Layout.sectionHeaderHeight)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
 
             content()
         }
@@ -187,7 +139,7 @@ struct WalletConnectNetworksSelectorView: View {
             trailingContent()
         }
         .lineLimit(1)
-        .frame(height: Layout.blockchainRowHeight)
+        .padding(.vertical, 14)
     }
 
     private func bindingFor(
@@ -208,36 +160,5 @@ struct WalletConnectNetworksSelectorView: View {
                 }
             )
         }
-    }
-
-    private func updateScrollViewMaxHeight(_ desiredContentHeight: CGFloat) {
-        scrollViewMaxHeight = Layout.navigationBarHeight
-            + desiredContentHeight
-            + Layout.doneButtonPadding
-            + MainButton.Size.default.height
-            + Layout.doneButtonPadding
-    }
-
-    private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {
-        navigationBarBottomSeparatorIsVisible = scrollViewMinY < Layout.navigationBarHeight - Layout.contentTopPadding
-    }
-}
-
-extension WalletConnectNetworksSelectorView {
-    private enum Layout {
-        /// 52
-        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
-        /// 12
-        static let contentTopPadding: CGFloat = 12
-        /// 8
-        static let contentBottomPadding: CGFloat = 8
-        /// 38
-        static let sectionHeaderHeight: CGFloat = 38
-        /// 52
-        static let blockchainRowHeight: CGFloat = 52
-        /// 16
-        static let doneButtonPadding: CGFloat = 16
-
-        static let scrollViewCoordinateSpace = "WalletConnectNetworksSelectorView.ScrollView"
     }
 }

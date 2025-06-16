@@ -84,7 +84,7 @@ extension ScanCardSettingsViewModel {
     }
 
     func processSuccessScan(for cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         // We just allow to reset cards without keys via any wallet
         let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0) } ?? UserWalletId(value: Data())
