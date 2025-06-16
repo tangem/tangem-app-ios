@@ -34,7 +34,6 @@ extension StoredUserWallet {
         return CardInfo(
             card: card,
             walletData: walletData,
-            name: name,
             primaryCard: nil
         )
     }
