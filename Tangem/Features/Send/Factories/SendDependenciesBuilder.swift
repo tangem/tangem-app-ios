@@ -212,6 +212,7 @@ struct SendDependenciesBuilder {
         predefinedSellParameters: PredefinedSellParameters? = .none
     ) -> SendModel {
         let transactionDispatcher = makeTransactionDispatcher()
+        let swapManager: SwapManager? = FeatureProvider.isAvailable(.sendViaSwap) ? makeSwapManager() : nil
         let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
 
         return SendModel(
@@ -222,6 +223,8 @@ struct SendDependenciesBuilder {
             transactionSigner: userWalletModel.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
+            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            swapManager: swapManager,
             predefinedValues: predefinedValues
         )
     }
@@ -343,6 +346,21 @@ struct SendDependenciesBuilder {
 
     func makeFeeSelectorCustomFeeFieldsBuilder() -> FeeSelectorCustomFeeFieldsBuilder {
         SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: makeCustomFeeService())
+    }
+
+    // MARK: - Send via swap
+
+    func makeSwapManager() -> SwapManager {
+        let factory = CommonExpressModulesFactory(
+            inputModel: .init(userWalletModel: userWalletModel, initialWalletModel: walletModel)
+        )
+
+        let interactor = factory.makeExpressInteractor()
+        return CommonSwapManager(mode: .toAnotherWallet, interactor: interactor)
+    }
+
+    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
+        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
     }
 
     // MARK: - NFT support
