@@ -21,7 +21,7 @@ struct UserTokenListConverter {
     // MARK: - Stored to Remote
 
     func convertStoredToRemote(_ storedUserTokenList: StoredUserTokenList) -> UserTokenList {
-        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue() ?? false
+        let tokenAddresses = externalParametersProvider?.provideTokenListAddresses()
 
         let tokens = storedUserTokenList
             .entries
@@ -32,12 +32,12 @@ struct UserTokenListConverter {
                 // Determine the addresses based on the notifyStatusValue.
                 // If notifyStatusValue is true, fetch the addresses from the externalParametersProvider.
                 // Otherwise, set addresses to an empty array.
-                let addresses: [String]
-                if notifyStatusValue {
-                    addresses = externalParametersProvider?.provideTokenListAddressValues(by: network) ?? []
-                } else {
-                    addresses = []
+                var addresses: [String]?
+
+                if let id {
+                    addresses = tokenAddresses?[id]
                 }
+
                 return UserTokenList.Token(
                     id: id,
                     networkId: network.blockchain.networkId,
@@ -50,6 +50,8 @@ struct UserTokenListConverter {
                 )
             }
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
+
+        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
 
         return UserTokenList(
             tokens: tokens,
