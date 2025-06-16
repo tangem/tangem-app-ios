@@ -101,6 +101,7 @@ private extension SendAmountStepBuilder {
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
             validator: sendAmountValidator,
             amountModifier: amountModifier,
+            receiveTokenInput: .none,
             type: type
         )
     }

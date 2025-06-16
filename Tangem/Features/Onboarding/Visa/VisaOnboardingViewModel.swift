@@ -202,9 +202,9 @@ class VisaOnboardingViewModel: ObservableObject {
         let cardInfo = CardInfo(
             card: card,
             walletData: .visa(activationStatus),
-            name: "Visa"
         )
         let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+
         self.userWalletModel = userWalletModel
     }
 
@@ -602,13 +602,12 @@ extension VisaOnboardingViewModel {
         ))
         let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationLocalState: activationStatus)
         let inputFactory = OnboardingInputFactory(
-            cardInfo: cardMock.cardInfo,
             userWalletModel: visaUserWalletModelMock,
             sdkFactory: cardMockConfig,
             onboardingStepsBuilderFactory: cardMockConfig,
             pushNotificationsInteractor: PushNotificationsInteractorMock()
         )
-        guard let cardInput = inputFactory.makeOnboardingInput() else {
+        guard let cardInput = inputFactory.makeOnboardingInput(cardInfo: cardMock.cardInfo) else {
             fatalError("Failed to generate card input for visa onboarding")
         }
 
