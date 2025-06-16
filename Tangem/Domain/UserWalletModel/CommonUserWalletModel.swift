@@ -60,7 +60,7 @@ class CommonUserWalletModel {
     init(
         cardInfo: CardInfo,
         name: String,
-        config: UserWalletConfig,
+        config: CardUserWalletConfig,
         userWalletId: UserWalletId,
         associatedCardIds: Set<String>,
         walletManagersRepository: WalletManagersRepository,
@@ -74,7 +74,7 @@ class CommonUserWalletModel {
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     ) {
         self.cardInfo = cardInfo
-        self.cardConfig = config
+        cardConfig = config
         self.userWalletId = userWalletId
         self.name = name
 
@@ -136,7 +136,7 @@ class CommonUserWalletModel {
 
     private func onUpdate() {
         AppLogger.info("Updating with new card")
-        cardConfig = UserWalletConfigFactory(cardInfo).makeConfig()
+        cardConfig = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = cardConfig.tangemSigner
         // prevent save until onboarding completed
