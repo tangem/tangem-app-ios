@@ -8,7 +8,9 @@
 
 import Foundation
 import Combine
-import struct TangemUIUtils.AlertBinder
+import SwiftUI
+import TangemUIUtils
+import TangemLocalization
 
 protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
     func unlockedWithBiometry()
@@ -23,7 +25,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
-    @Published var showTroubleshootingView: Bool = false
+    @Published var actionSheet: ActionSheetBinder?
 
     private let userWalletModel: UserWalletModel
     private weak var delegate: UnlockUserWalletBottomSheetDelegate?
@@ -62,12 +64,15 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                         return
                     }
 
-                    Analytics.tryLogCardVerificationError(error, source: .signIn)
-                    Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+                    Analytics.logScanError(error, source: .main)
+                    Analytics.logVisaCardScanErrorIfNeeded(error, source: .main)
                     self?.error = error.alertBinder
                 case .troubleshooting:
                     Analytics.log(.cantScanTheCard, params: [.source: .main])
-                    self?.showTroubleshooting()
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self?.openTroubleshooting()
+                    }
                 default:
                     break
                 }
@@ -75,10 +80,19 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func showTroubleshooting() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.showTroubleshootingView = true
-        }
+    func openTroubleshooting() {
+        let sheet = ActionSheet(
+            title: Text(Localization.alertTroubleshootingScanCardTitle),
+            message: Text(Localization.alertTroubleshootingScanCardMessage),
+            buttons: [
+                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: UnlockUserWalletBottomSheetViewModel.unlockWithCard)),
+                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: UnlockUserWalletBottomSheetViewModel.openScanCardManual)),
+                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: UnlockUserWalletBottomSheetViewModel.requestSupport)),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 
     func openScanCardManual() {

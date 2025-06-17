@@ -34,11 +34,13 @@ public struct NFTAssetDetailsView: View {
             .navigationTitle(viewModel.name)
             .navigationBarTitleDisplayMode(.inline)
             .background(Colors.Background.tertiary)
+            .onAppear(perform: viewModel.onViewAppear)
     }
 
     private var content: some View {
         ZStack {
             scrollView
+
             sendButtonContainer
         }
         .coordinateSpace(name: coordinateSpaceName)
@@ -77,14 +79,15 @@ public struct NFTAssetDetailsView: View {
     private var sendButtonContainer: some View {
         VStack(spacing: 0) {
             Spacer()
-            sendButton(souldAddShadow: shouldShowShadow)
+
+            sendButton(shouldShowShadow: shouldShowShadow)
         }
     }
 
-    private func sendButton(souldAddShadow: Bool) -> some View {
-        MainButton(title: Localization.commonSend, action: {})
+    private func sendButton(shouldShowShadow: Bool) -> some View {
+        MainButton(title: Localization.commonSend, action: viewModel.onSendButtonTap)
             .padding(.bottom, Constants.mainButtonBottomPadding)
-            .if(souldAddShadow) { view in
+            .if(shouldShowShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
                 )
@@ -114,12 +117,14 @@ private extension NFTAssetDetailsView {
             viewModel: NFTAssetDetailsViewModel(
                 asset: NFTAsset(
                     assetIdentifier: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-                    collectionIdentifier: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
+                    assetContractAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     chain: .solana,
                     contractType: .erc1155,
+                    decimalCount: 0,
                     ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     name: "My awesone asset",
                     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
+                    salePrice: nil,
                     media: NFTMedia(kind: .image, url: URL(
                         string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
                     )!),
@@ -134,8 +139,24 @@ private extension NFTAssetDetailsView {
                         NFTAsset.Trait(name: "Sneakers", value: "Boots"),
                     ]
                 ),
-                coordinator: nil,
-                nftChainNameProviding: NFTChainNameProviderMock()
+                collection: NFTCollection(
+                    collectionIdentifier: "0x071126cbec1c5562530ab85fd80dd3e3a42a70b8",
+                    chain: .arbitrum(isTestnet: false),
+                    contractType: .erc721,
+                    ownerAddress: "0xf686cc42c39e942d5b4a237286c5a55b451bd6f0",
+                    name: "Arbzukiswap coll",
+                    description: nil,
+                    media: nil,
+                    assetsCount: nil,
+                    assets: []
+                ),
+                navigationContext: NFTNavigationContextMock(),
+                dependencies: NFTAssetDetailsDependencies(
+                    nftChainNameProvider: NFTChainNameProviderMock(),
+                    priceFormatter: NFTPriceFormatterMock(),
+                    analytics: .empty,
+                ),
+                coordinator: nil
             )
         )
         .navigationTitle("My awesome asset")

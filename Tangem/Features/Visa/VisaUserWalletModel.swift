@@ -585,6 +585,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
 
+    var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
+        userWalletModel.userTokensPushNotificationsManager
+    }
+
     func validate() -> Bool { userWalletModel.validate() }
 
     func onBackupUpdate(type: BackupUpdateType) {}

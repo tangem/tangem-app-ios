@@ -31,4 +31,9 @@ public extension Publisher {
             return (object, output)
         }
     }
+
+    static var empty: AnyPublisher<Output, Failure> {
+        return Empty()
+            .eraseToAnyPublisher()
+    }
 }

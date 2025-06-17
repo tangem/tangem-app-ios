@@ -81,7 +81,6 @@ private extension CommonExpressAvailabilityProvider {
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .sink(receiveValue: { provider, queueItems in
-
                 let allCurrencies: CurrenciesSet = queueItems.reduce(into: []) { result, queueItem in
                     let joined = result.union(queueItem.currencies)
                     result = joined
@@ -188,7 +187,7 @@ private extension CommonExpressAvailabilityProvider {
             .unique(by: \.currency)
 
         do {
-            try storage.store(value: models)
+            try storage.storeAndWait(value: models)
         } catch {
             ExpressLogger.error("Failed", error: error)
         }

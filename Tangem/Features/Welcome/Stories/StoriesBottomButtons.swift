@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct StoriesBottomButtons: View {
     let scanColorStyle: MainButton.Style
@@ -29,6 +30,7 @@ struct StoriesBottomButtons: View {
                 isLoading: isScanning,
                 action: scanCard
             )
+            .accessibilityIdentifier(AccessibilityIdentifiers.Stories.scanButton)
 
             MainButton(
                 title: Localization.homeButtonOrder,

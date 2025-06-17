@@ -116,6 +116,16 @@ struct ProviderRowView: View {
                 .padding(.horizontal, 6)
                 .background(Colors.Background.secondary)
                 .cornerRadiusContinuous(8)
+        case .fcaWarning:
+            Text(Localization.expressProviderFcaWarningList)
+                .style(
+                    Fonts.Bold.caption2,
+                    color: viewModel.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
+                )
+                .padding(.vertical, 2)
+                .padding(.horizontal, 6)
+                .background(Colors.Background.secondary)
+                .cornerRadiusContinuous(8)
         case .bestRate:
             Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)

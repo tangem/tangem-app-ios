@@ -19,6 +19,8 @@ enum Feature: String, Hashable, CaseIterable {
     case logs
     case newSendUI
     case sendViaSwap
+    case hotWallet
+    case pushTransactionNotifications
 
     var name: String {
         switch self {
@@ -32,6 +34,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .logs: return "Logs"
         case .newSendUI: return "New Send UI"
         case .sendViaSwap: return "Send via Swap"
+        case .hotWallet: return "Hot wallet"
+        case .pushTransactionNotifications: return "Push Transaction Notifications"
         }
     }
 
@@ -39,14 +43,16 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .onramp: return .version("5.24")
+        case .onramp: return .version("5.24.2")
         case .visa: return .unspecified
         case .nft: return .unspecified
         case .walletConnectUI: return .unspecified
-        case .newAttestation: return .unspecified
+        case .newAttestation: return .version("5.24")
         case .logs: return .unspecified
         case .newSendUI: return .unspecified
         case .sendViaSwap: return .unspecified
+        case .hotWallet: return .unspecified
+        case .pushTransactionNotifications: return .unspecified
         }
     }
 }
