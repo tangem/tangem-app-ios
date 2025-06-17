@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemNFT
 
-class MainCoordinator: CoordinatorObject {
+class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,6 +24,7 @@ class MainCoordinator: CoordinatorObject {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -276,17 +277,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -302,17 +293,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -372,24 +353,6 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         safariManager.openURL(url)
     }
 
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        #warning("[REDACTED_TODO_COMMENT]")
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenDetailsCoordinator = nil
-        }
-
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager
-            )
-        )
-
-        tokenDetailsCoordinator = coordinator
-    }
-
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
 
@@ -400,7 +363,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
@@ -590,7 +553,7 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(nftManager: NFTManager, navigationContext: NFTEntrypointNavigationContext) {
+    func openCollections(nftManager: NFTManager, navigationContext: NFTNavigationContext) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = NFTCollectionsCoordinator(
@@ -607,10 +570,32 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                chainIconProvider: NetworkImageProvider(),
-                nftChainNameProviding: NFTChainNameProvider(),
-                navigationContext: navigationContext
+                nftChainIconProvider: NetworkImageProvider(),
+                nftChainNameProvider: NFTChainNameProvider(),
+                priceFormatter: NFTPriceFormatter(),
+                navigationContext: navigationContext,
+                blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
+                    logBlockchainChosen: { blockchain in
+                        Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])
+                    }
+                )
             )
         )
+    }
+}
+
+// MARK: - WCTransactionRoutable
+
+extension MainCoordinator: WCTransactionRoutable {
+    func showWCTransactionRequest(with data: WCHandleTransactionData) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: WCTransactionViewModel(dappInfo: data.dappInfo, transactionData: data)
+            )
+        }
+    }
+
+    func showWCTransactionRequest(with error: Error) {
+        // make error view model
     }
 }

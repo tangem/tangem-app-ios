@@ -77,38 +77,41 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
     func sign(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<String, Error> {
-        Publishers.Zip(
-            addressConverter.convertToETHAddressesPublisher(in: transaction),
-            networkService.getPendingTxCount(transaction.sourceAddress)
-        )
-        .map { convertedTransaction, nonce in
-            convertedTransaction.then { convertedTransaction in
-                let ethParams = convertedTransaction.params as? EthereumTransactionParams
-                convertedTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
+        let noncePublisher: AnyPublisher<Int, Error> =
+            (transaction.fee.parameters as? EthereumFeeParameters)?
+                .nonce
+                .map { Just($0).setFailureType(to: Error.self).eraseToAnyPublisher() }
+                ?? networkService.getPendingTxCount(transaction.sourceAddress)
+
+        return Publishers.Zip(addressConverter.convertToETHAddressesPublisher(in: transaction), noncePublisher)
+            .map { convertedTransaction, nonce in
+                convertedTransaction.then { convertedTransaction in
+                    let ethParams = convertedTransaction.params as? EthereumTransactionParams
+                    convertedTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
+                }
             }
-        }
-        .withWeakCaptureOf(self)
-        .flatMap { walletManager, convertedTransaction in
-            Result {
-                try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedTransaction in
+                Result {
+                    try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
+                }
+                .publisher
+                .withWeakCaptureOf(walletManager)
+                .flatMap { walletManager, hashToSign in
+                    signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
+                }
+                .withWeakCaptureOf(walletManager)
+                .tryMap { walletManager, signatureInfo -> String in
+                    try walletManager.txBuilder
+                        .buildForSend(
+                            transaction: convertedTransaction,
+                            signatureInfo: signatureInfo
+                        )
+                        .hex()
+                        .addHexPrefix()
+                }
             }
-            .publisher
-            .withWeakCaptureOf(walletManager)
-            .flatMap { walletManager, hashToSign in
-                signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
-            }
-            .withWeakCaptureOf(walletManager)
-            .tryMap { walletManager, signatureInfo -> String in
-                try walletManager.txBuilder
-                    .buildForSend(
-                        transaction: convertedTransaction,
-                        signatureInfo: signatureInfo
-                    )
-                    .hex()
-                    .addHexPrefix()
-            }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     /// It can't be into extension because it will be overridden in the `MantleWalletManager`
@@ -372,6 +375,24 @@ extension EthereumWalletManager: TransactionSender {
             }
             .eraseSendError()
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TransactionValidator
+
+extension EthereumWalletManager: TransactionValidator {
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        // This wallet manager still ignores `destination` parameter even in the custom implementation of this method
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
+
+        switch amount.type.token?.metadata.kind {
+        case .fungible, .none:
+            // Just calling the default implementation for the `TransactionValidator.validate(amount:fee:)` method
+            try validateAmounts(amount: amount, fee: fee.amount)
+        case .nonFungible:
+            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
+            try validate(fee: fee.amount)
+        }
     }
 }
 

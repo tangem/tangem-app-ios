@@ -10,15 +10,16 @@ import Combine
 import SwiftUI
 import TangemSdk
 import TangemFoundation
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
+import TangemLocalization
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
-    @Published var showTroubleshootingView: Bool = false
     @Published var error: AlertBinder?
+    @Published var actionSheet: ActionSheetBinder?
 
     let storiesModel: StoriesViewModel
 
@@ -92,7 +93,7 @@ class WelcomeViewModel: ObservableObject {
             switch result {
             case .troubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-                showTroubleshootingView = true
+                openTroubleshooting()
             case .onboarding(let input):
                 openOnboarding(with: input)
             case .error(let error):
@@ -100,8 +101,8 @@ class WelcomeViewModel: ObservableObject {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .signIn)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+                Analytics.logScanError(error, source: .introduction)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
                 self.error = error.alertBinder
             case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
                 openMain(with: model)
@@ -113,6 +114,21 @@ class WelcomeViewModel: ObservableObject {
 // MARK: - Navigation
 
 extension WelcomeViewModel {
+    func openTroubleshooting() {
+        let sheet = ActionSheet(
+            title: Text(Localization.alertTroubleshootingScanCardTitle),
+            message: Text(Localization.alertTroubleshootingScanCardMessage),
+            buttons: [
+                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: WelcomeViewModel.tryAgain)),
+                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: WelcomeViewModel.openScanCardManual)),
+                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: WelcomeViewModel.requestSupport)),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     func openOnboarding(with input: OnboardingInput) {
         coordinator?.openOnboarding(with: input)
     }

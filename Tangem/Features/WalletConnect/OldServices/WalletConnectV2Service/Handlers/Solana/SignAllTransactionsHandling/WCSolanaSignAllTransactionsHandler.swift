@@ -48,6 +48,12 @@ final class WCSolanaSignAllTransactionsHandler {
 }
 
 extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .solanaSignAllTransactions }
+
+    var requestData: Data {
+        Data()
+    }
+
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
@@ -63,7 +69,7 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
         let preparedToSendHashes: [String] = try hashesToSign.enumerated().map { index, hashToSign in
             let hashToSignData = try prepareTransactionToSign(hash: hashToSign)
             let data = Data(1) + signedHashes[index] + hashToSignData
-            return data.base64EncodedString()
+            return data.base64EncodedString().lowercased()
         }
 
         return .response(AnyCodable(WCSolanaSignAllTransactionsDTO.Body(transactions: preparedToSendHashes)))

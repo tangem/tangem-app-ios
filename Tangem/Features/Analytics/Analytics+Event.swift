@@ -17,6 +17,7 @@ extension Analytics {
         case cardWasScanned = "[Basic] Card Was Scanned"
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
+        case biometryFailed = "[Basic] Biometry Failed"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
@@ -101,6 +102,7 @@ extension Analytics {
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
         case sendCustomFeeInserted = "[Token / Send] Custom Fee Inserted"
         case sendGasLimitInserted = "[Token / Send] Gas Limit Inserted"
+        case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
         case sendSubstractFromAmount = "[Token / Send] Substract From Amount"
@@ -169,6 +171,8 @@ extension Analytics {
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
+        case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
+        case referralError = "[Referral Program] Referral Error"
 
         // MARK: - Swap
 
@@ -280,8 +284,7 @@ extension Analytics {
         case cantScanTheCard = "[Errors] Cant Scan The Card"
         case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
         case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
-
-        case errorOfflineAttestationFailed = "[Error] Offline Attestation Failed"
+        case scanErrors = "[Error] Scan Errors"
 
         // MARK: - Promo
 
@@ -293,6 +296,7 @@ extension Analytics {
         case pushButtonPostpone = "[Push] Button - Later"
         case pushPermissionStatus = "[Push] Permission Status"
         case pushNotificationOpened = "[Push] Push Notification Opened"
+        case pushToggleClicked = "[Push] Push Toggle Clicked"
 
         // MARK: - Staking
 
@@ -329,12 +333,12 @@ extension Analytics {
         case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
         case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
         case marketsStakingMoreInfo = "[Markets] Staking More Info"
-        case tokenSearch = "[Markets] Token Search"
+        case marketsTokenSearch = "[Markets] Token Search"
 
         // MARK: - Markets / Chart
 
         case marketsChartScreenOpened = "[Markets / Chart] Token Chart Screen Opened"
-        case openedLowCapTokenPage = "[Markets / Chart] <100k Market Cap Token Screen Opened"
+        case marketsChartShowedTokensBelowCapThreshold = "[Markets / Chart] Button - Show Tokens"
         case marketsChartButtonPeriod = "[Markets / Chart] Button - Period"
         case marketsChartButtonReadMore = "[Markets / Chart] Button - Read More"
         case marketsChartButtonLinks = "[Markets / Chart] Button - Links"
@@ -344,6 +348,7 @@ extension Analytics {
         case marketsChartButtonBuy = "[Markets / Chart] Button - Buy"
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
+        case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
@@ -456,5 +461,28 @@ extension Analytics {
         case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
+
+        // MARK: - NFT
+
+        case nftAssetReadMore = "[NFT] Button - Read More"
+        case nftAssetSeeAll = "[NFT] Button - See All"
+        case nftAssetExplore = "[NFT] Button - Explore"
+        case nftAssetSend = "[NFT] Button - Send"
+
+        case nftAssetDetailsOpened = "[NFT] NFT Details Screen Opened"
+        case nftAssetReceiveOpened = "[NFT] Receive NFT Screen Opened"
+        case nftCollectionsOpened = "[NFT] NFT List Screen Opened"
+
+        case nftReceiveBlockchainChosen = "[NFT] Blockchain Chosen"
+        case nftReceiveCopyAddressButtonClicked = "[NFT] Button - Copy Address"
+        case nftReceiveShareAddressButtonClicked = "[NFT] Button - Share Address"
+
+        case nftSendAddressEntered = "[NFT] Send Address Entered"
+        case nftCommissionScreenOpened = "[NFT] Commission Screen Opened"
+        case nftFeeSelected = "[NFT] Fee Selected"
+        case nftConfirmScreenOpened = "[NFT] Confirm Screen Opened"
+        case nftSentScreenOpened = "[NFT] NFT Sent Screen Opened"
+
+        case nftErrors = "[NFT] NFT Errors"
     }
 }

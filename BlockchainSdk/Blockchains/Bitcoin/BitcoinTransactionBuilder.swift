@@ -10,14 +10,27 @@ import Foundation
 import TangemSdk
 import WalletCore
 
+/// Decoder:
+/// https://learnmeabitcoin.com/tools/
+/// https://www.blockchain.com/explorer/assets/btc/decode-transaction
 class BitcoinTransactionBuilder {
     private let network: UTXONetworkParams
     private let unspentOutputManager: UnspentOutputManager
-    private let coinType: CoinType = .bitcoin
+    private let builderType: BuilderType
+    private let sequence: SequenceType
 
-    init(network: UTXONetworkParams, unspentOutputManager: UnspentOutputManager) {
+    private var signHashType: UTXONetworkParamsSignHashType { network.signHashType }
+
+    init(
+        network: UTXONetworkParams,
+        unspentOutputManager: UnspentOutputManager,
+        builderType: BuilderType,
+        sequence: SequenceType = .rbf
+    ) {
         self.network = network
         self.unspentOutputManager = unspentOutputManager
+        self.builderType = builderType
+        self.sequence = sequence
     }
 
     func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
@@ -27,59 +40,39 @@ class BitcoinTransactionBuilder {
     }
 
     func buildForSign(transaction: Transaction) async throws -> [Data] {
-        let input = try await buildSigningInputInput(transaction: transaction)
-        let txInputData = try input.serializedData()
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
 
-        let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
-        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedData: preImageHashes)
+        let hashes: [Data] = try {
+            switch builderType {
+            case .walletCore(let coinType) where possibleToUseWalletCore:
+                let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
+                return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
+            case .custom, .walletCore:
+                let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
+                return try builderType.preImageHashes(transaction: preImage)
+            }
+        }()
 
-        if preSigningOutput.error != .ok {
-            BSDKLogger.error("BitcoinPreSigningOutput has a error", error: preSigningOutput.errorMessage)
-            throw Error.walletCoreError(preSigningOutput.errorMessage)
-        }
-
-        let hashes = preSigningOutput.hashPublicKeys.map { $0.dataHash }
         return hashes
     }
 
     func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
-        let input = try await buildSigningInputInput(transaction: transaction)
-        let txInputData = try input.serializedData()
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        let signatures = try map(scripts: preImage.inputs.map { $0.script }, signatures: signatures)
+        let possibleToUseWalletCore = try possibleToUseWalletCore(for: preImage)
 
-        let signaturesVector = DataVector()
-        let publicKeysVector = DataVector()
-
-        try signatures.forEach { signature in
-            try signaturesVector.add(data: signature.der())
-
-            switch network.publicKeyType {
-            case .compressed:
-                let publicKey = try Secp256k1Key(with: signature.publicKey).compress()
-                publicKeysVector.add(data: publicKey)
-            case .asIs:
-                publicKeysVector.add(data: signature.publicKey)
+        let encoded: Data = try {
+            switch builderType {
+            case .walletCore(let coinType) where possibleToUseWalletCore:
+                let builderType = WalletCoreUTXOTransactionSerializer(coinType: coinType, sequence: sequence)
+                return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
+            case .custom, .walletCore:
+                let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
+                return try builderType.compile(transaction: preImage, signatures: signatures)
             }
-        }
+        }()
 
-        let compileWithSignatures = TransactionCompiler.compileWithSignatures(
-            coinType: .bitcoin,
-            txInputData: txInputData,
-            signatures: signaturesVector,
-            publicKeys: publicKeysVector
-        )
-
-        let output = try BitcoinSigningOutput(serializedData: compileWithSignatures)
-
-        if output.error != .ok {
-            BSDKLogger.error("BitcoinSigningOutput has a error", error: output.errorMessage)
-            throw Error.walletCoreError("\(output.error)")
-        }
-
-        if output.encoded.isEmpty {
-            throw Error.walletCoreError("Encoded is empty")
-        }
-
-        let encoded = output.encoded
         return encoded
     }
 }
@@ -87,70 +80,67 @@ class BitcoinTransactionBuilder {
 // MARK: - Private
 
 private extension BitcoinTransactionBuilder {
-    func buildSigningInputInput(transaction: Transaction) async throws -> BitcoinSigningInput {
-        guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
-            throw Error.noBitcoinFeeParameters
+    func map(scripts: [UTXOLockingScript], signatures: [SignatureInfo]) throws -> [SignatureInfo] {
+        guard scripts.count == signatures.count else {
+            throw Error.wrongSignaturesCount
         }
 
-        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
+        return try zip(scripts, signatures).map { script, signature in
+            let publicKey: Data = try {
+                switch script.spendable {
+                // If we're spending an output which was received on address which was generated for the compressed public key,
+                // we need to `compress()` the public key that was used for signing
+                case .publicKey(let publicKey) where Secp256k1Key.isCompressed(publicKey: publicKey):
+                    return try Secp256k1Key(with: signature.publicKey).compress()
 
-        guard let destination = preImage.outputs.first(where: { $0.isDestination }) else {
-            throw Error.noDestinationAmount
-        }
+                case .publicKey(let publicKey):
+                    return publicKey
 
-        let change = preImage.outputs.first(where: { $0.isChange })
+                // The redeemScript is used only for Twin cards
+                // We always use the compressed public key from `SignatureInfo`
+                // This is important to identify which of the two cards was used for signing
+                case .redeemScript:
+                    return try Secp256k1Key(with: signature.publicKey).compress()
 
-        let utxo = preImage.inputs.map { input in
-            BitcoinUnspentTransaction.with {
-                $0.outPoint = .with {
-                    $0.hash = Data(input.hash.reversed())
-                    $0.index = UInt32(input.index)
-                    $0.sequence = .max
+                case .none:
+                    throw UTXOTransactionSerializerError.spendableScriptNotFound
                 }
+            }()
 
-                $0.amount = Int64(input.amount)
-                $0.script = input.script.data
+            return try SignatureInfo(signature: signature.der(), publicKey: publicKey, hash: signature.hash)
+        }
+    }
+
+    // The WalletCoreUTXOTransactionSerializer supports only compressed publicKey
+    // [REDACTED_TODO_COMMENT]
+    func possibleToUseWalletCore(for preImage: PreImageTransaction) throws -> Bool {
+        let hasExtendedPublicKey = try preImage.inputs.contains { input in
+            switch input.script.spendable {
+            case .none: throw UTXOTransactionSerializerError.spendableScriptNotFound
+            case .publicKey(let data): Secp256k1Key.isExtended(publicKey: data)
+            case .redeemScript: false
             }
         }
 
-        let scripts: [String: Data] = preImage.inputs.reduce(into: [:]) { result, input in
-            if case .redeemScript(let redeemScript) = input.script.spendable {
-                result[redeemScript.sha256Ripemd160.hex()] = redeemScript
-            }
-        }
-
-        var input = BitcoinSigningInput.with {
-            $0.coinType = network.coinType
-            $0.hashType = network.signHashType.value
-            $0.utxo = utxo
-            $0.scripts = scripts
-
-            $0.toAddress = transaction.destinationAddress
-            $0.amount = Int64(destination.value)
-
-            $0.changeAddress = transaction.changeAddress
-            $0.useMaxAmount = change == nil
-
-            $0.byteFee = Int64(parameters.rate)
-        }
-
-        input.plan = AnySigner.plan(input: input, coin: coinType)
-        if input.plan.error != .ok {
-            BSDKLogger.error("BitcoinSigningInput has a error", error: "\(input.plan.error)")
-            throw Error.walletCoreError("\(input.plan.error)")
-        }
-
-        return input
+        return !hasExtendedPublicKey
     }
 }
 
 extension BitcoinTransactionBuilder {
     enum Error: LocalizedError {
-        case unsupportedBlockchain(String)
-        case unsupportedAddresses
-        case wrongType
-        case noBitcoinFeeParameters
-        case noDestinationAmount
-        case walletCoreError(String)
+        case wrongSignaturesCount
+
+        var errorDescription: String? {
+            switch self {
+            case .wrongSignaturesCount: "Wrong signatures count"
+            }
+        }
+    }
+}
+
+extension BitcoinTransactionBuilder {
+    enum BuilderType {
+        case walletCore(CoinType)
+        case custom
     }
 }

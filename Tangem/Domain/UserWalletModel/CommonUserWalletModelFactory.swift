@@ -7,15 +7,22 @@
 //
 
 import Foundation
+import TangemNFT
 
 struct CommonUserWalletModelFactory {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
         let cardInfo = userWallet.cardInfo()
-        return makeModel(cardInfo: cardInfo, associatedCardIds: userWallet.associatedCardIds)
+        return makeModel(
+            cardInfo: cardInfo,
+            name: userWallet.name,
+            associatedCardIds: userWallet.associatedCardIds
+        )
     }
 
-    func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> UserWalletModel? {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+    func makeModel(cardInfo: CardInfo, name: String? = nil, associatedCardIds: Set<String> = []) -> UserWalletModel? {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
               let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
@@ -75,10 +82,26 @@ struct CommonUserWalletModelFactory {
             longHashesSupported: config.hasFeature(.longHashes)
         )
 
-        let nftManager = CommonNFTManager(walletModelsManager: walletModelsManager)
+        let nftManager = CommonNFTManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            analytics: NFTAnalytics.Error(
+                logError: { errorCode, description in
+                    Analytics.log(event: .nftErrors, params: [.errorCode: errorCode, .errorDescription: description])
+                }
+            )
+        )
+
+        let userTokensPushNotificationsManager = CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: derivationManager,
+            userTokenListManager: userTokenListManager
+        )
 
         let model = CommonUserWalletModel(
             cardInfo: cardInfo,
+            name: name ?? fallbackName(config: config),
             config: config,
             userWalletId: userWalletId,
             associatedCardIds: associatedCardIds,
@@ -89,11 +112,15 @@ struct CommonUserWalletModelFactory {
             nftManager: nftManager,
             keysRepository: keysRepository,
             derivationManager: derivationManager,
-            totalBalanceProvider: totalBalanceProvider
+            totalBalanceProvider: totalBalanceProvider,
+            userTokensPushNotificationsManager: userTokensPushNotificationsManager
         )
 
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
+
+        // Set walletModelsManager as the source of addresses for the token list manager & pushNotifyStatus
+        userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
 
         switch cardInfo.walletData {
         case .visa:
@@ -101,5 +128,12 @@ struct CommonUserWalletModelFactory {
         default:
             return model
         }
+    }
+
+    private func fallbackName(config: UserWalletConfig) -> String {
+        UserWalletNameIndexationHelper.suggestedName(
+            config.cardName,
+            names: userWalletRepository.models.map(\.name)
+        )
     }
 }

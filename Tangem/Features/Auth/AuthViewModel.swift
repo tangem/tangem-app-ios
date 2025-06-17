@@ -7,16 +7,17 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemSdk
 import TangemLocalization
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
+    @Published var actionSheet: ActionSheetBinder?
 
     var unlockWithBiometryButtonTitle: String {
         Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
@@ -105,7 +106,7 @@ final class AuthViewModel: ObservableObject {
         switch result {
         case .troubleshooting:
             Analytics.log(.cantScanTheCard, params: [.source: .signIn])
-            showTroubleshootingView = true
+            openTroubleshooting()
         case .onboarding(let input):
             openOnboarding(with: input)
         case .error(let error):
@@ -113,7 +114,7 @@ final class AuthViewModel: ObservableObject {
                 return
             }
 
-            Analytics.tryLogCardVerificationError(error, source: .signIn)
+            Analytics.logScanError(error, source: .signIn)
             Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
             self.error = error.alertBinder
         case .success(let model), .partial(let model, _):
@@ -125,6 +126,21 @@ final class AuthViewModel: ObservableObject {
 // MARK: - Navigation
 
 extension AuthViewModel {
+    func openTroubleshooting() {
+        let sheet = ActionSheet(
+            title: Text(Localization.alertTroubleshootingScanCardTitle),
+            message: Text(Localization.alertTroubleshootingScanCardMessage),
+            buttons: [
+                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: AuthViewModel.tryAgain)),
+                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: AuthViewModel.openScanCardManual)),
+                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: AuthViewModel.requestSupport)),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     func openMail() {
         coordinator?.openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
     }

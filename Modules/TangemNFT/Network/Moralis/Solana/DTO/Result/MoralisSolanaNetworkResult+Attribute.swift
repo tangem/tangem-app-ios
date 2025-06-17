@@ -10,7 +10,7 @@ import AnyCodable
 
 extension MoralisSolanaNetworkResult {
     struct Attribute: Decodable {
-        let type: String?
+        let traitType: String?
         let value: AnyDecodable?
     }
 }
