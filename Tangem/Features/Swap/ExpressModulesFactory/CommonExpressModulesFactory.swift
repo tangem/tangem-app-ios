@@ -23,7 +23,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
     private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
@@ -156,7 +155,6 @@ extension CommonExpressModulesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
@@ -167,7 +165,6 @@ extension CommonExpressModulesFactory {
             initialWallet: initialWalletModel,
             destinationWallet: destinationWalletModel,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
@@ -231,10 +228,6 @@ private extension CommonExpressModulesFactory {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
     }
 
     func makeExpressFeeProvider() -> ExpressFeeProvider {

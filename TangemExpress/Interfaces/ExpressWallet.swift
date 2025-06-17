@@ -13,6 +13,8 @@ public protocol ExpressWallet {
     var defaultAddressString: String { get }
     var decimalCount: Int { get }
 
+    var allowanceProvider: AllowanceProvider { get }
+
     var feeCurrencyDecimalCount: Int { get }
     var isFeeCurrency: Bool { get }
 

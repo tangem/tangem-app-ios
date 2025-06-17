@@ -29,7 +29,6 @@ class ExpressInteractor {
     private let initialWallet: any WalletModel
     private let destinationWallet: (any WalletModel)?
     private let expressManager: ExpressManager
-    private let allowanceProvider: UpdatableAllowanceProvider
     private let feeProvider: ExpressFeeProvider
     private let expressRepository: ExpressRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -51,7 +50,6 @@ class ExpressInteractor {
         initialWallet: any WalletModel,
         destinationWallet: (any WalletModel)?,
         expressManager: ExpressManager,
-        allowanceProvider: UpdatableAllowanceProvider,
         feeProvider: ExpressFeeProvider,
         expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -65,7 +63,6 @@ class ExpressInteractor {
         self.initialWallet = initialWallet
         self.destinationWallet = destinationWallet
         self.expressManager = expressManager
-        self.allowanceProvider = allowanceProvider
         self.feeProvider = feeProvider
         self.expressRepository = expressRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
@@ -298,7 +295,7 @@ extension ExpressInteractor {
         let transactionDispatcher = factory.makeSendDispatcher()
         let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        allowanceProvider.didSendApproveTransaction(for: state.data.spender)
+        sender.allowanceProvider.didSendApproveTransaction(for: state.data.spender)
         logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
@@ -520,7 +517,6 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func swappingPairDidChange() {
-        allowanceProvider.setup(wallet: getSender())
         feeProvider.setup(wallet: getSender())
 
         updateTask { interactor in
