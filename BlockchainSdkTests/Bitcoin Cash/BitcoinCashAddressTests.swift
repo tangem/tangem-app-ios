@@ -72,7 +72,7 @@ struct BitcoinCashAddressTests {
         #expect(addr_dec_default.value == addr_comp_default.value)
         #expect(addr_dec_default.localizedName == addr_comp_default.localizedName)
         #expect(addr_dec_default.type == addr_comp_default.type)
-        #expect(addr_comp_default.value == "bchtest:qrpgfcqrnqvp33vsex0clktvae2pqjfxnyzjtuac9y") // we ignore uncompressed addresses
+        #expect(addr_comp_default.value == "bchtest:dlpgfcqrnqvp33vsex0clktvae2pqjfxnyrlu7zk0g") // we ignore uncompressed addresses
     }
 
     @Test

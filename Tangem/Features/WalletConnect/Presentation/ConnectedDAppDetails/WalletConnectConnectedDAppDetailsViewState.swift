@@ -14,7 +14,7 @@ import TangemLocalization
 // [REDACTED_TODO_COMMENT]
 struct WalletConnectConnectedDAppDetailsViewState {
     let navigationBar: NavigationBar
-    let dAppDescriptionSection: DAppDescriptionSection
+    let dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
     let walletSection: WalletSection?
     let connectedNetworksSection: ConnectedNetworksSection?
     var disconnectButton = DisconnectButton(isLoading: false)
@@ -24,14 +24,6 @@ extension WalletConnectConnectedDAppDetailsViewState {
     struct NavigationBar {
         let title = "Connected App"
         let connectedTime: String?
-    }
-
-    struct DAppDescriptionSection {
-        let id: Int
-        let iconURL: URL?
-        let fallbackIconAsset = Assets.Glyphs.explore
-        let name: String
-        let domain: String
     }
 
     struct WalletSection {

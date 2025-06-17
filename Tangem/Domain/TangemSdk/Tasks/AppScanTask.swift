@@ -11,6 +11,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import SwiftUI
+import TangemFoundation
+import TangemNetworkUtils
 
 enum DefaultWalletData: Codable {
     case file(WalletData)
@@ -37,12 +39,9 @@ struct AppScanTaskResponse {
         var cardInfo = CardInfo(
             card: CardDTO(card: card),
             walletData: walletData,
-            name: "",
             primaryCard: primaryCard
         )
 
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        cardInfo.name = config.cardName
         return cardInfo
     }
 }
@@ -191,7 +190,6 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { result in
             switch result {
             case .success(let response):
-
                 if let walletData = session.environment.walletData {
                     let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
                     self.walletData = .twin(walletData, twinData)
@@ -304,7 +302,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let scanTask = ScanTask()
+        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession, additionalHeaders: DeviceInfo().asHeaders()))
         scanTask.run(in: session) { result in
             switch result {
             case .success:
@@ -368,7 +366,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {
-        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
-        return UserWalletConfigFactory(cardInfo).makeConfig()
+        let cardInfo = CardInfo(card: card, walletData: walletData)
+        return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
     }
 }

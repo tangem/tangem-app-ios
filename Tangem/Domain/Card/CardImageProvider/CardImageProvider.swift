@@ -19,6 +19,7 @@ struct CardImageProvider {
     private let defaultImage = Assets.Onboarding.darkCard.uiImage
     private let imageCache = CardImageProviderCache()
     private let artworksProvider: CardArtworksProvider
+    private static let session = TangemTrustEvaluatorUtil.makeSession(configuration: .imageFetchingConfiguration)
 
     init(card: CardDTO) {
         self.init(input: Input(
@@ -32,8 +33,7 @@ struct CardImageProvider {
     init(input: Input) {
         cardId = input.cardId
 
-        let session = TangemURLSessionBuilder.makeSession(configuration: .imageFetchingConfiguration)
-        let networkService = NetworkService(session: session)
+        let networkService = NetworkService(session: Self.session, additionalHeaders: DeviceInfo().asHeaders())
         let factory = CardArtworksProviderFactory(networkService: networkService)
 
         artworksProvider = factory.makeArtworksProvider(

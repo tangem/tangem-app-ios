@@ -101,7 +101,10 @@ private extension StakingSingleActionModel {
             return error
         }
 
-        return .ready(fee: estimateFee, stakesCount: stakingManager.state.stakesCount)
+        return .ready(
+            fee: estimateFee,
+            stakesCount: action.validatorInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
+        )
     }
 
     func validate(amount: Decimal, fee: Decimal) -> StakingSingleActionModel.State? {
@@ -188,8 +191,11 @@ private extension StakingSingleActionModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [.token: tokenItem.currencySymbol])
+        case .sendTxError(_, let error):
+            Analytics.log(event: .stakingErrorTransactionRejected, params: [
+                .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)",
+            ])
         }
     }
 }

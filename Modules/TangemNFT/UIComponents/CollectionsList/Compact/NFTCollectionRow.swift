@@ -22,8 +22,12 @@ struct NFTCollectionRow: View {
     var body: some View {
         HStack(spacing: Constants.iconTextsSpacing) {
             icon
+                .networkIconOverlay(imageAsset: iconOverlayImage)
+
             textsView
+
             Spacer()
+
             Assets.chevronDown24.image
                 .resizable()
                 .frame(size: Constants.chevronSize)
@@ -32,9 +36,6 @@ struct NFTCollectionRow: View {
                 .animation(Constants.rotationAnimation, value: isExpanded)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(
-            height: Constants.Icon.size.height + abs(Constants.Icon.Overlay.offset.height)
-        )
     }
 
     private var textsView: some View {
@@ -51,18 +52,6 @@ struct NFTCollectionRow: View {
     private var icon: some View {
         if let media {
             makeMedia(media)
-                .background(Colors.Background.primary)
-                .overlay(alignment: .topTrailing) {
-                    iconOverlayImage.image
-                        .resizable()
-                        .frame(size: Constants.Icon.Overlay.size)
-                        .stroked(
-                            color: Colors.Background.primary,
-                            cornerRadius: Constants.Icon.Overlay.size.width / 2,
-                            lineWidth: Constants.Icon.Overlay.strokeLineWidth
-                        )
-                        .offset(Constants.Icon.Overlay.offset)
-                }
         } else {
             placeholder
         }
@@ -76,12 +65,14 @@ struct NFTCollectionRow: View {
                 url: media.url,
                 size: Constants.Icon.size,
                 cornerRadius: Constants.Icon.cornerRadius,
-                forceKingfisher: true
+                forceKingfisher: true,
+                placeholder: { placeholder }
             )
 
         case .animation:
             GIFImage(url: media.url, placeholder: placeholder)
                 .frame(size: Constants.Icon.size)
+                .cornerRadiusContinuous(Constants.Icon.cornerRadius)
 
         case .video, .audio, .unknown:
             placeholder
@@ -100,12 +91,6 @@ extension NFTCollectionRow {
         enum Icon {
             static let size: CGSize = .init(bothDimensions: 36)
             static let cornerRadius: CGFloat = 8
-
-            enum Overlay {
-                static let size: CGSize = .init(bothDimensions: 16)
-                static let strokeLineWidth: CGFloat = 2
-                static let offset: CGSize = .init(width: 4, height: -4)
-            }
         }
 
         static let iconTextsSpacing: CGFloat = 12
@@ -117,18 +102,25 @@ extension NFTCollectionRow {
 
 #if DEBUG
 #Preview {
-    NFTCollectionRow(
-        media: .init(
-            kind: .animation,
-            url: URL(
-                string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
-            )!
-        ),
-        iconOverlayImage: Tokens.ethereumFill,
-        title: "Nethers",
-        subtitle: "2 items",
-        isExpanded: false
-    )
-    .padding(.horizontal, 16)
+    ZStack {
+        Color.gray
+            .ignoresSafeArea()
+
+        VStack {
+            NFTCollectionRow(
+                media: .init(
+                    kind: .animation,
+                    url: URL(
+                        string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
+                    )!
+                ),
+                iconOverlayImage: Tokens.ethereumFill,
+                title: "Nethers",
+                subtitle: "2 items",
+                isExpanded: false
+            )
+            .padding(.horizontal, 16)
+        }
+    }
 }
 #endif

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLocalization
 
 struct MoralisEVMNetworkMapper {
     let chain: NFTChain
@@ -16,14 +17,12 @@ struct MoralisEVMNetworkMapper {
         return collections.compactMap { collection in
             guard
                 let collectionIdentifier = collection.tokenAddress,
-                let name = collection.name,
                 let assetsCount = collection.count
             else {
                 NFTLogger.warning(
                     String(
-                        format: "Collection missing required fields: token_address %@, name %@, count %@",
+                        format: "Collection missing required fields: token_address %@, count %@",
                         String(describing: collection.tokenAddress),
-                        String(describing: collection.name),
                         String(describing: collection.count)
                     )
                 )
@@ -37,7 +36,7 @@ struct MoralisEVMNetworkMapper {
                 chain: chain,
                 contractType: contractType,
                 ownerAddress: ownerAddress,
-                name: name,
+                name: collection.name ?? Constants.collectionNameFallback,
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
                 media: map(collection.collectionLogo),
                 assetsCount: assetsCount,
@@ -46,25 +45,37 @@ struct MoralisEVMNetworkMapper {
         }
     }
 
-    /// - Note: `ownerAddress` is only used as a fallback value, so it is passed as `@autoclosure`.
-    func map(assets: [MoralisEVMNetworkResult.EVMNFTAsset], ownerAddress: @autoclosure () -> String) -> [NFTAsset] {
-        return assets.compactMap { map(asset: $0, ownerAddress: ownerAddress()) }
+    /// - Note: `ownerAddress and fallbackDescription` are only used as a fallback values, so they are passed as `@autoclosure`.
+    func map(
+        assets: [MoralisEVMNetworkResult.EVMNFTAsset],
+        ownerAddress: @autoclosure () -> String,
+        fallbackDescription: @autoclosure () -> String?
+    ) -> [NFTAsset] {
+        return assets.compactMap {
+            map(
+                asset: $0,
+                ownerAddress: ownerAddress(),
+                fallbackDescription: fallbackDescription()
+            )
+        }
     }
 
-    /// - Note: `ownerAddress` is only used as a fallback value, so it is passed as `@autoclosure`.
-    func map(asset: MoralisEVMNetworkResult.EVMNFTAsset?, ownerAddress: @autoclosure () -> String) -> NFTAsset? {
+    /// - Note: `ownerAddress and fallbackDescription` are only used as a fallback values, so it is passed as `@autoclosure`.
+    func map(
+        asset: MoralisEVMNetworkResult.EVMNFTAsset?,
+        ownerAddress: @autoclosure () -> String,
+        fallbackDescription: @autoclosure () -> String?
+    ) -> NFTAsset? {
         guard
             let asset,
             let assetIdentifier = asset.tokenId,
-            let collectionIdentifier = asset.tokenAddress,
-            let name = asset.name
+            let assetContractAddress = asset.tokenAddress
         else {
             NFTLogger.warning(
                 String(
-                    format: "Asset missing required fields: token_id %@, token_address %@, name %@",
+                    format: "Asset missing required fields: token_id %@, token_address %@",
                     String(describing: asset?.tokenId),
-                    String(describing: asset?.tokenAddress),
-                    String(describing: asset?.name)
+                    String(describing: asset?.tokenAddress)
                 )
             )
             return nil
@@ -77,12 +88,14 @@ struct MoralisEVMNetworkMapper {
 
         return NFTAsset(
             assetIdentifier: assetIdentifier,
-            collectionIdentifier: collectionIdentifier,
+            assetContractAddress: assetContractAddress,
             chain: chain,
             contractType: contractType,
+            decimalCount: Constants.decimalCount,
             ownerAddress: asset.ownerOf ?? ownerAddress(),
-            name: name,
-            description: asset.normalizedMetadata?.description,
+            name: asset.normalizedMetadata?.name ?? Constants.assetNameFallback,
+            description: asset.normalizedMetadata?.description ?? fallbackDescription(),
+            salePrice: nil,
             media: media,
             rarity: rarity,
             traits: traits
@@ -190,5 +203,15 @@ struct MoralisEVMNetworkMapper {
 
             return NFTAsset.Trait(name: name, value: value.description)
         } ?? []
+    }
+}
+
+private extension MoralisEVMNetworkMapper {
+    enum Constants {
+        /// Moralis doesn't provide decimal count for EVM NFT collections,
+        /// so we're using this default value instead.
+        static let decimalCount = 0
+        static var collectionNameFallback: String { Localization.nftUntitledCollection }
+        static var assetNameFallback: String { .enDashSign }
     }
 }

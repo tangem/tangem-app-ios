@@ -42,12 +42,12 @@ final class SendViewModel: ObservableObject {
     var subtitle: String? { step.subtitle }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
 
-    var closeButtonColor: Color {
-        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
-    }
-
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
+    }
+
+    var shouldShowShareExploreButtons: Bool {
+        !tokenItem.blockchain.isTransactionAsync
     }
 
     private let interactor: SendBaseInteractor
@@ -64,6 +64,7 @@ final class SendViewModel: ObservableObject {
 
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
+    private var isValidContinueSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
@@ -127,7 +128,7 @@ final class SendViewModel: ObservableObject {
         case .action:
             performAction()
         case .close:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
@@ -137,7 +138,7 @@ final class SendViewModel: ObservableObject {
 
     func onAppear(newStep: any SendStep) {
         switch (step.type, newStep.type) {
-        case (_, .summary):
+        case (_, .summary), (_, .newSummary):
             isKeyboardActive = false
         default:
             break
@@ -153,7 +154,7 @@ final class SendViewModel: ObservableObject {
         // if the destination's TextField will be support @FocusState
         // case (_, .destination):
         //    isKeyboardActive = true
-        case (_, .amount):
+        case (_, .amount), (_, .newAmount), (_, .newDestination):
             isKeyboardActive = true
         default:
             break
@@ -199,10 +200,10 @@ final class SendViewModel: ObservableObject {
             stepsManager.performContinue()
         case _ where shouldShowDismissAlert:
             alert = alertBuilder.makeDismissAlert { [weak self] in
-                self?.coordinator?.dismiss()
+                self?.coordinator?.dismiss(reason: .other)
             }
         case _:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
@@ -306,7 +307,7 @@ private extension SendViewModel {
             }
         case .demoAlert:
             alert = AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
-                self?.coordinator?.dismiss()
+                self?.coordinator?.dismiss(reason: .other)
             }
         }
     }
@@ -345,6 +346,12 @@ private extension SendViewModel {
         isValidSubscription = step.isValidPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.actionIsAvailable, on: self, ownership: .weak)
+
+        isValidContinueSubscription = Publishers
+            .CombineLatest($mainButtonType, step.isValidPublisher)
+            .map { $0 == .continue && !$1 }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
     }
 
     func bind() {

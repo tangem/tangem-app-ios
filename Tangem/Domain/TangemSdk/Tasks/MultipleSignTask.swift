@@ -46,9 +46,9 @@ class MultipleSignTask: CardSessionRunnable {
 
         let signCommand = SignAndReadTask(
             hashes: [signData.hash],
-            walletPublicKey: seedKey,
+            seedKey: seedKey,
             pairWalletPublicKey: nil,
-            derivationPath: signData.derivationPath
+            hdKey: .init(blockchainKey: signData.publicKey, derivationPath: signData.derivationPath)
         )
 
         signCommand.run(in: session) { result in
