@@ -54,7 +54,7 @@ extension CommonAllowanceProvider: AllowanceProvider {
 
 extension CommonAllowanceProvider: ExpressAllowanceProvider {
     func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
-        let contractAddress = request.pair.source.expressCurrency.contractAddress
+        let contractAddress = request.pair.source.currency.contractAddress
         if contractAddress == ExpressConstants.coinContractAddress {
             return .enoughAllowance
         }

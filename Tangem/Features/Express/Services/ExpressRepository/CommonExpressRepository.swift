@@ -54,7 +54,9 @@ extension CommonExpressRepository: ExpressRepository {
     }
 
     func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
-        if let availablePair = pairs.first(where: { $0.source == pair.source.expressCurrency && $0.destination == pair.destination.expressCurrency }) {
+        if let availablePair = pairs.first(where: {
+            $0.source == pair.source.currency.asCurrency() && $0.destination == pair.destination.currency.asCurrency()
+        }) {
             return availablePair.providers
         }
 

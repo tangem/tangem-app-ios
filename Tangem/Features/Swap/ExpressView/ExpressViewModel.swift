@@ -352,8 +352,11 @@ private extension ExpressViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, pair -> Bool in
                 do {
-                    if let destination = pair.destination.value {
-                        let oppositePair = ExpressManagerSwappingPair(source: destination, destination: pair.sender)
+                    if let destination = pair.destination.value, let destinationAsSource = destination as? ExpressWalletModel {
+                        let oppositePair = ExpressManagerSwappingPair(
+                            source: destinationAsSource.asExpressSourceWallet(),
+                            destination: pair.sender.asExpressDestinationWallet()
+                        )
                         let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
                         return oppositeProviders.isEmpty
                     }
