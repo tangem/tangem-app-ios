@@ -540,9 +540,10 @@ extension SendModel: SendBaseDataBuilderInput {
 private extension SendModel {
     func logTransactionAnalytics(signerType: String) {
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+        let source = flowKind.analyticsValue(for: tokenItem)
 
         Analytics.log(event: .transactionSent, params: [
-            .source: flowKind.analyticsValue.rawValue,
+            .source: source.rawValue,
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
@@ -587,11 +588,17 @@ extension SendModel {
             case sell
             case staking
 
-            var analyticsValue: Analytics.ParameterValue {
-                switch self {
-                case .send: .send
-                case .sell: .sell
-                case .staking: .transactionSourceStaking
+            fileprivate func analyticsValue(for tokenItem: TokenItem) -> Analytics.ParameterValue {
+                switch (self, tokenItem.token?.metadata.kind) {
+                case (.send, .nonFungible):
+                    return .nft
+                case (.send, .fungible),
+                     (.send, .none):
+                    return .send
+                case (.sell, _):
+                    return .sell
+                case (.staking, _):
+                    return .transactionSourceStaking
                 }
             }
         }
