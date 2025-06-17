@@ -15,18 +15,18 @@ class SendAmountStep {
     private let viewModel: SendAmountViewModel
     private let interactor: SendAmountInteractor
     private let sendFeeLoader: SendFeeLoader
-    private let source: SendModel.PredefinedValues.Source
+    private let flowKind: SendModel.PredefinedValues.FlowKind
 
     init(
         viewModel: SendAmountViewModel,
         interactor: SendAmountInteractor,
         sendFeeLoader: SendFeeLoader,
-        source: SendModel.PredefinedValues.Source
+        flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.sendFeeLoader = sendFeeLoader
-        self.source = source
+        self.flowKind = flowKind
     }
 }
 
@@ -37,6 +37,9 @@ extension SendAmountStep: SendStep {
 
     var type: SendStepType { .amount(viewModel) }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
+
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
@@ -44,13 +47,13 @@ extension SendAmountStep: SendStep {
     }
 
     func initialAppear() {
-        if case .staking = source {
+        if case .staking = flowKind {
             Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
         }
     }
 
     func willAppear(previous step: any SendStep) {
-        switch (source, step.type.isSummary) {
+        switch (flowKind, step.type.isSummary) {
         case (.staking, false):
             // Workaround initalAppear
             break

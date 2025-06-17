@@ -34,9 +34,11 @@ struct TangemSigner: TransactionSigner {
         Future<[SignatureInfo], Error> { promise in
             let signCommand = SignAndReadTask(
                 hashes: hashes,
-                walletPublicKey: walletPublicKey.seedKey,
+                seedKey: walletPublicKey.seedKey,
                 pairWalletPublicKey: twinKey?.getPairKey(for: walletPublicKey.seedKey),
-                derivationPath: walletPublicKey.derivationPath
+                hdKey: walletPublicKey.derivationPath.map {
+                    .init(blockchainKey: walletPublicKey.blockchainKey, derivationPath: $0)
+                }
             )
 
             sdk.startSession(with: signCommand, filter: filter, initialMessage: initialMessage) { signResult in
@@ -44,10 +46,13 @@ struct TangemSigner: TransactionSigner {
                 case .success(let response):
                     latestSigner.send(response.card)
                     let signatures = zip(hashes, response.signatures).map { hash, signature in
-                        SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
+                        SignatureInfo(signature: signature, publicKey: response.publicKey, hash: hash)
                     }
                     promise(.success(signatures))
                 case .failure(let error):
+                    if !error.isCancellationError {
+                        Analytics.logScanError(error, source: .sign)
+                    }
                     promise(.failure(error))
                 }
 

@@ -50,8 +50,8 @@ class CommonSendFeeInteractor {
         customFeeService != nil
     }
 
-    private var cryptoAmountSubscribtion: AnyCancellable?
-    private var destinationAddressSubscribtion: AnyCancellable?
+    private var cryptoAmountSubscription: AnyCancellable?
+    private var destinationAddressSubscription: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -111,13 +111,13 @@ class CommonSendFeeInteractor {
     }
 
     func bind(input: any SendFeeInput) {
-        cryptoAmountSubscribtion = input.cryptoAmountPublisher
+        cryptoAmountSubscription = input.cryptoAmountPublisher
             .withWeakCaptureOf(self)
             .sink { processor, amount in
                 processor._cryptoAmount.send(amount)
             }
 
-        destinationAddressSubscribtion = input.destinationAddressPublisher
+        destinationAddressSubscription = input.destinationAddressPublisher
             .withWeakCaptureOf(self)
             .sink { processor, destination in
                 processor._destination.send(destination)
@@ -139,6 +139,10 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
         }
 
         return input.selectedFeePublisher
+    }
+
+    var fees: [SendFee] {
+        mapToSendFees(feesValue: _fees.value, customFee: _customFee.value)
     }
 
     var feesPublisher: AnyPublisher<[SendFee], Never> {
@@ -175,6 +179,7 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
                 case .success(let fees):
                     interactor._fees.send(.loaded(fees))
                 case .failure(let error):
+                    AppLogger.error("GetFee error", error: error)
                     interactor._fees.send(.failedToLoad(error: error))
                 }
             }
@@ -183,6 +188,52 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
 
     func update(selectedFee: SendFee) {
         output?.feeDidChanged(fee: selectedFee)
+    }
+}
+
+// MARK: - FeeSelectorContentViewModelInput
+
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
+    var selectedSelectorFee: FeeSelectorFee? {
+        mapToFeeSelectorFee(fee: selectedFee)
+    }
+
+    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+        selectedFeePublisher
+            .withWeakCaptureOf(self)
+            .compactMap { $0.mapToFeeSelectorFee(fee: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorFees: [FeeSelectorFee] {
+        fees.compactMap { mapToFeeSelectorFee(fee: $0) }
+    }
+
+    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> {
+        feesPublisher
+            .withWeakCaptureOf(self)
+            .compactMap { interactor, fees in
+                fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToFeeSelectorFee(fee: SendFee?) -> FeeSelectorFee? {
+        guard let fee, let value = fee.value.value else {
+            return nil
+        }
+
+        return .init(option: fee.option, value: value.amount.value)
+    }
+}
+
+// MARK: - FeeSelectorContentViewModelInput
+
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
+    func update(selectedSelectorFee: FeeSelectorFee) {
+        if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
+            update(selectedFee: fee)
+        }
     }
 }
 

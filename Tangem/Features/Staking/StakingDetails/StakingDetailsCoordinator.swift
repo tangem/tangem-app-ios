@@ -11,7 +11,7 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 
-class StakingDetailsCoordinator: CoordinatorObject {
+class StakingDetailsCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -64,44 +64,13 @@ extension StakingDetailsCoordinator {
     }
 }
 
-// MARK: - Private
-
-private extension StakingDetailsCoordinator {
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenDetailsCoordinator = nil
-        }
-
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager
-            )
-        )
-
-        tokenDetailsCoordinator = coordinator
-    }
-}
-
 // MARK: - StakingDetailsRoutable
 
 extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         coordinator.start(with: .init(
             walletModel: options.walletModel,
             userWalletModel: options.userWalletModel,

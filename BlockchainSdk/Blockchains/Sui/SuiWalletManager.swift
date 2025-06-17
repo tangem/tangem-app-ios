@@ -57,7 +57,14 @@ final class SuiWalletManager: BaseManager, WalletManager {
 
         for token in cardTokens {
             let tokenBalance = objects
-                .filter { $0.coinType.string == token.contractAddress }
+                .filter {
+                    do {
+                        let normalizeContractType = try SuiCoinObject.CoinType(string: token.contractAddress)
+                        return $0.coinType.string == normalizeContractType.string
+                    } catch {
+                        return false
+                    }
+                }
                 .reduce(into: Decimal.zero) { partialResult, coin in
                     partialResult += coin.balance
                 }

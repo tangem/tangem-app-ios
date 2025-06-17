@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemNFT
 
@@ -26,7 +27,9 @@ class NFTCollectionsCoordinator: CoordinatorObject {
     @Published var receiveCoordinator: NFTReceiveCoordinator?
     @Published var assetDetailsCoordinator: NFTAssetDetailsCoordinator?
 
-    // MARK: - Child view models
+    // MARK: - Private
+
+    private let assetSendSubject = PassthroughSubject<NFTAsset, Never>()
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -38,10 +41,25 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
+
+        let dependencies = NFTCollectionsListDependencies(
+            nftChainIconProvider: options.nftChainIconProvider,
+            nftChainNameProviding: options.nftChainNameProvider,
+            priceFormatter: options.priceFormatter,
+            analytics: NFTAnalytics.Collections(
+                logReceiveOpen: {
+                    Analytics.log(.nftAssetReceiveOpened)
+                },
+                logDetailsOpen: { blockchain in
+                    Analytics.log(event: .nftAssetDetailsOpened, params: [.blockchain: blockchain])
+                }
+            )
+        )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
-            chainIconProvider: options.chainIconProvider,
             navigationContext: options.navigationContext,
+            dependencies: dependencies,
+            assetSendPublisher: assetSendSubject.eraseToAnyPublisher(),
             coordinator: self
         )
     }
@@ -52,18 +70,20 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
-        let chainIconProvider: NFTChainIconProvider
-        let nftChainNameProviding: NFTChainNameProviding
-        let navigationContext: NFTEntrypointNavigationContext
+        let nftChainIconProvider: NFTChainIconProvider
+        let nftChainNameProvider: NFTChainNameProviding
+        let priceFormatter: NFTPriceFormatting
+        let navigationContext: NFTNavigationContext
+        let blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection
     }
 }
 
-// MARK: - NFTReceive_Routable
+// MARK: - NFTCollectionsListRoutable
 
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
-    func openReceive(navigationContext: NFTEntrypointNavigationContext) {
+    func openReceive(navigationContext: NFTNavigationContext) {
         guard
-            let receiveInput = navigationContext as? NFTReceiveInput,
+            let input = navigationContext as? NFTNavigationInput,
             let options
         else {
             return
@@ -79,14 +99,24 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             }
         )
 
+        coordinator.start(
+            with: .init(
+                input: input,
+                nftChainNameProviding: options.nftChainNameProvider,
+                analytics: options.blockchainSelectionAnalytics
+            )
+        )
         receiveCoordinator = coordinator
-        coordinator.start(with: .init(input: receiveInput, nftChainNameProviding: options.nftChainNameProviding))
     }
 
-    func openAssetDetails(asset: NFTAsset) {
-        let assetDetailsCoordinator = NFTAssetDetailsCoordinator(
-            dismissAction: { [weak self] in
+    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
+        let coordinator = NFTAssetDetailsCoordinator(
+            dismissAction: { [weak self] asset in
                 self?.assetDetailsCoordinator = nil
+
+                if let asset {
+                    self?.assetSendSubject.send(asset)
+                }
             },
             popToRootAction: { [weak self] options in
                 self?.assetDetailsCoordinator = nil
@@ -96,13 +126,15 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
 
         guard let options else { return }
 
-        assetDetailsCoordinator.start(
-            with: NFTAssetDetailsCoordinator.Options(
+        coordinator.start(
+            with: .init(
                 asset: asset,
-                nftChainNameProviding: options.nftChainNameProviding
+                collection: collection,
+                nftChainNameProvider: options.nftChainNameProvider,
+                priceFormatter: options.priceFormatter,
+                navigationContext: navigationContext
             )
         )
-
-        self.assetDetailsCoordinator = assetDetailsCoordinator
+        assetDetailsCoordinator = coordinator
     }
 }

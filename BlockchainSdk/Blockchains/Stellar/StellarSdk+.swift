@@ -11,6 +11,26 @@ import stellarsdk
 import Combine
 
 extension AccountService {
+    func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
+        Future<Bool, Error> { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(WalletError.empty))
+                return
+            }
+
+            getAccountDetails(accountId: address) { response in
+                switch response {
+                case .success(let accountDetails):
+                    let memoRequired = accountDetails.data["config.memo_required"] == "MQ=="
+                    promise(.success(memoRequired))
+                case .failure(let error):
+                    promise(.failure(error as Error))
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
     func getAccountDetails(accountId: String) -> AnyPublisher<AccountResponse, Error> {
         let future = Future<AccountResponse, Error> { [weak self] promise in
             guard let self = self else {
