@@ -53,6 +53,12 @@ class WalletConnectV2SendTransactionHandler {
 }
 
 extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .sendTransaction }
+
+    var requestData: Data {
+        Data()
+    }
+
     var event: WalletConnectEvent { .sendTx }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
@@ -81,6 +87,6 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
             approveAction: {}
         ))
 
-        return RPCResult.response(AnyCodable(result.hash))
+        return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }
 }

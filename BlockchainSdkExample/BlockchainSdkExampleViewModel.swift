@@ -143,7 +143,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
     }
 
     func scanCardAndGetInfo() {
-        sdk.scanCard { [weak self] result in
+        sdk.scanCard(networkService: .init(session: .shared, additionalHeaders: [:])) { [weak self] result in
             switch result {
             case .failure(let error):
                 BSDKLogger.error(error: error)

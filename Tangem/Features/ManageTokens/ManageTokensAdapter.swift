@@ -122,7 +122,11 @@ private extension ManageTokensAdapter {
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.canRemove(tokenItem)
+        return userTokensManager.canRemove(
+            tokenItem,
+            pendingToAddItems: pendingAdd,
+            pendingToRemoveItems: pendingRemove
+        )
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {

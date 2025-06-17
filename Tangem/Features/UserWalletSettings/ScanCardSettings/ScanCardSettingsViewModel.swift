@@ -66,12 +66,12 @@ extension ScanCardSettingsViewModel {
 
             switch result {
             case .failure(let error):
-                guard !error.isUserCancelled else {
+                if error.isUserCancelled {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .settings)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
+                Analytics.logScanError(error, source: .deviceSettings)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .deviceSettings)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
@@ -84,7 +84,7 @@ extension ScanCardSettingsViewModel {
     }
 
     func processSuccessScan(for cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         // We just allow to reset cards without keys via any wallet
         let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0) } ?? UserWalletId(value: Data())

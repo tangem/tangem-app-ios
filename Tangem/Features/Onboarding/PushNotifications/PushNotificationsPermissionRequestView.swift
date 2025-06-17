@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct PushNotificationsPermissionRequestView: View {
     @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
@@ -51,6 +52,15 @@ struct PushNotificationsPermissionRequestView: View {
                         iconImage: Assets.notificationBulletItemTwo.image,
                         description: Localization.userPushNotificationAgreementArgumentTwo
                     )
+
+                    if viewModel.isPushTransactionsAvailable {
+                        FixedSpacer(height: 28.0)
+
+                        OnboardingFeatureDescriptionView(
+                            iconImage: Assets.notificationBulletItemThree.image,
+                            description: Localization.userPushNotificationAgreementArgumentThree
+                        )
+                    }
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
             }
@@ -85,12 +95,14 @@ struct PushNotificationsPermissionRequestView: View {
             title: viewModel.allowButtonTitle,
             action: viewModel.didTapAllow
         )
+        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.allowButton)
 
         MainButton(
             title: viewModel.laterButtonTitle,
             style: .secondary,
             action: viewModel.didTapLater
         )
+        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.laterButton)
     }
 
     private var iconColor: Color {

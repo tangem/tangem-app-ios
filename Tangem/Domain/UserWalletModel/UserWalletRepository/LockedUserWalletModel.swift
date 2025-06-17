@@ -69,6 +69,14 @@ class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { CommonUserTokensPushNotificationsManager(
+        userWalletId: userWalletId,
+        walletModelsManager: walletModelsManager,
+        derivationManager: nil,
+        userTokenListManager: userTokenListManager
+    )
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -80,7 +88,7 @@ class LockedUserWalletModel: UserWalletModel {
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingCardInteractor(with: userWallet.cardInfo()) }
 
-    var name: String { userWallet.cardInfo().name }
+    var name: String { userWallet.name }
 
     let backupInput: OnboardingInput? = nil
 
@@ -88,7 +96,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
-        config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
+        config = UserWalletConfigFactory().makeConfig(cardInfo: userWallet.cardInfo())
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
         cardImageProvider = CardImageProvider(card: userWallet.card)
     }

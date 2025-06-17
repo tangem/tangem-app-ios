@@ -6,8 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import UIKit
 import Foundation
 import Combine
+import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 class UserWalletSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -16,6 +19,7 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Injected
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -55,7 +59,9 @@ extension UserWalletSettingsCoordinator {
 
 // MARK: - UserWalletSettingsRoutable
 
-extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
+extension UserWalletSettingsCoordinator:
+    UserWalletSettingsRoutable,
+    TransactionNotificationsModalRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -101,6 +107,18 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         manageTokensCoordinator = coordinator
     }
 
+    func openTransactionNotifications() {
+        let transactionNotificationsModalViewModel = TransactionNotificationsModalViewModel(coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: transactionNotificationsModalViewModel)
+        }
+    }
+
+    func openAppSettings() {
+        UIApplication.openSystemSettings()
+    }
+
     func dismiss() {
         if userWalletRepository.models.isEmpty {
             // fix stories animation no-resume issue
@@ -109,6 +127,14 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
             }
         } else {
             dismissAction(())
+        }
+    }
+
+    // MARK: - TransactionNotificationsModalRoutable
+
+    func dismissTransactionNotifications() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 }

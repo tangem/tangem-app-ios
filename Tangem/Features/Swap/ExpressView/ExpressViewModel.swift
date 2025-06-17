@@ -60,8 +60,7 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private lazy var refreshDataTimer = Timer.publish(every: 10, on: .main, in: .common)
-    private var refreshDataTimerBag: AnyCancellable?
+    private var refreshDataTimer: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -644,17 +643,21 @@ private extension ExpressViewModel {
         )
 
         let badge: ProviderRowViewModel.Badge? = await {
+            let allProviders = await interactor.getAllProviders().filter { $0.isAvailable }
+
+            // We should show the "FCA" badge only when we have a UK geo
+            if ukGeoDefiner.isUK,
+               ExpressConstants.expressProvidersFCAWarningList.contains(selectedProvider.provider.id) {
+                return .fcaWarning
+            }
+
             // We should show the "bestRate" badge only when we have a choose
-            guard await interactor.getAllProviders().filter({ $0.isAvailable }).count > 1 else {
+            guard allProviders.count > 1 else {
                 return .none
             }
 
             if selectedProvider.provider.recommended == true {
                 return .recommended
-            }
-
-            if ukGeoDefiner.isUK {
-                return .none
             }
 
             return selectedProvider.isBest ? .bestRate : .none
@@ -825,17 +828,14 @@ private extension ExpressViewModel {
 
     func stopTimer() {
         ExpressLogger.info("Stop timer")
-        refreshDataTimerBag?.cancel()
-        refreshDataTimer
-            .connect()
-            .cancel()
+        refreshDataTimer?.cancel()
     }
 
     func startTimer() {
         ExpressLogger.info("Start timer")
-        refreshDataTimerBag = refreshDataTimer
-            .autoconnect()
-            .sink { [weak self] date in
+        refreshDataTimer = Just(())
+            .delay(for: 10, scheduler: RunLoop.main)
+            .sink { [weak self] in
                 ExpressLogger.info("Timer call autoupdate")
                 self?.interactor.refresh(type: .refreshRates)
             }

@@ -49,7 +49,7 @@ class CommonRestakingStepsManager {
             output?.update(state: .init(step: step, action: .close))
         case .validators:
             output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .fee, .onramp:
+        case .amount, .destination, .fee, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
             assertionFailure("There is no next step")
         }
     }
