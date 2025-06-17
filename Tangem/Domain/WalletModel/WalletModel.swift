@@ -106,6 +106,7 @@ protocol WalletModelDependenciesProvider {
     var transactionValidator: TransactionValidator { get }
     var transactionSender: TransactionSender { get }
 
+    var allowanceChecker: AllowanceChecker? { get }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }
     var ethereumTransactionSigner: EthereumTransactionSigner? { get }

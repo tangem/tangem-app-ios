@@ -576,6 +576,20 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
     var assetRequirementsManager: AssetRequirementsManager? {
         walletManager as? AssetRequirementsManager
     }
+
+    var allowanceChecker: AllowanceChecker? {
+        guard let ethereumNetworkProvider, let ethereumTransactionDataBuilder else {
+            return nil
+        }
+
+        return AllowanceChecker(
+            address: defaultAddressString,
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            ethereumNetworkProvider: ethereumNetworkProvider,
+            ethereumTransactionDataBuilder: ethereumTransactionDataBuilder
+        )
+    }
 }
 
 // MARK: - Transaction history
