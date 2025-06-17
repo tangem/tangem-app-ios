@@ -55,17 +55,6 @@ extension CommonAllowanceProvider: AllowanceProvider {
     func didSendApproveTransaction(for spender: String) {
         spendersAwaitingApprove.insert(spender)
     }
-
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
-        let contractAddress = request.pair.source.currency.contractAddress
-        if contractAddress == ExpressConstants.coinContractAddress {
-            return .enoughAllowance
-        }
-
-        assert(contractAddress != ExpressConstants.coinContractAddress)
-
-        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: request.approvePolicy)
-    }
 }
 
 // MARK: - UpdatableAllowanceProvider

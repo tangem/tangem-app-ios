@@ -109,8 +109,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let request = ExpressDTO.Swap.ExchangeSent.Request(
             txHash: result.hash,
             txId: result.data.expressTransactionId,
-            fromNetwork: result.source.expressCurrency.network,
-            fromAddress: result.source.defaultAddressString,
+            fromNetwork: result.source.network,
+            fromAddress: result.address,
             payinAddress: result.data.destinationAddress,
             payinExtraId: result.data.extraDestinationId
         )
@@ -155,8 +155,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     func onrampQuote(item: OnrampQuotesRequestItem) async throws -> OnrampQuote {
         let request = ExpressDTO.Onramp.Quote.Request(
             fromCurrencyCode: item.pairItem.fiatCurrency.identity.code,
-            toContractAddress: item.pairItem.destination.expressCurrency.contractAddress,
-            toNetwork: item.pairItem.destination.expressCurrency.network,
+            toContractAddress: item.pairItem.destination.contractAddress,
+            toNetwork: item.pairItem.destination.network,
             paymentMethod: item.paymentMethod.id,
             countryCode: item.pairItem.country.identity.code,
             fromPrecision: item.pairItem.fiatCurrency.precision,
@@ -174,15 +174,15 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let requestId: String = UUID().uuidString
         let request = ExpressDTO.Onramp.Data.Request(
             fromCurrencyCode: item.quotesItem.pairItem.fiatCurrency.identity.code,
-            toContractAddress: item.quotesItem.pairItem.destination.expressCurrency.contractAddress,
-            toNetwork: item.quotesItem.pairItem.destination.expressCurrency.network,
+            toContractAddress: item.quotesItem.pairItem.destination.contractAddress,
+            toNetwork: item.quotesItem.pairItem.destination.network,
             paymentMethod: item.quotesItem.paymentMethod.id,
             countryCode: item.quotesItem.pairItem.country.identity.code,
             fromAmount: item.quotesItem.sourceAmountWEI(),
             fromPrecision: item.quotesItem.pairItem.fiatCurrency.precision,
             toDecimals: item.quotesItem.pairItem.destination.decimalCount,
             providerId: item.quotesItem.providerInfo.id,
-            toAddress: item.quotesItem.pairItem.destination.defaultAddressString,
+            toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil, // There is no memo on the client side
             redirectUrl: item.redirectSettings.redirectURL,
             language: item.redirectSettings.language,

@@ -342,6 +342,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.clearHistory()
     }
 
+    func getBalance() throws -> Decimal {
+        try mainTokenWalletModel.getBalance()
+    }
+
     func getFeeCurrencyBalance() -> Decimal {
         mainTokenWalletModel.getFeeCurrencyBalance()
     }

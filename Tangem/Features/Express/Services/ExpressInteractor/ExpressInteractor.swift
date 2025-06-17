@@ -260,7 +260,13 @@ extension ExpressInteractor {
         }()
 
         // Ignore error here
-        let expressSentResult = ExpressTransactionSentResult(hash: result.hash, source: getSender(), data: result.data)
+        let source = getSender()
+        let expressSentResult = ExpressTransactionSentResult(
+            hash: result.hash,
+            source: source.tokenItem.expressCurrency,
+            address: source.defaultAddressString,
+            data: result.data
+        )
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
 
         updateState(.idle)
@@ -596,7 +602,7 @@ private extension ExpressInteractor {
 
     func initialLoading(wallet: any WalletModel) async -> RestrictionType? {
         do {
-            try await expressRepository.updatePairs(for: wallet)
+            try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
 
             if _swappingPair.value.destination.value == nil {
                 _swappingPair.value.destination = .loading

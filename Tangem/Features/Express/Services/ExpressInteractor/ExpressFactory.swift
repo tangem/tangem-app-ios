@@ -15,7 +15,7 @@ struct ExpressWalletsFactory {
 
     func makeExpressSourceWallet(walletModel: any WalletModel) -> ExpressSourceWallet {
         ExpressSourceWallet(
-            address: walletModel.defaultAddress.value,
+            address: walletModel.defaultAddressString,
             currency: walletModel.tokenItem.expressCurrency,
             feeCurrency: walletModel.feeTokenItem.expressCurrency,
             feeProvider: feeProvider,

@@ -9,12 +9,23 @@
 import Foundation
 
 public protocol AllowanceProvider {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState
-
     var isSupportAllowance: Bool { get }
 
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ExpressApprovePolicy) async throws -> AllowanceState
     func didSendApproveTransaction(for spender: String)
+}
+
+public extension AllowanceProvider {
+    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
+        let contractAddress = request.pair.source.currency.contractAddress
+        if contractAddress == ExpressConstants.coinContractAddress {
+            return .enoughAllowance
+        }
+
+        assert(contractAddress != ExpressConstants.coinContractAddress)
+
+        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: request.approvePolicy)
+    }
 }
 
 public enum AllowanceState: Hashable {

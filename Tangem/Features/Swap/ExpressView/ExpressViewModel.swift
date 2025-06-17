@@ -268,7 +268,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().tokenItem.decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -390,7 +390,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+        let roundedAmount = amount.rounded(scale: wallet.tokenItem.decimalCount, roundingMode: .down)
 
         // Exclude unnecessary update
         guard roundedAmount != amount else {

@@ -17,7 +17,7 @@ protocol WalletModel:
     AvailableTokenBalanceProviderInput, WalletModelUpdater, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelTransactionHistoryProvider, WalletModelRentProvider, TransactionHistoryFetcher,
-    ExpressWallet, TangemExpress.BalanceProvider, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
+    ExpressBalanceProvider, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
     var addresses: [Address] { get }
@@ -52,6 +52,14 @@ protocol WalletModel:
 extension WalletModel {
     func exploreURL(for index: Int) -> URL? {
         return exploreURL(for: index, token: nil)
+    }
+
+    var defaultAddressString: String {
+        defaultAddress.value
+    }
+
+    var isFeeCurrency: Bool {
+        tokenItem == feeTokenItem
     }
 }
 

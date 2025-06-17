@@ -733,9 +733,17 @@ extension CommonWalletModel: TransactionHistoryFetcher {
     }
 }
 
-// MARK: - Express
+// MARK: - ExpressBalanceProvider
 
-extension CommonWalletModel: ExpressWallet {
+extension CommonWalletModel: ExpressBalanceProvider {
+    func getBalance() throws -> Decimal {
+        guard let balanceValue = availableBalanceProvider.balanceType.value else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        return balanceValue
+    }
+
     func getFeeCurrencyBalance() -> Decimal {
         wallet.feeCurrencyBalance(amountType: amountType)
     }

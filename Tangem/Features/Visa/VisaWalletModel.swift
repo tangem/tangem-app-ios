@@ -168,6 +168,10 @@ extension VisaWalletModel: WalletModelFeeProvider {
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         return false
     }
+
+    var feeCurrencyHasPositiveBalance: Bool {
+        return false
+    }
 }
 
 extension VisaWalletModel: WalletModelDependenciesProvider {
@@ -216,12 +220,7 @@ extension VisaWalletModel: TransactionHistoryFetcher {
     func clearHistory() {}
 }
 
-extension VisaWalletModel: ExpressWallet {
-    var defaultAddressString: String { defaultAddress.value }
-    var decimalCount: Int { tokenItem.decimalCount }
-    var feeCurrencyDecimalCount: Int { tokenItem.blockchain.decimalCount }
-    var isFeeCurrency: Bool { false }
-
+extension VisaWalletModel: ExpressBalanceProvider {
     func getBalance() throws -> Decimal {
         // Will be supported later
         throw "Not implemented"
