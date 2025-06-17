@@ -16,7 +16,8 @@ import TangemVisa
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.wcService) private var walletConnectService: WCService
+    @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.walletConnectService) private var walletConnectService: any OldWalletConnectService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -83,32 +84,28 @@ class CommonUserWalletRepository: UserWalletRepository {
                 failedCardScanTracker.resetCounter()
                 sendEvent(.scan(isScanning: false))
 
-                var cardInfo = response.getCardInfo()
+                let cardInfo = response.getCardInfo()
                 updateAssociatedCard(for: cardInfo)
                 resetServices()
                 initializeAnalyticsContext(with: cardInfo)
-                let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                cardInfo.name = UserWalletNameIndexationHelper.suggestedName(
-                    config.cardName,
-                    names: models.map(\.name)
-                )
-
                 let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+
                 if let userWalletModel {
                     initializeServices(for: userWalletModel)
                 }
 
+                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
                 let factory = OnboardingInputFactory(
-                    cardInfo: cardInfo,
                     userWalletModel: userWalletModel,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config,
                     pushNotificationsInteractor: pushNotificationsInteractor
                 )
 
-                if let onboardingInput = factory.makeOnboardingInput() {
+                if let onboardingInput = factory.makeOnboardingInput(cardInfo: cardInfo) {
                     return .justWithError(output: .onboarding(onboardingInput))
                 } else if let userWalletModel {
                     return .justWithError(output: .success(userWalletModel))
@@ -324,7 +321,11 @@ class CommonUserWalletRepository: UserWalletRepository {
             AppSettings.shared.startWalletUsageDate = nil
         }
 
-        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        } else {
+            walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        }
 
         sendEvent(.deleted(userWalletIds: [userWalletId]))
 
@@ -364,12 +365,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
         tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
 
-        walletConnectService.initialize()
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        } else {
+            walletConnectService.initialize(with: userWalletModel)
+        }
     }
 
     /// we can initialize it right after scan for more accurate analytics
     func initializeAnalyticsContext(with cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         let userWalletId = UserWalletIdFactory().userWalletId(config: config)
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
@@ -419,6 +424,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             switch unlockResult {
             case .failure(let error):
+                trackBiometricFailure(error: error)
                 completion(.error(error))
             case .success(let context):
                 unlockStoragesWithBiometryContext(context, completion: completion)
@@ -594,6 +600,26 @@ class CommonUserWalletRepository: UserWalletRepository {
         let keys = encryptionKeyByUserWalletId.filter { $0.key == userWalletId }
         let userWallets = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
         return userWallets.first { $0.userWalletId == userWalletId.value }
+    }
+
+    private func trackBiometricFailure(error: Error) {
+        var params: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+            .source: .signIn,
+        ]
+
+        let reason: Analytics.ParameterValue?
+        switch error as? TangemSdkError {
+        case .userCancelled:
+            reason = .biometricsReasonAuthenticationCanceled
+        case .underlying(let underlyingError) where (underlyingError as? LAError)?.code == LAError.biometryLockout:
+            reason = .biometricsReasonAuthenticationLockout
+        default:
+            reason = nil
+        }
+
+        params[.reason] = reason
+
+        Analytics.log(.biometryFailed, params: params)
     }
 }
 

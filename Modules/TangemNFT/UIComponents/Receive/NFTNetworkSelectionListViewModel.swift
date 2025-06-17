@@ -14,9 +14,14 @@ import struct TangemUIUtils.AlertBinder
 public final class NFTNetworkSelectionListViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
-    private(set) var allItems: [NFTNetworkSelectionListItemViewData]
-    private(set) var availableItems: [NFTNetworkSelectionListItemViewData]
-    private(set) var unavailableItems: [NFTNetworkSelectionListItemViewData]
+    private(set) var allItems: [NFTNetworkSelectionListItemViewData] = []
+    private var _allItems: [NFTNetworkSelectionListItemViewData] = []
+
+    private(set) var availableItems: [NFTNetworkSelectionListItemViewData] = []
+    private var _availableItems: [NFTNetworkSelectionListItemViewData] = []
+
+    private(set) var unavailableItems: [NFTNetworkSelectionListItemViewData] = []
+    private var _unavailableItems: [NFTNetworkSelectionListItemViewData] = []
 
     var title: String { Localization.nftReceiveTitle }
 
@@ -36,6 +41,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
     private let dataSource: NFTNetworkSelectionListDataSource
     private let tokenIconInfoProvider: NFTTokenIconInfoProvider
     private let nftChainNameProviding: NFTChainNameProviding
+    private let analytics: NFTAnalytics.BlockchainSelection
     private weak var coordinator: NFTNetworkSelectionListRoutable?
 
     /// - Note: Retains data source.
@@ -44,6 +50,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
         dataSource: NFTNetworkSelectionListDataSource,
         tokenIconInfoProvider: NFTTokenIconInfoProvider,
         nftChainNameProviding: NFTChainNameProviding,
+        analytics: NFTAnalytics.BlockchainSelection,
         coordinator: NFTNetworkSelectionListRoutable?
     ) {
         self.userWalletName = userWalletName
@@ -51,9 +58,8 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
         self.tokenIconInfoProvider = tokenIconInfoProvider
         self.nftChainNameProviding = nftChainNameProviding
         self.coordinator = coordinator
-        allItems = []
-        availableItems = []
-        unavailableItems = []
+        self.analytics = analytics
+
         buildItems()
         filterItemViewModels()
     }
@@ -94,7 +100,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
 
         if unavailableChains.isEmpty {
             // If there are no unavailable items - we put all available items into the `allItems` section
-            allItems = allSupportedChains.map { chain in
+            _allItems = allSupportedChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
                     title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
@@ -106,7 +112,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
             }
         } else {
             // Otherwise all items are divided into `available` and `unavailable` sections
-            availableItems = availableChains.map { chain in
+            _availableItems = availableChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
                     title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
@@ -116,7 +122,7 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
                     }
                 )
             }
-            unavailableItems = unavailableChains.map { chain in
+            _unavailableItems = unavailableChains.map { chain in
                 return NFTNetworkSelectionListItemViewData(
                     title: nftChainNameProviding.provide(for: chain.nftChain),
                     tokenIconInfo: tokenIconInfoProvider.tokenIconInfo(for: chain.nftChain, isCustom: chain.isCustom),
@@ -132,28 +138,31 @@ public final class NFTNetworkSelectionListViewModel: ObservableObject {
     private func filterItemViewModels(
         by searchText: String? = nil
     ) {
-        filterItemViewModels(at: \.allItems, by: searchText)
-        filterItemViewModels(at: \.availableItems, by: searchText)
-        filterItemViewModels(at: \.unavailableItems, by: searchText)
+        filterItemViewModels(source: \._allItems, destination: \.allItems, by: searchText)
+        filterItemViewModels(source: \._availableItems, destination: \.availableItems, by: searchText)
+        filterItemViewModels(source: \._unavailableItems, destination: \.unavailableItems, by: searchText)
         // Emit `objectWillChange` manually to prevent too frequent VM updates
         objectWillChange.send()
     }
 
     private func filterItemViewModels(
-        at keyPath: ReferenceWritableKeyPath<NFTNetworkSelectionListViewModel, [NFTNetworkSelectionListItemViewData]>,
+        source sourceKeyPath: KeyPath<NFTNetworkSelectionListViewModel, [NFTNetworkSelectionListItemViewData]>,
+        destination destinationKeyPath: ReferenceWritableKeyPath<NFTNetworkSelectionListViewModel, [NFTNetworkSelectionListItemViewData]>,
         by searchText: String?
     ) {
         guard let searchText = searchText?.nilIfEmpty else {
+            self[keyPath: destinationKeyPath] = self[keyPath: sourceKeyPath]
             return
         }
 
-        self[keyPath: keyPath] = self[keyPath: keyPath].filter { item in
+        self[keyPath: destinationKeyPath] = self[keyPath: sourceKeyPath].filter { item in
             item.title.localizedStandardContains(searchText) || item.tokenIconInfo.name.localizedStandardContains(searchText)
         }
     }
 
     private func onAvailableItemTap(_ nftChainItem: NFTChainItem) {
         coordinator?.openReceive(for: nftChainItem)
+        analytics.logBlockchainChosen(nftChainNameProviding.provide(for: nftChainItem.nftChain))
     }
 
     private func onUnavailableItemTap(_ nftChainItem: NFTChainItem) {

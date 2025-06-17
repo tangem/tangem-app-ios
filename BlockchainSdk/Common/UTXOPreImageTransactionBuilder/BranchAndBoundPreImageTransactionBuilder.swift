@@ -56,12 +56,11 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let context = Context(changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
+        let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, total: Int(total))
 
-        let startDate = Date()
-        logger.debug(self, "Start selection")
+        logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
         let bestVariant = try select(in: context, sorted: sorted)
-        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(startDate)) sec")
+        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(context.startDate)) sec with bestVariant: \(String(describing: bestVariant))")
 
         guard let bestVariant, !bestVariant.outputs.isEmpty else {
             throw Error.unableToFindSuitableUTXOs
@@ -77,30 +76,41 @@ private extension BranchAndBoundPreImageTransactionBuilder {
     func select(in context: Context, sorted inputs: [Input]) throws -> UTXOPreImageTransaction? {
         var bestVariant: UTXOPreImageTransaction?
         var tries = 0
-        let total = try inputs.sumReportingOverflow(by: \.amount)
-        var stack: [State] = [State(selected: [], index: 0, remaining: Int(total), currentValue: 0)]
+        var stack: [State] = [State(selected: [], index: 0, remaining: context.total, currentValue: 0)]
+
+        // If we have too many inputs do not start algorithm
+        if inputs.count > Constants.maxInputs {
+            return try simpleSelect(in: context, sorted: inputs)
+        }
 
         while !stack.isEmpty {
             // Check cancellation every cycle
             try Task.checkCancellation()
+
+            // Check timeout
+            if Date.now.timeIntervalSince(context.startDate) > Constants.timeout {
+                logger.debug(self, "Stop selection by timeout")
+                break
+            }
 
             let state = stack.removeLast()
             tries += 1
 
             // Stop if we reach tries limit
             if tries >= Constants.maxTries {
+                logger.debug(self, "Stop selection by max tries")
                 break
             }
 
+            let selectedInputs = state.selected.map { inputs[$0] }
             let variants = variantBuilders
-                .compactMap { try? $0.variant(in: context, selected: state.selected, currentValue: state.currentValue) }
+                .compactMap { try? $0.variant(in: context, selected: selectedInputs, currentValue: state.currentValue) }
                 .sorted(by: { $0.better(than: $1) })
 
             if let variant = variants.first {
                 // If variant is better then use it as the best
                 if bestVariant == nil || variant.better(than: bestVariant!) {
                     bestVariant = variant
-                    logger.debug(self, "The best variant was updated to \(variant)")
                 }
 
                 // Skip further processing for this branch
@@ -127,9 +137,38 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         return bestVariant
     }
 
+    func simpleSelect(in context: Context, sorted inputs: [Input]) throws -> UTXOPreImageTransaction? {
+        guard let (selectedIndices, value) = simpleSelection(from: inputs, target: context.destination.amount) else {
+            return nil
+        }
+
+        let selectedInputs = selectedIndices.map { inputs[$0] }
+        let variants = variantBuilders
+            .compactMap { try? $0.variant(in: context, selected: selectedInputs, currentValue: value) }
+            .sorted(by: { $0.better(than: $1) })
+
+        return variants.first
+    }
+
+    func simpleSelection(from inputs: [Input], target: Int) -> (selected: [Int], value: Int)? {
+        var sum = 0
+        var selected: [Int] = []
+
+        for (index, input) in inputs.enumerated() {
+            selected.append(index)
+            sum += Int(input.amount)
+
+            if sum >= target {
+                return (selected: selected, value: sum)
+            }
+        }
+
+        return nil
+    }
+
     /// Use a stack to store and use an iterative approach
     struct State {
-        let selected: [Input]
+        let selected: [Int]
         let index: Int
         let remaining: Int
         let currentValue: Int
@@ -148,7 +187,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         func includeCurrent(inputs: [Input]) -> State {
             let currentInput = inputs[index]
             return State(
-                selected: selected + [currentInput],
+                selected: selected + [index],
                 index: index + 1,
                 remaining: remaining,
                 currentValue: currentValue + Int(currentInput.amount)
@@ -185,24 +224,28 @@ private extension UTXOPreImageTransaction {
 extension UTXOPreImageTransaction: CustomStringConvertible {
     var description: String {
         [
-            "outputs": "\(outputs.map { $0.amount })",
             "destination": destination.description,
             "change": change.description,
             "fee": fee.description,
+            "outputs_count": outputs.count,
+            "outputs_sum": outputs.sum(by: \.amount),
         ].sorted(by: { $0.key > $1.key }).description
     }
 }
 
 private extension BranchAndBoundPreImageTransactionBuilder {
     struct Context {
+        let startDate: Date
         let changeScript: UTXOScriptType
         let destination: UTXOPreImageDestination
         let fee: UTXOPreImageTransactionBuilderFee
-        let allOutputsCount: Int
+        let total: Int
     }
 
     private enum Constants {
+        static let maxInputs: Int = 1000
         static let maxTries: Int = 100_000
+        static let timeout: TimeInterval = 30
     }
 
     private enum VariantError: LocalizedError {
@@ -279,11 +322,14 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             case .exactly(let fee): fee
             }
 
-            // Skip validation it's isCalculation and
-            // We spend all outputs and fee calculation
-            if context.fee.isCalculation, inputs.count == context.allOutputsCount {
+            // Skip validation if we spend full balance and fee calculation
+            if context.fee.isCalculation, recipientValue == context.total {
                 // The change may be negative value
                 change -= fee
+
+                guard change <= 0 else {
+                    throw VariantError.changeIsEnough
+                }
 
                 return UTXOPreImageTransaction(outputs: inputs, destination: recipientValue, change: change, fee: fee, size: size)
             }

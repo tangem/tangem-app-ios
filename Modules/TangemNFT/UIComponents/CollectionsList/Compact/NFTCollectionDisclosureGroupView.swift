@@ -26,7 +26,7 @@ struct NFTCollectionDisclosureGroupView: View {
             transition: .opacity,
             actionOnClick: onTap,
             alignment: .leading,
-            // Implemetation details. DrawingGroup ruins display of GIFs due
+            // Implementation details. DrawingGroup ruins display of GIFs due
             // to flattening subtree of views into single view before rendering it
             // From the docs:
             // Views backed by native platform views may not render into the image. Instead, they log a warning and display a placeholder image to highlight the error.
@@ -46,6 +46,7 @@ struct NFTCollectionDisclosureGroupView: View {
             subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
             isExpanded: isExpanded
         )
+        .padding(.vertical, 15.0)
     }
 
     @ViewBuilder
@@ -64,8 +65,7 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private func buildGridView(with viewModel: NFTAssetsGridViewModel) -> some View {
         NFTAssetsGridView(viewModel: viewModel)
-            .padding(.top, Constants.gridViewTopPadding)
-            .padding(.bottom, Constants.gridViewBottomPadding)
+            .padding(.vertical, 12.0)
     }
 
     private var errorView: some View {
@@ -86,13 +86,6 @@ struct NFTCollectionDisclosureGroupView: View {
         withAnimation {
             isExpanded.toggle()
         }
-    }
-}
-
-extension NFTCollectionDisclosureGroupView {
-    enum Constants {
-        static let gridViewTopPadding: CGFloat = 26
-        static let gridViewBottomPadding: CGFloat = 12
     }
 }
 
@@ -121,12 +114,14 @@ struct DummyProvider: NFTChainIconProvider {
                 assets: (0 ... 2).map {
                     NFTAsset(
                         assetIdentifier: "some-\($0)",
-                        collectionIdentifier: "some1",
+                        assetContractAddress: "some1",
                         chain: .solana,
                         contractType: .unknown,
+                        decimalCount: 0,
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
+                        salePrice: nil,
                         media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                         rarity: nil,
                         traits: []
@@ -134,7 +129,12 @@ struct DummyProvider: NFTChainIconProvider {
                 }
             ),
             assetsState: .loading,
-            nftChainIconProvider: DummyProvider(),
+            dependencies: NFTCollectionsListDependencies(
+                nftChainIconProvider: DummyProvider(),
+                nftChainNameProviding: NFTChainNameProviderMock(),
+                priceFormatter: NFTPriceFormatterMock(),
+                analytics: .empty
+            ),
             openAssetDetailsAction: { _ in },
             onCollectionTap: { _, _ in }
         )
