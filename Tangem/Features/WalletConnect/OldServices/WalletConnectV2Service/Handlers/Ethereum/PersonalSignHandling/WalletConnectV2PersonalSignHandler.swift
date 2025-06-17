@@ -61,7 +61,13 @@ struct WalletConnectV2PersonalSignHandler {
 }
 
 extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .personalSign }
+
     var event: WalletConnectEvent { .sign }
+
+    var requestData: Data {
+        Data(hex: message)
+    }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         let message = Localization.walletConnectPersonalSignMessage(dApp.name, dataToSign.hexString)
@@ -73,7 +79,7 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
         let hash = personalMessageData.sha3(.keccak256)
         do {
             let signedMessage = try await signer.sign(data: hash, using: walletModel)
-            return .response(AnyCodable(signedMessage.hexString.addHexPrefix()))
+            return .response(AnyCodable(signedMessage.hexString.addHexPrefix().lowercased()))
         } catch {
             WCLogger.error("Failed to sign message", error: error)
             return .error(.internalError)

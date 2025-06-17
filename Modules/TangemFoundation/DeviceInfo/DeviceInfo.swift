@@ -16,6 +16,11 @@ public struct DeviceInfo {
     public let device: String
     public let systemVersion: String
 
+    // [REDACTED_TODO_COMMENT]
+    public var appLanguageCode: String {
+        Locale.appLanguageCode
+    }
+
     public init() {
         platform = Constants.platformName
         version = InfoDictionaryUtils.version.value() ?? Constants.commonUnknown
@@ -24,17 +29,24 @@ public struct DeviceInfo {
         device = IPhoneModel()?.name ?? Constants.commonUnknown
         systemVersion = UIDevice.current.systemVersion
     }
+
+    public func asHeaders() -> [String: String] {
+        [
+            "platform": platform,
+            "version": version,
+            "language": language,
+            "timezone": timezone,
+            "device": device,
+            "system_version": systemVersion,
+        ]
+    }
 }
 
 // MARK: - Private
 
 private extension DeviceInfo {
     static var languageCode: String? {
-        if #available(iOS 16, *) {
-            Locale.current.language.languageCode?.identifier
-        } else {
-            Locale.current.languageCode
-        }
+        Locale.deviceLanguageCode()
     }
 }
 

@@ -97,7 +97,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
             }
 
             _quotes.send(current)
-            try? storage.store(value: current)
+            storage.store(value: current)
         }
     }
 }
@@ -160,23 +160,6 @@ private extension CommonTokenQuotesRepository {
             }
             .sink()
             .store(in: &bag)
-
-        userWalletRepository.eventProvider
-            .filter {
-                if case .locked = $0 {
-                    return true
-                }
-
-                return false
-            }
-            // We need to postpone repository cleanup because currently all rows are depends on this data
-            // and logout logic is not triggering immediately, so on main screen missing values can appear
-            .delay(for: 0.5, scheduler: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { repository, _ in
-                repository.clearRepository()
-            }
-            .store(in: &bag)
     }
 
     func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
@@ -219,11 +202,6 @@ private extension CommonTokenQuotesRepository {
             priceChange30d: quote.priceChange30d,
             currencyCode: currencyCode
         )
-    }
-
-    func clearRepository() {
-        AppLogger.info(self, "Start repository cleanup")
-        _quotes.value.removeAll()
     }
 }
 

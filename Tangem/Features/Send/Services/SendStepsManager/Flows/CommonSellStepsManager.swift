@@ -47,7 +47,7 @@ class CommonSellStepsManager {
             output?.update(state: .init(step: step, action: .close))
         case .fee where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .fee, .validators, .onramp:
+        case .amount, .destination, .fee, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
             assertionFailure("There is no next step")
         }
     }

@@ -19,7 +19,6 @@ final class AppOverlaysManager {
 
     @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
-    @Injected(\.wcService) private var walletConnectService: any WCService
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
 
     private var overlayWindow: UIWindow?
@@ -47,7 +46,6 @@ final class AppOverlaysManager {
         )
 
         bindStories()
-        bindWalletConnect()
     }
 
     func setMainWindow(_ mainWindow: MainWindow) {
@@ -72,16 +70,6 @@ final class AppOverlaysManager {
             .store(in: &cancellables)
     }
 
-    private func bindWalletConnect() {
-        walletConnectService
-            .errorsPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorAndDAppName in
-                self?.handleWalletConnectError(errorAndDAppName.error, errorAndDAppName.dAppName)
-            }
-            .store(in: &cancellables)
-    }
-
     private func handleNewStoriesState(_ state: TangemStoriesViewModel.State?) {
         guard let state else {
             dismissStoriesViewController()
@@ -98,14 +86,6 @@ final class AppOverlaysManager {
             // forces keyboard to hide if showing stories window
             overlayWindow?.makeKey()
         }
-    }
-
-    private func handleWalletConnectError(_ error: WalletConnectV2Error, _ dAppName: String) {
-        guard let errorViewModel = WalletConnectModuleFactory.makeErrorViewModel(for: error, dAppName: dAppName) else {
-            return
-        }
-
-        floatingSheetViewModel.enqueue(sheet: errorViewModel)
     }
 
     private static func updateStoriesViewController(

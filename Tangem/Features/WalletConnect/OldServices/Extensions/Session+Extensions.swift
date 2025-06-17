@@ -52,7 +52,7 @@ extension Session {
         let connectedBlockchains = namespaces
             .values
             .flatMap { $0.chains ?? [] }
-            .compactMap(WCUtils.makeBlockchain)
+            .compactMap(WalletConnectBlockchainMapper.mapToDomain)
 
         return WalletConnectSavedSession(
             userWalletId: userWalletId,

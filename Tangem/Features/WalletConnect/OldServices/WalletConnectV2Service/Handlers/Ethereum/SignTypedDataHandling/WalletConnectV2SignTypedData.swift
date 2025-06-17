@@ -47,6 +47,12 @@ struct WalletConnectV2SignTypedDataHandler {
 }
 
 extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .signTypedData }
+
+    var requestData: Data {
+        message.data(using: .utf8) ?? Data()
+    }
+
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
@@ -57,6 +63,6 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
         let hash = typedData.signHash
 
         let signedHash = try await signer.sign(data: hash, using: walletModel)
-        return .response(AnyCodable(signedHash.hexString.addHexPrefix()))
+        return .response(AnyCodable(signedHash.hexString.addHexPrefix().lowercased()))
     }
 }
