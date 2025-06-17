@@ -2813,6 +2813,7 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
 		EA72BE332DF8828100648B53 /* PepecoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
@@ -3979,19 +3980,6 @@
 		2DC5677A2B0E047700B0244F /* MainBottomSheetUIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainBottomSheetUIManager.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
-		2DCDE43B2DE60D7E007ECD34 /* ApplicationWalletEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationWalletEntry.swift; sourceTree = "<group>"; };
-		2DCDE43C2DE60D7E007ECD34 /* UserWalletPushNotifyStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletPushNotifyStatus.swift; sourceTree = "<group>"; };
-		2DCDE43E2DE60D7E007ECD34 /* CommonPushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsInteractor.swift; sourceTree = "<group>"; };
-		2DCDE43F2DE60D7E007ECD34 /* PushNotificationsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProvider.swift; sourceTree = "<group>"; };
-		2DCDE4402DE60D7E007ECD34 /* PushNotificationsHelpersFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsHelpersFactory.swift; sourceTree = "<group>"; };
-		2DCDE4412DE60D7E007ECD34 /* PushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsInteractor.swift; sourceTree = "<group>"; };
-		2DCDE4422DE60D7E007ECD34 /* PushNotificationsPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManager.swift; sourceTree = "<group>"; };
-		2DCDE4432DE60D7E007ECD34 /* PushNotificationsPermissionRequestFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestFlow.swift; sourceTree = "<group>"; };
-		2DCDE4452DE60D7E007ECD34 /* PushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE4472DE60D7E007ECD34 /* CommonUserTokensPushNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokensPushNotificationsManager.swift; sourceTree = "<group>"; };
-		2DCDE4482DE60D7E007ECD34 /* CommonUserTokensPushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokensPushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE4492DE60D7E007ECD34 /* UserTokensPushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensPushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE44A2DE60D7E007ECD34 /* UserTokensPushNotifificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensPushNotifificationsManager.swift; sourceTree = "<group>"; };
 		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponseDTO.swift; sourceTree = "<group>"; };
@@ -6472,6 +6460,7 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
 		EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinTransactionTests.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
@@ -7481,26 +7470,6 @@
 			path = Chiliz;
 			sourceTree = "<group>";
 		};
-		2D3023382DF092AC00B4FFE6 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2DCDE4472DE60D7E007ECD34 /* CommonUserTokensPushNotificationsManager.swift */,
-				2DCDE43E2DE60D7E007ECD34 /* CommonPushNotificationsInteractor.swift */,
-				2DCDE4422DE60D7E007ECD34 /* PushNotificationsPermissionManager.swift */,
-				2DCDE4402DE60D7E007ECD34 /* PushNotificationsHelpersFactory.swift */,
-				2DCDE43B2DE60D7E007ECD34 /* ApplicationWalletEntry.swift */,
-				2DCDE43C2DE60D7E007ECD34 /* UserWalletPushNotifyStatus.swift */,
-				2DCDE4412DE60D7E007ECD34 /* PushNotificationsInteractor.swift */,
-				2DCDE4492DE60D7E007ECD34 /* UserTokensPushNotificationsService.swift */,
-				2DCDE4432DE60D7E007ECD34 /* PushNotificationsPermissionRequestFlow.swift */,
-				2DCDE44A2DE60D7E007ECD34 /* UserTokensPushNotifificationsManager.swift */,
-				2DCDE4482DE60D7E007ECD34 /* CommonUserTokensPushNotificationsService.swift */,
-				2DCDE4452DE60D7E007ECD34 /* PushNotificationsService.swift */,
-				2DCDE43F2DE60D7E007ECD34 /* PushNotificationsAvailabilityProvider.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2D30233B2DF093B500B4FFE6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -8351,7 +8320,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2D3023382DF092AC00B4FFE6 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -14253,6 +14221,7 @@
 			isa = PBXGroup;
 			children = (
 				30C470212D7628B3003DFBFD /* Fact0rnAddressTests.swift */,
+				EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */,
 			);
 			path = Fact0rn;
 			sourceTree = "<group>";
@@ -23004,6 +22973,7 @@
 				B62D433A2CBC79E400C2460E /* SeiTransactionTests.swift in Sources */,
 				B62D43692CBC79E400C2460E /* CardanoTransactionTests.swift in Sources */,
 				30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */,
+				EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */,
 				B62D43552CBC79E400C2460E /* SolanaStakeKitTransactionHelperTests.swift in Sources */,
 				30C470242D762C47003DFBFD /* HederaAddressTests.swift in Sources */,
 				DC0CEB3F2D8360A300403A9A /* RSKAddressTests.swift in Sources */,
