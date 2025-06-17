@@ -129,15 +129,19 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li NFT</string>
+        <key>few</key>
+        <string>%li NFTs</string>
+        <key>many</key>
+        <string>%li NFTs</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li NFTs</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@nfts_count@ in %#@collections_count@</string>
+      <string>%#@nfts_count@ в %#@collections_count@</string>
       <key>collections_count</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -145,9 +149,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li collection</string>
+        <string>%li колекції</string>
+        <key>few</key>
+        <string></string>
+        <key>many</key>
+        <string>%li колекціях</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li колекціях</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -157,8 +165,12 @@
         <string>li</string>
         <key>one</key>
         <string>%li NFT</string>
+        <key>few</key>
+        <string>%li NFT</string>
+        <key>many</key>
+        <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%li NFT</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
