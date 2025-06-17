@@ -13,16 +13,15 @@ struct AllowanceChecker {
     private let address: String
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
-
-    private let ethereumNetworkProvider: EthereumNetworkProvider?
-    private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+    private let ethereumNetworkProvider: EthereumNetworkProvider
+    private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
 
     init(
         address: String,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
-        ethereumNetworkProvider: EthereumNetworkProvider?,
-        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+        ethereumNetworkProvider: EthereumNetworkProvider,
+        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder
     ) {
         self.address = address
         self.tokenItem = tokenItem
@@ -49,10 +48,6 @@ struct AllowanceChecker {
     }
 
     func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
-        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
-            throw AllowanceCheckerError.ethereumNetworkProviderNotFound
-        }
-
         let allowance = try await ethereumNetworkProvider
             .getAllowance(owner: owner, spender: spender, contractAddress: contract)
             .async()
@@ -61,14 +56,6 @@ struct AllowanceChecker {
     }
 
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        guard let ethereumTransactionDataBuilder = ethereumTransactionDataBuilder else {
-            throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
-        }
-
-        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
-            throw AllowanceCheckerError.ethereumNetworkProviderNotFound
-        }
-
         guard let contract = tokenItem.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
@@ -100,7 +87,5 @@ struct AllowanceChecker {
 
 enum AllowanceCheckerError: String, Hashable, LocalizedError {
     case contractAddressNotFound
-    case ethereumNetworkProviderNotFound
-    case ethereumTransactionDataBuilderNotFound
     case approveFeeNotFound
 }
