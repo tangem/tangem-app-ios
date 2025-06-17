@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-// Convenient aliases
+// Convenient aliases. Move it to BSDK
 // [REDACTED_TODO_COMMENT]
 typealias AllowanceState = TangemExpress.AllowanceState
 typealias ApprovePolicy = TangemExpress.ExpressApprovePolicy
