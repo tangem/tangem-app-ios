@@ -410,7 +410,8 @@ private extension StakingDetailsViewModel {
 
         let minAmount: Decimal? = switch constraint?.amount.minimum {
         // StakeKit didn't implement constraints for polygon yet, this code will be removed once done
-        case .none where yield.item.network == .polygon: 1
+        case .none where yield.item.network == .ethereum
+            && yield.item.contractAddress == StakingConstants.polygonContractAddress: 1
         case .none: .none
         case .some(let amount): amount
         }
