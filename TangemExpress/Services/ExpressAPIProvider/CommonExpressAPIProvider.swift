@@ -51,12 +51,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return providers
     }
 
-    func exchangeQuote(item: ExpressSwappableItem) async throws -> ExpressQuote {
+    func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
         let request = ExpressDTO.Swap.ExchangeQuote.Request(
-            fromContractAddress: item.source.expressCurrency.contractAddress,
-            fromNetwork: item.source.expressCurrency.network,
-            toContractAddress: item.destination.expressCurrency.contractAddress,
-            toNetwork: item.destination.expressCurrency.network,
+            fromContractAddress: item.source.contractAddress,
+            fromNetwork: item.source.network,
+            toContractAddress: item.destination.contractAddress,
+            toNetwork: item.destination.network,
             toDecimals: item.destination.decimalCount,
             fromAmount: item.sourceAmountWEI(),
             fromDecimals: item.source.decimalCount,
@@ -74,22 +74,22 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return quote
     }
 
-    func exchangeData(item: ExpressSwappableItem) async throws -> ExpressTransactionData {
+    func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
         let requestId: String = UUID().uuidString
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
-            fromAddress: item.source.defaultAddressString,
-            fromContractAddress: item.source.expressCurrency.contractAddress,
-            fromNetwork: item.source.expressCurrency.network,
-            toContractAddress: item.destination.expressCurrency.contractAddress,
-            toNetwork: item.destination.expressCurrency.network,
-            toDecimals: item.destination.decimalCount,
+            fromAddress: item.source.address,
+            fromContractAddress: item.source.currency.contractAddress,
+            fromNetwork: item.source.currency.network,
+            toContractAddress: item.destination.currency.contractAddress,
+            toNetwork: item.destination.currency.network,
+            toDecimals: item.destination.currency.decimalCount,
             fromAmount: item.sourceAmountWEI(),
-            fromDecimals: item.source.decimalCount,
+            fromDecimals: item.source.currency.decimalCount,
             providerId: item.providerInfo.id,
             rateType: .float,
-            toAddress: item.destination.defaultAddressString,
-            refundAddress: item.source.defaultAddressString,
+            toAddress: item.destination.address,
+            refundAddress: item.source.address,
             refundExtraId: nil // There is no memo on the client side
         )
 

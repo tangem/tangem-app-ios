@@ -8,8 +8,13 @@
 
 import Foundation
 
-public protocol ExpressAllowanceProvider {
+public protocol AllowanceProvider {
     func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState
+
+    var isSupportAllowance: Bool { get }
+
+    func allowanceState(amount: Decimal, spender: String, approvePolicy: ExpressApprovePolicy) async throws -> AllowanceState
+    func didSendApproveTransaction(for spender: String)
 }
 
 public enum AllowanceState: Hashable {

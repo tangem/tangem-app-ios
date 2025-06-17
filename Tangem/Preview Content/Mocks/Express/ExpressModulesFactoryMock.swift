@@ -33,6 +33,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
             expressRepository: expressRepository,
+            expressWalletsFactory: expressWalletsFactory,
             interactor: expressInteractor,
             coordinator: coordinator
         )
@@ -63,7 +64,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: ApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
@@ -163,6 +164,10 @@ private extension ExpressModulesFactoryMock {
         CommonExpressTransactionBuilder()
     }
 
+    var expressWalletsFactory: ExpressWalletsFactory {
+        .init(feeProvider: expressFeeProvider, allowanceProvider: allowanceProvider)
+    }
+
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
@@ -194,6 +199,7 @@ private extension ExpressModulesFactoryMock {
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
             expressTransactionBuilder: expressTransactionBuilder,
+            expressWalletsFactory: expressWalletsFactory,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )

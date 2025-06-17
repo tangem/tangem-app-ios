@@ -10,6 +10,13 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
+// Convenient aliases
+// [REDACTED_TODO_COMMENT]
+typealias AllowanceState = TangemExpress.AllowanceState
+typealias ApprovePolicy = TangemExpress.ExpressApprovePolicy
+typealias ApproveTransactionData = TangemExpress.ApproveTransactionData
+typealias AllowanceProvider = TangemExpress.AllowanceProvider
+
 class CommonAllowanceProvider {
     private var walletModel: any WalletModel
     private var spendersAwaitingApprove: Set<String> = []
@@ -48,11 +55,7 @@ extension CommonAllowanceProvider: AllowanceProvider {
     func didSendApproveTransaction(for spender: String) {
         spendersAwaitingApprove.insert(spender)
     }
-}
 
-// MARK: - ExpressAllowanceProvider
-
-extension CommonAllowanceProvider: ExpressAllowanceProvider {
     func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
         let contractAddress = request.pair.source.currency.contractAddress
         if contractAddress == ExpressConstants.coinContractAddress {

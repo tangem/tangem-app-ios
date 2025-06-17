@@ -9,29 +9,12 @@
 import Foundation
 import TangemExpress
 
-struct ExpressFactory {
+struct ExpressWalletsFactory {
+    let feeProvider: ExpressFeeProvider
+    let allowanceProvider: TangemExpress.AllowanceProvider
+
     func makeExpressSourceWallet(walletModel: any WalletModel) -> ExpressSourceWallet {
-        let feeProvider = CommonExpressFeeProvider(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            provider: walletModel,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider
-        )
-
-        let allowanceChecker = AllowanceChecker(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            address: walletModel.defaultAddress.value,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
-            ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
-        )
-
-        let allowanceProvider = CommonAllowanceProvider(
-            tokenItem: walletModel.tokenItem,
-            allowanceChecker: allowanceChecker
-        )
-
-        return ExpressSourceWallet(
+        ExpressSourceWallet(
             address: walletModel.defaultAddress.value,
             currency: walletModel.tokenItem.expressCurrency,
             feeCurrency: walletModel.feeTokenItem.expressCurrency,
@@ -41,14 +24,7 @@ struct ExpressFactory {
         )
     }
 
-    func makeExpressSourceWallet(wallet: ExpressWalletModel) -> ExpressSourceWallet {
-        ExpressSourceWallet(
-            address: wallet.defaultAddressString,
-            currency: wallet.expressCurrency,
-            feeCurrency: wallet.expressFeeCurrency,
-            feeProvider: wallet.expressFeeProvider,
-            allowanceProvider: wallet.expressAllowanceProvider,
-            balanceProvider: wallet.expressBalanceProvider
-        )
+    func makeExpressDestinationWallet(walletModel: any WalletModel) -> ExpressDestinationWallet {
+        ExpressDestinationWallet(currency: walletModel.tokenItem.expressCurrency, address: walletModel.defaultAddressString)
     }
 }

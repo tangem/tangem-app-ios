@@ -42,12 +42,12 @@ extension CommonExpressRepository: ExpressRepository {
     func updatePairs(for wallet: TangemExpress.ExpressWallet) async throws {
         let currencies = walletModels
             .filter { $0.expressCurrency != wallet.expressCurrency }
-            .map { $0.expressCurrency }
+            .map { $0.expressCurrency.asCurrency() }
 
         guard !currencies.isEmpty else { return }
 
-        async let pairsTo = expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
-        async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
+        async let pairsTo = expressAPIProvider.pairs(from: [wallet.expressCurrency.asCurrency()], to: currencies)
+        async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency.asCurrency()])
 
         try await pairs.formUnion(pairsTo.toSet())
         try await pairs.formUnion(pairsFrom.toSet())
@@ -64,11 +64,11 @@ extension CommonExpressRepository: ExpressRepository {
     }
 
     func getPairs(to wallet: ExpressWallet) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.expressCurrency }.asArray
+        pairs.filter { $0.destination == wallet.expressCurrency.asCurrency() }.asArray
     }
 
     func getPairs(from wallet: ExpressWallet) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.expressCurrency }.asArray
+        pairs.filter { $0.source == wallet.expressCurrency.asCurrency() }.asArray
     }
 }
 

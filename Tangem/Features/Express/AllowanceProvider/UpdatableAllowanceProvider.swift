@@ -9,6 +9,6 @@
 import Foundation
 import TangemExpress
 
-protocol UpdatableAllowanceProvider: AllowanceProvider, ExpressAllowanceProvider {
+protocol UpdatableAllowanceProvider: AllowanceProvider {
     func setup(wallet: any WalletModel)
 }

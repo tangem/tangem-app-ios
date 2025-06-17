@@ -10,10 +10,10 @@ import Foundation
 
 public protocol ExpressWallet {
     var expressCurrency: ExpressWalletCurrency { get }
-    var expressFeeCurrency: ExpressWalletCurrency { get }
-    var expressFeeProvider: FeeProvider { get }
-    var expressAllowanceProvider: AllowanceProvider { get }
-    var expressBalanceProvider: any BalanceProvider { get }
+//    var expressFeeCurrency: ExpressWalletCurrency { get }
+//    var expressFeeProvider: FeeProvider { get }
+//    var expressAllowanceProvider: AllowanceProvider { get }
+//    var expressBalanceProvider: any BalanceProvider { get }
 
     var defaultAddressString: String { get }
     var decimalCount: Int { get }

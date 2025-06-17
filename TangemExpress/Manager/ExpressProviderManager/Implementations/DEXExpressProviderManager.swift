@@ -14,7 +14,7 @@ actor DEXExpressProviderManager {
 
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
-    private let allowanceProvider: ExpressAllowanceProvider
+    private let allowanceProvider: AllowanceProvider
     private let feeProvider: FeeProvider
     private let mapper: ExpressManagerMapper
 
@@ -25,7 +25,7 @@ actor DEXExpressProviderManager {
     init(
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
+        allowanceProvider: AllowanceProvider,
         feeProvider: FeeProvider,
         mapper: ExpressManagerMapper
     ) {

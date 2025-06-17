@@ -217,7 +217,6 @@ extension VisaWalletModel: TransactionHistoryFetcher {
 }
 
 extension VisaWalletModel: ExpressWallet {
-    var expressCurrency: ExpressCurrency { tokenItem.expressCurrency }
     var defaultAddressString: String { defaultAddress.value }
     var decimalCount: Int { tokenItem.decimalCount }
     var feeCurrencyDecimalCount: Int { tokenItem.blockchain.decimalCount }

@@ -36,6 +36,7 @@ class ExpressInteractor {
     private let expressDestinationService: ExpressDestinationService
     private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressTransactionBuilder: ExpressTransactionBuilder
+    private let expressWalletsFactory: ExpressWalletsFactory
     private let expressAPIProvider: ExpressAPIProvider
     private let signer: TangemSigner
 
@@ -58,6 +59,7 @@ class ExpressInteractor {
         expressDestinationService: ExpressDestinationService,
         expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressTransactionBuilder: ExpressTransactionBuilder,
+        expressWalletsFactory: ExpressWalletsFactory,
         expressAPIProvider: ExpressAPIProvider,
         signer: TangemSigner
     ) {
@@ -72,6 +74,7 @@ class ExpressInteractor {
         self.expressDestinationService = expressDestinationService
         self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressTransactionBuilder = expressTransactionBuilder
+        self.expressWalletsFactory = expressWalletsFactory
         self.expressAPIProvider = expressAPIProvider
         self.signer = signer
 
@@ -160,7 +163,7 @@ extension ExpressInteractor {
 
         updateState(.loading(type: .full))
         updateTask { interactor in
-            let state = try await interactor.expressManager.updateAmount(amount: amount, by: source)
+            let state = try await interactor.expressManager.update(amount: amount, by: source)
             return try await interactor.mapState(state: state)
         }
     }
@@ -174,7 +177,7 @@ extension ExpressInteractor {
         }
     }
 
-    func updateApprovePolicy(policy: ExpressApprovePolicy) {
+    func updateApprovePolicy(policy: ApprovePolicy) {
         updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
@@ -534,8 +537,8 @@ private extension ExpressInteractor {
             }
 
             let sender = interactor.getSender()
-            let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
-            let state = try await interactor.expressManager.updatePair(pair: pair)
+            let pair = interactor.makeExpressManagerSwappingPair(sender: sender, receiver: destination)
+            let state = try await interactor.expressManager.update(pair: pair)
             return try await interactor.mapState(state: state)
         }
     }
@@ -634,6 +637,13 @@ private extension ExpressInteractor {
         let wallet = getSender()
         return Amount(with: wallet.tokenItem.blockchain, type: wallet.tokenItem.amountType, value: value)
     }
+
+    func makeExpressManagerSwappingPair(sender: any WalletModel, receiver: any WalletModel) -> ExpressManagerSwappingPair {
+        let source = expressWalletsFactory.makeExpressSourceWallet(walletModel: sender)
+        let destination = expressWalletsFactory.makeExpressDestinationWallet(walletModel: receiver)
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        return pair
+    }
 }
 
 // MARK: - Log
@@ -651,11 +661,11 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
+    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy) {
         expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
+    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String) {
         expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
     }
 
@@ -780,7 +790,7 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
-        let policy: ExpressApprovePolicy
+        let policy: ApprovePolicy
         let data: ApproveTransactionData
         let fees: Fees
     }

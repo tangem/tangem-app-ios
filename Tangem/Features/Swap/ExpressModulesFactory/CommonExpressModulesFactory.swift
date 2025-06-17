@@ -47,6 +47,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressProviderFormatter: expressProviderFormatter,
             notificationManager: notificationManager,
             expressRepository: expressRepository,
+            expressWalletsFactory: expressWalletsFactory,
             interactor: expressInteractor,
             coordinator: coordinator
         )
@@ -77,7 +78,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: ApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         let tokenItem = expressInteractor.getSender().tokenItem
@@ -174,6 +175,7 @@ extension CommonExpressModulesFactory {
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
             expressTransactionBuilder: expressTransactionBuilder,
+            expressWalletsFactory: expressWalletsFactory,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
@@ -225,6 +227,10 @@ private extension CommonExpressModulesFactory {
 
     var expressTransactionBuilder: ExpressTransactionBuilder {
         CommonExpressTransactionBuilder()
+    }
+
+    var expressWalletsFactory: ExpressWalletsFactory {
+        .init(feeProvider: expressFeeProvider, allowanceProvider: allowanceProvider)
     }
 
     // MARK: - Methods

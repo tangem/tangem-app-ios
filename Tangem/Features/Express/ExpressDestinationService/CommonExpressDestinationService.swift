@@ -35,7 +35,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
             let isNotSource = wallet.id != source.id
             let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.isCustom
-            let hasPair = availablePairs.contains(where: { $0.destination == wallet.expressCurrency })
+            let hasPair = availablePairs.contains(where: { $0.destination == wallet.expressCurrency.asCurrency() })
 
             return isNotSource && isAvailable && isNotCustom && hasPair
         }

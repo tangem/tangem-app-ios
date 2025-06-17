@@ -18,7 +18,7 @@ public struct TangemExpressFactory {
 
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
+        allowanceProvider: AllowanceProvider,
         feeProvider: FeeProvider,
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger

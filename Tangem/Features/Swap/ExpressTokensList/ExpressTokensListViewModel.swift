@@ -141,7 +141,7 @@ private extension ExpressTokensListViewModel {
             .forEach { walletModel in
                 guard walletModel.id != swapDirection.wallet.id else { return }
 
-                let isAvailable = availableCurrenciesSet.contains(walletModel.expressCurrency)
+                let isAvailable = availableCurrenciesSet.contains(walletModel.expressCurrency.asCurrency())
                 let isNotCustom = !walletModel.isCustom
                 if isAvailable, isNotCustom {
                     availableWalletModels.append(walletModel)

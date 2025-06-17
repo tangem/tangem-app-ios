@@ -34,7 +34,7 @@ extension SwapDestinationTokenAvailabilitySorter: TokenAvailabilitySorter {
         let result = walletModels.filter { $0.id != sourceTokenWalletModel.id }.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
-            if availablePairs.map(\.destination).contains(walletModel.expressCurrency), !walletModel.isCustom {
+            if availablePairs.map(\.destination).contains(walletModel.expressCurrency.asCurrency()), !walletModel.isCustom {
                 result.availableModels.append(walletModel)
             } else {
                 result.unavailableModels.append(walletModel)

@@ -10,13 +10,13 @@ import Foundation
 
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
-    private let allowanceProvider: ExpressAllowanceProvider
+    private let allowanceProvider: AllowanceProvider
     private let feeProvider: FeeProvider
     private let mapper: ExpressManagerMapper
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
+        allowanceProvider: AllowanceProvider,
         feeProvider: FeeProvider,
         mapper: ExpressManagerMapper
     ) {

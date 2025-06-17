@@ -49,7 +49,7 @@ extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
     }
 
     func swapState(for tokenItem: TokenItem) -> TokenItemExpressState {
-        _cache.value[tokenItem.expressCurrency]?.swap ?? .notLoaded
+        _cache.value[tokenItem.expressCurrency.asCurrency()]?.swap ?? .notLoaded
     }
 
     func canSwap(tokenItem: TokenItem) -> Bool {
@@ -57,7 +57,7 @@ extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
     }
 
     func onrampState(for tokenItem: TokenItem) -> TokenItemExpressState {
-        _cache.value[tokenItem.expressCurrency]?.onramp ?? .notLoaded
+        _cache.value[tokenItem.expressCurrency.asCurrency()]?.onramp ?? .notLoaded
     }
 
     func canOnramp(tokenItem: TokenItem) -> Bool {
@@ -144,7 +144,7 @@ private extension CommonExpressAvailabilityProvider {
 
         let itemsToRequest = items.filter {
             // If `forceReload` flag is true we need to force reload state for all items
-            return _cache.value[$0.expressCurrency] == nil || forceReload
+            return _cache.value[$0.expressCurrency.asCurrency()] == nil || forceReload
         }
 
         // This mean that all requesting items in blockchains that currently not available for swap
@@ -153,7 +153,7 @@ private extension CommonExpressAvailabilityProvider {
             return []
         }
 
-        return itemsToRequest.map { $0.expressCurrency }.toSet()
+        return itemsToRequest.map { $0.expressCurrency.asCurrency() }.toSet()
     }
 
     func getApiProvider() throws -> ExpressAPIProvider {

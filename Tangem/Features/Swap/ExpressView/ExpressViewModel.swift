@@ -55,6 +55,7 @@ final class ExpressViewModel: ObservableObject {
     private let expressProviderFormatter: ExpressProviderFormatter
     private let notificationManager: NotificationManager
     private let expressRepository: ExpressRepository
+    private let expressWalletsFactory: ExpressWalletsFactory
     private let interactor: ExpressInteractor
     private weak var coordinator: ExpressRoutable?
 
@@ -71,6 +72,7 @@ final class ExpressViewModel: ObservableObject {
         expressProviderFormatter: ExpressProviderFormatter,
         notificationManager: NotificationManager,
         expressRepository: ExpressRepository,
+        expressWalletsFactory: ExpressWalletsFactory,
         interactor: ExpressInteractor,
         coordinator: ExpressRoutable
     ) {
@@ -81,6 +83,7 @@ final class ExpressViewModel: ObservableObject {
         self.expressProviderFormatter = expressProviderFormatter
         self.notificationManager = notificationManager
         self.expressRepository = expressRepository
+        self.expressWalletsFactory = expressWalletsFactory
         self.interactor = interactor
         self.coordinator = coordinator
 
@@ -352,10 +355,10 @@ private extension ExpressViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, pair -> Bool in
                 do {
-                    if let destination = pair.destination.value, let destinationAsSource = destination as? ExpressWalletModel {
+                    if let destination = pair.destination.value {
                         let oppositePair = ExpressManagerSwappingPair(
-                            source: destinationAsSource.asExpressSourceWallet(),
-                            destination: pair.sender.asExpressDestinationWallet()
+                            source: viewModel.expressWalletsFactory.makeExpressSourceWallet(walletModel: destination),
+                            destination: viewModel.expressWalletsFactory.makeExpressDestinationWallet(walletModel: pair.sender)
                         )
                         let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
                         return oppositeProviders.isEmpty

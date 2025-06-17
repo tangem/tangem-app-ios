@@ -15,7 +15,7 @@ extension WalletModel {
         defaultAddress.value
     }
 
-    var expressCurrency: TangemExpress.ExpressCurrency {
+    var expressCurrency: TangemExpress.ExpressWalletCurrency {
         tokenItem.expressCurrency
     }
 
