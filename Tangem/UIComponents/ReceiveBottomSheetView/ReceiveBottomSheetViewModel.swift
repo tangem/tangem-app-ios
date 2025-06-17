@@ -91,10 +91,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func copyToClipboard() {
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.receive.rawValue,
-        ])
+        copyAnalytics()
         UIPasteboard.general.string = addressInfos[currentIndex].address
 
         Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
@@ -105,7 +102,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func share() {
-        Analytics.log(event: .buttonShareAddress, params: [.token: tokenItem.currencySymbol])
+        shareAnalytics()
         let address = addressInfos[currentIndex].address
         // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
@@ -115,6 +112,32 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
             .assign(to: \.currentIndex, on: self, ownership: .weak)
+    }
+
+    private func shareAnalytics() {
+        switch flow {
+        case .nft:
+            Analytics.log(event: .nftReceiveShareAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
+        case .crypto:
+            Analytics.log(event: .buttonShareAddress, params: [
+                .token: tokenItem.currencySymbol,
+                .blockchain: tokenItem.blockchain.displayName,
+            ])
+        }
+    }
+
+    private func copyAnalytics() {
+        switch flow {
+        case .nft:
+            Analytics.log(event: .nftReceiveCopyAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
+
+        case .crypto:
+            Analytics.log(event: .buttonCopyAddress, params: [
+                .token: tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.receive.rawValue,
+                .blockchain: tokenItem.blockchain.displayName,
+            ])
+        }
     }
 }
 

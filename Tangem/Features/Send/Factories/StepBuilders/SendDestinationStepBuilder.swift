@@ -89,54 +89,44 @@ private extension SendDestinationStepBuilder {
         CommonSendDestinationInteractor(
             input: io.input,
             output: io.output,
-            validator: makeSendDestinationValidator(),
-            transactionHistoryProvider: makeSendDestinationTransactionHistoryProvider(),
-            transactionHistoryMapper: makeTransactionHistoryMapper(),
+            validator: builder.makeSendDestinationValidator(),
+            transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
+            transactionHistoryMapper: builder.makeTransactionHistoryMapper(),
             addressResolver: walletModel.addressResolver,
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
-            parametersBuilder: builder.makeSendTransactionParametersBuilder()
-        )
-    }
-
-    func makeSendDestinationValidator() -> SendDestinationValidator {
-        let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
-        let validator = CommonSendDestinationValidator(
-            walletAddresses: walletModel.addresses.map { $0.value },
-            addressService: addressService,
-            supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
-        )
-
-        return validator
-    }
-
-    func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(walletModel: walletModel)
-    }
-
-    func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
-        TransactionHistoryMapper(
-            currencySymbol: walletModel.tokenItem.currencySymbol,
-            walletAddresses: walletModel.addresses.map { $0.value },
-            showSign: false
+            parametersBuilder: builder.makeSendTransactionParametersBuilder(),
+            analyticsLogger: builder.makeDestinationAnalyticsLogger()
         )
     }
 
     func makeSuggestedWallets() -> [SendDestinationViewModel.Settings.SuggestedWallet] {
-        userWalletRepository.models.reduce([]) { result, userWalletModel in
-            let walletModels = userWalletModel.walletModelsManager.walletModels
-            return result + walletModels
-                .filter { walletModel in
-                    let ignoredAddresses = self.walletModel.addresses.map { $0.value }
+        let ignoredAddresses = walletModel
+            .addresses
+            .map(\.value)
+            .toSet()
 
-                    let shouldBeIncluded = walletModel.tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
+        let targetNetworkId = walletModel
+            .tokenItem
+            .blockchain
+            .networkId
 
-                    return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
-                        && walletModel.isMainToken
-                        && shouldBeIncluded
-                }
-                .map { walletModel in
-                    (name: userWalletModel.name, address: walletModel.defaultAddressString)
-                }
-        }
+        return userWalletRepository
+            .models
+            .reduce(into: []) { partialResult, userWalletModel in
+                let walletModels = userWalletModel
+                    .walletModelsManager
+                    .walletModels
+
+                partialResult += walletModels
+                    .filter { walletModel in
+                        let blockchain = walletModel.tokenItem.blockchain
+                        let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
+
+                        return blockchain.networkId == targetNetworkId && walletModel.isMainToken && shouldBeIncluded()
+                    }
+                    .map { walletModel in
+                        (name: userWalletModel.name, address: walletModel.defaultAddressString)
+                    }
+            }
     }
 }

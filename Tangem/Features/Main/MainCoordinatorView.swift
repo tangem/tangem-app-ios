@@ -124,11 +124,11 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: WCConnectionSheetViewModel.self) {
-                WCConnectRequestModalView(viewModel: $0)
+            .floatingSheetContent(for: WalletConnectDAppConnectionViewModel.self) {
+                WalletConnectDAppConnectionView(viewModel: $0)
             }
-            .floatingSheetContent(for: WalletConnectErrorViewModel.self) {
-                WalletConnectErrorView(viewModel: $0)
+            .floatingSheetContent(for: WCTransactionViewModel.self) {
+                WCTransactionView(viewModel: $0)
             }
 
         NavHolder()

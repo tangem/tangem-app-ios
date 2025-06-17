@@ -38,17 +38,22 @@ extension NFTAssetsGridView {
         NFTAssetsGridView(viewModel: NFTAssetsGridViewModel(assetsViewModels: (0 ... 10).map {
             NFTCompactAssetViewModel(
                 state: .loaded(
-                    NFTAsset(
-                        assetIdentifier: "some-\($0)",
-                        collectionIdentifier: "some1",
-                        chain: .solana,
-                        contractType: .unknown,
-                        ownerAddress: "",
-                        name: "My asset",
-                        description: "",
-                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                        rarity: nil,
-                        traits: []
+                    .init(
+                        asset: NFTAsset(
+                            assetIdentifier: "some-\($0)",
+                            assetContractAddress: "some1",
+                            chain: .solana,
+                            contractType: .unknown,
+                            decimalCount: 0,
+                            ownerAddress: "",
+                            name: "My asset",
+                            description: "",
+                            salePrice: nil,
+                            media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                            rarity: nil,
+                            traits: []
+                        ),
+                        priceFormatter: NFTPriceFormatterMock()
                     )
                 ),
                 openAssetDetailsAction: { _ in }
