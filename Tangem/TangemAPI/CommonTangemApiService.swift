@@ -321,6 +321,41 @@ extension CommonTangemApiService: TangemApiService {
         _ = try await provider.asyncRequest(target)
     }
 
+    // MARK: - Notification
+
+    func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
+        try await request(for: .pushNotificationsEligible, decoder: decoder)
+    }
+
+    // MARK: - Applicationss
+
+    func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
+        let requestTarget: TangemApiTarget.TargetType = .createUserWalletsApplication(requestModel)
+        return try await request(for: requestTarget, decoder: decoder)
+    }
+
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+        try await request(for: .updateUserWalletsApplication(uid: uid, requestModel: requestModel), decoder: decoder)
+    }
+
+    // MARK: - UserWallets
+
+    func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response] {
+        try await request(for: .getUserWallets(applicationUid: applicationUid), decoder: decoder)
+    }
+
+    func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response {
+        try await request(for: .getUserWallet(userWalletId: userWalletId), decoder: decoder)
+    }
+
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+        try await request(for: .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel), decoder: decoder)
+    }
+
+    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO {
+        try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
+    }
+
     // MARK: - Init
 
     func setAuthData(_ authData: TangemApiTarget.AuthData) {

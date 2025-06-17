@@ -9,7 +9,7 @@
 import Foundation
 
 struct NFTMedia: Hashable, Sendable {
-    enum Kind: Sendable {
+    enum Kind: Sendable, CaseIterable {
         case image
         case animation
         case video

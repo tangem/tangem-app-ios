@@ -7,9 +7,13 @@
 //
 
 import Combine
+import UIKit
+import ReownWalletKit
+import TangemUIUtils
 
 final class CommonWCService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let v2Service: WCServiceV2
 
@@ -19,18 +23,14 @@ final class CommonWCService {
 }
 
 extension CommonWCService: WCService {
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        v2Service.canEstablishNewSessionPublisher
+    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
+        v2Service.transactionRequestPublisher
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
             await v2Service.newSessions
         }
-    }
-
-    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> {
-        v2Service.errorsPublisher
     }
 
     func initialize() {
@@ -42,11 +42,20 @@ extension CommonWCService: WCService {
         incomingActionManager.resignFirstResponder(self)
     }
 
-    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
+    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
         switch uri {
         case .v2(let v2URI):
-            v2Service.openSession(with: v2URI, source: source)
+            try await v2Service.openSession(with: v2URI, source: source)
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
+        try await v2Service.approveSessionProposal(with: proposalID, namespaces: namespaces, userWalletID)
+    }
+
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
+        try await v2Service.rejectSessionProposal(with: proposalID, reason: reason)
     }
 
     func disconnectSession(with id: Int) async {
@@ -55,14 +64,6 @@ extension CommonWCService: WCService {
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
         v2Service.disconnectAllSessionsForUserWallet(with: userWalletId)
-    }
-
-    func updateSelectedWalletId(_ userWalletId: String) {
-        v2Service.updateConnectionData(userWalletId: userWalletId)
-    }
-
-    func updateSelectedNetworks(_ selectedNetworks: [BlockchainNetwork]) {
-        v2Service.updateConnectionData(networks: selectedNetworks)
     }
 }
 
@@ -74,7 +75,14 @@ extension CommonWCService: IncomingActionResponder {
             return false
         }
 
-        openSession(with: uri, source: .deeplink)
+        UIApplication.mainWindow?.endEditing(true)
+
+        Task { @MainActor in
+            guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: .deeplink) else { return }
+            viewModel.loadDAppProposal()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+
         return true
     }
 }

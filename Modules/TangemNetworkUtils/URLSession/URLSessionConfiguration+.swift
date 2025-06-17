@@ -41,7 +41,6 @@ public extension URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
-        configuration.requestCachePolicy = .returnCacheDataElseLoad
         return configuration
     }()
 }
