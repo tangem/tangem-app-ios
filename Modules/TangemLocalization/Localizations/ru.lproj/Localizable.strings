@@ -108,6 +108,8 @@
 "common_cancel" = "Отмена";
 "common_change" = "Изменить";
 "common_choose_action" = "Выберите действие";
+"common_choose_network" = "Выберите сеть";
+"common_choose_token" = "Выберите токен";
 "common_claim_rewards" = "Вывести награду";
 "common_claim" = "Получить";
 "common_close" = "Закрыть";
@@ -140,6 +142,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
+"common_got_it" = "Got it";
 "common_hide" = "Скрыть";
 "common_hour" = "час";
 "common_import" = "Импортировать";
@@ -186,6 +189,8 @@
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
 "common_share_link" = "Поделиться ссылкой";
 "common_share" = "Поделиться";
+"common_show_less" = "Show less";
+"common_show_more" = "Подробнее";
 "common_sign_and_send" = "Подписать и отправить";
 "common_sign" = "Подписать";
 "common_stake" = "Застейкать";
@@ -194,6 +199,7 @@
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
 "common_support" = "Поддержка";
+"common_supported_networks" = "Supported networks";
 "common_swap" = "Обменять";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_terms_and_conditions" = "условия участия";
@@ -255,6 +261,7 @@
 "details_row_description_flip_to_hide" = "Переверните экран вашего устройства вниз, чтобы быстро скрыть и отобразить балансы";
 "details_row_subtitle_signed_hashes_format" = "%@ хэшей";
 "details_row_title_cid" = "Номер устройства";
+"details_row_title_contact_to_support_chat" = "Open support chat";
 "details_row_title_contact_to_support" = "Обратиться в поддержку";
 "details_row_title_create_backup_footer" = "Вы можете объединить до трех устройств в одном кошельке. Это можно сделать только один раз.";
 "details_row_title_create_backup" = "Добавить еще карты";
@@ -274,6 +281,7 @@
 "exсhange_token_description" = "Обменяйте любой актив в вашем портфеле на этот токен";
 "express_by_provider_placeholder" = "Предоставлено %@";
 "express_cex_status_button_title" = "Статус";
+"express_choose_provider" = "Choose provider";
 "express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
 "express_choose_providers_title" = "Провайдер";
 "express_error_provider_amount_roundup" = "Ошибка %1$@. Выбранный провайдер не может обработать указанную транзакцию. Округлите значение до %2$@ или измените его.";
@@ -319,6 +327,7 @@
 "express_legal_two_placeholders" = "Пользуясь сервисом, вы соглашаетесь с %1$@ и %2$@";
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
+"express_provider_fca_warning_list" = "FCA Warning List";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
 "express_provider_not_available" = "Недоступно для этой пары";
@@ -331,6 +340,8 @@
 "express_status_hide_button_text" = "Скрыть эту транзакцию";
 "express_status_hide_dialog_text" = "После скрытия статус транзакции нельзя будет просмотреть снова. Вместо этого вы можете просто свайпнуть плашку вниз, чтобы закрыть её.";
 "express_status_hide_dialog_title" = "Скрыть статус транзакции?";
+"express_swap_not_supported_text" = "This token is not supported. Please choose a different token to swap.";
+"express_swap_not_supported_title" = "%@ is not supported";
 "express_swap_with" = "Swap with";
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
 "express_transaction_id_copied" = "ID транзакции скопирован";
@@ -439,7 +450,6 @@
 "markets_sort_by_top_losers_title" = "Лидеры падения";
 "markets_sort_by_trending_title" = "В тренде";
 "markets_staking_banner_description_placeholder" = "Стейкинг — простой способ получать доход с вашей криптовалюты. %@";
-"markets_staking_banner_description_show_more" = "Показать больше";
 "markets_staking_banner_title" = "Получайте до %@ APY";
 "markets_token_details_about_token_title" = "О %@";
 "markets_token_details_blockchain_site" = "Веб-сайт";
@@ -664,6 +674,13 @@
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Упорядочить токены";
 "organize_tokens_ungroup" = "Список";
+"push_notifications_more_info" = "Подробнее";
+"push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
+"push_notifications_permission_alert_negative_button" = "Enable Later";
+"push_notifications_permission_alert_positive_button" = "Settings";
+"push_notifications_permission_alert_title" = "Подключить нотификации";
+"push_transactions_notifications_description" = "Receive alerts for incoming transactions on supported networks";
+"push_transactions_notifications_title" = "Transaction Notifications";
 "qr_scanner_camera_denied_gallery_button" = "Выбрать из галереи";
 "qr_scanner_camera_denied_settings_button" = "Настройки";
 "qr_scanner_camera_denied_text" = "Вы не предоставили доступ к вашей камере";
@@ -758,6 +775,9 @@
 "send_max_fee" = "Комиссия не превысит";
 "send_memo_destination_tag_error" = "Недопустимый Memo";
 "send_network_fee_warning_title" = "Покрытие сетевой комиссии";
+"send_nonce_footer" = "Уникальный номер транзакции. Измените, чтобы ускорить отправку или отменить зависшую операцию.";
+"send_nonce_hint" = "Введите nonce…";
+"send_nonce" = "Nonce";
 "send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса";
 "send_notification_exceed_balance_title" = "Недостаточно средств";
 "send_notification_existential_deposit_text" = "Для сохранения вашего аккаунта в блокчейне и защиты от возможных рисков необходим баланс не менее %@. Эта сумма останется на вашем счете и не может быть снята.";
@@ -803,11 +823,14 @@
 "send_tron_account_activation_error" = "%1$@ — это монета в сети Tron. Чтобы рассчитать комиссию и совершить транзакцию, вам необходимо внести немного Tron (TRX) на свой адрес.";
 "send_validation_destination_tag_required_description" = "Для завершения транзакции на указанный адрес необходим тег назначения (мемо).";
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
+"send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
 "settings_forget_wallet_footer" = "Это приведет к удалению кошелька из приложения. Сам кошелек можно добавить снова.";
 "settings_forget_wallet" = "Забыть кошелек";
 "settings_wallet_name_title" = "Имя";
+"stake_token_description" = "Join staking with this token";
 "staking_active_footer" = "Для завершения стейкинга нажмите на блок выше";
 "staking_active" = "Активно";
 "staking_amount_requirement_error" = "Сумма для стейкинга должна быть не менее %@";
@@ -875,11 +898,11 @@
 "staking_notification_restake_text" = "Рестейк позволяет вам переместить средства из одного валидатора в другого без необходимости выхода из стейкинга.";
 "staking_notification_stake_entire_balance_text" = "Вы собираетесь застейкать весь баланс, рекомендуем оставить небольшую сумму для оплаты комиссии сети при выходе из стейкинга или получении награды.";
 "staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала осуществите исходящую транзакцию на любую сумму — это активирует ваш кошелек.";
-"staking_notification_ton_extra_reserve_info" = "В дополнение к сетевой комиссии может потребоваться до 0.2 TON для завершения всех этапов транзакции. Неиспользованная часть будет возвращена после выполнения.";
+"staking_notification_ton_extra_reserve_info" = "До 0.2 TON может потребоваться сверх сетевой комиссии для завершения транзакции. Неиспользованная часть будет возвращена.";
 "staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
 "staking_notification_ton_extra_reserve_title" = "Зарезервировано 0.2 TON";
-"staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
-"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
+"staking_notification_ton_have_to_unstake_all_text" = "Это действие закроет другие позиции или переведёт их в статус вывода средств в соответствии с правилами сети.";
+"staking_notification_ton_have_to_unstake_all_title" = "Статус позиций";
 "staking_notification_unlock_text" = "Разблокируйте свои средства, чтобы вывести их из стейкинга. Разблокировка займёт %@.";
 "staking_notification_unstake_cosmos_text" = "Ваши средства будут доступны для использования после 21-дневного периода отзыва. Награда будет выведена вместе с вашими выводими средствами.";
 "staking_notification_unstake_text" = "Ваши средства будут доступны после %@ периода отзыва.";
@@ -950,6 +973,7 @@
 "story_web3_title" = "Поддержка Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
+"swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_promo_text" = "Обменивайте больше токенов по лучшим курсам прямо в вашем кошельке.";
 "swap_promo_title" = "Новый провайдер обмена!";
@@ -1027,6 +1051,8 @@
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
 "transaction_history_transaction_validator" = "валидатор: %@";
+"transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
+"transaction_notifications_warning_title" = "Transaction Notifications";
 "transfer_min_amount_error" = "Минимум %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Минимальная сумма транзакции равна %1$@.";
 "tron_will_be_send_token_fee_description" = "Комиссии сети Tron для популярных токенов могут быть выше. Стейкинг TRX может помочь снизить расходы на транзакции.";
@@ -1043,10 +1069,13 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "twins_scan_twin_with_number" = "Приложите twin-карту с номером %@ и не убирайте до окончания операции";
+"unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
+"unexpected_error_title" = "Something went wrong!";
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
+"user_push_notification_agreement_argument_three" = "Get notified of incoming transactions";
 "user_push_notification_agreement_argument_two" = "Узнавайте первым о новых акциях";
 "user_push_notification_agreement_header" = "Хотите использовать Push-уведомления?";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
@@ -1163,7 +1192,7 @@
 "wallet_promo_banner_description" = "Получите доступ к более чем 13 000 криптовалют. Покупайте, продавайте, обменивайте и стейкайте в один клик. Свяжите до трех карт для резервного копирования. ";
 "wallet_promo_banner_title" = "Откройте Tangem Wallet";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Push Notifications";
+"wallet_settings_push_notifications_title" = "Уведомления о транзакциях";
 "wallet_settings_title" = "Настройки кошелька";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту/кольцо, чтобы разблокировать доступ к вашему кошельку";
@@ -1196,6 +1225,8 @@
 "warning_express_notification_invalid_reserve_amount_title" = "Сумма получения не может быть менее %@";
 "warning_express_pair_unavailable_message" = "Это может произойти из-за того, что провайдер временно не предоставляет обмен выбранной вами пары. Пожалуйста, подождите некоторое время и попробуйте снова. (Код %@)";
 "warning_express_pair_unavailable_title" = "Выбранная пара временно недоступна";
+"warning_express_providers_fca_warning_description" = "Some providers are not authorized by the UK Financial Conduct Authority. You should avoid dealing with them.";
+"warning_express_providers_fca_warning_title" = "FCA Warning List";
 "warning_express_refresh_required_title" = "Сервис временно недоступен";
 "warning_express_too_maximum_amount_title" = "Сумма для обмена должна быть не более %@";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
@@ -1233,6 +1264,7 @@
 "warning_rate_app_message" = "Ваш отзыв мотивирует нас сделать кошелек Tangem еще лучше";
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необходимо провести ассоциацию токена для того, чтобы иметь возможность принимать его";
+"warning_receive_blocked_stelar_token_trustline_required_message" = "You must open trustline for your token before receiving it";
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
 "warning_seedphrase_action_required_title" = "Требуется действие";
 "warning_seedphrase_contacted_support" = "Вы обращались в службу поддержки через приложение в течение 7 дней после создания кошелька? Если обращались или не уверены, нажмите «Да» и следуйте инструкциям.";
@@ -1246,6 +1278,10 @@
 "warning_some_networks_unreachable_message" = "Свайпните вниз для обновления или попробуйте позже.";
 "warning_some_networks_unreachable_title" = "Некоторые сети недоступны";
 "warning_some_token_balances_not_updated" = "Некоторые балансы токенов не удалось обновить";
+"warning_stelar_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
+"warning_stellar_token_trustline_button_title" = "Открыть Trustline";
+"warning_stellar_token_trustline_subtiile" = "Согласно правилам сети, чтобы пополнить этот токен, необходимо сначала открыть Trustline — это позволит вашему кошельку принимать и хранить этот актив.";
+"warning_stellar_token_trustline_tiile" = "Откройте Trustline";
 "warning_system_deprecation_title" = "Требуется обновление системы";
 "warning_system_deprecation_with_date_message" = "Поддержка вашей версии операционной системы завершится %@. Для получения последующих обновлений приложения, необходимо обновить ее до последней версии.";
 "warning_system_update_message" = "Tangem рекомендует установить последнее обновление iOS для стабильной и безопасной работы";
@@ -1259,8 +1295,11 @@
 "wc_alert_domain_issues_description" = "This domain cannot be verified. Check the request carefully approving.";
 "wc_alert_session_disconnected_description" = "Пожалуйста, вернитесь в браузер и выполните повторное подключение через WalletConnect.";
 "wc_alert_session_disconnected_title" = "WalletConnect session was disconnected";
+"wc_alert_sign_anyway" = "Sign anyway";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
+"wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
+"wc_alert_unsupported_method_title" = "We've encountered unknown error";
 "wc_alert_unsupported_networks_description" = "Tangem does not currently support a required network by %@.";
 "wc_alert_unsupported_networks_title" = "Unsuported networks";
 "wc_alert_verified_domain_description" = "Tangem support a required network by %@.";
@@ -1270,8 +1309,10 @@
 "wc_allow_to_spend" = "Allow to spend";
 "wc_common_address" = "Адрес";
 "wc_common_connect" = "Подключение";
+"wc_common_loading" = "Loading";
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
+"wc_common_unlimited" = "Unlimited";
 "wc_common_wallet" = "Wallet";
 "wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "Посмотреть баланс кошелька и его активность";
@@ -1287,6 +1328,7 @@
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
 "wc_disconnect_all_alert_title" = "Disconect All dApps";
 "wc_disconnect_all" = "Disconnect all";
+"wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Estimated wallet changes";
 "wc_malicious_transaction" = "Malicious transaction";
 "wc_missing_required_network_description" = "Add the %@ network to your profile for this wallet";
@@ -1297,8 +1339,6 @@
 "wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
 "wc_notification_security_risk_title" = "Known security risk";
 "wc_request_from" = "Запрос от";
-"wc_show_less" = "Show less";
-"wc_show_more" = "Show more";
 "wc_signature_type" = "Тип подписи";
 "wc_transaction_info_to_title" = "На";
 "wc_transaction_request_title" = "Запрос транзакции";

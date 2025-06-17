@@ -22,11 +22,11 @@ public struct NFTEntrypointView: View {
     public var body: some View {
         Button(action: viewModel.openCollections) {
             HStack(spacing: Constants.iconTextsHSpacing) {
-                imageContainer
+                image
+                    .frame(size: Constants.ImageContainer.size)
                 textsView
                 Spacer()
                 chevron
-                    .hidden(viewModel.disabled)
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -34,47 +34,12 @@ public struct NFTEntrypointView: View {
             .cornerRadius(Constants.cornerRadius, corners: .allCorners)
         }
         .buttonStyle(.defaultScaled)
-        .disabled(viewModel.disabled)
-    }
-
-    private var imageContainer: some View {
-        image
-            .frame(size: Constants.ImageContainer.size)
-            .skeletonable(
-                isShown: viewModel.state.isLoading,
-                size: Constants.ImageContainer.size,
-                radius: Constants.imageCornerRadius
-            )
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
     private var image: some View {
         switch viewModel.state {
-        case .loading:
-            Color.clear
-        case .failedToLoad:
-            imageForFailedState
-        case .loaded(let collectionsState):
-            imageForSuccess(collectionsState: collectionsState)
-        }
-    }
-
-    private var imageForFailedState: some View {
-        RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-            .fill(Colors.Field.primary)
-            .overlay {
-                Assets.failedCloud.image
-                    .resizable()
-                    .foregroundStyle(Colors.Icon.informative)
-                    .frame(size: Constants.Failed.imageSize)
-            }
-    }
-
-    @ViewBuilder
-    private func imageForSuccess(
-        collectionsState: NFTEntrypointViewModel.CollectionsViewState
-    ) -> some View {
-        switch collectionsState {
         case .noCollections:
             Assets.Nft.noNFT.image
 
@@ -157,17 +122,12 @@ public struct NFTEntrypointView: View {
     }
 
     private var textsView: some View {
-        VStack(
-            alignment: .leading,
-            spacing: viewModel.state.isLoading ? Constants.Texts.loadingInteritemSpacing : Constants.Texts.interitemSpacing
-        ) {
+        VStack(alignment: .leading, spacing: Constants.Texts.interitemSpacing) {
             Text(viewModel.title)
-                .style(Fonts.Bold.subheadline, color: titleColor)
-                .skeletonable(isShown: viewModel.state.isLoading, size: Constants.Skeleton.titleSize)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             Text(viewModel.subtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .skeletonable(isShown: viewModel.state.isLoading, size: Constants.Skeleton.subtitleSize)
         }
     }
 
@@ -229,17 +189,6 @@ public struct NFTEntrypointView: View {
             }
     }
 
-    private var titleColor: Color {
-        switch viewModel.state {
-        case .loading:
-            .clear
-        case .failedToLoad:
-            Colors.Text.tertiary
-        case .loaded:
-            Colors.Text.primary1
-        }
-    }
-
     private func placeholder(size: CGSize) -> some View {
         RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
             .fill(Colors.Field.primary)
@@ -279,17 +228,11 @@ extension NFTEntrypointView {
             static let dotsImageSize: CGSize = .init(bothDimensions: 9)
         }
 
-        enum Skeleton {
-            static let titleSize: CGSize = .init(width: 112, height: 12)
-            static let subtitleSize: CGSize = .init(width: 80, height: 12)
-        }
-
         enum Failed {
             static let imageSize: CGSize = .init(bothDimensions: 20)
         }
 
         enum Texts {
-            static let loadingInteritemSpacing: CGFloat = 9
             static let interitemSpacing: CGFloat = 2
         }
 
@@ -303,43 +246,14 @@ extension NFTEntrypointView {
 }
 
 #if DEBUG
-#Preview("Loading") {
-    ZStack {
-        Colors.Field.primary
-        NFTEntrypointView(
-            viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loading
-                ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
-                coordinator: nil
-            )
-        )
-        .padding(.horizontal, 16)
-    }
-}
-
-#Preview("Failed") {
-    ZStack {
-        Colors.Field.primary
-        NFTEntrypointView(
-            viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())),
-                navigationContext: NFTEntrypointNavigationContextMock(),
-                coordinator: nil
-            )
-        )
-        .padding(.horizontal, 16)
-    }
-}
-
 #Preview("No collections") {
     ZStack {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -374,7 +288,8 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -409,7 +324,8 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -444,7 +360,8 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -479,7 +396,8 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -514,7 +432,8 @@ extension NFTEntrypointView {
                         )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )

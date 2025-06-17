@@ -23,7 +23,7 @@ class SecurityOptionChangingCardInteractor {
 
     init(with cardInfo: CardInfo) {
         cardId = cardInfo.card.cardId
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         canSetLongTap = config.hasFeature(.longTap)
         canSetAccessCode = config.hasFeature(.accessCode)
         canSetPasscode = config.hasFeature(.passcode)
