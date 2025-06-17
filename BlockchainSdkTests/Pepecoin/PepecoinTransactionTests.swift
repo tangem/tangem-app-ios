@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Testing
 @testable import BlockchainSdk
 
@@ -16,7 +15,8 @@ struct PepecoinTransactionTests {
     func transaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let pubKey = Data(hexString: "02da14053570364309e696c3d20bdc18a59c6c2b429ee082bfc3fdf168a9c9f0e5")
-        let addressService = BitcoinLegacyAddressService(networkParams: PepecoinMainnetNetworkParams())
+
+        let addressService = AddressServiceFactory(blockchain: .pepecoin(testnet: false)).makeAddressService()
         let address = try addressService.makeAddress(from: pubKey, type: .default)
         let unspentOutputManager: UnspentOutputManager = .pepecoin(address: address, isTestnet: false)
 
@@ -32,8 +32,11 @@ struct PepecoinTransactionTests {
         )
 
         let transaction = Transaction(
-            amount: Amount(with: .clore, value: Decimal(stringValue: "0.9812416")!),
-            fee: Fee(.init(with: .clore, value: Decimal(stringValue: "0.0187584")!), parameters: BitcoinFeeParameters(rate: 9770)),
+            amount: Amount(with: .pepecoin(testnet: false), value: Decimal(stringValue: "0.9812416")!),
+            fee: Fee(
+                .init(with: .pepecoin(testnet: false), value: Decimal(stringValue: "0.0187584")!),
+                parameters: BitcoinFeeParameters(rate: 9770)
+            ),
             sourceAddress: address.value,
             destinationAddress: "PgeUfAwdEYgrD8ZG87MVHVg5Hkp94cmAHu",
             changeAddress: address.value

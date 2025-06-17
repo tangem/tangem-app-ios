@@ -281,7 +281,7 @@
 "exсhange_token_description" = "ポートフォリオ内のアセットをこのトークンと交換する";
 "express_by_provider_placeholder" = "提供元 %@";
 "express_cex_status_button_title" = "ステータス";
-"express_choose_provider" = "Choose provider";
+"express_choose_provider" = "プロバイダーを選択";
 "express_choose_providers_subtitle" = "プロバイダーが取引を促進します";
 "express_choose_providers_title" = "プロバイダー";
 "express_error_provider_amount_roundup" = "エラー%1$@ 。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
@@ -775,6 +775,9 @@
 "send_max_fee" = "最大手数料";
 "send_memo_destination_tag_error" = "無効なメモ";
 "send_network_fee_warning_title" = "ネットワーク手数料のカバー";
+"send_nonce_footer" = "各取引に固有の番号です。保留中の取引を再送信またはキャンセルするために使用します。";
+"send_nonce_hint" = "ナンスを入力してください...";
+"send_nonce" = "ナンス";
 "send_notification_exceed_balance_text" = "手数料と送金額の合計が残高を超えているため、送金に必要な資金が不足しています。";
 "send_notification_exceed_balance_title" = "合計が残高を超えています";
 "send_notification_existential_deposit_text" = "セキュリティリスクを防ぐため、ブロックチェーン上にアカウントを維持するには、少なくとも%@ の残高が必要です。この金額は残高に残り、引き出すことはできません。";
@@ -1292,7 +1295,7 @@
 "wc_alert_domain_issues_description" = "このドメインは検証できません。承認前にリクエスト内容をよく確認してください。";
 "wc_alert_session_disconnected_description" = "ブラウザに戻り、WalletConnect経由で再接続してください。";
 "wc_alert_session_disconnected_title" = "WalletConnectセッションが接続解除されました";
-"wc_alert_sign_anyway" = "Sign anyway";
+"wc_alert_sign_anyway" = "とにかくサインする";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
