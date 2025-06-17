@@ -39,3 +39,9 @@ extension WalletModel {
         return balanceValue
     }
 }
+
+extension WalletModel {
+    var allowanceProvider: any AllowanceProvider {
+        return CommonAllowanceProvider(tokenItem: tokenItem, allowanceChecker: allowanceChecker)
+    }
+}
