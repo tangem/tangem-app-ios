@@ -196,10 +196,15 @@ extension StellarWalletManager: RequiredMemoRestrictable {
             return
         }
 
-        let isMemoRequired = try await networkService.checkIsMemoRequired(for: destination).async()
+        do {
+            let isMemoRequired = try await networkService.checkIsMemoRequired(for: destination).async()
 
-        if isMemoRequired {
-            throw ValidationError.destinationMemoRequired
+            if isMemoRequired {
+                throw ValidationError.destinationMemoRequired
+            }
+
+        } catch HorizonRequestError.notFound {
+            // If the destination account is not created, we can't check that a memo is required
         }
     }
 }
