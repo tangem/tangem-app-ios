@@ -3952,19 +3952,6 @@
 		2DC5677A2B0E047700B0244F /* MainBottomSheetUIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainBottomSheetUIManager.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
-		2DCDE43B2DE60D7E007ECD34 /* ApplicationWalletEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationWalletEntry.swift; sourceTree = "<group>"; };
-		2DCDE43C2DE60D7E007ECD34 /* UserWalletPushNotifyStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletPushNotifyStatus.swift; sourceTree = "<group>"; };
-		2DCDE43E2DE60D7E007ECD34 /* CommonPushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsInteractor.swift; sourceTree = "<group>"; };
-		2DCDE43F2DE60D7E007ECD34 /* PushNotificationsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProvider.swift; sourceTree = "<group>"; };
-		2DCDE4402DE60D7E007ECD34 /* PushNotificationsHelpersFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsHelpersFactory.swift; sourceTree = "<group>"; };
-		2DCDE4412DE60D7E007ECD34 /* PushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsInteractor.swift; sourceTree = "<group>"; };
-		2DCDE4422DE60D7E007ECD34 /* PushNotificationsPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManager.swift; sourceTree = "<group>"; };
-		2DCDE4432DE60D7E007ECD34 /* PushNotificationsPermissionRequestFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestFlow.swift; sourceTree = "<group>"; };
-		2DCDE4452DE60D7E007ECD34 /* PushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE4472DE60D7E007ECD34 /* CommonUserTokensPushNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokensPushNotificationsManager.swift; sourceTree = "<group>"; };
-		2DCDE4482DE60D7E007ECD34 /* CommonUserTokensPushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokensPushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE4492DE60D7E007ECD34 /* UserTokensPushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensPushNotificationsService.swift; sourceTree = "<group>"; };
-		2DCDE44A2DE60D7E007ECD34 /* UserTokensPushNotifificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensPushNotifificationsManager.swift; sourceTree = "<group>"; };
 		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponseDTO.swift; sourceTree = "<group>"; };
@@ -7421,26 +7408,6 @@
 			path = Chiliz;
 			sourceTree = "<group>";
 		};
-		2D3023382DF092AC00B4FFE6 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2DCDE4472DE60D7E007ECD34 /* CommonUserTokensPushNotificationsManager.swift */,
-				2DCDE43E2DE60D7E007ECD34 /* CommonPushNotificationsInteractor.swift */,
-				2DCDE4422DE60D7E007ECD34 /* PushNotificationsPermissionManager.swift */,
-				2DCDE4402DE60D7E007ECD34 /* PushNotificationsHelpersFactory.swift */,
-				2DCDE43B2DE60D7E007ECD34 /* ApplicationWalletEntry.swift */,
-				2DCDE43C2DE60D7E007ECD34 /* UserWalletPushNotifyStatus.swift */,
-				2DCDE4412DE60D7E007ECD34 /* PushNotificationsInteractor.swift */,
-				2DCDE4492DE60D7E007ECD34 /* UserTokensPushNotificationsService.swift */,
-				2DCDE4432DE60D7E007ECD34 /* PushNotificationsPermissionRequestFlow.swift */,
-				2DCDE44A2DE60D7E007ECD34 /* UserTokensPushNotifificationsManager.swift */,
-				2DCDE4482DE60D7E007ECD34 /* CommonUserTokensPushNotificationsService.swift */,
-				2DCDE4452DE60D7E007ECD34 /* PushNotificationsService.swift */,
-				2DCDE43F2DE60D7E007ECD34 /* PushNotificationsAvailabilityProvider.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2D30233B2DF093B500B4FFE6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -8291,7 +8258,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2D3023382DF092AC00B4FFE6 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
