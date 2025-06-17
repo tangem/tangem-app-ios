@@ -9,7 +9,12 @@
 import Foundation
 
 public protocol ExpressWallet {
-    var expressCurrency: ExpressCurrency { get }
+    var expressCurrency: ExpressWalletCurrency { get }
+    var expressFeeCurrency: ExpressWalletCurrency { get }
+    var expressFeeProvider: FeeProvider { get }
+    var expressAllowanceProvider: AllowanceProvider { get }
+    var expressBalanceProvider: any BalanceProvider { get }
+
     var defaultAddressString: String { get }
     var decimalCount: Int { get }
 

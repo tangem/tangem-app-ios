@@ -3166,6 +3166,11 @@
 		EF8BE6BD2CCA994F001FBA2B /* OnrampRedirectDataRequestItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8BE6BC2CCA9941001FBA2B /* OnrampRedirectDataRequestItem.swift */; };
 		EF8BE6C02CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8BE6BF2CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift */; };
 		EF8BE6C42CCB95D7001FBA2B /* OnrampRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8BE6C32CCB95D7001FBA2B /* OnrampRoutable.swift */; };
+		EF8D25AD2E0015B2000AB410 /* ExpressWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25AC2E0015B2000AB410 /* ExpressWalletModel.swift */; };
+		EF8D25AF2E0071D7000AB410 /* BalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25AE2E0071D7000AB410 /* BalanceProvider.swift */; };
+		EF8D25B22E007B62000AB410 /* ExpressSourceWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25B12E007B62000AB410 /* ExpressSourceWallet.swift */; };
+		EF8D25B42E007B69000AB410 /* ExpressDestinationWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25B32E007B69000AB410 /* ExpressDestinationWallet.swift */; };
+		EF8D25B62E007DC8000AB410 /* ExpressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D25B52E007DC8000AB410 /* ExpressFactory.swift */; };
 		EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */; };
 		EF8DBCDD2C060A03009072CF /* StakingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBCDC2C060A03009072CF /* StakingManager.swift */; };
 		EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBCDF2C060CCE009072CF /* StakingDependenciesFactory.swift */; };
@@ -6823,6 +6828,11 @@
 		EF8BE6BC2CCA9941001FBA2B /* OnrampRedirectDataRequestItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRedirectDataRequestItem.swift; sourceTree = "<group>"; };
 		EF8BE6BF2CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampDataRepository.swift; sourceTree = "<group>"; };
 		EF8BE6C32CCB95D7001FBA2B /* OnrampRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRoutable.swift; sourceTree = "<group>"; };
+		EF8D25AC2E0015B2000AB410 /* ExpressWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressWalletModel.swift; sourceTree = "<group>"; };
+		EF8D25AE2E0071D7000AB410 /* BalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceProvider.swift; sourceTree = "<group>"; };
+		EF8D25B12E007B62000AB410 /* ExpressSourceWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSourceWallet.swift; sourceTree = "<group>"; };
+		EF8D25B32E007B69000AB410 /* ExpressDestinationWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDestinationWallet.swift; sourceTree = "<group>"; };
+		EF8D25B52E007DC8000AB410 /* ExpressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFactory.swift; sourceTree = "<group>"; };
 		EF8D780E2981458500B67418 /* UserTokenListManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManagerMock.swift; sourceTree = "<group>"; };
 		EF8DBCDC2C060A03009072CF /* StakingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManager.swift; sourceTree = "<group>"; };
 		EF8DBCDF2C060CCE009072CF /* StakingDependenciesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDependenciesFactory.swift; sourceTree = "<group>"; };
@@ -10101,6 +10111,8 @@
 		B0BB97282B18653B00053954 /* ExpressInteractor */ = {
 			isa = PBXGroup;
 			children = (
+				EF8D25B52E007DC8000AB410 /* ExpressFactory.swift */,
+				EF8D25AC2E0015B2000AB410 /* ExpressWalletModel.swift */,
 				B0BB97292B18653B00053954 /* ExpressInteractor.swift */,
 			);
 			path = ExpressInteractor;
@@ -17932,6 +17944,15 @@
 			path = OnrampDataRepository;
 			sourceTree = "<group>";
 		};
+		EF8D25B02E007B5D000AB410 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EF8D25B12E007B62000AB410 /* ExpressSourceWallet.swift */,
+				EF8D25B32E007B69000AB410 /* ExpressDestinationWallet.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 		EF8DBCDB2C0609F5009072CF /* StakingManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -18074,6 +18095,7 @@
 				EF6ECA5F2D4821C500415F23 /* ExpressLogger.swift */,
 				EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */,
 				EF9E29ED2B4F0CCF00418559 /* Factory */,
+				EF8D25B02E007B5D000AB410 /* Types */,
 				EF9E29EF2B4F0CCF00418559 /* Interfaces */,
 				EF9E29F52B4F0CCF00418559 /* Manager */,
 				EF9E29DC2B4F0CCE00418559 /* Models */,
@@ -18189,6 +18211,7 @@
 				EF9E29F22B4F0CCF00418559 /* AllowanceProvider.swift */,
 				EF9E29F32B4F0CCF00418559 /* ExpressExchangeDataDecoder.swift */,
 				EF9E29F42B4F0CCF00418559 /* ExpressRepository.swift */,
+				EF8D25AE2E0071D7000AB410 /* BalanceProvider.swift */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -20072,6 +20095,7 @@
 				C274DFC92DDE37C600B1D97B /* AVWalletConnectCameraAccessProvider.swift in Sources */,
 				C274DFCA2DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift in Sources */,
 				DA8C67332B0B451F00E1C9B8 /* AmountSummaryView.swift in Sources */,
+				EF8D25B62E007DC8000AB410 /* ExpressFactory.swift in Sources */,
 				B69F0EE32DD39A4D00997631 /* NFTSendAmountValidator.swift in Sources */,
 				2DB648862C35877000DA100D /* MarketsPickerView.swift in Sources */,
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
@@ -23018,6 +23042,7 @@
 				EF9E2A1A2B4F0CD100418559 /* ExpressAPIService.swift in Sources */,
 				EFDD6EDD2CBCF3EA00804205 /* ExpressProviderUpdateSource.swift in Sources */,
 				EF9E2A372B4F0CD100418559 /* ExpressManagerSwappingPairRequest.swift in Sources */,
+				EF8D25B42E007B69000AB410 /* ExpressDestinationWallet.swift in Sources */,
 				EF9E2A382B4F0CD100418559 /* ExpressManager.swift in Sources */,
 				EF9E2A2A2B4F0CD100418559 /* ExpressTransactionStatus.swift in Sources */,
 				EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */,
@@ -23053,6 +23078,7 @@
 				EF49C0632CAD85A00062AF06 /* OnrampCountry.swift in Sources */,
 				EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */,
 				EF9E2A1E2B4F0CD100418559 /* ExpressQuote.swift in Sources */,
+				EF8D25B22E007B62000AB410 /* ExpressSourceWallet.swift in Sources */,
 				EF9E2A332B4F0CD100418559 /* ExpressProviderManagerState.swift in Sources */,
 				EF9E2A152B4F0CD100418559 /* ExpressAPIMapper.swift in Sources */,
 				EF6ECA602D4821CB00415F23 /* ExpressLogger.swift in Sources */,
@@ -23066,6 +23092,7 @@
 				EF1399702CBCFD3100AC9E2B /* OnrampProvider.swift in Sources */,
 				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
 				EF49C05D2CAD70320062AF06 /* OnrampManager.swift in Sources */,
+				EF8D25AF2E0071D7000AB410 /* BalanceProvider.swift in Sources */,
 				EF49C0672CAD85C80062AF06 /* OnrampCurrency.swift in Sources */,
 				EFC9901A2CD4F0A90098B7C8 /* CommonOnrampProviderManager.swift in Sources */,
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,

@@ -13,6 +13,8 @@ public enum ExpressManagerError: String, LocalizedError {
     case contractAddressNotFound
     case availablePairNotFound
     case pairNotFound
+    case sourceNotFound
+    case destinationNotFound
     case selectedProviderNotFound
     case quotesNotFound
     case availableQuotesForProviderNotFound
@@ -25,6 +27,8 @@ public enum ExpressManagerError: String, LocalizedError {
         case .contractAddressNotFound: "Contract address not found"
         case .availablePairNotFound: "Available pair not found"
         case .pairNotFound: "Pair not found"
+        case .sourceNotFound: "Source not found"
+        case .destinationNotFound: "Destination not found"
         case .selectedProviderNotFound: "Selected provider not found"
         case .quotesNotFound: "Quotes not found"
         case .availableQuotesForProviderNotFound: "Available quotes for provider not found"

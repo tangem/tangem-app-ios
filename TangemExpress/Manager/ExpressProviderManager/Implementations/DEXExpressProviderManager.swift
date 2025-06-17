@@ -71,7 +71,8 @@ private extension DEXExpressProviderManager {
                 return restriction
             }
 
-            let data = try await expressAPIProvider.exchangeData(item: item)
+            let dataItem = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
+            let data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
             return try await proceed(request: request, quote: quote, data: data)
@@ -97,7 +98,7 @@ private extension DEXExpressProviderManager {
     func checkRestriction(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote) async -> ExpressProviderManagerState? {
         // Check Balance
         do {
-            let sourceBalance = try request.pair.source.getBalance()
+            let sourceBalance = try request.pair.source.balanceProvider.getBalance()
             let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
             if isNotEnoughBalanceForSwapping {
@@ -116,7 +117,7 @@ private extension DEXExpressProviderManager {
         // Check Permission
         if let spender = quote.allowanceContract {
             do {
-                let allowanceState = try await allowanceProvider.allowanceState(request: request, spender: spender)
+                let allowanceState = try await request.pair.source.allowanceProvider.allowanceState(request: request, spender: spender)
 
                 switch allowanceState {
                 case .enoughAllowance:
@@ -137,7 +138,7 @@ private extension DEXExpressProviderManager {
     }
 
     func proceed(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState {
-        if data.txValue > request.pair.source.getFeeCurrencyBalance() {
+        if data.txValue > request.pair.source.balanceProvider.getFeeCurrencyBalance() {
             let estimateFee = try await estimateFee(request: request, data: data)
             return .restriction(estimateFee, quote: quote)
         }
@@ -155,7 +156,7 @@ private extension DEXExpressProviderManager {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
-            let estimateFee = try await feeProvider.estimatedFee(estimatedGasLimit: estimatedGasLimit)
+            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(estimatedGasLimit: estimatedGasLimit)
             let estimateTxValue = otherNativeFee + estimateFee.amount.value
 
             return .feeCurrencyInsufficientBalanceForTxValue(estimateTxValue)
@@ -170,7 +171,7 @@ private extension DEXExpressProviderManager {
             throw ExpressProviderError.transactionDataNotFound
         }
 
-        var variants = try await feeProvider.getFee(
+        var variants = try await request.pair.source.feeProvider.getFee(
             amount: .dex(txValue: data.txValue, txData: txData),
             destination: data.destinationAddress
         )

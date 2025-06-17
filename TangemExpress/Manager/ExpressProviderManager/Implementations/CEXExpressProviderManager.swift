@@ -48,12 +48,12 @@ extension CEXExpressProviderManager: ExpressProviderManager {
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
+        let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
         try Task.checkCancellation()
 
         let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
         let request = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
-        let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id, providerType: provider.type)
+        let item = try mapper.makeExpressSwappableDataItem(request: request, providerId: provider.id, providerType: provider.type)
 
         let data = try await expressAPIProvider.exchangeData(item: item)
         try Task.checkCancellation()
@@ -78,7 +78,7 @@ private extension CEXExpressProviderManager {
                 return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
             }
 
-            let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
+            let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
             try Task.checkCancellation()
 
             let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
@@ -144,7 +144,7 @@ private extension CEXExpressProviderManager {
     }
 
     func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) throws -> Bool {
-        let sourceBalance = try request.pair.source.getBalance()
+        let sourceBalance = try request.pair.source.balanceProvider.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         return isNotEnoughBalanceForSwapping
@@ -156,7 +156,7 @@ private extension CEXExpressProviderManager {
             return 0
         }
 
-        let balance = try request.pair.source.getBalance()
+        let balance = try request.pair.source.balanceProvider.getBalance()
         let fee = estimatedFee.fee(option: request.feeOption).amount.value
         let fullAmount = request.amount + fee
 
