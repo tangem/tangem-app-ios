@@ -11,7 +11,7 @@ import struct Commons.AnyCodable
 
 protocol WalletConnectHandlersCreator: AnyObject {
     func createHandler(
-        for action: WalletConnectAction,
+        for action: WalletConnectMethod,
         with params: AnyCodable,
         blockchainId: String,
         signer: TangemSigner,
@@ -35,7 +35,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     }
 
     func createHandler(
-        for action: WalletConnectAction,
+        for action: WalletConnectMethod,
         with params: AnyCodable,
         blockchainId: String,
         signer: TangemSigner,

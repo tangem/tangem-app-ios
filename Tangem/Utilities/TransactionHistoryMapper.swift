@@ -248,6 +248,8 @@ private extension TransactionHistoryMapper {
             return .failed
         case .unconfirmed:
             return .inProgress
+        case .undefined:
+            return .undefined
         }
     }
 

@@ -15,6 +15,8 @@ import TangemLocalization
 public struct NFTNetworkSelectionListView: View {
     @ObservedObject private var viewModel: NFTNetworkSelectionListViewModel
 
+    @State private var searchFieldDisplayMode: SearchFieldPlacement.NavigationBarDrawerDisplayMode = .always
+
     public var body: some View {
         listContent
             .toolbar {
@@ -27,9 +29,13 @@ public struct NFTNetworkSelectionListView: View {
                 }
             }
             .background(Colors.Background.tertiary)
-            .onAppear(perform: viewModel.onViewAppear)
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer)
+            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: searchFieldDisplayMode))
             .bindAlert($viewModel.alert)
+            .onAppear {
+                viewModel.onViewAppear()
+                // Workaround for iOS 17 bug with incorrect search field layout in navigation bar drawer on initial appear
+                searchFieldDisplayMode = .automatic
+            }
     }
 
     private var navigationBarTitle: some View {
@@ -112,6 +118,7 @@ public struct NFTNetworkSelectionListView: View {
                 dataSource: NFTNetworkSelectionListDataSourceMock(),
                 tokenIconInfoProvider: NFTTokenIconInfoProviderMock(),
                 nftChainNameProviding: NFTChainNameProviderMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )

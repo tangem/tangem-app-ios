@@ -28,8 +28,14 @@ struct CommonSendFinishAnalyticsLogger: SendFinishAnalyticsLogger {
             selectedFee: sendFeeInput?.selectedFee.option
         )
 
-        Analytics.log(event: .sendTransactionSentScreenOpened, params: [
+        let event: Analytics.Event = switch tokenItem.token?.metadata.kind {
+        case .nonFungible: .nftSentScreenOpened
+        default: .sendTransactionSentScreenOpened
+        }
+
+        Analytics.log(event: event, params: [
             .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeTypeAnalyticsParameter.rawValue,
         ])
     }

@@ -85,6 +85,7 @@ extension ProviderRowViewModel {
 
     enum Badge: String, Hashable {
         case permissionNeeded
+        case fcaWarning
         case bestRate
         case recommended
     }

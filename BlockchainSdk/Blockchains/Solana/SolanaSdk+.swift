@@ -119,7 +119,6 @@ extension Api {
 
                 getTokenAccountsByOwner(pubkey: pubkey, mint: mint, programId: programId, configs: configs) {
                     (result: Result<[T], Error>) in
-
                     switch result {
                     case .failure(let error):
                         promise(.failure(error))

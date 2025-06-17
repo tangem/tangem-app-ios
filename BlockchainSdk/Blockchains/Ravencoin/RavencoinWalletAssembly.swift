@@ -14,7 +14,8 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
 
         let txBuilder = BitcoinTransactionBuilder(
             network: input.wallet.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
-            unspentOutputManager: unspentOutputManager
+            unspentOutputManager: unspentOutputManager,
+            builderType: .walletCore(.ravencoin)
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)

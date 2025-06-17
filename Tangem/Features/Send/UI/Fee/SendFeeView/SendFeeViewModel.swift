@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 import SwiftUI
 import Combine
-import struct BlockchainSdk.Fee
+import BlockchainSdk
 import TangemFoundation
 
 class SendFeeViewModel: ObservableObject, Identifiable {
@@ -37,6 +37,8 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
+    private let tokenItem: TokenItem
+    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
     private var bag: Set<AnyCancellable> = []
 
@@ -49,13 +51,16 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         settings: Settings,
         interactor: SendFeeInteractor,
         notificationManager: NotificationManager,
-        router: SendFeeRoutable
+        router: SendFeeRoutable,
+        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
     ) {
         feeTokenItem = settings.feeTokenItem
+        tokenItem = settings.tokenItem
 
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.router = router
+        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
 
         bind()
     }
@@ -157,7 +162,21 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         }
 
         selectedFeeOption = fee.option
+
+        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: interactor.selectedFee?.option)
+        let event: Analytics.Event = switch tokenKind {
+        case .fungible, .none:
+            .sendFeeSelected
+        case .nonFungible:
+            .nftFeeSelected
+        }
+
+        Analytics.log(event: event, params: [.feeType: feeType.rawValue])
         interactor.update(selectedFee: fee)
+    }
+
+    private var tokenKind: TokenMetadata.Kind? {
+        tokenItem.token?.metadata.kind
     }
 }
 
@@ -169,16 +188,38 @@ extension SendFeeViewModel: SendStepViewAnimatable {
         case .appearing(.summary(_)):
             // Will be shown with animation
             auxiliaryViewsVisible = false
+
+            switch tokenKind {
+            case .nonFungible:
+                logNFTFeeScreenOpening()
+            case .fungible, .none:
+                Analytics.log(.sendScreenReopened, params: [.source: .fee])
+            }
+
+        case .appearing:
+            switch tokenKind {
+            case .nonFungible:
+                logNFTFeeScreenOpening()
+            case .fungible, .none:
+                Analytics.log(.sendFeeScreenOpened)
+            }
+
         case .disappearing(.summary(_)):
             auxiliaryViewsVisible = false
+
         default:
             break
         }
+    }
+
+    private func logNFTFeeScreenOpening() {
+        Analytics.log(.nftCommissionScreenOpened)
     }
 }
 
 extension SendFeeViewModel {
     struct Settings {
         let feeTokenItem: TokenItem
+        let tokenItem: TokenItem
     }
 }

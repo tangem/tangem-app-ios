@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
 
 @MainActor

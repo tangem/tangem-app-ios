@@ -17,7 +17,6 @@ class SendFeeStep {
     private let interactor: SendFeeInteractor
     private let notificationManager: NotificationManager
     private let feeTokenItem: TokenItem
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
     /// We have to use this `SendViewAlertPresenter`
     /// Because .alert(item:) doesn't work in the nested views
@@ -27,14 +26,12 @@ class SendFeeStep {
         viewModel: SendFeeViewModel,
         interactor: SendFeeInteractor,
         notificationManager: NotificationManager,
-        feeTokenItem: TokenItem,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+        feeTokenItem: TokenItem
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.feeTokenItem = feeTokenItem
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
     }
 
     func set(alertPresenter: SendViewAlertPresenter) {
@@ -49,12 +46,16 @@ extension SendFeeStep: SendStep {
 
     var type: SendStepType { .fee(viewModel) }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
+
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
     }
 
+    // [REDACTED_TODO_COMMENT]
     func canBeClosed(continueAction: @escaping () -> Void) -> Bool {
         let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
         for event in events {
@@ -84,19 +85,7 @@ extension SendFeeStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
-        if step.type.isSummary {
-            Analytics.log(.sendScreenReopened, params: [.source: .fee])
-        } else {
-            Analytics.log(.sendFeeScreenOpened)
-        }
-
         interactor.updateFees()
-    }
-
-    func willDisappear(next step: SendStep) {
-        // We have to send this event when user move on the next step
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: interactor.selectedFee?.option)
-        Analytics.log(event: .sendFeeSelected, params: [.feeType: feeType.rawValue])
     }
 }
 

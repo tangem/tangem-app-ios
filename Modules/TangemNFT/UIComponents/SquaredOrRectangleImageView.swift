@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  TangemModules
+//  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -11,13 +11,17 @@ import Kingfisher
 import TangemUIUtils
 import TangemUI
 import TangemAssets
+import TangemFoundation
 
 struct SquaredOrRectangleImageView: View {
+    private typealias LoadingState = LoadingValue<Void>
+
     private let media: NFTMedia?
+    private var cornerRadius = Constants.defaultCornerRadius
 
     @State private var containerSize: CGSize = .zero
     @State private var originalSize: CGSize = .zero
-    @State private var loadingFailed = false
+    @State private var loadingState: LoadingState = .loading
 
     init(media: NFTMedia?) {
         self.media = media
@@ -26,7 +30,6 @@ struct SquaredOrRectangleImageView: View {
     var body: some View {
         background
             .overlay(image.scaledToFit())
-            .frame(maxWidth: .infinity)
             .readGeometry(\.frame.width) {
                 containerSize = .init(bothDimensions: $0)
             }
@@ -34,16 +37,17 @@ struct SquaredOrRectangleImageView: View {
 
     private var background: some View {
         Colors.Field.focused
-            .frame(size: containerSize)
-            .cornerRadiusContinuous(Constants.cornerRadius)
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
+            .cornerRadiusContinuous(cornerRadius)
     }
 
     @ViewBuilder
     private var image: some View {
-        if let media, !loadingFailed {
+        if let media, loadingState.error == nil {
             makeMedia(media)
                 .if(isSquare) {
-                    $0.cornerRadius(Constants.cornerRadius, corners: .allCorners)
+                    $0.cornerRadius(cornerRadius, corners: .allCorners)
                 }
         } else {
             downloadFailedPlaceholder
@@ -62,14 +66,11 @@ struct SquaredOrRectangleImageView: View {
         }
     }
 
-    private var loadingPlaceholder: some View {
-        Color.clear
-            .skeletonable(isShown: true, width: containerSize.width, height: containerSize.height)
-    }
-
     private var downloadFailedPlaceholder: some View {
         Assets.Nft.assetImagePlaceholder.image
             .resizable()
+            .renderingMode(.template)
+            .foregroundStyle(Colors.Icon.primary1)
             .frame(width: containerSize.width / 3, height: containerSize.height / 3)
     }
 
@@ -80,28 +81,39 @@ struct SquaredOrRectangleImageView: View {
     private func buildKFImage<V: KFImageProtocol>(_ image: V) -> some View {
         image
             .cancelOnDisappear(true)
-            .placeholder { loadingPlaceholder }
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .onSuccess { r in
-                loadingFailed = false
+                loadingState = .loaded(())
                 originalSize = r.image.size
             }
-            .onFailure { _ in
-                loadingFailed = true
+            .onFailure {
+                loadingState = .failedToLoad(error: $0)
             }
+            .skeletonable(
+                isShown: loadingState.isLoading,
+                radius: cornerRadius
+            )
     }
 }
 
-private enum Constants {
-    static let cornerRadius: CGFloat = 14
-}
+// MARK: - Constants
 
 extension SquaredOrRectangleImageView {
     enum Constants {
-        static let cornerRadius: CGFloat = 14
+        static let defaultCornerRadius: CGFloat = 14.0
     }
 }
+
+// MARK: - Setupable protocol conformance
+
+extension SquaredOrRectangleImageView: Setupable {
+    func cornerRadius(_ cornerRadius: CGFloat) -> Self {
+        map { $0.cornerRadius = cornerRadius }
+    }
+}
+
+// MARK: - Previews
 
 #if DEBUG
 #Preview("Gif") {

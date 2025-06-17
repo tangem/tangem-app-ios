@@ -31,3 +31,11 @@ extension ChilizExternalLinkProvider: ExternalLinkProvider {
         URL(string: "\(baseExplorerUrl)/tx/\(hash)")
     }
 }
+
+// MARK: - NFTExternalLinksProvider
+
+extension ChilizExternalLinkProvider: NFTExternalLinksProvider {
+    func url(tokenAddress: String, tokenID: String, contractType: String) -> URL? {
+        URL(string: "\(baseExplorerUrl)/nft/\(tokenAddress)/\(tokenID)")
+    }
+}

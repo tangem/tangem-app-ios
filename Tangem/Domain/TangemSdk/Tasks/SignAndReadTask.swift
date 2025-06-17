@@ -8,43 +8,53 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
 
 class SignAndReadTask: CardSessionRunnable {
-    let hashes: [Data]
-    let walletPublicKey: Data
-    let pairWalletPublicKey: Data?
-    let derivationPath: DerivationPath?
+    private let hashes: [Data]
+    private let seedKey: Data
+    private let pairWalletPublicKey: Data?
+    private let hdKey: HDKey?
+
     private var signCommand: SignHashesCommand?
 
-    init(hashes: [Data], walletPublicKey: Data, pairWalletPublicKey: Data?, derivationPath: DerivationPath?) {
+    init(hashes: [Data], seedKey: Data, pairWalletPublicKey: Data?, hdKey: HDKey?) {
         self.hashes = hashes
-        self.walletPublicKey = walletPublicKey
+        self.seedKey = seedKey
         self.pairWalletPublicKey = pairWalletPublicKey
-        self.derivationPath = derivationPath
+        self.hdKey = hdKey
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
-        sign(in: session, key: walletPublicKey) { result in
-            switch result {
+        sign(in: session, key: seedKey, hdKey: hdKey) { signResult in
+            switch signResult {
             case .success(let response):
                 completion(.success(response))
+            case .failure(TangemSdkError.walletNotFound):
+                self.signWithPairWalletPublicKey(in: session, completion: completion)
             case .failure(let error):
-                if let pairWalletPublicKey = self.pairWalletPublicKey,
-                   case TangemSdkError.walletNotFound = error {
-                    self.sign(in: session, key: pairWalletPublicKey, completion: completion)
-                } else {
-                    completion(.failure(error))
-                }
+                completion(.failure(error))
             }
         }
     }
 
-    private func sign(in session: CardSession, key: Data, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
-        signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: key, derivationPath: derivationPath)
+    private func signWithPairWalletPublicKey(in session: CardSession, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
+        guard let pairWalletPublicKey else {
+            completion(.failure(TangemSdkError.walletNotFound))
+            return
+        }
+
+        // We don't have derivation for `Twin` cards
+        sign(in: session, key: pairWalletPublicKey, hdKey: .none, completion: completion)
+    }
+
+    private func sign(in session: CardSession, key: Data, hdKey: HDKey?, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
+        signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: key, derivationPath: hdKey?.derivationPath)
         signCommand!.run(in: session) { signResult in
             switch signResult {
             case .success(let signResponse):
-                completion(.success(SignAndReadTaskResponse(publicKey: key, signatures: signResponse.signatures, card: session.environment.card!)))
+                let publicKey = hdKey?.blockchainKey ?? key
+                completion(.success(SignAndReadTaskResponse(publicKey: publicKey, signatures: signResponse.signatures, card: session.environment.card!)))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -53,6 +63,11 @@ class SignAndReadTask: CardSessionRunnable {
 }
 
 extension SignAndReadTask {
+    struct HDKey {
+        let blockchainKey: Data
+        let derivationPath: DerivationPath
+    }
+
     struct SignAndReadTaskResponse {
         let publicKey: Data
         let signatures: [Data]

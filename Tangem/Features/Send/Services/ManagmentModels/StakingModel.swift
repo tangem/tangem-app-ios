@@ -303,8 +303,11 @@ private extension StakingModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [.token: tokenItem.currencySymbol])
+        case .sendTxError(_, let error):
+            Analytics.log(event: .stakingErrorTransactionRejected, params: [
+                .token: tokenItem.currencySymbol,
+                .errorCode: "\(error.universalErrorCode)",
+            ])
         }
     }
 }

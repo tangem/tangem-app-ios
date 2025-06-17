@@ -64,11 +64,11 @@ class CommonStakingStepsManager {
         return last ?? initialState.step
     }
 
-    private func getNextStep() -> (SendStep)? {
+    private func getNextStep() -> SendStep? {
         switch currentStep().type {
         case .amount:
             return summaryStep
-        case .destination, .fee, .validators, .summary, .finish, .onramp:
+        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
             assertionFailure("There is no next step")
             return nil
         }
@@ -85,7 +85,7 @@ class CommonStakingStepsManager {
             output?.update(state: .init(step: step, action: .close))
         case .amount where isEditAction, .validators where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .validators, .fee, .onramp:
+        case .amount, .destination, .validators, .fee, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
             assertionFailure("There is no next step")
         }
     }

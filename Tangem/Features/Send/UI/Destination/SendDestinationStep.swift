@@ -43,6 +43,7 @@ extension SendDestinationStep: SendStep {
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
         .qrCodeButton { [weak self] in
             self?.viewModel.scanQRCode()

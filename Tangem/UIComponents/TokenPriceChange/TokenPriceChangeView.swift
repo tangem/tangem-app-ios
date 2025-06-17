@@ -49,7 +49,7 @@ struct TokenPriceChangeView: View {
     }
 
     private var styledDashText: some View {
-        styledText("–")
+        styledText(AppConstants.enDashSign)
     }
 
     @ViewBuilder

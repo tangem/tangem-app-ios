@@ -34,7 +34,7 @@ struct VisaWalletMainContentView: View {
                 exploreAction: viewModel.openExplorer,
                 exploreTransactionAction: viewModel.exploreTransaction(with:),
                 reloadButtonAction: viewModel.reloadTransactionHistory,
-                isReloadButtonBusy: viewModel.isTransactoinHistoryReloading,
+                isReloadButtonBusy: viewModel.isTransactionHistoryReloading,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
             )
         }

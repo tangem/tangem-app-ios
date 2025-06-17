@@ -35,6 +35,15 @@ final class CasperNetworkProvider: HostProvider {
     func getBalance(address: String) -> AnyPublisher<CasperNetworkResponse.Balance, Error> {
         let query = CasperNetworkRequest.QueryBalance(purseIdentifier: .init(mainPurseUnderPublicKey: address))
         return requestPublisher(for: .getBalance(data: query))
+            .tryCatch { error in
+                if let apiError = error as? JSONRPC.APIError, apiError.code == Constants.purseNotFound {
+                    let replaceZeroBalance = CasperNetworkResponse.Balance(apiVersion: "", balance: "0")
+                    return Just(replaceZeroBalance)
+                }
+
+                throw error
+            }
+            .eraseToAnyPublisher()
     }
 
     func putDeploy(rawJSON: Data) -> AnyPublisher<CasperNetworkResponse.Transaction, Error> {
@@ -54,5 +63,11 @@ final class CasperNetworkProvider: HostProvider {
                 try $0.result.get()
             }
             .eraseToAnyPublisher()
+    }
+}
+
+private extension CasperNetworkProvider {
+    enum Constants {
+        static let purseNotFound: Int = -32026
     }
 }

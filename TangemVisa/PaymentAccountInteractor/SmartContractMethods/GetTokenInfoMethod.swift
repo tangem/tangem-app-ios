@@ -13,12 +13,12 @@ import BlockchainSdk
 struct GetTokenInfoMethod: SmartContractMethod {
     let infoType: InfoType
 
-    var prefix: String {
-        SmartContractMethodPrefixCreator().createPrefixForMethod(with: infoType.rawValue)
+    var methodId: String {
+        SmartContractMethodIdCreator().createIdForMethod(with: infoType.rawValue)
     }
 
     var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         return prefixData.trailingZeroPadding(toLength: 32)
     }
 }

@@ -201,5 +201,20 @@
        "info": "stakeBSC",
        "source": "https://bscscan.com/tx/0xfcbeac6e0a4ba5768d97d14b5115d08dda92defa8a8deee8bba34e2f0655c52b",
        "name": "claim"
+   },
+   "0x42842e0e": {
+       "info": "ERC721",
+       "source": "https://eips.ethereum.org/EIPS/eip-721",
+       "name": "safeTransferFrom"
+   },
+   "0xb88d4fde": {
+       "info": "ERC721",
+       "source": "https://eips.ethereum.org/EIPS/eip-721",
+       "name": "safeTransferFrom"
+   },
+   "0xf242432a": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "safeTransferFrom"
    }
 }

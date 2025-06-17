@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol SmartContractMethod {
-    var prefix: String { get }
+    var methodId: String { get }
     var data: Data { get }
 }
 

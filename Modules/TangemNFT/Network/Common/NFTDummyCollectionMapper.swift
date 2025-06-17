@@ -14,16 +14,18 @@ enum NFTDummyCollectionMapper {
         assets: [NFTAsset],
         assetsCount: Int,
         contractType: NFTContractType,
-        ownerAdddress: String
+        ownerAddress: String,
+        description: String?,
+        media: NFTMedia?
     ) -> NFTCollection {
         NFTCollection(
             collectionIdentifier: chain.id,
             chain: chain,
             contractType: contractType,
-            ownerAddress: ownerAdddress,
+            ownerAddress: ownerAddress,
             name: Localization.nftNoCollection,
-            description: nil,
-            media: nil,
+            description: description,
+            media: media,
             assetsCount: assetsCount,
             assets: assets
         )

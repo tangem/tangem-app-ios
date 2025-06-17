@@ -332,6 +332,24 @@ private extension SolanaWalletManager {
     }
 }
 
+// MARK: - TransactionValidator
+
+extension SolanaWalletManager: TransactionValidator {
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        // This wallet manager still ignores `destination` parameter even in the custom implementation of this method
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
+
+        switch amount.type.token?.metadata.kind {
+        case .fungible, .none:
+            // Just calling the default implementation for the `TransactionValidator.validate(amount:fee:)` method
+            try validateAmounts(amount: amount, fee: fee.amount)
+        case .nonFungible:
+            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
+            try validate(fee: fee.amount)
+        }
+    }
+}
+
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
 extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
