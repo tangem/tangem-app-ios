@@ -231,6 +231,34 @@ extension CommonUserTokensManager: UserTokensManager {
         deriveIfNeeded(completion: completion)
     }
 
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
+        guard tokenItem.isBlockchain else {
+            return true
+        }
+
+        let tokenItem = withBlockchainNetwork(tokenItem)
+
+        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
+            return false
+        }
+
+        let tokensToAdd = pendingToAddItems
+            .map(withBlockchainNetwork)
+            .filter { $0.blockchainNetwork == tokenItem.blockchainNetwork }
+            .compactMap(\.token)
+
+        let tokensToRemove = pendingToRemoveItems
+            .map(withBlockchainNetwork)
+            .filter { $0.blockchainNetwork == tokenItem.blockchainNetwork }
+            .compactMap(\.token)
+
+        // Append to list of saved user tokens items that are pending addition, and delete the items that are pending removing
+        let tokenList = (entry.tokens + tokensToAdd).filter { !tokensToRemove.contains($0) }
+
+        // We can remove token if there is no items in `tokenList`
+        return tokenList.isEmpty
+    }
+
     func canRemove(_ tokenItem: TokenItem) -> Bool {
         guard tokenItem.isBlockchain else {
             return true

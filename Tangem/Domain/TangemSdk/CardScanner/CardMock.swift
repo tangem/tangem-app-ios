@@ -21,13 +21,40 @@ enum CardMock: String, CaseIterable {
     case walletDemo
     case ethNoteDemo
 
+    var accessibilityIdentifier: String {
+        switch self {
+        case .wallet2:
+            return "CardMockWallet2"
+        case .wallet:
+            return "CardMockWallet"
+        case .twin:
+            return "CardMockTwin"
+        case .xrpNote:
+            return "CardMockXrpNote"
+        case .xlmBird:
+            return "CardMockXlmBird"
+        case .visa:
+            return "CardMockVisa"
+        case .visaTestnet:
+            return "CardMockVisaTestnet"
+        case .wallet2Demo:
+            return "CardMockWallet2Demo"
+        case .walletDemo:
+            return "CardMockWalletDemo"
+        case .ethNoteDemo:
+            return "CardMockEthNoteDemo"
+        }
+    }
+
     var cardInfo: CardInfo {
-        .init(card: CardDTO(card: card), walletData: walletData, name: rawValue)
+        .init(card: CardDTO(card: card), walletData: walletData)
     }
 
     var card: Card {
         decodeFromURL(url)!
     }
+
+    var name: String { rawValue }
 
     var walletData: DefaultWalletData {
         switch self {

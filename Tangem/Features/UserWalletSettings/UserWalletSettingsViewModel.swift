@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -29,6 +30,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
+    @Published var pushNotificationsViewModel: TransactionNotificationsRowToggleViewModel?
 
     @Published var forgetViewModel: DefaultRowViewModel?
 
@@ -136,6 +138,14 @@ private extension UserWalletSettingsViewModel {
             nftViewModel = nil
         }
 
+        if FeatureProvider.isAvailable(.pushTransactionNotifications) {
+            pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
+                userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
+                coordinator: coordinator,
+                showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
+            )
+        }
+
         forgetViewModel = DefaultRowViewModel(
             title: Localization.settingsForgetWallet,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
@@ -172,6 +182,30 @@ private extension UserWalletSettingsViewModel {
 
     func showErrorAlert(error: Error) {
         alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+    }
+
+    func displayEnablePushSettingsAlert() {
+        let buttons: AlertBuilder.Buttons = .init(
+            primaryButton: .default(
+                Text(Localization.pushNotificationsPermissionAlertNegativeButton),
+                action: { [weak self] in
+                    self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
+                }
+            ),
+            secondaryButton: .default(
+                Text(Localization.pushNotificationsPermissionAlertPositiveButton),
+                action: { [weak self] in
+                    self?.pushNotificationsViewModel?.isPushNotifyEnabled = false
+                    self?.coordinator?.openAppSettings()
+                }
+            )
+        )
+
+        alert = AlertBuilder.makeAlert(
+            title: Localization.pushNotificationsPermissionAlertTitle,
+            message: Localization.pushNotificationsPermissionAlertDescription,
+            with: buttons
+        )
     }
 }
 
@@ -225,6 +259,8 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openReferral(input: input)
     }
 }
+
+// MARK: - Data
 
 extension UserWalletSettingsViewModel {
     enum AccountsSectionType: Identifiable {

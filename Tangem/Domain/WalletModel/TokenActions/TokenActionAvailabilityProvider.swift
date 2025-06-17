@@ -141,6 +141,10 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.receive)
         }
 
+        if isStakeAvailable {
+            availableActions.append(.stake)
+        }
+
         return availableActions
     }
 
@@ -390,7 +394,6 @@ extension TokenActionAvailabilityProvider {
 
         switch requirementsCondition {
         case .paidTransactionWithFee(let blockchain, _, _):
-
             switch blockchain {
             case .hedera:
                 return .assetRequirement(blockchain: blockchain)
