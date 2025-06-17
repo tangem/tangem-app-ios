@@ -475,7 +475,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeAllowanceProvider() -> AllowanceProvider {
-        CommonAllowanceProvider(walletModel: walletModel)
+        CommonAllowanceProvider(tokenItem: walletModel.tokenItem, allowanceChecker: walletModel.allowanceChecker)
     }
 
     func makeStakingTransactionMapper() -> StakingTransactionMapper {

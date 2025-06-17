@@ -303,6 +303,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.bitcoinTransactionFeeCalculator
     }
 
+    var allowanceChecker: AllowanceChecker? {
+        mainTokenWalletModel.allowanceChecker
+    }
+
     var isSupportedTransactionHistory: Bool {
         mainTokenWalletModel.isSupportedTransactionHistory
     }

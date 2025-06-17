@@ -14,7 +14,6 @@ actor DEXExpressProviderManager {
 
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
-    private let allowanceProvider: ExpressAllowanceProvider
     private let feeProvider: FeeProvider
     private let mapper: ExpressManagerMapper
 
@@ -25,13 +24,11 @@ actor DEXExpressProviderManager {
     init(
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
         feeProvider: FeeProvider,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
         self.expressAPIProvider = expressAPIProvider
-        self.allowanceProvider = allowanceProvider
         self.feeProvider = feeProvider
         self.mapper = mapper
     }
@@ -116,7 +113,7 @@ private extension DEXExpressProviderManager {
         // Check Permission
         if let spender = quote.allowanceContract {
             do {
-                let allowanceState = try await allowanceProvider.allowanceState(request: request, spender: spender)
+                let allowanceState = try await request.pair.source.allowanceProvider.allowanceState(request: request, spender: spender)
 
                 switch allowanceState {
                 case .enoughAllowance:
