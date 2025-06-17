@@ -29,6 +29,10 @@ class CommonUserTokensPushNotificationsManager {
     private var taskCancellable: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
 
+    private var isAvailableFeatureToggle: Bool {
+        FeatureProvider.isAvailable(.pushTransactionNotifications)
+    }
+
     // MARK: Init
 
     init(
@@ -154,24 +158,26 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 // MARK: - UserTokenListExternalParametersProvider
 
 extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
-    func provideTokenListAddressValues(by blockchainNetwork: BlockchainNetwork) -> [String] {
+    func provideTokenListAddresses() -> [TokenItemId: [String]]? {
+        guard let statusValue = provideTokenListNotifyStatusValue(), statusValue else {
+            return nil
+        }
+
         let walletModels = walletModelsManager.walletModels
 
-        return walletModels
-            .filter {
-                $0.tokenItem.blockchainNetwork == blockchainNetwork
+        let addresses: [TokenItemId: [String]] = walletModels
+            .reduce(into: [:]) { partialResult, walletModel in
+                let addressValues = walletModel.addresses.map(\.value)
+
+                if let tokenItemId = walletModel.tokenItem.id {
+                    partialResult[tokenItemId] = addressValues
+                }
             }
-            .reduce([]) { partialResult, walletModel in
-                let values = walletModel.addresses.map(\.value)
-                return partialResult + values
-            }
+
+        return addresses
     }
 
     func provideTokenListNotifyStatusValue() -> Bool? {
-        if FeatureProvider.isAvailable(.pushTransactionNotifications) {
-            return status.isActive
-        } else {
-            return nil
-        }
+        isAvailableFeatureToggle ? status.isActive : nil
     }
 }
