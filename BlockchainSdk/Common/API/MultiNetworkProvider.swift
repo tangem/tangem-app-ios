@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import Moya
 import TangemNetworkUtils
+import stellarsdk
 
 @available(iOS 13.0, *)
 protocol MultiNetworkProvider: AnyObject, HostProvider {
@@ -47,6 +48,10 @@ extension MultiNetworkProvider {
                 }
 
                 if case WalletError.noAccount = error {
+                    return .anyFail(error: error)
+                }
+
+                if case HorizonRequestError.notFound = error {
                     return .anyFail(error: error)
                 }
 
