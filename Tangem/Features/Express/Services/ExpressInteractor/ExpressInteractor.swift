@@ -177,7 +177,7 @@ extension ExpressInteractor {
         }
     }
 
-    func updateApprovePolicy(policy: ApprovePolicy) {
+    func updateApprovePolicy(policy: ExpressApprovePolicy) {
         updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
@@ -667,11 +667,11 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy) {
+    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
         expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String) {
+    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
         expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
     }
 
@@ -796,7 +796,7 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
-        let policy: ApprovePolicy
+        let policy: ExpressApprovePolicy
         let data: ApproveTransactionData
         let fees: Fees
     }

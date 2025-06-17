@@ -64,7 +64,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ApprovePolicy,
+        selectedPolicy: ExpressApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(

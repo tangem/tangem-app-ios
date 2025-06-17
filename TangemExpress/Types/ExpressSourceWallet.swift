@@ -8,7 +8,6 @@
 
 import Foundation
 
-/// Created from WalletModel to has all fee / allowance providers, etc.
 public struct ExpressSourceWallet: Hashable {
     public let address: String
     public let currency: ExpressWalletCurrency

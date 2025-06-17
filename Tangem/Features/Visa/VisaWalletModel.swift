@@ -168,10 +168,6 @@ extension VisaWalletModel: WalletModelFeeProvider {
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
         return false
     }
-
-    var feeCurrencyHasPositiveBalance: Bool {
-        return false
-    }
 }
 
 extension VisaWalletModel: WalletModelDependenciesProvider {
