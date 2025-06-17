@@ -24,6 +24,10 @@ struct SendView: View {
     private let backgroundColor = Colors.Background.tertiary
     private let bottomGradientHeight: CGFloat = 150
 
+    private var shouldShowHeader: Bool {
+        viewModel.title != nil || viewModel.step.navigationLeadingViewType != nil || viewModel.step.navigationTrailingViewType != nil
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             headerView
@@ -54,12 +58,10 @@ struct SendView: View {
 
     @ViewBuilder
     private var headerView: some View {
-        if let title = viewModel.title {
+        if shouldShowHeader {
             ZStack(alignment: .center) {
                 HStack {
-                    Button(Localization.commonClose, action: viewModel.dismiss)
-                        .foregroundColor(viewModel.closeButtonColor)
-                        .disabled(viewModel.closeButtonDisabled)
+                    leadingView
 
                     Spacer()
 
@@ -67,7 +69,7 @@ struct SendView: View {
                         .disabled(viewModel.trailingButtonDisabled)
                 }
 
-                headerText(title: title)
+                headerText
             }
             .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.navigationTrailingViewType)
             .frame(height: 44)
@@ -77,10 +79,27 @@ struct SendView: View {
     }
 
     @ViewBuilder
+    private var leadingView: some View {
+        switch viewModel.step.navigationLeadingViewType {
+        case .none:
+            EmptyView()
+        case .closeButton:
+            CloseButton(dismiss: viewModel.dismiss)
+                .disabled(viewModel.closeButtonDisabled)
+        case .backButton:
+            CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
+        }
+    }
+
+    @ViewBuilder
     private var trailingView: some View {
         switch viewModel.step.navigationTrailingViewType {
         case .none:
             EmptyView()
+
+        case .closeButton:
+            CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: viewModel.dismiss)
+                .disabled(viewModel.closeButtonDisabled)
 
         case .qrCodeButton(let action):
             Button(action: action) {
@@ -97,20 +116,25 @@ struct SendView: View {
     }
 
     @ViewBuilder
-    private func headerText(title: String) -> some View {
-        VStack(spacing: 2) {
-            Text(title)
-                .multilineTextAlignment(.center)
-                .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
+    private var headerText: some View {
+        switch viewModel.title {
+        case .none:
+            EmptyView()
+        case .some(let title):
+            VStack(spacing: 2) {
+                Text(title)
+                    .multilineTextAlignment(.center)
+                    .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
 
-            if let subtitle = viewModel.subtitle {
-                Text(subtitle)
-                    .style(Fonts.RegularStatic.caption1, color: Colors.Text.tertiary)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                if let subtitle = viewModel.subtitle {
+                    Text(subtitle)
+                        .style(Fonts.RegularStatic.caption1, color: Colors.Text.tertiary)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
+            .lineLimit(1)
+            .infinityFrame(axis: .horizontal, alignment: .center)
         }
-        .lineLimit(1)
-        .infinityFrame(axis: .horizontal, alignment: .center)
     }
 
     @ViewBuilder
@@ -124,11 +148,25 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newDestination(let sendDestinationViewModel):
+            SendNewDestinationView(
+                viewModel: sendDestinationViewModel,
+                transitionService: transitionService
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .amount(let sendAmountViewModel):
             SendAmountView(
                 viewModel: sendAmountViewModel,
                 transitionService: transitionService,
                 namespace: .init(id: namespace, names: SendGeometryEffectNames())
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newAmount(let sendAmountViewModel):
+            SendNewAmountView(
+                viewModel: sendAmountViewModel,
+                transitionService: transitionService
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
@@ -156,6 +194,13 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newSummary(let sendSummaryViewModel):
+            SendNewSummaryView(
+                viewModel: sendSummaryViewModel,
+                transitionService: transitionService
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .onramp(let onrampViewModel):
             OnrampView(
                 viewModel: onrampViewModel,
@@ -172,13 +217,21 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
+        case .newFinish(let sendFinishViewModel):
+            SendNewFinishView(
+                viewModel: sendFinishViewModel,
+                transitionService: transitionService,
+                namespace: .init(id: namespace, names: SendGeometryEffectNames())
+            )
+            .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
+            .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         }
     }
 
     @ViewBuilder
     private var bottomContainer: some View {
         VStack(spacing: 10) {
-            if let url = viewModel.transactionURL {
+            if let url = viewModel.transactionURL, viewModel.shouldShowShareExploreButtons {
                 HStack(spacing: 8) {
                     MainButton(
                         title: Localization.commonExplore,
@@ -193,7 +246,7 @@ struct SendView: View {
                         action: { viewModel.share(url: url) }
                     )
                 }
-                .transition(.opacity)
+                .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
             }
 
             HStack(spacing: 8) {

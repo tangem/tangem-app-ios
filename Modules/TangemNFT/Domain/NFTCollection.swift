@@ -10,8 +10,8 @@ import Foundation
 
 public struct NFTCollection: Hashable, Identifiable, Sendable {
     public let id: NFTCollectionId
-    let contractType: NFTContractType
-    let name: String
+    public let contractType: NFTContractType
+    public let name: String
     let description: String?
     let media: NFTMedia?
     /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
@@ -46,6 +46,25 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
     }
 }
 
+// MARK: - Auxiliary types
+
+public extension NFTCollection {
+    struct NFTCollectionId: Hashable, Sendable {
+        /// Collection's address.
+        let collectionIdentifier: String
+        /// The owner's address is intentionally a part of the collection identity
+        /// to distinguish between identical collections but with different derivations.
+        public let ownerAddress: String
+        public let chain: NFTChain
+
+        public static let dummy = Self(
+            collectionIdentifier: UUID().uuidString,
+            ownerAddress: UUID().uuidString,
+            chain: .solana
+        )
+    }
+}
+
 // MARK: - Convenience extensions
 
 public extension NFTCollection {
@@ -64,23 +83,18 @@ public extension NFTCollection {
             assets: assets
         )
     }
-}
 
-// MARK: - Auxiliary types
-
-public extension NFTCollection {
-    struct NFTCollectionId: Hashable, Sendable {
-        /// Collection's address.
-        let collectionIdentifier: String
-        /// The owner's address is intentionally a part of the collection identity
-        /// to distinguish between identical collections but with different derivations.
-        public let ownerAddress: String
-        public let chain: NFTChain
-
-        public static let dummy = Self(
-            collectionIdentifier: UUID().uuidString,
-            ownerAddress: UUID().uuidString,
-            chain: .arbitrum
+    static var dummy: Self {
+        NFTCollection(
+            collectionIdentifier: "",
+            chain: .avalanche,
+            contractType: .erc1155,
+            ownerAddress: "",
+            name: "",
+            description: nil,
+            media: nil,
+            assetsCount: nil,
+            assets: []
         )
     }
 }

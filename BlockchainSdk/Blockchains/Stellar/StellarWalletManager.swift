@@ -189,3 +189,17 @@ extension StellarWalletManager: ReserveAmountRestrictable {
         }
     }
 }
+
+extension StellarWalletManager: RequiredMemoRestrictable {
+    func validateRequiredMemo(destination: String, transactionParams: (any TransactionParams)?) async throws {
+        if let transactionParams = transactionParams as? StellarTransactionParams, transactionParams.memo != nil {
+            return
+        }
+
+        let isMemoRequired = try await networkService.checkIsMemoRequired(for: destination).async()
+
+        if isMemoRequired {
+            throw ValidationError.destinationMemoRequired
+        }
+    }
+}

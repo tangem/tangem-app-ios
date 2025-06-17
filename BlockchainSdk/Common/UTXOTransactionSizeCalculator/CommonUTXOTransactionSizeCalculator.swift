@@ -31,19 +31,19 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
     }
 
     func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) throws -> Int {
-        let headerSize = Constants.transactionHeaderSize
+        let isSegWit = inputs.contains(where: { $0.script.type.isWitness })
+        var headerSize = Constants.transactionHeaderSize
+        if isSegWit {
+            headerSize += Constants.witnessHeaderMarkerSize
+        }
+
         let inputsSize = try inputs.reduce(0) { try $0 + inputSize(script: $1.script) }
         let outputsSize = outputs.reduce(0) { $0 + outputSize(scriptType: $1) }
-
         let baseData = headerSize + inputsSize + outputsSize
 
         var witnessData = 0
-        if inputs.contains(where: { $0.script.type.isWitness }) || outputs.contains(where: { $0.isWitness }) {
-            try inputs.forEach {
-                witnessData += try witnessDataSize(script: $0.script)
-            }
-
-            witnessData += Constants.witnessHeaderMarkerSize
+        if isSegWit {
+            try inputs.forEach { witnessData += try witnessDataSize(script: $0.script) }
         }
 
         let weight = baseData * 4 + witnessData
@@ -78,9 +78,9 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         case (.p2pk, .some), (.p2pkh, .some), (.p2sh, .some):
             return 0
 
-        // StackItem(1) + sigLength(1) + signature(72) + pushByte(1) + PubKey(33)
+        // StackItem(1) + sigLength(1) + signature(72) + signHashByte(1) + pushByte(1) + PubKey(33)
         case (.p2wpkh, .publicKey(let data)), (.p2wsh, .redeemScript(let data)), (.p2tr, .publicKey(let data)):
-            return 1 + 73 + OpCode.push(data).count
+            return 1 + 1 + 72 + 1 + OpCode.push(data).count
 
         // Error cases
         case (_, .none), (.p2wsh, .publicKey), (.p2wpkh, .redeemScript), (.p2tr, .redeemScript):
@@ -130,18 +130,7 @@ extension CommonUTXOTransactionSizeCalculator {
          Witness transaction header components:
          - Marker: 1 byte (0x00)
          - Flag: 1 byte (0x01)
-          */
+         */
         static let witnessHeaderMarkerSize = 2
-    }
-}
-
-// MARK: - UTXOScriptType+
-
-extension UTXOScriptType {
-    var isWitness: Bool {
-        switch self {
-        case .p2wsh, .p2wpkh, .p2tr: true
-        case .p2pk, .p2pkh, .p2sh: false
-        }
     }
 }

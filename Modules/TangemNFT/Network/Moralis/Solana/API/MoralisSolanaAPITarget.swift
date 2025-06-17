@@ -12,6 +12,8 @@ import TangemNetworkUtils
 
 struct MoralisSolanaAPITarget {
     let target: Target
+
+    private let urlEncoding = URLEncoding(boolEncoding: .literal)
 }
 
 // MARK: - Nested types
@@ -46,10 +48,7 @@ extension MoralisSolanaAPITarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .getNFTsByWallet(_, let params):
-            .requestParameters(
-                parameters: ["nftMetadata": params.showNFTMetadata],
-                encoding: URLEncoding(destination: .queryString, boolEncoding: .literal)
-            )
+            .requestParameters(params, encoding: urlEncoding)
         }
     }
 
