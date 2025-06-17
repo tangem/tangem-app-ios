@@ -9,45 +9,53 @@
 import Foundation
 import TangemSdk
 
-@available(iOS 13.0, *)
 class BitcoinCashAddressService {
-    private let legacyService: BitcoinLegacyAddressService
-    private let cashAddrService: CashAddrService
+    private let base58LockingScriptBuilder: Base58LockingScriptBuilder
+    private let cashAddrLockingScriptBuilder: CashAddrLockingScriptBuilder
+
+    private let bech32Prefix: String
 
     init(networkParams: UTXONetworkParams) {
-        legacyService = .init(networkParams: networkParams)
-        cashAddrService = .init(networkParams: networkParams)
+        base58LockingScriptBuilder = .init(network: networkParams)
+        cashAddrLockingScriptBuilder = .init(network: networkParams)
+
+        bech32Prefix = networkParams.bech32Prefix
     }
 }
 
 // MARK: - AddressValidator
 
-@available(iOS 13.0, *)
 extension BitcoinCashAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        cashAddrService.validate(address) || legacyService.validate(address)
+        if isLegacy(address) {
+            return (try? base58LockingScriptBuilder.decode(address: address)) != nil
+        }
+
+        let address = address.contains(":") ? address : "\(bech32Prefix):\(address)"
+        let decoded = try? cashAddrLockingScriptBuilder.decode(address: address)
+        return decoded != nil
     }
 }
 
 // MARK: - AddressProvider
 
-@available(iOS 13.0, *)
 extension BitcoinCashAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         switch addressType {
         case .default:
-            let address = try cashAddrService.makeAddress(from: publicKey.blockchainKey)
-            return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+            let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
+            let (address, script) = try cashAddrLockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
+            return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: script)
         case .legacy:
             let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-            let address = try legacyService.makeAddress(from: compressedKey).value
-            return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+            let (address, script) = try base58LockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
+            return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: script)
         }
     }
 }
 
 extension BitcoinCashAddressService {
     func isLegacy(_ address: String) -> Bool {
-        legacyService.validate(address)
+        (try? base58LockingScriptBuilder.decode(address: address)) != nil
     }
 }

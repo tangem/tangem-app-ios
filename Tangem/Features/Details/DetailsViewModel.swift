@@ -12,8 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
-import struct TangemUIUtils.ActionSheetBinder
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 class DetailsViewModel: ObservableObject {
     // MARK: - Injected
@@ -39,7 +38,6 @@ class DetailsViewModel: ObservableObject {
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
     @Published var actionSheet: ActionSheetBinder?
-    @Published var showTroubleshootingView: Bool = false
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
@@ -346,7 +344,7 @@ private extension DetailsViewModel {
                 break
             case .troubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .settings])
-                showTroubleshootingView = true
+                openTroubleshooting()
             case .onboarding(let input):
                 coordinator?.openOnboardingModal(with: input)
             case .error(let error):
@@ -354,7 +352,7 @@ private extension DetailsViewModel {
                     return
                 }
 
-                Analytics.tryLogCardVerificationError(error, source: .settings)
+                Analytics.logScanError(error, source: .settings)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
                 alert = error.alertBinder
             case .success, .partial:
@@ -367,6 +365,21 @@ private extension DetailsViewModel {
 // MARK: - Support
 
 private extension DetailsViewModel {
+    func openTroubleshooting() {
+        let sheet = ActionSheet(
+            title: Text(Localization.alertTroubleshootingScanCardTitle),
+            message: Text(Localization.alertTroubleshootingScanCardMessage),
+            buttons: [
+                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: DetailsViewModel.tryAgain)),
+                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: DetailsViewModel.openScanCardManual)),
+                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: DetailsViewModel.requestSupport)),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     func openVisaSupport(models: [UserWalletModel]) {
         guard
             let selectedModel = getModelToSendEmail(models: models),

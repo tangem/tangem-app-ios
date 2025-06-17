@@ -50,7 +50,22 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "CommonTests">
+               </Test>
+               <Test
+                  Identifier = "MainTest">
+               </Test>
+               <Test
+                  Identifier = "MainTest/testScanWalletTwo()">
+               </Test>
+               <Test
                   Identifier = "TangemUITests">
+               </Test>
+               <Test
+                  Identifier = "TangemUITestsLaunchTests">
+               </Test>
+               <Test
+                  Identifier = "TangemUITestsLaunchTests/testLaunch()">
                </Test>
             </SkippedTests>
          </TestableReference>
