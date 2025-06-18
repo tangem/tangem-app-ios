@@ -17,7 +17,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
-    private let cardImageProvider: CardImageProviding
+    private let cardImageProvider: WalletImageProviding
     private let cardScanner: CardScanner
     private weak var coordinator: ScanCardSettingsRoutable?
 
@@ -127,7 +127,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     struct Input {
-        let cardImageProvider: CardImageProviding
+        let cardImageProvider: WalletImageProviding
         let cardScanner: CardScanner
     }
 }
