@@ -49,7 +49,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
+    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
 

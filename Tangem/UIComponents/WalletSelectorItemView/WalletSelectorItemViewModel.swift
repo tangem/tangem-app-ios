@@ -23,7 +23,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let cardImageProvider: CardImageProviding
+    private let cardImageProvider: WalletImageProviding
 
     private var onTapWallet: ((UserWalletId) -> Void)?
 
@@ -37,7 +37,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        cardImageProvider: CardImageProviding,
+        cardImageProvider: WalletImageProviding,
         isSelected: Bool,
         didTapWallet: ((UserWalletId) -> Void)?
     ) {

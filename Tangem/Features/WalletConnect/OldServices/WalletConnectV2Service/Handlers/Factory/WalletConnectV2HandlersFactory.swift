@@ -14,7 +14,7 @@ protocol WalletConnectHandlersCreator: AnyObject {
         for action: WalletConnectMethod,
         with params: AnyCodable,
         blockchainId: String,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler
 }
@@ -38,7 +38,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         for action: WalletConnectMethod,
         with params: AnyCodable,
         blockchainId: String,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler {
         switch action {
