@@ -86,8 +86,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
 
         let signHashCommand = SignHashCommand(
             hash: orderToSign.hashToSignByWallet,
-            walletPublicKey: wallet.publicKey,
-            derivationPath: derivationPath
+            walletPublicKey: wallet.publicKey
         )
         signHashCommand.run(in: session) { result in
             switch result {
