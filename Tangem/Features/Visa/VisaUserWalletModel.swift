@@ -545,13 +545,13 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
-    var signer: TangemSigner { userWalletModel.signer }
+    var signer: TransactionSigner { userWalletModel.signer }
 
     var updatePublisher: AnyPublisher<Void, Never> { userWalletModel.updatePublisher }
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardImageProvider: CardImageProviding { userWalletModel.cardImageProvider }
+    var imageProvider: WalletImageProviding { userWalletModel.imageProvider }
 
     var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
 
@@ -607,7 +607,7 @@ extension VisaUserWalletModel: UserWalletSerializable {
         return StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
-            card: cardInfo.card,
+            walletInfo: .card(cardInfo.card),
             associatedCardIds: [],
             walletData: cardInfo.walletData
         )
