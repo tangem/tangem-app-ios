@@ -140,7 +140,6 @@ public final class VisaCardScanHandler: CardSessionRunnable {
 
             let signedChallengeResponse = try await signChallengeWithWallet(
                 walletPublicKey: wallet.publicKey,
-                derivationPath: derivationPath,
                 challenge: Data(hexString: challengeResponse.nonce),
                 in: session
             )
@@ -254,14 +253,12 @@ public final class VisaCardScanHandler: CardSessionRunnable {
 
     private func signChallengeWithWallet(
         walletPublicKey: Data,
-        derivationPath: DerivationPath,
         challenge: Data,
         in session: CardSession
     ) async throws -> AttestWalletKeyResponse {
         try await withCheckedThrowingContinuation { [session] continuation in
             let signHashCommand = AttestWalletKeyTask(
                 walletPublicKey: walletPublicKey,
-                derivationPath: derivationPath,
                 challenge: challenge,
                 confirmationMode: .dynamic
             )
