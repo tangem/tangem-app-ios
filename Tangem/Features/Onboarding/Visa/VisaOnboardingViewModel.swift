@@ -558,7 +558,7 @@ private extension VisaOnboardingViewModel {
 // MARK: - Image loading
 
 private extension VisaOnboardingViewModel {
-    func loadImage(imageProvider: CardImageProviding) {
+    func loadImage(imageProvider: WalletImageProviding) {
         runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 
