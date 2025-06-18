@@ -11,15 +11,16 @@ import Combine
 import TangemAssets
 import TangemSdk
 import TangemNFT
+import BlockchainSdk
 
 class LockedUserWalletModel: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
-    let cardImageProvider: WalletImageProviding
+    let imageProvider: WalletImageProviding
     let config: UserWalletConfig
-    var signer: TangemSigner
+    var signer: TransactionSigner
 
     var tokensCount: Int? { nil }
 
@@ -45,7 +46,8 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
+        fatalError()
+//        .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
     }
 
     var totalBalance: TotalBalanceState {
@@ -58,7 +60,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     var analyticsContextData: AnalyticsContextData {
         AnalyticsContextData(
-            card: userWallet.cardInfo().card,
+            card: userWallet.cardInfo()?.card,
             productType: config.productType,
             embeddedEntry: config.embeddedBlockchain,
             userWalletId: userWalletId
@@ -86,7 +88,10 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
-    var keysDerivingInteractor: any KeysDeriving { KeysDerivingCardInteractor(with: userWallet.cardInfo()) }
+    var keysDerivingInteractor: any KeysDeriving {
+        fatalError()
+//        KeysDerivingCardInteractor(with: userWallet.cardInfo())
+    }
 
     var name: String { userWallet.name }
 
@@ -96,9 +101,12 @@ class LockedUserWalletModel: UserWalletModel {
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
-        config = UserWalletConfigFactory().makeConfig(cardInfo: userWallet.cardInfo())
+
+        let walletInfo = userWallet.info()
+
+        config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
-        cardImageProvider = WalletImageProvider(card: userWallet.card)
+        imageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
     }
 
     func updateWalletName(_ name: String) {
@@ -131,7 +139,10 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
 
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
-        let cardInfo = userWallet.cardInfo()
+        guard let cardInfo = userWallet.cardInfo() else {
+            return nil
+        }
+
         let embeddedEntry = config.embeddedBlockchain
         let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
 

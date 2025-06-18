@@ -37,7 +37,7 @@ class ExpressInteractor {
     private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressTransactionBuilder: ExpressTransactionBuilder
     private let expressAPIProvider: ExpressAPIProvider
-    private let signer: TangemSigner
+    private let signer: TransactionSigner
 
     // MARK: - Options
 
@@ -59,7 +59,7 @@ class ExpressInteractor {
         expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressTransactionBuilder: ExpressTransactionBuilder,
         expressAPIProvider: ExpressAPIProvider,
-        signer: TangemSigner
+        signer: TransactionSigner
     ) {
         self.userWalletId = userWalletId
         self.initialWallet = initialWallet

@@ -52,11 +52,11 @@ class UserWalletRepositoryUtil {
 
                 let sensitiveInformationEncryptedData = try Data(contentsOf: userWalletPath(for: userWalletId))
                 let sensitiveInformationData = try decrypt(sensitiveInformationEncryptedData, with: userWalletEncryptionKey)
+
+                // [REDACTED_TODO_COMMENT]
                 let sensitiveInformation = try decoder.decode(StoredUserWallet.SensitiveInformation.self, from: sensitiveInformationData)
 
-                var card = userWallet.card
-                card.wallets = sensitiveInformation.wallets
-                userWallets[i].card = card
+                userWallets[i] = userWallet.resettingWallets()
             }
 
             return userWallets
@@ -80,12 +80,7 @@ class UserWalletRepositoryUtil {
             try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
 
             let userWalletsWithoutSensitiveInformation: [StoredUserWallet] = userWallets.map {
-                var card = $0.card
-                card.wallets = []
-
-                var userWalletWithoutKeys = $0
-                userWalletWithoutKeys.card = card
-                return userWalletWithoutKeys
+                $0.resettingWallets()
             }
 
             let publicData = try encoder.encode(userWalletsWithoutSensitiveInformation)
@@ -99,7 +94,7 @@ class UserWalletRepositoryUtil {
                     continue
                 }
 
-                let sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
+                let sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: userWallet.walletInfo.wallets)
                 let sensitiveDataEncrypted = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey)
                 let sensitiveDataPath = userWalletPath(for: UserWalletId(value: userWallet.userWalletId))
                 try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)

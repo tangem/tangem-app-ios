@@ -11,6 +11,7 @@ import Combine
 import TangemAssets
 import TangemSdk
 import TangemNFT
+import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -31,13 +32,13 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
-    var cardImageProvider: CardImageProviding {
+    var imageProvider: WalletImageProviding {
         CardImageProviderMock()
     }
 
     var nftManager: NFTManager { NFTManagerStub() }
 
-    var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
+    var signer: TransactionSigner { fatalError("TangemSignerMock doesn't exist") }
 
     var updatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
 

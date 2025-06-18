@@ -18,6 +18,17 @@ struct StoredUserWallet: Identifiable, Encodable {
     var walletInfo: StoredWalletInfo
     var associatedCardIds: Set<String>
     let walletData: DefaultWalletData
+
+    func resettingWallets() -> Self {
+        StoredUserWallet(
+            id: id,
+            userWalletId: userWalletId,
+            name: name,
+            walletInfo: walletInfo.resettingWallets(),
+            associatedCardIds: associatedCardIds,
+            walletData: walletData
+        )
+    }
 }
 
 enum StoredWalletInfo: Codable {
@@ -32,11 +43,33 @@ enum StoredWalletInfo: Codable {
             return hotWallet.wallets.isEmpty
         }
     }
+
+    func resettingWallets() -> Self {
+        switch self {
+        case .card(let cardDTO):
+            var card = cardDTO
+            card.wallets = []
+            return .card(card)
+        case .hotWallet(let hotWalletInfo):
+            var hotWallet = hotWalletInfo
+            hotWallet.wallets = []
+            return .hotWallet(hotWallet)
+        }
+    }
+
+    var wallets: [WalletPublicInfo] {
+        switch self {
+        case .card(let card):
+            card.wallets.map(\.walletPublicInfo)
+        case .hotWallet(let hotWallet):
+            hotWallet.wallets.map(\.walletPublicInfo)
+        }
+    }
 }
 
 extension StoredUserWallet {
     struct SensitiveInformation: Codable {
-        let wallets: [CardDTO.Wallet]
+        let wallets: [WalletPublicInfo]
     }
 }
 
@@ -55,6 +88,23 @@ extension StoredUserWallet {
             )
         case .hotWallet: nil
         }
+    }
+
+    func info() -> WalletInfo {
+        let walletInfoType: WalletInfoType
+        switch walletInfo {
+        case .card(let card):
+            walletInfoType = .card(
+                CardInfo(
+                    card: card,
+                    walletData: walletData,
+                    primaryCard: nil
+                ))
+        case .hotWallet(let hotWallet):
+            walletInfoType = .hot(hotWallet)
+        }
+
+        return WalletInfo(name: name, type: walletInfoType)
     }
 }
 
