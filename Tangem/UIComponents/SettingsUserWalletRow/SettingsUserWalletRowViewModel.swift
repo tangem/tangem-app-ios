@@ -22,7 +22,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     let isUserWalletLocked: Bool
     private let userWalletNamePublisher: AnyPublisher<String, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let cardImageProvider: CardImageProviding
+    private let cardImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
@@ -32,7 +32,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletNamePublisher: userWallet.userWalletNamePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
-            cardImageProvider: userWallet.cardImageProvider,
+            cardImageProvider: userWallet.imageProvider,
             tapAction: tapAction
         )
     }
@@ -43,7 +43,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        cardImageProvider: CardImageProviding,
+        cardImageProvider: WalletImageProviding,
         tapAction: @escaping () -> Void
     ) {
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
