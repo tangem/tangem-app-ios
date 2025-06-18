@@ -242,7 +242,7 @@ private extension UserWalletSettingsViewModel {
 
         coordinator?.openScanCardSettings(
             with: .init(
-                cardImageProvider: userWalletModel.cardImageProvider,
+                cardImageProvider: userWalletModel.imageProvider,
                 cardScanner: scanner
             )
         )
