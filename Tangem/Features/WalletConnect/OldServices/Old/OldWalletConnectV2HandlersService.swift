@@ -8,6 +8,7 @@
 
 import Foundation
 import enum BlockchainSdk.Blockchain
+import protocol BlockchainSdk.TransactionSigner
 import struct WalletConnectSign.Request
 import enum JSONRPC.RPCResult
 
@@ -16,7 +17,7 @@ protocol WalletConnectV2HandlersServicing {
         _ request: Request,
         from dApp: WalletConnectSavedSession.DAppInfo,
         blockchainId: String,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) async throws -> RPCResult
 }
@@ -35,7 +36,7 @@ struct OldWalletConnectV2HandlersService {
         self.handlersCreator = handlersCreator
     }
 
-    private func getHandler(for request: Request, blockchainId: String, signer: TangemSigner, walletModelProvider: WalletConnectWalletModelProvider) throws -> WalletConnectMessageHandler {
+    private func getHandler(for request: Request, blockchainId: String, signer: TransactionSigner, walletModelProvider: WalletConnectWalletModelProvider) throws -> WalletConnectMessageHandler {
         let method = request.method
         guard let wcAction = WalletConnectMethod(rawValue: method) else {
             throw WalletConnectV2Error.unsupportedWCMethod(method)
@@ -50,7 +51,7 @@ extension OldWalletConnectV2HandlersService: WalletConnectV2HandlersServicing {
         _ request: Request,
         from dApp: WalletConnectSavedSession.DAppInfo,
         blockchainId: String,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) async throws -> RPCResult {
         let handler = try getHandler(for: request, blockchainId: blockchainId, signer: signer, walletModelProvider: walletModelProvider)

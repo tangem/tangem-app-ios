@@ -16,7 +16,7 @@ class WalletConnectV2SignTransactionHandler {
     private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
-    private let signer: TangemSigner
+    private let signer: TransactionSigner
     private var transaction: Transaction?
 
     init(
@@ -24,7 +24,7 @@ class WalletConnectV2SignTransactionHandler {
         blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
         do {

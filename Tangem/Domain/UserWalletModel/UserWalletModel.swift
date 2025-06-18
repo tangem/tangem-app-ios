@@ -31,10 +31,10 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
-    var signer: TangemSigner { get }
+    var signer: TransactionSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-    var cardImageProvider: CardImageProviding { get }
+    var imageProvider: WalletImageProviding { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var totalSignedHashes: Int { get }
     var name: String { get }
