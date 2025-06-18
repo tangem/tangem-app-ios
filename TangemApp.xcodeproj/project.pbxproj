@@ -32,6 +32,8 @@
 		0A4799D12D930DE900C2D425 /* HederaFeeParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */; };
 		0A4C217F2DF1AFF200B8B1BD /* HotUserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */; };
 		0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */; };
+		0A5544C62DF6FD0E00BF409C /* WalletPublicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C52DF6FD0E00BF409C /* WalletPublicInfo.swift */; };
+		0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */; };
 		0A66678F2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A66678E2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift */; };
 		0A713CEC2CAA6DA30042FC27 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		0A713CEE2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A713CED2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift */; };
@@ -2814,6 +2816,7 @@
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
+		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA72BE332DF8828100648B53 /* PepecoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
@@ -3708,6 +3711,8 @@
 		0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaFeeParams.swift; sourceTree = "<group>"; };
 		0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotUserWalletConfig.swift; sourceTree = "<group>"; };
 		0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionConstraint.swift; sourceTree = "<group>"; };
+		0A5544C52DF6FD0E00BF409C /* WalletPublicInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPublicInfo.swift; sourceTree = "<group>"; };
+		0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyProvider.swift; sourceTree = "<group>"; };
 		0A66678E2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		0A713CED2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRestakingStepsManager.swift; sourceTree = "<group>"; };
@@ -6461,6 +6466,7 @@
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
+		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinTransactionTests.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
@@ -8572,6 +8578,8 @@
 				DC7D3A0829E065E3007BCD23 /* BackupHelper.swift */,
 				EFFE2CEA28B8E1A700B9F279 /* DerivationManager */,
 				5DB862B7252396CD00566AA0 /* TangemSigner.swift */,
+				0A5544C52DF6FD0E00BF409C /* WalletPublicInfo.swift */,
+				0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -14981,6 +14989,7 @@
 			isa = PBXGroup;
 			children = (
 				DC0CEB3B2D83602600403A9A /* DucatusAddressTests.swift */,
+				EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */,
 			);
 			path = Ducatus;
 			sourceTree = "<group>";
@@ -20932,6 +20941,7 @@
 				DA4055252ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				B62C65CE2C38D06B00189AD4 /* CommonPushNotificationsService.swift in Sources */,
+				0A5544C62DF6FD0E00BF409C /* WalletPublicInfo.swift in Sources */,
 				C2E3ADD22D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift in Sources */,
 				C2E3ADD32D5F5D410042ADDA /* CommonStoryDataService.swift in Sources */,
 				C2E3ADD42D5F5D410042ADDA /* StoryDataPrefetchService.swift in Sources */,
@@ -21383,6 +21393,7 @@
 				EFEE236C2BFE20860099917E /* StakingDetailsView.swift in Sources */,
 				B040FA342C3BCA00002C127B /* MarketsTokenDetailsInsightsView.swift in Sources */,
 				EFEE236D2BFE20860099917E /* StakingDetailsViewModel.swift in Sources */,
+				0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */,
 				EFEE236E2BFE20860099917E /* StakingDetailsRoutable.swift in Sources */,
 				2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */,
 				B0AC1A312BA47D5D00FE6879 /* OnboardingSeedPassphraseInfoBottomSheetView.swift in Sources */,
@@ -22955,6 +22966,7 @@
 				30145CF92D75D7DF00C1DA5D /* AlephiumAddressTests.swift in Sources */,
 				EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */,
 				B62D435D2CBC79E400C2460E /* KoinosMethodResponseDecodingTests.swift in Sources */,
+				EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */,
 				EFAF7E432D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift in Sources */,
 				30C470162D7612D5003DFBFD /* CardanoAddressTests.swift in Sources */,
 				309939042D78710900DA3667 /* TronAddressTests.swift in Sources */,
