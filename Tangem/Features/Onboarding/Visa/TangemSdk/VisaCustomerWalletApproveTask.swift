@@ -139,8 +139,7 @@ private extension VisaCustomerWalletApproveTask {
     ) {
         let signTask = SignHashCommand(
             hash: approveData,
-            walletPublicKey: keyInfo.seedKey,
-            derivationPath: keyInfo.derivationPath
+            walletPublicKey: keyInfo.seedKey
         )
 
         signTask.run(in: session) { result in
