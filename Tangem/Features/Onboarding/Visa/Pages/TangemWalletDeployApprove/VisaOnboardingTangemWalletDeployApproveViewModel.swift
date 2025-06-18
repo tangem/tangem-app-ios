@@ -133,7 +133,7 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
 
     func signDataWithTargetPair(_ approvePair: ApprovePair, dataToSign: Data) async throws -> VisaSignedApproveResponse {
         VisaLogger.info("Attempt to sign data with saved in repository wallet pair. Creating plain SignHashCommand")
-        let signHashTask = SignHashCommand(hash: dataToSign, walletPublicKey: approvePair.seedPublicKey, derivationPath: approvePair.derivationPath)
+        let signHashTask = SignHashCommand(hash: dataToSign, walletPublicKey: approvePair.seedPublicKey)
         let signResponse: SignHashResponse = try await withCheckedThrowingContinuation { continuation in
             approvePair.tangemSdk.startSession(with: signHashTask, filter: approvePair.sessionFilter) { result in
                 switch result {
