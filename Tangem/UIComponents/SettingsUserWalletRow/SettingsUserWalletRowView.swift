@@ -19,6 +19,7 @@ struct SettingsUserWalletRowView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!viewModel.isUserWalletLocked)
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
