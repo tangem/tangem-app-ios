@@ -24,7 +24,7 @@ extension AccountService {
                     let memoRequired = accountDetails.data["config.memo_required"] == "MQ=="
                     promise(.success(memoRequired))
                 case .failure(let error):
-                    promise(.failure(error as Error))
+                    promise(.failure(error))
                 }
             }
         }
