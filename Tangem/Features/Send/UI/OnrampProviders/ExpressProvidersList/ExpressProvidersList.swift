@@ -7,20 +7,18 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 import TangemUI
 
 struct ExpressProvidersList: View {
+    let selectedProviderID: Int
     let providersViewData: [OnrampProviderRowViewData]
 
     var body: some View {
-        ForEach(providersViewData) { data in
-            OnrampProviderRowView(data: data)
-
-            if providersViewData.last?.id != data.id {
-                Separator(height: .minimal, color: Colors.Stroke.primary)
-                    .padding(.leading, 62)
-            }
+        SelectableSection(providersViewData) { providerData in
+            OnrampProviderRowView(isSelected: providerData.id == selectedProviderID, data: providerData)
         }
+        .separatorPadding(.init(leading: 62, trailing: SelectionOverlay.Constants.secondStrokeLineWidth))
     }
 }
