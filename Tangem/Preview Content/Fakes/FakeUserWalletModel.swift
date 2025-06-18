@@ -25,8 +25,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
-    let cardImageProvider: CardImageProviding
-    let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let imageProvider: WalletImageProviding
+    let signer: TransactionSigner = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
@@ -97,7 +97,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
             userTokenListManager: fakeUserTokenListManager
         )
         totalBalanceProvider = TotalBalanceProviderMock()
-        cardImageProvider = CardImageProvider(
+        imageProvider = CardImageProvider(
             input: .init(
                 cardId: "",
                 cardPublicKey: Data(),
@@ -131,7 +131,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 

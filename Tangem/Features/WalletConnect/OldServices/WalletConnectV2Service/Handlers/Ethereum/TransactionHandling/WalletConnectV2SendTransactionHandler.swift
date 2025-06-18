@@ -27,7 +27,7 @@ class WalletConnectV2SendTransactionHandler {
         blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
-        signer: TangemSigner,
+        signer: TransactionSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
         uiDelegate: WalletConnectUIDelegate
     ) throws {
