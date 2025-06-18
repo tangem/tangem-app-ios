@@ -300,7 +300,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         models.removeAll { $0.userWalletId == userWalletId }
 
         encryptionKeyStorage.delete(userWalletId)
-        try? visaRefreshTokenRepository.deleteToken(cardId: userWallet.card.cardId)
+
+        if case .card(let card) = userWallet.walletInfo {
+            try? visaRefreshTokenRepository.deleteToken(cardId: card.cardId)
+        }
 
         if AppSettings.shared.saveAccessCodes {
             do {
@@ -395,8 +398,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func clearVisaRefreshTokenRepository(except userWalletModelToKeep: UserWalletModel? = nil) {
-        if let userWalletModelToKeep, let cardId = userWalletModelToKeep.userWallet?.card.cardId {
-            visaRefreshTokenRepository.clear(cardIdTokenToKeep: cardId)
+        if let userWalletModelToKeep, case .card(let card) = userWalletModelToKeep.userWallet?.walletInfo {
+            visaRefreshTokenRepository.clear(cardIdTokenToKeep: card.cardId)
         } else {
             visaRefreshTokenRepository.clear()
         }

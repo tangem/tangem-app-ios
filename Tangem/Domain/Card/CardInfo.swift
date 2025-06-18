@@ -21,7 +21,7 @@ enum WalletInfoType {
     case hot(HotWalletInfo)
 }
 
-struct HotWalletInfo {
+struct HotWalletInfo: Codable {
     let publicKey: Data
     let wallets: [HotWallet]
 }
