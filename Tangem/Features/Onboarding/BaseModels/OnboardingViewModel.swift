@@ -219,8 +219,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWalletRepository.add(userWalletModel)
     }
 
-    func loadImage(imageLoadInput: WalletImageProvider.Input) async -> Image {
-        let imageProvider = WalletImageProvider(input: imageLoadInput)
+    func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
+        let imageProvider = CardImageProvider(input: imageLoadInput)
         let imageValue = await imageProvider.loadLargeImage()
         return imageValue.image
     }
@@ -314,7 +314,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    private func loadMainImage(imageProvider: CardImageProviding) {
+    private func loadMainImage(imageProvider: WalletImageProviding) {
         runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 
