@@ -27,14 +27,14 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-    let cardImageProvider: CardImageProviding
+    let imageProvider: WalletImageProviding
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
     private let walletManagersRepository: WalletManagersRepository
 
     private var associatedCardIds: Set<String>
 
-    var signer: TangemSigner { _signer }
+    var signer: TransactionSigner { _signer }
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -91,7 +91,7 @@ class CommonUserWalletModel {
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-        cardImageProvider = CardImageProvider(card: cardInfo.card)
+        imageProvider = CardImageProvider(card: cardInfo.card)
 
         _signer = config.tangemSigner
         _userWalletNamePublisher = .init(name)
@@ -284,7 +284,7 @@ extension CommonUserWalletModel: UserWalletModel {
 }
 
 extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
+    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }
@@ -347,7 +347,7 @@ extension CommonUserWalletModel: UserWalletSerializable {
         let newStoredUserWallet = StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
-            card: cardInfo.card,
+            walletInfo: .card(cardInfo.card),
             associatedCardIds: associatedCardIds,
             walletData: cardInfo.walletData
         )
