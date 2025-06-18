@@ -62,7 +62,7 @@ struct UserWalletConfigFactory {
         }
     }
 
-    func makeConfig(hotWalletInfo: HotWalletInfo) -> UserWalletConfig {
+    func makeConfig(hotWalletInfo: HotWalletInfo) -> HotUserWalletConfig {
         #warning("provide implementation")
         fatalError("Not implemented")
     }

@@ -16,5 +16,5 @@ public struct HotWallet: Codable {
     /// Elliptic curve used for all wallet key operations.
     let curve: EllipticCurve
     /// Derived keys according to `Config.defaultDerivationPaths`
-    var derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]
+    public var derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]
 }
