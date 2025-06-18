@@ -9,14 +9,29 @@
 import Foundation
 import CryptoKit
 import TangemSdk
+import TangemHotSdk
 
 struct StoredUserWallet: Identifiable, Encodable {
     var id = UUID()
     let userWalletId: Data
     var name: String
-    var card: CardDTO
+    var walletInfo: StoredWalletInfo
     var associatedCardIds: Set<String>
     let walletData: DefaultWalletData
+}
+
+enum StoredWalletInfo: Codable {
+    case card(CardDTO)
+    case hotWallet(HotWalletInfo)
+
+    var isLocked: Bool {
+        switch self {
+        case .card(let cardDTO):
+            return cardDTO.wallets.isEmpty
+        case .hotWallet(let hotWallet):
+            return hotWallet.wallets.isEmpty
+        }
+    }
 }
 
 extension StoredUserWallet {
@@ -27,19 +42,34 @@ extension StoredUserWallet {
 
 extension StoredUserWallet {
     var isLocked: Bool {
-        card.wallets.isEmpty
+        walletInfo.isLocked
     }
 
-    func cardInfo() -> CardInfo {
-        return CardInfo(
-            card: card,
-            walletData: walletData,
-            primaryCard: nil
-        )
+    func cardInfo() -> CardInfo? {
+        switch walletInfo {
+        case .card(let card):
+            CardInfo(
+                card: card,
+                walletData: walletData,
+                primaryCard: nil
+            )
+        case .hotWallet: nil
+        }
     }
 }
 
 extension StoredUserWallet: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userWalletId
+        case name
+        case associatedCardIds
+        case walletData
+        case card
+        case cardDTOv4
+        case walletInfo
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
@@ -48,10 +78,28 @@ extension StoredUserWallet: Decodable {
         associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
         walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
 
-        if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
-            card = .init(cardDTOv4: cardDTOv4)
+        if let hotWallet = try? container.decode(HotWalletInfo.self, forKey: .walletInfo) {
+            walletInfo = .hotWallet(hotWallet)
+        } else if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
+            walletInfo = .card(.init(cardDTOv4: cardDTOv4))
         } else {
-            card = try container.decode(CardDTO.self, forKey: .card)
+            walletInfo = .card(try container.decode(CardDTO.self, forKey: .card))
+        }
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(userWalletId, forKey: .userWalletId)
+        try container.encode(name, forKey: .name)
+        try container.encode(associatedCardIds, forKey: .associatedCardIds)
+        try container.encode(walletData, forKey: .walletData)
+
+        switch walletInfo {
+        case .card(let card):
+            try container.encode(card, forKey: .card)
+        case .hotWallet(let hotWallet):
+            try container.encode(hotWallet, forKey: .walletInfo)
         }
     }
 }

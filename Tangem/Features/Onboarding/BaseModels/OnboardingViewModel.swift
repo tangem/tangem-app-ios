@@ -219,8 +219,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWalletRepository.add(userWalletModel)
     }
 
-    func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
-        let imageProvider = CardImageProvider(input: imageLoadInput)
+    func loadImage(imageLoadInput: WalletImageProvider.Input) async -> Image {
+        let imageProvider = WalletImageProvider(input: imageLoadInput)
         let imageValue = await imageProvider.loadLargeImage()
         return imageValue.image
     }
