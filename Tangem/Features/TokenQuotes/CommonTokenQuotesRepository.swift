@@ -149,9 +149,11 @@ private extension CommonTokenQuotesRepository {
         NotificationCenter.default
             // We can't use didBecomeActive because of NFC interaction app state changes
             .publisher(for: UIApplication.willEnterForegroundNotification)
-            // We need to add small delay in order to catch UserWalletRepository lock event
-            // If lock event occur - we can clear repository and no need to reload all saved items
-            .delay(for: 0.5, scheduler: DispatchQueue.main)
+            .filter { [weak self] _ in
+                guard let self else { return false }
+
+                return !userWalletRepository.isLocked
+            }
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 // Reload saved quotes
