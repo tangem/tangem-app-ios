@@ -38,10 +38,10 @@ struct AnalyticsContextData {
 }
 
 extension AnalyticsContextData {
-    init(card: CardDTO, productType: Analytics.ProductType, embeddedEntry: StorageEntry?, userWalletId: UserWalletId?) {
+    init(card: CardDTO?, productType: Analytics.ProductType, embeddedEntry: StorageEntry?, userWalletId: UserWalletId?) {
         self.productType = productType
-        batchId = card.batchId
-        firmware = card.firmwareVersion.stringValue
+        batchId = card?.batchId ?? "unknown"
+        firmware = card?.firmwareVersion.stringValue ?? "unknown"
         baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
         self.userWalletId = userWalletId
     }
