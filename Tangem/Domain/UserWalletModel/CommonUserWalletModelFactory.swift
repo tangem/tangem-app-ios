@@ -31,7 +31,7 @@ struct CommonUserWalletModelFactory {
 
         let userWalletId = UserWalletId(with: userWalletIdSeed)
 
-        let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
+        let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets.map(\.walletPublicInfo))
 
         let userTokenListManager = CommonUserTokenListManager(
             userWalletId: userWalletId.value,
