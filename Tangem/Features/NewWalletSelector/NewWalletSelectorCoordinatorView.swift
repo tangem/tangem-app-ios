@@ -35,6 +35,7 @@ struct NewWalletSelectorCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.onboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
+                    .navigationBarHidden(true)
             }
             .emptyNavigationLink()
     }
