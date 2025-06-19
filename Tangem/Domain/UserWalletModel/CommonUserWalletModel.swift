@@ -43,7 +43,7 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     private(set) var cardInfo: CardInfo
-    private var cardConfig: CardUserWalletConfig
+    var config: UserWalletConfig
 
     private(set) var name: String
 
@@ -60,7 +60,7 @@ class CommonUserWalletModel {
     init(
         cardInfo: CardInfo,
         name: String,
-        config: CardUserWalletConfig,
+        config: UserWalletConfig,
         userWalletId: UserWalletId,
         associatedCardIds: Set<String>,
         walletManagersRepository: WalletManagersRepository,
@@ -74,7 +74,7 @@ class CommonUserWalletModel {
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     ) {
         self.cardInfo = cardInfo
-        cardConfig = config
+        self.config = config
         self.userWalletId = userWalletId
         self.name = name
 
@@ -136,9 +136,9 @@ class CommonUserWalletModel {
 
     private func onUpdate() {
         AppLogger.info("Updating with new card")
-        cardConfig = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+        config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         _cardHeaderImagePublisher.send(config.cardHeaderImage)
-        _signer = cardConfig.tangemSigner
+        _signer = config.tangemSigner
         // prevent save until onboarding completed
         if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
             userWalletRepository.save()
@@ -168,17 +168,13 @@ extension CommonUserWalletModel {
 // [REDACTED_TODO_COMMENT]
 extension CommonUserWalletModel: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
-        cardConfig.makeTangemSdk()
+        config.makeTangemSdk()
     }
 }
 
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    var config: any UserWalletConfig {
-        cardConfig as UserWalletConfig
-    }
-
     var totalSignedHashes: Int {
         cardInfo.card.wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
@@ -219,7 +215,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
             userWalletModel: self,
-            sdkFactory: cardConfig,
+            sdkFactory: config,
             onboardingStepsBuilderFactory: config,
             pushNotificationsInteractor: pushNotificationsInteractor
         )
