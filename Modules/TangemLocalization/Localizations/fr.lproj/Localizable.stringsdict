@@ -109,9 +109,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li article</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li articles</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
