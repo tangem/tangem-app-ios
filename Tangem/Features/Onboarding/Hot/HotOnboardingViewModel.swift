@@ -6,10 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-
-protocol HotOnboardingRoutable: OnboardingRoutable {}
+import TangemSdk
 
 final class HotOnboardingViewModel: ObservableObject {
     @Published var currentStep: HotOnboardingStep
@@ -20,11 +18,8 @@ final class HotOnboardingViewModel: ObservableObject {
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
 
-    lazy var createWalletViewModel = HotOnboardingCreateWalletViewModel(
-        onCreate: { [weak self] in
-            self?.createHotWallet()
-        }
-    )
+    lazy var createWalletViewModel = HotOnboardingCreateWalletViewModel(delegate: self)
+    lazy var importWalletViewModel = HotOnboardingImportWalletViewModel(delegate: self)
 
     private let input: HotOnboardingInput
     private weak var coordinator: HotOnboardingRoutable?
@@ -47,8 +42,6 @@ extension HotOnboardingViewModel {
             closeOnboarding()
         }
     }
-
-    func onSupportTap() {}
 }
 
 // MARK: - Steps navigation
@@ -71,11 +64,23 @@ private extension HotOnboardingViewModel {
 // MARK: - Private methods
 
 private extension HotOnboardingViewModel {
-    func createHotWallet() {
-        goToNextStep()
-    }
-
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - HotOnboardingCreateWalletDelegate
+
+extension HotOnboardingViewModel: HotOnboardingCreateWalletDelegate {
+    func onCreateWallet() {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+// MARK: - HotOnboardingImportWalletDelegate
+
+extension HotOnboardingViewModel: HotOnboardingImportWalletDelegate {
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
