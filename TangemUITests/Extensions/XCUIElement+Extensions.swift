@@ -13,6 +13,24 @@ import Foundation
 
 extension XCUIElement {
     @discardableResult
+    func waitAndTap(timeout: TimeInterval = .longUIUpdate, waitForHittable: Bool = true) -> Bool {
+        guard waitForExistence(timeout: timeout) else {
+            XCTFail("Element '\(self)' did not exist after waiting \(timeout) seconds")
+            return false
+        }
+
+        if waitForHittable {
+            guard waitForState(state: .hittable, for: timeout) else {
+                XCTFail("Element '\(self)' was not hittable after waiting \(timeout) seconds")
+                return false
+            }
+        }
+
+        tap()
+        return true
+    }
+
+    @discardableResult
     func waitForState(state: NSPredicateFormat, for timeout: TimeInterval = .quickUIUpdate) -> Bool {
         let testCase = XCTestCase()
         let predicate = NSPredicate(format: state.rawValue)
@@ -51,47 +69,6 @@ extension XCUIElement {
         }
     }
 
-    func editText(text: String) {
-        app.scrollToElement(self)
-        let clearButton = app.buttons["Clear text"].firstMatch
-        if !hasFocus {
-            tap()
-        }
-        if clearButton.exists {
-            clearButton.tap()
-        }
-        typeText(text)
-        app.hideKeyboardIfNeeded()
-    }
-
-    func clearText() {
-        app.scrollToElement(self)
-        if !hasFocus {
-            tap()
-        }
-
-        guard let value = value as? String, !value.isEmpty else {
-            return
-        }
-
-        for char in String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count) {
-            typeText(String(char))
-        }
-    }
-
-    func deleteText() {
-        if !hasFocus {
-            doubleTap()
-        } else {
-            tap()
-        }
-        let selectAllMenuItem = app.menuItems["Select All"]
-        if selectAllMenuItem.waitForExistence(timeout: 1) {
-            selectAllMenuItem.tap()
-        }
-        typeText("\u{8}")
-    }
-
     func getValue() -> String {
         guard let value = value as? String, !value.isEmpty else {
             return ""
@@ -107,12 +84,6 @@ extension XCUIElement {
         } else if doneButton.exists {
             doneButton.tap()
         }
-    }
-
-    func pressAndDragDown() {
-        let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1.0))
-        startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
     }
 }
 
@@ -147,11 +118,6 @@ extension XCUIElement {
         let selfContainsIdentifier = identifier.contains(id)
         let buttons = buttons.matching(predicate).allElementsBoundByIndex
         return !otherElements.isEmpty || !buttons.isEmpty || !staticTexts.isEmpty || selfContainsIdentifier
-    }
-
-    func isVisible() -> Bool {
-        app.scrollToElement(self, attempts: .lazy)
-        return isHittable
     }
 }
 
