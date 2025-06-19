@@ -551,7 +551,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var imageProvider: WalletImageProviding { userWalletModel.imageProvider }
+    var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
 
     var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
 

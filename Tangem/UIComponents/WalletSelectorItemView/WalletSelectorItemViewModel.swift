@@ -23,7 +23,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let cardImageProvider: WalletImageProviding
+    private let walletImageProvider: WalletImageProviding
 
     private var onTapWallet: ((UserWalletId) -> Void)?
 
@@ -37,7 +37,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        cardImageProvider: WalletImageProviding,
+        walletImageProvider: WalletImageProviding,
         isSelected: Bool,
         didTapWallet: ((UserWalletId) -> Void)?
     ) {
@@ -46,7 +46,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
         self.userWalletNamePublisher = userWalletNamePublisher
         self.totalBalancePublisher = totalBalancePublisher
-        self.cardImageProvider = cardImageProvider
+        self.walletImageProvider = walletImageProvider
         self.isSelected = isSelected
         onTapWallet = didTapWallet
 
@@ -56,7 +56,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     func loadImage() {
         runTask(in: self) { viewModel in
-            let image = await viewModel.cardImageProvider.loadSmallImage()
+            let image = await viewModel.walletImageProvider.loadSmallImage()
 
             await runOnMain {
                 viewModel.icon = .loaded(image)
