@@ -54,10 +54,13 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         self.cardImageProvider = cardImageProvider
         self.tapAction = tapAction
         bind()
-        loadImage()
     }
 
     func loadImage() {
+        guard icon.value == nil else {
+            return
+        }
+
         runTask(in: self) { viewModel in
             let image = await viewModel.cardImageProvider.loadSmallImage()
 
@@ -81,6 +84,10 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .sink { $0.setupBalanceState(state: $1) }
             .store(in: &bag)
+    }
+
+    func onAppear() {
+        loadImage()
     }
 
     private func setupBalanceState(state: TotalBalanceState) {
