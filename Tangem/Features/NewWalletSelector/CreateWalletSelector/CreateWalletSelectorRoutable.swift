@@ -11,5 +11,5 @@ import Foundation
 protocol CreateWalletSelectorRoutable: AnyObject {
     func openMobileWallet()
     func openHardwareWallet()
-    func openSupport()
+    func openWhatToChoose()
 }
