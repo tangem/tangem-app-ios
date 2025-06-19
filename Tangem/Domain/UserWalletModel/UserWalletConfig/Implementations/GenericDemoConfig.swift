@@ -51,7 +51,7 @@ extension GenericDemoConfig: CardUserWalletConfig {
         return .v2
     }
 
-    var name: String {
+    var defaultName: String {
         "Wallet"
     }
 
