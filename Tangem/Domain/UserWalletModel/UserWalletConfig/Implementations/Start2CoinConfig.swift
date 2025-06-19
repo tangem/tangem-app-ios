@@ -42,7 +42,7 @@ extension Start2CoinConfig: CardUserWalletConfig {
         nil
     }
 
-    var name: String {
+    var defaultName: String {
         "Start2Coin"
     }
 
