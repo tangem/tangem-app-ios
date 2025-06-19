@@ -101,6 +101,7 @@ public struct BackButton: View {
 }
 
 public struct SupportButton: View {
+    let title: String
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -109,6 +110,7 @@ public struct SupportButton: View {
     let action: () -> Void
 
     public init(
+        title: String = Localization.commonSupport,
         height: CGFloat,
         isVisible: Bool,
         isEnabled: Bool,
@@ -116,6 +118,7 @@ public struct SupportButton: View {
         hPadding: CGFloat = 16,
         action: @escaping () -> Void
     ) {
+        self.title = title
         self.height = height
         self.isVisible = isVisible
         self.isEnabled = isEnabled
@@ -126,7 +129,7 @@ public struct SupportButton: View {
 
     public var body: some View {
         Button(action: action, label: {
-            Text(Localization.commonSupport)
+            Text(title)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
