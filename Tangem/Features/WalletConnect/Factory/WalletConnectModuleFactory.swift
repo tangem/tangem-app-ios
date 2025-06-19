@@ -17,6 +17,8 @@ import TangemFoundation
 enum WalletConnectModuleFactory {
     @Injected(\.wcService) private static var walletConnectService: any WCService
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
+    @Injected(\.connectedDAppRepository) private static var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
 
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
@@ -24,13 +26,11 @@ enum WalletConnectModuleFactory {
 
     private static let supportURLStub = "com.tangem.walletconnect.support"
 
+    private static let disconnectDAppService = ReownWalletConnectDisconnectDAppService(walletConnectService: Self.walletConnectService)
+
     private static let dAppDataService = ReownWalletConnectDAppDataService(walletConnectService: Self.walletConnectService)
     private static let dAppProposalApprovalService = ReownWalletConnectDAppProposalApprovalService(
         walletConnectService: Self.walletConnectService
-    )
-
-    private static let dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
-        apiService: BlockaidFactory().makeBlockaidAPIService()
     )
 
     private static let dateFormatter: RelativeDateTimeFormatter = {
@@ -55,10 +55,17 @@ enum WalletConnectModuleFactory {
             openSystemSettingsAction: openSystemSettingsAction
         )
 
+        let disconnectDAppUseCase = WalletConnectDisconnectDAppUseCase(
+            disconnectDAppService: disconnectDAppService,
+            connectedDAppRepository: connectedDAppRepository
+        )
+
+        let getConnectedDAppsUseCase = WalletConnectGetConnectedDAppsUseCase(repository: connectedDAppRepository)
+
         return WalletConnectViewModel(
-            walletConnectService: walletConnectService,
-            userWalletRepository: userWalletRepository,
             establishDAppConnectionUseCase: establishDAppConnectionUseCase,
+            getConnectedDAppsUseCase: getConnectedDAppsUseCase,
+            disconnectDAppUseCase: disconnectDAppUseCase,
             coordinator: coordinator
         )
     }
@@ -93,8 +100,9 @@ enum WalletConnectModuleFactory {
         let interactor = WalletConnectDAppConnectionInteractor(
             getDAppConnectionProposal: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchains: WalletConnectResolveAvailableBlockchainsUseCase(),
-            connectDApp: WalletConnectConnectDAppUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
-            rejectDAppProposal: WalletConnectRejectDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService)
+            approveDAppProposal: WalletConnectApproveDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
+            rejectDAppProposal: WalletConnectRejectDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
+            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository)
         )
 
         return WalletConnectDAppConnectionViewModel(
@@ -123,37 +131,44 @@ enum WalletConnectModuleFactory {
         return (coordinator, options)
     }
 
-    static func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectSavedSession) -> WalletConnectConnectedDAppDetailsViewModel {
-        let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletId })
+    static func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectConnectedDApp) -> WalletConnectConnectedDAppDetailsViewModel {
         let imageProvider = NetworkImageProvider()
 
-        let state = WalletConnectConnectedDAppDetailsViewState(
-            navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: Self.connectedTime(from: dApp)),
-            dAppDescriptionSection: .content(
-                WalletConnectDAppDescriptionViewModel.ContentState(
-                    // [REDACTED_TODO_COMMENT]
-                    iconURL: nil,
-                    name: dApp.sessionInfo.dAppInfo.name,
-                    domain: URL(string: dApp.sessionInfo.dAppInfo.url)
-                )
-            ),
-            walletSection: WalletConnectConnectedDAppDetailsViewState.WalletSection(walletName: userWallet?.name),
-            connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.ConnectedNetworksSection(
-                blockchains: dApp.connectedBlockchains.map { blockchain in
-                    WalletConnectConnectedDAppDetailsViewState.BlockchainRowItem(
-                        id: blockchain.networkId,
-                        asset: imageProvider.provide(by: blockchain, filled: true),
-                        name: blockchain.displayName,
-                        currencySymbol: blockchain.currencySymbol
+        let state = WalletConnectConnectedDAppDetailsViewState.dAppDetails(
+            WalletConnectConnectedDAppDetailsViewState.DAppDetails(
+                navigationBar: WalletConnectConnectedDAppDetailsViewState.DAppDetails.NavigationBar(
+                    connectedTime: Self.connectedTime(from: dApp)
+                ),
+                dAppDescriptionSection: .content(
+                    WalletConnectDAppDescriptionViewModel.ContentState(
+                        dAppData: dApp.dAppData,
+                        verificationStatus: dApp.verificationStatus
                     )
-                }
+                ),
+                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: dApp.userWallet.name),
+                dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
+                connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
+                    blockchains: dApp.blockchains.map { blockchain in
+                        WalletConnectConnectedDAppDetailsViewState.DAppDetails.BlockchainRowItem(
+                            id: blockchain.networkId,
+                            iconAsset: imageProvider.provide(by: blockchain, filled: true),
+                            name: blockchain.displayName,
+                            currencySymbol: blockchain.currencySymbol
+                        )
+                    }
+                )
             )
+        )
+
+        let disconnectDAppUseCase = WalletConnectDisconnectDAppUseCase(
+            disconnectDAppService: disconnectDAppService,
+            connectedDAppRepository: connectedDAppRepository
         )
 
         return WalletConnectConnectedDAppDetailsViewModel(
             state: state,
-            dAppID: dApp.id,
-            walletConnectService: walletConnectService,
+            connectedDApp: dApp,
+            disconnectDAppUseCase: disconnectDAppUseCase,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
             }
@@ -166,12 +181,10 @@ enum WalletConnectModuleFactory {
 
     // MARK: - Formatters
 
-    private static func connectedTime(from dApp: WalletConnectSavedSession) -> String? {
-        // [REDACTED_TODO_COMMENT]
-        guard let connectionDate = dApp.connectionDate else { return nil }
-        let relativeDateString = dateFormatter.localizedString(for: connectionDate, relativeTo: Date.now)
+    private static func connectedTime(from dApp: WalletConnectConnectedDApp) -> String? {
+        let relativeDateString = dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
         let delimiter = " • "
-        let timeString = connectionDate.formatted(.dateTime.hour().minute())
+        let timeString = dApp.connectionDate.formatted(.dateTime.hour().minute())
 
         return relativeDateString + delimiter + timeString
     }
@@ -224,6 +237,11 @@ enum WalletConnectModuleFactory {
         }
 
         return Toast(view: WarningToast(text: errorMessage))
+    }
+
+    static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> Toast<WarningToast> {
+        // [REDACTED_TODO_COMMENT]
+        return Toast(view: WarningToast(text: ""))
     }
 
     static func makeDAppProposalLoadingErrorViewModel(
