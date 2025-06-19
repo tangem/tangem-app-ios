@@ -31,7 +31,7 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
-    var signer: TransactionSigner { get }
+    var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var walletImageProvider: WalletImageProviding { get }
