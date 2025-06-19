@@ -17,7 +17,7 @@ class FactorySettingsResettingCardInteractor {
     init(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
-        filter = config.sessionFilter
+        filter = config.cardSessionFilter
     }
 
     init(with cardId: String) {
