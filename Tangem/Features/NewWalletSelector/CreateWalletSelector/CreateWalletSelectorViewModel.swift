@@ -24,7 +24,7 @@ final class CreateWalletSelectorViewModel {
         self.coordinator = coordinator
         self.delegate = delegate
         scanItem = ScanItem(
-            title: "Do you already have Tangem Wallet? ",
+            title: "Do you already have Tangem Wallet?",
             buttonTitle: "Scan device",
             buttonIcon: Assets.tangemIcon
         )
@@ -36,7 +36,7 @@ final class CreateWalletSelectorViewModel {
 
 extension CreateWalletSelectorViewModel {
     func onSupportTap() {
-        coordinator?.openSupport()
+        coordinator?.openWhatToChoose()
     }
 
     func onScanTap() {
