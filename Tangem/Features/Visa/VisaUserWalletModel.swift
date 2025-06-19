@@ -545,7 +545,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
-    var signer: TransactionSigner { userWalletModel.signer }
+    var signer: TangemSigner { userWalletModel.signer }
 
     var updatePublisher: AnyPublisher<Void, Never> { userWalletModel.updatePublisher }
 
