@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 
 /// V3 Config
-struct LegacyConfig {
+struct LegacyConfig: CardContainer {
     let card: CardDTO
     private let walletData: WalletData?
 
@@ -44,7 +44,7 @@ struct LegacyConfig {
     }
 }
 
-extension LegacyConfig: CardUserWalletConfig {
+extension LegacyConfig: UserWalletConfig {
     var cardSetLabel: String? {
         nil
     }
