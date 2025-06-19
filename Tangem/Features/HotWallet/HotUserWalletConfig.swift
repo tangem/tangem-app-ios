@@ -36,6 +36,10 @@ extension HotUserWalletConfig: UserWalletConfig {
         existingCurves
     }
 
+    var tangemSigner: TangemSigner {
+        fatalError("Unimplemented")
+    }
+
     var generalNotificationEvents: [GeneralNotificationEvent] {
         GeneralNotificationEventsFactory().makeNotifications(for: hotWallet)
     }
@@ -116,6 +120,14 @@ extension HotUserWalletConfig: UserWalletConfig {
         case .promotion: .available
         case .nft: .available
         }
+    }
+
+    func makeBackupService() -> BackupService {
+        fatalError("Unimplemented")
+    }
+
+    func makeTangemSdk() -> TangemSdk {
+        fatalError("Unimplemented")
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> any WalletModelsFactory {
