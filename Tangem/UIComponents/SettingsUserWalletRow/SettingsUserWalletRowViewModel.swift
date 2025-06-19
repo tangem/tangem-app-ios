@@ -32,7 +32,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletNamePublisher: userWallet.userWalletNamePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
-            cardImageProvider: userWallet.imageProvider,
+            cardImageProvider: userWallet.walletImageProvider,
             tapAction: tapAction
         )
     }
