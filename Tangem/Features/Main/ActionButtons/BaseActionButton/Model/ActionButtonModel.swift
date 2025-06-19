@@ -40,11 +40,11 @@ enum ActionButtonModel: Hashable {
     var accessibilityIdentifier: String {
         switch self {
         case .buy:
-            AccessibilityIdentifiers.Main.buyTitle
+            MainAccessibilityIdentifiers.buyTitle
         case .swap:
-            AccessibilityIdentifiers.Main.exchangeTitle
+            MainAccessibilityIdentifiers.exchangeTitle
         case .sell:
-            AccessibilityIdentifiers.Main.sellTitle
+            MainAccessibilityIdentifiers.sellTitle
         }
     }
 }
