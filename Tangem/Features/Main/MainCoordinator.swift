@@ -590,7 +590,7 @@ extension MainCoordinator: WCTransactionRoutable {
     func showWCTransactionRequest(with data: WCHandleTransactionData) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(dappInfo: data.dappInfo, transactionData: data)
+                sheet: WCTransactionViewModel(dAppData: data.dAppData, transactionData: data)
             )
         }
     }
