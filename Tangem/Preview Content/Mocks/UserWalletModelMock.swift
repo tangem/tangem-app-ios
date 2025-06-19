@@ -38,7 +38,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var nftManager: NFTManager { NFTManagerStub() }
 
-    var signer: TransactionSigner { fatalError("TangemSignerMock doesn't exist") }
+    var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 
     var updatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
 
