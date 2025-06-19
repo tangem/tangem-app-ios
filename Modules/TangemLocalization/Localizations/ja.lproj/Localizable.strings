@@ -281,7 +281,7 @@
 "exсhange_token_description" = "ポートフォリオ内のアセットをこのトークンと交換する";
 "express_by_provider_placeholder" = "提供元 %@";
 "express_cex_status_button_title" = "ステータス";
-"express_choose_provider" = "Choose provider";
+"express_choose_provider" = "プロバイダーを選択";
 "express_choose_providers_subtitle" = "プロバイダーが取引を促進します";
 "express_choose_providers_title" = "プロバイダー";
 "express_error_provider_amount_roundup" = "エラー%1$@ 。選択したプロバイダーは指定された取引を処理できません。値を%2$@に切り上げるか、変更してください。";
@@ -542,6 +542,8 @@
 "nft_receive_unavailable_asset_warning_message" = "このネットワークはまだ追加されていません。NFTを受け取るには、ポートフォリオに追加してください。";
 "nft_receive_unavailable_asset_warning_title" = "ネットワークが追加されていません";
 "nft_receive_unavailable_section_title" = "未追加";
+"nft_receive_unsupported_types_description" = "cNFTとpNFTはまだサポートされていません";
+"nft_receive_unsupported_types" = "サポートされていないNFTタイプ";
 "nft_send" = "NFTを送信する";
 "nft_traits_title" = "特徴";
 "nft_untitled_collection" = "無題のコレクション";
@@ -775,6 +777,9 @@
 "send_max_fee" = "最大手数料";
 "send_memo_destination_tag_error" = "無効なメモ";
 "send_network_fee_warning_title" = "ネットワーク手数料のカバー";
+"send_nonce_footer" = "各取引に固有の番号です。保留中の取引を再送信またはキャンセルするために使用します。";
+"send_nonce_hint" = "ナンスを入力してください...";
+"send_nonce" = "ナンス";
 "send_notification_exceed_balance_text" = "手数料と送金額の合計が残高を超えているため、送金に必要な資金が不足しています。";
 "send_notification_exceed_balance_title" = "合計が残高を超えています";
 "send_notification_existential_deposit_text" = "セキュリティリスクを防ぐため、ブロックチェーン上にアカウントを維持するには、少なくとも%@ の残高が必要です。この金額は残高に残り、引き出すことはできません。";
@@ -800,8 +805,10 @@
 "send_qrcode_scan_info" = "QRコードを正方形に合わせてスキャンしてください。%@ ネットワークアドレスをスキャンしてください。";
 "send_recent_transactions" = "最近の取引";
 "send_recipient_address_error" = "有効なアドレスではありません";
+"send_recipient_address_footer_markdown" = "エラーが発生すると転送が失われる可能性があるため、** %s ** ネットワークアドレスに送信するようにしてください。";
 "send_recipient_address_footer" = "トークンを失わないように、受信ウォレットアドレスが%@ネットワーク上にあることを確認してください。";
 "send_recipient_label" = "送金先";
+"send_recipient_memo_footer_markdown" = "メモ / 宛先タグは、暗号資産ネットワーク内の共通の受信者への取引を区別するコードです。**注意：メモを紛失すると資金が失われる可能性があります。**";
 "send_recipient_memo_footer" = "メモ/宛先タグは、同じネットワーク上の同じ受信者に送信された取引を区別するためのユニークなIDです。注意：メモを省略すると、資金の行き違いにつながる可能性があります。";
 "send_recipient_wallets_title" = "マイウォレット";
 "send_recipient" = "受取人";
@@ -827,7 +834,7 @@
 "settings_forget_wallet_footer" = "これにより、ウォレットがアプリから削除されます。ウォレットは再度追加できます。";
 "settings_forget_wallet" = "ウォレット削除";
 "settings_wallet_name_title" = "名前";
-"stake_token_description" = "このトークンのステーキングに参加";
+"stake_token_description" = "トークンを活用しよう";
 "staking_active_footer" = "資産のステーキングを解除するには、上のブロックをタップしてください";
 "staking_active" = "アクティブ";
 "staking_amount_requirement_error" = "ステーキング金額は %@ 以上である必要があります";
@@ -1261,7 +1268,7 @@
 "warning_rate_app_message" = "あなたのレビューは、Tangemウォレットをさらに良くするためのモチベーションになります";
 "warning_rate_app_title" = "Tangemを楽しんでいますか?";
 "warning_receive_blocked_hedera_token_association_required_message" = "トークンを受け取る前に、トークンを関連付ける必要があります。";
-"warning_receive_blocked_stelar_token_trustline_required_message" = "トークンを受け取る前に、トラストラインを開く必要があります";
+"warning_receive_blocked_token_trustline_required_message" = "トークンを受け取る前に、トラストラインを開く必要があります";
 "warning_rent_fee_title" = "ネットワーク使用料が必要です";
 "warning_seedphrase_action_required_title" = "対応が必要です";
 "warning_seedphrase_contacted_support" = "ウォレットの作成後、7日以内にアプリ経由でサポートに連絡しましたか？連絡した場合、あるいは連絡したかわからない場合は、「はい」をクリックして指示に従ってください。";
@@ -1275,16 +1282,16 @@
 "warning_some_networks_unreachable_message" = "下にスワイプして更新するか、後でもう一度お試しください。";
 "warning_some_networks_unreachable_title" = "一部のネットワークにアクセスできません";
 "warning_some_token_balances_not_updated" = "一部のトークン残高を更新できませんでした";
-"warning_stelar_token_required_min_coin_reserve" = "%1$@が足りません。このトークンを関連付けるには、XLMアカウントにチャージしてください。";
-"warning_stellar_token_trustline_button_title" = "トラストラインを有効にする";
-"warning_stellar_token_trustline_subtiile" = "ネットワークルールに従い、このトークンを入金する前にトラストラインを開設する必要があります。これにより、ウォレットが資産を受け入れ、保管できるようになります。";
-"warning_stellar_token_trustline_tiile" = "このトークンのトラストラインを有効にする";
 "warning_system_deprecation_title" = "システムアップデートが必要です";
 "warning_system_deprecation_with_date_message" = "お使いのバージョンのオペレーティングシステムのサポートは%@に終了します。今後アプリのアップデートを受け取るには、最新バージョンにアップデートする必要があります。";
 "warning_system_update_message" = "Tangemは、安定・安全な操作のために最新のiOSアップデートをインストールすることを推奨しています。";
 "warning_system_update_title" = "システムアップデートが可能です";
 "warning_testnet_card_message" = "これはテストネットカードです。取引処理はできませんので、テストおよび開発目的でのみご利用ください。";
 "warning_testnet_card_title" = "テスト目的のみ";
+"warning_token_required_min_coin_reserve" = "%1$@が足りません。このトークンを関連付けるには、XLMアカウントにチャージしてください。";
+"warning_token_trustline_button_title" = "トラストラインを有効にする";
+"warning_token_trustline_subtiile" = "このトークンを受け取るには、トラストラインを有効にする必要があります。ネットワークには%1$@ %2$@予備金が必要です。";
+"warning_token_trustline_tiile" = "トラストラインが必要";
 "wc_alert_audit_unknown_domain" = "不明なドメイン";
 "wc_alert_connect_anyway" = "とにかく接続する";
 "wc_alert_connection_timeout_description" = "タイムアウトエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -1292,7 +1299,8 @@
 "wc_alert_domain_issues_description" = "このドメインは検証できません。承認前にリクエスト内容をよく確認してください。";
 "wc_alert_session_disconnected_description" = "ブラウザに戻り、WalletConnect経由で再接続してください。";
 "wc_alert_session_disconnected_title" = "WalletConnectセッションが接続解除されました";
-"wc_alert_sign_anyway" = "Sign anyway";
+"wc_alert_sign_anyway" = "とにかくサインする";
+"wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
