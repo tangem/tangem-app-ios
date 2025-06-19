@@ -12,6 +12,10 @@ struct TangemBlogUrlBuilder {
     func url(post: Post) -> URL {
         return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/blog/post/\(post.path)/")!
     }
+
+    func url(root: Root) -> URL {
+        return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/\(root.path)/")!
+    }
 }
 
 extension TangemBlogUrlBuilder {
@@ -21,6 +25,10 @@ extension TangemBlogUrlBuilder {
         case refundedDex
         case whatIsStaking
         case seedNotify
+    }
+
+    enum Root {
+        case pricing
     }
 }
 
@@ -37,6 +45,15 @@ private extension TangemBlogUrlBuilder.Post {
             "how-to-stake-cryptocurrency"
         case .seedNotify:
             "seed-notify"
+        }
+    }
+}
+
+private extension TangemBlogUrlBuilder.Root {
+    var path: String {
+        switch self {
+        case .pricing:
+            "pricing"
         }
     }
 }
