@@ -45,10 +45,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .learnToEarn: return .unspecified
         case .onramp: return .version("5.24.2")
         case .visa: return .unspecified
-        case .nft: return .unspecified
+        case .nft: return .version("5.25")
         case .walletConnectUI: return .unspecified
         case .newAttestation: return .version("5.24")
-        case .logs: return .unspecified
+        case .logs: return .version("5.25")
         case .newSendUI: return .unspecified
         case .sendViaSwap: return .unspecified
         case .hotWallet: return .unspecified
