@@ -18,7 +18,7 @@ class LockedUserWalletModel: UserWalletModel {
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
-    let imageProvider: WalletImageProviding
+    let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
     var signer: TransactionSigner
 
@@ -106,7 +106,7 @@ class LockedUserWalletModel: UserWalletModel {
 
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
-        imageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
+        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
     }
 
     func updateWalletName(_ name: String) {

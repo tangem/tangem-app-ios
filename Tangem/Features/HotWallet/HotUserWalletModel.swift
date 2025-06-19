@@ -110,7 +110,7 @@ class HotUserWalletModel {
         AppLogger.info("Updating with new card")
         hotUserWalletConfig = UserWalletConfigFactory().makeConfig(hotWalletInfo: hotWalletInfo)
         _walletHeaderImagePublisher.send(config.cardHeaderImage)
-        _signer = config.transactionSigner
+        _signer = hotUserWalletConfig.transactionSigner
         // prevent save until onboarding completed
         if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
             userWalletRepository.save()
@@ -133,13 +133,6 @@ extension HotUserWalletModel: UserWalletModel {
     var config: UserWalletConfig { hotUserWalletConfig as UserWalletConfig }
 
     var tangemApiAuthData: TangemApiTarget.AuthData { fatalError("Unimplemented") }
-
-    var imageProvider: WalletImageProviding { walletImageProvider }
-
-//    func validate() -> Bool
-//    func onBackupUpdate(type: BackupUpdateType)
-//    func updateWalletName(_ name: String)
-//    func addAssociatedCard(_ cardId: String)
 
     var totalSignedHashes: Int {
         0
@@ -246,7 +239,7 @@ extension HotUserWalletModel: AnalyticsContextDataProvider {
 
 extension HotUserWalletModel: UserWalletSerializable {
     func serialize() -> StoredUserWallet {
-        let name = name.isEmpty ? config.name : name
+        let name = name.isEmpty ? config.defaultName : name
 
         let newStoredUserWallet = StoredUserWallet(
             userWalletId: userWalletId.value,

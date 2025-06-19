@@ -32,7 +32,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
-    var imageProvider: WalletImageProviding {
+    var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
     }
 
