@@ -1,5 +1,5 @@
 //
-//  CommonTests.swift
+//  BaseTestCase.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import XCTest
 
-class CommonTests: XCTestCase {
-    var app = XCUIApplication()
+class BaseTestCase: XCTestCase {
+    let app = XCUIApplication()
 
     override func setUp() {
         super.setUp()
@@ -40,8 +40,16 @@ class CommonTests: XCTestCase {
         }
     }
 
-    func launchApp() {
-        app.launchArguments = ["--uitesting", "--alpha"]
+    func launchApp(resetToS: Bool = false, additionalArguments: [String] = []) {
+        var arguments = ["--uitesting", "--alpha"]
+
+        if resetToS {
+            arguments.append(contentsOf: ["-tangem_tap_terms_of_service_accepted", "NULL"])
+        }
+
+        arguments.append(contentsOf: additionalArguments)
+
+        app.launchArguments = arguments
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
     }
