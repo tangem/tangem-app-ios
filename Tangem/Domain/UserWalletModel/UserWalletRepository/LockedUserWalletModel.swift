@@ -20,13 +20,13 @@ class LockedUserWalletModel: UserWalletModel {
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
-    var signer: TransactionSigner
+    var signer: TangemSigner
 
     var tokensCount: Int? { nil }
 
     var cardsCount: Int { config.cardsCount }
 
-    var hasBackupCards: Bool { userWallet.cardInfo()?.card.backupStatus?.isActive ?? false }
+    var hasBackupCards: Bool { userWallet.cardInfo?.card.backupStatus?.isActive ?? false }
 
     var hasImportedWallets: Bool { false }
 
@@ -60,7 +60,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     var analyticsContextData: AnalyticsContextData {
         AnalyticsContextData(
-            card: userWallet.cardInfo()?.card,
+            card: userWallet.cardInfo?.card,
             productType: config.productType,
             embeddedEntry: config.embeddedBlockchain,
             userWalletId: userWalletId
@@ -102,7 +102,7 @@ class LockedUserWalletModel: UserWalletModel {
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
 
-        let walletInfo = userWallet.info()
+        let walletInfo = userWallet.info
 
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
@@ -139,7 +139,7 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
 
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
-        guard let cardInfo = userWallet.cardInfo() else {
+        guard let cardInfo = userWallet.cardInfo else {
             return nil
         }
 

@@ -13,7 +13,7 @@ struct CommonUserWalletModelFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
-        let walletInfo = userWallet.info()
+        let walletInfo = userWallet.info
 
         switch walletInfo.type {
         case .card(let cardInfo):
