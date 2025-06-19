@@ -19,7 +19,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory {
 
     var cardSetLabel: String? { get }
 
-    var name: String { get }
+    var defaultName: String { get }
 
     /// Actual state of current card's curves or main card's curves in case of biometrics
     var existingCurves: [EllipticCurve] { get }
@@ -28,8 +28,6 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory {
     var createWalletCurves: [EllipticCurve] { get }
 
     var derivationStyle: DerivationStyle? { get }
-
-    var transactionSigner: TransactionSigner { get }
 
     var generalNotificationEvents: [GeneralNotificationEvent] { get }
 
@@ -58,7 +56,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory {
 
     var cardHeaderImage: ImageType? { get }
 
-    var cardSessionFilter: SessionFilter? { get }
+    var cardSessionFilter: SessionFilter { get }
 
     var hasDefaultToken: Bool { get }
 
@@ -112,7 +110,6 @@ struct TOU {
 
 protocol CardContainer {
     var card: CardDTO { get }
-    var sessionFilter: SessionFilter { get }
 }
 
 extension UserWalletConfig where Self: CardContainer {
@@ -124,7 +121,7 @@ extension UserWalletConfig where Self: CardContainer {
         !card.wallets.isEmpty
     }
 
-    var sessionFilter: SessionFilter {
+    var cardSessionFilter: SessionFilter {
         let shouldSkipCardId = card.backupStatus?.isActive ?? false
 
         if shouldSkipCardId, let userWalletIdSeed {
@@ -134,10 +131,6 @@ extension UserWalletConfig where Self: CardContainer {
         }
 
         return .cardId(card.cardId)
-    }
-
-    var cardSessionFilter: SessionFilter? {
-        sessionFilter
     }
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
@@ -153,12 +146,8 @@ extension UserWalletConfig where Self: CardContainer, Self: BackupServiceFactory
 }
 
 extension UserWalletConfig where Self: CardContainer, Self: TangemSdkFactory {
-    var transactionSigner: TransactionSigner {
-        tangemSigner
-    }
-
     var tangemSigner: TangemSigner {
-        .init(filter: sessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
     func makeTangemSdk() -> TangemSdk {
