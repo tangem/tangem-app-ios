@@ -10,14 +10,30 @@ import TangemAssets
 
 final class HotOnboardingCreateWalletViewModel {
     let title = "Create Mobile Wallet"
-    let infoItems: [InfoItem]
-    let createItem: CreateItem
+    let createButtonTitle = "Create"
 
-    private let onCreate: () -> Void
+    lazy var infoItems: [InfoItem] = makeInfoItems()
 
-    init(onCreate: @escaping () -> Void) {
-        self.onCreate = onCreate
-        infoItems = [
+    private weak var delegate: HotOnboardingCreateWalletDelegate?
+
+    init(delegate: HotOnboardingCreateWalletDelegate) {
+        self.delegate = delegate
+    }
+}
+
+// MARK: - Internal methods
+
+extension HotOnboardingCreateWalletViewModel {
+    func onCreateTap() {
+        delegate?.onCreateWallet()
+    }
+}
+
+// MARK: - Private methods
+
+private extension HotOnboardingCreateWalletViewModel {
+    func makeInfoItems() -> [InfoItem] {
+        [
             InfoItem(
                 icon: Assets.cog24,
                 title: "Keys are stored in the app",
@@ -29,20 +45,15 @@ final class HotOnboardingCreateWalletViewModel {
                 subtitle: "Stay up to date with the latest features and news"
             ),
         ]
-        createItem = CreateItem(
-            title: "Create",
-            action: onCreate
-        )
     }
+}
 
+// MARK: - Types
+
+extension HotOnboardingCreateWalletViewModel {
     struct InfoItem {
         let icon: ImageType
         let title: String
         let subtitle: String
-    }
-
-    struct CreateItem {
-        let title: String
-        let action: () -> Void
     }
 }
