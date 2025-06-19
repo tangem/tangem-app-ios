@@ -52,10 +52,10 @@ private extension HotOnboardingView {
             switch viewModel.currentStep {
             case .createWallet:
                 HotOnboardingCreateWalletView(viewModel: viewModel.createWalletViewModel)
-                    .padding(.bottom, 14)
                     .transition(.opacity)
             case .importWallet:
-                EmptyView()
+                HotOnboardingImportWalletView(viewModel: viewModel.importWalletViewModel)
+                    .transition(.opacity)
             }
         }
         .padding(.horizontal, 16)
