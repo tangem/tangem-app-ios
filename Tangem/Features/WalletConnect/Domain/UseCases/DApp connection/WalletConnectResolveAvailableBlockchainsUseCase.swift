@@ -11,7 +11,7 @@ import TangemFoundation
 
 final class WalletConnectResolveAvailableBlockchainsUseCase {
     func callAsFunction(
-        sessionProposal: WalletConnectSessionProposal,
+        sessionProposal: WalletConnectDAppSessionProposal,
         selectedBlockchains: some Sequence<Blockchain>,
         userWallet: some UserWalletModel
     ) -> WalletConnectDAppBlockchainsAvailabilityResult {
