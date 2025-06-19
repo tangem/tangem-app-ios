@@ -13,7 +13,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 
-struct GenericDemoConfig {
+struct GenericDemoConfig: CardContainer {
     let card: CardDTO
 
     init(card: CardDTO) {
@@ -21,7 +21,7 @@ struct GenericDemoConfig {
     }
 }
 
-extension GenericDemoConfig: CardUserWalletConfig {
+extension GenericDemoConfig: UserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil

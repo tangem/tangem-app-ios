@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 
-struct Start2CoinConfig {
+struct Start2CoinConfig: CardContainer {
     let card: CardDTO
     private let walletData: WalletData
 
@@ -26,7 +26,7 @@ struct Start2CoinConfig {
     }
 }
 
-extension Start2CoinConfig: CardUserWalletConfig {
+extension Start2CoinConfig: UserWalletConfig {
     var emailConfig: EmailConfig? {
         .init(
             recipient: "cardsupport@start2coin.com",

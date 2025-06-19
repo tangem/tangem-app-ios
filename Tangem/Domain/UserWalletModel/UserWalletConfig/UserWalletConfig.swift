@@ -12,7 +12,7 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 
-protocol UserWalletConfig: OnboardingStepsBuilderFactory {
+protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory {
     var emailConfig: EmailConfig? { get }
 
     var cardsCount: Int { get }
@@ -28,6 +28,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory {
     var createWalletCurves: [EllipticCurve] { get }
 
     var derivationStyle: DerivationStyle? { get }
+
+    var tangemSigner: TangemSigner { get }
 
     var generalNotificationEvents: [GeneralNotificationEvent] { get }
 
@@ -117,6 +119,10 @@ extension UserWalletConfig where Self: CardContainer {
         card.walletCurves
     }
 
+    var tangemSigner: TangemSigner {
+        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+    }
+
     var isWalletsCreated: Bool {
         !card.wallets.isEmpty
     }
@@ -133,27 +139,17 @@ extension UserWalletConfig where Self: CardContainer {
         return .cardId(card.cardId)
     }
 
-    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
-        return CommonMainHeaderProviderFactory()
-    }
-}
-
-extension UserWalletConfig where Self: CardContainer, Self: BackupServiceFactory {
-    func makeBackupService() -> BackupService {
-        let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
-        return factory.makeBackupService()
-    }
-}
-
-extension UserWalletConfig where Self: CardContainer, Self: TangemSdkFactory {
-    var tangemSigner: TangemSigner {
-        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
-    }
-
     func makeTangemSdk() -> TangemSdk {
         let factory = GenericTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet)
         return factory.makeTangemSdk()
     }
-}
 
-typealias CardUserWalletConfig = UserWalletConfig & BackupServiceFactory & TangemSdkFactory & CardContainer
+    func makeBackupService() -> BackupService {
+        let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet)
+        return factory.makeBackupService()
+    }
+
+    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
+        return CommonMainHeaderProviderFactory()
+    }
+}

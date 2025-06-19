@@ -1,5 +1,5 @@
 //
-//  WalletConnectSessionProposalMapper.swift
+//  WalletConnectDAppSessionProposalMapper.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
-enum WalletConnectSessionProposalMapper {
+enum WalletConnectDAppSessionProposalMapper {
     static func mapRequiredBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
         mapDomainBlockchains(from: reownSessionProposal.requiredNamespaces)
     }
