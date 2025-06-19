@@ -13,6 +13,8 @@ import TangemAssets
 struct MeetTangemStoryPage: View {
     var progress: Double
     var isScanning: Bool
+    let createWallet: () -> Void
+    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
 
@@ -46,13 +48,13 @@ struct MeetTangemStoryPage: View {
             Spacer(minLength: 150)
 
             StoriesBottomButtons(
-                scanColorStyle: .primary,
-                orderColorStyle: .secondary,
                 isScanning: isScanning,
+                createWallet: createWallet,
+                importWallet: importWallet,
                 scanCard: scanCard,
                 orderCard: orderCard
             )
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
             .padding(.bottom, 6)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -62,8 +64,15 @@ struct MeetTangemStoryPage: View {
 
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: 0.8, isScanning: false) {} orderCard: {}
-            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-            .environment(\.colorScheme, .dark)
+        MeetTangemStoryPage(
+            progress: 0.8,
+            isScanning: false,
+            createWallet: {},
+            importWallet: {},
+            scanCard: {},
+            orderCard: {}
+        )
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+        .environment(\.colorScheme, .dark)
     }
 }
