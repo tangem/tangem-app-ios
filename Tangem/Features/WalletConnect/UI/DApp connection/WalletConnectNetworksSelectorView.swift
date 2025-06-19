@@ -125,14 +125,13 @@ struct WalletConnectNetworksSelectorView: View {
             Spacer()
                 .frame(width: 12)
 
-            Text(state.name)
-                .style(Fonts.Bold.subheadline, color: blockchainNameColor)
+            HStack(alignment: .bottom, spacing: 4) {
+                Text(state.name)
+                    .style(Fonts.Bold.subheadline, color: blockchainNameColor)
 
-            Spacer()
-                .frame(width: 4)
-
-            Text(state.currencySymbol)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                Text(state.currencySymbol)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
 
             Spacer(minLength: .zero)
 
