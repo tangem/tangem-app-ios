@@ -65,6 +65,11 @@ public extension FloatingSheetConfiguration {
 
         var target: Target
         var threshold: CGFloat
+
+        public init(target: Target, threshold: CGFloat) {
+            self.target = target
+            self.threshold = threshold
+        }
     }
 }
 
