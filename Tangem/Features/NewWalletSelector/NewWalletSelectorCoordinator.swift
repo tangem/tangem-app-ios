@@ -45,7 +45,10 @@ class NewWalletSelectorCoordinator: CoordinatorObject {
                 delegate: self
             )
         case .import:
-            importViewModel = ImportWalletSelectorViewModel(coordinator: self)
+            importViewModel = ImportWalletSelectorViewModel(
+                coordinator: self,
+                delegate: self
+            )
         }
     }
 }
@@ -61,10 +64,10 @@ extension NewWalletSelectorCoordinator: CreateWalletSelectorRoutable {
     }
 
     func openHardwareWallet() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        openCardPricing()
     }
 
-    func openSupport() {
+    func openWhatToChoose() {
         // [REDACTED_TODO_COMMENT]
     }
 }
@@ -83,7 +86,22 @@ extension NewWalletSelectorCoordinator: CreateWalletSelectorDelegate {
 
 // MARK: - ImportWalletSelectorRoutable
 
-extension NewWalletSelectorCoordinator: ImportWalletSelectorRoutable {}
+extension NewWalletSelectorCoordinator: ImportWalletSelectorRoutable {
+    func openOnboarding() {
+        let steps = HotOnboardingStepsBuilder().buildImportingSteps()
+        let input = HotOnboardingInput(steps: steps)
+        let options = OnboardingCoordinator.Options.hotInput(input)
+        openOnboarding(with: options)
+    }
+
+    func openBuyCard() {
+        openCardPricing()
+    }
+}
+
+// MARK: - ImportWalletSelectorDelegate
+
+extension NewWalletSelectorCoordinator: ImportWalletSelectorDelegate {}
 
 // MARK: - Navigation
 
@@ -129,6 +147,10 @@ private extension NewWalletSelectorCoordinator {
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+    }
+
+    func openCardPricing() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 }
 
