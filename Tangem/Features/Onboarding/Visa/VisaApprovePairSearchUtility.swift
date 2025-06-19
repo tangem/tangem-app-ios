@@ -41,7 +41,7 @@ struct VisaApprovePairSearchUtility {
 
                 let publicKeys = try findPublicKey(for: targetAddress, derivationPath: derivationPath, in: wallet)
                 return .init(
-                    sessionFilter: config.sessionFilter,
+                    sessionFilter: config.cardSessionFilter,
                     seedPublicKey: publicKeys.seedKey,
                     derivedPublicKey: publicKeys.derivedKey,
                     derivationPath: derivationPath,
