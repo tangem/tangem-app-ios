@@ -8,4 +8,7 @@
 
 import Foundation
 
-protocol ImportWalletSelectorRoutable: AnyObject {}
+protocol ImportWalletSelectorRoutable: AnyObject {
+    func openOnboarding()
+    func openBuyCard()
+}
