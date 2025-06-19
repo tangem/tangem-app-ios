@@ -109,10 +109,14 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        cardSettingsViewModel = DefaultRowViewModel(
-            title: Localization.cardSettingsTitle,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
-        )
+        if let config = userWalletModel.config as? CardUserWalletConfig {
+            cardSettingsViewModel = DefaultRowViewModel(
+                title: Localization.cardSettingsTitle,
+                action: { [weak self] in
+                    self?.openCardSettings(config: config)
+                }
+            )
+        }
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             referralViewModel =
@@ -222,18 +226,14 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openManageTokens(userWalletModel: userWalletModel)
     }
 
-    func openCardSettings() {
+    func openCardSettings(config: CardUserWalletConfig) {
         Analytics.log(.buttonCardSettings)
 
         let scanParameters = CardScannerParameters(
             shouldAskForAccessCodes: true,
             performDerivations: false,
-            sessionFilter: userWalletModel.config.cardSessionFilter
+            sessionFilter: config.cardSessionFilter
         )
-
-        guard let config = userWalletModel.config as? TangemSdkFactory else {
-            return
-        }
 
         let scanner = CardScannerFactory().makeScanner(
             with: config.makeTangemSdk(),
