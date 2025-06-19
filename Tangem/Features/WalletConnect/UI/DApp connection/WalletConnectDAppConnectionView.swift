@@ -21,12 +21,11 @@ struct WalletConnectDAppConnectionView: View {
             ScrollView(.vertical) {
                 contentStateView(scrollProxy)
                     .readGeometry(
-                        \.self,
+                        \.frame.minY,
                         inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace),
-                        throttleInterval: .proMotion
-                    ) { geometryInfo in
-                        updateNavigationBarBottomSeparatorVisibility(geometryInfo.frame.minY)
-                    }
+                        throttleInterval: .proMotion,
+                        onChange: updateNavigationBarBottomSeparatorVisibility
+                    )
             }
             .safeAreaInset(edge: .top, spacing: .zero) {
                 header
@@ -76,7 +75,6 @@ struct WalletConnectDAppConnectionView: View {
     private var header: some View {
         let title: String?
         let backgroundColor: Color
-        let bottomSeparatorLineIsVisible: Bool
         let backButtonAction: (() -> Void)?
         let closeButtonAction: (() -> Void)?
 
@@ -84,35 +82,30 @@ struct WalletConnectDAppConnectionView: View {
         case .connectionRequest(let viewModel):
             title = viewModel.state.navigationTitle
             backgroundColor = Colors.Background.tertiary
-            bottomSeparatorLineIsVisible = navigationBarBottomSeparatorIsVisible
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
 
         case .verifiedDomain(let viewModel):
             title = nil
             backgroundColor = Color.clear
-            bottomSeparatorLineIsVisible = false
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
 
         case .walletSelector(let viewModel):
             title = viewModel.state.navigationTitle
             backgroundColor = Colors.Background.tertiary
-            bottomSeparatorLineIsVisible = navigationBarBottomSeparatorIsVisible
             backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
             closeButtonAction = nil
 
         case .networkSelector(let viewModel):
             title = viewModel.state.navigationBarTitle
             backgroundColor = Colors.Background.tertiary
-            bottomSeparatorLineIsVisible = navigationBarBottomSeparatorIsVisible
             backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
             closeButtonAction = nil
 
         case .error(let viewModel):
             title = nil
             backgroundColor = Colors.Background.tertiary
-            bottomSeparatorLineIsVisible = false
             backButtonAction = nil
             closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
         }
@@ -120,7 +113,7 @@ struct WalletConnectDAppConnectionView: View {
         return WalletConnectNavigationBarView(
             title: title,
             backgroundColor: backgroundColor,
-            bottomSeparatorLineIsVisible: bottomSeparatorLineIsVisible,
+            bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction
         )

@@ -138,8 +138,8 @@ struct WalletConnectView: View {
         .animation(.bouncy(duration: 0.2), value: wallet.dApps)
     }
 
-    private func dAppRowView(_ dApp: WalletConnectSavedSession) -> some View {
-        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp)) }) {
+    private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
+        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
             HStack(spacing: 12) {
                 // [REDACTED_TODO_COMMENT]
                 RoundedRectangle(cornerRadius: 8)
@@ -155,19 +155,19 @@ struct WalletConnectView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text(dApp.sessionInfo.dAppInfo.name)
+                        Text(dApp.name)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                        // [REDACTED_TODO_COMMENT]
-                        Assets.Glyphs.verified
-                            .image
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Colors.Icon.accent)
+                        if let verifiedDomainIconAsset = dApp.verifiedDomainIconAsset {
+                            verifiedDomainIconAsset
+                                .image
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(Colors.Icon.accent)
+                        }
                     }
 
-                    // [REDACTED_TODO_COMMENT]
-                    Text("Connected App")
+                    Text(dApp.domain)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }

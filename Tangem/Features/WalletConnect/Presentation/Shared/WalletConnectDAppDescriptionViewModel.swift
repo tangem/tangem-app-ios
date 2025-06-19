@@ -29,22 +29,22 @@ extension WalletConnectDAppDescriptionViewModel {
         let domain: String
         let verifiedDomainIconAsset: ImageType?
 
+        private init(iconURL: URL?, name: String, domain: String, verifiedDomainIconAsset: ImageType?) {
+            self.iconURL = iconURL
+            self.name = name
+            self.domain = domain
+            self.verifiedDomainIconAsset = verifiedDomainIconAsset
+        }
+
         init(dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus) {
             self.init(
                 iconURL: dAppData.icon,
                 name: dAppData.name,
-                domain: dAppData.domain,
-                domainIsVerified: verificationStatus.isVerified
+                domain: dAppData.domain.host ?? "",
+                verifiedDomainIconAsset: verificationStatus.isVerified
+                    ? Assets.Glyphs.verified
+                    : nil
             )
-        }
-
-        init(iconURL: URL?, name: String, domain: URL?, domainIsVerified: Bool? = nil) {
-            self.iconURL = iconURL
-            self.name = name
-            self.domain = domain?.host ?? ""
-            verifiedDomainIconAsset = domainIsVerified == true
-                ? Assets.Glyphs.verified
-                : nil
         }
     }
 }
