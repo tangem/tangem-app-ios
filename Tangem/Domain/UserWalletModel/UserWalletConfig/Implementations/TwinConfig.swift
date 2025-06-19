@@ -46,7 +46,7 @@ extension TwinConfig: CardUserWalletConfig {
         2
     }
 
-    var name: String {
+    var defaultName: String {
         "Twin"
     }
 

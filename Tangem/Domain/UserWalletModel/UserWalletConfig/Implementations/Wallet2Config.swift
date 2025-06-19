@@ -41,7 +41,7 @@ extension Wallet2Config: CardUserWalletConfig {
         }
     }
 
-    var name: String {
+    var defaultName: String {
         "Wallet"
     }
 
