@@ -108,6 +108,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.lastStoredFCMToken)
     var lastStoredFCMToken: String? = nil
 
+    @AppStorageCompat(StorageType.didMigrateWalletConnectSavedSessions)
+    var didMigrateWalletConnectSavedSessions: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

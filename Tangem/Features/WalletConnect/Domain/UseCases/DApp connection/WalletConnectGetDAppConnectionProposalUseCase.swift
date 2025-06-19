@@ -51,7 +51,7 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
 
     private func getDAppDataAndProposal() async
         throws(WalletConnectDAppProposalLoadingError)
-        -> (WalletConnectDAppData, WalletConnectSessionProposal) {
+        -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
         do {
             return try await dAppDataService.getDAppDataAndProposal(for: uri, source: analyticsSource)
 
