@@ -12,6 +12,8 @@ import Combine
 protocol StoriesDelegate: AnyObject {
     var isScanning: AnyPublisher<Bool, Never> { get }
 
+    func createWallet()
+    func importWallet()
     func scanCard()
     func orderCard()
     func openPromotion()
