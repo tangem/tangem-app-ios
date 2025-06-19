@@ -19,7 +19,7 @@ protocol WCHandlersService {
 final class CommonWCHandlersService {
     // MARK: - Dependencies
 
-    @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let wcHandlersFactory: WalletConnectHandlersCreator
@@ -58,7 +58,7 @@ extension CommonWCHandlersService: WCHandlersService {
         let logSuffix = " for request: \(request.id)"
 
         // Session validation
-        guard let session = await sessionsStorage.session(with: request.topic) else {
+        guard let connectedDApp = try? await connectedDAppRepository.getDApp(with: request.topic) else {
             WCLogger.warning("Failed to find session in storage \(logSuffix)")
             throw WalletConnectV2Error.wrongCardSelected
         }
@@ -76,7 +76,7 @@ extension CommonWCHandlersService: WCHandlersService {
         }
 
         guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId })
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWallet.id })
         else {
             WCLogger.warning("Failed to find target user wallet")
             throw WalletConnectV2Error.missingActiveUserWalletModel
@@ -90,7 +90,7 @@ extension CommonWCHandlersService: WCHandlersService {
         // Return validated request data
         return WCValidatedRequest(
             request: request,
-            session: session,
+            dAppData: connectedDApp.dAppData,
             targetBlockchain: targetBlockchain,
             userWalletModel: userWalletModel
         )
