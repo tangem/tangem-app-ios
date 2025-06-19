@@ -18,6 +18,7 @@ final class OnrampProvidersViewModel: ObservableObject {
 
     @Published var paymentViewData: OnrampProvidersPaymentViewData?
     @Published var providersViewData: [OnrampProviderRowViewData] = []
+    @Published var selectedProviderID: Int?
 
     // MARK: - Dependencies
 
@@ -60,7 +61,7 @@ private extension OnrampProvidersViewModel {
             interactor.selectedProviderPublisher.compactMap { $0 }
         )
         .withWeakCaptureOf(self)
-        .receive(on: DispatchQueue.main)
+        .receiveOnMain()
         .sink { viewModel, args in
             let (providers, selected) = args
             viewModel.updateProvidersView(providers: providers, selectedProviderId: selected.provider.id)
@@ -80,8 +81,10 @@ private extension OnrampProvidersViewModel {
     }
 
     func updateProvidersView(providers: [OnrampProvider], selectedProviderId: String) {
-        providersViewData = providers.map { provider in
-            OnrampProviderRowViewData(
+        var providersViewData: [OnrampProviderRowViewData] = []
+
+        providers.forEach { provider in
+            let rowData = OnrampProviderRowViewData(
                 name: provider.provider.name,
                 // Need to set here to that the action works correctly
                 paymentMethodId: provider.paymentMethod.id,
@@ -89,12 +92,19 @@ private extension OnrampProvidersViewModel {
                 formattedAmount: formattedAmount(state: provider.state),
                 state: state(state: provider.state),
                 badge: badge(provider: provider),
-                isSelected: selectedProviderId == provider.provider.id,
                 action: { [weak self] in
                     self?.userDidSelect(provider: provider)
                 }
             )
+
+            if selectedProviderId == provider.provider.id {
+                self.selectedProviderID = rowData.id
+            }
+
+            providersViewData.append(rowData)
         }
+
+        self.providersViewData = providersViewData
     }
 
     func userDidSelect(provider: OnrampProvider) {
