@@ -1,5 +1,5 @@
 //
-//  UIElementPage+Extension.swift
+//  ScreenBase+Extension.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import XCTest
 
-extension UIElementPage {
+extension ScreenBase {
     func button(_ element: T) -> XCUIElement {
         app.buttons[element.accessibilityIdentifier].firstMatch
     }
@@ -114,5 +114,70 @@ extension UIElementPage {
             withVelocity: .slow,
             thenHoldForDuration: .zero
         )
+    }
+
+    // MARK: - Element Actions (moved from XCUIElement+Extensions)
+
+    func editText(element: XCUIElement, text: String) {
+        scrollToElement(element)
+        let clearButton = app.buttons["Clear text"].firstMatch
+        if !element.hasFocus {
+            element.tap()
+        }
+        if clearButton.exists {
+            clearButton.tap()
+        }
+        element.typeText(text)
+        element.hideKeyboardIfNeeded()
+    }
+
+    func clearText(element: XCUIElement) {
+        scrollToElement(element)
+        if !element.hasFocus {
+            element.tap()
+        }
+
+        guard let value = element.value as? String, !value.isEmpty else {
+            return
+        }
+
+        for char in String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count) {
+            element.typeText(String(char))
+        }
+    }
+
+    func deleteText(element: XCUIElement) {
+        if !element.hasFocus {
+            element.doubleTap()
+        } else {
+            element.tap()
+        }
+        let selectAllMenuItem = app.menuItems["Select All"]
+        if selectAllMenuItem.waitForExistence(timeout: 1) {
+            selectAllMenuItem.tap()
+        }
+        element.typeText("\u{8}")
+    }
+
+    func scrollToElement(_ element: XCUIElement, attempts: SwipeAttempts = .standard) {
+        for attempt in 0 ..< attempts.rawValue {
+            if !element.isHittable || !element.isEnabled {
+//                log.debug("Swiping - attempt \(attempt)")
+                let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.8))
+                let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
+                startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
+            }
+        }
+    }
+
+    func pressAndDragDown(element: XCUIElement) {
+        let startCoordinate = element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1.0))
+        startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
+    }
+
+    func isElementVisible(_ element: XCUIElement) -> Bool {
+        scrollToElement(element, attempts: .lazy)
+        return element.isHittable
     }
 }
