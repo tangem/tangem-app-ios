@@ -342,7 +342,7 @@ extension CommonUserWalletModel: AnalyticsContextDataProvider {
 
 extension CommonUserWalletModel: UserWalletSerializable {
     func serialize() -> StoredUserWallet {
-        let name = name.isEmpty ? config.name : name
+        let name = name.isEmpty ? config.defaultName : name
 
         let newStoredUserWallet = StoredUserWallet(
             userWalletId: userWalletId.value,
