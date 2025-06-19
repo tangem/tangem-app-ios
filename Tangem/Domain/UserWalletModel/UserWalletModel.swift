@@ -34,7 +34,7 @@ protocol UserWalletModel:
     var signer: TransactionSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-    var imageProvider: WalletImageProviding { get }
+    var walletImageProvider: WalletImageProviding { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var totalSignedHashes: Int { get }
     var name: String { get }

@@ -53,10 +53,12 @@ class UserWalletRepositoryUtil {
                 let sensitiveInformationEncryptedData = try Data(contentsOf: userWalletPath(for: userWalletId))
                 let sensitiveInformationData = try decrypt(sensitiveInformationEncryptedData, with: userWalletEncryptionKey)
 
-                // [REDACTED_TODO_COMMENT]
-                let sensitiveInformation = try decoder.decode(StoredUserWallet.SensitiveInformation.self, from: sensitiveInformationData)
+                switch userWallet.walletInfo {
+                case .card:
+                    let sensitiveInformation = try decoder.decode(StoredUserWallet.SensitiveInformation<CardDTO>.self, from: sensitiveInformationData)
+                    userWallets[i] = userWallet.resettingWallets()
+                }
 
-                userWallets[i] = userWallet.resettingWallets()
             }
 
             return userWallets
