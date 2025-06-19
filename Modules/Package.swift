@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.3"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "3.21.4"),
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
