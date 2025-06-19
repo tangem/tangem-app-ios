@@ -16,15 +16,14 @@ final class ReownWalletConnectDAppProposalApprovalService: WalletConnectDAppProp
         self.walletConnectService = walletConnectService
     }
 
-    // [REDACTED_TODO_COMMENT]
     func approveConnectionProposal(
-        with request: WalletConnectDAppConnectionRequest,
-        _ userWalletID: String
-    ) async throws(WalletConnectDAppProposalApprovalError) {
+        with request: WalletConnectDAppConnectionRequest
+    ) async throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppSession {
         let reownNamespaces = WalletConnectSessionNamespaceMapper.mapFromDomain(request.namespaces)
 
         do {
-            try await walletConnectService.approveSessionProposal(with: request.proposalID, namespaces: reownNamespaces, userWalletID)
+            let reownSession = try await walletConnectService.approveSessionProposal(with: request.proposalID, namespaces: reownNamespaces)
+            return WalletConnectDAppSessionMapper.mapToDomain(reownSession)
         } catch {
             try Self.parseConnectionProposalHasExpiredError(error)
             throw WalletConnectDAppProposalApprovalError.approvalFailed(error)
@@ -35,7 +34,7 @@ final class ReownWalletConnectDAppProposalApprovalService: WalletConnectDAppProp
         with proposalID: String,
         reason: WalletConnectDAppSessionProposalRejectionReason
     ) async throws(WalletConnectDAppProposalApprovalError) {
-        let reownReason = WalletConnectSessionProposalMapper.mapRejectionReason(fromDomain: reason)
+        let reownReason = WalletConnectDAppSessionProposalMapper.mapRejectionReason(fromDomain: reason)
 
         do {
             try await walletConnectService.rejectSessionProposal(with: proposalID, reason: reownReason)
