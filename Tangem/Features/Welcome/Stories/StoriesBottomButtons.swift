@@ -79,7 +79,7 @@ private extension StoriesBottomButtons {
             isLoading: isScanning,
             action: scanCard
         )
-        .accessibilityIdentifier(AccessibilityIdentifiers.Stories.scanButton)
+        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.scanButton)
     }
 
     var orderCardButton: some View {
