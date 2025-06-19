@@ -38,7 +38,7 @@ extension NoteDemoConfig: CardUserWalletConfig {
         1
     }
 
-    var name: String {
+    var defaultName: String {
         "Note"
     }
 
