@@ -21,8 +21,13 @@ public struct SelectionOverlay: View {
         .padding(1)
         .overlay {
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: 2.5)
+                .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: Constants.secondStrokeLineWidth)
         }
-        .padding(2.5)
+    }
+}
+
+public extension SelectionOverlay {
+    enum Constants {
+        public static let secondStrokeLineWidth: CGFloat = 2.5
     }
 }

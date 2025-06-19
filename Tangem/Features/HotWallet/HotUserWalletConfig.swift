@@ -15,6 +15,10 @@ import TangemFoundation
 
 struct HotUserWalletConfig {
     let hotWallet: HotWallet
+
+    var transactionSigner: TransactionSigner {
+        fatalError("Unimplemented")
+    }
 }
 
 extension HotUserWalletConfig: UserWalletConfig {
@@ -22,7 +26,7 @@ extension HotUserWalletConfig: UserWalletConfig {
 
     var cardSetLabel: String? { nil }
 
-    var name: String { "Hot Wallet" }
+    var defaultName: String { "Hot Wallet" }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
@@ -30,10 +34,6 @@ extension HotUserWalletConfig: UserWalletConfig {
 
     var createWalletCurves: [EllipticCurve] {
         existingCurves
-    }
-
-    var transactionSigner: TransactionSigner {
-        fatalError("Unimplemented")
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
@@ -86,7 +86,7 @@ extension HotUserWalletConfig: UserWalletConfig {
         return nil
     }
 
-    var cardSessionFilter: SessionFilter? { nil }
+    var cardSessionFilter: SessionFilter { .cardId("") }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {

@@ -145,6 +145,14 @@ extension WelcomeViewModel: StoriesDelegate {
         isScanningCard.eraseToAnyPublisher()
     }
 
+    func createWallet() {
+        coordinator?.openNewWalletSelector(with: .create)
+    }
+
+    func importWallet() {
+        coordinator?.openNewWalletSelector(with: .import)
+    }
+
     func openTokenList() {
         // For some reason the button can be tapped even after we've this flag to FALSE to disable it
         guard !isScanningCard.value else { return }
