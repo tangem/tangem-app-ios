@@ -602,7 +602,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
 extension VisaUserWalletModel: UserWalletSerializable {
     func serialize() -> StoredUserWallet {
-        let name = name.isEmpty ? config.name : name
+        let name = name.isEmpty ? config.defaultName : name
 
         return StoredUserWallet(
             userWalletId: userWalletId.value,

@@ -53,7 +53,7 @@ extension LegacyConfig: CardUserWalletConfig {
         1
     }
 
-    var name: String {
+    var defaultName: String {
         "Tangem Card"
     }
 
