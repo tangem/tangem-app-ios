@@ -12,6 +12,10 @@ import Combine
 class StoriesDelegateMock: StoriesDelegate {
     var isScanning: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
+    func createWallet() {}
+
+    func importWallet() {}
+
     func scanCard() {}
 
     func orderCard() {}
