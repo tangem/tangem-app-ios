@@ -7,11 +7,9 @@
 //
 
 protocol WalletConnectDAppProposalApprovalService {
-    // [REDACTED_TODO_COMMENT]
     func approveConnectionProposal(
-        with request: WalletConnectDAppConnectionRequest,
-        _ userWalletID: String
-    ) async throws(WalletConnectDAppProposalApprovalError)
+        with request: WalletConnectDAppConnectionRequest
+    ) async throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppSession
 
     func rejectConnectionProposal(
         with proposalID: String,
