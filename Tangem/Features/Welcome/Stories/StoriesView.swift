@@ -61,44 +61,56 @@ struct StoriesView: View {
             MeetTangemStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
-                scanCard: { viewModel.delegate?.scanCard() },
-                orderCard: { viewModel.delegate?.orderCard() }
+                createWallet: viewModel.onCreateWallet,
+                importWallet: viewModel.onImportWallet,
+                scanCard: viewModel.onScanCard,
+                orderCard: viewModel.onOrderCard
             )
         case WelcomeStoryPage.awe:
             AweStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
-                scanCard: { viewModel.delegate?.scanCard() },
-                orderCard: { viewModel.delegate?.orderCard() }
+                createWallet: viewModel.onCreateWallet,
+                importWallet: viewModel.onImportWallet,
+                scanCard: viewModel.onScanCard,
+                orderCard: viewModel.onOrderCard
             )
         case WelcomeStoryPage.backup:
             BackupStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
-                scanCard: { viewModel.delegate?.scanCard() },
-                orderCard: { viewModel.delegate?.orderCard() }
+                createWallet: viewModel.onCreateWallet,
+                importWallet: viewModel.onImportWallet,
+                scanCard: viewModel.onScanCard,
+                orderCard: viewModel.onOrderCard
             )
         case WelcomeStoryPage.currencies:
             CurrenciesStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
-                scanCard: { viewModel.delegate?.scanCard() },
-                orderCard: { viewModel.delegate?.orderCard() },
-                searchTokens: { viewModel.delegate?.openTokenList() }
+                createWallet: viewModel.onCreateWallet,
+                importWallet: viewModel.onImportWallet,
+                scanCard: viewModel.onScanCard,
+                orderCard: viewModel.onOrderCard,
+                searchTokens: viewModel.onSearchTokens
             )
-        //        case WelcomeStoryPage.web3:
-        //            Web3StoryPage(
-        //                progress: viewModel.currentProgress,
-        //                isScanning: viewModel.makeScanBinding(),
-        //                scanCard: { viewModel.delegate?.scanCard() },
-        //                orderCard: { viewModel.delegate?.orderCard() }
-        //            )
+//        case WelcomeStoryPage.web3:
+//            Web3StoryPage(
+//                progress: viewModel.currentProgress,
+//                isScanning: viewModel.isScanning,
+//                createWallet: viewModel.onCreateWallet,
+//                importWallet: viewModel.onImportWallet,
+//                scanCard: viewModel.onScanCard,
+//                orderCard: viewModel.onOrderCard
+//            )
         case WelcomeStoryPage.finish:
             FinishStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
-                scanCard: { viewModel.delegate?.scanCard() },
-                orderCard: { viewModel.delegate?.orderCard() }
+                createWallet: viewModel.onCreateWallet,
+                importWallet: viewModel.onImportWallet,
+                scanCard: viewModel.onScanCard,
+                orderCard: viewModel.onOrderCard
             )
         }
     }
