@@ -11,16 +11,23 @@ import TangemAssets
 import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
-struct WalletConnectConnectedDAppDetailsViewState {
-    let navigationBar: NavigationBar
-    let dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
-    let walletSection: WalletSection?
-    let connectedNetworksSection: ConnectedNetworksSection?
-    var disconnectButton = DisconnectButton(isLoading: false)
+enum WalletConnectConnectedDAppDetailsViewState {
+    case dAppDetails(DAppDetails)
+    case verifiedDomain(WalletConnectDAppDomainVerificationViewModel)
 }
 
 extension WalletConnectConnectedDAppDetailsViewState {
+    struct DAppDetails {
+        let navigationBar: NavigationBar
+        let dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
+        let walletSection: WalletSection?
+        let dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
+        let connectedNetworksSection: ConnectedNetworksSection?
+        var disconnectButton = DisconnectButton(isLoading: false)
+    }
+}
+
+extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
     struct NavigationBar {
         let title = "Connected App"
         let connectedTime: String?
@@ -30,15 +37,10 @@ extension WalletConnectConnectedDAppDetailsViewState {
         let labelAsset = Assets.Glyphs.walletNew
         let labelText = Localization.wcCommonWallet
         let walletName: String
-
-        init?(walletName: String?) {
-            guard let walletName else { return nil }
-            self.walletName = walletName
-        }
     }
 
     struct ConnectedNetworksSection {
-        let title = "Connected networks"
+        let headerTitle = "Connected networks"
         let blockchains: [BlockchainRowItem]
 
         init?(blockchains: [BlockchainRowItem]) {
@@ -54,7 +56,7 @@ extension WalletConnectConnectedDAppDetailsViewState {
 
     struct BlockchainRowItem: Identifiable {
         let id: String
-        let asset: ImageType
+        let iconAsset: ImageType
         let name: String
         let currencySymbol: String
     }
