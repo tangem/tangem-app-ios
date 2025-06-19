@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemLocalization
 import TangemFoundation
 
-struct NoteDemoConfig {
+struct NoteDemoConfig: CardContainer {
     let card: CardDTO
     private let noteData: WalletData
 
@@ -29,7 +29,7 @@ struct NoteDemoConfig {
     }
 }
 
-extension NoteDemoConfig: CardUserWalletConfig {
+extension NoteDemoConfig: UserWalletConfig {
     var cardSetLabel: String? {
         nil
     }
