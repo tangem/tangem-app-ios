@@ -542,6 +542,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Todavía no ha agregado esta red. Para recibir NFTs, añádala a su portafolio.";
 "nft_receive_unavailable_asset_warning_title" = "Red no agregada";
 "nft_receive_unavailable_section_title" = "No aregada";
+"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
+"nft_receive_unsupported_types" = "Unsupported NFT types";
 "nft_send" = "Enviar NFT";
 "nft_traits_title" = "Rasgos";
 "nft_untitled_collection" = "Colección sin título";
@@ -803,8 +805,10 @@
 "send_qrcode_scan_info" = "Por favor, alinee su código QR con el cuadrado para escanearlo. Asegúrese de escanear la dirección de la red %@.";
 "send_recent_transactions" = "Reciente";
 "send_recipient_address_error" = "No es una dirección válida";
+"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en la red %@ para evitar perder sus tokens";
 "send_recipient_label" = "Destinatario";
+"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
 "send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red. Precaución: Omitir un memo puede llevar a la pérdida de fondos";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";
@@ -830,7 +834,7 @@
 "settings_forget_wallet_footer" = "Esto eliminará la wallet de la aplicación. La wallet en sí puede\nañadirse de nuevo.";
 "settings_forget_wallet" = "Olvidar la billetera";
 "settings_wallet_name_title" = "Nombre";
-"stake_token_description" = "Join staking with this token";
+"stake_token_description" = "Haz que tu token trabaje por ti";
 "staking_active_footer" = "Para eliminar el staking de sus activos, presione el bloque de arriba";
 "staking_active" = "Activo";
 "staking_amount_requirement_error" = "El monto del staking debe ser al menos %@";
@@ -1264,7 +1268,7 @@
 "warning_rate_app_message" = "Su opinión nos motiva a hacer Tangem Wallet aún mejor";
 "warning_rate_app_title" = "¿Disfrutando de Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Deba asociar su token antes de recibir tokens";
-"warning_receive_blocked_stelar_token_trustline_required_message" = "You must open trustline for your token before receiving it";
+"warning_receive_blocked_token_trustline_required_message" = "You must open trustline for your token before receiving it";
 "warning_rent_fee_title" = "Se requiere tarifa de alquiler de red";
 "warning_seedphrase_action_required_title" = "Acción requerida";
 "warning_seedphrase_contacted_support" = "¿Te pusiste en contacto con el servicio de asistencia a través de la aplicación o por correo electrónico en los 7 días posteriores a la creación de la billetera? Si lo hiciste o no estás seguro, sigue y completa las instrucciones.";
@@ -1278,16 +1282,16 @@
 "warning_some_networks_unreachable_message" = "Deslice hacia abajo para refrescar o inténtelo de nuevo más tarde.";
 "warning_some_networks_unreachable_title" = "Algunas redes no están disponibles";
 "warning_some_token_balances_not_updated" = "No se han podido actualizar los saldos de algunos tokens";
-"warning_stelar_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
-"warning_stellar_token_trustline_button_title" = "Enable Trustline";
-"warning_stellar_token_trustline_subtiile" = "According to network rules, you need to open a Trustline before depositing this token. It allows your wallet to accept and hold the asset.";
-"warning_stellar_token_trustline_tiile" = "Enable Trustline for this token";
 "warning_system_deprecation_title" = "Actualización del sistema requerida";
 "warning_system_deprecation_with_date_message" = "El soporte para tu versión del sistema operativo finalizará el %@. Para recibir futuras actualizaciones de la app, deba actualizarlo a la última versión.";
 "warning_system_update_message" = "Tangem recomienda instalar la última actualización de iOS para un funcionamiento estable y seguro";
 "warning_system_update_title" = "Actualización del sistema disponible";
 "warning_testnet_card_message" = "Esta es una tarjeta de Testnet. No puede procesar transacciones y solo deba usarse para pruebas y desarrollo.";
 "warning_testnet_card_title" = "Solo para fines de prueba";
+"warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
+"warning_token_trustline_button_title" = "Enable Trustline";
+"warning_token_trustline_subtiile" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
+"warning_token_trustline_tiile" = "Trustline Required";
 "wc_alert_audit_unknown_domain" = "Unknown domain";
 "wc_alert_connect_anyway" = "Connect anyway";
 "wc_alert_connection_timeout_description" = "Timeout error. Please, try again later.";
@@ -1296,6 +1300,7 @@
 "wc_alert_session_disconnected_description" = "Please return to your browser and reconnect via WalletConnect.";
 "wc_alert_session_disconnected_title" = "WalletConnect session was disconnected";
 "wc_alert_sign_anyway" = "Sign anyway";
+"wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
