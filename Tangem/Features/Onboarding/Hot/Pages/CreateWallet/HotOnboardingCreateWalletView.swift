@@ -34,11 +34,12 @@ struct HotOnboardingCreateWalletView: View {
             Spacer()
 
             MainButton(
-                title: viewModel.createItem.title,
-                action: viewModel.createItem.action
+                title: viewModel.createButtonTitle,
+                action: viewModel.onCreateTap
             )
         }
         .padding(.top, 64)
+        .padding(.bottom, 14)
     }
 }
 

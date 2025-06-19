@@ -36,6 +36,7 @@ struct PushNotificationsPermissionRequestView: View {
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.title)
                 }
 
                 FixedSpacer(height: 44.0)
@@ -95,14 +96,14 @@ struct PushNotificationsPermissionRequestView: View {
             title: viewModel.allowButtonTitle,
             action: viewModel.didTapAllow
         )
-        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.allowButton)
+        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.allowButton)
 
         MainButton(
             title: viewModel.laterButtonTitle,
             style: .secondary,
             action: viewModel.didTapLater
         )
-        .accessibilityIdentifier(AccessibilityIdentifiers.TOS.laterButton)
+        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.laterButton)
     }
 
     private var iconColor: Color {
