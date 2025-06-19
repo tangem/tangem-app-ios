@@ -24,8 +24,9 @@ protocol WalletConnectDAppConnectionRoutable: AnyObject {
 
     func displaySuccessfulDAppConnection(with dAppName: String)
 
-    func displayProposalLoadingError(_ proposalLoadingError: WalletConnectDAppProposalLoadingError)
-    func displayProposalApprovalError(_ proposalConnectionError: WalletConnectDAppProposalApprovalError)
+    func display(proposalLoadingError: WalletConnectDAppProposalLoadingError)
+    func display(proposalApprovalError: WalletConnectDAppProposalApprovalError)
+    func display(dAppPersistenceError: WalletConnectDAppPersistenceError)
 
     func dismiss()
 }
