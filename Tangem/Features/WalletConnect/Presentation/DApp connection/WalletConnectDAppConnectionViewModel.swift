@@ -136,7 +136,7 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
             .present(layout: .top(padding: 20), type: .temporary())
     }
 
-    func displayProposalLoadingError(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) {
+    func display(proposalLoadingError: WalletConnectDAppProposalLoadingError) {
         if let errorToast = WalletConnectModuleFactory.makeDAppProposalLoadingErrorToast(proposalLoadingError) {
             errorToast.present(layout: .top(padding: 20), type: .temporary())
             // [REDACTED_USERNAME], since we can't do anything unless proposal loads successfully, we need to dismiss entire flow...
@@ -153,7 +153,7 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
         }
     }
 
-    func displayProposalApprovalError(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) {
+    func display(proposalApprovalError: WalletConnectDAppProposalApprovalError) {
         if let errorToast = WalletConnectModuleFactory.makeDAppProposalApprovalErrorToast(proposalApprovalError) {
             errorToast.present(layout: .top(padding: 20), type: .temporary())
         }
@@ -166,6 +166,11 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
         ) {
             state = .error(errorViewModel)
         }
+    }
+
+    func display(dAppPersistenceError: WalletConnectDAppPersistenceError) {
+        let errorToast = WalletConnectModuleFactory.makeDAppPersistenceErrorToast(dAppPersistenceError)
+        errorToast.present(layout: .top(padding: 20), type: .temporary())
     }
 
     func dismiss() {
