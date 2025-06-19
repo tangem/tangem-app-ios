@@ -27,14 +27,12 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-    let imageProvider: WalletImageProviding
+    let walletImageProvider: WalletImageProviding
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
     private let walletManagersRepository: WalletManagersRepository
 
     private var associatedCardIds: Set<String>
-
-    var signer: TransactionSigner { _signer }
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -91,7 +89,7 @@ class CommonUserWalletModel {
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-        imageProvider = CardImageProvider(card: cardInfo.card)
+        walletImageProvider = CardImageProvider(card: cardInfo.card)
 
         _signer = config.tangemSigner
         _userWalletNamePublisher = .init(name)
@@ -175,6 +173,10 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    var signer: TransactionSigner {
+        _signer as TransactionSigner
+    }
+
     var config: any UserWalletConfig {
         cardConfig as UserWalletConfig
     }

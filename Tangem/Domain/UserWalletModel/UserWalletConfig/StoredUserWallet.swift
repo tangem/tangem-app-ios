@@ -68,8 +68,8 @@ enum StoredWalletInfo: Codable {
 }
 
 extension StoredUserWallet {
-    struct SensitiveInformation: Codable {
-        let wallets: [WalletPublicInfo]
+    struct SensitiveInformation<T: Codable>: Codable {
+        let wallets: [T]
     }
 }
 
@@ -78,7 +78,7 @@ extension StoredUserWallet {
         walletInfo.isLocked
     }
 
-    func cardInfo() -> CardInfo? {
+    var cardInfo: CardInfo? {
         switch walletInfo {
         case .card(let card):
             CardInfo(
@@ -90,7 +90,7 @@ extension StoredUserWallet {
         }
     }
 
-    func info() -> WalletInfo {
+    var info: WalletInfo {
         let walletInfoType: WalletInfoType
         switch walletInfo {
         case .card(let card):
