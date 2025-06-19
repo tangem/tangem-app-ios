@@ -60,7 +60,7 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         floatingSheetPresenter.enqueue(sheet: viewModel)
     }
 
-    func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession) {
+    func openConnectedDAppDetails(_ dApp: WalletConnectConnectedDApp) {
         floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
     }
 
