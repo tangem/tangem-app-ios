@@ -9,6 +9,7 @@
 struct WalletConnectDAppConnectionInteractor {
     let getDAppConnectionProposal: WalletConnectGetDAppConnectionProposalUseCase
     let resolveAvailableBlockchains: WalletConnectResolveAvailableBlockchainsUseCase
-    let connectDApp: WalletConnectConnectDAppUseCase
+    let approveDAppProposal: WalletConnectApproveDAppProposalUseCase
     let rejectDAppProposal: WalletConnectRejectDAppProposalUseCase
+    let persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase
 }

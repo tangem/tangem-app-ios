@@ -103,7 +103,7 @@ private extension WCTransactionView {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 14)
 
-            WCDappTitleView(isLoading: false, sessionDappInfo: viewModel.dappInfo, iconSideLength: 36)
+            WCDappTitleView(isLoading: false, dAppData: viewModel.dAppData, iconSideLength: 36)
 
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.vertical, 12)
