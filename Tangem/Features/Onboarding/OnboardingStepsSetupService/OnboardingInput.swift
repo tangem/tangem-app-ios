@@ -77,7 +77,7 @@ extension OnboardingInput {
             case .cardInfo(let cardInfo):
                 return CardImageProvider(card: cardInfo.card)
             case .userWalletModel(let userWalletModel):
-                return userWalletModel.imageProvider
+                return userWalletModel.walletImageProvider
             case .cardId(let cardId):
                 return CardImageProvider(
                     input: CardImageProvider.Input(
