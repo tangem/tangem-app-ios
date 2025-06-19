@@ -22,7 +22,7 @@ struct WelcomeOnboardingTOSView: View {
                 title: Localization.commonAccept,
                 action: viewModel.didTapAccept
             )
-            .accessibilityIdentifier(AccessibilityIdentifiers.TOS.acceptButton)
+            .accessibilityIdentifier(TOSAccessibilityIdentifiers.acceptButton)
             .padding(.top, 14)
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
