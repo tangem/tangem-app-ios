@@ -15,7 +15,7 @@ import TangemFoundation
 
 protocol OldWalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
-    var signer: TransactionSigner { get }
+    var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
 }
 

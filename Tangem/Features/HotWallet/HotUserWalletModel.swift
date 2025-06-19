@@ -150,7 +150,9 @@ extension HotUserWalletModel: UserWalletModel {
         config.cardsCount
     }
 
-    var signer: TransactionSigner { _signer }
+    var signer: TangemSigner {
+        fatalError("Not implemented")
+    }
 
     var emailData: [EmailCollectedData] {
         var data = config.emailData
