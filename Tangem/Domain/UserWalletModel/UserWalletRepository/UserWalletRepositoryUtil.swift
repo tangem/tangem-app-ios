@@ -9,6 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemSdk
+import TangemHotSdk
 
 class UserWalletRepositoryUtil {
     private var fileManager: FileManager {
@@ -55,10 +56,18 @@ class UserWalletRepositoryUtil {
 
                 switch userWallet.walletInfo {
                 case .card:
-                    let sensitiveInformation = try decoder.decode(StoredUserWallet.SensitiveInformation<CardDTO>.self, from: sensitiveInformationData)
-                    userWallets[i] = userWallet.resettingWallets()
+                    let sensitiveInformation = try decoder.decode(
+                        StoredUserWallet.SensitiveInformation<CardDTO.Wallet>.self,
+                        from: sensitiveInformationData
+                    )
+                    userWallets[i] = userWallet.updatingWallets(sensitiveInformation.wallets)
+                case .hotWallet:
+                    let sensitiveInformation = try decoder.decode(
+                        StoredUserWallet.SensitiveInformation<HotWallet>.self,
+                        from: sensitiveInformationData
+                    )
+                    userWallets[i] = userWallet.updatingWallets(sensitiveInformation.wallets)
                 }
-
             }
 
             return userWallets
@@ -96,7 +105,15 @@ class UserWalletRepositoryUtil {
                     continue
                 }
 
-                let sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: userWallet.walletInfo.wallets)
+                let sensitiveInformation: any Encodable
+
+                switch userWallet.walletInfo {
+                case .card(let cardDTO):
+                    sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: cardDTO.wallets)
+                case .hotWallet(let hotWallet):
+                    sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: hotWallet.wallets)
+                }
+
                 let sensitiveDataEncrypted = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey)
                 let sensitiveDataPath = userWalletPath(for: UserWalletId(value: userWallet.userWalletId))
                 try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)
