@@ -109,7 +109,7 @@ extension ScanCardSettingsViewModel {
         coordinator?.openCardSettings(with: input)
     }
 
-    func makeTwinInput(from cardInfo: CardInfo, config: CardUserWalletConfig, userWalletId: UserWalletId) -> OnboardingInput? {
+    func makeTwinInput(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> OnboardingInput? {
         guard let twinData = cardInfo.walletData.twinData else {
             return nil
         }
