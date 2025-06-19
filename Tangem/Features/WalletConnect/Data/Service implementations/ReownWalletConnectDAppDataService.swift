@@ -19,7 +19,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     func getDAppDataAndProposal(
         for uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
-    ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectSessionProposal) {
+    ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
         let reownSessionProposal = try await openSession(uri: uri, source: source)
 
         try Self.validateDomainIsSupported(from: reownSessionProposal)
@@ -31,8 +31,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             icon: WalletConnectDAppDataMapper.mapIconURL(from: reownSessionProposal)
         )
 
-        let requiredBlockchains = WalletConnectSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal)
-        let optionalBlockchains = WalletConnectSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal)
+        let requiredBlockchains = WalletConnectDAppSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal)
+        let optionalBlockchains = WalletConnectDAppSessionProposalMapper.mapOptionalBlockchains(from: reownSessionProposal)
 
         guard requiredBlockchains.isNotEmpty || optionalBlockchains.isNotEmpty else {
             throw WalletConnectDAppProposalLoadingError.noBlockchainsProvidedByDApp(
@@ -43,7 +43,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             )
         }
 
-        let proposal = WalletConnectSessionProposal(
+        let sessionProposal = WalletConnectDAppSessionProposal(
             id: reownSessionProposal.id,
             requiredBlockchains: requiredBlockchains,
             optionalBlockchains: optionalBlockchains,
@@ -56,8 +56,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                     reownSessionNamespaces = try AutoNamespaces.build(
                         sessionProposal: reownSessionProposal,
                         chains: selectedBlockchains.compactMap(WalletConnectBlockchainMapper.mapFromDomain),
-                        methods: WalletConnectSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
-                        events: WalletConnectSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
+                        methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
+                        events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
                         accounts: selectedBlockchains.flatMap { WalletConnectAccountsMapper.map(from: $0, userWalletModel: selectedUserWallet) }
                     )
                 } catch {
@@ -71,7 +71,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             }
         )
 
-        return (dAppData, proposal)
+        return (dAppData, sessionProposal)
     }
 
     private func openSession(
@@ -117,7 +117,7 @@ extension ReownWalletConnectDAppDataService {
     private static func validateRequiredBlockchainsAreSupported(
         from reownSessionProposal: Session.Proposal
     ) throws(WalletConnectDAppProposalLoadingError) {
-        let unsupportedBlockchainNames = WalletConnectSessionProposalMapper.mapUnsupportedRequiredBlockchainNames(from: reownSessionProposal)
+        let unsupportedBlockchainNames = WalletConnectDAppSessionProposalMapper.mapUnsupportedRequiredBlockchainNames(from: reownSessionProposal)
 
         guard unsupportedBlockchainNames.isEmpty else {
             throw WalletConnectDAppProposalLoadingError.unsupportedBlockchains(
