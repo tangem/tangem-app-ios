@@ -26,7 +26,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let walletImageProvider: WalletImageProviding
-    let signer: TransactionSigner = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId

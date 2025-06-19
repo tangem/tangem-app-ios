@@ -29,6 +29,36 @@ struct StoredUserWallet: Identifiable, Encodable {
             walletData: walletData
         )
     }
+
+    func updatingWallets(_ wallets: [CardDTO.Wallet]) -> Self {
+        guard case .card(var cardDTO) = walletInfo else {
+            return self
+        }
+        cardDTO.wallets = wallets
+        return StoredUserWallet(
+            id: id,
+            userWalletId: userWalletId,
+            name: name,
+            walletInfo: .card(cardDTO),
+            associatedCardIds: associatedCardIds,
+            walletData: walletData
+        )
+    }
+
+    func updatingWallets(_ wallets: [HotWallet]) -> Self {
+        guard case .hotWallet(var hotWalletInfo) = walletInfo else {
+            return self
+        }
+        hotWalletInfo.wallets = wallets
+        return StoredUserWallet(
+            id: id,
+            userWalletId: userWalletId,
+            name: name,
+            walletInfo: .hotWallet(hotWalletInfo),
+            associatedCardIds: associatedCardIds,
+            walletData: walletData
+        )
+    }
 }
 
 enum StoredWalletInfo: Codable {
