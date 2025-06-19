@@ -13,7 +13,7 @@ import ReownWalletKit
 
 struct WCDappTitleView: View {
     private let isLoading: Bool
-    private let icons: [String]
+    private let icons: [URL]
     private let dappName: String
     private let dappUrl: String
     private let iconSideLength: CGFloat
@@ -21,28 +21,14 @@ struct WCDappTitleView: View {
 
     init(
         isLoading: Bool,
-        proposal: Session.Proposal?,
+        dAppData: WalletConnectDAppData,
         iconSideLength: CGFloat = 56,
         placeholderIconSideLength: CGFloat = 26
     ) {
         self.isLoading = isLoading
-        icons = proposal?.proposer.icons ?? []
-        dappName = proposal?.proposer.name ?? ""
-        dappUrl = proposal?.proposer.url ?? ""
-        self.iconSideLength = iconSideLength
-        self.placeholderIconSideLength = placeholderIconSideLength
-    }
-
-    init(
-        isLoading: Bool,
-        sessionDappInfo: WalletConnectSavedSession.DAppInfo,
-        iconSideLength: CGFloat = 56,
-        placeholderIconSideLength: CGFloat = 26
-    ) {
-        self.isLoading = isLoading
-        icons = sessionDappInfo.iconLinks
-        dappName = sessionDappInfo.name
-        dappUrl = sessionDappInfo.url
+        icons = [dAppData.icon].compactMap { $0 }
+        dappName = dAppData.name
+        dappUrl = dAppData.domain.host ?? ""
         self.iconSideLength = iconSideLength
         self.placeholderIconSideLength = placeholderIconSideLength
     }
@@ -58,7 +44,7 @@ struct WCDappTitleView: View {
                 .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
         } else {
             HStack(spacing: 16) {
-                if let urlString = icons.last, let iconURL = URL(string: urlString) {
+                if let iconURL = icons.last {
                     IconView(url: iconURL, size: .init(bothDimensions: iconSideLength))
                 } else {
                     ZStack {
