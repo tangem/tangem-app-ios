@@ -21,7 +21,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     // MARK: Public properties
 
-    let dappInfo: WalletConnectSavedSession.DAppInfo
+    let dAppData: WalletConnectDAppData
     let transactionData: WCHandleTransactionData
 
     var userWalletName: String {
@@ -38,10 +38,10 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     }
 
     init(
-        dappInfo: WalletConnectSavedSession.DAppInfo,
+        dAppData: WalletConnectDAppData,
         transactionData: WCHandleTransactionData
     ) {
-        self.dappInfo = dappInfo
+        self.dAppData = dAppData
         self.transactionData = transactionData
     }
 

@@ -1,5 +1,5 @@
 //
-//  WalletConnectSessionProposal.swift
+//  WalletConnectDAppSessionProposal.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import enum BlockchainSdk.Blockchain
 
-struct WalletConnectSessionProposal {
+struct WalletConnectDAppSessionProposal {
     let id: String
     let requiredBlockchains: Set<Blockchain>
     let optionalBlockchains: Set<Blockchain>
 
     let dAppConnectionRequestFactory: (
-        _ selectedBlockchains: any Sequence<Blockchain>,
+        _ selectedBlockchains: [Blockchain],
         _ selectedUserWallet: any UserWalletModel
     ) throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppConnectionRequest
 }

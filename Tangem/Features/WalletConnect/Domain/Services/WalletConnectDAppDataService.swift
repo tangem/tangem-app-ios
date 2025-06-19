@@ -10,5 +10,5 @@ protocol WalletConnectDAppDataService {
     func getDAppDataAndProposal(
         for uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
-    ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectSessionProposal)
+    ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal)
 }
