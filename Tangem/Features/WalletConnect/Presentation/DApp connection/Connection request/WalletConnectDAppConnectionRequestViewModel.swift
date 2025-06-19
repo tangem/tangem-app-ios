@@ -97,7 +97,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 self?.handleLoadedDAppProposal(dAppProposal)
             } catch {
                 self?.hapticFeedbackGenerator.errorNotificationOccurred()
-                self?.coordinator?.displayProposalLoadingError(error)
+                self?.coordinator?.display(proposalLoadingError: error)
             }
         }
     }
@@ -105,7 +105,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     private func handleLoadedDAppProposal(_ dAppProposal: WalletConnectDAppConnectionProposal) {
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
-            selectedBlockchains: [],
+            selectedBlockchains: dAppProposal.sessionProposal.optionalBlockchains,
             userWallet: selectedUserWallet
         )
 
@@ -120,20 +120,37 @@ extension WalletConnectDAppConnectionRequestViewModel {
 // MARK: - DApp proposal connect / cancel
 
 extension WalletConnectDAppConnectionRequestViewModel {
-    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: some Sequence<Blockchain>) async {
+    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [Blockchain]) async {
+        let dAppSession: WalletConnectDAppSession
+
         do {
-            try await interactor.connectDApp(
-                proposal: proposal.sessionProposal,
+            dAppSession = try await interactor.approveDAppProposal(
+                sessionProposal: proposal.sessionProposal,
                 selectedBlockchains: selectedBlockchains,
                 selectedUserWallet: selectedUserWallet
             )
-            hapticFeedbackGenerator.successNotificationOccurred()
-            coordinator?.displaySuccessfulDAppConnection(with: proposal.dApp.name)
-            coordinator?.dismiss()
         } catch {
             hapticFeedbackGenerator.errorNotificationOccurred()
-            coordinator?.displayProposalApprovalError(error)
+            coordinator?.display(proposalApprovalError: error)
+            return
         }
+
+        do {
+            try await interactor.persistConnectedDApp(
+                connectionProposal: proposal,
+                dAppSession: dAppSession,
+                blockchains: selectedBlockchains,
+                userWallet: selectedUserWallet
+            )
+        } catch {
+            hapticFeedbackGenerator.errorNotificationOccurred()
+            coordinator?.display(dAppPersistenceError: error)
+            return
+        }
+
+        hapticFeedbackGenerator.successNotificationOccurred()
+        coordinator?.displaySuccessfulDAppConnection(with: proposal.dApp.name)
+        coordinator?.dismiss()
     }
 
     private func rejectDAppProposal() {
@@ -360,19 +377,6 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection.Av
 }
 
 private extension WalletConnectWarningNotificationViewModel {
-    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
-        switch verificationStatus {
-        case .verified:
-            return nil
-
-        case .unknownDomain:
-            self = .dAppUnknownDomain
-
-        case .malicious:
-            self = .dAppKnownSecurityRisk
-        }
-    }
-
     init?(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
         guard blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty else {
             self = .requiredNetworksAreUnavailableForSelectedWallet(
