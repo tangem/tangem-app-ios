@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemAccessibilityIdentifiers
 
 enum CardMock: String, CaseIterable {
     case wallet2
@@ -24,25 +25,25 @@ enum CardMock: String, CaseIterable {
     var accessibilityIdentifier: String {
         switch self {
         case .wallet2:
-            return "CardMockWallet2"
+            return CardMockAccessibilityIdentifiers.wallet2.rawValue
         case .wallet:
-            return "CardMockWallet"
+            return CardMockAccessibilityIdentifiers.wallet.rawValue
         case .twin:
-            return "CardMockTwin"
+            return CardMockAccessibilityIdentifiers.twin.rawValue
         case .xrpNote:
-            return "CardMockXrpNote"
+            return CardMockAccessibilityIdentifiers.xrpNote.rawValue
         case .xlmBird:
-            return "CardMockXlmBird"
+            return CardMockAccessibilityIdentifiers.xlmBird.rawValue
         case .visa:
-            return "CardMockVisa"
+            return CardMockAccessibilityIdentifiers.visa.rawValue
         case .visaTestnet:
-            return "CardMockVisaTestnet"
+            return CardMockAccessibilityIdentifiers.visaTestNet.rawValue
         case .wallet2Demo:
-            return "CardMockWallet2Demo"
+            return CardMockAccessibilityIdentifiers.wallet2Demo.rawValue
         case .walletDemo:
-            return "CardMockWalletDemo"
+            return CardMockAccessibilityIdentifiers.walletDemo.rawValue
         case .ethNoteDemo:
-            return "CardMockEthNoteDemo"
+            return CardMockAccessibilityIdentifiers.ethNoteDemo.rawValue
         }
     }
 
