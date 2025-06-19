@@ -12,7 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 
-struct TwinConfig {
+struct TwinConfig: CardContainer {
     let card: CardDTO
     private let walletData: WalletData
     private let twinData: TwinData
@@ -37,7 +37,7 @@ struct TwinConfig {
     }
 }
 
-extension TwinConfig: CardUserWalletConfig {
+extension TwinConfig: UserWalletConfig {
     var cardSetLabel: String? {
         Localization.cardLabelCardCount(cardsCount)
     }

@@ -14,7 +14,7 @@ import TangemSdk
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
-struct Wallet2Config {
+struct Wallet2Config: CardContainer {
     let card: CardDTO
     private let isDemo: Bool
 
@@ -24,7 +24,7 @@ struct Wallet2Config {
     }
 }
 
-extension Wallet2Config: CardUserWalletConfig {
+extension Wallet2Config: UserWalletConfig {
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil

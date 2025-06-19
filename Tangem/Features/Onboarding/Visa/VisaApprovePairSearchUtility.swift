@@ -25,9 +25,10 @@ struct VisaApprovePairSearchUtility {
                 continue
             }
 
+            let config = userWalletModel.config
+            let sessionFilter = config.cardSessionFilter
             guard
-                let wallet = userWalletModel.keysRepository.keys.first(where: { $0.curve == visaUtilities.mandatoryCurve }),
-                let config = userWalletModel.config as? CardUserWalletConfig
+                let wallet = userWalletModel.keysRepository.keys.first(where: { $0.curve == visaUtilities.mandatoryCurve })
             else {
                 continue
             }
@@ -41,7 +42,7 @@ struct VisaApprovePairSearchUtility {
 
                 let publicKeys = try findPublicKey(for: targetAddress, derivationPath: derivationPath, in: wallet)
                 return .init(
-                    sessionFilter: config.cardSessionFilter,
+                    sessionFilter: sessionFilter,
                     seedPublicKey: publicKeys.seedKey,
                     derivedPublicKey: publicKeys.derivedKey,
                     derivationPath: derivationPath,
