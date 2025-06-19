@@ -1,5 +1,5 @@
 //
-//  CommonTests+Extensions.swift
+//  Screen.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,6 @@
 
 import XCTest
 
-extension CommonTests {}
+protocol Screen {
+    var app: XCUIApplication { get }
+}
