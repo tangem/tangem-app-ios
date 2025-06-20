@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct NFTCollection: Hashable, Identifiable, Sendable {
     public let id: NFTCollectionId
@@ -18,7 +19,7 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
     /// therefore this property should always be used if you need to determine the number of assets.
     /// Do not use `assets.count` for this purpose.
     let assetsCount: Int
-    let assets: [NFTAsset]
+    let assetsResult: NFTPartialResult<[NFTAsset]>
 
     init(
         collectionIdentifier: String,
@@ -28,8 +29,8 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         name: String,
         description: String?,
         media: NFTMedia?,
-        assetsCount: Int?,
-        assets: [NFTAsset]
+        assetsCount: Int,
+        assetsResult: NFTPartialResult<[NFTAsset]>
     ) {
         id = .init(
             collectionIdentifier: collectionIdentifier,
@@ -41,8 +42,8 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         self.name = name
         self.description = description
         self.media = media
-        self.assetsCount = assetsCount ?? assets.count
-        self.assets = assets
+        self.assetsCount = assetsCount
+        self.assetsResult = assetsResult
     }
 }
 
@@ -70,7 +71,7 @@ public extension NFTCollection {
 public extension NFTCollection {
     /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
     /// therefore, this helper can be used to enrich existing domain models of NFT collection with NFT assets fetched separately.
-    func enriched(with assets: [NFTAsset]) -> Self {
+    func enriched(with assetsResult: NFTPartialResult<[NFTAsset]>) -> Self {
         return .init(
             collectionIdentifier: id.collectionIdentifier,
             chain: id.chain,
@@ -79,8 +80,8 @@ public extension NFTCollection {
             name: name,
             description: description,
             media: media,
-            assetsCount: assets.count,
-            assets: assets
+            assetsCount: assetsCount,
+            assetsResult: assetsResult
         )
     }
 
@@ -93,8 +94,8 @@ public extension NFTCollection {
             name: "",
             description: nil,
             media: nil,
-            assetsCount: nil,
-            assets: []
+            assetsCount: 0,
+            assetsResult: NFTPartialResult(value: [NFTAsset]())
         )
     }
 }
