@@ -217,7 +217,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         )
     }
 
-    func getWalletAuthorizationChallenge(cardId: String, derivedPublicKey: String) async throws -> VisaAuthChallengeResponse {
+    func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse {
         return .init(
             nonce: RandomBytesGenerator().generateBytes(length: 16).hexString,
             sessionId: "098acd0987ba0af0787ff8abc90dcb12=098acd0987ba0af0787ff8abc90dcb12=="
@@ -238,6 +238,10 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
 
     func refreshAccessToken(refreshToken: String, authorizationType authType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
         return try await getAccessTokensForCardAuth(signedChallenge: "", salt: "", sessionId: "")
+    }
+
+    func exchangeTokens(accessToken: String, refreshToken: String, authorizationType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
+        return authorizationTokens
     }
 }
 
