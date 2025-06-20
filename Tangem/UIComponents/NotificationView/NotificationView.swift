@@ -22,7 +22,7 @@ struct NotificationView: View {
         style = input.style
     }
 
-    /// Use this initializer when you need to refresh `MainButton`, e.g. when button can display spinned
+    /// Use this initializer when you need to refresh `MainButton`, e.g. when button can display spinner
     /// or `MainButton` can toggle enable state during notification lifetime
     init(settings: Settings, buttons: [NotificationButton]) {
         self.settings = settings
