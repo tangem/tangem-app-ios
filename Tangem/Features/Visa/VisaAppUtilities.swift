@@ -20,14 +20,6 @@ struct VisaAppUtilities {
             return nil
         }
 
-        guard
-            let derivationPath = utils.visaDefaultDerivationPath,
-            let extendedPubKey = wallet.derivedKeys[derivationPath],
-            let address = try? utils.makeAddress(seedKey: wallet.publicKey, extendedKey: extendedPubKey)
-        else {
-            return nil
-        }
-
-        return address
+        return try? utils.makeAddress(walletPublicKey: wallet.publicKey)
     }
 }
