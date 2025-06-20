@@ -13,7 +13,7 @@ import TangemStaking
 
 class StakingTransactionDispatcher {
     private let walletModel: any WalletModel
-    private let transactionSigner: TransactionSigner
+    private let transactionSigner: TangemSigner
     private let pendingHashesSender: StakingPendingHashesSender
     private let stakingTransactionMapper: StakingTransactionMapper
     private let transactionStatusProvider: StakeKitTransactionStatusProvider
@@ -22,7 +22,7 @@ class StakingTransactionDispatcher {
 
     init(
         walletModel: any WalletModel,
-        transactionSigner: TransactionSigner,
+        transactionSigner: TangemSigner,
         pendingHashesSender: StakingPendingHashesSender,
         stakingTransactionMapper: StakingTransactionMapper,
         transactionStatusProvider: some StakeKitTransactionStatusProvider
@@ -126,7 +126,7 @@ private extension StakingTransactionDispatcher {
             )
         }
 
-        let signer = (transactionSigner as? TangemSigner)?.latestSigner.value
+        let signer = transactionSigner.latestSigner.value
         return TransactionDispatcherResultMapper().mapResult(result.result, blockchain: walletModel.tokenItem.blockchain, signer: signer)
     }
 }
