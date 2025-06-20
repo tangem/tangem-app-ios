@@ -38,7 +38,7 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Wallet"
     }
 
