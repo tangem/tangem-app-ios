@@ -138,9 +138,8 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = .init(
-            flow: .crypto,
-            tokenItem: tokenItem,
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
+            for: tokenItem,
             addressInfos: addressInfos
         )
     }
