@@ -369,7 +369,7 @@
 "give_permission_swap_subtitle" = "続行するには、%1@スマートコントラクトに%2@を使用する権限を付与してください";
 "give_permission_title" = "許可を与える";
 "give_permission_unlimited" = "無制限";
-"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_add_existing_wallet" = "既存のウォレットを追加";
 "home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Tangemを注文";
 "home_button_scan" = "Tangemをスキャン";
