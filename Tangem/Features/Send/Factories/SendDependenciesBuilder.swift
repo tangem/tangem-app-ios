@@ -90,7 +90,7 @@ struct SendDependenciesBuilder {
 
     func makeStakeAction() -> StakingAction {
         StakingAction(
-            amount: (try? walletModel.getBalance()) ?? 0,
+            amount: walletModel.availableBalanceProvider.balanceType.value ?? 0,
             validatorType: .empty,
             type: .stake
         )
