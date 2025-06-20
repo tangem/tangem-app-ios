@@ -544,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Todavía no ha agregado esta red. Para recibir NFTs, añádala a su portafolio.";
 "nft_receive_unavailable_asset_warning_title" = "Red no agregada";
 "nft_receive_unavailable_section_title" = "No aregada";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "cNFT y pNFT aún no son compatibles. Por favor, no los envíes a tu billetera.";
+"nft_receive_unsupported_types" = "Tipos de NFT no compatibles";
 "nft_send" = "Enviar NFT";
 "nft_traits_title" = "Rasgos";
 "nft_untitled_collection" = "Colección sin título";
@@ -690,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "No ha dado acceso a su cámara";
 "qr_scanner_camera_denied_title" = "Acceso a la cámara denegado";
 "receive_bottom_sheet_no_memo_required_message" = "No se requiere nota";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ en la red %2$@";
 "receive_bottom_sheet_warning_message_description" = "El envío de cualquier otra moneda supondrá una pérdida irreversible.";
 "receive_bottom_sheet_warning_message_full" = "Envíe solo %@ a esta dirección. Enviar cualquier otra moneda resultará en su pérdida irreversible.";
 "receive_bottom_sheet_warning_message_title" = "Envía sólo %@ a esta dirección.";
