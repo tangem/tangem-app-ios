@@ -8,21 +8,12 @@
 
 import Foundation
 
-public struct ExpressManagerSwappingPair: Hashable {
-    public let source: ExpressWallet
-    public let destination: ExpressWallet
+public struct ExpressManagerSwappingPair {
+    public let source: any ExpressSourceWallet
+    public let destination: any ExpressDestinationWallet
 
-    public init(source: ExpressWallet, destination: ExpressWallet) {
+    public init(source: any ExpressSourceWallet, destination: any ExpressDestinationWallet) {
         self.source = source
         self.destination = destination
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(source.expressCurrency)
-        hasher.combine(destination.expressCurrency)
-    }
-
-    public static func == (lhs: ExpressManagerSwappingPair, rhs: ExpressManagerSwappingPair) -> Bool {
-        lhs.hashValue == rhs.hashValue
     }
 }
