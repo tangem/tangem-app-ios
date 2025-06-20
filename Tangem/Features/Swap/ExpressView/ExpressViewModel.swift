@@ -13,9 +13,9 @@ import TangemExpress
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 import enum TangemSdk.TangemSdkError
-import struct BlockchainSdk.Fee
 
 final class ExpressViewModel: ObservableObject {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
@@ -698,6 +698,18 @@ private extension ExpressViewModel {
             } catch let error as ExpressAPIError {
                 await runOnMain {
                     let message = error.localizedMessage
+                    root.alert = AlertBinder(title: Localization.commonError, message: message)
+                }
+            } catch let error as ValidationError {
+                let factory = BlockchainSDKNotificationMapper(
+                    tokenItem: root.interactor.getSender().tokenItem,
+                    feeTokenItem: root.interactor.getSender().feeTokenItem
+                )
+
+                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent.description ?? error.localizedDescription
+
+                await runOnMain {
                     root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
