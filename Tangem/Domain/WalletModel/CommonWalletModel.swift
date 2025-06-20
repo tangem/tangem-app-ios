@@ -525,6 +525,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+        wallet.feeCurrencyBalance(amountType: amountType)
+    }
+
     func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
         wallet.hasFeeCurrency(amountType: amountType)
     }
@@ -730,14 +734,6 @@ extension CommonWalletModel: TransactionHistoryFetcher {
 
     func clearHistory() {
         _transactionHistoryService?.clearHistory()
-    }
-}
-
-// MARK: - Express
-
-extension CommonWalletModel: ExpressWallet {
-    func getFeeCurrencyBalance() -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
     }
 }
 
