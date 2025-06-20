@@ -19,8 +19,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     private lazy var pendingTransactionRepository = ExpressPendingTransactionRepositoryMock()
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
-    private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
@@ -176,8 +174,6 @@ private extension ExpressModulesFactoryMock {
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
         )
@@ -187,8 +183,6 @@ private extension ExpressModulesFactoryMock {
             initialWallet: initialWalletModel,
             destinationWallet: nil,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
@@ -199,14 +193,6 @@ private extension ExpressModulesFactoryMock {
         )
 
         return interactor
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
-    }
-
-    func makeExpressFeeProvider() -> ExpressFeeProvider {
-        return CommonExpressFeeProvider(wallet: initialWalletModel)
     }
 
     func makeExpressRepository() -> ExpressRepository {

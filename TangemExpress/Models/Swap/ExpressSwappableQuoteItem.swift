@@ -1,5 +1,5 @@
 //
-//  ExpressSwappableItem.swift
+//  ExpressSwappableQuoteItem.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,16 +7,17 @@
 //
 
 import Foundation
+import TangemFoundation
 
-public struct ExpressSwappableItem {
-    public let source: ExpressWallet
-    public let destination: ExpressWallet
+public struct ExpressSwappableQuoteItem {
+    public let source: ExpressWalletCurrency
+    public let destination: ExpressWalletCurrency
     public let amount: Decimal
     public let providerInfo: ProviderInfo
 
     public init(
-        source: ExpressWallet,
-        destination: ExpressWallet,
+        source: ExpressWalletCurrency,
+        destination: ExpressWalletCurrency,
         amount: Decimal,
         providerInfo: ProviderInfo
     ) {
@@ -32,7 +33,7 @@ public struct ExpressSwappableItem {
     }
 }
 
-public extension ExpressSwappableItem {
+public extension ExpressSwappableQuoteItem {
     struct ProviderInfo {
         let id: ExpressProvider.Id
         let type: ExpressProviderType
