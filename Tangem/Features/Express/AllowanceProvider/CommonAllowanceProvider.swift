@@ -10,9 +10,17 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-class CommonAllowanceProvider {
-    private var walletModel: any WalletModel
-    private var spendersAwaitingApprove: Set<String> = []
+// Convenient aliases. Move it to BSDK
+// [REDACTED_TODO_COMMENT]
+typealias AllowanceState = TangemExpress.AllowanceState
+typealias ApprovePolicy = TangemExpress.ExpressApprovePolicy
+typealias ApproveTransactionData = TangemExpress.ApproveTransactionData
+typealias AllowanceProvider = TangemExpress.AllowanceProvider
+
+struct CommonAllowanceProvider {
+    private let walletModel: any WalletModel
+    // TEMP: Until use WalletModelWrapper
+    private static var spendersAwaitingApprove: Set<String> = []
 
     init(walletModel: any WalletModel) {
         self.walletModel = walletModel
@@ -21,7 +29,7 @@ class CommonAllowanceProvider {
 
 // MARK: - AllowanceProvider
 
-extension CommonAllowanceProvider: AllowanceProvider {
+extension CommonAllowanceProvider: ExpressAllowanceProvider {
     var isSupportAllowance: Bool {
         walletModel.tokenItem.blockchain.isEvm && walletModel.tokenItem.isToken
     }
@@ -31,12 +39,12 @@ extension CommonAllowanceProvider: AllowanceProvider {
         let isPermissionRequired = try await checker.isPermissionRequired(amount: amount, spender: spender)
 
         guard isPermissionRequired else {
-            spendersAwaitingApprove.remove(spender)
+            Self.spendersAwaitingApprove.remove(spender)
 
             return .enoughAllowance
         }
 
-        let approveTxWasSent = spendersAwaitingApprove.contains(spender)
+        let approveTxWasSent = Self.spendersAwaitingApprove.contains(spender)
         if approveTxWasSent {
             return .approveTransactionInProgress
         }
@@ -46,29 +54,6 @@ extension CommonAllowanceProvider: AllowanceProvider {
     }
 
     func didSendApproveTransaction(for spender: String) {
-        spendersAwaitingApprove.insert(spender)
-    }
-}
-
-// MARK: - ExpressAllowanceProvider
-
-extension CommonAllowanceProvider: ExpressAllowanceProvider {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, spender: String) async throws -> AllowanceState {
-        let contractAddress = request.pair.source.expressCurrency.contractAddress
-        if contractAddress == ExpressConstants.coinContractAddress {
-            return .enoughAllowance
-        }
-
-        assert(contractAddress != ExpressConstants.coinContractAddress)
-
-        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: request.approvePolicy)
-    }
-}
-
-// MARK: - UpdatableAllowanceProvider
-
-extension CommonAllowanceProvider: UpdatableAllowanceProvider {
-    func setup(wallet: any WalletModel) {
-        walletModel = wallet
+        Self.spendersAwaitingApprove.insert(spender)
     }
 }
