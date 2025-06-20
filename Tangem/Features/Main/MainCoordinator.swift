@@ -247,9 +247,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = .init(
-            flow: .crypto,
-            tokenItem: tokenItem,
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
+            for: tokenItem,
             addressInfos: addressInfos
         )
     }
