@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension NFTCachedModels.V1 {
     struct Collection: Codable {
@@ -31,6 +32,7 @@ extension NFTCachedModels.V1 {
 
         // MARK: - Assets (nested array)
 
+        let errorDescriptors: [ErrorDescriptor]
         let assets: [Asset]
     }
 }
@@ -59,7 +61,9 @@ extension NFTCachedModels.V1.Collection {
         mediaKindName = NFTCachedModels.MediaUtils.serialize(collection.media?.kind)
 
         // Store assets as Asset objects
-        assets = collection.assets.map { NFTCachedModels.V1.Asset(from: $0) }
+
+        errorDescriptors = collection.assetsResult.errors.map { NFTCachedModels.V1.ErrorDescriptor(from: $0) }
+        assets = collection.assetsResult.value.map { NFTCachedModels.V1.Asset(from: $0) }
     }
 
     func toNFTCollection() throws -> NFTCollection {
@@ -71,6 +75,9 @@ extension NFTCachedModels.V1.Collection {
 
         // Reconstruct media using shared utility
         let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+
+        // Reconstruct ErrorDescriptors
+        let errorDescriptors = errorDescriptors.map { $0.toNFTErrorDescriptor() }
 
         // Convert stored Asset objects to NFTAsset domain objects
         let assetsArray = try assets.map { try $0.toNFTAsset() }
@@ -85,7 +92,7 @@ extension NFTCachedModels.V1.Collection {
             description: description,
             media: media,
             assetsCount: assetsCount,
-            assets: assetsArray
+            assetsResult: NFTPartialResult(value: assetsArray, errors: errorDescriptors)
         )
     }
 }
