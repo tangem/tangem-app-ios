@@ -11,8 +11,8 @@ import TangemExpress
 import BlockchainSdk
 import BigInt
 
-class CommonExpressFeeProvider {
-    var wallet: any WalletModel
+struct CommonExpressFeeProvider {
+    private let wallet: any WalletModel
 
     init(wallet: any WalletModel) {
         self.wallet = wallet
@@ -22,10 +22,6 @@ class CommonExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressFeeProvider: ExpressFeeProvider {
-    func setup(wallet: any WalletModel) {
-        self.wallet = wallet
-    }
-
     func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
         let amount = makeAmount(amount: amount, item: wallet.tokenItem)
         let fees = try await wallet.estimatedFee(amount: amount).async()

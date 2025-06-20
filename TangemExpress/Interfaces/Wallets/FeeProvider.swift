@@ -8,6 +8,8 @@
 
 import Foundation
 
+public typealias ExpressFeeProvider = FeeProvider
+
 public protocol FeeProvider {
     func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants
     func estimatedFee(estimatedGasLimit: Int) async throws -> Fee
