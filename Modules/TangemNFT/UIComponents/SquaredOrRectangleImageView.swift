@@ -75,7 +75,12 @@ struct SquaredOrRectangleImageView: View {
     }
 
     private var isSquare: Bool {
-        originalSize.width == originalSize.height
+        let diff = abs(originalSize.width - originalSize.height)
+        let minSide = min(originalSize.width, originalSize.height)
+
+        guard minSide > 0 else { return false }
+
+        return (diff / minSide) <= Constants.squaringThresholdPercentage
     }
 
     private func buildKFImage<V: KFImageProtocol>(_ image: V) -> some View {
@@ -102,6 +107,9 @@ struct SquaredOrRectangleImageView: View {
 extension SquaredOrRectangleImageView {
     enum Constants {
         static let defaultCornerRadius: CGFloat = 14.0
+        /// We need this threshold to determine if an image is square or rectangle.
+        /// Otherwise difference in 1 px will result in non-rounded corners even though visually image is squared
+        static let squaringThresholdPercentage: CGFloat = 0.03
     }
 }
 
