@@ -27,7 +27,7 @@ enum NFTDummyCollectionMapper {
             description: description,
             media: media,
             assetsCount: assetsCount,
-            assets: assets
+            assetsResult: NFTPartialResult(value: assets)
         )
     }
 }
