@@ -12,11 +12,11 @@ import BlockchainSdk
 
 class SendTransactionDispatcher {
     private let walletModel: any WalletModel
-    private let transactionSigner: TransactionSigner
+    private let transactionSigner: TangemSigner
 
     init(
         walletModel: any WalletModel,
-        transactionSigner: TransactionSigner
+        transactionSigner: TangemSigner
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
