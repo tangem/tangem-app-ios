@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import struct BlockchainSdk.SendTxError
+import BlockchainSdk
 import TangemAssets
 import TangemExpress
 import TangemFoundation
@@ -268,6 +268,17 @@ private extension SendViewModel {
                 await viewModel.proceed(error: error)
             } catch _ as CancellationError {
                 // Do nothing
+            } catch let error as ValidationError {
+                let factory = BlockchainSDKNotificationMapper(
+                    tokenItem: viewModel.tokenItem,
+                    feeTokenItem: viewModel.feeTokenItem
+                )
+
+                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent.description ?? error.localizedDescription
+                let alertBinder = AlertBinder(title: Localization.commonError, message: message)
+                AppLogger.error(error: error)
+                await runOnMain { viewModel.showAlert(alertBinder) }
             } catch {
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.showAlert(error.alertBinder) }
