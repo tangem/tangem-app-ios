@@ -7,7 +7,6 @@
 //
 
 import ReownWalletKit
-import BlockchainSdk
 
 protocol WCHandlersService {
     func validate(_ request: Request) async throws -> WCValidatedRequest
@@ -32,7 +31,7 @@ final class CommonWCHandlersService {
     private func getHandler(
         for request: Request,
         blockchainId: String,
-        signer: TransactionSigner,
+        signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) async throws -> WalletConnectMessageHandler {
         let method = request.method
