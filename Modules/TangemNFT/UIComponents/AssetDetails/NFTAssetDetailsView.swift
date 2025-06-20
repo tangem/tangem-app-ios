@@ -147,8 +147,8 @@ private extension NFTAssetDetailsView {
                     name: "Arbzukiswap coll",
                     description: nil,
                     media: nil,
-                    assetsCount: nil,
-                    assets: []
+                    assetsCount: 0,
+                    assetsResult: .init(value: [])
                 ),
                 navigationContext: NFTNavigationContextMock(),
                 dependencies: NFTAssetDetailsDependencies(
