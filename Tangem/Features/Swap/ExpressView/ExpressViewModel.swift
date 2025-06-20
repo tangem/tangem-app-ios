@@ -265,7 +265,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().tokenItem.decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -384,7 +384,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+        let roundedAmount = amount.rounded(scale: wallet.tokenItem.decimalCount, roundingMode: .down)
 
         // Exclude unnecessary update
         guard roundedAmount != amount else {
@@ -741,7 +741,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
         case .leaveAmount(let amount, _):
-            guard let balance = try? interactor.getSender().getBalance() else {
+            guard let balance = interactor.getSender().availableBalanceProvider.balanceType.value else {
                 ExpressLogger.info("Couldn't find sender balance")
                 return
             }
