@@ -544,7 +544,7 @@
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To receive NFTs, add it to your portfolio.";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
 "nft_receive_unavailable_section_title" = "Not Added";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
+"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet. Please don't send them to your wallet.";
 "nft_receive_unsupported_types" = "Unsupported NFT types";
 "nft_send" = "Send NFT";
 "nft_traits_title" = "Traits";
