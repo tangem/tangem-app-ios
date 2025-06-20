@@ -6,12 +6,16 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-public struct NFTPartialResult<T: Equatable>: Equatable {
+import TangemFoundation
+
+// MARK: - NFTPartialResult
+
+public struct NFTPartialResult<T: Equatable & Hashable & Sendable>: Equatable, Hashable, Sendable {
     public let value: T
     public let errors: [NFTErrorDescriptor]
 
     public var hasErrors: Bool {
-        !errors.isEmpty
+        errors.isNotEmpty
     }
 
     public init(value: T, errors: [NFTErrorDescriptor] = []) {
@@ -25,12 +29,28 @@ public struct NFTPartialResult<T: Equatable>: Equatable {
     }
 }
 
-public struct NFTErrorDescriptor: Equatable {
+// MARK: - NFTErrorDescriptor
+
+public struct NFTErrorDescriptor: Equatable, Hashable, Sendable {
     public let code: Int
     public let description: String
 
     public init(code: Int, description: String) {
         self.code = code
         self.description = description
+    }
+}
+
+// MARK: - Extensions
+
+extension NFTPartialResult where T == [NFTCollection] {
+    var assetsOrCollectionHadErrorsUpdating: Bool {
+        hasErrors || value.contains { $0.assetsResult.hasErrors }
+    }
+}
+
+extension NFTPartialResult: ExpressibleByArrayLiteral where T: ExpressibleByArrayLiteral, T: RangeReplaceableCollection {
+    public init(arrayLiteral elements: T.Element...) {
+        self.init(value: T(elements), errors: [])
     }
 }

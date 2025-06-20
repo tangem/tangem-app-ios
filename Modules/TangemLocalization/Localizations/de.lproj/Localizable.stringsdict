@@ -125,9 +125,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li collection</string>
+        <string>%li Sammlung</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li Sammlungen</string>
       </dict>
       <key>nfts_count</key>
       <dict>
