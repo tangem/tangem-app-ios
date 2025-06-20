@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "続行するには、%1@スマートコントラクトに%2@を使用する権限を付与してください";
 "give_permission_title" = "許可を与える";
 "give_permission_unlimited" = "無制限";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Tangemを注文";
 "home_button_scan" = "Tangemをスキャン";
 "hot_crypto_add_token_subtitle" = "%@へ";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "QRコードを正方形に合わせてスキャンしてください。%@ ネットワークアドレスをスキャンしてください。";
 "send_recent_transactions" = "最近の取引";
 "send_recipient_address_error" = "有効なアドレスではありません";
-"send_recipient_address_footer_markdown" = "エラーが発生すると転送が失われる可能性があるため、** %s ** ネットワークアドレスに送信するようにしてください。";
+"send_recipient_address_footer_highlighted_part" = "%@ に送信";
+"send_recipient_address_footer_v2" = "%@ネットワークアドレスを確認してください。エラーが発生すると転送が失われる可能性があります。";
 "send_recipient_address_footer" = "トークンを失わないように、受信ウォレットアドレスが%@ネットワーク上にあることを確認してください。";
 "send_recipient_label" = "送金先";
-"send_recipient_memo_footer_markdown" = "メモ / 宛先タグは、暗号資産ネットワーク内の共通の受信者への取引を区別するコードです。**注意：メモを紛失すると資金が失われる可能性があります。**";
+"send_recipient_memo_footer_v2_highlighted" = "注意：メモを忘れると資金が失われる可能性があります。";
 "send_recipient_memo_footer" = "メモ/宛先タグは、同じネットワーク上の同じ受信者に送信された取引を区別するためのユニークなIDです。注意：メモを省略すると、資金の行き違いにつながる可能性があります。";
 "send_recipient_wallets_title" = "マイウォレット";
 "send_recipient" = "受取人";
@@ -1300,7 +1303,7 @@
 "wc_alert_session_disconnected_description" = "ブラウザに戻り、WalletConnect経由で再接続してください。";
 "wc_alert_session_disconnected_title" = "WalletConnectセッションが接続解除されました";
 "wc_alert_sign_anyway" = "とにかくサインする";
-"wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
+"wc_alert_unknown_error_description_no_error_code" = "問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
