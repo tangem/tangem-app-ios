@@ -76,12 +76,12 @@ extension TwinConfig: UserWalletConfig {
         GeneralNotificationEventsFactory().makeNotifications(for: card)
     }
 
-    var transactionSigner: TransactionSigner {
+    var tangemSigner: TangemSigner {
         if let twinKey {
-            return TangemSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
+            return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
         }
 
-        return TangemSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
     var emailData: [EmailCollectedData] {
