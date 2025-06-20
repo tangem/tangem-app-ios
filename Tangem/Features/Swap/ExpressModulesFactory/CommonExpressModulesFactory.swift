@@ -206,7 +206,7 @@ private extension CommonExpressModulesFactory {
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
-    var signer: TransactionSigner { userWalletModel.signer }
+    var signer: TangemSigner { userWalletModel.signer }
 
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
     /// Becase there will be inly initial tokenItem without updating
