@@ -86,7 +86,7 @@ public struct NFTCollectionsListView: View {
     }
 
     @ViewBuilder
-    private func nonEmptyContentView(collections: [NFTCompactCollectionViewModel]) -> some View {
+    private func nonEmptyContentView(collections: [NFTCollectionDisclosureGroupViewModel]) -> some View {
         if collections.isNotEmpty {
             collectionsContent(from: collections)
         } else {
@@ -99,7 +99,7 @@ public struct NFTCollectionsListView: View {
             .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
     }
 
-    private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
+    private func collectionsContent(from collections: [NFTCollectionDisclosureGroupViewModel]) -> some View {
         ScrollViewReader { scrollViewProxy in
             RefreshableScrollView(onRefresh: viewModel.update(completion:), useNativeRefresh: true) {
                 VStack(spacing: 0) {
@@ -274,23 +274,25 @@ let collections = (0 ... 20).map {
             kind: .image,
             url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
         ),
-        assetsCount: nil,
-        assets: (0 ... 3).map {
-            NFTAsset(
-                assetIdentifier: "some-\($0)",
-                assetContractAddress: "",
-                chain: .solana,
-                contractType: .unknown,
-                decimalCount: 0,
-                ownerAddress: "",
-                name: "My asset",
-                description: "",
-                salePrice: .init(last: .init(value: 2), lowest: nil, highest: nil),
-                media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                rarity: nil,
-                traits: []
-            )
-        }
+        assetsCount: 0,
+        assetsResult: .init(
+            value: (0 ... 3).map {
+                NFTAsset(
+                    assetIdentifier: "some-\($0)",
+                    assetContractAddress: "",
+                    chain: .solana,
+                    contractType: .unknown,
+                    decimalCount: 0,
+                    ownerAddress: "",
+                    name: "My asset",
+                    description: "",
+                    salePrice: .init(last: .init(value: 2), lowest: nil, highest: nil),
+                    media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                    rarity: nil,
+                    traits: []
+                )
+            }
+        )
     )
 }
 
@@ -376,7 +378,7 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
-                        state: .failedToLoad(error: NSError())
+                        state: .failedToLoad(error: NSError.dummy)
                     ),
                     navigationContext: NFTNavigationContextMock(),
                     dependencies: NFTCollectionsListDependencies(
