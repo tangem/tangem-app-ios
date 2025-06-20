@@ -15,7 +15,7 @@ struct NFTCachedModelsAssetTests {
     // MARK: - Tests
 
     @Test("Asset serialization and deserialization for all chains")
-    func testAssetSerializationAndDeserialization() throws {
+    func assetSerializationAndDeserialization() throws {
         // Test serialization and deserialization for all possible chain types
         for chain in NFTChain.allCases(isTestnet: false) {
             try testAssetSerializationAndDeserialization(for: chain)
@@ -28,7 +28,7 @@ struct NFTCachedModelsAssetTests {
     }
 
     @Test("Asset serialization and deserialization with empty optionals")
-    func testAssetSerializationAndDeserializationWithEmptyOptionals() throws {
+    func assetSerializationAndDeserializationWithEmptyOptionals() throws {
         // Create an asset domain model with minimal data (all optionals set to nil)
         let assetId = NFTAsset.NFTAssetId(
             identifier: "123",
@@ -62,7 +62,7 @@ struct NFTCachedModelsAssetTests {
     }
 
     @Test("Asset serialization and deserialization with round trip")
-    func testAssetSerializationAndDeserializationWithRoundTrip() throws {
+    func assetSerializationAndDeserializationWithRoundTrip() throws {
         // Test that multiple serialization/deserialization cycles preserve data integrity
         let originalAsset = createCompleteNFTAsset(
             chain: .ethereum(isTestnet: false),
@@ -83,7 +83,7 @@ struct NFTCachedModelsAssetTests {
     }
 
     @Test("Asset serialization and deserialization with contract types")
-    func testAssetSerializationAndDeserializationWithContractTypes() throws {
+    func assetSerializationAndDeserializationWithContractTypes() throws {
         // Test all available contract types
         for contractType in NFTContractType.allCases {
             let originalAsset = createCompleteNFTAsset(
@@ -100,7 +100,7 @@ struct NFTCachedModelsAssetTests {
     }
 
     @Test("Asset serialization and deserialization with media types")
-    func testAssetSerializationAndDeserializationWithMediaTypes() throws {
+    func assetSerializationAndDeserializationWithMediaTypes() throws {
         // Test all available media kinds
         for mediaKind in NFTMedia.Kind.allCases {
             let originalAsset = createCompleteNFTAsset(
@@ -117,7 +117,7 @@ struct NFTCachedModelsAssetTests {
     }
 
     @Test("Asset codability (JSON encoding/decoding)")
-    func testAssetCodability() throws {
+    func assetCodability() throws {
         // Test that the storable model can be encoded to and decoded from JSON
         let originalAsset = createCompleteNFTAsset(
             chain: .ethereum(isTestnet: false),
