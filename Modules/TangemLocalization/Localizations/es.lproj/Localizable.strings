@@ -180,7 +180,7 @@
 "common_search_tokens" = "Buscar tokens";
 "common_search" = "Buscar";
 "common_second_no_param" = "sec";
-"common_see_all" = "See all";
+"common_see_all" = "Ver todo";
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Para continuar, de autorización a los smart contracts de %1@ para usar su %2@";
 "give_permission_title" = "Dar autorización";
 "give_permission_unlimited" = "Ilimitado";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Pedir Tangem";
 "home_button_scan" = "Escanee";
 "hot_crypto_add_token_subtitle" = "a %@";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Por favor, alinee su código QR con el cuadrado para escanearlo. Asegúrese de escanear la dirección de la red %@.";
 "send_recent_transactions" = "Reciente";
 "send_recipient_address_error" = "No es una dirección válida";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en la red %@ para evitar perder sus tokens";
 "send_recipient_label" = "Destinatario";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Atención: si falta el Memo, можно потерять средства.";
 "send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red. Precaución: Omitir un memo puede llevar a la pérdida de fondos";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";
