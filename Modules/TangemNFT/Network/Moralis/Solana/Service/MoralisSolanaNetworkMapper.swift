@@ -50,7 +50,7 @@ struct MoralisSolanaNetworkMapper {
             description: collection.description,
             media: collectionMedia,
             assetsCount: domainAssets.count,
-            assets: domainAssets
+            assetsResult: NFTPartialResult(value: domainAssets)
         )
     }
 
