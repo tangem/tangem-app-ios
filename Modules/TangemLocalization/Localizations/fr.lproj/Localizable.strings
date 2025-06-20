@@ -690,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "Vous n'avez pas donné accès à votre caméra";
 "qr_scanner_camera_denied_title" = "Accès à la caméra refusé";
 "receive_bottom_sheet_no_memo_required_message" = "Aucun mémo requis";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ sur le réseau %2$@";
 "receive_bottom_sheet_warning_message_description" = "L’envoi de toute autre devise entraînera sa perte irréversible.";
 "receive_bottom_sheet_warning_message_full" = "Envoyez uniquement %@ à cette adresse. L'envoi de toute autre devise entraînera sa perte irréversible.";
 "receive_bottom_sheet_warning_message_title" = "Envoyez seulement %@ à cette adresse.";
