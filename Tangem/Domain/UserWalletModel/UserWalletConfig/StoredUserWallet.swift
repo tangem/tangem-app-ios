@@ -32,6 +32,7 @@ struct StoredUserWallet: Identifiable, Encodable {
 
     func updatingWallets(_ wallets: [CardDTO.Wallet]) -> Self {
         guard case .card(var cardDTO) = walletInfo else {
+            Log.warning("Attempt to update hot wallet from CardDTO.Wallet")
             return self
         }
         cardDTO.wallets = wallets
@@ -47,6 +48,7 @@ struct StoredUserWallet: Identifiable, Encodable {
 
     func updatingWallets(_ wallets: [HotWallet]) -> Self {
         guard case .hotWallet(var hotWalletInfo) = walletInfo else {
+            Log.warning("Attempt to update card wallet from HotWallet")
             return self
         }
         hotWalletInfo.wallets = wallets

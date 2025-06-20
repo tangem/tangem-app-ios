@@ -8,10 +8,9 @@
 
 import Foundation
 import TangemSdk
-import BlockchainSdk
 
 struct CommonWalletConnectSigner: WalletConnectSigner {
-    let signer: TransactionSigner
+    let signer: TangemSigner
 
     func sign(data: Data, using walletModel: any WalletModel) async throws -> Data {
         let pubKey = walletModel.publicKey
