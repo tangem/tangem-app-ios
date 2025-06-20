@@ -14,7 +14,7 @@ import TangemLocalization
 import TangemFoundation
 
 public final class NFTCollectionsListViewModel: ObservableObject {
-    typealias ViewState = LoadingValue<[NFTCompactCollectionViewModel]>
+    typealias ViewState = LoadingValue<[NFTCollectionDisclosureGroupViewModel]>
 
     // MARK: State
 
@@ -24,7 +24,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
-    private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
+    private var collectionsViewModels: [NFTCollectionDisclosureGroupViewModel] = []
     private var bag = Set<AnyCancellable>()
 
     // MARK: Dependencies
@@ -85,7 +85,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    func isStateEmpty(collections: [NFTCompactCollectionViewModel]) -> Bool {
+    func isStateEmpty(collections: [NFTCollectionDisclosureGroupViewModel]) -> Bool {
         collections.isEmpty && searchEntry.isEmpty
     }
 
@@ -177,7 +177,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         let currentCollections = state.value ?? []
 
         // We don't need error here, NSError used to silence the compiler
-        let errorState = ViewState.failedToLoad(error: NSError(domain: "", code: 0))
+        let errorState = ViewState.failedToLoad(error: NSError.dummy)
 
         switch result.viewState {
         case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
@@ -200,7 +200,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
+    private func buildCollections(from collections: [NFTCollection]) -> [NFTCollectionDisclosureGroupViewModel] {
         collections
             .sorted { lhs, rhs in
                 if lhs.id.chain.id.caseInsensitiveEquals(to: rhs.id.chain.id) {
@@ -209,9 +209,19 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                 return lhs.id.chain.id.caseInsensitiveSmaller(than: rhs.id.chain.id)
             }
             .map { collection in
-                NFTCompactCollectionViewModel(
+                let assetsResult = collection.assetsResult
+
+                let assetsState: NFTCollectionDisclosureGroupViewModel.AssetsState = if assetsResult.hasErrors, assetsResult.value.isEmpty {
+                    .failedToLoad(error: NSError.dummy)
+                } else if assetsResult.value.isNotEmpty {
+                    .loaded(assetsResult.value)
+                } else {
+                    .loading
+                }
+
+                return NFTCollectionDisclosureGroupViewModel(
                     nftCollection: collection,
-                    assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
+                    assetsState: assetsState,
                     dependencies: dependencies,
                     openAssetDetailsAction: { [weak self] asset in
                         self?.openAssetDetails(for: asset, in: collection)
@@ -228,7 +238,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         state = .loaded(filteredCollections(entry: entry))
     }
 
-    private func filteredCollections(entry: String) -> [NFTCompactCollectionViewModel] {
+    private func filteredCollections(entry: String) -> [NFTCollectionDisclosureGroupViewModel] {
         guard entry.isNotEmpty else {
             return collectionsViewModels
         }
@@ -264,10 +274,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func shouldLoadAssets(for collection: NFTCollection, isExpanded: Bool) -> Bool {
-        let noAssetsLoaded = collection.assets.isEmpty
-        let hasAssets = collection.assetsCount != 0
+        let noAssetsLoaded = collection.assetsResult.value.isEmpty
 
-        return noAssetsLoaded && hasAssets && isExpanded
+        return noAssetsLoaded && isExpanded
     }
 
     private func makeNotificationViewData() -> NFTNotificationViewData {
