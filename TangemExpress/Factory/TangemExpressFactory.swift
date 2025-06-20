@@ -18,15 +18,11 @@ public struct TangemExpressFactory {
 
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
-        feeProvider: FeeProvider,
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: feeProvider,
             mapper: .init()
         )
 
