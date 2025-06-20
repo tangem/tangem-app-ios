@@ -30,3 +30,17 @@ public struct NFTAssetExtendedTraitsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+#if DEBUG
+#Preview {
+    NFTAssetExtendedTraitsView(
+        viewData: KeyValuePanelViewData(
+            header: KeyValuePanelViewData.Header(title: "Title", actionConfig: nil),
+            keyValues: [KeyValuePairViewData(
+                key: KeyValuePairViewData.Key(text: "Key", action: nil),
+                value: KeyValuePairViewData.Value(text: "value", icon: nil)
+            )]
+        )
+    )
+}
+#endif
