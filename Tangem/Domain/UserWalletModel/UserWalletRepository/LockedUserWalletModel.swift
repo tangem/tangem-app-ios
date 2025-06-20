@@ -46,8 +46,11 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        fatalError()
-//        .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
+        if case .card(let card) = userWallet.walletInfo {
+            return .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
+        } else {
+            fatalError("Unimplemented")
+        }
     }
 
     var totalBalance: TotalBalanceState {
@@ -89,8 +92,11 @@ class LockedUserWalletModel: UserWalletModel {
 
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
     var keysDerivingInteractor: any KeysDeriving {
-        fatalError()
-//        KeysDerivingCardInteractor(with: userWallet.cardInfo())
+        if let cardInfo = userWallet.cardInfo {
+            return KeysDerivingCardInteractor(with: cardInfo)
+        } else {
+            fatalError("Unimplemented")
+        }
     }
 
     var name: String { userWallet.name }
