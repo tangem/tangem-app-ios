@@ -80,12 +80,10 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
     public func getAssets(address: String, in collection: NFTCollection) async -> NFTPartialResult<[NFTAsset]> {
         let loadedResponse = await getCollections(address: address)
 
-        let assets = loadedResponse
+        return loadedResponse
             .value
             .first { $0.id == collection.id }?
-            .assets ?? []
-
-        return NFTPartialResult(value: assets, errors: [])
+            .assetsResult ?? []
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID, in collection: NFTCollection) async throws -> NFTAsset? {
