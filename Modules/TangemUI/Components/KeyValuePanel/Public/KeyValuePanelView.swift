@@ -27,7 +27,7 @@ public struct KeyValuePanelView: View {
     }
 
     public var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             // This invisible view is used to read the width of the parent container since on some iOS versions
             // the width of items in LazyVGrid is not calculated correctly when using LazyVGrid's own width
             Color.clear
