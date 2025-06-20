@@ -14,7 +14,7 @@ import TangemSdk
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
-struct Wallet2Config: CardContainer {
+struct Wallet2Config {
     let card: CardDTO
     private let isDemo: Bool
 
