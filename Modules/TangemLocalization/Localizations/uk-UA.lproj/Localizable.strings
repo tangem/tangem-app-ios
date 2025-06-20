@@ -180,7 +180,7 @@
 "common_search_tokens" = "Пошук токенів";
 "common_search" = "Пошук";
 "common_second_no_param" = "сек";
-"common_see_all" = "See all";
+"common_see_all" = "Переглянути все";
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Оберіть дію";
 "common_sell" = "Продати";
@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Щоб продовжити, вам потрібно дозволити смарт-контракту %1@ використовувати ваш %2@";
 "give_permission_title" = "Надати дозвіл";
 "give_permission_unlimited" = "Необмежено";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Купити";
 "home_button_scan" = "Сканувати";
 "hot_crypto_add_token_subtitle" = "в %@";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Будь ласка, сумістіть свій QR-код з квадратом, щоб відсканувати його. Переконайтеся, що ви скануєте адресу в мережі %@.";
 "send_recent_transactions" = "Останні";
 "send_recipient_address_error" = "Недійсна адреса";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Переконайтеся, що адреса гаманця одержувача знаходиться в мережі %@, щоб уникнути втрати ваших токенів";
 "send_recipient_label" = "Надіслати до";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Увага: відсутність Memo може призвести до втрати коштів.";
 "send_recipient_memo_footer" = "Memo/ Тег призначення — це унікальний ідентифікатор для розрізнення транзакцій, надісланих тому самому одержувачу в тій самій мережі. Застереження: відсутність тегу може призвести до втрати коштів.";
 "send_recipient_wallets_title" = "Мої гаманці";
 "send_recipient" = "Одержувач";
