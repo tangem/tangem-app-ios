@@ -73,7 +73,6 @@ extension NFTReceiveCoordinator: NFTNetworkSelectionListRoutable {
             return
         }
 
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .nft)
-            .makeViewModel(for: walletModel)
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .nft).makeViewModel(for: walletModel)
     }
 }
