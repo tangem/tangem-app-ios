@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Чтобы продолжить, вам нужно разрешить смарт-контракту %1@ использовать ваш %2@";
 "give_permission_title" = "Дать разрешение";
 "give_permission_unlimited" = "Безлимитно";
+"home_button_add_existing_wallet" = "Добавить существующий кошелек";
+"home_button_create_new_wallet" = "Создать новый кошелек";
 "home_button_order" = "Купить";
 "home_button_scan" = "Сканировать";
 "hot_crypto_add_token_subtitle" = "в %@";
@@ -688,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "Вы не предоставили доступ к вашей камере";
 "qr_scanner_camera_denied_title" = "Доступ к камере запрещен";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ в %2$@ network";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_full" = "Отправляйте только %@ на этот адрес. Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_title" = "Отправляйте только %@ на этот адрес";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Пожалуйста, совместите свой QR-код с квадратом, чтобы отсканировать его. Убедитесь, что вы сканируете адрес в сети %@.";
 "send_recent_transactions" = "Последние";
 "send_recipient_address_error" = "Неверный адрес";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Убедитесь, что вы отправляете средства на адрес кошелька %@. Ошибки могут привести к потере ваших токенов.";
 "send_recipient_label" = "Отправить";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют. Внимание: отсутствие мемо может привести к потере средств.";
 "send_recipient_wallets_title" = "Мои кошельки";
 "send_recipient" = "Получатель";
