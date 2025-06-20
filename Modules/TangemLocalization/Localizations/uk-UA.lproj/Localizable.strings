@@ -544,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Ви ще не додали цю мережу. Щоб отримувати NFT, додайте її до свого портфоліо.";
 "nft_receive_unavailable_asset_warning_title" = "Мережу не додано";
 "nft_receive_unavailable_section_title" = "Не додано";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "cNFT і pNFT наразі не підтримуються. Будь ласка, не надсилайте їх на свій гаманець.";
+"nft_receive_unsupported_types" = "Непідтримувані типи NFT";
 "nft_send" = "Надіслати NFT";
 "nft_traits_title" = "Риси";
 "nft_untitled_collection" = "Untitled collection";
@@ -690,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "Ви не надали доступ до своєї камери";
 "qr_scanner_camera_denied_title" = "Доступ до камери заборонено";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
 "receive_bottom_sheet_warning_message_full" = "Надсилайте лише %@ на цю адресу. Надсилання будь-якої іншої валюти призведе до її незворотної втрати.";
 "receive_bottom_sheet_warning_message_title" = "Надсилайте лише %@ на цю адресу";
