@@ -23,13 +23,25 @@ struct ReceiveBottomSheetUtils {
         }
     }
 
-    func makeViewModel(for walletModel: any WalletModel) -> ReceiveBottomSheetViewModel {
-        let addressInfos = makeAddressInfos(from: walletModel.addresses)
+    func makeViewModel(for tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) -> ReceiveBottomSheetViewModel {
+        let notificationInputsFactory = ReceiveBottomSheetNotificationInputsFactory(flow: flow)
+        let notificationInputs = notificationInputsFactory.makeNotificationInputs(for: tokenItem)
 
         return ReceiveBottomSheetViewModel(
             flow: flow,
-            tokenItem: walletModel.tokenItem,
+            tokenItem: tokenItem,
+            notificationInputs: notificationInputs,
             addressInfos: addressInfos
         )
+    }
+}
+
+// MARK: - Convenience extensions
+
+extension ReceiveBottomSheetUtils {
+    func makeViewModel(for walletModel: any WalletModel) -> ReceiveBottomSheetViewModel {
+        let addressInfos = makeAddressInfos(from: walletModel.addresses)
+
+        return makeViewModel(for: walletModel.tokenItem, addressInfos: addressInfos)
     }
 }
