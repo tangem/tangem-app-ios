@@ -10,18 +10,20 @@ import Foundation
 import TangemExpress
 
 extension TokenItem {
-    var expressCurrency: TangemExpress.ExpressCurrency {
+    var expressCurrency: ExpressWalletCurrency {
         switch self {
         case .blockchain:
-            return TangemExpress.ExpressCurrency(
+            return ExpressWalletCurrency(
                 // Fixed constant value for the main token contract address
                 contractAddress: ExpressConstants.coinContractAddress,
-                network: networkId
+                network: networkId,
+                decimalCount: decimalCount
             )
         case .token(let token, _):
-            return TangemExpress.ExpressCurrency(
+            return ExpressWalletCurrency(
                 contractAddress: token.contractAddress,
-                network: networkId
+                network: networkId,
+                decimalCount: decimalCount
             )
         }
     }

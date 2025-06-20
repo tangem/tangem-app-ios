@@ -122,10 +122,10 @@ private extension ExpressTokensListViewModel {
     func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
         case .fromSource(let wallet):
-            let pairs = await expressRepository.getPairs(from: wallet)
+            let pairs = await expressRepository.getPairs(from: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.destination }
         case .toDestination(let wallet):
-            let pairs = await expressRepository.getPairs(to: wallet)
+            let pairs = await expressRepository.getPairs(to: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.source }
         }
     }
@@ -141,7 +141,7 @@ private extension ExpressTokensListViewModel {
             .forEach { walletModel in
                 guard walletModel.id != swapDirection.wallet.id else { return }
 
-                let isAvailable = availableCurrenciesSet.contains(walletModel.expressCurrency)
+                let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
                 let isNotCustom = !walletModel.isCustom
                 if isAvailable, isNotCustom {
                     availableWalletModels.append(walletModel)
