@@ -11,6 +11,10 @@ import Combine
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
+protocol SendNewAmountRoutable: AnyObject {
+    func openReceiveTokensList()
+}
+
 class SendNewAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
