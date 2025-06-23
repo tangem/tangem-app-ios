@@ -50,7 +50,21 @@ final class NFTAvailabilityUtil {
 
 extension NFTAvailabilityUtil {
     private func productionNFTChains() -> Set<NFTChain> {
-        return []
+        return [
+            .ethereum(isTestnet: isTestnet),
+            .polygon(isTestnet: isTestnet),
+            .bsc(isTestnet: isTestnet),
+            .avalanche,
+            .fantom(isTestnet: isTestnet),
+            .cronos,
+            .arbitrum(isTestnet: isTestnet),
+            .chiliz(isTestnet: isTestnet),
+            .base(isTestnet: isTestnet),
+            .optimism(isTestnet: isTestnet),
+            .moonbeam(isTestnet: isTestnet),
+            .moonriver(isTestnet: isTestnet),
+            .solana,
+        ]
     }
 
     func testableNFTChains() -> Set<NFTChain> {
