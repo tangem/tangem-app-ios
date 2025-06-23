@@ -29,7 +29,7 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: any WalletModel) async throws -> any WalletModel {
+    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet {
         let availablePairs = await expressRepository.getPairs(from: source.tokenItem.expressCurrency)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
@@ -47,7 +47,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
         if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0.walletModel) }) {
             ExpressLogger.info(self, "select lastSwappedWallet: \(lastSwappedWallet.walletModel.tokenItem.expressCurrency)")
-            return lastSwappedWallet.walletModel
+            return lastSwappedWallet.walletModel.asExpressInteractorWallet
         }
 
         let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatBalance ?? 0) > 0 }
@@ -55,7 +55,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         // If all wallets without balance
         if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
             ExpressLogger.info(self, "has a zero wallets with positive balance then selected: \(first.walletModel.tokenItem.expressCurrency)")
-            return first.walletModel
+            return first.walletModel.asExpressInteractorWallet
         }
 
         // If user has wallets with balance then sort they
@@ -66,7 +66,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
         // Start searching destination with available providers
         if let maxBalanceWallet = sortedWallets.first {
             ExpressLogger.info(self, "selected maxBalanceWallet: \(maxBalanceWallet.walletModel.tokenItem.expressCurrency)")
-            return maxBalanceWallet.walletModel
+            return maxBalanceWallet.walletModel.asExpressInteractorWallet
         }
 
         ExpressLogger.info(self, "couldn't find acceptable wallet")
