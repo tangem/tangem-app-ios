@@ -180,7 +180,7 @@
 "common_search_tokens" = "Rechercher des jetons";
 "common_search" = "Rechercher";
 "common_second_no_param" = "sec";
-"common_see_all" = "See all";
+"common_see_all" = "Voir tout";
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Sélectionnez une action";
 "common_sell" = "Vendre";
@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Pour continuer, accordez aux smart contracts de %1@ l'autorisation d'utiliser votre %2@";
 "give_permission_title" = "Donner l'autorisation";
 "give_permission_unlimited" = "Illimité";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Commandez";
 "home_button_scan" = "Scannez";
 "hot_crypto_add_token_subtitle" = "à %@";
@@ -542,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Vous n'avez pas encore ajouté ce réseau. Pour recevoir des NFT, ajoutez-le à votre portefeuille.";
 "nft_receive_unavailable_asset_warning_title" = "Réseau non ajouté";
 "nft_receive_unavailable_section_title" = "Non ajouté";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "Les cNFT et les pNFT ne sont pas encore pris en charge";
+"nft_receive_unsupported_types" = "Types de NFT non pris en charge";
 "nft_send" = "Envoyer un NFT";
 "nft_traits_title" = "Caractéristiques";
 "nft_untitled_collection" = "Collection sans titre";
@@ -688,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "Vous n'avez pas donné accès à votre caméra";
 "qr_scanner_camera_denied_title" = "Accès à la caméra refusé";
 "receive_bottom_sheet_no_memo_required_message" = "Aucun mémo requis";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ sur le réseau %2$@";
 "receive_bottom_sheet_warning_message_description" = "L’envoi de toute autre devise entraînera sa perte irréversible.";
 "receive_bottom_sheet_warning_message_full" = "Envoyez uniquement %@ à cette adresse. L'envoi de toute autre devise entraînera sa perte irréversible.";
 "receive_bottom_sheet_warning_message_title" = "Envoyez seulement %@ à cette adresse.";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Veuillez aligner votre code QR avec le carré pour le scanner. Assurez-vous de scanner l'adresse du réseau %@.";
 "send_recent_transactions" = "Récent";
 "send_recipient_address_error" = "Adresse non valide";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur le réseau %@ pour éviter de perdre vos jetons";
 "send_recipient_label" = "Envoyer à";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
 "send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau. Attention : L'omission d'un mémo peut entraîner des fonds mal placés";
 "send_recipient_wallets_title" = "Mes portefeuilles";
 "send_recipient" = "Destinataire";

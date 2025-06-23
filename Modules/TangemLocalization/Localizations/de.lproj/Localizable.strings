@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Um fortzufahren, erteile %1@ Smart Contracts die Berechtigung, dein zu %2@ verwenden.";
 "give_permission_title" = "Erlaubnis erteilen";
 "give_permission_unlimited" = "Unbegrenzt";
+"home_button_add_existing_wallet" = "Vorhandene Wallet hinzufügen";
+"home_button_create_new_wallet" = "Neues Wallet erstellen";
 "home_button_order" = "Karte oder Ring bestellen";
 "home_button_scan" = "Karte oder Ring scannen";
 "hot_crypto_add_token_subtitle" = "An %@";
@@ -542,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Du hast dieses Netzwerk noch nicht hinzugefügt. Um NFTs zu erhalten, füge es Deinem Portfolio hinzu.";
 "nft_receive_unavailable_asset_warning_title" = "Netzwerk nicht hinzugefügt";
 "nft_receive_unavailable_section_title" = "Nicht hinzugefügt";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "cNFTs und pNFTs werden noch nicht unterstützt";
+"nft_receive_unsupported_types" = "Nicht unterstützte NFT-Arten";
 "nft_send" = "NFT senden";
 "nft_traits_title" = "Eigenschaften";
 "nft_untitled_collection" = "Unbetitelte Sammlung";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Bitte richte den QR-Code auf das Quadrat aus, um ihn zu scannen. Stell sicher, dass du die Netzwerkadresse %@ scannen.";
 "send_recent_transactions" = "Jüngste";
 "send_recipient_address_error" = "Keine gültige Adresse";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "senden an %@";
+"send_recipient_address_footer_v2" = "Stelle sicher, dass Du %@ Netzwerkadresse hast, da Fehler zu verlorenen Übertragungen führen können";
 "send_recipient_address_footer" = "Vergewisser dich, dass die empfangende Wallet-Adresse im %@ Netzwerk ist, damit du deine Token nicht verlierst.";
 "send_recipient_label" = "Senden an";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Achtung: Das Fehlen eines Memos kann zum Verlust von Geldern führen.";
 "send_recipient_memo_footer" = "Ein Memo/Destination Tag ist eine eindeutige ID zur Unterscheidung von Transaktionen, die an denselben Empfänger im selben Netzwerk gesendet werden. Vorsicht! Das Weglassen eines Vermerks kann dazu führen, dass Gelder für immer verloren sind!";
 "send_recipient_wallets_title" = "Meine Wallet";
 "send_recipient" = "Empfänger";
@@ -1290,8 +1293,8 @@
 "warning_testnet_card_title" = "Nur für Testzwecke";
 "warning_token_required_min_coin_reserve" = "Nicht genug %1$@. Lade Dein XLM-Konto auf, um dieses Token zu verknüpfen";
 "warning_token_trustline_button_title" = "Trustline aktivieren";
-"warning_token_trustline_subtiile" = "Gemäß den Netzwerkregeln musst Du vor der Einzahlung dieses Tokens eine Trustline eröffnen. Dadurch kann Ihr Wallet den Vermögenswert akzeptieren und halten.";
-"warning_token_trustline_tiile" = "Trustline für dieses Token aktivieren";
+"warning_token_trustline_subtiile" = "Um dieses Token zu erhalten, muss eine Trustline aktiviert sein. Das Netzwerk benötigt eine Reserve von %1$@ %2$@.";
+"warning_token_trustline_tiile" = "Trustline erforderlich";
 "wc_alert_audit_unknown_domain" = "Unbekannte Domäne";
 "wc_alert_connect_anyway" = "Trotzdem verbinden";
 "wc_alert_connection_timeout_description" = "Zeitüberschreitungsfehler. Bitte versuche es später erneut.";
@@ -1300,7 +1303,7 @@
 "wc_alert_session_disconnected_description" = "Bitte kehre zu Deinem Browser zurück und stellen die Verbindung über WalletConnect erneut her.";
 "wc_alert_session_disconnected_title" = "WalletConnect-Sitzung wurde getrennt";
 "wc_alert_sign_anyway" = "Trotzdem unterschreiben";
-"wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
+"wc_alert_unknown_error_description_no_error_code" = "Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
 "wc_alert_unknown_error_description" = "Fehlercode: %@. Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
 "wc_alert_unknown_error_title" = "Wir haben einen unbekannten Fehler festgestellt.";
 "wc_alert_unsupported_method_description" = "Fehlercode: 8 005. Wenn das Problem weiterhin besteht, wende Dich bitte an unseren Support.";
