@@ -88,7 +88,10 @@ extension ExpressInteractor {
     }
 
     func getDestination() -> (any ExpressInteractorDestinationWallet)? {
-        _swappingPair.value.destination.value
+        switch _swappingPair.value.destination {
+        case .loading, .failure: nil
+        case .success(let destination): destination
+        }
     }
 
     func getDestinationValue() -> Destination {
@@ -128,8 +131,8 @@ extension ExpressInteractor {
         swappingPairDidChange()
     }
 
-    func update(destination wallet: any ExpressInteractorDestinationWallet) {
-        log("Will update destination to \(wallet)")
+    func update(destination wallet: ExpressInteractorDestinationWallet?) {
+        log("Will update destination to \(wallet as Any)")
 
         _swappingPair.value.destination = .success(wallet)
         swappingPairDidChange()
@@ -774,7 +777,7 @@ extension ExpressInteractor {
     // Manager models
 
     typealias Source = any ExpressInteractorSourceWallet
-    typealias Destination = LoadingResult<any ExpressInteractorDestinationWallet, Error>
+    typealias Destination = LoadingResult<(any ExpressInteractorDestinationWallet)?, Error>
 
     struct SwappingPair {
         var sender: Source
