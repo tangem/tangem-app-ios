@@ -118,7 +118,10 @@ final class CommonNFTManager: NFTManager {
                 return (collection, networkService)
             }
             .flatMapLatest { collection, networkService in
-                return Just((collection, networkService))
+                let emptyAssets = Just((collection, NFTPartialResult<[NFTAsset]>(value: [])))
+                    .setFailureType(to: Error.self)
+
+                let enrichedAssets = Just((collection, networkService))
                     .setFailureType(to: Error.self)
                     .asyncTryMap { collection, networkService in
                         let assets = try await Self.fetchAssets(in: collection, using: networkService)
@@ -126,6 +129,10 @@ final class CommonNFTManager: NFTManager {
 
                         return (collection, updatedAssets)
                     }
+
+                // Append is used to ensure that each update cycle starts with loading
+                return emptyAssets
+                    .append(enrichedAssets)
                     .materialize()
             }
 
@@ -140,7 +147,7 @@ final class CommonNFTManager: NFTManager {
         // Prepend is used to ensure that `assetsValuesPublisher` won't prevent the merged publisher from emitting values
         let assetsValuesPublisher = assetsPublisher
             .values()
-            .prepend((NFTCollection.dummy, NFTPartialResult(value: [])))
+            .prepend((NFTCollection.dummy, []))
             .share()
 
         let enrichedCollectionsFromCollectionsPublisher = collectionsValuesPublisher
@@ -238,17 +245,16 @@ final class CommonNFTManager: NFTManager {
         using assetsCache: [NFTCollection.ID: NFTPartialResult<[NFTAsset]>]
     ) -> NFTPartialResult<[NFTCollection]> {
         let enrichedCollections = collections.value.map { collection in
-            guard let assets = assetsCache[collection.id] else {
+            guard let assetsResult = assetsCache[collection.id] else {
                 return collection
             }
 
-            return collection.enriched(with: assets.value)
+            return collection.enriched(with: assetsResult)
         }
 
-        let assetsErrors = assetsCache.values.flatMap(\.errors)
         return NFTPartialResult(
             value: enrichedCollections,
-            errors: collections.errors + assetsErrors
+            errors: collections.errors
         )
     }
 

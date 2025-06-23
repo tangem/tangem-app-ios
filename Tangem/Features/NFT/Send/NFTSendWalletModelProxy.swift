@@ -259,6 +259,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.hasFeeCurrency(amountType: amountType)
     }
 
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+        mainTokenWalletModel.getFeeCurrencyBalance(amountType: amountType)
+    }
+
     var blockchainDataProvider: BlockchainDataProvider {
         mainTokenWalletModel.blockchainDataProvider
     }
@@ -340,10 +344,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func clearHistory() {
         mainTokenWalletModel.clearHistory()
-    }
-
-    func getFeeCurrencyBalance() -> Decimal {
-        mainTokenWalletModel.getFeeCurrencyBalance()
     }
 
     var stakingManagerState: StakingManagerState {

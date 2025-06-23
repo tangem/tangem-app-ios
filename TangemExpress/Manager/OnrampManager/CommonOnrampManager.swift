@@ -38,7 +38,7 @@ extension CommonOnrampManager: OnrampManager {
     public func setupProviders(request item: OnrampPairRequestItem) async throws -> ProvidersList {
         let pairs = try await apiProvider.onrampPairs(
             from: item.fiatCurrency,
-            to: [item.destination.expressCurrency],
+            to: [item.destination],
             country: item.country
         )
 
