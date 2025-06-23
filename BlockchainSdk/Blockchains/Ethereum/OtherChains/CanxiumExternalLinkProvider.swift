@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 struct CanxiumExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? { nil }
 

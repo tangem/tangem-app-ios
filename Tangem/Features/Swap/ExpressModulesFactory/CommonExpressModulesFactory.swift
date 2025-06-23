@@ -23,8 +23,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
-    private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
     init(inputModel: InputModel) {
@@ -156,24 +154,19 @@ extension CommonExpressModulesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: destinationWalletModel,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
@@ -223,22 +216,10 @@ private extension CommonExpressModulesFactory {
         )
     }
 
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
-    }
-
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
-    }
-
-    func makeExpressFeeProvider() -> ExpressFeeProvider {
-        return CommonExpressFeeProvider(wallet: initialWalletModel)
     }
 
     func makeExpressRepository() -> ExpressRepository {
