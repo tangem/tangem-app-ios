@@ -20,5 +20,6 @@ protocol SendReceiveTokenInput: AnyObject {
 }
 
 protocol SendReceiveTokenOutput: AnyObject {
-    func userDidSelect(tokenItem: TokenItem?)
+    func userDidSelect(receiveToken: SendReceiveToken)
+    func userDidRequestClearSelection()
 }

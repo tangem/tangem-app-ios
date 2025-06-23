@@ -27,7 +27,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
 
-    @Published var receivedTokenViewModel: TokenWithAmountViewData?
+    @Published var receivedTokenViewType: ReceivedTokenViewType?
 
     lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
         tokenIconInfo: tokenIconInfo,
@@ -112,6 +112,10 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         updateAmountsUI(amount: amount)
     }
 
+    func userDidTapReceivedTokenSelection() {
+        router?.openReceiveTokensList()
+    }
+
     func removeReceivedToken() {
         interactor.removeReceivedToken()
     }
@@ -160,13 +164,13 @@ private extension SendNewAmountViewModel {
 
         Publishers.CombineLatest(
             interactor.receivedTokenPublisher,
-            interactor.receivedTokenAmountPublisher
+            interactor.receivedTokenAmountPublisher,
         )
         .withWeakCaptureOf(self)
         .receive(on: DispatchQueue.main)
         .sink { viewModel, args in
             let (token, amount) = args
-            viewModel.updateReceivedToken(token: token, amount: amount)
+            viewModel.updateReceivedToken(receiveToken: token, amount: amount)
         }
         .store(in: &bag)
     }
@@ -208,18 +212,33 @@ private extension SendNewAmountViewModel {
 // MARK: - Express
 
 extension SendNewAmountViewModel {
-    func updateReceivedToken(token: SendReceiveToken?, amount: LoadingResult<SendAmount?, Error>?) {
-        receivedTokenViewModel = token.map { token in
-            .init(
-                tokenIconInfo: token.tokenIconInfo,
-                title: token.tokenItem.name,
-                subtitle: "Will be sent to recipient",
-                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
-                action: { [weak self] in
-                    self?.router?.openReceiveTokensList()
-                }
-            )
+    func updateReceivedToken(receiveToken: SendReceiveToken?, amount: LoadingResult<SendAmount?, Error>?) {
+        guard FeatureProvider.isAvailable(.sendViaSwap) else {
+            receivedTokenViewType = .none
+            return
         }
+
+        guard let receiveToken else {
+            receivedTokenViewType = .selectButton
+            return
+        }
+
+        let subtitle: String = switch amount {
+        case .none, .loading, .success: "Will be sent to recipient"
+        case .failure(let error): error.localizedDescription
+        }
+
+        let tokenWithAmountViewData = TokenWithAmountViewData(
+            tokenIconInfo: receiveToken.tokenIconInfo,
+            title: receiveToken.tokenItem.name,
+            subtitle: subtitle,
+            detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
+            action: { [weak self] in
+                self?.router?.openReceiveTokensList()
+            }
+        )
+
+        receivedTokenViewType = .selected(tokenWithAmountViewData)
     }
 
     func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
@@ -257,4 +276,9 @@ extension SendNewAmountViewModel {
     }
 
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
+
+    enum ReceivedTokenViewType {
+        case selectButton
+        case selected(TokenWithAmountViewData)
+    }
 }
