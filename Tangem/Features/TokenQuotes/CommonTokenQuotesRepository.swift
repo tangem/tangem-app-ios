@@ -16,7 +16,6 @@ class CommonTokenQuotesRepository {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private var _quotes: CurrentValueSubject<Quotes, Never> = .init([:])
-    private var _prices: CurrentValueSubject<[PriceItem: Decimal], Never> = .init([:])
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private var bag: Set<AnyCancellable> = []
     private let storage = CachesDirectoryStorage(file: .cachedQuotes)
@@ -64,24 +63,6 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
 
         // Return the outputPublisher that the requester knew when quotes were loaded
         return outputPublisher.eraseToAnyPublisher()
-    }
-
-    func loadPrice(currencyCode: String, currencyId: String) -> AnyPublisher<Decimal, any Error> {
-        let item = PriceItem(currencyId: currencyId, currencyCode: currencyCode)
-        if let price = _prices.value[item] {
-            return .just(output: price)
-        }
-
-        let request = QuotesDTO.Request(coinIds: [currencyId], currencyId: currencyCode, fields: [.price])
-
-        return tangemApiService
-            .loadQuotes(requestModel: request)
-            .compactMap { [weak self] quotes in
-                let price = quotes.first(where: { $0.id == currencyId })?.price
-                self?._prices.value[item] = price
-                return price
-            }
-            .eraseToAnyPublisher()
     }
 }
 
@@ -146,6 +127,7 @@ private extension CommonTokenQuotesRepository {
             })
             .store(in: &bag)
 
+        // Reload user quotes
         NotificationCenter.default
             // We can't use didBecomeActive because of NFC interaction app state changes
             .publisher(for: UIApplication.willEnterForegroundNotification)
@@ -156,9 +138,9 @@ private extension CommonTokenQuotesRepository {
             }
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
-                // Reload saved quotes
-                let idsToLoad: [String] = Array(repository.quotes.keys)
-                return repository.loadQuotes(currencyIds: idsToLoad)
+                let userWallets = repository.userWalletRepository.models
+                let userCurrencyIds = Array(Set(userWallets.flatMap { $0.walletModelsManager.walletModels.compactMap(\.tokenItem.currencyId) }))
+                return repository.loadQuotes(currencyIds: userCurrencyIds)
             }
             .sink()
             .store(in: &bag)
@@ -217,10 +199,5 @@ extension CommonTokenQuotesRepository {
     struct QueueItem {
         let ids: [String]
         let didLoadPublisher: PassthroughSubject<[String: TokenQuote], Never>
-    }
-
-    struct PriceItem: Hashable {
-        let currencyId: String
-        let currencyCode: String
     }
 }
