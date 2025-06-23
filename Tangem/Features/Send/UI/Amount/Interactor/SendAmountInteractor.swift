@@ -250,7 +250,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
     }
 
     func removeReceivedToken() {
-        receiveTokenOutput?.userDidSelect(tokenItem: nil)
+        receiveTokenOutput?.userDidRequestClearSelection()
     }
 
     func externalUpdate(amount: Decimal?) {

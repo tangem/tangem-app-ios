@@ -339,7 +339,7 @@ private extension ExpressViewModel {
                     self?.updateSendView(wallet: pair.sender)
                 }
 
-                if pair.destination.value?.id != prev.destination.value?.id {
+                if pair.destination.value??.id != prev.destination.value??.id {
                     self?.updateReceiveView(wallet: pair.destination)
                 }
 
@@ -440,7 +440,7 @@ private extension ExpressViewModel {
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
         let sendingMainToken = pair.sender.isMainToken
-        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination.value?.tokenItem.blockchainNetwork
+        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination.value??.tokenItem.blockchainNetwork
 
         isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
