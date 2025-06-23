@@ -55,18 +55,39 @@ struct SendNewAmountView: View {
 
     @ViewBuilder
     private var receiveTokenView: some View {
-        ZStack(alignment: .top) {
-            GroupedSection(viewModel.receivedTokenViewModel) {
-                TokenWithAmountView(data: $0)
-            }
-            .backgroundColor(Colors.Background.action)
-            .innerContentPadding(14)
+        switch viewModel.receivedTokenViewType {
+        case .none:
+            EmptyView()
 
-            CircleButton(content: .title(icon: .trailing(Assets.clear), title: "Convert")) {
-                viewModel.removeReceivedToken()
+        case .selectButton:
+            Button(action: viewModel.userDidTapReceivedTokenSelection) {
+                HStack(spacing: 8) {
+                    Assets.Glyphs.exchange.image
+                        .resizable()
+                        .frame(width: 20, height: 20)
+
+                    Text("Convert to another token")
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                }
+                .padding(.vertical, 13)
+                .infinityFrame()
             }
-            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-            .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+
+        case .selected(let receivedTokenViewModel):
+            ZStack(alignment: .top) {
+                GroupedSection(receivedTokenViewModel) {
+                    TokenWithAmountView(data: $0)
+                }
+                .backgroundColor(Colors.Background.action)
+                .innerContentPadding(14)
+
+                CircleButton(
+                    content: .title(icon: .trailing(Assets.clear), title: "Convert"),
+                    action: viewModel.removeReceivedToken
+                )
+                .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+                .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+            }
         }
     }
 

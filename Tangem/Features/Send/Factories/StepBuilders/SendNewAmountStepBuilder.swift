@@ -48,30 +48,37 @@ struct SendNewAmountStepBuilder {
             flowKind: flowKind
         )
 
-        let compact = makeSendAmountCompactViewModel(input: io.input, receiveTokenInput: receiveTokenInput, actionType: actionType, flowKind: flowKind)
+        let compact = makeSendAmountCompactViewModel(
+            input: io.input,
+            receiveTokenInput: receiveTokenInput,
+            flowKind: flowKind
+        )
+
         let finish = makeSendAmountCompactViewModel(input: io.input)
         return (step: step, interactor: interactor, compact: compact, finish: finish)
     }
 
     func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendTokenAmountCompactViewModel {
-        let token = makeSendReceiveToken()
-        let viewModel = SendTokenAmountCompactViewModel(receiveToken: token)
+        let sendingToken = makeSendSendingToken()
+        let viewModel = SendTokenAmountCompactViewModel(receiveToken: sendingToken)
         viewModel.bind(amountPublisher: input.amountPublisher)
 
         return viewModel
     }
 
-    func makeSendAmountCompactViewModel(input: SendAmountInput, receiveTokenInput: SendReceiveTokenInput?, actionType: SendFlowActionType, flowKind: SendModel.PredefinedValues.FlowKind) -> SendNewAmountCompactViewModel {
-        let token = makeSendReceiveToken()
+    func makeSendAmountCompactViewModel(
+        input: SendAmountInput,
+        receiveTokenInput: SendReceiveTokenInput?,
+        flowKind: SendModel.PredefinedValues.FlowKind
+    ) -> SendNewAmountCompactViewModel {
+        let sendingToken = makeSendSendingToken()
         let viewModel = SendNewAmountCompactViewModel(
-            flow: flowKind,
-            sendToken: token,
             input: input,
-            balanceProvider: builder.makeTokenBalanceProvider()
+            sendToken: sendingToken,
+            flow: flowKind,
+            balanceProvider: builder.makeTokenBalanceProvider(),
+            receiveTokenInput: receiveTokenInput
         )
-
-        receiveTokenInput.map { viewModel.bind(receiveTokenInput: $0) }
-
         return viewModel
     }
 }
@@ -121,7 +128,7 @@ private extension SendNewAmountStepBuilder {
         )
     }
 
-    func makeSendReceiveToken() -> SendReceiveToken {
+    func makeSendSendingToken() -> SendReceiveToken {
         SendReceiveToken(
             wallet: builder.walletName(),
             tokenItem: tokenItem,

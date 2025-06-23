@@ -386,7 +386,8 @@ struct SendDependenciesBuilder {
         SendReceiveTokensListBuilder(
             io: io,
             tokenItem: walletModel.tokenItem,
-            expressRepository: expressDependenciesFactory.expressRepository
+            expressRepository: expressDependenciesFactory.expressRepository,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder()
         )
     }
 
