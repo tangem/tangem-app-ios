@@ -20,6 +20,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private let tokenItem: TokenItem
     private let networks: [TokenItem]
     private let expressRepository: ExpressRepository
+    private let receiveTokenBuilder: SendReceiveTokenBuilder
     private weak var output: SendReceiveTokenOutput?
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
 
@@ -29,12 +30,14 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         tokenItem: TokenItem,
         networks: [TokenItem],
         expressRepository: ExpressRepository,
+        receiveTokenBuilder: SendReceiveTokenBuilder,
         output: SendReceiveTokenOutput,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
         self.tokenItem = tokenItem
         self.networks = networks
         self.expressRepository = expressRepository
+        self.receiveTokenBuilder = receiveTokenBuilder
         self.output = output
         self.router = router
 
@@ -88,7 +91,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
-        output?.userDidSelect(tokenItem: tokenItem)
+        output?.userDidSelect(receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem))
         router?.dismissNetworkSelector(isSelected: true)
     }
 }
