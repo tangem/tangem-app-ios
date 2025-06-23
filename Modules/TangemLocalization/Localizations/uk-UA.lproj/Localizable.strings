@@ -180,7 +180,7 @@
 "common_search_tokens" = "Пошук токенів";
 "common_search" = "Пошук";
 "common_second_no_param" = "сек";
-"common_see_all" = "See all";
+"common_see_all" = "Переглянути все";
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Оберіть дію";
 "common_sell" = "Продати";
@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Щоб продовжити, вам потрібно дозволити смарт-контракту %1@ використовувати ваш %2@";
 "give_permission_title" = "Надати дозвіл";
 "give_permission_unlimited" = "Необмежено";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Купити";
 "home_button_scan" = "Сканувати";
 "hot_crypto_add_token_subtitle" = "в %@";
@@ -542,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Ви ще не додали цю мережу. Щоб отримувати NFT, додайте її до свого портфоліо.";
 "nft_receive_unavailable_asset_warning_title" = "Мережу не додано";
 "nft_receive_unavailable_section_title" = "Не додано";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "cNFT і pNFT наразі не підтримуються. Будь ласка, не надсилайте їх на свій гаманець.";
+"nft_receive_unsupported_types" = "Непідтримувані типи NFT";
 "nft_send" = "Надіслати NFT";
 "nft_traits_title" = "Риси";
 "nft_untitled_collection" = "Untitled collection";
@@ -688,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "Ви не надали доступ до своєї камери";
 "qr_scanner_camera_denied_title" = "Доступ до камери заборонено";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
 "receive_bottom_sheet_warning_message_full" = "Надсилайте лише %@ на цю адресу. Надсилання будь-якої іншої валюти призведе до її незворотної втрати.";
 "receive_bottom_sheet_warning_message_title" = "Надсилайте лише %@ на цю адресу";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Будь ласка, сумістіть свій QR-код з квадратом, щоб відсканувати його. Переконайтеся, що ви скануєте адресу в мережі %@.";
 "send_recent_transactions" = "Останні";
 "send_recipient_address_error" = "Недійсна адреса";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Переконайтеся, що адреса гаманця одержувача знаходиться в мережі %@, щоб уникнути втрати ваших токенів";
 "send_recipient_label" = "Надіслати до";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Увага: відсутність Memo може призвести до втрати коштів.";
 "send_recipient_memo_footer" = "Memo/ Тег призначення — це унікальний ідентифікатор для розрізнення транзакцій, надісланих тому самому одержувачу в тій самій мережі. Застереження: відсутність тегу може призвести до втрати коштів.";
 "send_recipient_wallets_title" = "Мої гаманці";
 "send_recipient" = "Одержувач";

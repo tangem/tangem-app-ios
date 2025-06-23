@@ -40,7 +40,7 @@ struct MoralisEVMNetworkMapper {
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
                 media: map(collection.collectionLogo),
                 assetsCount: assetsCount,
-                assets: [] // Moralis doesn't send assets
+                assetsResult: [] // Moralis doesn't send assets
             )
         }
     }

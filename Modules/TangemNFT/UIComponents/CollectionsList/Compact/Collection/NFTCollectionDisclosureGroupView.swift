@@ -12,8 +12,7 @@ import TangemAssets
 import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
-    let viewModel: NFTCompactCollectionViewModel
-
+    let viewModel: NFTCollectionDisclosureGroupViewModel
     @State private var isExpanded: Bool = false
 
     var body: some View {
@@ -35,6 +34,7 @@ struct NFTCollectionDisclosureGroupView: View {
             expandedView: { content }
         )
         .buttonStyle(.defaultScaled)
+        .disabled(!viewModel.isExpandable)
         .frame(maxWidth: .infinity)
     }
 
@@ -98,7 +98,7 @@ struct DummyProvider: NFTChainIconProvider {
 
 #Preview {
     NFTCollectionDisclosureGroupView(
-        viewModel: NFTCompactCollectionViewModel(
+        viewModel: NFTCollectionDisclosureGroupViewModel(
             nftCollection: NFTCollection(
                 collectionIdentifier: "some",
                 chain: .solana,
@@ -110,23 +110,25 @@ struct DummyProvider: NFTChainIconProvider {
                     kind: .image,
                     url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                 ),
-                assetsCount: nil,
-                assets: (0 ... 2).map {
-                    NFTAsset(
-                        assetIdentifier: "some-\($0)",
-                        assetContractAddress: "some1",
-                        chain: .solana,
-                        contractType: .unknown,
-                        decimalCount: 0,
-                        ownerAddress: "",
-                        name: "My asset",
-                        description: "",
-                        salePrice: nil,
-                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                        rarity: nil,
-                        traits: []
-                    )
-                }
+                assetsCount: 0,
+                assetsResult: .init(
+                    value: (0 ... 2).map {
+                        NFTAsset(
+                            assetIdentifier: "some-\($0)",
+                            assetContractAddress: "some1",
+                            chain: .solana,
+                            contractType: .unknown,
+                            decimalCount: 0,
+                            ownerAddress: "",
+                            name: "My asset",
+                            description: "",
+                            salePrice: nil,
+                            media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                            rarity: nil,
+                            traits: []
+                        )
+                    }
+                )
             ),
             assetsState: .loading,
             dependencies: NFTCollectionsListDependencies(
