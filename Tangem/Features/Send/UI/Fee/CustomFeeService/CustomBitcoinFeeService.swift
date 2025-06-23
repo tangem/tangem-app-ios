@@ -37,6 +37,7 @@ class CustomBitcoinFeeService {
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
+        self.input = input
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
 
         bind(input: input)

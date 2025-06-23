@@ -24,6 +24,7 @@ struct CustomFeeServiceFactory {
                 input: input,
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem,
+                input: input,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
         }
