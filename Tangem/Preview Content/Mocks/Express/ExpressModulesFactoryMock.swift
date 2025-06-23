@@ -19,8 +19,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     private lazy var pendingTransactionRepository = ExpressPendingTransactionRepositoryMock()
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
-    private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
@@ -159,10 +157,6 @@ private extension ExpressModulesFactoryMock {
         )
     }
 
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
-    }
-
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
@@ -176,37 +170,24 @@ private extension ExpressModulesFactoryMock {
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: nil,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: .loading,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
 
         return interactor
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
-    }
-
-    func makeExpressFeeProvider() -> ExpressFeeProvider {
-        return CommonExpressFeeProvider(wallet: initialWalletModel)
     }
 
     func makeExpressRepository() -> ExpressRepository {

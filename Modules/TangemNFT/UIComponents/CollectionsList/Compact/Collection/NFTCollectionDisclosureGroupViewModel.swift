@@ -10,7 +10,7 @@ import Foundation
 import TangemAssets
 import TangemFoundation
 
-struct NFTCompactCollectionViewModel: Identifiable {
+struct NFTCollectionDisclosureGroupViewModel: Identifiable {
     let viewState: ViewState
 
     var media: NFTMedia? {
@@ -33,7 +33,12 @@ struct NFTCompactCollectionViewModel: Identifiable {
         nftCollection.id
     }
 
+    var isExpandable: Bool {
+        nftCollection.assetsCount > 0
+    }
+
     private let nftCollection: NFTCollection
+    private let assetsState: AssetsState
     private let nftChainIconProvider: NFTChainIconProvider
     private let onCollectionTap: (_ collection: NFTCollection, _ isExpanded: Bool) -> Void
 
@@ -45,12 +50,12 @@ struct NFTCompactCollectionViewModel: Identifiable {
         onCollectionTap: @escaping (_ collection: NFTCollection, _ isExpanded: Bool) -> Void
     ) {
         self.nftCollection = nftCollection
+        self.assetsState = assetsState
         nftChainIconProvider = dependencies.nftChainIconProvider
         self.onCollectionTap = onCollectionTap
 
-        viewState = assetsState.mapValue { _ in
-            let assetsViewModels = nftCollection
-                .assets
+        viewState = assetsState.mapValue { assets in
+            let assetsViewModels = assets
                 .sorted { $0.name.caseInsensitiveSmaller(than: $1.name) }
                 .map { asset in
                     return NFTCompactAssetViewModel(
@@ -65,7 +70,7 @@ struct NFTCompactCollectionViewModel: Identifiable {
 
     var containsGIFs: Bool {
         nftCollection.media?.kind == .animation ||
-            nftCollection.assets.contains { $0.media?.kind == .animation }
+            assetsState.value?.contains { $0.media?.kind == .animation } ?? false
     }
 
     func onTap(isExpanded: Bool) {
@@ -73,9 +78,9 @@ struct NFTCompactCollectionViewModel: Identifiable {
     }
 }
 
-extension NFTCompactCollectionViewModel {
+extension NFTCollectionDisclosureGroupViewModel {
     /// Input state.
-    typealias AssetsState = LoadingValue<Void>
+    typealias AssetsState = LoadingValue<[NFTAsset]>
 
     /// Output state.
     typealias ViewState = LoadingValue<NFTAssetsGridViewModel>
