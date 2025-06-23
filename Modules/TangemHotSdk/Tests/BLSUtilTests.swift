@@ -18,7 +18,7 @@ struct BLSUtilTests {
 
         let expected = "B9247498D0F9EC5064185D717AF600E9F1788579D308471DF5AB76B9913E6E3E47F3363B8F424045DBA67630C4CA5222"
 
-        #expect(result.hexString == expected)
+        #expect(result.publicKey.hexString == expected)
     }
 
     @Test
