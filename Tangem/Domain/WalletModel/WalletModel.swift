@@ -17,7 +17,7 @@ protocol WalletModel:
     AvailableTokenBalanceProviderInput, WalletModelUpdater, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelTransactionHistoryProvider, WalletModelRentProvider, TransactionHistoryFetcher,
-    ExpressSourceWallet, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
+    StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
     var addresses: [Address] { get }
