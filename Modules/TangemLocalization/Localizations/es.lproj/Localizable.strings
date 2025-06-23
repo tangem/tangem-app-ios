@@ -180,7 +180,7 @@
 "common_search_tokens" = "Buscar tokens";
 "common_search" = "Buscar";
 "common_second_no_param" = "sec";
-"common_see_all" = "See all";
+"common_see_all" = "Ver todo";
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "Para continuar, de autorización a los smart contracts de %1@ para usar su %2@";
 "give_permission_title" = "Dar autorización";
 "give_permission_unlimited" = "Ilimitado";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Pedir Tangem";
 "home_button_scan" = "Escanee";
 "hot_crypto_add_token_subtitle" = "a %@";
@@ -542,8 +544,8 @@
 "nft_receive_unavailable_asset_warning_message" = "Todavía no ha agregado esta red. Para recibir NFTs, añádala a su portafolio.";
 "nft_receive_unavailable_asset_warning_title" = "Red no agregada";
 "nft_receive_unavailable_section_title" = "No aregada";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
-"nft_receive_unsupported_types" = "Unsupported NFT types";
+"nft_receive_unsupported_types_description" = "cNFT y pNFT aún no son compatibles. Por favor, no los envíes a tu billetera.";
+"nft_receive_unsupported_types" = "Tipos de NFT no compatibles";
 "nft_send" = "Enviar NFT";
 "nft_traits_title" = "Rasgos";
 "nft_untitled_collection" = "Colección sin título";
@@ -688,7 +690,7 @@
 "qr_scanner_camera_denied_text" = "No ha dado acceso a su cámara";
 "qr_scanner_camera_denied_title" = "Acceso a la cámara denegado";
 "receive_bottom_sheet_no_memo_required_message" = "No se requiere nota";
-"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ en la red %2$@";
 "receive_bottom_sheet_warning_message_description" = "El envío de cualquier otra moneda supondrá una pérdida irreversible.";
 "receive_bottom_sheet_warning_message_full" = "Envíe solo %@ a esta dirección. Enviar cualquier otra moneda resultará en su pérdida irreversible.";
 "receive_bottom_sheet_warning_message_title" = "Envía sólo %@ a esta dirección.";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Por favor, alinee su código QR con el cuadrado para escanearlo. Asegúrese de escanear la dirección de la red %@.";
 "send_recent_transactions" = "Reciente";
 "send_recipient_address_error" = "No es una dirección válida";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en la red %@ para evitar perder sus tokens";
 "send_recipient_label" = "Destinatario";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Atención: si falta el Memo, можно потерять средства.";
 "send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red. Precaución: Omitir un memo puede llevar a la pérdida de fondos";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";

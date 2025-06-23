@@ -333,7 +333,12 @@ private extension OnrampModel {
 
 private extension OnrampModel {
     func makeOnrampPairRequestItem(country: OnrampCountry, currency: OnrampFiatCurrency) -> OnrampPairRequestItem {
-        OnrampPairRequestItem(fiatCurrency: currency, country: country, destination: walletModel)
+        OnrampPairRequestItem(
+            fiatCurrency: currency,
+            country: country,
+            destination: walletModel.tokenItem.expressCurrency,
+            address: walletModel.defaultAddressString
+        )
     }
 
     func mainTask(code: @escaping (OnrampModel) async throws -> Void) {

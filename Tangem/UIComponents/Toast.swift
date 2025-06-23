@@ -36,8 +36,8 @@ final class Toast<V: View> {
         type: PresentationTime,
         animated: Bool = true
     ) {
-        guard let window = UIApplication.shared.windows.last else {
-            AppLogger.error(error: "UIApplication.keyWindow not found")
+        guard let window = UIApplication.mainWindow else {
+            AppLogger.error(error: "UIApplication.mainWindow not found")
             return
         }
 
@@ -45,7 +45,7 @@ final class Toast<V: View> {
         case .always:
             break
         case .temporary(let interval):
-            Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
+            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
                 self.dismiss(animated: true) { withExtendedLifetime(self) {} }
             }
         }
@@ -79,9 +79,9 @@ final class Toast<V: View> {
 
         if animated {
             UIView.animate(withDuration: 0.5) {
-                self.hostingController.removeFromParent()
+                self.hostingController.view.alpha = 0
             } completion: { _ in
-                self.hostingController.removeFromParent()
+                self.hostingController.view.removeFromSuperview()
                 completion()
             }
         } else {

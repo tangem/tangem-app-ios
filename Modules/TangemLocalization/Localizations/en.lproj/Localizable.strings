@@ -369,6 +369,8 @@
 "give_permission_swap_subtitle" = "To continue, grant %1@ smart contracts permission to use your %2@";
 "give_permission_title" = "Give Permission";
 "give_permission_unlimited" = "Unlimited";
+"home_button_add_existing_wallet" = "Add Existing Wallet";
+"home_button_create_new_wallet" = "Create New Wallet";
 "home_button_order" = "Order Tangem";
 "home_button_scan" = "Scan Tangem";
 "hot_crypto_add_token_subtitle" = "to %@";
@@ -542,7 +544,7 @@
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To receive NFTs, add it to your portfolio.";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
 "nft_receive_unavailable_section_title" = "Not Added";
-"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet";
+"nft_receive_unsupported_types_description" = "cNFTs and pNFTs are not supported yet. Please don't send them to your wallet.";
 "nft_receive_unsupported_types" = "Unsupported NFT types";
 "nft_send" = "Send NFT";
 "nft_traits_title" = "Traits";
@@ -805,10 +807,11 @@
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
-"send_recipient_address_footer_markdown" = "Ensure you **send to %s** network address, as errors may result in lost transfers";
+"send_recipient_address_footer_highlighted_part" = "send to %@";
+"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
 "send_recipient_address_footer" = "Ensure the receiving wallet address is on the %@ network to avoid losing your tokens";
 "send_recipient_label" = "Send to";
-"send_recipient_memo_footer_markdown" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network. **Caution: Missing a memo may lead to fund loss.**";
+"send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
 "send_recipient_wallets_title" = "My wallets";
 "send_recipient" = "Recipient";
