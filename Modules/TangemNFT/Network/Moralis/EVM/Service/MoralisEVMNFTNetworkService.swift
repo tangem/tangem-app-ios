@@ -190,8 +190,8 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
 
         let brokenAssetsCount = collection.assetsCount - assets.count
         let brokenAssetsError = brokenAssetsCount > 0
-        ? NFTErrorDescriptor(code: 1, description: "Some assets are broken, count: \(brokenAssetsCount)")
-        : nil
+            ? NFTErrorDescriptor(code: 1, description: "Some assets are broken, count: \(brokenAssetsCount)")
+            : nil
 
         return NFTPartialResult(
             value: assets,
