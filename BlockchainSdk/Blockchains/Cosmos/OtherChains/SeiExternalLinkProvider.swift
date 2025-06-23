@@ -8,9 +8,12 @@
 
 struct SeiExternalLinkProvider {
     private let isTestnet: Bool
+    private let chainParam: String
+    private let baseURL: String = "https://seitrace.com"
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        chainParam = isTestnet ? "atlantic-2" : "pacific-1"
     }
 }
 
@@ -20,14 +23,10 @@ extension SeiExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let environmentPath = isTestnet ? "atlantic-2" : "pacific-1"
-
-        return URL(string: "https://seiscan.app/\(environmentPath)/accounts/\(address)")
+        URL(string: "\(baseURL)/address/\(address)?chain=\(chainParam)")
     }
 
     func url(transaction hash: String) -> URL? {
-        let environmentPath = isTestnet ? "atlantic-2" : "pacific-1"
-
-        return URL(string: "https://seiscan.app/\(environmentPath)/txs/\(hash)")
+        URL(string: "\(baseURL)/tx/\(hash)?chain=\(chainParam)")
     }
 }
