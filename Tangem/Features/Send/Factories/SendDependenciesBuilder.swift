@@ -475,7 +475,16 @@ struct SendDependenciesBuilder {
     }
 
     func makeAllowanceProvider() -> AllowanceProvider {
-        CommonAllowanceProvider(walletModel: walletModel)
+        CommonAllowanceProvider(
+            tokenItem: walletModel.tokenItem,
+            allowanceChecker: .init(
+                tokenItem: walletModel.tokenItem,
+                feeTokenItem: walletModel.feeTokenItem,
+                walletAddress: walletModel.defaultAddressString,
+                ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
+                ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
+            )
+        )
     }
 
     func makeStakingTransactionMapper() -> StakingTransactionMapper {
