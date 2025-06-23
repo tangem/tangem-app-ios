@@ -11,12 +11,29 @@ import BlockchainSdk
 import TangemExpress
 
 struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
-    func makeTransaction(wallet: any WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+    private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
+    private let transactionCreator: TransactionCreator
+    private let ethereumNetworkProvider: EthereumNetworkProvider?
+
+    init(
+        tokenItem: TokenItem,
+        feeTokenItem: TokenItem,
+        transactionCreator: TransactionCreator,
+        ethereumNetworkProvider: EthereumNetworkProvider?
+    ) {
+        self.tokenItem = tokenItem
+        self.feeTokenItem = feeTokenItem
+        self.transactionCreator = transactionCreator
+        self.ethereumNetworkProvider = ethereumNetworkProvider
+    }
+
+    func makeTransaction(data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         var transactionParams: TransactionParams?
 
         if let extraDestinationId = data.extraDestinationId, !extraDestinationId.isEmpty {
             // If we received a extraId then try to map it to specific TransactionParams
-            let builder = TransactionParamsBuilder(blockchain: wallet.tokenItem.blockchain)
+            let builder = TransactionParamsBuilder(blockchain: tokenItem.blockchain)
             transactionParams = try builder.transactionParameters(value: extraDestinationId)
         }
 
@@ -34,7 +51,6 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         }()
 
         let transaction = try await buildTransaction(
-            wallet: wallet,
             amount: data.txValue,
             fee: fee,
             destination: destination
@@ -43,13 +59,12 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         return transaction
     }
 
-    func makeApproveTransaction(wallet: any WalletModel, data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
-        guard wallet.ethereumNetworkProvider != nil else {
+    func makeApproveTransaction(data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+        guard ethereumNetworkProvider != nil else {
             throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
         }
 
         let transaction = try await buildTransaction(
-            wallet: wallet,
             amount: 0, // For approve value isn't needed
             fee: fee,
             destination: .contractCall(contract: data.toContractAddress, data: data.txData)
@@ -61,14 +76,13 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
 
 private extension CommonExpressTransactionBuilder {
     func buildTransaction(
-        wallet: any WalletModel,
         amount: Decimal,
         fee: Fee,
         destination: TransactionCreatorDestination
     ) async throws -> BSDKTransaction {
-        try await wallet.transactionCreator.buildTransaction(
-            tokenItem: wallet.tokenItem,
-            feeTokenItem: wallet.feeTokenItem,
+        try await transactionCreator.buildTransaction(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
             amount: amount,
             fee: fee,
             destination: destination
