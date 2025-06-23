@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 struct VanarExternalLinkProvider: ExternalLinkProvider {
     private let baseExplorerUrl: String
 
