@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 final class KaspaTransactionHistoryMapper {
     typealias Input = KaspaTransactionHistoryResponse.Transaction.Input
     typealias Output = KaspaTransactionHistoryResponse.Transaction.Output

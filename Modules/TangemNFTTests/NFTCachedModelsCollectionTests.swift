@@ -45,7 +45,7 @@ struct NFTCachedModelsCollectionTests {
             description: nil,
             media: nil,
             assetsCount: 0,
-            assets: []
+            assetsResult: []
         )
 
         // Test serialization and deserialization
@@ -166,8 +166,14 @@ struct NFTCachedModelsCollectionTests {
 
         // Additional check to ensure each asset is properly restored
         for i in 0 ..< assetCount {
-            #expect(restoredCollection.assets[i] == originalCollection.assets[i], "Restored number of assets should match original number of assets")
+            #expect(
+                restoredCollection.assetsResult.value[i] == originalCollection.assetsResult.value[i],
+                "Restored number of assets should match original number of assets"
+            )
         }
+
+        // Verify errors are restored correctly
+        #expect(restoredCollection.assetsResult.errors == originalCollection.assetsResult.errors, "Errors should match")
     }
 
     // MARK: - Private Helpers
@@ -258,7 +264,13 @@ struct NFTCachedModelsCollectionTests {
                 url: URL(string: "https://example.com/collection_\(identifier).png")!
             ),
             assetsCount: assetCount,
-            assets: assets
+            assetsResult: NFTPartialResult(
+                value: assets,
+                errors: [
+                    NFTErrorDescriptor(code: 1, description: "Desc"),
+                    NFTErrorDescriptor(code: 2, description: "Desc2"),
+                ]
+            )
         )
     }
 }

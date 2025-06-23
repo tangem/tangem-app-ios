@@ -282,7 +282,7 @@ extension NFTEntrypointView {
                                         url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                     ),
                                     assetsCount: 2,
-                                    assets: []
+                                    assetsResult: []
                                 ),
                             ]
                         )
@@ -318,7 +318,7 @@ extension NFTEntrypointView {
                                         url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                     ),
                                     assetsCount: 2,
-                                    assets: []
+                                    assetsResult: []
                                 )
                             }
                         )
@@ -354,7 +354,7 @@ extension NFTEntrypointView {
                                         url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                     ),
                                     assetsCount: 2,
-                                    assets: []
+                                    assetsResult: []
                                 )
                             }
                         )
@@ -390,7 +390,7 @@ extension NFTEntrypointView {
                                         url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                     ),
                                     assetsCount: 2,
-                                    assets: []
+                                    assetsResult: []
                                 )
                             }
                         )
@@ -426,7 +426,7 @@ extension NFTEntrypointView {
                                         url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                     ),
                                     assetsCount: 2,
-                                    assets: []
+                                    assetsResult: []
                                 )
                             }
                         )

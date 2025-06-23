@@ -10,19 +10,13 @@ import Foundation
 
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
-    private let allowanceProvider: ExpressAllowanceProvider
-    private let feeProvider: FeeProvider
     private let mapper: ExpressManagerMapper
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        allowanceProvider: ExpressAllowanceProvider,
-        feeProvider: FeeProvider,
         mapper: ExpressManagerMapper
     ) {
         self.expressAPIProvider = expressAPIProvider
-        self.allowanceProvider = allowanceProvider
-        self.feeProvider = feeProvider
         self.mapper = mapper
     }
 
@@ -32,15 +26,12 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
             return DEXExpressProviderManager(
                 provider: provider,
                 expressAPIProvider: expressAPIProvider,
-                allowanceProvider: allowanceProvider,
-                feeProvider: feeProvider,
                 mapper: mapper
             )
         case .cex:
             return CEXExpressProviderManager(
                 provider: provider,
                 expressAPIProvider: expressAPIProvider,
-                feeProvider: feeProvider,
                 mapper: mapper
             )
         case .onramp, .unknown:
