@@ -157,10 +157,6 @@ private extension ExpressModulesFactoryMock {
         )
     }
 
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
-    }
-
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
@@ -180,14 +176,13 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: nil,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: .loading,
             expressManager: expressManager,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
