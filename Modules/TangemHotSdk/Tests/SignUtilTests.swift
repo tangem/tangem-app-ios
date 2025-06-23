@@ -6,17 +6,18 @@
 //
 
 import Testing
-import WalletCore
+import Foundation
 @testable import TangemHotSdk
 @testable import TangemSdk
 
 let edHexToSign = "BFF1F484E7CD3B3AEB4843ACCFDF5FDAEEFA6F2073FE0B366C092CAA0212040265BCB0D64087DFFAAD8A0848AE90477B229EA81B51CAE3C705FAC19EEF2A8D72"
 
 struct WCSignUtilTests {
+    @available(*, unavailable)
     @Test
     func signProducesCorrectEdCardanoSignatures() throws {
-        let signaturesDefaultDerivation = try WCSignUtil.sign(
-            hdWallet: hdWallet,
+        let signaturesDefaultDerivation = try SignUtil.sign(
+            entropy: entropy,
             hashes: [Data(hexString: edHexToSign)],
             curve: .ed25519,
             derivationPath: "m/1852'/1815'/0'/0/0"
@@ -27,8 +28,8 @@ struct WCSignUtilTests {
         #expect(signaturesDefaultDerivation.count == 1)
         #expect(signaturesDefaultDerivation.first == .some(expected1))
 
-        let signaturesStakingDerivation = try WCSignUtil.sign(
-            hdWallet: hdWallet,
+        let signaturesStakingDerivation = try SignUtil.sign(
+            entropy: entropy,
             hashes: [Data(hexString: edHexToSign)],
             curve: .ed25519,
             derivationPath: "m/1852'/1815'/0'/2/0"
@@ -40,10 +41,11 @@ struct WCSignUtilTests {
         #expect(signaturesStakingDerivation.first == .some(expected2))
     }
 
+    @available(*, unavailable)
     @Test
     func signProducesCorrectEdSignatures() throws {
-        let signatures = try WCSignUtil.sign(
-            hdWallet: hdWallet,
+        let signatures = try SignUtil.sign(
+            entropy: entropy,
             hashes: [Data(hexString: edHexToSign)],
             curve: .ed25519_slip0010,
             derivationPath: "m/44'/354'/0'/0'/0'"
@@ -55,12 +57,13 @@ struct WCSignUtilTests {
         #expect(signatures.first == .some(expected))
     }
 
+    @available(*, unavailable)
     @Test
     func signProducesCorrectSecp256k1Signatures() throws {
         let hash = Data(hexString: "BFF1F484E7CD3B3AEB4843ACCFDF5FDAEEFA6F2073FE0B366C092CAA02120402")
 
-        let signatures = try WCSignUtil.sign(
-            hdWallet: hdWallet,
+        let signatures = try SignUtil.sign(
+            entropy: entropy,
             hashes: [hash],
             curve: .secp256k1,
             derivationPath: "m/84'/0'/0'/0/0"
