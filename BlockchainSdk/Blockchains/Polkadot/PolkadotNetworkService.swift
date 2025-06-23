@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import ScaleCodec
 import Sodium
+import BigInt
 
 class PolkadotNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
