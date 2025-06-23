@@ -30,36 +30,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionHandler) {
-        deriveKey(in: session, completion: completion)
-    }
-
-    private func deriveKey(in session: CardSession, completion: @escaping CompletionHandler) {
-        guard
-            let wallet = session.environment.card?.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve })
-        else {
-            completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
-            return
-        }
-
-        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
-            completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
-            return
-        }
-
-        guard wallet.derivedKeys[derivationPath] == nil else {
-            signOrderWithWallet(in: session, completion: completion)
-            return
-        }
-
-        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: wallet.publicKey, derivationPath: derivationPath)
-        derivationTask.run(in: session) { result in
-            switch result {
-            case .success:
-                self.signOrderWithWallet(in: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        signOrderWithWallet(in: session, completion: completion)
     }
 
     private func signOrderWithWallet(
@@ -71,23 +42,14 @@ final class SignActivationOrderTask: CardSessionRunnable {
             return
         }
 
-        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
-            completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
-            return
-        }
-
-        guard
-            let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }),
-            let derivedKey = wallet.derivedKeys[derivationPath]
-        else {
+        guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }) else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
         }
 
         let signHashCommand = SignHashCommand(
             hash: orderToSign.hashToSignByWallet,
-            walletPublicKey: wallet.publicKey,
-            derivationPath: derivationPath
+            walletPublicKey: wallet.publicKey
         )
         signHashCommand.run(in: session) { result in
             switch result {
@@ -96,7 +58,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
                     let processor = VisaAcceptanceSignatureProcessor()
                     let processedSignature = try processor.processAcceptanceSignature(
                         signature: signResponse.signature,
-                        walletPublicKey: derivedKey.publicKey,
+                        walletPublicKey: wallet.publicKey,
                         originHash: self.orderToSign.hashToSignByWallet
                     )
 
