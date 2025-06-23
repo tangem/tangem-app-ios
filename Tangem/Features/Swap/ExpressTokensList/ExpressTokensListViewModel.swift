@@ -206,9 +206,9 @@ private extension ExpressTokensListViewModel {
     func userDidTap(on walletModel: any WalletModel) {
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: walletModel)
+            expressInteractor.update(destination: walletModel.asExpressInteractorWallet)
         case .toDestination:
-            expressInteractor.update(sender: walletModel)
+            expressInteractor.update(sender: walletModel.asExpressInteractorWallet)
         }
 
         selectedWallet = walletModel
