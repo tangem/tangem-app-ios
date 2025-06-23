@@ -65,8 +65,8 @@ extension CommonExpressManager: ExpressManager {
         return allProviders
     }
 
-    func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
-        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
+    func update(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.currency != pair.destination.currency, "Pair has equal currencies")
         _pair = pair
 
         // Clear for reselected the best quote
@@ -75,7 +75,7 @@ extension CommonExpressManager: ExpressManager {
         return try await update(by: .pairChange)
     }
 
-    func updateAmount(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
+    func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
         _amount = amount
 
         return try await update(by: source)

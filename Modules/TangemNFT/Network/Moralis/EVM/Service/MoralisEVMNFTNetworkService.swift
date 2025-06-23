@@ -182,13 +182,20 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
+        let assets = mapper.map(
+            assets: response,
+            ownerAddress: address,
+            fallbackDescription: collection.description
+        )
+
+        let brokenAssetsCount = collection.assetsCount - assets.count
+        let brokenAssetsError = brokenAssetsCount > 0
+            ? NFTErrorDescriptor(code: 1, description: "Some assets are broken, count: \(brokenAssetsCount)")
+            : nil
+
         return NFTPartialResult(
-            value: mapper.map(
-                assets: response,
-                ownerAddress: address,
-                fallbackDescription: collection.description
-            ),
-            errors: loadedResponse.errors
+            value: assets,
+            errors: loadedResponse.errors + [brokenAssetsError].compactMap { $0 }
         )
     }
 
