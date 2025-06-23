@@ -23,7 +23,13 @@ class AppCoordinator: CoordinatorObject {
 
         marketsCoordinator = nil
         mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
-        setupWelcome()
+
+        let startupProcessor = StartupProcessor()
+        if startupProcessor.shouldOpenBiometry {
+            setupAuth(unlockOnAppear: false)
+        } else {
+            setupWelcome()
+        }
     }
 
     // MARK: - Injected
