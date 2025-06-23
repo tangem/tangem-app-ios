@@ -160,14 +160,13 @@ extension CommonExpressModulesFactory {
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: destinationWalletModel,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
             expressManager: expressManager,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
@@ -215,10 +214,6 @@ private extension CommonExpressModulesFactory {
             walletModelsManager: walletModelsManager,
             expressRepository: expressRepository
         )
-    }
-
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
     }
 
     // MARK: - Methods
