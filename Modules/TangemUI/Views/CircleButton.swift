@@ -93,6 +93,18 @@ public struct CircleButton: View {
     }
 }
 
+// MARK: - Default realisations
+
+public extension CircleButton {
+    static func back(action: @escaping () -> Void) -> CircleButton {
+        CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
+    }
+
+    static func close(action: @escaping () -> Void) -> CircleButton {
+        CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
+    }
+}
+
 // MARK: - Setupable
 
 extension CircleButton: Setupable {
