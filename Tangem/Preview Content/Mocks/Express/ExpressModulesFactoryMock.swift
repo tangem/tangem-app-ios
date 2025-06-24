@@ -177,7 +177,7 @@ private extension ExpressModulesFactoryMock {
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
             initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: .loading,
+            destination: .autosetup,
             expressManager: expressManager,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
