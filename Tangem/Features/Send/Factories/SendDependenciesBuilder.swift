@@ -25,8 +25,8 @@ struct SendDependenciesBuilder {
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletModel: userWalletModel,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            initialSource: walletModel.asExpressInteractorWallet,
+            initialDestination: .none
         )
     }
 

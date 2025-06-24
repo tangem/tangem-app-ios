@@ -133,16 +133,28 @@ private extension SendModel {
     }
 
     private func bindSwapManager() {
-        _amount
-            .removeDuplicates()
+        Publishers
+            .CombineLatest(
+                _receivedToken.removeDuplicates(),
+                _amount.removeDuplicates()
+            )
+            .dropFirst()
+            .filter { $0.0.receiveToken != nil }
             .withWeakCaptureOf(self)
-            .sink { $0.swapManager?.update(amount: $1?.crypto) }
+            .sink { $0.swapManager?.update(amount: $1.1?.crypto) }
             .store(in: &bag)
 
         Publishers
-            .CombineLatest(_receivedToken.removeDuplicates(), _destination.removeDuplicates())
+            .CombineLatest(
+                _receivedToken.removeDuplicates(),
+                _destination.removeDuplicates()
+            )
+            .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { $0.swapManager?.update(destination: $1.0.receiveToken?.tokenItem, address: $1.1?.value) }
+            .sink { model, args in
+                let (token, destination) = args
+                model.swapManager?.update(destination: token.receiveToken?.tokenItem, address: destination?.value)
+            }
             .store(in: &bag)
     }
 
