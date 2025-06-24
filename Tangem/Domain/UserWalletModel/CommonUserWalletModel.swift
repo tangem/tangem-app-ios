@@ -280,7 +280,7 @@ extension CommonUserWalletModel: UserWalletModel {
 }
 
 extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
-    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }
