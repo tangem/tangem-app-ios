@@ -498,6 +498,7 @@ private extension ExpressInteractor {
     func swappingPairDidChange() {
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
+                _ = try await interactor.expressManager.update(pair: nil)
                 return .restriction(.noDestinationTokens, quote: .none)
             }
 
