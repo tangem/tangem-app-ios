@@ -223,18 +223,17 @@ extension TransactionValidator where Self: FeeResourceRestrictable {
 extension TransactionValidator where Self: RentExtemptionRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
         BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
+        try validate(amount: amount, fee: fee)
+    }
 
+    func validate(amount: Amount, fee: Fee) throws {
         switch amount.type.token?.metadata.kind {
         case .fungible, .none:
             try validateAmounts(amount: amount, fee: fee.amount)
+            try validateRentExtemption(amount: amount, fee: fee.amount)
         case .nonFungible:
             // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
             try validate(fee: fee.amount)
         }
-    }
-
-    func validate(amount: Amount, fee: Fee) throws {
-        try validateAmounts(amount: amount, fee: fee.amount)
-        try validateRentExtemption(amount: amount, fee: fee.amount)
     }
 }
