@@ -45,7 +45,7 @@ class ExpressInteractor {
     init(
         userWalletId: String,
         initialWallet: Source,
-        destinationWallet: Destination,
+        destination: InitialDestinationType,
         expressManager: ExpressManager,
         expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -64,11 +64,15 @@ class ExpressInteractor {
         self.expressAPIProvider = expressAPIProvider
         self.signer = signer
 
-        _swappingPair = .init(
-            SwappingPair(sender: initialWallet, destination: destinationWallet)
-        )
-
-        initialLoading(wallet: initialWallet)
+        switch destination {
+        case .none:
+            _swappingPair = .init(SwappingPair(sender: initialWallet, destination: .success(.none)))
+        case .selected(let destinationWallet):
+            _swappingPair = .init(SwappingPair(sender: initialWallet, destination: .success(destinationWallet)))
+        case .autosetup:
+            _swappingPair = .init(SwappingPair(sender: initialWallet, destination: .loading))
+            loadDestination(wallet: initialWallet)
+        }
     }
 }
 
@@ -546,9 +550,9 @@ private extension ExpressInteractor {
         }
     }
 
-    func initialLoading(wallet: any ExpressInteractorSourceWallet) {
+    func loadDestination(wallet: any ExpressInteractorSourceWallet) {
         updateTask { interactor in
-            if let restriction = await interactor.initialLoading(wallet: wallet) {
+            if let restriction = await interactor.loadDestination(wallet: wallet) {
                 return .restriction(restriction, quote: .none)
             }
 
@@ -562,21 +566,15 @@ private extension ExpressInteractor {
         }
 
         let wallet = getSender()
-        return await initialLoading(wallet: wallet)
+        return await loadDestination(wallet: wallet)
     }
 
-    func initialLoading(wallet: any ExpressInteractorSourceWallet) async -> RestrictionType? {
+    func loadDestination(wallet: any ExpressInteractorSourceWallet) async -> RestrictionType? {
         do {
             try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
-
-            if _swappingPair.value.destination.value == nil {
-                _swappingPair.value.destination = .loading
-                let destination = try await expressDestinationService.getDestination(source: wallet)
-                update(destination: destination)
-            } else {
-                swappingPairDidChange()
-            }
-
+            _swappingPair.value.destination = .loading
+            let destination = try await expressDestinationService.getDestination(source: wallet)
+            update(destination: destination)
             return nil
         } catch ExpressDestinationServiceError.destinationNotFound {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
@@ -779,6 +777,19 @@ extension ExpressInteractor {
 
     typealias Source = any ExpressInteractorSourceWallet
     typealias Destination = LoadingResult<(any ExpressInteractorDestinationWallet)?, Error>
+
+    enum InitialDestinationType {
+        case none
+        case selected(any ExpressInteractorDestinationWallet)
+        case autosetup
+
+        var wallet: (any ExpressInteractorDestinationWallet)? {
+            switch self {
+            case .none, .autosetup: nil
+            case .selected(let wallet): wallet
+            }
+        }
+    }
 
     struct SwappingPair {
         var sender: Source
