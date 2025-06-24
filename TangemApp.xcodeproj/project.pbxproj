@@ -3378,7 +3378,7 @@
 		EFB23F382CBE86A6005A6719 /* OnrampViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB23F372CBE86A5005A6719 /* OnrampViewModel.swift */; };
 		EFB23F3A2CBE8703005A6719 /* OnrampAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB23F392CBE8703005A6719 /* OnrampAmountView.swift */; };
 		EFB23F3C2CBE914D005A6719 /* OnrampFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB23F3B2CBE914D005A6719 /* OnrampFlowBaseBuilder.swift */; };
-		EFB4CA5C2E0C41D0003C1522 /* SendNewAmountRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA5B2E0C41D0003C1522 /* SendNewAmountRoutable.swift */; };
+		EFB4CA512E0ABCCB003C1522 /* SwapManagerDestinationWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4CA502E0ABCCB003C1522 /* SwapManagerDestinationWallet.swift */; };
 		EFB541CA2D1076A100330B5B /* ProviderItemSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */; };
 		EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6800D2B29BD4B00842BE3 /* SheetModifier.swift */; };
 		EFB7521B2C985F1100CB614C /* CommonFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */; };
@@ -3460,8 +3460,8 @@
 		EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143842CC5517D00B5BA57 /* CommonSendBaseDataBuilder.swift */; };
 		EFD143872CC5524000B5BA57 /* CommonStakingBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143862CC5523F00B5BA57 /* CommonStakingBaseDataBuilder.swift */; };
 		EFD1438A2CC552DD00B5BA57 /* CommonOnrampBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143892CC552D900B5BA57 /* CommonOnrampBaseDataBuilder.swift */; };
-		EFD2E5F92DF277C0008B943E /* SwapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD2E5F82DF277C0008B943E /* SwapManager.swift */; };
-		EFD2E5FB2DF277DE008B943E /* SwapManagerInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD2E5FA2DF277DE008B943E /* SwapManagerInterfaces.swift */; };
+		EFD2E5F92DF277C0008B943E /* CommonSwapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD2E5F82DF277C0008B943E /* CommonSwapManager.swift */; };
+		EFD2E5FB2DF277DE008B943E /* SwapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD2E5FA2DF277DE008B943E /* SwapManager.swift */; };
 		EFD32AE729ED93F20026353E /* FeatureStateRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AE629ED93F20026353E /* FeatureStateRowView.swift */; };
 		EFD32AE929ED94030026353E /* FeatureStateRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */; };
 		EFD32AEB29EE7F390026353E /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD32AEA29EE7F390026353E /* Feature.swift */; };
@@ -7098,6 +7098,7 @@
 		EFB23F392CBE8703005A6719 /* OnrampAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountView.swift; sourceTree = "<group>"; };
 		EFB23F3B2CBE914D005A6719 /* OnrampFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		EFB4CA5B2E0C41D0003C1522 /* SendNewAmountRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountRoutable.swift; sourceTree = "<group>"; };
+		EFB4CA502E0ABCCB003C1522 /* SwapManagerDestinationWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapManagerDestinationWallet.swift; sourceTree = "<group>"; };
 		EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderItemSorter.swift; sourceTree = "<group>"; };
 		EFB6800D2B29BD4B00842BE3 /* SheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetModifier.swift; sourceTree = "<group>"; };
 		EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeIncludedCalculator.swift; sourceTree = "<group>"; };
@@ -7181,8 +7182,8 @@
 		EFD143842CC5517D00B5BA57 /* CommonSendBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendBaseDataBuilder.swift; sourceTree = "<group>"; };
 		EFD143862CC5523F00B5BA57 /* CommonStakingBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingBaseDataBuilder.swift; sourceTree = "<group>"; };
 		EFD143892CC552D900B5BA57 /* CommonOnrampBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampBaseDataBuilder.swift; sourceTree = "<group>"; };
-		EFD2E5F82DF277C0008B943E /* SwapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapManager.swift; sourceTree = "<group>"; };
-		EFD2E5FA2DF277DE008B943E /* SwapManagerInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapManagerInterfaces.swift; sourceTree = "<group>"; };
+		EFD2E5F82DF277C0008B943E /* CommonSwapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSwapManager.swift; sourceTree = "<group>"; };
+		EFD2E5FA2DF277DE008B943E /* SwapManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapManager.swift; sourceTree = "<group>"; };
 		EFD32AE629ED93F20026353E /* FeatureStateRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowView.swift; sourceTree = "<group>"; };
 		EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowViewModel.swift; sourceTree = "<group>"; };
 		EFD32AEA29EE7F390026353E /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
@@ -19128,8 +19129,9 @@
 		EFD2E5F72DF2778D008B943E /* SwapManager */ = {
 			isa = PBXGroup;
 			children = (
-				EFD2E5FA2DF277DE008B943E /* SwapManagerInterfaces.swift */,
-				EFD2E5F82DF277C0008B943E /* SwapManager.swift */,
+				EFD2E5FA2DF277DE008B943E /* SwapManager.swift */,
+				EFD2E5F82DF277C0008B943E /* CommonSwapManager.swift */,
+				EFB4CA502E0ABCCB003C1522 /* SwapManagerDestinationWallet.swift */,
 			);
 			path = SwapManager;
 			sourceTree = "<group>";
@@ -20339,7 +20341,7 @@
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				EFC98FFD2CD3A3F80098B7C8 /* OnrampPaymentMethodRowView.swift in Sources */,
 				EFC98FFE2CD3A3F80098B7C8 /* OnrampPaymentMethodsView.swift in Sources */,
-				EFD2E5F92DF277C0008B943E /* SwapManager.swift in Sources */,
+				EFD2E5F92DF277C0008B943E /* CommonSwapManager.swift in Sources */,
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
@@ -20434,6 +20436,7 @@
 				DCE2F7CE2CE34A5900BDE145 /* SellActionButtonViewModel.swift in Sources */,
 				EF29E8A02DF9BFA400859AC7 /* SendNewAmountCompactViewModel.swift in Sources */,
 				EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */,
+				EFB4CA512E0ABCCB003C1522 /* SwapManagerDestinationWallet.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */,
 				0AB8BD3C2DBB60AE00D88677 /* CommonReferralNotificationController.swift in Sources */,
@@ -20687,7 +20690,7 @@
 				B677F13C2DD2A4E60076FB9C /* SendParameters.swift in Sources */,
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
-				EFD2E5FB2DF277DE008B943E /* SwapManagerInterfaces.swift in Sources */,
+				EFD2E5FB2DF277DE008B943E /* SwapManager.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				EFD68F212CC2986D00693C97 /* OnrampStepBuilder.swift in Sources */,
