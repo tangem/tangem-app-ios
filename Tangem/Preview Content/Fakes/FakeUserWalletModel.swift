@@ -131,7 +131,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 
