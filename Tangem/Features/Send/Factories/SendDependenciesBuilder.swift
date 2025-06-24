@@ -375,7 +375,7 @@ struct SendDependenciesBuilder {
     // MARK: - Send via swap
 
     func makeSwapManager() -> SwapManager {
-        CommonSwapManager(tokenItem: walletModel.tokenItem, interactor: expressDependenciesFactory.expressInteractor)
+        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
     }
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
