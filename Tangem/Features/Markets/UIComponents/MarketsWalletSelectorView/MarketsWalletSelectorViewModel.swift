@@ -24,10 +24,10 @@ class MarketsWalletSelectorViewModel: ObservableObject {
 
     init(
         userWalletNamePublisher: AnyPublisher<String, Never>,
-        cardImageProvider: WalletImageProviding
+        walletImageProvider: WalletImageProviding
     ) {
         self.userWalletNamePublisher = userWalletNamePublisher
-        walletImageProvider = cardImageProvider
+        self.walletImageProvider = walletImageProvider
 
         bind()
         loadImage()
