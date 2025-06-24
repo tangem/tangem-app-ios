@@ -6,68 +6,22 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
-class CommonSwapManager {
-    private let interactor: ExpressInteractor
+typealias SwapManagerState = ExpressInteractor.State
+typealias SwapManagerSwappingPair = ExpressInteractor.SwappingPair
 
-    init(interactor: ExpressInteractor) {
-        self.interactor = interactor
-    }
-}
+protocol SwapManager {
+    var swappingPair: SwapManagerSwappingPair { get }
+    var state: SwapManagerState { get }
 
-// MARK: - SwapManager
+    var swappingPairPublisher: AnyPublisher<SwapManagerSwappingPair, Never> { get }
+    var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
-extension CommonSwapManager: SwapManager {
-    var swappingPair: SwapManagerSwappingPair {
-        interactor.getSwappingPair()
-    }
+    func update(amount: Decimal?)
+    func update(destination: TokenItem?, address: String?)
 
-    var state: SwapManagerState {
-        interactor.getState()
-    }
-
-    var statePublisher: AnyPublisher<ExpressInteractor.State, Never> {
-        interactor.state
-    }
-
-    var swappingPairPublisher: AnyPublisher<SwapManagerSwappingPair, Never> {
-        interactor.swappingPair
-    }
-
-    func update(amount: Decimal?) {
-        interactor.update(amount: amount, by: .amountChange)
-    }
-
-    func update(destination: TokenItem?, address: String?) {
-        let destinationWallet = destination.map {
-            SwapManagerDestinationWallet(tokenItem: $0, address: address)
-        }
-
-        interactor.update(destination: destinationWallet)
-    }
-
-    func update(provider: ExpressAvailableProvider) {
-        interactor.updateProvider(provider: provider)
-    }
-}
-
-// MARK: - Private
-
-private extension CommonSwapManager {}
-
-struct SwapManagerDestinationWallet: ExpressInteractorDestinationWallet {
-    var id: WalletModelId { .init(tokenItem: tokenItem) }
-    var isCustom: Bool { false }
-    var currency: TangemExpress.ExpressWalletCurrency { tokenItem.expressCurrency }
-
-    let tokenItem: TokenItem
-    let address: String?
-
-    init(tokenItem: TokenItem, address: String?) {
-        self.tokenItem = tokenItem
-        self.address = address
-    }
+    func update(provider: ExpressAvailableProvider)
 }
