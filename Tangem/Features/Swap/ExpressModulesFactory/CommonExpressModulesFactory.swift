@@ -209,10 +209,18 @@ private extension CommonExpressModulesFactory {
             analyticsLogger: analyticsLogger
         )
 
+        let destination: ExpressInteractor.InitialDestinationType = {
+            if let destinationWalletModel {
+                return .selected(destinationWalletModel.asExpressInteractorWallet)
+            }
+
+            return .autosetup
+        }()
+
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
             initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
+            destination: destination,
             expressManager: expressManager,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
