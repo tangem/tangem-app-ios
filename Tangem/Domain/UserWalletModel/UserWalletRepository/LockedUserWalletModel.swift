@@ -49,7 +49,8 @@ class LockedUserWalletModel: UserWalletModel {
         if case .card(let card) = userWallet.walletInfo {
             return .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
         } else {
-            fatalError("Unimplemented")
+            // unimplemented
+            return .init(cardId: "", cardPublicKey: Data())
         }
     }
 
@@ -136,7 +137,7 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
         .just(output: userWallet.name)
     }
 
-    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 
