@@ -314,7 +314,7 @@ extension CommonWalletModel: WalletModel {
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         // Update context menu for hedera after address creation
-        if wallet.address.isEmpty {
+        if wallet.address.isEmpty, case .hasOnlyCachedBalance = sendingRestrictions {
             return Publishers.Merge3(
                 expressAvailabilityProvider.availabilityDidChangePublisher,
                 stakingManagerStatePublisher.mapToVoid(),
