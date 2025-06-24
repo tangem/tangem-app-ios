@@ -87,7 +87,7 @@ struct SendView: View {
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
         case .backButton:
-            CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
+            CircleButton.back(action: viewModel.userDidTapBackButton)
         }
     }
 
@@ -98,8 +98,7 @@ struct SendView: View {
             EmptyView()
 
         case .closeButton:
-            CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: viewModel.dismiss)
-                .disabled(viewModel.closeButtonDisabled)
+            CircleButton.close(action: viewModel.dismiss)
 
         case .qrCodeButton(let action):
             Button(action: action) {
