@@ -22,7 +22,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     let isUserWalletLocked: Bool
     private let userWalletNamePublisher: AnyPublisher<String, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let cardImageProvider: WalletImageProviding
+    private let walletImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
@@ -32,7 +32,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletNamePublisher: userWallet.userWalletNamePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
-            cardImageProvider: userWallet.walletImageProvider,
+            walletImageProvider: userWallet.walletImageProvider,
             tapAction: tapAction
         )
     }
@@ -43,7 +43,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        cardImageProvider: WalletImageProviding,
+        walletImageProvider: WalletImageProviding,
         tapAction: @escaping () -> Void
     ) {
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
@@ -51,7 +51,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         self.isUserWalletLocked = isUserWalletLocked
         self.userWalletNamePublisher = userWalletNamePublisher
         self.totalBalancePublisher = totalBalancePublisher
-        self.cardImageProvider = cardImageProvider
+        self.walletImageProvider = walletImageProvider
         self.tapAction = tapAction
         bind()
     }
@@ -62,7 +62,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         }
 
         runTask(in: self) { viewModel in
-            let image = await viewModel.cardImageProvider.loadSmallImage()
+            let image = await viewModel.walletImageProvider.loadSmallImage()
 
             await runOnMain {
                 viewModel.icon = .loaded(image)

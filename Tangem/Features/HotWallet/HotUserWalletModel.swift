@@ -189,7 +189,7 @@ extension HotUserWalletModel: UserWalletModel {
 }
 
 extension HotUserWalletModel: MainHeaderSupplementInfoProvider {
-    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _walletHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _walletHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }

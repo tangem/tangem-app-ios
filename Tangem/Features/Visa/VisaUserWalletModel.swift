@@ -557,7 +557,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var name: String { userWalletModel.name }
 
-    var userWalletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.userWalletHeaderImagePublisher }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
 
