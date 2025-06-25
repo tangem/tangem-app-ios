@@ -65,10 +65,7 @@ class ExpressInteractor {
         self.signer = signer
 
         _swappingPair = .init(
-            SwappingPair(
-                sender: initialWallet,
-                destination: destinationWallet
-            )
+            SwappingPair(sender: initialWallet, destination: destinationWallet)
         )
 
         initialLoading(wallet: initialWallet)
