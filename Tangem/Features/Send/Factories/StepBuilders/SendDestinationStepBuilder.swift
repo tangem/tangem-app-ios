@@ -20,7 +20,7 @@ struct SendDestinationStepBuilder {
 
     func makeSendDestinationStep(
         io: IO,
-        sendFeeInteractor: any SendFeeInteractor,
+        sendFeeProvider: any SendFeeProvider,
         sendQRCodeService: SendQRCodeService,
         router: SendDestinationRoutable
     ) -> ReturnValue {
@@ -37,7 +37,7 @@ struct SendDestinationStepBuilder {
         let step = SendDestinationStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeInteractor: sendFeeInteractor,
+            sendFeeProvider: sendFeeProvider,
             tokenItem: walletModel.tokenItem
         )
 
