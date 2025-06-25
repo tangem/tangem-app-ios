@@ -402,6 +402,21 @@ extension SendViewModel: SendModelRoutable {
     }
 }
 
+// MARK: - SendNewAmountRoutable
+
+extension SendViewModel: SendNewAmountRoutable {
+    func openReceiveTokensList() {
+        do {
+            isKeyboardActive = false
+            let builder = try dataBuilder.sendBuilder()
+            let tokensListBuilder = try builder.makeSendReceiveTokensList()
+            coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
+        } catch {
+            alert = error.alertBinder
+        }
+    }
+}
+
 // MARK: - OnrampModelRoutable
 
 extension SendViewModel: OnrampModelRoutable {
