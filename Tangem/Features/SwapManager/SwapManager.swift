@@ -10,15 +10,13 @@ import Foundation
 import Combine
 import TangemExpress
 
+/// Will be massive update in [REDACTED_INFO]
 class CommonSwapManager {
-    private let mode: SwapDestinationMode
+    private let tokenItem: TokenItem
     private let interactor: ExpressInteractor
 
-    private var recipientToken: TokenItem?
-    private var recipientAddress: String?
-
-    init(mode: SwapDestinationMode, interactor: ExpressInteractor) {
-        self.mode = mode
+    init(tokenItem: TokenItem, interactor: ExpressInteractor) {
+        self.tokenItem = tokenItem
         self.interactor = interactor
     }
 }
@@ -46,15 +44,17 @@ extension CommonSwapManager: SwapManager {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(receiveToken: SendReceiveToken?) {
-        // [REDACTED_TODO_COMMENT]
+    func update(receiveToken: TokenItem?, address: String?) {
+        guard tokenItem != receiveToken else {
+            return
+        }
+
+        receiveToken.map {
+            interactor.update(destination: SwapManagerDestinationWallet(tokenItem: $0, address: address))
+        }
     }
 
-    func update(receiveAddress: String?) {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func updateProvider(provider: ExpressAvailableProvider) {
+    func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
     }
 }
@@ -67,5 +67,19 @@ extension CommonSwapManager {
     enum SwapDestinationMode {
         case onMyWallet(address: String)
         case toAnotherWallet
+    }
+}
+
+struct SwapManagerDestinationWallet: ExpressInteractorDestinationWallet {
+    var id: WalletModelId { .init(tokenItem: tokenItem) }
+    var isCustom: Bool { false }
+    var currency: TangemExpress.ExpressWalletCurrency { tokenItem.expressCurrency }
+
+    let tokenItem: TokenItem
+    let address: String?
+
+    init(tokenItem: TokenItem, address: String?) {
+        self.tokenItem = tokenItem
+        self.address = address
     }
 }
