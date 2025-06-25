@@ -26,9 +26,13 @@ struct NewSendFlowBaseBuilder {
         let sendQRCodeService = builder.makeSendQRCodeService()
         let sendModel = builder.makeSendModel()
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
+        let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let fee = sendFeeStepBuilder.makeSendFee(
             io: (input: sendModel, output: sendModel),
+            feeProvider: sendFeeProvider,
+            customFeeService: customFeeService
         )
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
@@ -51,7 +55,7 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            feeLoader: fee.interactor,
+            sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
@@ -70,9 +74,9 @@ struct NewSendFlowBaseBuilder {
 
         // We have to set dependencies here after all setups is completed
         sendModel.sendAmountInteractor = amount.interactor
-        sendModel.sendFeeInteractor = fee.interactor
+        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            sendFeeInteractor: fee.interactor
+            input: sendModel, output: sendModel, provider: sendFeeProvider
         )
 
         notificationManager.setup(input: sendModel)
