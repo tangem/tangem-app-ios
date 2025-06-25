@@ -19,9 +19,7 @@ struct VisaOnboardingStepsBuilder {
     private var otherSteps: [VisaOnboardingStep] {
         var steps: [VisaOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if shouldAddSaveUserWalletStep {
             steps.append(.saveUserWallet)
         }
 
