@@ -23,6 +23,7 @@ struct SendNewAmountStepBuilder {
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
@@ -30,6 +31,7 @@ struct SendNewAmountStepBuilder {
             sendAmountValidator: sendAmountValidator,
             amountModifier: amountModifier,
             receiveTokenInput: receiveTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             type: .crypto,
             actionType: actionType
         )
@@ -101,6 +103,7 @@ private extension SendNewAmountStepBuilder {
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         type: SendAmountCalculationType,
         actionType: SendFlowActionType
     ) -> SendAmountInteractor {
@@ -108,6 +111,7 @@ private extension SendNewAmountStepBuilder {
             input: io.input,
             output: io.output,
             receiveTokenInput: receiveTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
