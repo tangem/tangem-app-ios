@@ -202,7 +202,18 @@ private extension StakingSingleActionModel {
 
 // MARK: - SendFeeLoader
 
-extension StakingSingleActionModel: SendFeeLoader {
+extension StakingSingleActionModel: SendFeeProvider {
+    var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
+        .success([mapToSendFee(_state.value)])
+    }
+
+    var feesPublisher: AnyPublisher<TangemFoundation.LoadingResult<[SendFee], any Error>, Never> {
+        _state
+            .withWeakCaptureOf(self)
+            .map { .success([$0.mapToSendFee($1)]) }
+            .eraseToAnyPublisher()
+    }
+
     func updateFees() {}
 }
 
@@ -244,19 +255,6 @@ extension StakingSingleActionModel: SendFeeInput {
                 model.mapToSendFee(fee)
             }
             .eraseToAnyPublisher()
-    }
-
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
-        .just(output: [selectedFee])
-    }
-
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
-        amountPublisher.compactMap { $0?.crypto }.eraseToAnyPublisher()
-    }
-
-    var destinationAddressPublisher: AnyPublisher<String?, Never> {
-        assertionFailure("We don't have destination in staking")
-        return Empty().eraseToAnyPublisher()
     }
 }
 

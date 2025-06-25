@@ -34,9 +34,9 @@ class CommonSendAmountInteractor {
 
     private weak var input: SendAmountInput?
     private weak var output: SendAmountOutput?
+    private weak var receiveTokenInput: SendReceiveTokenInput?
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
-    private let receiveTokenInput: SendReceiveTokenInput?
 
     private var type: SendAmountCalculationType
 
@@ -50,22 +50,22 @@ class CommonSendAmountInteractor {
     init(
         input: SendAmountInput,
         output: SendAmountOutput,
+        receiveTokenInput: SendReceiveTokenInput?,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         maxAmount: Decimal,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        receiveTokenInput: SendReceiveTokenInput?,
         type: SendAmountCalculationType
     ) {
         self.input = input
         self.output = output
+        self.receiveTokenInput = receiveTokenInput
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.maxAmount = maxAmount
         self.validator = validator
         self.amountModifier = amountModifier
-        self.receiveTokenInput = receiveTokenInput
         self.type = type
 
         _cachedAmount = CurrentValueSubject(input.amount)
