@@ -16,9 +16,12 @@ struct SendNewAmountView: View {
     let transitionService: SendTransitionService
 
     @FocusState private var focused: SendAmountCalculationType?
+    @State private var convertButtonSize: CGSize = .zero
+
+    private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(spacing: scrollViewSpacing) {
             content
 
             receiveTokenView
@@ -52,11 +55,19 @@ struct SendNewAmountView: View {
 
     @ViewBuilder
     private var receiveTokenView: some View {
-        GroupedSection(viewModel.receivedTokenViewModel) {
-            TokenWithAmountView(data: $0)
+        ZStack(alignment: .top) {
+            GroupedSection(viewModel.receivedTokenViewModel) {
+                TokenWithAmountView(data: $0)
+            }
+            .backgroundColor(Colors.Background.action)
+            .innerContentPadding(14)
+
+            CircleButton(content: .title(icon: .trailing(Assets.clear), title: "Convert")) {
+                viewModel.removeReceivedToken()
+            }
+            .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+            .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
         }
-        .backgroundColor(Colors.Background.action)
-        .innerContentPadding(14)
     }
 
     @ViewBuilder
