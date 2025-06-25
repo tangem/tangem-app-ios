@@ -18,9 +18,7 @@ struct TwinOnboardingStepsBuilder {
     private var otherSteps: [TwinsOnboardingStep] {
         var steps: [TwinsOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if shouldAddSaveUserWalletStep {
             steps.append(.saveUserWallet)
         }
 
