@@ -7,8 +7,15 @@
 //
 
 import Foundation
+import TangemSdk
 
 protocol OnboardingStepsBuilder {
     func buildOnboardingSteps() -> OnboardingSteps
     func buildBackupSteps() -> OnboardingSteps?
+}
+
+extension OnboardingStepsBuilder {
+    var shouldAddSaveUserWalletStep: Bool {
+        BiometricsUtil.isAvailable && !AppSettings.shared.saveUserWallets && !AppSettings.shared.askedToSaveUserWallets
+    }
 }
