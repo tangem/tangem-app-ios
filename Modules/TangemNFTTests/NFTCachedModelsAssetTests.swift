@@ -48,7 +48,7 @@ struct NFTCachedModelsAssetTests {
             name: "Minimal NFT",
             description: nil,
             salePrice: nil,
-            media: nil,
+            mediaFiles: [],
             rarity: nil,
             traits: []
         )
@@ -112,7 +112,7 @@ struct NFTCachedModelsAssetTests {
             let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
             let restoredAsset = try storableModel.toNFTAsset()
 
-            #expect(restoredAsset.media == originalAsset.media, "Assets should be equal for media kind '\(mediaKind)'")
+            #expect(restoredAsset.mediaFiles == originalAsset.mediaFiles, "Assets should be equal for media kind '\(mediaKind)'")
         }
     }
 
@@ -142,6 +142,28 @@ struct NFTCachedModelsAssetTests {
         #expect(restoredAsset == originalAsset, "Asset should be equal after JSON encoding/decoding cycle")
     }
 
+    @Test("Asset serialization and deserialization with multiple media files")
+    func assetSerializationAndDeserializationWithMultipleMediaFiles() throws {
+        let mediaFiles = [
+            NFTMedia(kind: .image, url: URL(string: "https://example.com/image1.png")!),
+            NFTMedia(kind: .video, url: URL(string: "https://example.com/video1.mp4")!),
+            NFTMedia(kind: .audio, url: URL(string: "https://example.com/audio1.mp3")!),
+        ]
+
+        let originalAsset = createCompleteNFTAsset(
+            chain: .ethereum(isTestnet: false),
+            contractType: .erc721,
+            mediaFiles: mediaFiles
+        )
+
+        // Serialize and deserialize
+        let storableModel = NFTCachedModels.V1.Asset(from: originalAsset)
+        let restoredAsset = try storableModel.toNFTAsset()
+
+        // Assert that mediaFiles are preserved
+        #expect(restoredAsset.mediaFiles == originalAsset.mediaFiles, "mediaFiles should be preserved after serialization/deserialization")
+    }
+
     // MARK: - Private Helpers
 
     private func testAssetSerializationAndDeserialization(for chain: NFTChain) throws {
@@ -165,7 +187,41 @@ struct NFTCachedModelsAssetTests {
     ) -> NFTAsset {
         // Create a unique identifier based on chain and contract type
         let identifier = "nft_\(chain.id)_\(contractType)"
+        let media = NFTMedia(
+            kind: mediaKind,
+            url: URL(string: "https://example.com/\(identifier).\(mediaExtension(for: mediaKind))")!
+        )
 
+        return createCompleteNFTAsset(
+            chain: chain,
+            identifier: identifier,
+            contractType: contractType,
+            mediaFiles: [media]
+        )
+    }
+
+    private func createCompleteNFTAsset(
+        chain: NFTChain,
+        contractType: NFTContractType,
+        mediaFiles: [NFTMedia]
+    ) -> NFTAsset {
+        // Create a unique identifier based on chain and contract type
+        let identifier = "nft_\(chain.id)_\(contractType)"
+
+        return createCompleteNFTAsset(
+            chain: chain,
+            identifier: identifier,
+            contractType: contractType,
+            mediaFiles: mediaFiles
+        )
+    }
+
+    private func createCompleteNFTAsset(
+        chain: NFTChain,
+        identifier: String,
+        contractType: NFTContractType,
+        mediaFiles: [NFTMedia]
+    ) -> NFTAsset {
         // Create an NFT asset with all fields populated
         let assetId = NFTAsset.NFTAssetId(
             identifier: identifier,
@@ -187,11 +243,6 @@ struct NFTCachedModelsAssetTests {
             highest: NFTSalePrice.Price(value: 5.0)
         )
 
-        let media = NFTMedia(
-            kind: mediaKind,
-            url: URL(string: "https://example.com/\(identifier).\(mediaExtension(for: mediaKind))")!
-        )
-
         let rarity = NFTAsset.Rarity(
             label: "Rare",
             percentage: 12.5,
@@ -208,7 +259,7 @@ struct NFTCachedModelsAssetTests {
             name: "Test \(identifier)",
             description: "This is a test NFT for \(chain.id)",
             salePrice: salePrice,
-            media: media,
+            mediaFiles: mediaFiles,
             rarity: rarity,
             traits: traits
         )
