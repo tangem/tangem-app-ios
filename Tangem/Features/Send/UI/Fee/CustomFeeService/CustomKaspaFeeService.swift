@@ -98,7 +98,7 @@ class CustomKaspaFeeService {
 // MARK: - CustomKaspaFeeService+CustomFeeService
 
 extension CustomKaspaFeeService: CustomFeeService {
-    func setup(input: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
+    func setup(output: any CustomFeeServiceOutput) {
         bind(output: output)
     }
 
