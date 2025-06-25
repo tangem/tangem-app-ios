@@ -82,5 +82,8 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
             }
+            .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
+                SendReceiveTokenCoordinatorView(coordinator: $0)
+            }
     }
 }

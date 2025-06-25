@@ -37,6 +37,7 @@ class SendCoordinator: CoordinatorObject {
     @Published var qrScanViewCoordinator: QRScanViewCoordinator?
     @Published var onrampProvidersCoordinator: OnrampProvidersCoordinator?
     @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
+    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
 
     // MARK: - Child view models
 
@@ -166,7 +167,7 @@ extension SendCoordinator: SendDestinationRoutable {
 
 // MARK: - SendRoutable
 
-extension SendCoordinator: @preconcurrency SendRoutable {
+extension SendCoordinator: SendRoutable {
     func dismiss(reason: SendDismissReason) {
         let dismissOptions = mapDismissReasonToDismissOptions(reason)
         dismiss(with: dismissOptions)
@@ -201,9 +202,22 @@ extension SendCoordinator: @preconcurrency SendRoutable {
         )
     }
 
-    @MainActor
     func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
-        floatingSheetPresenter.enqueue(sheet: viewModel)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
+        let coordinator = SendReceiveTokenCoordinator(
+            receiveTokensListBuilder: tokensListBuilder,
+            dismissAction: { [weak self] in
+                self?.sendReceiveTokenCoordinator = nil
+            }, popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+        sendReceiveTokenCoordinator = coordinator
     }
 }
 
