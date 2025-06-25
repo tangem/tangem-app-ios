@@ -148,33 +148,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     }
 }
 
-// MARK: Public
-
-extension CommonExpressModulesFactory {
-    func makeExpressInteractor() -> ExpressInteractor {
-        let expressManager = TangemExpressFactory().makeExpressManager(
-            expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger
-        )
-
-        let interactor = ExpressInteractor(
-            userWalletId: userWalletId,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
-            expressManager: expressManager,
-            expressRepository: expressRepository,
-            expressPendingTransactionRepository: pendingTransactionRepository,
-            expressDestinationService: expressDestinationService,
-            expressAnalyticsLogger: analyticsLogger,
-            expressAPIProvider: expressAPIProvider,
-            signer: signer
-        )
-
-        return interactor
-    }
-}
-
 // MARK: Dependencies
 
 private extension CommonExpressModulesFactory {
@@ -218,15 +191,38 @@ private extension CommonExpressModulesFactory {
 
     // MARK: - Methods
 
-    func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
-    }
-
     func makeExpressRepository() -> ExpressRepository {
         CommonExpressRepository(
             walletModelsManager: walletModelsManager,
             expressAPIProvider: expressAPIProvider
         )
+    }
+
+    func makeExpressAPIProvider() -> ExpressAPIProvider {
+        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
+    }
+
+    func makeExpressInteractor() -> ExpressInteractor {
+        let expressManager = TangemExpressFactory().makeExpressManager(
+            expressAPIProvider: expressAPIProvider,
+            expressRepository: expressRepository,
+            analyticsLogger: analyticsLogger
+        )
+
+        let interactor = ExpressInteractor(
+            userWalletId: userWalletId,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
+            expressManager: expressManager,
+            expressRepository: expressRepository,
+            expressPendingTransactionRepository: pendingTransactionRepository,
+            expressDestinationService: expressDestinationService,
+            expressAnalyticsLogger: analyticsLogger,
+            expressAPIProvider: expressAPIProvider,
+            signer: signer
+        )
+
+        return interactor
     }
 }
 
