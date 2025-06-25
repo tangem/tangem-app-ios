@@ -51,6 +51,10 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     let fiatIconURL: URL
     let possibleToChangeAmountType: Bool
 
+    // MARK: - Router
+
+    weak var router: SendNewAmountRoutable?
+
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
@@ -60,6 +64,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let actionType: SendFlowActionType
     private let sendAmountFormatter: SendAmountFormatter
+
     private var bag: Set<AnyCancellable> = []
 
     init(initial: Settings, interactor: SendAmountInteractor) {
@@ -101,6 +106,10 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         let amount = interactor.updateToMaxAmount()
         FeedbackGenerator.success()
         updateAmountsUI(amount: amount)
+    }
+
+    func removeReceivedToken() {
+        interactor.removeReceivedToken()
     }
 }
 
@@ -201,7 +210,10 @@ extension SendNewAmountViewModel {
                 tokenIconInfo: token.tokenIconInfo,
                 title: token.tokenItem.name,
                 subtitle: "Will be sent to recipient",
-                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount)
+                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
+                action: { [weak self] in
+                    self?.router?.openReceiveTokensList()
+                }
             )
         }
     }
@@ -209,9 +221,8 @@ extension SendNewAmountViewModel {
     func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
         switch amount {
         case .success(let success):
-            return .select(amount: success?.crypto?.stringValue) {
-                // Open token list
-                // [REDACTED_TODO_COMMENT]
+            return .select(amount: success?.crypto?.stringValue) { [weak self] in
+                self?.router?.openReceiveTokensList()
             }
         case .none, .failure:
             return nil
