@@ -45,7 +45,7 @@ struct RestakingFlowBaseBuilder {
             manager: manager,
             currentValidator: action.validatorInfo,
             actionType: actionType,
-            sendFeeLoader: restakingModel
+            sendFeeProvider: restakingModel
         )
 
         let validatorsCompact = stakingValidatorsStepBuilder.makeStakingValidatorsCompactViewModel(
