@@ -41,6 +41,7 @@ struct NewSendFlowBaseBuilder {
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
             receiveTokenInput: sendModel,
+            receiveTokenOutput: sendModel,
             flowKind: flowKind
         )
 
@@ -97,6 +98,11 @@ struct NewSendFlowBaseBuilder {
         summary.step.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
 
+        let dataBuilder = builder.makeSendBaseDataBuilder(
+            input: sendModel,
+            receiveTokenIO: (input: sendModel, output: sendModel)
+        )
+
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)
 
         let viewModel = SendViewModel(
@@ -104,7 +110,7 @@ struct NewSendFlowBaseBuilder {
             stepsManager: stepsManager,
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
+            dataBuilder: dataBuilder,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
@@ -117,6 +123,7 @@ struct NewSendFlowBaseBuilder {
         // [REDACTED_TODO_COMMENT]
         // fee.step.set(alertPresenter: viewModel)
         sendModel.router = viewModel
+        amount.step.set(router: viewModel)
 
         return viewModel
     }
