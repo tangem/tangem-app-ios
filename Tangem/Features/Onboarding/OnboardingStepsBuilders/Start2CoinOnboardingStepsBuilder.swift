@@ -16,9 +16,7 @@ struct Start2CoinOnboardingStepsBuilder {
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if shouldAddSaveUserWalletStep {
             steps.append(.saveUserWallet)
         }
 
