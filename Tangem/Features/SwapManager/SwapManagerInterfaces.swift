@@ -20,7 +20,7 @@ protocol SwapManager {
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
     func update(amount: Decimal?)
-    func update(receiveToken: SendReceiveToken?)
-    func update(receiveAddress: String?)
-    func updateProvider(provider: ExpressAvailableProvider)
+    func update(receiveToken: TokenItem?, address: String?)
+
+    func update(provider: ExpressAvailableProvider)
 }
