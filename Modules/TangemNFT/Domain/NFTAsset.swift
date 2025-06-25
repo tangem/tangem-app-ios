@@ -14,7 +14,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let name: String
     let description: String?
     let salePrice: NFTSalePrice?
-    let media: NFTMedia?
+    let mediaFiles: [NFTMedia]
     let rarity: Rarity?
     let traits: [Trait]
 
@@ -28,7 +28,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
         name: String,
         description: String?,
         salePrice: NFTSalePrice?,
-        media: NFTMedia?,
+        mediaFiles: [NFTMedia],
         rarity: NFTAsset.Rarity?,
         traits: [NFTAsset.Trait]
     ) {
@@ -44,7 +44,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
         self.name = name
         self.description = description
         self.salePrice = salePrice
-        self.media = media
+        self.mediaFiles = mediaFiles
         self.rarity = rarity
         self.traits = traits
     }
@@ -93,7 +93,7 @@ public extension NFTAsset {
             name: name,
             description: description,
             salePrice: salePrice,
-            media: media,
+            mediaFiles: mediaFiles,
             rarity: rarity,
             traits: traits
         )
