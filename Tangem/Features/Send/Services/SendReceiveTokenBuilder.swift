@@ -9,8 +9,8 @@
 import Foundation
 
 struct SendReceiveTokenBuilder {
-    let tokenIconInfoBuilder: TokenIconInfoBuilder
-    let fiatItem: FiatItem
+    private let tokenIconInfoBuilder: TokenIconInfoBuilder
+    private let fiatItem: FiatItem
 
     init(tokenIconInfoBuilder: TokenIconInfoBuilder, fiatItem: FiatItem) {
         self.tokenIconInfoBuilder = tokenIconInfoBuilder

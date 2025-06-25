@@ -22,6 +22,7 @@ protocol SendAmountInteractor {
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
     func updateToMaxAmount() -> SendAmount
+    func removeReceivedToken()
 
     /// Use this method if have to updated from notification
     func externalUpdate(amount: Decimal?)
@@ -35,9 +36,10 @@ class CommonSendAmountInteractor {
     private weak var input: SendAmountInput?
     private weak var output: SendAmountOutput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveTokenOutput: SendReceiveTokenOutput?
+
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
-
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -51,6 +53,7 @@ class CommonSendAmountInteractor {
         input: SendAmountInput,
         output: SendAmountOutput,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         maxAmount: Decimal,
@@ -61,6 +64,7 @@ class CommonSendAmountInteractor {
         self.input = input
         self.output = output
         self.receiveTokenInput = receiveTokenInput
+        self.receiveTokenOutput = receiveTokenOutput
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.maxAmount = maxAmount
@@ -243,6 +247,10 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             _cachedAmount.send(amount)
             return amount
         }
+    }
+
+    func removeReceivedToken() {
+        receiveTokenOutput?.userDidSelect(tokenItem: nil)
     }
 
     func externalUpdate(amount: Decimal?) {
