@@ -84,6 +84,7 @@ private extension NFTSendAmountStepBuilder {
             input: io.input,
             output: io.output,
             receiveTokenInput: .none,
+            receiveTokenOutput: .none,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
