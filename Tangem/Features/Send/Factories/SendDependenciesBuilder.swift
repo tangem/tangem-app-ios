@@ -170,8 +170,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeInformationRelevanceService(sendFeeInteractor: SendFeeInteractor) -> InformationRelevanceService {
-        CommonInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+    func makeInformationRelevanceService(input: SendFeeInput, output: SendFeeOutput, provider: SendFeeProvider) -> InformationRelevanceService {
+        CommonInformationRelevanceService(input: input, output: output, provider: provider)
     }
 
     func makeTransactionDispatcher() -> TransactionDispatcher {
@@ -329,12 +329,20 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeCustomFeeService() -> CustomFeeService? {
-        CustomFeeServiceFactory(walletModel: walletModel).makeService()
+    func makeCustomFeeService(input: any CustomFeeServiceInput) -> CustomFeeService? {
+        CustomFeeServiceFactory(walletModel: walletModel).makeService(input: input)
     }
 
-    func makeSendFeeProvider() -> SendFeeProvider {
-        CommonSendFeeProvider(walletModel: walletModel)
+    func makeSendFeeLoader() -> SendFeeLoader {
+        CommonSendFeeLoader(
+            tokenItem: walletModel.tokenItem,
+            walletModelFeeProvider: walletModel,
+            shouldShowFeeSelector: walletModel.shouldShowFeeSelector
+        )
+    }
+
+    func makeSendFeeProvider(input: any SendFeeProviderInput, swapManager: SwapManager? = .none) -> CommonSendFeeProvider {
+        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader(), swapManager: swapManager)
     }
 
     func makeFeeSelectorContentViewModelAnalytics(flowKind: SendModel.PredefinedValues.FlowKind) -> FeeSelectorContentViewModelAnalytics {
@@ -344,8 +352,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeFeeSelectorCustomFeeFieldsBuilder() -> FeeSelectorCustomFeeFieldsBuilder {
-        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: makeCustomFeeService())
+    func makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: (any CustomFeeService)?) -> FeeSelectorCustomFeeFieldsBuilder {
+        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService)
     }
 
     // MARK: - Send via swap
