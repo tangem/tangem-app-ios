@@ -34,7 +34,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    var selectedUserWalletId: UserWalletId?
+    var selectedUserWalletId: UserWalletId? {
+        didSet {
+            print("Selected user wallet ID changed to: \(String(describing: selectedUserWalletId))")
+        }
+    }
 
     var selectedIndexUserWalletModel: Int? {
         models.firstIndex {
@@ -44,6 +48,14 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var hasSavedWallets: Bool {
         !savedUserWallets(withSensitiveData: false).isEmpty
+    }
+
+    var savedWallets: [LockedUserWalletModel]? {
+        let storedWallets = UserWalletRepositoryUtil().savedUserWallets(
+            encryptionKeyByUserWalletId: [:]
+        )
+
+        return storedWallets.map { LockedUserWalletModel(with: $0) }
     }
 
     var isEmpty: Bool {
@@ -350,6 +362,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             unlockWithBiometry(completion: completion)
         case .card(let userWalletId, let scanner):
             unlockWithCard(scanner: scanner, userWalletId, completion: completion)
+        case .passcode(let userWalletId, let passcode):
+            unlockWithPasscode(userWalletId, passcode: passcode, completion: completion)
         }
     }
 
@@ -538,6 +552,14 @@ class CommonUserWalletRepository: UserWalletRepository {
                 completion(.success(userWalletModel))
             }
             .store(in: &bag)
+    }
+
+    private func unlockWithPasscode(
+        _ userWalletId: UserWalletId,
+        passcode: String,
+        completion: @escaping (UserWalletRepositoryResult?) -> Void
+    ) {
+        completion(nil) // [REDACTED_TODO_COMMENT]
     }
 
     /// Method `loadModels` in case when we have 100+ wallets/tokens on main screen will be heavy for main thread
