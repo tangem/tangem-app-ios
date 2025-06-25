@@ -23,9 +23,7 @@ struct WalletOnboardingStepsBuilder {
     private var otherSteps: [WalletOnboardingStep] {
         var steps: [WalletOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if shouldAddSaveUserWalletStep {
             steps.append(.saveUserWallet)
         }
 

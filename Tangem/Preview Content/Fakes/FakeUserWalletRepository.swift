@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var savedWallets: [LockedUserWalletModel]? { nil }
+
     var selectedUserWalletId: UserWalletId?
 
     var isLocked: Bool { false }
@@ -50,6 +52,8 @@ class FakeUserWalletRepository: UserWalletRepository {
                 }
 
                 completion(.error("Can't create card view model"))
+            case .passcode:
+                completion(.troubleshooting)
             }
         }
     }
