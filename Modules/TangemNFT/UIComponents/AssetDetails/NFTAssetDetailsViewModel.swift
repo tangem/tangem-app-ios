@@ -19,7 +19,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     }
 
     var media: NFTMedia? {
-        asset.media
+        NFTAssetMediaExtractor.extractMedia(from: asset)
     }
 
     var headerState: NFTDetailsHeaderState? {
