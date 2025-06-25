@@ -17,9 +17,17 @@ struct SendDependenciesBuilder {
     private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
 
+    private let expressDependenciesFactory: ExpressDependenciesFactory
+
     init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletModel: userWalletModel,
+            initialWalletModel: walletModel,
+            destinationWalletModel: .none
+        )
     }
 
     func makeFiatItem() -> FiatItem {
@@ -317,8 +325,16 @@ struct SendDependenciesBuilder {
         CommonSendAlertBuilder()
     }
 
-    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
-        CommonSendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
+    func makeSendBaseDataBuilder(
+        input: SendBaseDataBuilderInput,
+        receiveTokenIO: SendReceiveTokensListBuilder.IO? = .none
+    ) -> SendBaseDataBuilder {
+        CommonSendBaseDataBuilder(
+            input: input,
+            walletModel: walletModel,
+            emailDataProvider: userWalletModel,
+            sendReceiveTokensListBuilder: receiveTokenIO.map { makeSendReceiveTokensListBuilder(io: $0) }
+        )
     }
 
     func makeSendFinishAnalyticsLogger(sendFeeInput: SendFeeInput) -> SendFinishAnalyticsLogger {
@@ -359,16 +375,19 @@ struct SendDependenciesBuilder {
     // MARK: - Send via swap
 
     func makeSwapManager() -> SwapManager {
-        let factory = CommonExpressModulesFactory(
-            inputModel: .init(userWalletModel: userWalletModel, initialWalletModel: walletModel)
-        )
-
-        let interactor = factory.makeExpressInteractor()
-        return CommonSwapManager(mode: .toAnotherWallet, interactor: interactor)
+        CommonSwapManager(tokenItem: walletModel.tokenItem, interactor: expressDependenciesFactory.expressInteractor)
     }
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
         SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
+    }
+
+    func makeSendReceiveTokensListBuilder(io: SendReceiveTokensListBuilder.IO) -> SendReceiveTokensListBuilder {
+        SendReceiveTokensListBuilder(
+            io: io,
+            tokenItem: walletModel.tokenItem,
+            expressRepository: expressDependenciesFactory.expressRepository
+        )
     }
 
     // MARK: - NFT support
