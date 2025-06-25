@@ -44,14 +44,8 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
             }
 
         canEditFeeSubscription = input
-            .feesPublisher
-            .map { feeValues in
-                let multipleFeeOptions = feeValues.count > 1
-                let hasError = feeValues.contains { $0.value.error != nil }
-
-                return multipleFeeOptions && !hasError
-            }
-            .receive(on: DispatchQueue.main)
+            .canChooseFeeOption
+            .receiveOnMain()
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
