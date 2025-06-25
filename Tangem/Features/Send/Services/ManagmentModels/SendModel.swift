@@ -33,7 +33,7 @@ class SendModel {
     // MARK: - Dependencies
 
     var sendAmountInteractor: SendAmountInteractor!
-    var sendFeeInteractor: SendFeeInteractor!
+    var sendFeeProvider: SendFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
     weak var router: SendModelRoutable?
 
@@ -358,16 +358,20 @@ extension SendModel: SendFeeInput {
         _selectedFee.eraseToAnyPublisher()
     }
 
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
-        sendFeeInteractor.feesPublisher
+    var canChooseFeeOption: AnyPublisher<Bool, Never> {
+        sendFeeProvider.feesHasVariants
     }
+}
 
+// MARK: - SendFeeProviderInput
+
+extension SendModel: SendFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }
 
-    var destinationAddressPublisher: AnyPublisher<String?, Never> {
-        _destination.map { $0?.value }.eraseToAnyPublisher()
+    var destinationAddressPublisher: AnyPublisher<String, Never> {
+        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
     }
 }
 
@@ -418,7 +422,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
     }
 
     func actualizeInformation() {
-        sendFeeInteractor.updateFees()
+        sendFeeProvider.updateFees()
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
@@ -433,7 +437,10 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[SendFee], Never> {
-        sendFeeInteractor.feesPublisher
+        sendFeeProvider
+            .feesPublisher
+            .compactMap { $0.value }
+            .eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -455,7 +462,7 @@ extension SendModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendFeeInteractor.updateFees()
+            sendFeeProvider.updateFees()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
