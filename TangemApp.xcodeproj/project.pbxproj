@@ -13511,7 +13511,6 @@
 				B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */,
 				B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */,
 				B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */,
-				B6EFF1372D83ACCA00D168AC /* NFTAvailabilityUtil.swift */,
 			);
 			path = Availability;
 			sourceTree = "<group>";
@@ -15704,6 +15703,17 @@
 			path = CardScanner;
 			sourceTree = "<group>";
 		};
+		DC77E4782E0C3AD000D862C2 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
+				DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */,
+				EFD32AEC29EE7F540026353E /* FeatureState.swift */,
+				30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
 		DC7C45652CF8B33B00747589 /* NotificationManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -16432,8 +16442,11 @@
 		DCBF4D3B2D8B5016002C2B8E /* FeatureToggles */ = {
 			isa = PBXGroup;
 			children = (
-				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
+				DC77E4782E0C3AD000D862C2 /* Domain */,
+				B6EFF1372D83ACCA00D168AC /* NFTAvailabilityUtil.swift */,
 				EFD39C8D2A6A87F90055D215 /* SupportedBlockchains.swift */,
+				EFD32AEA29EE7F390026353E /* Feature.swift */,
+				DCE940B92C3ECC2500B67398 /* StakingFeatureProvider.swift */,
 			);
 			path = FeatureToggles;
 			sourceTree = "<group>";
@@ -17490,19 +17503,6 @@
 				EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */,
 			);
 			path = EnvironmentSetup;
-			sourceTree = "<group>";
-		};
-		EF5903A02909283A00C527C9 /* EnvironmentProvider */ = {
-			isa = PBXGroup;
-			children = (
-				30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */,
-				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
-				DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */,
-				EFD32AEA29EE7F390026353E /* Feature.swift */,
-				EFD32AEC29EE7F540026353E /* FeatureState.swift */,
-				DCE940B92C3ECC2500B67398 /* StakingFeatureProvider.swift */,
-			);
-			path = EnvironmentProvider;
 			sourceTree = "<group>";
 		};
 		EF5A5ACC28D86089002544AC /* TotalBalanceProvider */ = {
