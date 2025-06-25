@@ -102,13 +102,12 @@ class CustomEvmFeeService {
 
     private func recalculateFee() -> Fee {
         let parameters: EthereumFeeParameters
+        let nonce = nonce.value
 
         if feeTokenItem.blockchain.supportsEIP1559 {
             guard let gasLimit = gasLimit.value,
                   let maxFeePerGas = maxFeePerGas.value,
-                  let priorityFee = priorityFee.value,
-                  let nonce = nonce.value
-            else {
+                  let priorityFee = priorityFee.value else {
                 return zeroFee
             }
 
@@ -119,7 +118,7 @@ class CustomEvmFeeService {
                 nonce: nonce
             )
         } else {
-            guard let gasLimit = gasLimit.value, let gasPrice = gasPrice.value, let nonce = nonce.value else {
+            guard let gasLimit = gasLimit.value, let gasPrice = gasPrice.value else {
                 return zeroFee
             }
 
@@ -134,8 +133,9 @@ class CustomEvmFeeService {
 
     private func calculateFee(for feeValue: Decimal?) -> Fee {
         let feeDecimalValue = feeTokenItem.decimalValue
+        let nonce = nonce.value
 
-        guard let feeValue, let currentGasLimit = gasLimit.value, let nonce = nonce.value else {
+        guard let feeValue, let currentGasLimit = gasLimit.value else {
             return zeroFee
         }
 
@@ -189,7 +189,7 @@ class CustomEvmFeeService {
 // MARK: - EditableCustomFeeService
 
 extension CustomEvmFeeService: CustomFeeService {
-    func setup(input _: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
+    func setup(output: any CustomFeeServiceOutput) {
         self.output = output
     }
 
