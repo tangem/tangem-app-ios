@@ -25,6 +25,8 @@ struct SellFlowBaseBuilder {
         let notificationManager = builder.makeSendNotificationManager()
         let sendModel = builder.makeSendModel(predefinedSellParameters: sellParameters)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
+        let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let sendDestinationCompactViewModel = sendDestinationStepBuilder.makeSendDestinationCompactViewModel(
             input: sendModel
@@ -37,6 +39,8 @@ struct SellFlowBaseBuilder {
         let fee = sendFeeStepBuilder.makeFeeSendStep(
             io: (input: sendModel, output: sendModel),
             notificationManager: notificationManager,
+            sendFeeProvider: sendFeeProvider,
+            customFeeService: customFeeService,
             router: router
         )
 
@@ -66,13 +70,13 @@ struct SellFlowBaseBuilder {
         )
 
         // We have to set dependencies here after all setups is completed
-        sendModel.sendFeeInteractor = fee.interactor
+        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            sendFeeInteractor: fee.interactor
+            input: sendModel, output: sendModel, provider: sendFeeProvider
         )
 
         // Update the fees in case we in the sell flow
-        fee.interactor.updateFees()
+        sendFeeProvider.updateFees()
 
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
