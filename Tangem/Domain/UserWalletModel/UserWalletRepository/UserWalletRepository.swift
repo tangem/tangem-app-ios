@@ -11,6 +11,8 @@ import Combine
 
 protocol UserWalletRepository: Initializable {
     var hasSavedWallets: Bool { get }
+    var savedWallets: [LockedUserWalletModel]? { get }
+
     var isLocked: Bool { get }
     var models: [UserWalletModel] { get }
     var selectedModel: UserWalletModel? { get }
@@ -80,6 +82,7 @@ enum UserWalletRepositorySelectionChangeReason {
 enum UserWalletRepositoryUnlockMethod {
     case biometry
     case card(userWalletId: UserWalletId?, scanner: CardScanner)
+    case passcode(userWalletId: UserWalletId, passcode: String)
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
@@ -87,6 +90,8 @@ enum UserWalletRepositoryUnlockMethod {
             return Analytics.ParameterValue.signInTypeBiometrics
         case .card:
             return Analytics.ParameterValue.card
+        case .passcode:
+            return Analytics.ParameterValue.passcode // [REDACTED_TODO_COMMENT]
         }
     }
 }
