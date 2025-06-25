@@ -107,12 +107,12 @@ private extension SendNewAmountStepBuilder {
         CommonSendAmountInteractor(
             input: io.input,
             output: io.output,
+            receiveTokenInput: receiveTokenInput,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
             validator: sendAmountValidator,
             amountModifier: amountModifier,
-            receiveTokenInput: receiveTokenInput,
             type: type
         )
     }
