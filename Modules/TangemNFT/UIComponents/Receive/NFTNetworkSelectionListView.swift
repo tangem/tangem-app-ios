@@ -50,7 +50,7 @@ public struct NFTNetworkSelectionListView: View {
 
     @ViewBuilder
     private var listContent: some View {
-        GroupedScrollView(spacing: 12.0) {
+        GroupedScrollView(spacing: 12.0, showsIndicators: false) {
             GroupedSection(
                 viewModel.allItems,
                 content: { item in
