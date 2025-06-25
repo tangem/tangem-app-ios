@@ -120,7 +120,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         do {
             moralisNFTChain = try makeMoralisNFTChain(from: chain)
         } catch {
-            return makeEmptyResultWithErrorAndLog<NFTCollection>(error: error)
+            return makeEmptyResultWithErrorAndLog(error: error)
         }
 
         let loadedResponse: (value: [EVMResponse<[EVMCollection]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in
@@ -151,7 +151,7 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
         do {
             moralisNFTChain = try makeMoralisNFTChain(from: chain)
         } catch {
-            return makeEmptyResultWithErrorAndLog<NFTAsset>(error: error)
+            return makeEmptyResultWithErrorAndLog(error: error)
         }
 
         let loadedResponse: (value: [EVMResponse<[EVMAsset]>], errors: [NFTErrorDescriptor]) = await paginableRequest { cursor in

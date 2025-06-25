@@ -44,7 +44,7 @@ struct NFTCompactAssetViewModel: Identifiable {
 
 extension NFTCompactAssetViewModel {
     struct ViewData {
-        var media: NFTMedia? { asset.media }
+        var media: NFTMedia? { NFTAssetMediaExtractor.extractMedia(from: asset) }
         var name: String { asset.name }
         var price: String?
 
