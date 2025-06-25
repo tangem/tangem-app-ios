@@ -20,6 +20,7 @@ protocol SendModelRoutable: AnyObject {
 class SendModel {
     // MARK: - Data
 
+    private let _receivedToken: CurrentValueSubject<TokenItem, Never>
     private let _destination: CurrentValueSubject<SendAddress?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
@@ -77,6 +78,7 @@ class SendModel {
         self.swapManager = swapManager
 
         flowKind = predefinedValues.flowKind
+        _receivedToken = .init(tokenItem)
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
@@ -123,11 +125,10 @@ private extension SendModel {
             }
             .store(in: &bag)
 
-        _destination
-            .removeDuplicates()
-            .dropFirst()
-            .sink { [weak self] destination in
-                self?.swapManager?.update(receiveAddress: destination?.value)
+        Publishers
+            .CombineLatest(_receivedToken, _destination)
+            .sink { [weak self] receivedToken, destination in
+                self?.swapManager?.update(receiveToken: receivedToken, address: destination?.value)
             }
             .store(in: &bag)
     }
@@ -342,8 +343,8 @@ extension SendModel: SendReceiveTokenInput {
 // MARK: - SendReceiveTokenOutput
 
 extension SendModel: SendReceiveTokenOutput {
-    func userDidSelect(token: SendReceiveToken) {
-        // [REDACTED_TODO_COMMENT]
+    func userDidSelect(tokenItem: TokenItem?) {
+        _receivedToken.send(tokenItem ?? self.tokenItem)
     }
 }
 
