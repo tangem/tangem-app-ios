@@ -61,7 +61,9 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {}
+    func onAppear() {
+        interactor.preloadTransactionsHistoryIfNeeded()
+    }
 
     private func setupView() {
         destinationAddressViewModel = SendNewDestinationAddressViewModel(
