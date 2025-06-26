@@ -15,12 +15,9 @@ enum HotOnboardingStep {
     /// Import flow
     case importWallet
 
-    var navigationTitle: String {
-        switch self {
-        case .createWallet:
-            ""
-        case .importWallet:
-            "Import wallet"
-        }
-    }
+    // Backup flow
+    case seedPhraseIntro
+    case seedPhraseRecovery
+    case seedPhraseUserValidation
+    case seedPhraseCompleted
 }
