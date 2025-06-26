@@ -40,33 +40,6 @@ final class NFTSendWalletModelProxy {
         self.tokenBalanceProvider = tokenBalanceProvider
         self.transactionSendAvailabilityProvider = transactionSendAvailabilityProvider
     }
-
-    func prepare() {
-        dispatchTransactionsHistoryUpdateIfNeeded()
-    }
-
-    /// This method attempts to update the transaction history for the wrapped wallet model once.
-    /// The updated transaction history will be used to build a list of suggested destinations for the NFT send flow.
-    private func dispatchTransactionsHistoryUpdateIfNeeded() {
-        var subscription: AnyCancellable?
-        subscription = transactionHistoryPublisher
-            .prefix(1) // We only care about the most recent state and we process it only once
-            .withWeakCaptureOf(self)
-            .flatMap { walletModel, transactionHistoryState in
-                switch transactionHistoryState {
-                case .notSupported,
-                     .loading,
-                     .loaded:
-                    return AnyPublisher.just
-                case .error:
-                    walletModel.clearHistory()
-                    fallthrough
-                case .notLoaded:
-                    return walletModel.updateTransactionsHistory()
-                }
-            }
-            .sink { withExtendedLifetime(subscription) {} }
-    }
 }
 
 // MARK: - WalletModel protocol conformance
