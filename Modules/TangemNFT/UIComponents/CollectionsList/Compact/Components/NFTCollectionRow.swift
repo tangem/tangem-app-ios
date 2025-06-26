@@ -81,7 +81,7 @@ struct NFTCollectionRow: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: Constants.Icon.cornerRadius)
-            .fill(Colors.Field.primary)
+            .fill(Colors.Field.focused)
             .frame(size: Constants.Icon.size)
     }
 }
