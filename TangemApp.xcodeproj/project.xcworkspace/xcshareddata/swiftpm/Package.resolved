@@ -1,5 +1,5 @@
 {
-  "originHash" : "06562fdc8da2f5be55d11f437b505ecfd769b856311b92665089ed1ebda9c8e0",
+  "originHash" : "8244c3c05dffda3461317843cf130e8e8f5f784a4a381700694df76bd57cf14b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -627,8 +627,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/ton-swift.git",
       "state" : {
-        "revision" : "723cfeb8da0ea024158b4274fced8a1891bff88e",
-        "version" : "1.0.10-tangem3"
+        "revision" : "b3ca6e4e571c4adef888b5dbc3676f38895d37ba",
+        "version" : "1.0.17-tangem1"
       }
     },
     {
