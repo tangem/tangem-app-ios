@@ -287,7 +287,9 @@ let collections = (0 ... 20).map {
                     name: "My asset",
                     description: "",
                     salePrice: .init(last: .init(value: 2), lowest: nil, highest: nil),
-                    media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                    mediaFiles: [
+                        NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                    ],
                     rarity: nil,
                     traits: []
                 )
