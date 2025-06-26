@@ -1,3 +1,9 @@
+"access_code_check_title" = "Enter Access Code";
+"access_code_confirm_description" = "Confirm your previously entered code to continue";
+"access_code_confirm_title" = "Re-enter Access Code";
+"access_code_create_description" = "Set a 6-digit Access Code to unlock your wallet.";
+"access_code_create_title" = "Create Access Code";
+"access_code_navtitle" = "Access code";
 "action_buttons_buy_empty_search_message" = "¿No encuentra el token en su billetera? Consulte la sección de Mercados para encontrarlo y añadirlo a la compra";
 "action_buttons_buy_navigation_bar_title" = "Comprar";
 "action_buttons_sell_empty_search_message" = "¿No encuentra el token en su billetera? Consulte los mercados para encontrarlo y añadirlo a la venta";
@@ -117,6 +123,7 @@
 "common_contact_tangem_support" = "Contact Tangem Support";
 "common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Continuar";
+"common_convert" = "Convert";
 "common_copy_address" = "Copiar la dirección";
 "common_copy" = "Copiar";
 "common_create" = "Crear";
@@ -139,6 +146,7 @@
 "common_fee_selector_option_slow" = "Lento";
 "common_fee_selector_title" = "Velocidad y tarifa";
 "common_finish" = "Finalizar";
+"common_free" = "Free";
 "common_generate_addresses" = "Sincronizar direcciones";
 "common_go_to_provider" = "Ir al proveedor";
 "common_go_to_token" = "Ir al token";
@@ -375,6 +383,11 @@
 "home_button_scan" = "Escanee";
 "hot_crypto_add_token_subtitle" = "a %@";
 "hot_crypto_token_network" = "En la red %@";
+"hw_create_keys_description" = "Get notified of incoming transactions";
+"hw_create_keys_title" = "Keys are stored in the app";
+"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_title" = "Seed phrase backup";
+"hw_create_title" = "Create Mobile Wallet";
 "information_generated_with_ai" = "Esta información fue generada con IA.\nPulse aquí si encuentra algún error.";
 "initial_message_change_access_code_body" = "Para cambiar el código de acceso coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_change_passcode_body" = "Toque para cambiar la contraseña";
@@ -751,7 +764,9 @@
 "send_alert_fee_too_low_text" = "Ha especificado una comisión inferior a la cantidad recomendada, lo que podría provocar un retraso en su transacción. ¿Continuar?";
 "send_alert_transaction_failed_text" = "Razón: %1$@\nCódigo: %2$@";
 "send_alert_transaction_failed_title" = "La transacción está incompleta";
+"send_amount_convert_to_another_token" = "Convert to another token";
 "send_amount_label" = "Montante";
+"send_amount_receive_token_subtitle" = "Will be sent to recipient";
 "send_bitcoin_custom_fee_footer" = "Puede establecer tu tarifa de transacción ajustando el valor en el campo\nSatoshi por vByte.";
 "send_custom_amount_fee_footer" = "La tarifa que se cobrará por tu transacción. Puedes establecer tu propio valor.";
 "send_custom_evm_max_fee_footer" = "Este es el coste que está dispuesto(a) a pagar por cada unidad de gas. Cuanto más alto sea el precio del gas, más rápido se procesará su transacción. (Tarifa prioritaria incluida)";
@@ -769,6 +784,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Compruebe su conexión de red";
 "send_fee_unreachable_error_title" = "Información de tarifa de red no accesible";
+"send_from_wallet_name" = "From %@";
 "send_from_wallet" = "Desde **%@**";
 "send_gas_limit_footer" = "Este es el máximo de gas que se gastará para completar una transacción o contrato. Un límite de gas evita cargos inesperados o ilimitados al ejecutar una transacción.";
 "send_gas_limit" = "Límite de gas";
@@ -778,6 +794,7 @@
 "send_max_amount" = "Max";
 "send_max_fee" = "Tarifa hasta";
 "send_memo_destination_tag_error" = "Memo no válido";
+"send_memo" = "Memo: %@";
 "send_network_fee_warning_title" = "Cobertura de tarifa de red";
 "send_nonce_footer" = "Unique number for each transaction. Use it to resend or cancel a pending transaction.";
 "send_nonce_hint" = "Enter nonce…";
@@ -790,6 +807,7 @@
 "send_notification_fee_too_high_title" = "Los aranceles aduaneros son altos";
 "send_notification_high_fee_text" = "Debido a las peculiaridades de la red %1$@, la tarifa por transferir el saldo completo es más alta. Para reducir la comisión, puedes dejar %2$@.";
 "send_notification_high_fee_title" = "La tarifa es más alta";
+"send_notification_invalid_amount_rent_destination" = "The recipient account is not activated. The minimum transfer amount must be equal to or greater than the rent-exempt balance: %1$@.";
 "send_notification_invalid_amount_rent_fee" = "Su saldo no puede ser inferior al monto del alquiler. Mantenga al menos %1$@ en su cuenta o retire todos los fondos.";
 "send_notification_invalid_amount_text" = "La comisión incluida excede el monto de la transferencia, lo que resulta en un valor negativo";
 "send_notification_invalid_amount_title" = "Cantidad no válida";
@@ -826,11 +844,14 @@
 "send_summary_transaction_description_suffix_fee_reduced" = "La tarifa de red se reducirá al usar %1$@ energía";
 "send_summary_transaction_description_suffix_including" = "incluida una tarifa de red de %1$@";
 "send_summary_transaction_description" = "Está enviando **%1$@** incluida una tarifa de red de %2$@";
+"send_to_address" = "To address";
 "send_transaction_success" = "La transacción se firmó con éxito y se envió al nodo blockchain. El saldo de la billetera se actualizará después de un tiempo.";
 "send_tron_account_activation_error" = "%1$@  es un activo en la red Tron. Para calcular la tarifa y realizar una transacción, deba depositar algo de Tron (TRX) en su cuenta.";
 "send_validation_destination_tag_required_description" = "Es necesario una etiqueta de destino (memo) para completar esta transacción para la dirección especificada.";
 "send_validation_destination_tag_required_title" = "Etiqueta de destino obligatoria";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_recipient_amount_text" = "Will be sent a recipient";
+"send_with_swap_recipient_amount_title" = "Amount to receive";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
@@ -994,6 +1015,7 @@
 "swap_story_second_title" = "Tarifas inmejorables";
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
 "swap_story_third_title" = "Simplemente cómodo";
+"swap_via_provider" = "Swap via provider";
 "swapping_alert_cex_description_with_slippage" = "El monto incluye:\n• tarifas del proveedor de servicios\n• tarifas de red por enviar %1$@ desde el intercambio a la dirección del usuario. \n\nEl slippage del proveedor puede alcanzar el %2$@";
 "swapping_alert_cex_description" = "La cantidad incluye:\n• Tarifas del proveedor de servicios\n• Tarifas de red por enviar %@ desde el intercambio a la dirección del usuario.";
 "swapping_alert_dex_description_with_slippage" = "El importe incluye las tarifas del proveedor de servicios. \n\nEl slippage del proveedor puede alcanzar el %@";
@@ -1191,6 +1213,15 @@
 "wallet_connect_subtitle" = "Conectar a dApps";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_toast_awaiting_session_proposal" = "La conexión puede tardar unos segundos.";
+"wallet_create_hardware_badge" = "From %@";
+"wallet_create_hardware_description" = "Buy Tangem Wallet — physical cards that securely store your crypto offline.";
+"wallet_create_hardware_title" = "Hardware Wallet";
+"wallet_create_mobile_description" = "A secure wallet is created on your phone in seconds.";
+"wallet_create_mobile_title" = "Mobile Wallet";
+"wallet_create_nav_info_title" = "What to choose?";
+"wallet_create_scan_question" = "Do you already have Tangem Wallet?";
+"wallet_create_scan_title" = "Scan Now";
+"wallet_create_title" = "Choose how you want to create your wallet";
 "wallet_marketplace_block_title" = "%@ Precio de mercado";
 "wallet_marketprice_block_update_time" = "últimas 24h";
 "wallet_network_group_title" = "%@ red";
@@ -1293,8 +1324,8 @@
 "warning_testnet_card_title" = "Solo para fines de prueba";
 "warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
 "warning_token_trustline_button_title" = "Enable Trustline";
-"warning_token_trustline_subtiile" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
-"warning_token_trustline_tiile" = "Trustline Required";
+"warning_token_trustline_subtitle" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
+"warning_token_trustline_title" = "Trustline Required";
 "wc_alert_audit_unknown_domain" = "Unknown domain";
 "wc_alert_connect_anyway" = "Connect anyway";
 "wc_alert_connection_timeout_description" = "Timeout error. Please, try again later.";
