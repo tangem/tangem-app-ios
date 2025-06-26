@@ -433,7 +433,6 @@
 		5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
 		5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */; };
 		5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84DBEE270EEADA0013A813 /* TwinIntroBackgroundView.swift */; };
-		5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9004E324FA79F700E90939 /* ViewStateHandler.swift */; };
 		5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */; };
 		5D9DCAEB25517FB50059799C /* CommonUserWalletRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAEA25517FB50059799C /* CommonUserWalletRepository.swift */; };
 		5D9DCB06255193C30059799C /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* AppSettings.swift */; };
@@ -3009,7 +3008,6 @@
 		EF4C04662DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04602DEF2ACC0059D7AA /* SendFeeSelectorContentViewModelAnalytics.swift */; };
 		EF4C0C5B2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C0C5A2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift */; };
 		EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */; };
-		EF52564D2D2FFDCB00ADCA7E /* Shimmer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564C2D2FFDCB00ADCA7E /* Shimmer.swift */; };
 		EF5256512D301E5D00ADCA7E /* TokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */; };
 		EF5256522D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */; };
 		EF530D522DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF530D512DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift */; };
@@ -4090,7 +4088,6 @@
 		5D84352725B84E8C0085C9D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = "en.lproj/LaunchScreen 2.storyboard"; sourceTree = "<group>"; };
 		5D84DBEC270E26B90013A813 /* WelcomeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeBackgroundView.swift; sourceTree = "<group>"; };
 		5D84DBEE270EEADA0013A813 /* TwinIntroBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinIntroBackgroundView.swift; sourceTree = "<group>"; };
-		5D9004E324FA79F700E90939 /* ViewStateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateHandler.swift; sourceTree = "<group>"; };
 		5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainNetwork.swift; sourceTree = "<group>"; };
 		5D9DCAEA25517FB50059799C /* CommonUserWalletRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletRepository.swift; sourceTree = "<group>"; };
 		5D9DCB05255193C30059799C /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -6637,7 +6634,6 @@
 		EF4C04612DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSelectorCustomFeeFieldsBuilder.swift; sourceTree = "<group>"; };
 		EF4C0C5A2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewDestinationAdditionalFieldView.swift; sourceTree = "<group>"; };
 		EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTokenBalanceView.swift; sourceTree = "<group>"; };
-		EF52564C2D2FFDCB00ADCA7E /* Shimmer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shimmer.swift; sourceTree = "<group>"; };
 		EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenBalancesRepository.swift; sourceTree = "<group>"; };
 		EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalancesRepository.swift; sourceTree = "<group>"; };
 		EF530D512DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSendFlowBaseBuilder.swift; sourceTree = "<group>"; };
@@ -8398,7 +8394,6 @@
 				EF032C522955C725006C1FF3 /* CheckIconView.swift */,
 				5DBBAB0724D850EA00E78F1C /* CircleView.swift */,
 				5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */,
-				5D9004E324FA79F700E90939 /* ViewStateHandler.swift */,
 				5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */,
 				5D15F9E7258A522500392BA5 /* PickerView.swift */,
 				5D12D21225B60AA3006060A1 /* SearchBar.swift */,
@@ -9992,7 +9987,6 @@
 			isa = PBXGroup;
 			children = (
 				EFFF153C2D37DEC500982C79 /* PulseEffect.swift */,
-				EF52564C2D2FFDCB00ADCA7E /* Shimmer.swift */,
 				B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */,
 				B0606E112684A946004004ED /* BlinkingModifier.swift */,
 				B0A0910B26D3628200F46DF5 /* AnimatableGradient.swift */,
@@ -20973,7 +20967,6 @@
 				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworksListViewModel.swift in Sources */,
 				B0F1CC3C2C086B20000DE4A0 /* ManageTokensViewModel.swift in Sources */,
 				B0CFD6CB2A027E2E009DF4D5 /* TokenQuotesRepository.swift in Sources */,
-				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
 				DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */,
 				EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift in Sources */,
 				EF4C0C5B2DDB52C100AFD567 /* SendNewDestinationAdditionalFieldView.swift in Sources */,
@@ -21494,7 +21487,6 @@
 				B0290CD72CAED72C008ABBD2 /* MarketsExchangesListMapper.swift in Sources */,
 				2D5DCC3F2C330B11000EE379 /* PreviewWalletSelectorDataSourceStub.swift in Sources */,
 				EF9EA96C2B1113B800AC1DA1 /* UpdatableAllowanceProvider.swift in Sources */,
-				EF52564D2D2FFDCB00ADCA7E /* Shimmer.swift in Sources */,
 				DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */,
 				B05449D02CCF8B7100983C78 /* VisaOnboardingViewModel.swift in Sources */,
 				B03FF8A02B5E4FC700202EC0 /* AppVisaLimits.swift in Sources */,
