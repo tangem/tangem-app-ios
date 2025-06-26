@@ -72,6 +72,9 @@
 		0AEA96BB2CEF8D9700395617 /* ReceiveNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEA96BA2CEF8D9700395617 /* ReceiveNotificationEvent.swift */; };
 		0AEE7DB42DA3FB590039B06D /* SolanaTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */; };
 		0F5B40692DE9ED470065A177 /* HotOnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5B40682DE9ED470065A177 /* HotOnboardingStep.swift */; };
+		0FBB13EE2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift */; };
+		0FBB13F12E015F290086784A /* HotOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* HotOnboardingSeedPhraseIntroView.swift */; };
+		0FBB13F32E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift */; };
 		0FC6090A2DF2F4350033B946 /* ImportWalletSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC609092DF2F4350033B946 /* ImportWalletSelectorDelegate.swift */; };
 		0FC6090D2DF339360033B946 /* HotOnboardingImportWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC6090C2DF339360033B946 /* HotOnboardingImportWalletView.swift */; };
 		0FC6090F2DF339500033B946 /* HotOnboardingImportWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC6090E2DF339500033B946 /* HotOnboardingImportWalletViewModel.swift */; };
@@ -94,6 +97,13 @@
 		0FEA23AD2DF1E2E1000EDB4D /* ImportWalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEA23AC2DF1E2E1000EDB4D /* ImportWalletSelectorViewModel.swift */; };
 		0FEA23AF2DF1E365000EDB4D /* ImportWalletSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEA23AE2DF1E365000EDB4D /* ImportWalletSelectorRoutable.swift */; };
 		0FEA23B12DF1E889000EDB4D /* CreateWalletSelectorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEA23B02DF1E889000EDB4D /* CreateWalletSelectorDelegate.swift */; };
+		0FFA34C02E02DE7900ACB48F /* HotOnboardingSeedPhraseCompletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA34BF2E02DE7900ACB48F /* HotOnboardingSeedPhraseCompletedView.swift */; };
+		0FFA34C22E02DE8500ACB48F /* HotOnboardingSeedPhraseCompletedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA34C12E02DE8500ACB48F /* HotOnboardingSeedPhraseCompletedViewModel.swift */; };
+		0FFA34C42E02DE9600ACB48F /* HotOnboardingSeedPhraseCompletedDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA34C32E02DE9600ACB48F /* HotOnboardingSeedPhraseCompletedDelegate.swift */; };
+		0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA34CD2E046D1B00ACB48F /* WordsCaptureProtectionView.swift */; };
+		0FFA35052E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35042E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift */; };
+		0FFA35072E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35062E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift */; };
+		0FFA35092E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35082E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift */; };
 		2D1366192D036737000AE1C4 /* TONTransactionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366172D036737000AE1C4 /* TONTransactionInput.swift */; };
 		2D13661A2D036737000AE1C4 /* TONError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1366162D036737000AE1C4 /* TONError.swift */; };
 		2D1400CA2C43F79F00B75A42 /* MarketsPortfolioContextActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */; };
@@ -3810,6 +3820,9 @@
 		0AEA96BA2CEF8D9700395617 /* ReceiveNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveNotificationEvent.swift; sourceTree = "<group>"; };
 		0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHelper.swift; sourceTree = "<group>"; };
 		0F5B40682DE9ED470065A177 /* HotOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingStep.swift; sourceTree = "<group>"; };
+		0FBB13EA2E015D690086784A /* HotOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
+		0FBB13ED2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
+		0FBB13F22E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
 		0FC609092DF2F4350033B946 /* ImportWalletSelectorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletSelectorDelegate.swift; sourceTree = "<group>"; };
 		0FC6090C2DF339360033B946 /* HotOnboardingImportWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingImportWalletView.swift; sourceTree = "<group>"; };
 		0FC6090E2DF339500033B946 /* HotOnboardingImportWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingImportWalletViewModel.swift; sourceTree = "<group>"; };
@@ -3832,6 +3845,13 @@
 		0FEA23AC2DF1E2E1000EDB4D /* ImportWalletSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		0FEA23AE2DF1E365000EDB4D /* ImportWalletSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletSelectorRoutable.swift; sourceTree = "<group>"; };
 		0FEA23B02DF1E889000EDB4D /* CreateWalletSelectorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletSelectorDelegate.swift; sourceTree = "<group>"; };
+		0FFA34BF2E02DE7900ACB48F /* HotOnboardingSeedPhraseCompletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseCompletedView.swift; sourceTree = "<group>"; };
+		0FFA34C12E02DE8500ACB48F /* HotOnboardingSeedPhraseCompletedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseCompletedViewModel.swift; sourceTree = "<group>"; };
+		0FFA34C32E02DE9600ACB48F /* HotOnboardingSeedPhraseCompletedDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseCompletedDelegate.swift; sourceTree = "<group>"; };
+		0FFA34CD2E046D1B00ACB48F /* WordsCaptureProtectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsCaptureProtectionView.swift; sourceTree = "<group>"; };
+		0FFA35042E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryView.swift; sourceTree = "<group>"; };
+		0FFA35062E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryViewModel.swift; sourceTree = "<group>"; };
+		0FFA35082E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryDelegate.swift; sourceTree = "<group>"; };
 		2D1366162D036737000AE1C4 /* TONError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONError.swift; sourceTree = "<group>"; };
 		2D1366172D036737000AE1C4 /* TONTransactionInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONTransactionInput.swift; sourceTree = "<group>"; };
 		2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioContextActions.swift; sourceTree = "<group>"; };
@@ -7525,7 +7545,6 @@
 			isa = PBXGroup;
 			children = (
 				0FE588552DF0385200E5663E /* Pages */,
-				0FE5884F2DEF261F00E5663E /* HotOnboardingStepsBuilder.swift */,
 				0F5B40682DE9ED470065A177 /* HotOnboardingStep.swift */,
 				0FE5884B2DEF124C00E5663E /* HotOnboardingInput.swift */,
 				0FE588512DEF2A1500E5663E /* HotOnboardingViewModel.swift */,
@@ -7533,6 +7552,16 @@
 				0FE588532DEF2AE800E5663E /* HotOnboardingView.swift */,
 			);
 			path = Hot;
+			sourceTree = "<group>";
+		};
+		0FBB13EC2E015DA10086784A /* SeedPhraseIntro */ = {
+			isa = PBXGroup;
+			children = (
+				0FBB13EA2E015D690086784A /* HotOnboardingSeedPhraseIntroView.swift */,
+				0FBB13ED2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift */,
+				0FBB13F22E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift */,
+			);
+			path = SeedPhraseIntro;
 			sourceTree = "<group>";
 		};
 		0FC6090B2DF339150033B946 /* ImportWallet */ = {
@@ -7548,6 +7577,9 @@
 		0FE588552DF0385200E5663E /* Pages */ = {
 			isa = PBXGroup;
 			children = (
+				0FBB13EC2E015DA10086784A /* SeedPhraseIntro */,
+				0FFA35032E05400700ACB48F /* SeedPhraseRecovery */,
+				0FFA34BE2E02D3E700ACB48F /* SeedPhraseCompleted */,
 				0FC6090B2DF339150033B946 /* ImportWallet */,
 				0FE5885C2DF08D5D00E5663E /* CreateWallet */,
 			);
@@ -7596,6 +7628,34 @@
 				0FEA23AE2DF1E365000EDB4D /* ImportWalletSelectorRoutable.swift */,
 			);
 			path = ImportWalletSelector;
+			sourceTree = "<group>";
+		};
+		0FFA34BE2E02D3E700ACB48F /* SeedPhraseCompleted */ = {
+			isa = PBXGroup;
+			children = (
+				0FFA34BF2E02DE7900ACB48F /* HotOnboardingSeedPhraseCompletedView.swift */,
+				0FFA34C12E02DE8500ACB48F /* HotOnboardingSeedPhraseCompletedViewModel.swift */,
+				0FFA34C32E02DE9600ACB48F /* HotOnboardingSeedPhraseCompletedDelegate.swift */,
+			);
+			path = SeedPhraseCompleted;
+			sourceTree = "<group>";
+		};
+		0FFA34CC2E046D0D00ACB48F /* WordsVerticalView */ = {
+			isa = PBXGroup;
+			children = (
+				0FFA34CD2E046D1B00ACB48F /* WordsCaptureProtectionView.swift */,
+			);
+			path = WordsVerticalView;
+			sourceTree = "<group>";
+		};
+		0FFA35032E05400700ACB48F /* SeedPhraseRecovery */ = {
+			isa = PBXGroup;
+			children = (
+				0FFA35042E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift */,
+				0FFA35062E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift */,
+				0FFA35082E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift */,
+			);
+			path = SeedPhraseRecovery;
 			sourceTree = "<group>";
 		};
 		2D1366182D036737000AE1C4 /* Domain */ = {
@@ -8633,6 +8693,7 @@
 		5D958E1224F513C1006BD932 /* UILegacy */ = {
 			isa = PBXGroup;
 			children = (
+				0FFA34CC2E046D0D00ACB48F /* WordsVerticalView */,
 				EF52564B2D2FFC3300ADCA7E /* LoadableTokenBalanceView */,
 				EFB9320C2C3EC0C700C999E9 /* ValidatorView */,
 				EF4B70BE2B5FBF4100B18BF4 /* BottomSheetSearchableHeaderView */,
@@ -15233,6 +15294,7 @@
 				DC7D39EE29DFFBDC007BCD23 /* OnboardingStepsBuilderFactory.swift */,
 				DC13D03D29DF28140003895C /* OnboardingStepsBuilder.swift */,
 				DC13D04229DF31A60003895C /* WalletOnboardingStepsBuilder.swift */,
+				0FE5884F2DEF261F00E5663E /* HotOnboardingStepsBuilder.swift */,
 				DC7D39F229E00290007BCD23 /* SingleCardOnboardingStepsBuilder.swift */,
 				DC7D39F629E00635007BCD23 /* TwinOnboardingStepsBuilder.swift */,
 				DC7D39F829E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift */,
@@ -20181,6 +20243,7 @@
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */,
 				B06734392A7A988F008DE8F9 /* FakeUserTokenListManager.swift in Sources */,
+				0FBB13EE2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift in Sources */,
 				B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */,
 				EF0E1DAD2CE3A2A0003D47AA /* ProgressDots.swift in Sources */,
 				B012A10F2AA5A6F80079BAB4 /* WalletModel+.swift in Sources */,
@@ -20288,6 +20351,7 @@
 				DA559C532B0265E700F59584 /* SendDestinationTextViewModel.swift in Sources */,
 				C22564082D956481003063DA /* OverlayRootView.swift in Sources */,
 				B67DC1E62B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift in Sources */,
+				0FBB13F32E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift in Sources */,
 				C207D5F82DE60E7900A5FB2E /* WalletConnectAccountsMapper.swift in Sources */,
 				B0764E482CEB7CBE00361E90 /* VisaOnboardingAccessCodeSetupView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
@@ -20382,6 +20446,7 @@
 				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
+				0FFA35072E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift in Sources */,
 				DCBF4D282D8B497F002C2B8E /* GenericWalletManagerFactory.swift in Sources */,
 				EFB4CA5C2E0C41D0003C1522 /* SendNewAmountRoutable.swift in Sources */,
 				DCBF4D292D8B497F002C2B8E /* CardanoWalletManagerFactory.swift in Sources */,
@@ -20536,6 +20601,7 @@
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */,
 				B00EBF862B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift in Sources */,
+				0FFA34C22E02DE8500ACB48F /* HotOnboardingSeedPhraseCompletedViewModel.swift in Sources */,
 				B6F995F32D91CD1A00F83C4D /* CommonWalletModelFeaturesManager.swift in Sources */,
 				B0BB97312B18654300053954 /* ExpressPendingTransactionRecord.swift in Sources */,
 				EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */,
@@ -20846,6 +20912,7 @@
 				B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */,
 				B6E932B12A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift in Sources */,
 				DAAA3C6D2B3D64B90002DBB0 /* EmailDataProvider.swift in Sources */,
+				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
 				B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */,
 				DAF59CC52ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift in Sources */,
@@ -21392,6 +21459,7 @@
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */,
 				EF48E6CB2B02279600FE0072 /* ExpressTokensListRoutableMock.swift in Sources */,
+				0FFA34C02E02DE7900ACB48F /* HotOnboardingSeedPhraseCompletedView.swift in Sources */,
 				B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */,
 				B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */,
 				DC19BBF72BC98A500087B36D /* CardScannerParameters.swift in Sources */,
@@ -21532,6 +21600,7 @@
 				2DC46C392C98022F00749F7C /* Triangle.swift in Sources */,
 				C2796A0F2E01CF180039CF2B /* WalletConnectSavedSessionMigrationService.swift in Sources */,
 				DA19EF612B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift in Sources */,
+				0FFA34C42E02DE9600ACB48F /* HotOnboardingSeedPhraseCompletedDelegate.swift in Sources */,
 				EFC7AD752DD8BBB900AE78E1 /* SendNewDestinationViewModel.swift in Sources */,
 				B0120A932A0E0F4400F485F1 /* FakeCardHeaderPreviewProvider.swift in Sources */,
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
@@ -21666,6 +21735,7 @@
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
+				0FFA35092E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift in Sources */,
 				EF6CCBEB2C91D7C70002D2B4 /* CommonSendAlertBuilder.swift in Sources */,
 				DAC53CFB27BE63830027147D /* CurrenciesStoryPage.swift in Sources */,
 				DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */,
@@ -21976,6 +22046,7 @@
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
 				EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
+				0FBB13F12E015F290086784A /* HotOnboardingSeedPhraseIntroView.swift in Sources */,
 				DC8B13C52BA8B2ED00B3DB53 /* PendingBackupData.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
@@ -22099,6 +22170,7 @@
 				B614DEB12DD568D3000CD433 /* NFTSendAmountCompactViewModel.swift in Sources */,
 				DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */,
 				B0290CD72CAED72C008ABBD2 /* MarketsExchangesListMapper.swift in Sources */,
+				0FFA35052E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift in Sources */,
 				2D5DCC3F2C330B11000EE379 /* PreviewWalletSelectorDataSourceStub.swift in Sources */,
 				EF52564D2D2FFDCB00ADCA7E /* Shimmer.swift in Sources */,
 				DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */,
