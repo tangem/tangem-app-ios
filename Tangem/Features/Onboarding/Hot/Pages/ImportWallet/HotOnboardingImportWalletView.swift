@@ -13,5 +13,6 @@ struct HotOnboardingImportWalletView: View {
 
     var body: some View {
         OnboardingSeedPhraseImportView(viewModel: viewModel.seedPhraseViewModel)
+            .padding(.horizontal, 16)
     }
 }

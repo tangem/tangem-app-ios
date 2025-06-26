@@ -16,6 +16,6 @@ struct HotOnboardingStepsBuilder {
     }
 
     func buildBackupSteps() -> [HotOnboardingStep] {
-        []
+        [.seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation, .seedPhraseCompleted]
     }
 }
