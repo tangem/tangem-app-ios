@@ -69,8 +69,8 @@ struct NFTCollectionDisclosureGroupViewModel: Identifiable {
     }
 
     var containsGIFs: Bool {
-        nftCollection.media?.kind == .animation ||
-            assetsState.value?.contains { $0.media?.kind == .animation } ?? false
+        return nftCollection.media?.kind == .animation
+            || nftCollection.assetsResult.value.contains { NFTAssetMediaExtractor.extractMedia(from: $0)?.kind == .animation }
     }
 
     func onTap(isExpanded: Bool) {
