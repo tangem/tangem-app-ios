@@ -398,6 +398,7 @@
 		3074E1D62D943C28008235E6 /* OptionalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3074E1D52D943C28008235E6 /* OptionalProtocol.swift */; };
 		3075F0D02DCA6B430094B4C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3075F0CF2DCA6B430094B4C7 /* Kingfisher */; };
 		307A40482DC2335300AA4224 /* NFTExplorerLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307A40472DC2334800AA4224 /* NFTExplorerLinkProvider.swift */; };
+		308501872E0DA20700AB58B3 /* TonSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 308501862E0DA20700AB58B3 /* TonSwift */; };
 		309938FE2D786A9A00DA3667 /* StellarAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FD2D786A9300DA3667 /* StellarAddressTests.swift */; };
 		309939002D786D6200DA3667 /* SuiAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FF2D786D5C00DA3667 /* SuiAddressTests.swift */; };
 		309939022D786F3200DA3667 /* TONAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309939012D786F2C00DA3667 /* TONAddressTests.swift */; };
@@ -2004,7 +2005,6 @@
 		B68E1F8A2CBC44910043E598 /* Hedera in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F892CBC44910043E598 /* Hedera */; };
 		B68E1F8D2CBC44AA0043E598 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F8C2CBC44AA0043E598 /* CryptoSwift */; };
 		B68E1F902CBC44E30043E598 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */; };
-		B68E1F932CBC44FF0043E598 /* TonSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F922CBC44FF0043E598 /* TonSwift */; };
 		B68E1F962CBC451D0043E598 /* ScaleCodec in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F952CBC451D0043E598 /* ScaleCodec */; };
 		B68E1F992CBC453E0043E598 /* IcpKit in Frameworks */ = {isa = PBXBuildFile; productRef = B68E1F982CBC453E0043E598 /* IcpKit */; };
 		B68E5E7F2A9526BD00216281 /* SectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68E5E7E2A9526BD00216281 /* SectionModel.swift */; };
@@ -7406,6 +7406,7 @@
 			files = (
 				B68E1F992CBC453E0043E598 /* IcpKit in Frameworks */,
 				B68E1F8A2CBC44910043E598 /* Hedera in Frameworks */,
+				308501872E0DA20700AB58B3 /* TonSwift in Frameworks */,
 				B62D34472CBC51D400C2460E /* SwiftCBOR in Frameworks */,
 				B6C0D3F62CBDC552001113ED /* BinanceChain in Frameworks */,
 				B68E1F962CBC451D0043E598 /* ScaleCodec in Frameworks */,
@@ -7416,7 +7417,6 @@
 				B62D34502CBC67D500C2460E /* AnyCodable in Frameworks */,
 				B68E1F8D2CBC44AA0043E598 /* CryptoSwift in Frameworks */,
 				B6C0D3F42CBDC543001113ED /* Moya in Frameworks */,
-				B68E1F932CBC44FF0043E598 /* TonSwift in Frameworks */,
 				B62D343D2CBC4FD000C2460E /* Clibsodium in Frameworks */,
 				B6E352732CC0B06B002636BC /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				B68E1F902CBC44E30043E598 /* SwiftProtobuf in Frameworks */,
@@ -19707,7 +19707,6 @@
 				B68E1F892CBC44910043E598 /* Hedera */,
 				B68E1F8C2CBC44AA0043E598 /* CryptoSwift */,
 				B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */,
-				B68E1F922CBC44FF0043E598 /* TonSwift */,
 				B68E1F952CBC451D0043E598 /* ScaleCodec */,
 				B68E1F982CBC453E0043E598 /* IcpKit */,
 				B62D343C2CBC4FD000C2460E /* Clibsodium */,
@@ -19722,6 +19721,7 @@
 				B67E38B82CC7147600D660EB /* TangemSdk */,
 				B63DFC492CD4DBED00720D9F /* TangemModules */,
 				300C26332DAFA29600C7E0B0 /* CombineExt */,
+				308501862E0DA20700AB58B3 /* TonSwift */,
 			);
 			productName = BlockchainSdk;
 			productReference = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */;
@@ -19920,7 +19920,6 @@
 				B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */,
 				B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */,
-				B68E1F912CBC44FF0043E598 /* XCRemoteSwiftPackageReference "ton-swift" */,
 				B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */,
 				B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */,
 				B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */,
@@ -19943,6 +19942,7 @@
 				B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -29531,6 +29531,14 @@
 				minimumVersion = 8.3.2;
 			};
 		};
+		3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:tangem-developments/ton-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = "1.0.17-tangem1";
+			};
+		};
 		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
@@ -29633,14 +29641,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = "1.25.2-tangem1";
-			};
-		};
-		B68E1F912CBC44FF0043E598 /* XCRemoteSwiftPackageReference "ton-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/ton-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "1.0.10-tangem3";
 			};
 		};
 		B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */ = {
@@ -29772,6 +29772,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		308501862E0DA20700AB58B3 /* TonSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */;
+			productName = TonSwift;
 		};
 		798508AD2DF1AF9100388668 /* TangemModules */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -29951,11 +29956,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */;
 			productName = SwiftProtobuf;
-		};
-		B68E1F922CBC44FF0043E598 /* TonSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B68E1F912CBC44FF0043E598 /* XCRemoteSwiftPackageReference "ton-swift" */;
-			productName = TonSwift;
 		};
 		B68E1F952CBC451D0043E598 /* ScaleCodec */ = {
 			isa = XCSwiftPackageProductDependency;
