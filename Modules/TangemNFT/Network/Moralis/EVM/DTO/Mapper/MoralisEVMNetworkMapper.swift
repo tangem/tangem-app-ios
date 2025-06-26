@@ -81,8 +81,9 @@ struct MoralisEVMNetworkMapper {
             return nil
         }
 
+        // [REDACTED_TODO_COMMENT]
+        let mediaFiles = map(media: asset.media).map { [$0] } ?? []
         let contractType = NFTContractTypeMapper().map(contractType: asset.contractType)
-        let media = map(media: asset.media)
         let rarity = map(rarityLabel: asset.rarityLabel, rarityPercentage: asset.rarityPercentage, rarityRank: asset.rarityRank)
         let traits = map(attributes: asset.normalizedMetadata?.attributes)
 
@@ -96,7 +97,7 @@ struct MoralisEVMNetworkMapper {
             name: asset.normalizedMetadata?.name ?? Constants.assetNameFallback,
             description: asset.normalizedMetadata?.description ?? fallbackDescription(),
             salePrice: nil,
-            media: media,
+            mediaFiles: mediaFiles,
             rarity: rarity,
             traits: traits
         )
@@ -133,19 +134,44 @@ struct MoralisEVMNetworkMapper {
     // MARK: - Private implementation
 
     private func map(media: MoralisEVMNetworkResult.EVMNFTAsset.Media?) -> NFTMedia? {
-        guard
-            let media,
-            let url = media
-            .originalMediaUrl?
-            .nilIfEmpty
-            .flatMap(URL.init(string:))
-            .map(NFTIPFSURLConverter.convert(_:))
-        else {
+        guard let media else {
             NFTLogger.warning(
                 String(
-                    format: "Media missing required fields: mimetype %@, original_media_url %@",
-                    String(describing: media?.mimetype),
-                    String(describing: media?.originalMediaUrl)
+                    format: "Asset missing required fields: media %@",
+                    String(describing: media)
+                )
+            )
+            return nil
+        }
+
+        var mediaURL: URL?
+        let collection = media.mediaCollection
+
+        let mediaURLs = [
+            collection?.high?.url,
+            collection?.medium?.url,
+            collection?.low?.url,
+            media.originalMediaUrl,
+        ]
+
+        for urlString in mediaURLs {
+            if let url = urlString?
+                .nilIfEmpty
+                .flatMap(URL.init(string:))
+                .map(NFTIPFSURLConverter.convert(_:)) {
+                mediaURL = url
+                break
+            }
+        }
+
+        guard let mediaURL else {
+            NFTLogger.warning(
+                String(
+                    format: "Media missing required fields: high.url %@, medium.url %@, low.url %@, original_media_url %@",
+                    String(describing: collection?.high?.url),
+                    String(describing: collection?.medium?.url),
+                    String(describing: collection?.low?.url),
+                    String(describing: media.originalMediaUrl)
                 )
             )
             return nil
@@ -153,24 +179,23 @@ struct MoralisEVMNetworkMapper {
 
         return NFTMedia(
             kind: NFTMediaKindMapper.map(mimetype: media.mimetype, defaultKind: .image),
-            url: url
+            url: mediaURL
         )
     }
 
     private func map(_ urlString: String?) -> NFTMedia? {
         guard
-            let url = urlString?
+            let rawURL = urlString?
             .nilIfEmpty
             .flatMap(URL.init(string:))
-            .map(NFTIPFSURLConverter.convert(_:))
         else {
             return nil
         }
 
-        return NFTMedia(
-            kind: NFTMediaKindMapper.map(url, defaultKind: .image),
-            url: url
-        )
+        let kind = NFTMediaKindMapper.map(rawURL, defaultKind: .image)
+        let url = NFTIPFSURLConverter.convert(rawURL)
+
+        return NFTMedia(kind: kind, url: url)
     }
 
     private func map(rarityLabel: String?, rarityPercentage: Double?, rarityRank: Double?) -> NFTAsset.Rarity? {
