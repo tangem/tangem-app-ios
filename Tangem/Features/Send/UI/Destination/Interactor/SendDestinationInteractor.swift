@@ -24,6 +24,8 @@ protocol SendDestinationInteractor {
 
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
+    /// Fixing the issue where recent addresses are missing when opening Send from context actions.
+    func preloadTransactionsHistoryIfNeeded()
 }
 
 class CommonSendDestinationInteractor {
@@ -221,6 +223,10 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             output?.destinationAdditionalParametersDidChanged(.empty(type: type))
             _additionalFieldValid.send(false)
         }
+    }
+
+    func preloadTransactionsHistoryIfNeeded() {
+        transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
     }
 }
 

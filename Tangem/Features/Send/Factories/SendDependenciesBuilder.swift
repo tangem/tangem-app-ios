@@ -290,7 +290,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(transactionHistoryProvider: walletModel)
+        CommonSendDestinationTransactionHistoryProvider(transactionHistoryUpdater: walletModel)
     }
 
     func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
