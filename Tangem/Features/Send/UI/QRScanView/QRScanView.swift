@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct QRScanView: View {
     @ObservedObject var viewModel: QRScanViewModel
