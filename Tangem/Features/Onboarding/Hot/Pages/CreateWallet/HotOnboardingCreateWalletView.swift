@@ -25,8 +25,8 @@ struct HotOnboardingCreateWalletView: View {
                 .padding(.top, 20)
 
             VStack(spacing: 28) {
-                ForEach(Array(viewModel.infoItems.enumerated()), id: \.offset) { _, item in
-                    infoItem(item)
+                ForEach(viewModel.infoItems) {
+                    infoItem($0)
                 }
             }
             .padding(.top, 32)
@@ -38,8 +38,9 @@ struct HotOnboardingCreateWalletView: View {
                 action: viewModel.onCreateTap
             )
         }
-        .padding(.top, 64)
-        .padding(.bottom, 14)
+        .padding(.top, 32)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
     }
 }
 
