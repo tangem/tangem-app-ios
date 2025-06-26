@@ -6,11 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemAssets
 
 final class HotOnboardingCreateWalletViewModel {
     let title = "Create Mobile Wallet"
-    let createButtonTitle = "Create"
+    let createButtonTitle = "Create wallet"
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
@@ -51,7 +52,8 @@ private extension HotOnboardingCreateWalletViewModel {
 // MARK: - Types
 
 extension HotOnboardingCreateWalletViewModel {
-    struct InfoItem {
+    struct InfoItem: Identifiable {
+        let id: UUID = .init()
         let icon: ImageType
         let title: String
         let subtitle: String
