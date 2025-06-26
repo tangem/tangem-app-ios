@@ -1,3 +1,9 @@
+"access_code_check_title" = "Enter Access Code";
+"access_code_confirm_description" = "Confirm your previously entered code to continue";
+"access_code_confirm_title" = "Re-enter Access Code";
+"access_code_create_description" = "Set a 6-digit Access Code to unlock your wallet.";
+"access_code_create_title" = "Create Access Code";
+"access_code_navtitle" = "Access code";
 "action_buttons_buy_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して買付できるようにします。";
 "action_buttons_buy_navigation_bar_title" = "買付";
 "action_buttons_sell_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して売却できるようにします。";
@@ -117,6 +123,7 @@
 "common_contact_tangem_support" = "Tangemサポートへ問い合わせる";
 "common_contact_visa_support" = "Visaサポートへ問い合わせる";
 "common_continue" = "続ける";
+"common_convert" = "Convert";
 "common_copy_address" = "アドレスをコピー";
 "common_copy" = "コピー";
 "common_create" = "作成";
@@ -139,6 +146,7 @@
 "common_fee_selector_option_slow" = "遅い";
 "common_fee_selector_title" = "速度と料金";
 "common_finish" = "終了";
+"common_free" = "Free";
 "common_generate_addresses" = "アドレスを同期する";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
@@ -370,11 +378,16 @@
 "give_permission_title" = "許可を与える";
 "give_permission_unlimited" = "無制限";
 "home_button_add_existing_wallet" = "既存のウォレットを追加";
-"home_button_create_new_wallet" = "Create New Wallet";
+"home_button_create_new_wallet" = "新しいウォレットを作成する";
 "home_button_order" = "Tangemを注文";
 "home_button_scan" = "Tangemをスキャン";
 "hot_crypto_add_token_subtitle" = "%@へ";
 "hot_crypto_token_network" = "%@ネットワーク";
+"hw_create_keys_description" = "Get notified of incoming transactions";
+"hw_create_keys_title" = "Keys are stored in the app";
+"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_title" = "Seed phrase backup";
+"hw_create_title" = "Create Mobile Wallet";
 "information_generated_with_ai" = "この情報はAIで生成されました。 \nエラーが見つかった場合は、ここをタップしてください。";
 "initial_message_change_access_code_body" = "アクセスコードを変更するには、上図のようにカードまたはリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_message_change_passcode_body" = "パスコードを変更するには、上記のようにカードをタップし、操作が終了するまで取り外さないでください。";
@@ -544,7 +557,7 @@
 "nft_receive_unavailable_asset_warning_message" = "このネットワークはまだ追加されていません。NFTを受け取るには、ポートフォリオに追加してください。";
 "nft_receive_unavailable_asset_warning_title" = "ネットワークが追加されていません";
 "nft_receive_unavailable_section_title" = "未追加";
-"nft_receive_unsupported_types_description" = "cNFTとpNFTはまだサポートされていません";
+"nft_receive_unsupported_types_description" = "cNFTとpNFTはまだサポートされていません。ウォレットに送信しないでください。";
 "nft_receive_unsupported_types" = "サポートされていないNFTタイプ";
 "nft_send" = "NFTを送信する";
 "nft_traits_title" = "特徴";
@@ -751,7 +764,9 @@
 "send_alert_fee_too_low_text" = "推奨手数料を下回る手数料が指定されたため、取引に遅れが生じる可能性があります。続行しますか？";
 "send_alert_transaction_failed_text" = "理由: %1$@ \nコード: %2$@";
 "send_alert_transaction_failed_title" = "取引は完了していません";
+"send_amount_convert_to_another_token" = "Convert to another token";
 "send_amount_label" = "金額";
+"send_amount_receive_token_subtitle" = "Will be sent to recipient";
 "send_bitcoin_custom_fee_footer" = "取引手数料は、vByteフィールドのSatoshiの値を調整して設定できます。";
 "send_custom_amount_fee_footer" = "取引にかかる手数料です。自由に設定できます。";
 "send_custom_evm_max_fee_footer" = "各ガスに支払う最大コストです。ガス代が高いほど、トランザクションは早く処理されます。(優先手数料を含みます）";
@@ -769,6 +784,7 @@
 "send_extras_hint_memo" = "メモ";
 "send_fee_unreachable_error_text" = "ネットワーク接続を確認してください";
 "send_fee_unreachable_error_title" = "ネットワーク手数料についての情報にアクセスできません";
+"send_from_wallet_name" = "%@から";
 "send_from_wallet" = "**%@** より";
 "send_gas_limit_footer" = "これは、取引または契約を完了するために使用されるガスの最大額です。ガス上限を設定することで、取引実行時に予期せぬ請求や無制限の請求を防ぐことができます。";
 "send_gas_limit" = "ガス上限";
@@ -778,6 +794,7 @@
 "send_max_amount" = "最大";
 "send_max_fee" = "最大手数料";
 "send_memo_destination_tag_error" = "無効なメモ";
+"send_memo" = "メモ: %@";
 "send_network_fee_warning_title" = "ネットワーク手数料のカバー";
 "send_nonce_footer" = "各取引に固有の番号です。保留中の取引を再送信またはキャンセルするために使用します。";
 "send_nonce_hint" = "ナンスを入力してください...";
@@ -790,6 +807,7 @@
 "send_notification_fee_too_high_title" = "カスタム手数料が高くなっています";
 "send_notification_high_fee_text" = "%1$@ネットワークの特殊性により、残高全体を転送する場合の手数料は高くなります。手数料を削減するには、 %2$@を残します。";
 "send_notification_high_fee_title" = "手数料が高くなっています";
+"send_notification_invalid_amount_rent_destination" = "The recipient account is not activated. The minimum transfer amount must be equal to or greater than the rent-exempt balance: %1$@.";
 "send_notification_invalid_amount_rent_fee" = "口座残高はレンタル料金より低くすることはできません。残高を少なくとも%1$@に維持するか、すべての資金を引き出してください。";
 "send_notification_invalid_amount_text" = "手数料が送金金額を超えており、マイナスの値になってしまいます。";
 "send_notification_invalid_amount_title" = "無効な金額";
@@ -826,11 +844,14 @@
 "send_summary_transaction_description_suffix_fee_reduced" = "%1$@エネルギーを使用するとネットワーク手数料が減額されます";
 "send_summary_transaction_description_suffix_including" = "ネットワーク手数料%1$@を含む";
 "send_summary_transaction_description" = "**%1$@** を送金する (ネットワーク手数料%2$@を含む)";
+"send_to_address" = "アドレスへ";
 "send_transaction_success" = "取引は正常に署名され、ブロックチェーンノードに送信されました。ウォレットの残高はしばらくして更新されます。";
 "send_tron_account_activation_error" = "%1$@はTronネットワークのアセットです。手数料を計算して取引を行うには、アカウントにTron（TRX）を入金する必要があります。";
 "send_validation_destination_tag_required_description" = "指定されたアドレスへの取引を完了するには、宛先タグ（メモ）が必要です。";
 "send_validation_destination_tag_required_title" = "宛先タグが必要です";
 "send_with_swap_notification_text" = "トークンを送信すれば、送信中に変換されます。受信者は必要なものをシームレスに受け取ります。";
+"send_with_swap_recipient_amount_text" = "受信者に送信されます";
+"send_with_swap_recipient_amount_title" = "Amount to receive";
 "send_with_swap_title" = "スワップして送信";
 "sent_transaction_sent_title" = "取引が送信されました";
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";
@@ -994,6 +1015,7 @@
 "swap_story_second_title" = "破格のレート";
 "swap_story_third_subtitle" = "手間がかからず直感的に操作でき、数回タップするだけでトークンを交換できます。";
 "swap_story_third_title" = "とにかく便利";
+"swap_via_provider" = "Swap via provider";
 "swapping_alert_cex_description_with_slippage" = "金額には以下が含まれます: \n • サービス プロバイダーの手数料\n • 取引所からユーザーのアドレスに%1$@を送金するためのネットワーク手数料。 \n\nプロバイダーのスリッページは最大%2$@です";
 "swapping_alert_cex_description" = "この金額には以下が含まれます：\n- サービスプロバイダーの手数料\n- 取引所からユーザーのアドレスに%@ を送り返すためのネットワーク手数料。";
 "swapping_alert_dex_description_with_slippage" = "金額にはサービスプロバイダーの手数料が含まれます。 \n\nプロバイダーのスリッページは最大%@ です";
@@ -1191,6 +1213,15 @@
 "wallet_connect_subtitle" = "dAppsに接続する";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_toast_awaiting_session_proposal" = "接続には数秒かかる場合があります";
+"wallet_create_hardware_badge" = "From %@";
+"wallet_create_hardware_description" = "Buy Tangem Wallet — physical cards that securely store your crypto offline.";
+"wallet_create_hardware_title" = "Hardware Wallet";
+"wallet_create_mobile_description" = "A secure wallet is created on your phone in seconds.";
+"wallet_create_mobile_title" = "Mobile Wallet";
+"wallet_create_nav_info_title" = "What to choose?";
+"wallet_create_scan_question" = "Do you already have Tangem Wallet?";
+"wallet_create_scan_title" = "Scan Now";
+"wallet_create_title" = "Choose how you want to create your wallet";
 "wallet_marketplace_block_title" = "%@市場価格";
 "wallet_marketprice_block_update_time" = "直近24時間";
 "wallet_network_group_title" = "%@ネットワーク";
@@ -1293,8 +1324,8 @@
 "warning_testnet_card_title" = "テスト目的のみ";
 "warning_token_required_min_coin_reserve" = "%1$@が足りません。このトークンを関連付けるには、XLMアカウントにチャージしてください。";
 "warning_token_trustline_button_title" = "トラストラインを有効にする";
-"warning_token_trustline_subtiile" = "このトークンを受け取るには、トラストラインを有効にする必要があります。ネットワークには%1$@ %2$@予備金が必要です。";
-"warning_token_trustline_tiile" = "トラストラインが必要";
+"warning_token_trustline_subtitle" = "このトークンを受け取るには、トラストラインを有効にする必要があります。ネットワークには%1$@ %2$@予備金が必要です。";
+"warning_token_trustline_title" = "トラストラインが必要";
 "wc_alert_audit_unknown_domain" = "不明なドメイン";
 "wc_alert_connect_anyway" = "とにかく接続する";
 "wc_alert_connection_timeout_description" = "タイムアウトエラーが発生しました。しばらくしてからもう一度お試しください。";
