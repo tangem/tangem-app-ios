@@ -103,7 +103,9 @@ extension NFTCompactAssetView {
                         name: "My asset",
                         description: "",
                         salePrice: nil,
-                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        mediaFiles: [
+                            NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        ],
                         rarity: nil,
                         traits: []
                     ),
