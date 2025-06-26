@@ -311,6 +311,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.hasPendingTransactions
     }
 
+    var hasAnyPendingTransactions: Bool {
+        mainTokenWalletModel.hasAnyPendingTransactions
+    }
+
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
         mainTokenWalletModel.transactionHistoryPublisher
     }
