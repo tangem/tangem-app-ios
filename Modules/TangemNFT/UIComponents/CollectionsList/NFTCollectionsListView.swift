@@ -18,7 +18,13 @@ public struct NFTCollectionsListView: View {
     @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var shouldShowShadow: Bool = true
+    @State private var shouldAnimateViews: Bool = false
     @State private var buttonMinY: CGFloat = 0
+
+    /// The initial state (when the `shouldAnimateViews` is false) is rendered without animations to prevent flickering.
+    private var animation: Animation {
+        shouldAnimateViews ? .default : .linear(duration: .zero)
+    }
 
     private let coordinateSpaceName = "NFTCollectionsListViewCoordinateSpace"
 
@@ -29,6 +35,7 @@ public struct NFTCollectionsListView: View {
     public var body: some View {
         ZStack {
             content
+                .environment(\.isShimmerActive, viewModel.isShimmerActive)
 
             receiveButtonContainer
         }
@@ -42,24 +49,33 @@ public struct NFTCollectionsListView: View {
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onViewAppear)
         .scrollDismissesKeyboardCompat(.immediately)
+        .onDidAppear {
+            shouldAnimateViews = true
+        }
+        .animation(animation, value: viewModel.state.animationValue)
+        .animation(animation, value: viewModel.loadingTroublesViewData)
+        .animation(animation, value: viewModel.isSearchable)
     }
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.state {
-        case .loaded(let collections) where viewModel.isStateEmpty(collections: collections):
-            noCollectionsView
+        Group {
+            switch viewModel.state {
+            case .loaded(let collections) where viewModel.isStateEmpty(collections: collections):
+                noCollectionsView
 
-        case .loaded(let collections):
-            nonEmptyContentView(collections: collections)
+            case .loaded(let collections):
+                nonEmptyContentView(collections: collections)
 
-        case .loading:
-            loadingView
+            case .loading:
+                loadingView
 
-        case .failedToLoad:
-            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
-                .infinityFrame()
+            case .failedToLoad:
+                UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
+                    .infinityFrame()
+            }
         }
+        .transition(.opacity)
     }
 
     private var noCollectionsView: some View {
@@ -233,6 +249,8 @@ public struct NFTCollectionsListView: View {
     }
 }
 
+// MARK: - Convenience extensions
+
 private extension View {
     func nftListSearchable(text: Binding<String>) -> some View {
         searchable(
@@ -242,7 +260,7 @@ private extension View {
     }
 }
 
-extension NFTCollectionsListView {
+private extension NFTCollectionsListView {
     enum Constants {
         enum EmptyView {
             static let imageSize: CGSize = .init(bothDimensions: 76)
@@ -260,6 +278,19 @@ extension NFTCollectionsListView {
         static let contentButtonSpacing: CGFloat = 16
     }
 }
+
+private extension NFTCollectionsListViewModel.ViewState {
+    /// A string representation of the current state for triggering the animation of the `state` property.
+    var animationValue: String {
+        switch self {
+        case .loading: "loading"
+        case .loaded(let value): "loaded_\(value.count)"
+        case .failedToLoad: "failedToLoad"
+        }
+    }
+}
+
+// MARK: - Previews
 
 #if DEBUG
 let collections = (0 ... 20).map {
