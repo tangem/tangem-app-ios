@@ -600,6 +600,16 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         return wallet.hasPendingTx(for: amountType)
     }
 
+    var hasAnyPendingTransactions: Bool {
+        // For bitcoin we check only outgoing transaction
+        // because we will not use unconfirmed utxo
+        if case .bitcoin = blockchainNetwork.blockchain {
+            return wallet.pendingTransactions.contains { !$0.isIncoming }
+        }
+
+        return wallet.hasPendingTx
+    }
+
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
         walletManager
             .walletPublisher
