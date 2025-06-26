@@ -25,7 +25,7 @@ public struct NFTSendAssetImageViewFactory {
         let imageAsset = nftChainIconProvider
             .provide(by: asset.id.chain)
 
-        return SquaredOrRectangleImageView(media: asset.media)
+        return SquaredOrRectangleImageView(media: NFTAssetMediaExtractor.extractMedia(from: asset))
             .ifLet(cornerRadius) { view, cornerRadius in
                 return view.cornerRadius(cornerRadius)
             }
