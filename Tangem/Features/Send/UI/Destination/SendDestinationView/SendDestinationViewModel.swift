@@ -79,6 +79,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         auxiliaryViewsVisible = true
+        interactor.preloadTransactionsHistoryIfNeeded()
     }
 
     private func setupView() {
