@@ -180,10 +180,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         let errorState = ViewState.failedToLoad(error: NSError.dummy)
 
         switch result.viewState {
-        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
+        case .loaded where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
             state = errorState
 
-        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result):
+        case .loaded where didHaveErrorsWithEmptyCollections(result):
             break // Keep previous state
 
         case .loaded:
