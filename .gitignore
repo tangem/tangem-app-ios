@@ -68,6 +68,7 @@ Carthage/Build
 # Fastlane
 fastlane/test_output/
 fastlane/report.xml
+fastlane/uitest-artifacts/
 
 # Generated
 BlockchainSdk/Resources/Generated/**.swift
