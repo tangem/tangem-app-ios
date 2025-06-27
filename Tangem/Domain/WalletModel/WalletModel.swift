@@ -125,6 +125,8 @@ protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & Wall
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
     var hasPendingTransactions: Bool { get }
+    /// Any pending transactions for the whole network. Coin, token, etc.
+    var hasAnyPendingTransactions: Bool { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { get }
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { get }
     var isEmptyIncludingPendingIncomingTxs: Bool { get }
