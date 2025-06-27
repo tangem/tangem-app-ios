@@ -21,7 +21,6 @@ struct NFTSendAmountStepBuilder {
     func makeSendAmountStep(
         io: IO,
         actionType: SendFlowActionType,
-        sendFeeLoader: any SendFeeLoader,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier
@@ -84,6 +83,8 @@ private extension NFTSendAmountStepBuilder {
         CommonSendAmountInteractor(
             input: io.input,
             output: io.output,
+            receiveTokenInput: .none,
+            receiveTokenOutput: .none,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),

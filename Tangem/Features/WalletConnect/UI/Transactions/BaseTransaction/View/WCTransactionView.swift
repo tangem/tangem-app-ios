@@ -14,9 +14,6 @@ import TangemUIUtils
 struct WCTransactionView: View {
     @ObservedObject var viewModel: WCTransactionViewModel
 
-    @State private var contentHeight: CGFloat = 0
-    @State private var containerHeight: CGFloat = 0
-
     var body: some View {
         ZStack {
             if case .transactionDetails = viewModel.presentationState {
@@ -31,6 +28,12 @@ struct WCTransactionView: View {
         }
         .background(Colors.Background.tertiary)
         .allowsHitTesting(viewModel.presentationState != .signing)
+        .animation(.contentFrameUpdate, value: viewModel.presentationState)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+            configuration.backgroundInteractionBehavior = .consumeTouches
+        }
     }
 
     private var transactionDetails: some View {
@@ -90,15 +93,8 @@ private extension WCTransactionView {
                 transactionDetailsContent
             }
             .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
-            .readGeometry(\.size.height) { updatedHeight in
-                contentHeight = updatedHeight
-            }
         }
-        .frame(maxHeight: contentHeight, alignment: .top)
-        .scrollDisabledBackport(contentHeight <= containerHeight)
-        .readGeometry(\.size.height) { updatedHeight in
-            containerHeight = updatedHeight
-        }
+        .scrollBounceBehaviorBackport(.basedOnSize)
     }
 
     var dappInfoSection: some View {
@@ -107,7 +103,7 @@ private extension WCTransactionView {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 14)
 
-            WCDappTitleView(isLoading: false, sessionDappInfo: viewModel.dappInfo, iconSideLength: 36)
+            WCDappTitleView(isLoading: false, dAppData: viewModel.dAppData, iconSideLength: 36)
 
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.vertical, 12)
@@ -161,7 +157,7 @@ private extension WCTransactionView {
 
 private extension WCTransactionView {
     func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
-        .timingCurve(0.65, 0, 0.35, 1, duration: duration)
+        .curve(.easeOutStandard, duration: duration)
     }
 
     var transactionDetailsTransition: AnyTransition {
@@ -205,11 +201,11 @@ private extension WCTransactionView {
     }
 
     var mainContentOpacityTransition: AnyTransition {
-        .opacity.animation(.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.3))
+        .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
     }
 
     var mainContentOpacityTransitionWithDelay: AnyTransition {
-        .opacity.animation(.timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.3).delay(0.2))
+        .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2))
     }
 }
 
@@ -217,4 +213,8 @@ private extension WCTransactionView {
 
 private enum Constants {
     static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 40 } // summ padding between scroll content and overlay buttons
+}
+
+private extension Animation {
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
