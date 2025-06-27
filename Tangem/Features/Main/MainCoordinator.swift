@@ -203,7 +203,7 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options.input(input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -608,7 +608,7 @@ extension MainCoordinator: WCTransactionRoutable {
     func showWCTransactionRequest(with data: WCHandleTransactionData) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(dappInfo: data.dappInfo, transactionData: data)
+                sheet: WCTransactionViewModel(dAppData: data.dAppData, transactionData: data)
             )
         }
     }

@@ -13,13 +13,13 @@ import SwiftUI
 
 class SendNewDestinationStep {
     private let viewModel: SendNewDestinationViewModel
-    private let interactor: SendDestinationInteractor
+    private let interactor: SendNewDestinationInteractor
 
     private var isEditMode: Bool = false
 
     init(
         viewModel: SendNewDestinationViewModel,
-        interactor: any SendDestinationInteractor
+        interactor: any SendNewDestinationInteractor
     ) {
         self.viewModel = viewModel
         self.interactor = interactor

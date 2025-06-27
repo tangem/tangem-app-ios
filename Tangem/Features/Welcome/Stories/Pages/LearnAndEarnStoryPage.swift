@@ -49,7 +49,7 @@ struct LearnAndEarnStoryPage: View {
                     isLoading: false,
                     action: learn
                 )
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
                 .padding(.bottom, 6)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

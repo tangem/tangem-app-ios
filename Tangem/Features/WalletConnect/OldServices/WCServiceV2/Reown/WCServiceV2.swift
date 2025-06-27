@@ -14,16 +14,10 @@ import TangemFoundation
 final class WCServiceV2 {
     // MARK: - Dependencies
 
-    @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     // MARK: - Public properties
-
-    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
-        get async {
-            await sessionsStorage.sessions
-        }
-    }
 
     var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
         transactionRequestSubject.eraseToAnyPublisher()
@@ -58,12 +52,6 @@ final class WCServiceV2 {
         }
 
         bind()
-    }
-
-    func initialize() {
-        runTask { [weak self] in
-            await self?.sessionsStorage.loadSessions()
-        }
     }
 
     private func configureWalletKit() throws {
@@ -113,7 +101,7 @@ private extension WCServiceV2 {
 
                 guard
                     let self,
-                    let session = await sessionsStorage.session(with: topic)
+                    let connectedDApp = try? await connectedDAppRepository.getDApp(with: topic)
                 else {
                     WCLogger.info(LoggerStrings.receiveDeleteMessageSessionNotFound(topic, reason))
                     return
@@ -122,13 +110,13 @@ private extension WCServiceV2 {
                 Analytics.log(
                     event: .walletConnectDAppDisconnected,
                     params: [
-                        .dAppName: session.sessionInfo.dAppInfo.name,
-                        .dAppUrl: session.sessionInfo.dAppInfo.url,
+                        .dAppName: connectedDApp.dAppData.name,
+                        .dAppUrl: connectedDApp.dAppData.domain.absoluteString,
                     ]
                 )
 
                 WCLogger.info(LoggerStrings.sessionWasFound(topic))
-                await sessionsStorage.remove(session)
+                try? await connectedDAppRepository.deleteDApp(with: topic)
             }
             .sink()
             .store(in: &bag)
@@ -172,45 +160,17 @@ private extension WCServiceV2 {
 // MARK: - Disconnect
 
 extension WCServiceV2 {
-    func disconnectSession(with id: Int) async {
-        guard let session = await sessionsStorage.session(with: id) else {
-            WCLogger.error(error: LoggerStrings.failedToFindSession(id))
-            return
-        }
-
-        do {
-            WCLogger.info(LoggerStrings.attemptToDisconnect(session.topic))
-            try await WalletKit.instance.disconnect(topic: session.topic)
-
-            WCLogger.info(LoggerStrings.sessionDisconnected(session.topic))
-            await sessionsStorage.remove(session)
-        } catch {
-            let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-
-            switch internalError {
-            case .sessionForTopicNotFound, .symmetricKeyForTopicNotFound:
-                WCLogger.error(LoggerStrings.failedToRemoveSession(session.topic), error: internalError)
-                await sessionsStorage.remove(session)
-                return
-            default:
-                break
-            }
-
-            WCLogger.error(LoggerStrings.failedToDisconnectSession(session.topic), error: error)
-        }
-    }
-
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
         runTask { [weak self] in
             guard let self else { return }
 
-            let removedSessions = await sessionsStorage.removeSessions(for: userWalletId)
+            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletID: userWalletId)) ?? []
 
             await withTaskGroup(of: Void.self) { taskGroup in
-                for session in removedSessions {
+                for dApp in deletedDApps {
                     taskGroup.addTask {
                         do {
-                            try await WalletKit.instance.disconnect(topic: session.topic)
+                            try await WalletKit.instance.disconnect(topic: dApp.session.topic)
                         } catch {
                             WCLogger.error(LoggerStrings.failedDisconnectSessions(userWalletId), error: error)
                         }
@@ -220,13 +180,18 @@ extension WCServiceV2 {
         }
     }
 
-    private func disconnect(topic: String) async {
+    func disconnectSession(withTopic topic: String) async throws {
         do {
             try await WalletKit.instance.disconnect(topic: topic)
             WCLogger.info(LoggerStrings.successDisconnectDelete(topic))
         } catch {
             WCLogger.error(LoggerStrings.failedDisconnectDelete(topic), error: error)
+            throw error
         }
+    }
+
+    func extendSession(withTopic topic: String) async throws {
+        try await WalletKit.instance.extend(topic: topic)
     }
 }
 
@@ -247,7 +212,7 @@ extension WCServiceV2 {
                     WCLogger.info(LoggerStrings.establishedPair(uri))
                 } catch {
                     await self?.sessionProposalContinuationStorage.resumeThrowing(error: error, for: uri.topic)
-                    await self?.disconnect(topic: uri.topic)
+                    try? await self?.disconnectSession(withTopic: uri.topic)
                     WCLogger.error(LoggerStrings.failedToConnect(uri), error: error)
                     Analytics.log(.walletConnectSessionFailed)
                 }
@@ -255,21 +220,16 @@ extension WCServiceV2 {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func acceptSessionProposal(with proposalId: String, namespaces: [String: SessionNamespace], _ userWalletID: String) async throws {
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session {
         WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-        let session = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
-
+        let session = try await WalletKit.instance.approve(proposalId: proposalID, namespaces: namespaces)
         WCLogger.info(LoggerStrings.sessionEstablished(session))
-        let savedSession = session.mapToWCSavedSession(with: userWalletID)
-        WCLogger.info(LoggerStrings.savedSession(savedSession.topic, savedSession.sessionInfo.dAppInfo.url))
-        await sessionsStorage.save(savedSession)
+        return session
     }
 
-    func rejectSessionProposal(with proposalId: String) async throws {
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
         do {
-            // [REDACTED_TODO_COMMENT]
-            try await WalletKit.instance.rejectSession(proposalId: proposalId, reason: .userRejected)
+            try await WalletKit.instance.rejectSession(proposalId: proposalID, reason: reason)
             WCLogger.info(LoggerStrings.userRejectWC)
         } catch {
             WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
