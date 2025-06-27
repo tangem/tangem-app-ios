@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import ScaleCodec
 import TangemFoundation
+import Sodium
 
 class PolkadotTransactionBuilder {
     private let walletPublicKey: Data

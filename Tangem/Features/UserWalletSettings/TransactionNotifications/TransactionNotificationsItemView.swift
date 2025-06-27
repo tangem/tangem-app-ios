@@ -14,32 +14,17 @@ import TangemUIUtils
 struct TransactionNotificationsItemView: View {
     @ObservedObject var viewModel: TransactionNotificationsItemViewModel
 
-    @State private var size: CGSize = .zero
-
     var body: some View {
-        HStack(spacing: 8) {
+        VStack(alignment: .leading) {
             HStack(spacing: 8) {
                 icon
 
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(viewModel.networkName.uppercased())
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                        .lineLimit(1)
-                        .skeletonable(isShown: viewModel.isLoading, width: 70, height: 20)
-
-                    if !viewModel.isLoading {
-                        Text(viewModel.networkSymbol.uppercased())
-                            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
-                            .lineLimit(1)
-                    }
-                }
+                content
 
                 Spacer(minLength: 0)
             }
             .padding(.vertical, 16)
         }
-        .contentShape(Rectangle())
-        .readGeometry(\.size, bindTo: $size)
     }
 
     // MARK: - Private UI
@@ -50,14 +35,30 @@ struct TransactionNotificationsItemView: View {
             isActive: true,
             isDisabled: false,
             isMainIndicatorVisible: false,
-            size: .init(bothDimensions: Constants.iconWidth)
+            size: .init(bothDimensions: 24)
         )
-        .skeletonable(isShown: viewModel.isLoading, radius: 12)
+        .skeletonable(isShown: viewModel.isLoading, radius: 14)
     }
-}
 
-extension TransactionNotificationsItemView {
-    enum Constants {
-        static let iconWidth: Double = 24
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isLoading {
+            SkeletonView()
+                .frame(size: .init(width: 70, height: 20))
+        } else {
+            text
+        }
+    }
+
+    private var text: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
+            Text(viewModel.networkName.uppercased())
+                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .lineLimit(1)
+
+            Text(viewModel.networkSymbol.uppercased())
+                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .lineLimit(1)
+        }
     }
 }
