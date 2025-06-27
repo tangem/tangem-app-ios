@@ -19,23 +19,28 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle?
     @Published private(set) var sendReceiveTokenCompactViewModel: SendTokenAmountCompactViewModel?
 
-    private let flow: SendModel.PredefinedValues.FlowKind
-
     weak var router: SendNewAmountCompactRoutable?
+
+    private let flow: SendModel.PredefinedValues.FlowKind
+    private weak var receiveTokenInput: SendReceiveTokenInput?
 
     private var receiveTokenSubscription: AnyCancellable?
 
     init(
-        flow: SendModel.PredefinedValues.FlowKind,
-        sendToken: SendReceiveToken,
         input: SendAmountInput,
-        balanceProvider: TokenBalanceProvider
+        sendToken: SendReceiveToken,
+        flow: SendModel.PredefinedValues.FlowKind,
+        balanceProvider: TokenBalanceProvider,
+        receiveTokenInput: SendReceiveTokenInput?
     ) {
         self.flow = flow
+        self.receiveTokenInput = receiveTokenInput
 
         sendAmountCompactViewModel = .init(receiveToken: sendToken)
         sendAmountCompactViewModel.bind(amountPublisher: input.amountPublisher)
         sendAmountCompactViewModel.bind(balanceTypePublisher: balanceProvider.formattedBalanceTypePublisher)
+
+        bind()
     }
 
     func userDidTapAmount() {
@@ -45,33 +50,42 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
     func userDidTapReceiveTokenAmount() {
         router?.userDidTapReceiveTokenAmount()
     }
+}
 
-    func bind(receiveTokenInput: SendReceiveTokenInput) {
-        receiveTokenSubscription = receiveTokenInput.receiveTokenPublisher
+// MARK: - SendNewAmountCompactViewModel
+
+private extension SendNewAmountCompactViewModel {
+    func bind() {
+        receiveTokenSubscription = receiveTokenInput?.receiveTokenPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, receiveToken in
-                viewModel.sendReceiveTokenCompactViewModel = receiveToken.map { .init(receiveToken: $0) }
-                viewModel.sendReceiveTokenCompactViewModel?.bind(
-                    amountPublisher: receiveTokenInput
-                        .receiveAmountPublisher
-                        .map { amount in
-                            switch amount {
-                            case .failure, .loading: nil
-                            case .success(let amount): amount
-                            }
-                        }
-                        .eraseToAnyPublisher()
-                )
-
-                // [REDACTED_TODO_COMMENT]
-                viewModel.sendAmountsSeparator = viewModel.separatorStyle()
-            }
+            .sink { $0.updateView(receiveToken: $1) }
     }
 
     private func separatorStyle() -> SendNewAmountCompactViewSeparator.SeparatorStyle {
         switch flow {
         case .send, .sell, .staking: .title(Localization.sendWithSwapTitle)
+        }
+    }
+
+    private func updateView(receiveToken: SendReceiveTokenType) {
+        switch receiveToken {
+        case .same:
+            sendReceiveTokenCompactViewModel = nil
+            sendAmountsSeparator = nil
+        case .swap(let receiveToken):
+            guard let receiveTokenInput else {
+                return
+            }
+
+            let amountPublisher = receiveTokenInput
+                .receiveAmountPublisher
+                .map { $0.value?.flatMap { $0 } }
+                .eraseToAnyPublisher()
+
+            sendReceiveTokenCompactViewModel = .init(receiveToken: receiveToken)
+            sendReceiveTokenCompactViewModel?.bind(amountPublisher: amountPublisher)
+            sendAmountsSeparator = separatorStyle()
         }
     }
 }
