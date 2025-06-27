@@ -14,11 +14,18 @@ struct SendReceiveTokensListBuilder {
     private let io: IO
     private let tokenItem: TokenItem
     private let expressRepository: ExpressRepository
+    private let receiveTokenBuilder: SendReceiveTokenBuilder
 
-    init(io: IO, tokenItem: TokenItem, expressRepository: ExpressRepository) {
+    init(
+        io: IO,
+        tokenItem: TokenItem,
+        expressRepository: ExpressRepository,
+        receiveTokenBuilder: SendReceiveTokenBuilder
+    ) {
         self.io = io
         self.tokenItem = tokenItem
         self.expressRepository = expressRepository
+        self.receiveTokenBuilder = receiveTokenBuilder
     }
 
     func makeReceiveTokensListViewModel(router: any SendReceiveTokensListViewRoutable) -> SendReceiveTokensListViewModel {
@@ -31,6 +38,7 @@ struct SendReceiveTokensListBuilder {
             tokenItem: tokenItem,
             networks: networks,
             expressRepository: expressRepository,
+            receiveTokenBuilder: receiveTokenBuilder,
             output: io.output,
             router: router
         )

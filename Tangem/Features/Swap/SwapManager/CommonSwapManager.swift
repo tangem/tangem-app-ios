@@ -1,5 +1,5 @@
 //
-//  SwapManager.swift
+//  CommonSwapManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,13 +10,10 @@ import Foundation
 import Combine
 import TangemExpress
 
-/// Will be massive update in [REDACTED_INFO]
 class CommonSwapManager {
-    private let tokenItem: TokenItem
     private let interactor: ExpressInteractor
 
-    init(tokenItem: TokenItem, interactor: ExpressInteractor) {
-        self.tokenItem = tokenItem
+    init(interactor: ExpressInteractor) {
         self.interactor = interactor
     }
 }
@@ -44,14 +41,18 @@ extension CommonSwapManager: SwapManager {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(receiveToken: TokenItem?, address: String?) {
-        guard tokenItem != receiveToken else {
+    func update(destination: TokenItem?, address: String?) {
+        let destinationWallet = destination.map {
+            SwapManagerDestinationWallet(tokenItem: $0, address: address)
+        }
+
+        guard let destinationWallet else {
+            // Clear destination
+            // [REDACTED_TODO_COMMENT]
             return
         }
 
-        receiveToken.map {
-            interactor.update(destination: SwapManagerDestinationWallet(tokenItem: $0, address: address))
-        }
+        interactor.update(destination: destinationWallet)
     }
 
     func update(provider: ExpressAvailableProvider) {
@@ -62,24 +63,3 @@ extension CommonSwapManager: SwapManager {
 // MARK: - Private
 
 private extension CommonSwapManager {}
-
-extension CommonSwapManager {
-    enum SwapDestinationMode {
-        case onMyWallet(address: String)
-        case toAnotherWallet
-    }
-}
-
-struct SwapManagerDestinationWallet: ExpressInteractorDestinationWallet {
-    var id: WalletModelId { .init(tokenItem: tokenItem) }
-    var isCustom: Bool { false }
-    var currency: TangemExpress.ExpressWalletCurrency { tokenItem.expressCurrency }
-
-    let tokenItem: TokenItem
-    let address: String?
-
-    init(tokenItem: TokenItem, address: String?) {
-        self.tokenItem = tokenItem
-        self.address = address
-    }
-}
