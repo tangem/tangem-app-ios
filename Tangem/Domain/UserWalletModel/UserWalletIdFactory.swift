@@ -10,7 +10,7 @@ import Foundation
 
 class UserWalletIdFactory {
     func userWalletId(from cardInfo: CardInfo) -> UserWalletId? {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         return userWalletId(config: config)
     }
 
