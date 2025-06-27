@@ -58,6 +58,9 @@ struct ReferralView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
         }
+        .onAppear {
+            viewModel.onAppear()
+        }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.detailsReferralTitle), displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
