@@ -26,6 +26,10 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
+    private let coordinatorFactory: MainCoordinatorChildFactory
+    private let navigationActionHandler: MainNavigationActionHandler
+    private let deeplinkPresenter: DeeplinkPresenter
+
     // MARK: - Root view model
 
     @Published private(set) var mainViewModel: MainViewModel?
@@ -63,13 +67,24 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
 
+    // MARK: - Deeplink
+
+    private var deeplinkDestination = PassthroughSubject<DeepLinkDestination, Never>()
+
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
+    private var deeplinkDestinationSubscription: AnyCancellable?
 
     required init(
+        coordinatorFactory: MainCoordinatorChildFactory,
+        navigationActionHandler: MainNavigationActionHandler,
+        deeplinkPresenter: DeeplinkPresenter,
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
+        self.coordinatorFactory = coordinatorFactory
+        self.navigationActionHandler = navigationActionHandler
+        self.deeplinkPresenter = deeplinkPresenter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -91,6 +106,8 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
         setupUI()
         bind()
+
+        navigationActionHandler.checkForPendingNavigationAction()
     }
 
     func hideMarketsTooltip() {
@@ -107,6 +124,13 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         guard pushNotificationsViewModelSubscription == nil else {
             return
         }
+
+        deeplinkDestinationSubscription = deeplinkDestination
+            .compactMap { $0 }
+            .receiveOnMain()
+            .sink { [weak self] deepLink in
+                self?.deeplinkPresenter.present(deepLink: deepLink)
+            }
 
         pushNotificationsViewModelSubscription = $pushNotificationsViewModel
             .pairwise()
@@ -148,6 +172,14 @@ extension MainCoordinator {
 // MARK: - MainRoutable protocol conformance
 
 extension MainCoordinator: MainRoutable {
+    func openDeepLink(_ deepLink: DeepLinkDestination) {
+        if case .externalLink(let url) = deepLink {
+            safariManager.openURL(url)
+        } else {
+            deeplinkDestination.send(deepLink)
+        }
+    }
+
     func openDetails(for userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -197,11 +229,12 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.tokenDetailsCoordinator = nil
-        }
+        let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.tokenDetailsCoordinator = nil
+            }
+        )
 
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
             with: .init(
                 userWalletModel: userWalletModel,
@@ -231,12 +264,12 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     func openReferral(input: ReferralInputModel) {
         mainBottomSheetUIManager.hide()
+        let coordinator = coordinatorFactory.makeReferralCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.referralCoordinator = nil
+            }
+        )
 
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.referralCoordinator = nil
-        }
-
-        let coordinator = ReferralCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
@@ -354,10 +387,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
-
-        let coordinator = MarketsTokenDetailsCoordinator()
+        let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
         coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
-
         marketsTokenDetailsCoordinator = coordinator
     }
 
@@ -435,11 +466,11 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
     func openBuy(userWalletModel: some UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.actionButtonsBuyCoordinator = nil
-        }
-
-        let coordinator = ActionButtonsBuyCoordinator(dismissAction: dismissAction)
+        let coordinator = coordinatorFactory.makeBuyCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.actionButtonsBuyCoordinator = nil
+            }
+        )
 
         coordinator.start(
             with: .default(
@@ -459,28 +490,22 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
 
 extension MainCoordinator: ActionButtonsSellFlowRoutable {
     func openSell(userWalletModel: some UserWalletModel) {
-        let dismissAction: Action<ActionButtonsSendToSellModel?> = { [weak self] model in
-            self?.actionButtonsSellCoordinator = nil
-
-            guard let model else { return }
-
-            self?.openSendToSell(
-                amountToSend: model.amountToSend,
-                destination: model.destination,
-                tag: model.tag,
-                userWalletModel: userWalletModel,
-                walletModel: model.walletModel
-            )
-        }
-
-        let coordinator = ActionButtonsSellCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-            dismissAction: dismissAction,
-            userWalletModel: userWalletModel
+        let coordinator = coordinatorFactory.makeSellCoordinator(
+            userWalletModel: userWalletModel,
+            dismissAction: { [weak self] model in
+                self?.actionButtonsSellCoordinator = nil
+                guard let model else { return }
+                self?.openSendToSell(
+                    amountToSend: model.amountToSend,
+                    destination: model.destination,
+                    tag: model.tag,
+                    userWalletModel: userWalletModel,
+                    walletModel: model.walletModel
+                )
+            }
         )
 
         coordinator.start(with: .default)
-
         actionButtonsSellCoordinator = coordinator
     }
 }
@@ -489,15 +514,9 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
     func openSwap(userWalletModel: some UserWalletModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
+        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
             self?.actionButtonsSwapCoordinator = nil
         }
-
-        let coordinator = ActionButtonsSwapCoordinator(
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-            userWalletModel: userWalletModel,
-            dismissAction: dismissAction
-        )
 
         let openExpressBlock = { [weak self] in
             guard let self else { return }
@@ -596,5 +615,20 @@ extension MainCoordinator: WCTransactionRoutable {
 
     func showWCTransactionRequest(with error: Error) {
         // make error view model
+    }
+}
+
+// MARK: - MainCoordinator
+
+extension MainCoordinator {
+    enum DeepLinkDestination {
+        case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+        case buy(userWalletModel: UserWalletModel)
+        case sell(userWalletModel: UserWalletModel)
+        case swap(userWalletModel: UserWalletModel)
+        case referral(input: ReferralInputModel)
+        case staking(options: StakingDetailsCoordinator.Options)
+        case marketsTokenDetails(tokenId: String)
+        case externalLink(url: URL)
     }
 }
