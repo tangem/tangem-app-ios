@@ -11,9 +11,9 @@ import enum BlockchainSdk.Blockchain
 struct WalletConnectDAppConnectionProposal {
     let dApp: WalletConnectDAppData
     let verificationStatus: WalletConnectDAppVerificationStatus
-    let sessionProposal: WalletConnectSessionProposal
+    let sessionProposal: WalletConnectDAppSessionProposal
 
-    init(dApp: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus, sessionProposal: WalletConnectSessionProposal) {
+    init(dApp: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus, sessionProposal: WalletConnectDAppSessionProposal) {
         self.dApp = dApp
         self.verificationStatus = verificationStatus
         self.sessionProposal = sessionProposal

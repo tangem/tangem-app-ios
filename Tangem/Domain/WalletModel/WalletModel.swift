@@ -14,10 +14,10 @@ import TangemStaking
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
-    AvailableTokenBalanceProviderInput, WalletModelUpdater, WalletModelBalancesProvider,
+    AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
-    WalletModelTransactionHistoryProvider, WalletModelRentProvider, TransactionHistoryFetcher,
-    ExpressWallet, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
+    WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
+    StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
     var addresses: [Address] { get }
@@ -52,6 +52,10 @@ protocol WalletModel:
 extension WalletModel {
     func exploreURL(for index: Int) -> URL? {
         return exploreURL(for: index, token: nil)
+    }
+
+    var defaultAddressString: String {
+        defaultAddress.value
     }
 }
 
@@ -91,6 +95,7 @@ protocol WalletModelHelpers {
 protocol WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
 }
 
@@ -114,6 +119,8 @@ protocol WalletModelDependenciesProvider {
 }
 
 // MARK: - Tx history
+
+protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater {}
 
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }

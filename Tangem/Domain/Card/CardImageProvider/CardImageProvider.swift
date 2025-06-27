@@ -47,7 +47,7 @@ struct CardImageProvider {
 
 // MARK: - CardImageProviding
 
-extension CardImageProvider: CardImageProviding {
+extension CardImageProvider: WalletImageProviding {
     func loadLargeUIImage() async -> UIImage {
         let images = await loadImages()
         return images.large
