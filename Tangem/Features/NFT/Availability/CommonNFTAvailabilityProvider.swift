@@ -72,5 +72,8 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
             userWalletIdsWithNFTEnabled.value.remove(userWalletIdString)
             appSettings.userWalletIdsWithNFTEnabled.remove(userWalletIdString)
         }
+
+        let enabledParameter = enabled ? Analytics.ParameterValue.on : .off
+        Analytics.log(.nftToggleSwitch, params: [.status: enabledParameter])
     }
 }
