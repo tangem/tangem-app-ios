@@ -27,12 +27,11 @@ class SendNewDestinationAddressViewModel: ObservableObject, Identifiable {
         )
     }
 
-    private weak var router: SendNewDestinationAddressViewRoutable?
+    weak var router: SendNewDestinationAddressViewRoutable?
 
-    init(textViewModel: SUITextViewModel, sendAddress: SendAddress, router: SendNewDestinationAddressViewRoutable) {
+    init(textViewModel: SUITextViewModel, sendAddress: SendAddress) {
         self.textViewModel = textViewModel
         self.sendAddress = sendAddress
-        self.router = router
     }
 
     func addressPublisher() -> AnyPublisher<SendAddress, Never> {
