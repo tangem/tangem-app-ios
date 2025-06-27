@@ -203,7 +203,7 @@ class VisaOnboardingViewModel: ObservableObject {
             card: card,
             walletData: .visa(activationStatus),
         )
-        let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+        let userWalletModel = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo)
 
         self.userWalletModel = userWalletModel
     }
@@ -558,7 +558,7 @@ private extension VisaOnboardingViewModel {
 // MARK: - Image loading
 
 private extension VisaOnboardingViewModel {
-    func loadImage(imageProvider: CardImageProviding) {
+    func loadImage(imageProvider: WalletImageProviding) {
         runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 

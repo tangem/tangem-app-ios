@@ -72,12 +72,12 @@ extension OnboardingInput {
             }
         }
 
-        var cardImageProvider: CardImageProviding {
+        var cardImageProvider: WalletImageProviding {
             switch self {
             case .cardInfo(let cardInfo):
                 return CardImageProvider(card: cardInfo.card)
             case .userWalletModel(let userWalletModel):
-                return userWalletModel.cardImageProvider
+                return userWalletModel.walletImageProvider
             case .cardId(let cardId):
                 return CardImageProvider(
                     input: CardImageProvider.Input(
