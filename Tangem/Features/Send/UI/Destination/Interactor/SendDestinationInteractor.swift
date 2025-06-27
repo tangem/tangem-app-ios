@@ -34,7 +34,6 @@ class CommonSendDestinationInteractor {
 
     private let validator: SendDestinationValidator
     private let transactionHistoryProvider: SendDestinationTransactionHistoryProvider
-    private let transactionHistoryMapper: TransactionHistoryMapper
     private let addressResolver: AddressResolver?
     private let additionalFieldType: SendDestinationAdditionalFieldType?
     private let parametersBuilder: TransactionParamsBuilder
@@ -54,7 +53,6 @@ class CommonSendDestinationInteractor {
         output: SendDestinationOutput,
         validator: SendDestinationValidator,
         transactionHistoryProvider: SendDestinationTransactionHistoryProvider,
-        transactionHistoryMapper: TransactionHistoryMapper,
         addressResolver: AddressResolver?,
         additionalFieldType: SendDestinationAdditionalFieldType?,
         parametersBuilder: TransactionParamsBuilder,
@@ -64,7 +62,6 @@ class CommonSendDestinationInteractor {
         self.output = output
         self.validator = validator
         self.transactionHistoryProvider = transactionHistoryProvider
-        self.transactionHistoryMapper = transactionHistoryMapper
         self.addressResolver = addressResolver
         self.additionalFieldType = additionalFieldType
         self.parametersBuilder = parametersBuilder
@@ -131,16 +128,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
     }
 
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
-        transactionHistoryProvider
-            .transactionHistoryPublisher
-            .withWeakCaptureOf(self)
-            .map { interactor, records in
-                records
-                    .compactMap { interactor.transactionHistoryMapper.mapSuggestedRecord($0) }
-                    .prefix(Constants.numberOfRecentTransactions)
-                    .sorted { $0.date > $1.date }
-            }
-            .eraseToAnyPublisher()
+        transactionHistoryProvider.transactionHistoryPublisher
     }
 
     var isValidatingDestination: AnyPublisher<Bool, Never> {
