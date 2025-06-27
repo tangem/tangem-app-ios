@@ -1,6 +1,6 @@
 //
 //  ViewStateHandler.swift
-//  Tangem
+//  TangemUIUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
@@ -12,7 +12,7 @@ import SwiftUI
 
 // MARK: - Convenience extensions
 
-extension View {
+public extension View {
     func onWillDisappear(perform: @escaping () -> Void) -> some View {
         modifier(WillDisappearModifier(callback: perform))
     }
