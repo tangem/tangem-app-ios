@@ -105,4 +105,13 @@ extension CommonPushNotificationsService: UNUserNotificationCenterDelegate {
         respondedNotificationIds.insert(identifier)
         _didReceiveEvent.send(.receivedResponse(response))
     }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // Allow banners for push notifications while app is foregrounded
+        completionHandler(.banner)
+    }
 }
