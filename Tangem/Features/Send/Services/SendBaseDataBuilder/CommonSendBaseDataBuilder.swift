@@ -19,15 +19,18 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
     private let input: SendBaseDataBuilderInput
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
+    private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder?
 
     init(
         input: SendBaseDataBuilderInput,
         walletModel: any WalletModel,
-        emailDataProvider: EmailDataProvider
+        emailDataProvider: EmailDataProvider,
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder?
     ) {
         self.input = input
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
+        self.sendReceiveTokensListBuilder = sendReceiveTokensListBuilder
     }
 
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
@@ -46,5 +49,13 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
 
         return (dataCollector: emailDataCollector, recipient: recipient)
+    }
+
+    func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder {
+        guard let sendReceiveTokensListBuilder else {
+            throw SendBaseDataBuilderError.notFound("SendReceiveTokensListBuilder")
+        }
+
+        return sendReceiveTokensListBuilder
     }
 }
