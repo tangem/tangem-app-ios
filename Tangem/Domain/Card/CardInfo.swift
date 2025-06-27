@@ -22,8 +22,45 @@ enum WalletInfoType {
 }
 
 struct HotWalletInfo: Codable {
-    let publicKey: Data
+    let id: String
+    let authType: AuthType?
     var wallets: [HotWallet]
+
+    enum AuthType: String, Codable {
+        case biometry
+        case password
+
+        init?(hotWalletAuthType: HotWalletID.AuthType?) {
+            switch hotWalletAuthType {
+            case .password:
+                self = .password
+            case .biometry:
+                self = .biometry
+            case .none:
+                return nil
+            }
+        }
+
+        var hotWalletAuthType: HotWalletID.AuthType {
+            switch self {
+            case .password: HotWalletID.AuthType.password
+            case .biometry: HotWalletID.AuthType.biometry
+            }
+        }
+    }
+
+    init(hotWalletID: HotWalletID) {
+        id = hotWalletID.value
+        authType = AuthType(hotWalletAuthType: hotWalletID.authType)
+        wallets = []
+    }
+
+    var hotWalletID: HotWalletID {
+        return HotWalletID(
+            value: id,
+            authType: authType?.hotWalletAuthType
+        )
+    }
 }
 
 struct CardInfo {
