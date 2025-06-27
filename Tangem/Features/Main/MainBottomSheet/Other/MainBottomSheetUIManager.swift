@@ -12,6 +12,7 @@ import class UIKit.UIImage
 import TangemFoundation
 
 final class MainBottomSheetUIManager {
+    var shoudExpandAtFirstAppearance = false
     private(set) var hasPendingSnapshotUpdate = false
 
     private let isShownSubject: CurrentValueSubject<Bool, Never> = .init(false)
