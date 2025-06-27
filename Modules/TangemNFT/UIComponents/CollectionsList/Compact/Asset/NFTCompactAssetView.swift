@@ -65,15 +65,18 @@ struct NFTCompactAssetView: View {
 
     private func makeIcon(media: NFTMedia?) -> some View {
         SquaredOrRectangleImageView(media: media)
+            .shimmer()
     }
 
     private func makeTexts(title: String, subtitle: String?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .shimmer()
 
             Text(subtitle ?? "")
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .shimmer()
         }
     }
 }
