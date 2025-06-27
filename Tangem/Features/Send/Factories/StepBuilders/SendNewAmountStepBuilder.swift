@@ -64,13 +64,12 @@ struct SendNewAmountStepBuilder {
     func makeSendAmountCompactViewModel(input: SendAmountInput, receiveTokenInput: SendReceiveTokenInput?, actionType: SendFlowActionType, flowKind: SendModel.PredefinedValues.FlowKind) -> SendNewAmountCompactViewModel {
         let token = makeSendReceiveToken()
         let viewModel = SendNewAmountCompactViewModel(
-            flow: flowKind,
-            sendToken: token,
             input: input,
-            balanceProvider: builder.makeTokenBalanceProvider()
+            sendToken: token,
+            flow: flowKind,
+            balanceProvider: builder.makeTokenBalanceProvider(),
+            receiveTokenInput: receiveTokenInput
         )
-
-        receiveTokenInput.map { viewModel.bind(receiveTokenInput: $0) }
 
         return viewModel
     }
