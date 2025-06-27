@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectConnectedDAppDetailsView: View {
     @ObservedObject var viewModel: WalletConnectConnectedDAppDetailsViewModel
+    let kingfisherImageCache: ImageCache
 
     @State private var navigationBarBottomSeparatorIsVisible = false
 
@@ -99,6 +101,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         VStack(spacing: .zero) {
             WalletConnectDAppDescriptionView(
                 viewModel: viewState.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache,
                 verifiedDomainTapAction: {
                     viewModel.handle(viewEvent: .verifiedDomainIconTapped)
                 }
