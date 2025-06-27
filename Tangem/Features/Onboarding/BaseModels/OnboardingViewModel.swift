@@ -202,7 +202,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        guard let userWallet = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo) else { return }
+        guard let userWallet = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo) else { return }
 
         userWalletRepository.initializeServices(for: userWallet)
 
@@ -314,7 +314,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    private func loadMainImage(imageProvider: CardImageProviding) {
+    private func loadMainImage(imageProvider: WalletImageProviding) {
         runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 

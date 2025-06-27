@@ -23,7 +23,7 @@ struct SendNewFinishView: View {
             }
 
             if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
-                SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+                SendTokenAmountCompactView(viewModel: sendAmountCompactViewModel)
                     .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
             }
 
