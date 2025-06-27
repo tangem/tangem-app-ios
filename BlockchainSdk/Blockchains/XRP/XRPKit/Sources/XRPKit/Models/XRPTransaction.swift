@@ -17,72 +17,6 @@ class XRPTransaction {
         self.fields = enforceJSONTypes(fields: fields)
     }
 
-//    [REDACTED_USERNAME](iOS 10.0, *)
-//    static func send(from wallet: XRPWallet, to address: String, amount: XRPAmount, completion: @escaping ((Result<NSDictionary, Error>) -> ())) {
-//
-//        // dictionary containing partial transaction fields
-//        let fields: [String:Any] = [
-//            "TransactionType" : "Payment",
-//            "Destination" : address,
-//            "Amount" : String(amount.drops),
-//            "Flags" : UInt64(2147483648),
-//        ]
-//
-//        // create the transaction from dictionary
-//        let partialTransaction = XRPTransaction(fields: fields)
-//
-//        // autofill missing transaction fields (online)
-//        _ = partialTransaction.autofill(address: wallet.address, completion: { (result) in
-//            switch result {
-//            case .success(let tx):
-//                // sign the transaction (offline)
-//                let signedTransaction = try! tx.sign(wallet: wallet)
-//
-//                // submit the transaction (online)
-//                _ = signedTransaction.submit(completion: { (result) in
-//                    switch result {
-//                    case .success(let dict):
-//                        completion(.success(dict))
-//                    case .failure(let error):
-//                        completion(.failure(error))
-//                    }
-//                })
-//
-//            case .failure(let error):
-//                completion(.failure(error))
-//            }
-//        })
-//    }
-
-    /// autofills account address, ledger sequence, fee, and sequence
-    @available(iOS 10.0, *)
-    func autofill(address: String, completion: @escaping ((Result<XRPTransaction, Error>) -> Void)) {
-        // network calls to retrive current account and ledger info
-        XRPLedger.currentLedgerInfo(completion: { result in
-            switch result {
-            case .success(let ledgerInfo):
-                XRPLedger.getAccountInfo(account: address) { result in
-                    switch result {
-                    case .success(let accountInfo):
-                        // dictionary containing transaction fields
-                        let filledFields: [String: Any] = [
-                            "Account": accountInfo.address,
-                            "LastLedgerSequence": ledgerInfo.index + 5,
-                            "Fee": "40", // [REDACTED_TODO_COMMENT]
-                            "Sequence": accountInfo.sequence,
-                        ]
-                        self.fields = self.fields.merging(self.enforceJSONTypes(fields: filledFields)) { _, new in new }
-                        completion(.success(self))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        })
-    }
-
     func dataToSign(publicKey: String) -> Data {
         // make sure all fields are compatible
         fields = enforceJSONTypes(fields: fields)
@@ -111,18 +45,6 @@ class XRPTransaction {
 
     func getBlob() -> String {
         return Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
-    }
-
-    func submit(completion: @escaping ((Result<NSDictionary, Error>) -> Void)) {
-        let tx = Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
-        return XRPLedger.submit(txBlob: tx) { result in
-            switch result {
-            case .success(let tx):
-                completion(.success(tx))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
     }
 
     func getJSONString() -> String {

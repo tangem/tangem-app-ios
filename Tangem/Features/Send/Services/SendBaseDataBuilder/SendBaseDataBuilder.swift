@@ -12,6 +12,7 @@ import TangemExpress
 
 protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
+    func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder
 }
 
 protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
