@@ -141,7 +141,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         tokenSelectorState = .loading
 
         do {
-            try await expressRepository.updatePairs(for: token.walletModel)
+            try await expressRepository.updatePairs(for: token.walletModel.tokenItem.expressCurrency)
 
             destinationTokenSelectorViewModel = makeToSwapTokenSelectorViewModel(
                 from: token,
