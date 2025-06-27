@@ -16,7 +16,7 @@ protocol SendAmountInteractor {
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
     var externalAmountPublisher: AnyPublisher<SendAmount?, Never> { get }
 
-    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> { get }
+    var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
 
     func update(amount: Decimal?) -> SendAmount?
@@ -185,12 +185,12 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         _externalAmount.eraseToAnyPublisher()
     }
 
-    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> {
+    var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
         guard let receiveTokenInput else {
             return Empty().eraseToAnyPublisher()
         }
 
-        return receiveTokenInput.receiveTokenPublisher
+        return receiveTokenInput.receiveTokenPublisher.eraseToAnyPublisher()
     }
 
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> {
@@ -250,7 +250,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
     }
 
     func removeReceivedToken() {
-        receiveTokenOutput?.userDidSelect(tokenItem: nil)
+        receiveTokenOutput?.userDidRequestClearSelection()
     }
 
     func externalUpdate(amount: Decimal?) {
