@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ManageTokensViewModel: ObservableObject {
