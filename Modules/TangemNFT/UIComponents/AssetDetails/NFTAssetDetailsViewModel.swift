@@ -199,7 +199,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
             "ERC-1155"
         case .other(let string):
             string
-        case .unknown:
+        case .unknown, .analyticsOnly:
             nil
         }
     }
