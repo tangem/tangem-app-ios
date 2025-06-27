@@ -106,5 +106,7 @@ extension Analytics {
 
         case nftCollectionsCount = "Collections"
         case nftAssetsCount = "Nft"
+        case nftStandard = "Standard"
+        case nftDummyCollectionsCount = "No collection"
     }
 }
