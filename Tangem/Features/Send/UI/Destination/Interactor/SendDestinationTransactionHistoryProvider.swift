@@ -11,45 +11,70 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationTransactionHistoryProvider {
-    var transactionHistoryPublisher: AnyPublisher<[TransactionRecord], Never> { get }
+    var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
+
     func preloadTransactionsHistoryIfNeeded()
 }
 
-class CommonSendDestinationTransactionHistoryProvider {
-    private let transactionHistoryUpdater: WalletModelHistoryUpdater
+class EmptySendDestinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider {
+    var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { .just(output: []) }
+    func preloadTransactionsHistoryIfNeeded() {}
+}
 
-    init(transactionHistoryUpdater: WalletModelHistoryUpdater) {
+class CommonSendDestinationTransactionHistoryProvider {
+    private let transactionHistoryUpdater: any WalletModelHistoryUpdater
+    private let transactionHistoryMapper: TransactionHistoryMapper
+
+    private var transactionHistorySubscription: AnyCancellable?
+
+    init(
+        transactionHistoryUpdater: any WalletModelHistoryUpdater,
+        transactionHistoryMapper: TransactionHistoryMapper
+    ) {
         self.transactionHistoryUpdater = transactionHistoryUpdater
+        self.transactionHistoryMapper = transactionHistoryMapper
     }
 }
 
 extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider {
-    var transactionHistoryPublisher: AnyPublisher<[TransactionRecord], Never> {
-        transactionHistoryUpdater.transactionHistoryPublisher.map { state in
-            guard case .loaded(let items) = state else {
-                return []
-            }
+    var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
+        transactionHistoryUpdater.transactionHistoryPublisher
+            .receiveOnGlobal()
+            .withWeakCaptureOf(self)
+            .map { provider, state in
+                guard case .loaded(let items) = state else {
+                    return []
+                }
 
-            return items
-        }
-        .eraseToAnyPublisher()
+                return items
+                    .compactMap { provider.transactionHistoryMapper.mapSuggestedRecord($0) }
+                    .prefix(Constants.numberOfRecentTransactions)
+                    .sorted { $0.date > $1.date }
+            }
+            .eraseToAnyPublisher()
     }
 
     func preloadTransactionsHistoryIfNeeded() {
-        var subscription: AnyCancellable?
-        subscription = transactionHistoryUpdater
+        transactionHistorySubscription = transactionHistoryUpdater
             .transactionHistoryPublisher
             .prefix(1) // We only care about the most recent state and we process it only once
-            .flatMap { [transactionHistoryUpdater] transactionHistoryState in
+            .withWeakCaptureOf(self)
+            .flatMap { provider, transactionHistoryState in
                 switch transactionHistoryState {
-                case .notSupported,
-                     .loading,
-                     .loaded:
+                case .notSupported, .loading, .loaded:
                     return AnyPublisher.just
                 case .notLoaded, .error:
-                    return transactionHistoryUpdater.updateTransactionsHistory()
+                    return provider.transactionHistoryUpdater.updateTransactionsHistory()
                 }
             }
-            .sink { withExtendedLifetime(subscription) {} }
+            .sink()
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendDestinationTransactionHistoryProvider {
+    enum Constants {
+        static let numberOfRecentTransactions = 10
     }
 }
