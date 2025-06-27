@@ -221,7 +221,6 @@ struct SendDependenciesBuilder {
         predefinedSellParameters: PredefinedSellParameters? = .none
     ) -> SendModel {
         let transactionDispatcher = makeTransactionDispatcher()
-        let swapManager: SwapManager? = FeatureProvider.isAvailable(.sendViaSwap) ? makeSwapManager() : nil
         let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
 
         return SendModel(
@@ -232,8 +231,6 @@ struct SendDependenciesBuilder {
             transactionSigner: userWalletModel.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
-            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
-            swapManager: swapManager,
             predefinedValues: predefinedValues
         )
     }
@@ -410,6 +407,27 @@ struct SendDependenciesBuilder {
     }
 
     // MARK: - Send via swap
+
+    func makeSendWithSwapModel(
+        predefinedSellParameters: PredefinedSellParameters? = .none
+    ) -> SendWithSwapModel {
+        let transactionDispatcher = makeTransactionDispatcher()
+        let swapManager: SwapManager = makeSwapManager()
+        let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
+
+        return SendWithSwapModel(
+            tokenItem: walletModel.tokenItem,
+            balanceProvider: walletModel.availableBalanceProvider,
+            transactionDispatcher: transactionDispatcher,
+            transactionCreator: walletModel.transactionCreator,
+            transactionSigner: userWalletModel.signer,
+            feeIncludedCalculator: makeFeeIncludedCalculator(),
+            feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
+            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            swapManager: swapManager,
+            predefinedValues: predefinedValues
+        )
+    }
 
     func makeSwapManager() -> SwapManager {
         CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
