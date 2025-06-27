@@ -61,7 +61,7 @@ final class WalletConnectWalletSelectorViewModel: ObservableObject {
             await withTaskGroup(of: (Int, SwiftUI.Image).self) { taskGroup in
                 for (index, userWallet) in userWallets.enumerated() {
                     taskGroup.addTask {
-                        let image = await userWallet.cardImageProvider.loadSmallImage().image
+                        let image = await userWallet.walletImageProvider.loadSmallImage().image
                         return (index, image)
                     }
                 }

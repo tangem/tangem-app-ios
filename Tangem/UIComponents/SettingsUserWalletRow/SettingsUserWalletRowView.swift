@@ -107,7 +107,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
-                    cardImageProvider: CardImageProviderMock(),
+                    walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -118,7 +118,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    cardImageProvider: CardImageProviderMock(),
+                    walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -129,7 +129,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
-                    cardImageProvider: CardImageProviderMock(),
+                    walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
@@ -140,7 +140,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    cardImageProvider: CardImageProviderMock(),
+                    walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
             )
