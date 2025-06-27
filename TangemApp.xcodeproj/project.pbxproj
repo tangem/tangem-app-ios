@@ -3266,6 +3266,7 @@
 		EF977CB92C774B8E006BB27C /* MultipleRewardsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF977CB42C774B8E006BB27C /* MultipleRewardsCoordinator.swift */; };
 		EF977CBA2C774B8E006BB27C /* MultipleRewardsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF977CB52C774B8E006BB27C /* MultipleRewardsCoordinatorView.swift */; };
 		EF977CBF2C788965006BB27C /* PendingActionMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF977CBE2C788965006BB27C /* PendingActionMapper.swift */; };
+		EF9870892E0E6F1C00AD7458 /* SendWithSwapModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9870882E0E6F1C00AD7458 /* SendWithSwapModel.swift */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
 		EF9CA60E2D42405B009549E2 /* LogsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CA60D2D42405B009549E2 /* LogsViewModel.swift */; };
 		EF9CA6102D424060009549E2 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CA60F2D424060009549E2 /* LogsView.swift */; };
@@ -7010,6 +7011,7 @@
 		EF977CB42C774B8E006BB27C /* MultipleRewardsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsCoordinator.swift; sourceTree = "<group>"; };
 		EF977CB52C774B8E006BB27C /* MultipleRewardsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF977CBE2C788965006BB27C /* PendingActionMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingActionMapper.swift; sourceTree = "<group>"; };
+		EF9870882E0E6F1C00AD7458 /* SendWithSwapModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendWithSwapModel.swift; sourceTree = "<group>"; };
 		EF9CA60D2D42405B009549E2 /* LogsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsViewModel.swift; sourceTree = "<group>"; };
 		EF9CA60F2D424060009549E2 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
 		EF9CA6112D424065009549E2 /* LogRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRowView.swift; sourceTree = "<group>"; };
@@ -17789,6 +17791,7 @@
 		EF665E3C2CBD233600F79B87 /* ManagmentModels */ = {
 			isa = PBXGroup;
 			children = (
+				EF9870882E0E6F1C00AD7458 /* SendWithSwapModel.swift */,
 				B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */,
 				EFB23F2C2CBE7F1F005A6719 /* OnrampModel.swift */,
 				DA559C1D2B0261F300F59584 /* SendModel.swift */,
@@ -22010,6 +22013,7 @@
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
 				B0BDFD1D2A8B68B600479F53 /* NotificationViewInput.swift in Sources */,
 				DC075F962DE1A90F0092457A /* WCSignTransactionDetailsModel.swift in Sources */,
+				EF9870892E0E6F1C00AD7458 /* SendWithSwapModel.swift in Sources */,
 				EFAECCF12C1B702D0051710F /* SendAmountValidator.swift in Sources */,
 				EFE255FA2C3D8C7C00B17DAC /* SendQRCodeService.swift in Sources */,
 				EF6D642A2D56459400EA2BF2 /* TotalBalanceStateBuilder.swift in Sources */,
