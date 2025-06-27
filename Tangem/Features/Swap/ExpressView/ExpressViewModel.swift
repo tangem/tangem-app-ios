@@ -265,7 +265,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().tokenItem.decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -352,7 +352,7 @@ private extension ExpressViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, pair -> Bool in
                 do {
-                    if let destination = pair.destination.value {
+                    if let destination = pair.destination.value as? ExpressSourceWallet {
                         let oppositePair = ExpressManagerSwappingPair(source: destination, destination: pair.sender)
                         let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
                         return oppositeProviders.isEmpty
@@ -375,7 +375,7 @@ private extension ExpressViewModel {
 
     // MARK: - Send view bubble
 
-    func updateSendView(wallet: any WalletModel) {
+    func updateSendView(wallet: any ExpressInteractorSourceWallet) {
         sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
 
         // If we have amount then we should round and update it with new decimalCount
@@ -384,7 +384,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+        let roundedAmount = amount.rounded(scale: wallet.tokenItem.decimalCount, roundingMode: .down)
 
         // Exclude unnecessary update
         guard roundedAmount != amount else {
@@ -417,7 +417,7 @@ private extension ExpressViewModel {
 
     // MARK: - Receive view bubble
 
-    func updateReceiveView(wallet: LoadingValue<any WalletModel>) {
+    func updateReceiveView(wallet: ExpressInteractor.Destination) {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
@@ -753,7 +753,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
         case .leaveAmount(let amount, _):
-            guard let balance = try? interactor.getSender().getBalance() else {
+            guard let balance = interactor.getSender().availableBalanceProvider.balanceType.value else {
                 ExpressLogger.info("Couldn't find sender balance")
                 return
             }
