@@ -7,19 +7,23 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
+import TangemLocalization
 
 struct KeyValuePairView: View {
     let pair: KeyValuePairViewData
 
-    init(pair: KeyValuePairViewData) {
-        self.pair = pair
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             title
+
             subtitle
+                .infinityFrame(axis: .horizontal, alignment: .leading)
+                .contentShape(Rectangle())
+                .onLongPressGesture {
+                    KeyValuePairPasteboardHelper().copyToPasteboard(pair)
+                }
         }
     }
 
