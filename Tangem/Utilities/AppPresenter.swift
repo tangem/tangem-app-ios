@@ -16,6 +16,12 @@ final class AppPresenter: @unchecked Sendable {
 
     private init() {}
 
+    func presentOverFullScreen(_ controller: UIViewController, delay: TimeInterval = 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            UIApplication.presentOverFullScreen(controller)
+        }
+    }
+
     func show(_ controller: UIViewController, delay: TimeInterval = 0.3) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             UIApplication.modalFromTop(controller)
