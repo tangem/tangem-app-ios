@@ -81,4 +81,6 @@ class FakeUserWalletRepository: UserWalletRepository {
     func setSaving(_ enabled: Bool) {}
 
     func save() {}
+
+    func changePassword(old: String?, new: String, for userWalletId: UserWalletId) throws {}
 }
