@@ -10,6 +10,7 @@ import Foundation
 import class UIKit.UIApplication
 import class SwiftUI.UIHostingController
 import class Kingfisher.ImageCache
+import TangemUI
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
