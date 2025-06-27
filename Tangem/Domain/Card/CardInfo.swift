@@ -21,9 +21,9 @@ enum WalletInfoType {
     case hot(HotWalletInfo)
 }
 
-struct HotWalletInfo {
+struct HotWalletInfo: Codable {
     let publicKey: Data
-    let wallets: [HotWallet]
+    var wallets: [HotWallet]
 }
 
 struct CardInfo {
@@ -37,5 +37,17 @@ struct CardInfo {
         } else {
             return AppCardIdFormatter(cid: card.cardId).formatted()
         }
+    }
+}
+
+extension HotWallet {
+    var walletPublicInfo: WalletPublicInfo {
+        WalletPublicInfo(
+            publicKey: publicKey,
+            chainCode: chainCode,
+            curve: curve,
+            isImported: false,
+            derivedKeys: derivedKeys
+        )
     }
 }
