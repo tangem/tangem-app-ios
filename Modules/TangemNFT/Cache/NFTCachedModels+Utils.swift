@@ -84,6 +84,9 @@ extension NFTCachedModels {
 // MARK: - Shared Contract Type Serialization/Deserialization
 
 extension NFTCachedModels {
+    /// Prefix that is used to identify anlytics-only contract types
+    static let analyticOnlyPrefix = "analytic-only-"
+
     /// Helper utilities for serializing and deserializing NFT contract types
     enum ContractTypeUtils {
         /// Convert NFTContractType to string representation
@@ -97,6 +100,8 @@ extension NFTCachedModels {
                 return "unknown"
             case .other(let value):
                 return value
+            case .analyticsOnly(let value):
+                return analyticOnlyPrefix + value
             }
         }
 
@@ -110,6 +115,11 @@ extension NFTCachedModels {
             case "unknown":
                 return .unknown
             default:
+                if contractTypeIdentifier.starts(with: analyticOnlyPrefix) {
+                    let value = String(contractTypeIdentifier.dropFirst(analyticOnlyPrefix.count))
+                    return .analyticsOnly(value)
+                }
+
                 return .other(contractTypeIdentifier)
             }
         }
