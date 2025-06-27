@@ -12,15 +12,13 @@ import SwiftUI
 import TangemFoundation
 
 class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    var id: String { "FeeSelectorViewModel" }
-
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     @Published var selectedFeeOption: FeeOption = .market
     @Published private(set) var feesRowData: [FeeSelectorContentRowViewModel] = []
 
-    private weak var input: FeeSelectorContentViewModelInput?
-    private weak var output: FeeSelectorContentViewModelOutput?
+    private let input: FeeSelectorContentViewModelInput
+    private let output: FeeSelectorContentViewModelOutput
     private let analytics: FeeSelectorContentViewModelAnalytics
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder
     private let feeTokenItem: TokenItem
@@ -67,8 +65,8 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
     @MainActor
     func done() {
-        if let fee = input?.selectorFees.first(where: { $0.option == selectedFeeOption }) {
-            output?.update(selectedSelectorFee: fee)
+        if let fee = input.selectorFees.first(where: { $0.option == selectedFeeOption }) {
+            output.update(selectedSelectorFee: fee)
         }
 
         floatingSheetPresenter.removeActiveSheet()

@@ -28,7 +28,7 @@ final class UserWalletNotificationManager {
     private weak var delegate: NotificationTapDelegate?
     private var bag = Set<AnyCancellable>()
 
-    private var showReferralNotification: Bool?
+    private var showReferralNotification = false
 
     private let referralNotificationController: ReferralNotificationController
 
