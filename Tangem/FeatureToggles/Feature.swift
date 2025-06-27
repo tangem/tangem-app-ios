@@ -21,6 +21,7 @@ enum Feature: String, Hashable, CaseIterable {
     case sendViaSwap
     case hotWallet
     case pushTransactionNotifications
+    case deeplink
 
     var name: String {
         switch self {
@@ -36,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendViaSwap: return "Send via Swap"
         case .hotWallet: return "Hot wallet"
         case .pushTransactionNotifications: return "Push Transaction Notifications"
+        case .deeplink: return "Deeplink"
         }
     }
 
@@ -53,6 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendViaSwap: return .unspecified
         case .hotWallet: return .unspecified
         case .pushTransactionNotifications: return .unspecified
+        case .deeplink: return .unspecified
         }
     }
 }
