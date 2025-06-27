@@ -8,6 +8,7 @@
 
 import TangemAssets
 import SwiftUI
+import TangemUI
 import TangemUIUtils
 
 /// NOTE: This is a raw duplicate of `NotificationView` from main project
@@ -32,6 +33,7 @@ struct NFTNotificationView: View {
             viewData.icon.image
                 .resizable()
                 .frame(size: .init(bothDimensions: 20))
+                .shimmer()
 
             texts
         }
@@ -41,8 +43,11 @@ struct NFTNotificationView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewData.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .shimmer()
+
             Text(viewData.subtitle)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .shimmer()
         }
     }
 }
