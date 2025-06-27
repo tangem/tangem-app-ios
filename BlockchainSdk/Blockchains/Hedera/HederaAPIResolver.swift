@@ -18,7 +18,7 @@ struct HederaAPIResolver {
 
         let keyInfo = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: providerType)
         return .init(
-            url: URL(string: "https://pool.arkhia.io/hedera/mainnet/api/v1")!,
+            url: URL(string: "https://starter.arkhia.io/hedera/mainnet/api/v1")!,
             keyInfo: keyInfo
         )
     }
