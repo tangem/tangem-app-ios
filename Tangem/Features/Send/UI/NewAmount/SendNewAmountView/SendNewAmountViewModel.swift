@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class SendNewAmountViewModel: ObservableObject, Identifiable {
@@ -22,6 +23,8 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
 
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
+
+    @Published var receivedTokenViewType: ReceivedTokenViewType?
 
     lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
         tokenIconInfo: tokenIconInfo,
@@ -49,6 +52,10 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     let fiatIconURL: URL
     let possibleToChangeAmountType: Bool
 
+    // MARK: - Router
+
+    weak var router: SendNewAmountRoutable?
+
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
@@ -58,6 +65,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let actionType: SendFlowActionType
     private let sendAmountFormatter: SendAmountFormatter
+
     private var bag: Set<AnyCancellable> = []
 
     init(initial: Settings, interactor: SendAmountInteractor) {
@@ -99,6 +107,14 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         let amount = interactor.updateToMaxAmount()
         FeedbackGenerator.success()
         updateAmountsUI(amount: amount)
+    }
+
+    func userDidTapReceivedTokenSelection() {
+        router?.openReceiveTokensList()
+    }
+
+    func removeReceivedToken() {
+        interactor.removeReceivedToken()
     }
 }
 
@@ -142,6 +158,18 @@ private extension SendNewAmountViewModel {
                 viewModel.setExternalAmount(amount)
             }
             .store(in: &bag)
+
+        Publishers.CombineLatest(
+            interactor.receivedTokenPublisher,
+            interactor.receivedTokenAmountPublisher,
+        )
+        .withWeakCaptureOf(self)
+        .receive(on: DispatchQueue.main)
+        .sink { viewModel, args in
+            let (token, amount) = args
+            viewModel.updateReceivedToken(receiveToken: token, amount: amount)
+        }
+        .store(in: &bag)
     }
 
     func setExternalAmount(_ amount: SendAmount?) {
@@ -178,6 +206,45 @@ private extension SendNewAmountViewModel {
     }
 }
 
+// MARK: - Express
+
+extension SendNewAmountViewModel {
+    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount?, Error>?) {
+        guard FeatureProvider.isAvailable(.sendViaSwap) else {
+            receivedTokenViewType = .none
+            return
+        }
+
+        switch receiveToken {
+        case .same:
+            receivedTokenViewType = .selectButton
+        case .swap(let receiveToken):
+            receivedTokenViewType = .selected(TokenWithAmountViewData(
+                tokenIconInfo: receiveToken.tokenIconInfo,
+                title: receiveToken.tokenItem.name,
+                subtitle: Localization.sendAmountReceiveTokenSubtitle,
+                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
+                action: { [weak self] in
+                    self?.router?.openReceiveTokensList()
+                }
+            ))
+        }
+    }
+
+    func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
+        switch amount {
+        case .success(let success):
+            return .select(amount: success?.crypto?.stringValue) { [weak self] in
+                self?.router?.openReceiveTokensList()
+            }
+        case .none, .failure:
+            return nil
+        case .loading:
+            return .loading
+        }
+    }
+}
+
 // MARK: - SendStepViewAnimatable
 
 extension SendNewAmountViewModel: SendStepViewAnimatable {
@@ -199,4 +266,9 @@ extension SendNewAmountViewModel {
     }
 
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
+
+    enum ReceivedTokenViewType {
+        case selectButton
+        case selected(TokenWithAmountViewData)
+    }
 }
