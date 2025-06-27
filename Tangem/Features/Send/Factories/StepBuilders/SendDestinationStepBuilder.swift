@@ -13,8 +13,6 @@ struct SendDestinationStepBuilder {
     typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
     typealias ReturnValue = (step: SendDestinationStep, interactor: SendDestinationInteractor, compact: SendDestinationCompactViewModel)
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
 
@@ -65,7 +63,7 @@ private extension SendDestinationStepBuilder {
         router: SendDestinationRoutable
     ) -> SendDestinationViewModel {
         let tokenItem = walletModel.tokenItem
-        let suggestedWallets = makeSuggestedWallets()
+        let suggestedWallets = builder.makeSuggestedWallets()
         let additionalFieldType = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain)
 
         let settings = SendDestinationViewModel.Settings(
@@ -91,42 +89,10 @@ private extension SendDestinationStepBuilder {
             output: io.output,
             validator: builder.makeSendDestinationValidator(),
             transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
-            transactionHistoryMapper: builder.makeTransactionHistoryMapper(),
             addressResolver: walletModel.addressResolver,
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
             parametersBuilder: builder.makeSendTransactionParametersBuilder(),
             analyticsLogger: builder.makeDestinationAnalyticsLogger()
         )
-    }
-
-    func makeSuggestedWallets() -> [SendDestinationViewModel.Settings.SuggestedWallet] {
-        let ignoredAddresses = walletModel
-            .addresses
-            .map(\.value)
-            .toSet()
-
-        let targetNetworkId = walletModel
-            .tokenItem
-            .blockchain
-            .networkId
-
-        return userWalletRepository
-            .models
-            .reduce(into: []) { partialResult, userWalletModel in
-                let walletModels = userWalletModel
-                    .walletModelsManager
-                    .walletModels
-
-                partialResult += walletModels
-                    .filter { walletModel in
-                        let blockchain = walletModel.tokenItem.blockchain
-                        let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
-
-                        return blockchain.networkId == targetNetworkId && walletModel.isMainToken && shouldBeIncluded()
-                    }
-                    .map { walletModel in
-                        (name: userWalletModel.name, address: walletModel.defaultAddressString)
-                    }
-            }
     }
 }
