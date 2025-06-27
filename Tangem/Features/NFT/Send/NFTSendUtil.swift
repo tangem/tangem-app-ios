@@ -70,7 +70,8 @@ struct NFTSendUtil {
         case .erc721:
             return .erc721
         case .other,
-             .unknown:
+             .unknown,
+             .analyticsOnly:
             return .unspecified
         }
     }
