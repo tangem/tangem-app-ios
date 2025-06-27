@@ -48,6 +48,7 @@ private struct NetworkIconOverlayViewModifier: ViewModifier {
                     isMainIndicatorVisible: false,
                     size: iconSize
                 )
+                .shimmer()
                 .background(
                     borderColor
                         .clipShape(Circle())
