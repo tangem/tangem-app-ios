@@ -17,7 +17,7 @@ class PendingBackupManager {
     private var currentBackupID: String? = nil
 
     func onProceedBackup(_ card: Card) {
-        let cardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, name: "")
+        let cardInfo = CardInfo(card: CardDTO(card: card), walletData: .none)
         let backupValidator = BackupValidator()
 
         // clean card from existing pending backup

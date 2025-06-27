@@ -10,12 +10,13 @@ import Combine
 import SwiftUI
 import TangemExpress
 import TangemFoundation
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class OnrampPaymentMethodsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var paymentMethods: [OnrampPaymentMethodRowViewData] = []
+    @Published var selectedPaymentMethodID: String?
     @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
@@ -58,12 +59,12 @@ private extension OnrampPaymentMethodsViewModel {
     }
 
     func updateView(paymentMethods methods: [OnrampPaymentMethod], selectedPaymentMethod: OnrampPaymentMethod) {
-        paymentMethods = methods.map { method in
-            OnrampPaymentMethodRowViewData(
+        var paymentMethods: [OnrampPaymentMethodRowViewData] = []
+        methods.forEach { method in
+            let rowData = OnrampPaymentMethodRowViewData(
                 id: method.id,
                 name: method.name,
                 iconURL: method.image,
-                isSelected: selectedPaymentMethod.id == method.id,
                 action: { [weak self] in
                     Analytics.log(event: .onrampMethodChosen, params: [
                         .paymentMethod: method.name,
@@ -74,6 +75,14 @@ private extension OnrampPaymentMethodsViewModel {
                     self?.coordinator?.closeOnrampPaymentMethodsView()
                 }
             )
+
+            paymentMethods.append(rowData)
+
+            if selectedPaymentMethod.id == method.id {
+                selectedPaymentMethodID = method.id
+            }
         }
+
+        self.paymentMethods = paymentMethods
     }
 }
