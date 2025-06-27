@@ -6,12 +6,17 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BigInt
 
 // MARK: - EthereumFeeParameters
 
 public protocol EthereumFeeParameters where Self: FeeParameters {
     var parametersType: EthereumFeeParametersType { get }
+
+    /// Custom nonce value entered by the user on the send screen.
+    /// Overrides the default nonce fetched from the network.
+    var nonce: Int? { get }
 
     func changingGasLimit(to value: BigUInt) -> Self
     func calculateFee(decimalValue: Decimal) -> Decimal
@@ -24,6 +29,15 @@ public extension EthereumFeeParameters {
             return params.gasLimit
         case .legacy(let params):
             return params.gasLimit
+        }
+    }
+
+    var nonce: Int? {
+        switch parametersType {
+        case .legacy(let params):
+            return params.nonce
+        case .eip1559(let params):
+            return params.nonce
         }
     }
 }
@@ -40,10 +54,12 @@ public enum EthereumFeeParametersType {
 public struct EthereumLegacyFeeParameters: FeeParameters {
     public let gasLimit: BigUInt
     public let gasPrice: BigUInt
+    public let nonce: Int?
 
-    public init(gasLimit: BigUInt, gasPrice: BigUInt) {
+    public init(gasLimit: BigUInt, gasPrice: BigUInt, nonce: Int? = nil) {
         self.gasLimit = gasLimit
         self.gasPrice = gasPrice
+        self.nonce = nonce
     }
 }
 
@@ -64,7 +80,8 @@ extension EthereumLegacyFeeParameters: EthereumFeeParameters {
     public func changingGasLimit(to value: BigUInt) -> EthereumLegacyFeeParameters {
         let feeParameters = EthereumLegacyFeeParameters(
             gasLimit: value,
-            gasPrice: gasPrice
+            gasPrice: gasPrice,
+            nonce: nonce
         )
 
         return feeParameters
@@ -79,17 +96,21 @@ public struct EthereumEIP1559FeeParameters: FeeParameters {
     public let maxFeePerGas: BigUInt
     /// The part of `maxFeePerGas` which will be sent a mainer like a tips
     public let priorityFee: BigUInt
+    /// Custom nonce property for resend transaction state
+    public let nonce: Int?
 
-    public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt) {
+    public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt, nonce: Int? = nil) {
         self.gasLimit = gasLimit
         maxFeePerGas = baseFee + priorityFee
         self.priorityFee = priorityFee
+        self.nonce = nonce
     }
 
-    public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt) {
+    public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, nonce: Int? = nil) {
         self.gasLimit = gasLimit
         self.maxFeePerGas = maxFeePerGas
         self.priorityFee = priorityFee
+        self.nonce = nonce
     }
 }
 
@@ -111,7 +132,8 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: value,
             maxFeePerGas: maxFeePerGas,
-            priorityFee: priorityFee
+            priorityFee: priorityFee,
+            nonce: nonce
         )
 
         return feeParameters

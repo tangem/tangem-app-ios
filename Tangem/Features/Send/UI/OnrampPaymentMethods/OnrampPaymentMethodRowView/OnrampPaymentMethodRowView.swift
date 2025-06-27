@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemAssets
 
-struct OnrampPaymentMethodRowView: View {
+struct OnrampPaymentMethodRowView: SelectableSectionRow {
+    var isSelected: Bool
     let data: OnrampPaymentMethodRowViewData
 
     var body: some View {
@@ -29,36 +31,22 @@ struct OnrampPaymentMethodRowView: View {
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
-        .overlay { overlay }
-        .contentShape(Rectangle())
-    }
-
-    @ViewBuilder
-    private var overlay: some View {
-        if data.isSelected {
-            Color.clear.overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent, lineWidth: 1)
-            }
-            .padding(1)
-            .overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: 2.5)
-            }
-            .padding(2.5)
+        .overlay {
+            if isSelected { SelectionOverlay() }
         }
+        .contentShape(Rectangle())
     }
 
     private var titleView: some View {
         Text(data.name)
             .style(
                 Fonts.Bold.subheadline,
-                color: data.isSelected ? Colors.Text.primary1 : Colors.Text.secondary
+                color: isSelected ? Colors.Text.primary1 : Colors.Text.secondary
             )
             .lineLimit(1)
     }
 }
 
 #Preview {
-    OnrampPaymentMethodRowView(data: .init(id: "card", name: "Card", iconURL: nil, isSelected: true, action: {}))
+    OnrampPaymentMethodRowView(isSelected: true, data: .init(id: "card", name: "Card", iconURL: nil, action: {}))
 }
