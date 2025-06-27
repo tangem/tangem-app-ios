@@ -10,7 +10,7 @@ import UIKit
 import SwiftUI
 import TangemAssets
 
-struct CardImageProviderMock: CardImageProviding {
+struct CardImageProviderMock: WalletImageProviding {
     func loadLargeUIImage() async -> UIImage {
         return Assets.Onboarding.walletCard.uiImage
     }
