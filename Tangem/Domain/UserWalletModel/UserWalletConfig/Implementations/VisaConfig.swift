@@ -39,7 +39,7 @@ extension VisaConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Tangem Visa"
     }
 
