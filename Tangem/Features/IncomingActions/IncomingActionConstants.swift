@@ -9,6 +9,8 @@
 import Foundation
 
 enum IncomingActionConstants {
+    static let tangemHost = "tangem.com"
+    static let appTangemHost = "app.tangem.com"
     static let appTangemDomain = "https://app.tangem.com"
     static let tangemDomain = "https://tangem.com"
     static let universalLinkScheme = "tangem://"
