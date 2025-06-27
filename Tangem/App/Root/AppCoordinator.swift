@@ -300,7 +300,19 @@ extension AppCoordinator {
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
-        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let coordinatorFactory = CommonMainCoordinatorChildFactory()
+        let navigationActionHandler = MainCoordinator.MainNavigationActionHandler()
+        let deeplinkPresenter = CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
+
+        let coordinator = MainCoordinator(
+            coordinatorFactory: coordinatorFactory,
+            navigationActionHandler: navigationActionHandler,
+            deeplinkPresenter: deeplinkPresenter,
+            dismissAction: { _ in },
+            popToRootAction: popToRootAction
+        )
+
+        navigationActionHandler.coordinator = coordinator
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
 
