@@ -13,6 +13,7 @@ import CryptoKit
 import LocalAuthentication
 import TangemSdk
 import TangemVisa
+import TangemHotSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -183,6 +184,25 @@ class CommonUserWalletRepository: UserWalletRepository {
             add(scanner: scanner, completion)
         } else {
             unlockWithCard(scanner: scanner, nil, completion: completion)
+        }
+    }
+
+    func changePassword(old: String?, new: String, for userWalletId: UserWalletId) throws {
+        guard let userWallet = models.first(where: { $0.userWalletId == userWalletId })?.userWallet as? HotUserWalletModel else {
+            return
+        }
+
+        let sdk = CommonHotSdk(secureStorage: SecureStorage(), biometricsStorage: BiometricsStorage())
+
+        let oldAuth: HotAuth? = old.flatMap { .password($0) }
+
+        guard let walletAuthInfo = HotWalletAuthInfo(
+            walletID: userWallet.hotWalletInfo.hotWalletID,
+            auth: oldAuth
+        ) else { return }
+
+        Task {
+            try? await sdk.changeAuth(walletAuthInfo: walletAuthInfo, auth: .password(new))
         }
     }
 

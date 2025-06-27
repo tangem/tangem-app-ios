@@ -32,6 +32,7 @@ protocol UserWalletRepository: Initializable {
     func initialClean()
     func setSaving(_ enabled: Bool)
     func addOrScan(scanner: CardScanner, completion: @escaping (UserWalletRepositoryResult?) -> Void)
+    func changePassword(old: String?, new: String, for userWalletId: UserWalletId) throws
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
