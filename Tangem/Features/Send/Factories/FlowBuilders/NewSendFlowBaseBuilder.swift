@@ -24,7 +24,7 @@ struct NewSendFlowBaseBuilder {
 
         let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendModel()
+        let sendModel = builder.makeSendWithSwapModel()
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
