@@ -36,7 +36,7 @@ extension SendTransactionDispatcher: TransactionDispatcher {
         do {
             let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
             walletModel.updateAfterSendingTransaction()
-            let signer = (transactionSigner as? TangemSigner)?.latestSigner.value
+            let signer = transactionSigner.latestSigner.value
             return mapper.mapResult(hash, blockchain: walletModel.tokenItem.blockchain, signer: signer)
         } catch {
             AppLogger.error(error: error)
