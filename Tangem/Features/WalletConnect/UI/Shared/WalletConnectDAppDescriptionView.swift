@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectDAppDescriptionView: View {
     let viewModel: WalletConnectDAppDescriptionViewModel
+    let kingfisherImageCache: ImageCache
     var verifiedDomainTapAction: (() -> Void)?
 
     var body: some View {
@@ -37,21 +39,23 @@ struct WalletConnectDAppDescriptionView: View {
 
     @ViewBuilder
     private var iconView: some View {
-        switch viewModel {
-        case .content(let contentState) where contentState.iconURL == nil:
-            fallbackIconAsset
-                .transition(.opacity)
+        ZStack {
+            switch viewModel {
+            case .content(let contentState) where contentState.iconURL == nil:
+                fallbackIconAsset
+                    .transition(.opacity)
 
-        case .content(let contentState):
-            remoteIcon(contentState)
-                .transition(.opacity)
+            case .content(let contentState):
+                remoteIcon(contentState)
+                    .transition(.opacity)
 
-        case .loading:
-            SkeletonView()
-                .frame(width: Layout.height, height: Layout.height)
-                .clipShape(RoundedRectangle(cornerRadius: Layout.iconCornerRadius))
-                .transition(.opacity)
+            case .loading:
+                SkeletonView()
+                    .frame(width: Layout.height, height: Layout.height)
+                    .transition(.opacity)
+            }
         }
+        .clipShape(RoundedRectangle(cornerRadius: Layout.iconCornerRadius))
     }
 
     private var fallbackIconAsset: some View {
@@ -62,17 +66,15 @@ struct WalletConnectDAppDescriptionView: View {
             .foregroundStyle(Colors.Icon.accent)
             .frame(width: Layout.height, height: Layout.height)
             .background(Colors.Icon.accent.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: Layout.iconCornerRadius))
     }
 
     private func remoteIcon(_ contentState: WalletConnectDAppDescriptionViewModel.ContentState) -> some View {
-        IconView(
-            url: contentState.iconURL,
-            size: CGSize(width: Layout.height, height: Layout.height),
-            cornerRadius: Layout.iconCornerRadius,
-            lowContrastBackgroundColor: IconViewDefaults.lowContrastBackgroundColor,
-            forceKingfisher: false
-        )
+        KFImage(contentState.iconURL)
+            .targetCache(kingfisherImageCache)
+            .cancelOnDisappear(true)
+            .resizable()
+            .scaledToFill()
+            .frame(width: Layout.height, height: Layout.height)
     }
 
     // MARK: - Name

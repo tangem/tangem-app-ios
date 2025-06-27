@@ -11,9 +11,14 @@ import ReownWalletKit
 
 final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     private let walletConnectService: any WCService
+    private let dAppIconURLResolver: WalletConnectDAppIconURLResolver
 
-    init(walletConnectService: some WCService) {
+    init(
+        walletConnectService: some WCService,
+        dAppIconURLResolver: WalletConnectDAppIconURLResolver
+    ) {
         self.walletConnectService = walletConnectService
+        self.dAppIconURLResolver = dAppIconURLResolver
     }
 
     func getDAppDataAndProposal(
@@ -25,10 +30,12 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         try Self.validateDomainIsSupported(from: reownSessionProposal)
         try Self.validateRequiredBlockchainsAreSupported(from: reownSessionProposal)
 
+        let dAppIconURL = await dAppIconURLResolver.resolveURL(from: reownSessionProposal.proposer.icons)
+
         let dAppData = WalletConnectDAppData(
             name: reownSessionProposal.proposer.name,
-            domain: try WalletConnectDAppDataMapper.mapDomainURL(from: reownSessionProposal),
-            icon: WalletConnectDAppDataMapper.mapIconURL(from: reownSessionProposal)
+            domain: try WalletConnectDAppSessionProposalMapper.mapDomainURL(from: reownSessionProposal),
+            icon: dAppIconURL
         )
 
         let requiredBlockchains = WalletConnectDAppSessionProposalMapper.mapRequiredBlockchains(from: reownSessionProposal)
