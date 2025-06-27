@@ -21623,7 +21623,6 @@
 				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
 				C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift in Sources */,
-				C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift in Sources */,
 				EFC7AD5D2DD4F44000AE78E1 /* SendNewAmountStep.swift in Sources */,
 				DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */,
 				EF842DEC2AFA58C5006E472E /* ExpressTokensListRoutable.swift in Sources */,
