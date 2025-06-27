@@ -79,6 +79,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         auxiliaryViewsVisible = true
+        interactor.preloadTransactionsHistoryIfNeeded()
     }
 
     private func setupView() {
@@ -223,11 +224,9 @@ extension SendDestinationViewModel: SendStepViewAnimatable {
 
 extension SendDestinationViewModel {
     struct Settings {
-        typealias SuggestedWallet = (name: String, address: String)
-
         let networkName: String
         let additionalFieldType: SendDestinationAdditionalFieldType?
-        let suggestedWallets: [SuggestedWallet]
+        let suggestedWallets: [SendSuggestedDestinationWallet]
     }
 }
 
