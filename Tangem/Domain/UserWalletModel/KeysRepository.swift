@@ -10,32 +10,32 @@ import Foundation
 import Combine
 
 protocol KeysRepository: AnyObject, KeysProvider {
-    func update(keys: [CardDTO.Wallet])
+    func update(keys: [WalletPublicInfo])
 }
 
 protocol KeysProvider {
-    var keys: [CardDTO.Wallet] { get }
-    var keysPublisher: AnyPublisher<[CardDTO.Wallet], Never> { get }
+    var keys: [WalletPublicInfo] { get }
+    var keysPublisher: AnyPublisher<[WalletPublicInfo], Never> { get }
 }
 
 class CommonKeysRepository {
-    private var _keys: CurrentValueSubject<[CardDTO.Wallet], Never>
+    private var _keys: CurrentValueSubject<[WalletPublicInfo], Never>
 
-    init(with keys: [CardDTO.Wallet]) {
+    init(with keys: [WalletPublicInfo]) {
         _keys = .init(keys)
     }
 }
 
 extension CommonKeysRepository: KeysRepository {
-    var keys: [CardDTO.Wallet] {
+    var keys: [WalletPublicInfo] {
         _keys.value
     }
 
-    var keysPublisher: AnyPublisher<[CardDTO.Wallet], Never> {
+    var keysPublisher: AnyPublisher<[WalletPublicInfo], Never> {
         _keys.eraseToAnyPublisher()
     }
 
-    func update(keys: [CardDTO.Wallet]) {
+    func update(keys: [WalletPublicInfo]) {
         _keys.value = keys
     }
 }
