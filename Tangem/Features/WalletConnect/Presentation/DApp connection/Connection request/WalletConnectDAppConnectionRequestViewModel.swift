@@ -55,10 +55,12 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         guard let loadedDAppProposal else { return }
 
         let previousBlockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
+        let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains()
+            ?? Array(loadedDAppProposal.sessionProposal.optionalBlockchains)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: loadedDAppProposal.sessionProposal,
-            selectedBlockchains: previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains() ?? [],
+            selectedBlockchains: selectedBlockchains,
             userWallet: selectedUserWallet
         )
 
@@ -197,7 +199,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleNavigationCloseButtonTapped() {
-        coordinator?.dismiss()
+        rejectDAppProposal()
     }
 
     private func handleVerifiedDomainIconTapped() {
