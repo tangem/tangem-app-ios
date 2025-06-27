@@ -15,8 +15,8 @@ actor CommonExpressRepository {
 
     private var providers: [ExpressProvider] = []
     private var pairs: Set<ExpressPair> = []
-    private var walletModels: [any WalletModel] {
-        walletModelsManager.walletModels.filter { !$0.isCustom }
+    private var userCurrencies: [ExpressWalletCurrency] {
+        walletModelsManager.walletModels.filter { !$0.isCustom }.map { $0.tokenItem.expressCurrency }
     }
 
     init(
@@ -39,34 +39,41 @@ extension CommonExpressRepository: ExpressRepository {
         return providers
     }
 
-    func updatePairs(for wallet: TangemExpress.ExpressWallet) async throws {
-        let currencies = walletModels
-            .filter { $0.expressCurrency != wallet.expressCurrency }
-            .map { $0.expressCurrency }
+    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency]) async throws {
+        guard !currencies.isEmpty else { return }
+
+        let pairsTo = try await expressAPIProvider.pairs(from: [wallet], to: currencies)
+        pairs.formUnion(pairsTo.toSet())
+    }
+
+    func updatePairs(for wallet: TangemExpress.ExpressWalletCurrency) async throws {
+        let currencies = userCurrencies.filter { $0 != wallet }
 
         guard !currencies.isEmpty else { return }
 
-        async let pairsTo = expressAPIProvider.pairs(from: [wallet.expressCurrency], to: currencies)
-        async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet.expressCurrency])
+        async let pairsTo = expressAPIProvider.pairs(from: [wallet], to: currencies)
+        async let pairsFrom = expressAPIProvider.pairs(from: currencies, to: [wallet])
 
         try await pairs.formUnion(pairsTo.toSet())
         try await pairs.formUnion(pairsFrom.toSet())
     }
 
     func getAvailableProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider.Id] {
-        if let availablePair = pairs.first(where: { $0.source == pair.source.expressCurrency && $0.destination == pair.destination.expressCurrency }) {
+        if let availablePair = pairs.first(where: {
+            $0.source == pair.source.currency.asCurrency && $0.destination == pair.destination.currency.asCurrency
+        }) {
             return availablePair.providers
         }
 
         throw ExpressRepositoryError.availableProvidersDoesNotFound
     }
 
-    func getPairs(to wallet: ExpressWallet) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.expressCurrency }.asArray
+    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.destination == wallet.asCurrency }.asArray
     }
 
-    func getPairs(from wallet: ExpressWallet) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.expressCurrency }.asArray
+    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.source == wallet.asCurrency }.asArray
     }
 }
 

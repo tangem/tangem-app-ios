@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import TangemFoundation
+import TangemHotSdk
 
 struct GeneralNotificationEventsFactory {
     func makeNotifications(for card: CardDTO) -> [GeneralNotificationEvent] {
@@ -34,5 +35,9 @@ struct GeneralNotificationEventsFactory {
         }
 
         return notifications
+    }
+
+    func makeNotifications(for hotWallet: HotWallet) -> [GeneralNotificationEvent] {
+        []
     }
 }
