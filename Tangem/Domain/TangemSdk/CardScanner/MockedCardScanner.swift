@@ -42,6 +42,7 @@ class MockedCardScanner {
                 style: .default,
                 handler: { _ in handler(.success(.cardMock(mock))) }
             )
+            action.accessibilityIdentifier = mock.accessibilityIdentifier
             vc.addAction(action)
         }
 

@@ -43,4 +43,11 @@ public extension URLSessionConfiguration {
         configuration.timeoutIntervalForResource = 30
         return configuration
     }()
+
+    static let walletConnectIconsContentTypeResolveConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 5
+        configuration.timeoutIntervalForResource = 10
+        return configuration
+    }()
 }
