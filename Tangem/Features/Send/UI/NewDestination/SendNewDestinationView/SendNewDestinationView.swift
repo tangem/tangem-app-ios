@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct SendNewDestinationView: View {
@@ -19,7 +20,7 @@ struct SendNewDestinationView: View {
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendNewDestinationAddressView(viewModel: $0)
             } footer: {
-                DefaultFooterView(viewModel.addressDescription)
+                DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
@@ -27,7 +28,7 @@ struct SendNewDestinationView: View {
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendNewDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView(viewModel.additionalFieldDescription)
+                DefaultFooterView(Localization.sendRecipientMemoFooter)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
