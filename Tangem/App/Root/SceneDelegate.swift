@@ -136,7 +136,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             switch activity.activityType {
             case NSUserActivityTypeBrowsingWeb:
                 if let url = activity.webpageURL {
-                    if incomingActionHandler.handleDeeplink(url) {
+                    if incomingActionHandler.handleIncomingURL(url) {
                         return true
                     }
                 }
@@ -154,7 +154,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @discardableResult
     private func handleUrlContexts(_ urlContexts: Set<UIOpenURLContext>) -> Bool {
         for context in urlContexts {
-            if incomingActionHandler.handleDeeplink(context.url) {
+            if incomingActionHandler.handleIncomingURL(context.url) {
                 return true
             }
         }
