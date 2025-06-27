@@ -102,6 +102,7 @@ extension Analytics {
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
         case sendCustomFeeInserted = "[Token / Send] Custom Fee Inserted"
         case sendGasLimitInserted = "[Token / Send] Gas Limit Inserted"
+        case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
         case sendSubstractFromAmount = "[Token / Send] Substract From Amount"

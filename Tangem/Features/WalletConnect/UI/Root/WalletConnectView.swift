@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
+    let kingfisherImageCache: ImageCache
 
     var body: some View {
         GeometryReader { proxy in
@@ -138,36 +140,26 @@ struct WalletConnectView: View {
         .animation(.bouncy(duration: 0.2), value: wallet.dApps)
     }
 
-    private func dAppRowView(_ dApp: WalletConnectSavedSession) -> some View {
-        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp)) }) {
+    private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
+        return Button(action: { viewModel.handle(viewEvent: .dAppTapped(dApp.domainModel)) }) {
             HStack(spacing: 12) {
-                // [REDACTED_TODO_COMMENT]
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Colors.Icon.accent.opacity(0.1))
-                    .frame(width: 36, height: 36)
-                    .overlay {
-                        Assets.Glyphs.explore.image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(Colors.Icon.accent)
-                    }
+                iconView(dApp)
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
-                        Text(dApp.sessionInfo.dAppInfo.name)
+                        Text(dApp.name)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                        // [REDACTED_TODO_COMMENT]
-                        Assets.Glyphs.verified
-                            .image
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Colors.Icon.accent)
+                        if let verifiedDomainIconAsset = dApp.verifiedDomainIconAsset {
+                            verifiedDomainIconAsset
+                                .image
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundStyle(Colors.Icon.accent)
+                        }
                     }
 
-                    // [REDACTED_TODO_COMMENT]
-                    Text("Connected App")
+                    Text(dApp.domain)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
             }
@@ -177,6 +169,40 @@ struct WalletConnectView: View {
         }
         .buttonStyle(.plain)
         .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
+    private func iconView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
+        ZStack {
+            switch dApp.iconURL {
+            case .some(let iconURL):
+                remoteIcon(iconURL)
+                    .transition(.opacity)
+
+            case .none:
+                fallbackIconAsset
+                    .transition(.opacity)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var fallbackIconAsset: some View {
+        Assets.Glyphs.explore.image
+            .resizable()
+            .scaledToFit()
+            .frame(width: 20, height: 20)
+            .foregroundStyle(Colors.Icon.accent)
+            .frame(width: 36, height: 36)
+            .background(Colors.Icon.accent.opacity(0.1))
+    }
+
+    private func remoteIcon(_ iconURL: URL) -> some View {
+        KFImage(iconURL)
+            .targetCache(kingfisherImageCache)
+            .cancelOnDisappear(true)
+            .resizable()
+            .scaledToFill()
+            .frame(width: 36, height: 36)
     }
 
     private func dismissDialogAction() {
