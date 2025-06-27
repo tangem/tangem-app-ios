@@ -88,7 +88,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         )
     }
 
-    var tokenName: String { tokenInfo.name }
+    var tokenName: String
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -147,6 +147,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.dataProvider = dataProvider
         self.marketsQuotesUpdateHelper = marketsQuotesUpdateHelper
         self.coordinator = coordinator
+        tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
@@ -282,6 +283,10 @@ private extension MarketsTokenDetailsViewModel {
     func setupUI(using model: MarketsTokenDetailsModel) {
         loadedTokenDetailsPriceChangeInfo = model.priceChangePercentage.compactMapValues { $0 }
         loadedInfo = model
+
+        if tokenName.isEmpty {
+            tokenName = model.name
+        }
 
         state = .loaded(model: model)
         numberOfExchangesListedOn = model.numberOfExchangesListedOn
