@@ -77,3 +77,41 @@ extension ReferralViewModel.ReferralError: UniversalError {
         }
     }
 }
+
+extension WalletConnectDAppProposalLoadingError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .uriAlreadyUsed:
+            107001001
+        case .pairingFailed:
+            107001002
+        case .invalidDomainURL:
+            107001003
+        case .unsupportedDomain:
+            107001004
+        case .unsupportedBlockchains:
+            107001005
+        case .noBlockchainsProvidedByDApp:
+            107001006
+        case .cancelledByUser:
+            107001007
+        }
+    }
+}
+
+extension WalletConnectDAppProposalApprovalError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .invalidConnectionRequest:
+            107002001
+        case .proposalExpired:
+            107002002
+        case .approvalFailed:
+            107002003
+        case .rejectionFailed:
+            107002004
+        case .cancelledByUser:
+            107002005
+        }
+    }
+}

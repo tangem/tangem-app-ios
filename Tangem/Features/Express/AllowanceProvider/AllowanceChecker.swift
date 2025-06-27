@@ -10,20 +10,34 @@ import Foundation
 import BlockchainSdk
 
 struct AllowanceChecker {
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
+    private let walletAddress: String
+    private let ethereumNetworkProvider: EthereumNetworkProvider?
+    private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
 
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
+    init(
+        tokenItem: TokenItem,
+        feeTokenItem: TokenItem,
+        walletAddress: String,
+        ethereumNetworkProvider: EthereumNetworkProvider?,
+        ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
+    ) {
+        self.tokenItem = tokenItem
+        self.feeTokenItem = feeTokenItem
+        self.walletAddress = walletAddress
+        self.ethereumNetworkProvider = ethereumNetworkProvider
+        self.ethereumTransactionDataBuilder = ethereumTransactionDataBuilder
     }
 
     func isPermissionRequired(amount: Decimal, spender: String) async throws -> Bool {
-        guard let contract = walletModel.tokenItem.contractAddress else {
+        guard let contract = tokenItem.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
-        var allowance = try await getAllowance(owner: walletModel.defaultAddressString, to: spender, contract: contract)
-        allowance /= walletModel.tokenItem.decimalValue
-        AppLogger.info("\(walletModel.tokenItem.name) allowance - \(allowance)")
+        var allowance = try await getAllowance(owner: walletAddress, to: spender, contract: contract)
+        allowance /= tokenItem.decimalValue
+        AppLogger.info("\(tokenItem.name) allowance - \(allowance)")
 
         // If we don't have enough allowance
         guard allowance < amount else {
@@ -34,7 +48,7 @@ struct AllowanceChecker {
     }
 
     func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
-        guard let ethereumNetworkProvider = walletModel.ethereumNetworkProvider else {
+        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
             throw AllowanceCheckerError.ethereumNetworkProviderNotFound
         }
 
@@ -46,27 +60,27 @@ struct AllowanceChecker {
     }
 
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        guard let ethereumTransactionDataBuilder = walletModel.ethereumTransactionDataBuilder else {
+        guard let ethereumTransactionDataBuilder = ethereumTransactionDataBuilder else {
             throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
         }
 
-        guard let ethereumNetworkProvider = walletModel.ethereumNetworkProvider else {
+        guard let ethereumNetworkProvider = ethereumNetworkProvider else {
             throw AllowanceCheckerError.ethereumNetworkProviderNotFound
         }
 
-        guard let contract = walletModel.tokenItem.contractAddress else {
+        guard let contract = tokenItem.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
         let approveAmount: Decimal = switch policy {
-        case .specified: amount * walletModel.tokenItem.decimalValue
+        case .specified: amount * tokenItem.decimalValue
         case .unlimited: .greatestFiniteMagnitude
         }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
         let amount = BSDKAmount(
-            with: walletModel.feeTokenItem.blockchain,
-            type: walletModel.feeTokenItem.amountType,
+            with: feeTokenItem.blockchain,
+            type: feeTokenItem.amountType,
             value: 0
         )
 

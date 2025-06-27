@@ -146,25 +146,7 @@ private extension CardActivationTask {
             return
         }
 
-        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
-            completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
-            return
-        }
-
-        if let derivedKey = wallet.derivedKeys[derivationPath] {
-            processDerivedKey(wallet: wallet, derivedKey: derivedKey, in: session, completion: completion)
-            return
-        }
-
-        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: wallet.publicKey, derivationPath: derivationPath)
-        derivationTask.run(in: session) { result in
-            switch result {
-            case .success(let derivedKey):
-                self.processDerivedKey(wallet: wallet, derivedKey: derivedKey, in: session, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        processDerivedKey(wallet: wallet, in: session, completion: completion)
     }
 
     func createOTP(in session: CardSession, completion: @escaping CompletionHandler) {
@@ -326,12 +308,11 @@ private extension CardActivationTask {
 private extension CardActivationTask {
     func processDerivedKey(
         wallet: Card.Wallet,
-        derivedKey: ExtendedPublicKey,
         in session: CardSession,
         completion: @escaping CompletionHandler
     ) {
         do {
-            let address = try visaUtilities.makeAddress(seedKey: wallet.publicKey, extendedKey: derivedKey)
+            let address = try visaUtilities.makeAddress(walletPublicKey: wallet.publicKey)
             awaitBFFAuthorization(walletAddress: address.value)
             createOTP(in: session, completion: completion)
         } catch {

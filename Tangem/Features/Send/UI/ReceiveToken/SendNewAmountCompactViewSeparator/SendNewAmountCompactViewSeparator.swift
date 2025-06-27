@@ -14,16 +14,16 @@ struct SendNewAmountCompactViewSeparator: View {
     let style: SeparatorStyle
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .center) {
             Line()
-                .stroke(style: .init(dash: [3]))
+                .stroke(style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [4]))
                 .foregroundStyle(Colors.Background.tertiary)
-                .frame(height: 6)
+                .frame(height: 3)
+                .offset(y: 1.5)
 
-            separatorTitle.background {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Colors.Background.tertiary)
-            }
+            separatorTitle
+                .background(Colors.Background.tertiary)
+                .clipShape(Capsule())
         }
     }
 

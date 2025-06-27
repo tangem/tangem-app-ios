@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol ReferralNotificationController {
-    var showReferralNotificationPublisher: AnyPublisher<Bool?, Never> { get }
+    var showReferralNotificationPublisher: AnyPublisher<Bool, Never> { get }
 
     func checkReferralStatus()
     func dismissReferralNotification()

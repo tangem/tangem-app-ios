@@ -132,6 +132,20 @@ public func runTask<T>(
     }
 }
 
+public func runTask<T>(
+    withMinimumTime time: TimeInterval,
+    code: @escaping () async throws -> T
+) async throws -> Task<T, Error> {
+    try await Task {
+        async let update = code()
+        async let minimumWaitingTime: () = Task.sleep(seconds: time)
+
+        let (result, _) = try await (update, minimumWaitingTime)
+
+        return result
+    }
+}
+
 // MARK: - Convenience extensions
 
 public extension Task where Success == Never, Failure == Never {

@@ -13,7 +13,7 @@ struct WCHandleTransactionData {
     let method: WalletConnectMethod
     let userWalletModel: UserWalletModel
     let requestData: Data
-    let dappInfo: WalletConnectSavedSession.DAppInfo
+    let dAppData: WalletConnectDAppData
     let accept: () async throws -> Void
     let reject: () async throws -> Void
 }
@@ -28,7 +28,7 @@ extension WCHandleTransactionData {
         method = dto.method
         requestData = dto.requestData
 
-        dappInfo = validatedRequest.session.sessionInfo.dAppInfo
+        dAppData = validatedRequest.dAppData
 
         accept = {
             let result = try await dto.accept()
