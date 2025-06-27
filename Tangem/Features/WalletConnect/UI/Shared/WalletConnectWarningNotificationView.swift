@@ -26,6 +26,7 @@ struct WalletConnectWarningNotificationView: View {
 
                 Text(viewModel.body)
                     .style(Fonts.Regular.footnote, color: bodyTextColor)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

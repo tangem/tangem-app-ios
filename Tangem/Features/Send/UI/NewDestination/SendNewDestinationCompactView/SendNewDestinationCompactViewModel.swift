@@ -17,15 +17,10 @@ class SendNewDestinationCompactViewModel: ObservableObject, Identifiable {
     @Published var address: String = ""
     @Published var additionalField: String?
 
-    private weak var input: SendDestinationInput?
     private var inputSubscription: AnyCancellable?
 
-    init(
-        input: SendDestinationInput,
-        suiTextViewModel: SUITextViewModel
-    ) {
-        self.input = input
-        self.suiTextViewModel = suiTextViewModel
+    init(input: SendDestinationInput) {
+        suiTextViewModel = .init()
 
         bind(input: input)
     }
