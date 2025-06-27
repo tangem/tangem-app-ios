@@ -16,10 +16,19 @@ import struct TangemUI.TokenIconInfo
 struct SendDependenciesBuilder {
     private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private let expressDependenciesFactory: ExpressDependenciesFactory
 
     init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
+
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletModel: userWalletModel,
+            initialWalletModel: walletModel,
+            destinationWalletModel: .none
+        )
     }
 
     func makeFiatItem() -> FiatItem {
@@ -90,7 +99,7 @@ struct SendDependenciesBuilder {
 
     func makeStakeAction() -> StakingAction {
         StakingAction(
-            amount: (try? walletModel.getBalance()) ?? 0,
+            amount: walletModel.availableBalanceProvider.balanceType.value ?? 0,
             validatorType: .empty,
             type: .stake
         )
@@ -170,8 +179,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeInformationRelevanceService(sendFeeInteractor: SendFeeInteractor) -> InformationRelevanceService {
-        CommonInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+    func makeInformationRelevanceService(input: SendFeeInput, output: SendFeeOutput, provider: SendFeeProvider) -> InformationRelevanceService {
+        CommonInformationRelevanceService(input: input, output: output, provider: provider)
     }
 
     func makeTransactionDispatcher() -> TransactionDispatcher {
@@ -267,6 +276,19 @@ struct SendDependenciesBuilder {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 
+    func makeSendNewDestinationInteractorDependenciesProvider() -> SendNewDestinationInteractorDependenciesProvider {
+        SendNewDestinationInteractorDependenciesProvider(
+            receivedTokenType: .same(walletModel.tokenItem),
+            sendingWalletData: .init(
+                walletAddresses: walletModel.addresses.map(\.value),
+                suggestedWallets: makeSuggestedWallets(),
+                transactionHistoryUpdater: walletModel,
+                transactionHistoryMapper: makeTransactionHistoryMapper(),
+                addressResolver: walletModel.addressResolver
+            )
+        )
+    }
+
     func makeSendDestinationValidator() -> SendDestinationValidator {
         let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
         let validator = CommonSendDestinationValidator(
@@ -279,7 +301,10 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(transactionHistoryProvider: walletModel)
+        CommonSendDestinationTransactionHistoryProvider(
+            transactionHistoryUpdater: walletModel,
+            transactionHistoryMapper: makeTransactionHistoryMapper()
+        )
     }
 
     func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
@@ -288,6 +313,26 @@ struct SendDependenciesBuilder {
             walletAddresses: walletModel.addresses.map { $0.value },
             showSign: false
         )
+    }
+
+    func makeSuggestedWallets() -> [SendSuggestedDestinationWallet] {
+        let ignoredAddresses = walletModel.addresses.map(\.value).toSet()
+        let targetNetworkId = walletModel.tokenItem.blockchain.networkId
+
+        return userWalletRepository.models.reduce(into: []) { partialResult, userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+
+            partialResult += walletModels
+                .filter { walletModel in
+                    let blockchain = walletModel.tokenItem.blockchain
+                    let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
+
+                    return blockchain.networkId == targetNetworkId && walletModel.isMainToken && shouldBeIncluded()
+                }
+                .map { walletModel in
+                    SendSuggestedDestinationWallet(name: userWalletModel.name, address: walletModel.defaultAddressString)
+                }
+        }
     }
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
@@ -314,8 +359,16 @@ struct SendDependenciesBuilder {
         CommonSendAlertBuilder()
     }
 
-    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
-        CommonSendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
+    func makeSendBaseDataBuilder(
+        input: SendBaseDataBuilderInput,
+        receiveTokenIO: SendReceiveTokensListBuilder.IO? = .none
+    ) -> SendBaseDataBuilder {
+        CommonSendBaseDataBuilder(
+            input: input,
+            walletModel: walletModel,
+            emailDataProvider: userWalletModel,
+            sendReceiveTokensListBuilder: receiveTokenIO.map { makeSendReceiveTokensListBuilder(io: $0) }
+        )
     }
 
     func makeSendFinishAnalyticsLogger(sendFeeInput: SendFeeInput) -> SendFinishAnalyticsLogger {
@@ -326,12 +379,20 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeCustomFeeService() -> CustomFeeService? {
-        CustomFeeServiceFactory(walletModel: walletModel).makeService()
+    func makeCustomFeeService(input: any CustomFeeServiceInput) -> CustomFeeService? {
+        CustomFeeServiceFactory(walletModel: walletModel).makeService(input: input)
     }
 
-    func makeSendFeeProvider() -> SendFeeProvider {
-        CommonSendFeeProvider(walletModel: walletModel)
+    func makeSendFeeLoader() -> SendFeeLoader {
+        CommonSendFeeLoader(
+            tokenItem: walletModel.tokenItem,
+            walletModelFeeProvider: walletModel,
+            shouldShowFeeSelector: walletModel.shouldShowFeeSelector
+        )
+    }
+
+    func makeSendFeeProvider(input: any SendFeeProviderInput, swapManager: SwapManager? = .none) -> CommonSendFeeProvider {
+        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader(), swapManager: swapManager)
     }
 
     func makeFeeSelectorContentViewModelAnalytics(flowKind: SendModel.PredefinedValues.FlowKind) -> FeeSelectorContentViewModelAnalytics {
@@ -341,8 +402,48 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeFeeSelectorCustomFeeFieldsBuilder() -> FeeSelectorCustomFeeFieldsBuilder {
-        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: makeCustomFeeService())
+    func makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: (any CustomFeeService)?) -> FeeSelectorCustomFeeFieldsBuilder {
+        SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService)
+    }
+
+    // MARK: - Send via swap
+
+    func makeSendWithSwapModel(
+        predefinedSellParameters: PredefinedSellParameters? = .none
+    ) -> SendWithSwapModel {
+        let transactionDispatcher = makeTransactionDispatcher()
+        let swapManager: SwapManager = makeSwapManager()
+        let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
+
+        return SendWithSwapModel(
+            tokenItem: walletModel.tokenItem,
+            balanceProvider: walletModel.availableBalanceProvider,
+            transactionDispatcher: transactionDispatcher,
+            transactionCreator: walletModel.transactionCreator,
+            transactionSigner: userWalletModel.signer,
+            feeIncludedCalculator: makeFeeIncludedCalculator(),
+            feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
+            sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            swapManager: swapManager,
+            predefinedValues: predefinedValues
+        )
+    }
+
+    func makeSwapManager() -> SwapManager {
+        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+    }
+
+    func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
+        SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
+    }
+
+    func makeSendReceiveTokensListBuilder(io: SendReceiveTokensListBuilder.IO) -> SendReceiveTokensListBuilder {
+        SendReceiveTokensListBuilder(
+            io: io,
+            tokenItem: walletModel.tokenItem,
+            expressRepository: expressDependenciesFactory.expressRepository,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder()
+        )
     }
 
     // MARK: - NFT support
@@ -457,7 +558,16 @@ struct SendDependenciesBuilder {
     }
 
     func makeAllowanceProvider() -> AllowanceProvider {
-        CommonAllowanceProvider(walletModel: walletModel)
+        CommonAllowanceProvider(
+            tokenItem: walletModel.tokenItem,
+            allowanceChecker: .init(
+                tokenItem: walletModel.tokenItem,
+                feeTokenItem: walletModel.feeTokenItem,
+                walletAddress: walletModel.defaultAddressString,
+                ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
+                ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
+            )
+        )
     }
 
     func makeStakingTransactionMapper() -> StakingTransactionMapper {
