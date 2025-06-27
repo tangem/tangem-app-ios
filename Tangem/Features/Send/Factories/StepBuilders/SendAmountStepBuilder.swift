@@ -19,7 +19,7 @@ struct SendAmountStepBuilder {
     func makeSendAmountStep(
         io: IO,
         actionType: SendFlowActionType,
-        sendFeeLoader: any SendFeeLoader,
+        sendFeeProvider: any SendFeeProvider,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
@@ -42,7 +42,7 @@ struct SendAmountStepBuilder {
         let step = SendAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeLoader: sendFeeLoader,
+            sendFeeProvider: sendFeeProvider,
             flowKind: flowKind
         )
 
@@ -96,6 +96,8 @@ private extension SendAmountStepBuilder {
         CommonSendAmountInteractor(
             input: io.input,
             output: io.output,
+            receiveTokenInput: .none,
+            receiveTokenOutput: .none,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),

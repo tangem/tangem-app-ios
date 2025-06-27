@@ -34,7 +34,7 @@ protocol UserWalletModel:
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-    var cardImageProvider: CardImageProviding { get }
+    var walletImageProvider: WalletImageProviding { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var totalSignedHashes: Int { get }
     var name: String { get }
