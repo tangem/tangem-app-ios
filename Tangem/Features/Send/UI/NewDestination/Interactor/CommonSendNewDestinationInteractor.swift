@@ -1,17 +1,18 @@
 //
-//  SendDestinationInteractor.swift
-//  Tangem
+//  CommonSendNewDestinationInteractor.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-import BlockchainSdk
 import TangemFoundation
+import BlockchainSdk
 
-protocol SendDestinationInteractor {
+protocol SendNewDestinationInteractor {
+    var tokenItemPublisher: AnyPublisher<TokenItem, Never> { get }
+    var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 
     var hasError: Bool { get }
@@ -24,20 +25,15 @@ protocol SendDestinationInteractor {
 
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
-    /// Fixing the issue where recent addresses are missing when opening Send from context actions.
     func preloadTransactionsHistoryIfNeeded()
 }
 
-class CommonSendDestinationInteractor {
+class CommonSendNewDestinationInteractor {
     private weak var input: SendDestinationInput?
     private weak var output: SendDestinationOutput?
+    private weak var receiveTokenInput: SendReceiveTokenInput?
 
-    private let validator: SendDestinationValidator
-    private let transactionHistoryProvider: SendDestinationTransactionHistoryProvider
-    private let addressResolver: AddressResolver?
-    private let additionalFieldType: SendDestinationAdditionalFieldType?
-    private let parametersBuilder: TransactionParamsBuilder
-    private let analyticsLogger: SendDestinationAnalyticsLogger
+    private var dependenciesBuilder: SendNewDestinationInteractorDependenciesProvider
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -48,29 +44,46 @@ class CommonSendDestinationInteractor {
     private let _additionalFieldValid: CurrentValueSubject<Bool, Never> = .init(true)
     private let _destinationAdditionalFieldError: CurrentValueSubject<Error?, Never> = .init(nil)
 
+    private let _suggestedWallets: CurrentValueSubject<[SendSuggestedDestinationWallet], Never> = .init([])
+    private let _suggestedDestination: CurrentValueSubject<[SendSuggestedDestinationTransactionRecord], Never> = .init([])
+
+    private var bag: Set<AnyCancellable> = []
+
     init(
         input: SendDestinationInput,
         output: SendDestinationOutput,
-        validator: SendDestinationValidator,
-        transactionHistoryProvider: SendDestinationTransactionHistoryProvider,
-        addressResolver: AddressResolver?,
-        additionalFieldType: SendDestinationAdditionalFieldType?,
-        parametersBuilder: TransactionParamsBuilder,
-        analyticsLogger: SendDestinationAnalyticsLogger
+        receiveTokenInput: SendReceiveTokenInput,
+        dependenciesBuilder: SendNewDestinationInteractorDependenciesProvider
     ) {
         self.input = input
         self.output = output
-        self.validator = validator
-        self.transactionHistoryProvider = transactionHistoryProvider
-        self.addressResolver = addressResolver
-        self.additionalFieldType = additionalFieldType
-        self.parametersBuilder = parametersBuilder
-        self.analyticsLogger = analyticsLogger
+        self.receiveTokenInput = receiveTokenInput
+        self.dependenciesBuilder = dependenciesBuilder
+
+        bind()
+    }
+
+    private func bind() {
+        receiveTokenInput?.receiveTokenPublisher
+            .receiveOnGlobal()
+            .withWeakCaptureOf(self)
+            .sink { $0.updateDependencies(receivedTokenType: $1) }
+            .store(in: &bag)
+    }
+
+    private func updateDependencies(receivedTokenType: SendReceiveTokenType) {
+        dependenciesBuilder.update(receivedTokenType: receivedTokenType)
+
+        _suggestedWallets.send(dependenciesBuilder.suggestedWallets)
+        dependenciesBuilder.transactionHistoryProvider
+            .transactionHistoryPublisher
+            .assign(to: \._suggestedDestination.value, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func update(destination result: Result<String?, Error>, source: Analytics.DestinationAddressSource) {
         switch result {
-        case .success(.none), .success(Constants.emptyString):
+        case .success(.none), .success(.empty):
             _destinationValid.send(false)
             _destinationError.send(.none)
             output?.destinationDidChanged(.none)
@@ -80,33 +93,25 @@ class CommonSendDestinationInteractor {
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            analyticsLogger.log(isAddressValid: true, source: source)
+            dependenciesBuilder.analyticsLogger.log(isAddressValid: true, source: source)
             output?.destinationDidChanged(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
-            analyticsLogger.log(isAddressValid: false, source: source)
+            dependenciesBuilder.analyticsLogger.log(isAddressValid: false, source: source)
             output?.destinationDidChanged(.none)
         }
     }
 
-    private func resolve(destination: String, resolver: AddressResolver) async throws -> String {
-        _isValidatingDestination.send(true)
-        let resolved = try await resolver.resolve(destination)
-        _isValidatingDestination.send(false)
-
-        return resolved
-    }
-
     private func proceed(additionalField: String) throws -> SendDestinationAdditionalField {
-        guard let type = additionalFieldType else {
+        guard let type = dependenciesBuilder.additionalFieldType else {
             assertionFailure("Additional field for the blockchain which doesn't support it")
             return .notSupported
         }
 
         do {
-            let parameters = try parametersBuilder.transactionParameters(value: additionalField)
+            let parameters = try dependenciesBuilder.parametersBuilder.transactionParameters(value: additionalField)
             return .filled(type: type, value: additionalField, params: parameters)
         } catch TransactionParamsBuilderError.extraIdNotSupported {
             // We don't have to call this code if transactionParameters doesn't exist for this blockchain
@@ -118,17 +123,44 @@ class CommonSendDestinationInteractor {
             throw error
         }
     }
+
+    private func resolveIfPossible(address: String) async throws -> String {
+        guard let addressResolver = dependenciesBuilder.addressResolver else {
+            return address
+        }
+
+        _isValidatingDestination.send(true)
+        let resolved = try await addressResolver.resolve(address)
+        _isValidatingDestination.send(false)
+
+        return resolved
+    }
 }
 
 // MARK: - SendDestinationInteractor
 
-extension CommonSendDestinationInteractor: SendDestinationInteractor {
+extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
     var hasError: Bool {
         _destinationError.value != nil || _destinationAdditionalFieldError.value != nil
     }
 
+    var tokenItemPublisher: AnyPublisher<TokenItem, Never> {
+        guard let receiveTokenInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenInput
+            .receiveTokenPublisher
+            .map { $0.tokenItem }
+            .eraseToAnyPublisher()
+    }
+
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
-        transactionHistoryProvider.transactionHistoryPublisher
+        _suggestedDestination.eraseToAnyPublisher()
+    }
+
+    var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> {
+        _suggestedWallets.eraseToAnyPublisher()
     }
 
     var isValidatingDestination: AnyPublisher<Bool, Never> {
@@ -159,6 +191,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
     }
 
     func update(destination address: String, source: Analytics.DestinationAddressSource) {
+        let validator = dependenciesBuilder.validator
         _canEmbedAdditionalField.send(validator.canEmbedAdditionalField(into: address))
 
         guard !address.isEmpty else {
@@ -166,29 +199,21 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             return
         }
 
-        do {
-            try validator.validate(destination: address)
+        runTask(in: self) { interactor in
+            do {
+                try validator.validate(destination: address)
+                let resolved = try await interactor.resolveIfPossible(address: address)
 
-            if let addressResolver = addressResolver {
-                runTask(in: self) { interactor in
-                    do {
-                        let resolved = try await interactor.resolve(destination: address, resolver: addressResolver)
-                        interactor.update(destination: .success(resolved), source: source)
-                    } catch {
-                        interactor.update(destination: .failure(error), source: source)
-                    }
-                }
-            } else {
-                update(destination: .success(address), source: source)
+                interactor.update(destination: .success(resolved), source: source)
+            } catch {
+                interactor.update(destination: .failure(error), source: source)
             }
-        } catch {
-            update(destination: .failure(error), source: source)
         }
     }
 
     func update(additionalField value: String) {
-        guard let type = additionalFieldType else {
-            assertionFailure("This method doesn't be called if additionalFieldType is nil")
+        guard let type = dependenciesBuilder.additionalFieldType else {
+            assertionFailure("This method don't have to be called if additionalFieldType is nil")
             output?.destinationAdditionalParametersDidChanged(.notSupported)
             _additionalFieldValid.send(true)
             return
@@ -214,7 +239,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
     }
 
     func preloadTransactionsHistoryIfNeeded() {
-        transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
+        dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
     }
 }
 
