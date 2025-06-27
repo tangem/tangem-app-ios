@@ -14,18 +14,18 @@ import SwiftUI
 class SendDestinationStep {
     private let viewModel: SendDestinationViewModel
     private let interactor: SendDestinationInteractor
-    private let sendFeeInteractor: SendFeeInteractor
+    private let sendFeeProvider: SendFeeProvider
     private let tokenItem: TokenItem
 
     init(
         viewModel: SendDestinationViewModel,
         interactor: any SendDestinationInteractor,
-        sendFeeInteractor: any SendFeeInteractor,
+        sendFeeProvider: any SendFeeProvider,
         tokenItem: TokenItem
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeInteractor = sendFeeInteractor
+        self.sendFeeProvider = sendFeeProvider
         self.tokenItem = tokenItem
     }
 
@@ -69,6 +69,6 @@ extension SendDestinationStep: SendStep {
             return
         }
 
-        sendFeeInteractor.updateFees()
+        sendFeeProvider.updateFees()
     }
 }
