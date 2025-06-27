@@ -1,5 +1,5 @@
 //
-//  CardImageProviding.swift
+//  WalletImageProviding.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import SwiftUI
 
-protocol CardImageProviding {
+protocol WalletImageProviding {
     func loadLargeImage() async -> ImageValue
     func loadSmallImage() async -> ImageValue
 
@@ -22,7 +22,7 @@ struct ImageValue {
     let image: Image
 }
 
-extension CardImageProviding {
+extension WalletImageProviding {
     func loadLargeImage() async -> ImageValue {
         let uiImage = await loadLargeUIImage()
         let image = Image(uiImage: uiImage)
