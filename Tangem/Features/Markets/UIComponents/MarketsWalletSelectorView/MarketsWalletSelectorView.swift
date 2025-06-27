@@ -71,21 +71,21 @@ struct MarketsWalletSelectorView: View {
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
                     userWalletNamePublisher: .just(output: "Old wallet"),
-                    cardImageProvider: CardImageProviderMock()
+                    walletImageProvider: CardImageProviderMock()
                 )
             )
 
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    cardImageProvider: CardImageProviderMock()
+                    walletImageProvider: CardImageProviderMock()
                 )
             )
 
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    cardImageProvider: CardImageProviderMock()
+                    walletImageProvider: CardImageProviderMock()
                 )
             )
         }
