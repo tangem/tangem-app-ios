@@ -16,6 +16,7 @@ import struct TangemUI.TokenIconInfo
 struct SendDependenciesBuilder {
     private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let expressDependenciesFactory: ExpressDependenciesFactory
 
@@ -278,6 +279,19 @@ struct SendDependenciesBuilder {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 
+    func makeSendNewDestinationInteractorDependenciesProvider() -> SendNewDestinationInteractorDependenciesProvider {
+        SendNewDestinationInteractorDependenciesProvider(
+            receivedTokenType: .same(walletModel.tokenItem),
+            sendingWalletData: .init(
+                walletAddresses: walletModel.addresses.map(\.value),
+                suggestedWallets: makeSuggestedWallets(),
+                transactionHistoryUpdater: walletModel,
+                transactionHistoryMapper: makeTransactionHistoryMapper(),
+                addressResolver: walletModel.addressResolver
+            )
+        )
+    }
+
     func makeSendDestinationValidator() -> SendDestinationValidator {
         let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
         let validator = CommonSendDestinationValidator(
@@ -290,7 +304,10 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(transactionHistoryUpdater: walletModel)
+        CommonSendDestinationTransactionHistoryProvider(
+            transactionHistoryUpdater: walletModel,
+            transactionHistoryMapper: makeTransactionHistoryMapper()
+        )
     }
 
     func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
@@ -299,6 +316,26 @@ struct SendDependenciesBuilder {
             walletAddresses: walletModel.addresses.map { $0.value },
             showSign: false
         )
+    }
+
+    func makeSuggestedWallets() -> [SendSuggestedDestinationWallet] {
+        let ignoredAddresses = walletModel.addresses.map(\.value).toSet()
+        let targetNetworkId = walletModel.tokenItem.blockchain.networkId
+
+        return userWalletRepository.models.reduce(into: []) { partialResult, userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+
+            partialResult += walletModels
+                .filter { walletModel in
+                    let blockchain = walletModel.tokenItem.blockchain
+                    let shouldBeIncluded = { blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString) }
+
+                    return blockchain.networkId == targetNetworkId && walletModel.isMainToken && shouldBeIncluded()
+                }
+                .map { walletModel in
+                    SendSuggestedDestinationWallet(name: userWalletModel.name, address: walletModel.defaultAddressString)
+                }
+        }
     }
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
@@ -375,7 +412,7 @@ struct SendDependenciesBuilder {
     // MARK: - Send via swap
 
     func makeSwapManager() -> SwapManager {
-        CommonSwapManager(tokenItem: walletModel.tokenItem, interactor: expressDependenciesFactory.expressInteractor)
+        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
     }
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
@@ -386,7 +423,8 @@ struct SendDependenciesBuilder {
         SendReceiveTokensListBuilder(
             io: io,
             tokenItem: walletModel.tokenItem,
-            expressRepository: expressDependenciesFactory.expressRepository
+            expressRepository: expressDependenciesFactory.expressRepository,
+            receiveTokenBuilder: makeSendReceiveTokenBuilder()
         )
     }
 
