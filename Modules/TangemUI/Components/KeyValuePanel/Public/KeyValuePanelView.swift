@@ -12,6 +12,7 @@ import TangemUIUtils
 
 public struct KeyValuePanelView: View {
     let viewData: KeyValuePanelViewData
+
     @State private var width: CGFloat = 0
 
     private var itemWidth: CGFloat {

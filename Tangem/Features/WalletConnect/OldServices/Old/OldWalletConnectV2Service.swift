@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
 import ReownWalletKit
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
+import TangemUI
 
 protocol OldWalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
