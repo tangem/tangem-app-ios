@@ -842,6 +842,15 @@ public indirect enum Blockchain: Equatable, Hashable {
             return false
         }
     }
+
+    public var isTransactionAsync: Bool {
+        switch self {
+        case .ton:
+            true
+        default:
+            false
+        }
+    }
 }
 
 // MARK: - Ethereum based blockchain definition
