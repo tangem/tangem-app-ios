@@ -551,13 +551,13 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardImageProvider: CardImageProviding { userWalletModel.cardImageProvider }
+    var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
 
     var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
 
     var name: String { userWalletModel.name }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.cardHeaderImagePublisher }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
 
@@ -607,7 +607,7 @@ extension VisaUserWalletModel: UserWalletSerializable {
         return StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
-            card: cardInfo.card,
+            walletInfo: .card(cardInfo.card),
             associatedCardIds: [],
             walletData: cardInfo.walletData
         )
