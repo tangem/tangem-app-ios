@@ -52,6 +52,10 @@ class ReferralViewModel: ObservableObject {
         }
     }
 
+    func onAppear() {
+        Analytics.log(.referralScreenOpened)
+    }
+
     @MainActor
     func participateInReferralProgram() async {
         if isProcessingRequest {
