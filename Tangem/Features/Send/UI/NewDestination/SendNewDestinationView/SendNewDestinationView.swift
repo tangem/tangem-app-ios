@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct SendNewDestinationView: View {
@@ -19,27 +20,23 @@ struct SendNewDestinationView: View {
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendNewDestinationAddressView(viewModel: $0)
             } footer: {
-                DefaultFooterView(viewModel.addressDescription)
-                    .transition(transitionService.destinationAuxiliaryViewTransition)
+                DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .animation(SendTransitionService.Constants.newAnimation, value: viewModel.addressTextViewHeightModel.height)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendNewDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView(viewModel.additionalFieldDescription)
-                    .transition(transitionService.destinationAuxiliaryViewTransition)
+                DefaultFooterView(Localization.sendRecipientMemoFooter)
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
-            .transition(transitionService.destinationAuxiliaryViewTransition)
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 if viewModel.shouldShowSuggestedDestination {
                     SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
-                        .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
+                        .transition(transitionService.newDestinationSuggestedViewTransition)
                 }
             }
         }

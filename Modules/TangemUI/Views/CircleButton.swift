@@ -164,7 +164,7 @@ public extension CircleButton {
 
         func textColor(isDisabled: Bool) -> Color {
             switch self {
-            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.secondary
+            case .primary: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
             }
         }
 
