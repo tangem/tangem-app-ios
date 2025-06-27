@@ -13,24 +13,20 @@ import TangemFoundation
 import SwiftUI
 
 class SendNewDestinationViewModel: ObservableObject, Identifiable {
-    @Published var destinationAddressViewModel: SendNewDestinationAddressViewModel?
+    @Published var destinationAddressViewModel: SendNewDestinationAddressViewModel
     @Published var additionalFieldViewModel: SendNewDestinationAdditionalFieldViewModel?
 
     @Published var shouldShowSuggestedDestination: Bool = true
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
-    let addressDescription: String
-    let additionalFieldDescription: String
-    let addressTextViewHeightModel: AddressTextViewHeightModel
+    @Published var networkName: String = ""
 
     // MARK: - Private
 
-    private let settings: Settings
-    private let interactor: SendDestinationInteractor
+    private let interactor: SendNewDestinationInteractor
     private let sendQRCodeService: SendQRCodeService
     private weak var router: SendDestinationRoutable?
 
-    private let suggestedWallets: [SendSuggestedDestinationWallet]
     private var bag: Set<AnyCancellable> = []
 
     weak var stepRouter: SendDestinationStepRoutable?
@@ -38,26 +34,20 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
     // MARK: - Methods
 
     init(
-        settings: Settings,
-        interactor: SendDestinationInteractor,
+        interactor: SendNewDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
-        addressTextViewHeightModel: AddressTextViewHeightModel,
         router: SendDestinationRoutable
     ) {
-        self.settings = settings
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
-        self.addressTextViewHeightModel = addressTextViewHeightModel
         self.router = router
 
-        addressDescription = Localization.sendRecipientAddressFooter(settings.networkName)
-        additionalFieldDescription = Localization.sendRecipientMemoFooter
+        destinationAddressViewModel = SendNewDestinationAddressViewModel(
+            textViewModel: .init(),
+            sendAddress: .init(value: "", source: .textField)
+        )
 
-        suggestedWallets = settings.suggestedWallets.map { wallet in
-            SendSuggestedDestinationWallet(name: wallet.name, address: wallet.address)
-        }
-
-        setupView()
+        destinationAddressViewModel.router = self
         bind()
     }
 
@@ -65,22 +55,26 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
         interactor.preloadTransactionsHistoryIfNeeded()
     }
 
-    private func setupView() {
-        destinationAddressViewModel = SendNewDestinationAddressViewModel(
-            textViewModel: addressTextViewHeightModel,
-            sendAddress: .init(value: "", source: .textField),
-            router: self
-        )
+    private func updateView(tokenItem: TokenItem) {
+        networkName = tokenItem.networkName
 
-        additionalFieldViewModel = settings.additionalFieldType.map { additionalFieldType in
+        additionalFieldViewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
             .init(title: additionalFieldType.name)
         }
     }
 
     private func bind() {
+        // MARK: - Token
+
+        interactor.tokenItemPublisher
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { $0.updateView(tokenItem: $1) }
+            .store(in: &bag)
+
         // MARK: - Destination
 
-        destinationAddressViewModel?.addressPublisher()
+        destinationAddressViewModel.addressPublisher()
             .dropFirst()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
@@ -93,7 +87,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, isValidating in
-                viewModel.destinationAddressViewModel?.update(isValidating: isValidating)
+                viewModel.destinationAddressViewModel.update(isValidating: isValidating)
             }
             .store(in: &bag)
 
@@ -101,17 +95,18 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
-                viewModel.destinationAddressViewModel?.update(error: error)
+                viewModel.destinationAddressViewModel.update(error: error)
             }
             .store(in: &bag)
 
         // MARK: - Transaction History
 
-        interactor.transactionHistoryPublisher
+        Publishers.CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
-            .sink { viewModel, recentTransactions in
-                viewModel.setupSuggestedDestination(recentTransactions: recentTransactions)
+            .sink { viewModel, args in
+                let (recentTransactions, suggestedWallets) = args
+                viewModel.setupSuggestedDestination(recentTransactions: recentTransactions, suggestedWallets: suggestedWallets)
             }
             .store(in: &bag)
 
@@ -119,7 +114,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destinationValid in
-                let text = viewModel.destinationAddressViewModel?.text.value ?? ""
+                let text = viewModel.destinationAddressViewModel.text.value
                 viewModel.shouldShowSuggestedDestination = text.isEmpty || !destinationValid
             }
             .store(in: &bag)
@@ -132,7 +127,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, address in
-                viewModel.destinationAddressViewModel?.update(address: .init(value: address, source: .qrCode))
+                viewModel.destinationAddressViewModel.update(address: .init(value: address, source: .qrCode))
             }
             .store(in: &bag)
 
@@ -179,7 +174,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    private func setupSuggestedDestination(recentTransactions: [SendSuggestedDestinationTransactionRecord]) {
+    private func setupSuggestedDestination(recentTransactions: [SendSuggestedDestinationTransactionRecord], suggestedWallets: [SendSuggestedDestinationWallet]) {
         let hasSuggestions = !suggestedWallets.isEmpty || !recentTransactions.isEmpty
 
         guard hasSuggestions else {
@@ -197,7 +192,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func userDidTapSuggestedDestination(_ destination: SendSuggestedDestination) {
         FeedbackGenerator.success()
-        destinationAddressViewModel?.update(address: .init(value: destination.address, source: .qrCode))
+        destinationAddressViewModel.update(address: .init(value: destination.address, source: .qrCode))
 
         if let additionalField = destination.additionalField {
             additionalFieldViewModel?.update(text: additionalField)
@@ -222,7 +217,7 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
             self?.sendQRCodeService.qrCodeDidScanned(value: value)
         })
 
-        router?.openQRScanner(with: binding, networkName: settings.networkName)
+        router?.openQRScanner(with: binding, networkName: networkName)
     }
 }
 
@@ -230,16 +225,6 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
 
 extension SendNewDestinationViewModel: SendStepViewAnimatable {
     func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
-}
-
-extension SendNewDestinationViewModel {
-    struct Settings {
-        typealias SuggestedWallet = (name: String, address: String)
-
-        let networkName: String
-        let additionalFieldType: SendDestinationAdditionalFieldType?
-        let suggestedWallets: [SuggestedWallet]
-    }
 }
 
 private extension SendSuggestedDestination.DestinationType {
