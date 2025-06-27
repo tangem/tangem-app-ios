@@ -20,7 +20,7 @@ protocol SendModelRoutable: AnyObject {
 class SendModel {
     // MARK: - Data
 
-    private let _receivedToken: CurrentValueSubject<TokenItem, Never>
+    private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendAddress?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
@@ -78,12 +78,13 @@ class SendModel {
         self.swapManager = swapManager
 
         flowKind = predefinedValues.flowKind
-        _receivedToken = .init(tokenItem)
+        _receivedToken = .init(.same(tokenItem))
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
 
         bind()
+        bindSwapManager()
     }
 }
 
@@ -114,21 +115,30 @@ private extension SendModel {
                 self?._transaction.send(result)
             }
             .store(in: &bag)
+    }
 
-        // MARK: - SwapManager
-
-        _amount
-            .removeDuplicates()
+    private func bindSwapManager() {
+        Publishers
+            .CombineLatest(
+                _amount.removeDuplicates(),
+                _receivedToken.removeDuplicates()
+            )
             .dropFirst()
-            .sink { [weak self] amount in
-                self?.swapManager?.update(amount: amount?.crypto)
-            }
+            .filter { $1.receiveToken != nil }
+            .withWeakCaptureOf(self)
+            .sink { $0.swapManager?.update(amount: $1.0?.crypto) }
             .store(in: &bag)
 
         Publishers
-            .CombineLatest(_receivedToken, _destination)
-            .sink { [weak self] receivedToken, destination in
-                self?.swapManager?.update(receiveToken: receivedToken, address: destination?.value)
+            .CombineLatest(
+                _receivedToken.removeDuplicates(),
+                _destination.removeDuplicates()
+            )
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { model, args in
+                let (token, destination) = args
+                model.swapManager?.update(destination: token.receiveToken?.tokenItem, address: destination?.value)
             }
             .store(in: &bag)
     }
@@ -294,19 +304,12 @@ extension SendModel: SendAmountOutput {
 // MARK: - SendReceiveTokenInput
 
 extension SendModel: SendReceiveTokenInput {
-    var receiveToken: SendReceiveToken? {
-        mapToReceiveToken(tokenItem: swapManager?.swappingPair.destination.value?.tokenItem)
+    var receiveToken: SendReceiveTokenType {
+        _receivedToken.value
     }
 
-    var receiveTokenPublisher: AnyPublisher<SendReceiveToken?, Never> {
-        guard let swapManager else {
-            return Empty().eraseToAnyPublisher()
-        }
-
-        return swapManager.swappingPairPublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToReceiveToken(tokenItem: $1.destination.value?.tokenItem) }
-            .eraseToAnyPublisher()
+    var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
+        _receivedToken.eraseToAnyPublisher()
     }
 
     var receiveAmount: LoadingResult<SendAmount?, any Error> {
@@ -330,6 +333,8 @@ extension SendModel: SendReceiveTokenInput {
 
     private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
         switch state {
+        case .restriction(.requiredRefresh(let error), _):
+            return .failure(error)
         case .idle, .restriction, .permissionRequired, .readyToSwap:
             return .success(.none)
         case .loading:
@@ -343,8 +348,12 @@ extension SendModel: SendReceiveTokenInput {
 // MARK: - SendReceiveTokenOutput
 
 extension SendModel: SendReceiveTokenOutput {
-    func userDidSelect(tokenItem: TokenItem?) {
-        _receivedToken.send(tokenItem ?? self.tokenItem)
+    func userDidSelect(receiveToken: SendReceiveToken) {
+        _receivedToken.send(.swap(receiveToken))
+    }
+
+    func userDidRequestClearSelection() {
+        _receivedToken.send(.same(tokenItem))
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  SwapManagerInterfaces.swift
+//  SwapManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,7 @@
 
 import Combine
 import TangemExpress
+import TangemFoundation
 
 typealias SwapManagerState = ExpressInteractor.State
 typealias SwapManagerSwappingPair = ExpressInteractor.SwappingPair
@@ -20,7 +21,7 @@ protocol SwapManager {
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
     func update(amount: Decimal?)
-    func update(receiveToken: TokenItem?, address: String?)
+    func update(destination: TokenItem?, address: String?)
 
     func update(provider: ExpressAvailableProvider)
 }
