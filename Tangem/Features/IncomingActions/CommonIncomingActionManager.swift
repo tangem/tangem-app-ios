@@ -16,9 +16,11 @@ public class CommonIncomingActionManager {
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
+    private let urlValidator: IncomingURLValidator
     private var cancellable: AnyCancellable?
 
-    public init() {
+    public init(urlValidator: IncomingURLValidator = CommonIncomingURLValidator()) {
+        self.urlValidator = urlValidator
         bind()
     }
 
@@ -32,10 +34,10 @@ public class CommonIncomingActionManager {
     }
 
     @discardableResult
-    private func _handleDeeplink(_ url: URL) -> Bool {
+    private func _handleIncomingURL(_ url: URL) -> Bool {
         AppLogger.info("Received deeplink: \(url.absoluteString)")
 
-        guard let action = parser.parseDeeplink(url) else {
+        guard let action = parser.parseIncomingURL(url) else {
             return false
         }
 
@@ -49,9 +51,13 @@ public class CommonIncomingActionManager {
             return
         }
 
+        let deeplinkURL = [Constants.deeplinkKey, Constants.externalLinkKey]
+            .compactMap { response.notification.request.content.userInfo[$0] as? String }
+            .first
+
         let userInfo = response.notification.request.content.userInfo
 
-        if let deeplinkURL = userInfo[Constants.deeplinkKey] as? String {
+        if let deeplinkURL {
             tryHandleDeeplinkUrlByDeeplinkKey(with: deeplinkURL)
         } else {
             // A temporary crutch, while the push of deeplink transactions is not formed on the back, but is collected locally
@@ -61,7 +67,7 @@ public class CommonIncomingActionManager {
 
     private func tryHandleDeeplinkUrlByDeeplinkKey(with deeplinkURL: String) {
         if let url = URL(string: deeplinkURL) {
-            _handleDeeplink(url)
+            _handleIncomingURL(url)
         }
     }
 
@@ -86,15 +92,17 @@ public class CommonIncomingActionManager {
         )
 
         let handleUrl = transactionPushURLHelper.buildURL(scheme: .withoutRedirectUniversalLink)
-        _handleDeeplink(handleUrl)
+        _handleIncomingURL(handleUrl)
     }
 }
 
 // MARK: - IncomingActionManaging
 
 extension CommonIncomingActionManager: IncomingActionManaging {
-    public func hasReferralNavigationAction() -> Bool {
-        pendingAction == .referralProgram
+    public func checkForPendingActions() {
+        if pendingAction != nil {
+            tryHandleLastAction()
+        }
     }
 
     public func becomeFirstResponder(_ responder: IncomingActionResponder) {
@@ -114,11 +122,8 @@ extension CommonIncomingActionManager: IncomingActionManaging {
     }
 
     private func tryHandleLastAction() {
-        guard let pendingAction else { return }
-
-        switch pendingAction {
-        case .referralProgram where appLockController.isLocked: return
-        default: break
+        guard let pendingAction else {
+            return
         }
 
         for responder in responders.allDelegates.reversed() {
@@ -146,15 +151,18 @@ extension CommonIncomingActionManager: IncomingActionHandler {
         return true
     }
 
-    public func handleDeeplink(_ url: URL) -> Bool {
-        _handleDeeplink(url)
+    public func handleIncomingURL(_ url: URL) -> Bool {
+        _handleIncomingURL(url)
     }
 }
 
 // MARK: - Constants
 
 extension CommonIncomingActionManager {
-    enum Constants {
+    enum Constants: CaseIterable {
+        /// Key used to extract an external URL from push notification payload (e.g., "link": "https://...").
+        static let externalLinkKey = "link"
+        /// Key used to extract a deeplink from push notification payload.
         static let deeplinkKey = "deeplink"
     }
 }
