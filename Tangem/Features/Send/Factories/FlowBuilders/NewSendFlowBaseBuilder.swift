@@ -47,6 +47,7 @@ struct NewSendFlowBaseBuilder {
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
+            receiveTokenInput: sendModel,
             sendQRCodeService: sendQRCodeService,
             router: router
         )
