@@ -103,7 +103,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 initializeAnalyticsContext(with: cardInfo)
                 Analytics.endLoggingCardScan()
 
-                let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+                let userWalletModel = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo)
 
                 if let userWalletModel {
                     initializeServices(for: userWalletModel)
