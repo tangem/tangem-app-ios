@@ -27,15 +27,15 @@ struct HotWalletInfo: Codable {
     var wallets: [HotWallet]
 
     enum AuthType: String, Codable {
-        case biometry
+        case biometrics
         case password
 
         init?(hotWalletAuthType: HotWalletID.AuthType?) {
             switch hotWalletAuthType {
             case .password:
                 self = .password
-            case .biometry:
-                self = .biometry
+            case .biometrics:
+                self = .biometrics
             case .none:
                 return nil
             }
@@ -44,7 +44,7 @@ struct HotWalletInfo: Codable {
         var hotWalletAuthType: HotWalletID.AuthType {
             switch self {
             case .password: HotWalletID.AuthType.password
-            case .biometry: HotWalletID.AuthType.biometry
+            case .biometrics: HotWalletID.AuthType.biometrics
             }
         }
     }
