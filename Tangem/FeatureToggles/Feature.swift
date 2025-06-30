@@ -55,7 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendViaSwap: return .unspecified
         case .hotWallet: return .unspecified
         case .pushTransactionNotifications: return .unspecified
-        case .deeplink: return .unspecified
+        case .deeplink: return .version("5.25")
         }
     }
 }
