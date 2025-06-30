@@ -11,6 +11,7 @@ import Combine
 import CombineExt
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let notificationInputs: [NotificationViewInput]
