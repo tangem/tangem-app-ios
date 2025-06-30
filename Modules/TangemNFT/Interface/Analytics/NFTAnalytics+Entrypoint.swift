@@ -13,7 +13,9 @@ public extension NFTAnalytics {
         public typealias State = String
         public typealias CollectionsCount = Int
         public typealias NFTsCount = Int
-        public typealias LogCollectionsOpenClosure = (State, CollectionsCount, NFTsCount) -> Void
+        public typealias DummyCollectionsCount = Int
+
+        public typealias LogCollectionsOpenClosure = (State, CollectionsCount, NFTsCount, DummyCollectionsCount) -> Void
 
         // MARK: Action
 
