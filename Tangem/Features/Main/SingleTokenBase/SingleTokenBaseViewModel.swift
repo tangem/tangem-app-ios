@@ -580,6 +580,20 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
+    func didTapPendingExpressTransaction(id: String) {
+        let transactions = pendingExpressTransactionsManager.pendingTransactions
+
+        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
+            return
+        }
+
+        tokenRouter.openPendingExpressTransactionDetails(
+            pendingTransaction: transaction,
+            tokenItem: walletModel.tokenItem,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
+    }
+
     private func openAddressExplorer(at index: Int) {
         guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
             return
@@ -641,20 +655,6 @@ extension SingleTokenBaseViewModel {
         ])
 
         openReceive()
-    }
-
-    private func didTapPendingExpressTransaction(id: String) {
-        let transactions = pendingExpressTransactionsManager.pendingTransactions
-
-        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
-            return
-        }
-
-        tokenRouter.openPendingExpressTransactionDetails(
-            pendingTransaction: transaction,
-            tokenItem: walletModel.tokenItem,
-            pendingTransactionsManager: pendingExpressTransactionsManager
-        )
     }
 }
 
