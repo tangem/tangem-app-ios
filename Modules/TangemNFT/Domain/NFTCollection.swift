@@ -52,7 +52,7 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
 public extension NFTCollection {
     struct NFTCollectionId: Hashable, Sendable {
         /// Collection's address.
-        let collectionIdentifier: String
+        public let collectionIdentifier: String
         /// The owner's address is intentionally a part of the collection identity
         /// to distinguish between identical collections but with different derivations.
         public let ownerAddress: String

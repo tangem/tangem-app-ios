@@ -14,9 +14,9 @@ import TangemStaking
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
-    AvailableTokenBalanceProviderInput, WalletModelUpdater, WalletModelBalancesProvider,
+    AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
-    WalletModelTransactionHistoryProvider, WalletModelRentProvider, TransactionHistoryFetcher,
+    WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
@@ -120,9 +120,13 @@ protocol WalletModelDependenciesProvider {
 
 // MARK: - Tx history
 
+protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater {}
+
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
     var hasPendingTransactions: Bool { get }
+    /// Any pending transactions for the whole network. Coin, token, etc.
+    var hasAnyPendingTransactions: Bool { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { get }
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { get }
     var isEmptyIncludingPendingIncomingTxs: Bool { get }
