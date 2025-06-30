@@ -16,22 +16,30 @@ struct SendNewAmountCompactView: View {
     @ObservedObject var viewModel: SendNewAmountCompactViewModel
 
     var body: some View {
-        ZStack(alignment: .center) {
-            VStack(spacing: .zero) {
-                Button(action: viewModel.userDidTapAmount) {
-                    SendTokenAmountCompactView(viewModel: viewModel.sendAmountCompactViewModel)
-                }
+        VStack(spacing: .zero) {
+            Button(action: viewModel.userDidTapAmount) {
+                SendTokenAmountCompactView(viewModel: viewModel.sendAmountCompactViewModel)
+            }
 
-                if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
-                    Button(action: viewModel.userDidTapReceiveTokenAmount) {
-                        SendTokenAmountCompactView(viewModel: receiveTokenViewModel)
-                    }
+            if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
+                Button(action: viewModel.userDidTapReceiveTokenAmount) {
+                    SendTokenAmountCompactView(viewModel: receiveTokenViewModel)
+                }
+                .overlay(alignment: .top) {
+                    SendNewAmountCompactViewSeparator(style: viewModel.amountsSeparator)
+                        .offset(y: -14)
                 }
             }
 
-            if let separatorStyle = viewModel.sendAmountsSeparator {
-                SendNewAmountCompactViewSeparator(style: separatorStyle)
+            if let sendSwapProviderCompactViewData = viewModel.sendSwapProviderCompactViewData {
+                Separator(color: Colors.Stroke.primary)
+                    .padding(.horizontal, 14)
+
+                Button(action: viewModel.userDidTapProvider) {
+                    SendSwapProviderCompactView(data: sendSwapProviderCompactViewData)
+                }
             }
         }
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
     }
 }
