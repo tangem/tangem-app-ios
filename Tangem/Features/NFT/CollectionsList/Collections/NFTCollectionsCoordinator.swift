@@ -50,8 +50,11 @@ class NFTCollectionsCoordinator: CoordinatorObject {
                 logReceiveOpen: {
                     Analytics.log(.nftAssetReceiveOpened)
                 },
-                logDetailsOpen: { blockchain in
-                    Analytics.log(event: .nftAssetDetailsOpened, params: [.blockchain: blockchain])
+                logDetailsOpen: { blockchain, standard in
+                    Analytics.log(
+                        event: .nftAssetDetailsOpened,
+                        params: [.blockchain: blockchain, .nftStandard: standard]
+                    )
                 }
             )
         )
