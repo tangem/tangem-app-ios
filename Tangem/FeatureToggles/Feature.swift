@@ -15,7 +15,6 @@ enum Feature: String, Hashable, CaseIterable {
     case visa // [REDACTED_TODO_COMMENT]
     case nft
     case walletConnectUI
-    case newAttestation
     case logs
     case newSendUI
     case sendViaSwap
@@ -31,7 +30,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return "Visa"
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
-        case .newAttestation: return "New Attestation"
         case .logs: return "Logs"
         case .newSendUI: return "New Send UI"
         case .sendViaSwap: return "Send via Swap"
@@ -49,13 +47,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .nft: return .version("5.25")
         case .walletConnectUI: return .unspecified
-        case .newAttestation: return .version("5.24")
         case .logs: return .version("5.25")
         case .newSendUI: return .unspecified
         case .sendViaSwap: return .unspecified
         case .hotWallet: return .unspecified
         case .pushTransactionNotifications: return .unspecified
-        case .deeplink: return .unspecified
+        case .deeplink: return .version("5.25")
         }
     }
 }
