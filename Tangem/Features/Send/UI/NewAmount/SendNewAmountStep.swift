@@ -25,6 +25,10 @@ class SendNewAmountStep {
         self.interactor = interactor
         self.flowKind = flowKind
     }
+
+    func set(router: SendNewAmountRoutable) {
+        viewModel.router = router
+    }
 }
 
 // MARK: - SendStep

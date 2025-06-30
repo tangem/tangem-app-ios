@@ -13,7 +13,6 @@ import BlockchainSdk
 import TangemFoundation
 
 class CustomBitcoinFeeService {
-    private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
 
     private let tokenItem: TokenItem
@@ -31,13 +30,16 @@ class CustomBitcoinFeeService {
     }
 
     init(
+        input: CustomFeeServiceInput,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
-        bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
+        bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator,
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
+
+        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -125,11 +127,8 @@ class CustomBitcoinFeeService {
 }
 
 extension CustomBitcoinFeeService: CustomFeeService {
-    func setup(input: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
-        self.input = input
+    func setup(output: any CustomFeeServiceOutput) {
         self.output = output
-
-        bind(input: input)
     }
 
     func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {

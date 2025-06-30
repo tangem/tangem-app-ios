@@ -31,10 +31,10 @@ extension NFTCachedModels.V1 {
         let lowestPriceValue: Decimal?
         let highestPriceValue: Decimal?
 
-        // MARK: - NFTMedia
+        // MARK: - NFTMedia (flattened to arrays)
 
-        let mediaURL: URL?
-        let mediaKindName: String?
+        let mediaURLs: [URL]
+        let mediaKindNames: [String]
 
         // MARK: - Rarity
 
@@ -75,8 +75,8 @@ extension NFTCachedModels.V1.Asset {
         highestPriceValue = asset.salePrice?.highest?.value
 
         // From NFTMedia
-        mediaURL = asset.media?.url
-        mediaKindName = NFTCachedModels.MediaUtils.serialize(asset.media?.kind)
+        mediaURLs = asset.mediaFiles.map(\.url)
+        mediaKindNames = asset.mediaFiles.map { NFTCachedModels.MediaUtils.serialize($0.kind) }
 
         // From Rarity
         rarityLabel = asset.rarity?.label
@@ -95,8 +95,10 @@ extension NFTCachedModels.V1.Asset {
         // Reconstruct contract type using shared utility
         let contractType = NFTCachedModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
 
-        // Reconstruct media using shared utility
-        let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+        // Reconstruct media files using shared utility
+        let mediaFiles = zip(mediaURLs, mediaKindNames).map { url, kindName in
+            NFTCachedModels.MediaUtils.createMedia(url: url, kindName: kindName)
+        }
 
         // Reconstruct sale price - only create if at least one price exists
         var salePrice: NFTSalePrice?
@@ -135,7 +137,7 @@ extension NFTCachedModels.V1.Asset {
             name: name,
             description: description,
             salePrice: salePrice,
-            media: media,
+            mediaFiles: mediaFiles,
             rarity: rarity,
             traits: traits
         )

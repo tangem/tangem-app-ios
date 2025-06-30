@@ -13,4 +13,5 @@ public enum IncomingAction: Equatable {
     case start // Run scan or request biometrics
     case dismissSafari(URL)
     case referralProgram
+    case navigation(DeeplinkNavigationAction)
 }

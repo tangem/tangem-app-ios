@@ -57,8 +57,13 @@ extension NFTCachedModels.V1.Collection {
         assetsCount = collection.assetsCount
 
         // From NFTMedia using shared utility
-        mediaURL = collection.media?.url
-        mediaKindName = NFTCachedModels.MediaUtils.serialize(collection.media?.kind)
+        if let media = collection.media {
+            mediaURL = media.url
+            mediaKindName = NFTCachedModels.MediaUtils.serialize(media.kind)
+        } else {
+            mediaURL = nil
+            mediaKindName = nil
+        }
 
         // Store assets as Asset objects
 
@@ -74,7 +79,10 @@ extension NFTCachedModels.V1.Collection {
         let contractType = NFTCachedModels.ContractTypeUtils.deserialize(contractTypeIdentifier: contractTypeIdentifier)
 
         // Reconstruct media using shared utility
-        let media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+        var media: NFTMedia?
+        if let mediaURL, let mediaKindName {
+            media = NFTCachedModels.MediaUtils.createMedia(url: mediaURL, kindName: mediaKindName)
+        }
 
         // Reconstruct ErrorDescriptors
         let errorDescriptors = errorDescriptors.map { $0.toNFTErrorDescriptor() }

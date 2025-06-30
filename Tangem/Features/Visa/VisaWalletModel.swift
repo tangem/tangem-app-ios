@@ -197,6 +197,10 @@ extension VisaWalletModel: WalletModelTransactionHistoryProvider {
         false
     }
 
+    var hasAnyPendingTransactions: Bool {
+        false
+    }
+
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
         .just(output: .notSupported)
     }

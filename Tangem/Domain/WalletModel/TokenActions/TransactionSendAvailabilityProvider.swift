@@ -42,7 +42,7 @@ struct TransactionSendAvailabilityProvider {
         }
 
         // has pending tx
-        if walletModel.hasPendingTransactions, !walletModel.tokenItem.blockchain.isParallelTransactionAllowed {
+        if walletModel.hasAnyPendingTransactions, !walletModel.tokenItem.blockchain.isParallelTransactionAllowed {
             return .hasPendingTransaction(blockchain: walletModel.tokenItem.blockchain)
         }
 

@@ -24,26 +24,16 @@ final class CommonNFTManager: NFTManager {
     }
 
     var statePublisher: AnyPublisher<NFTManagerState, Never> {
-        let aggregatedUpdatePublisher = Publishers.Merge3(
-            updatePublisher.mapToVoid(),
-            updateAssetsPublisher.mapToVoid(),
-            networkServicesPublisher.mapToVoid(),
-        )
-
-        let statePublishers = Publishers.Merge3(
-            collectionsPublisherCached.map(NFTManagerState.loaded),
+        return Publishers.Merge5(
+            updatePublisher.mapToValue(NFTManagerState.loading),
+            updateAssetsPublisher.mapToValue(NFTManagerState.loading),
+            // There is no point in caching empty collections
+            collectionsPublisherCached.filter { !$0.value.isEmpty }.map(NFTManagerState.loaded),
             collectionsPublisherRemote.values().map(NFTManagerState.loaded),
             collectionsPublisherRemote.failures().map(NFTManagerState.failedToLoad),
         )
-
-        // Append is used to ensure that each update cycle starts with loading
-        return aggregatedUpdatePublisher
-            .flatMap { _ in
-                Just(NFTManagerState.loading)
-                    .append(statePublishers)
-            }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 
     private lazy var networkServicesPublisher: some Publisher<[(any WalletModel, NFTNetworkService)], Never> = {
@@ -173,7 +163,7 @@ final class CommonNFTManager: NFTManager {
             enrichedCollectionsFromAssetsPublisher,
             collectionsErrorsPublisher
         )
-        .share(replay: 1)
+        .share() // No replay is needed here, since the remote collections must always be fetched explicitly
     }()
 
     private var updatePublisher: some Publisher<NFTCachePolicy, Never> { updateSubject }
@@ -339,9 +329,11 @@ private extension CommonNFTManager {
 
                 logErrors(mergedErrors)
 
+                // The sorting logic here has nothing to do with the order of collections in the UI,
+                // it's only used to ensure a stable order of NFT collections so that `removeDuplicates` works correctly
                 return NFTPartialResult(
-                    value: mergedCollections,
-                    errors: mergedErrors
+                    value: mergedCollections.sorted(by: \.stableSortKey),
+                    errors: mergedErrors.sorted(by: \.code)
                 )
             }
         }
@@ -400,6 +392,12 @@ private extension WalletModelFeature {
         }
 
         return nil
+    }
+}
+
+private extension NFTCollection {
+    var stableSortKey: String {
+        id.collectionIdentifier + id.ownerAddress + id.chain.id
     }
 }
 
