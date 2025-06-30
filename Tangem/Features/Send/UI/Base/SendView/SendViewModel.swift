@@ -357,12 +357,6 @@ private extension SendViewModel {
         isValidSubscription = step.isValidPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.actionIsAvailable, on: self, ownership: .weak)
-
-        isValidContinueSubscription = Publishers
-            .CombineLatest($mainButtonType, step.isValidPublisher)
-            .map { $0 == .continue && !$1 }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
     }
 
     func bind() {
