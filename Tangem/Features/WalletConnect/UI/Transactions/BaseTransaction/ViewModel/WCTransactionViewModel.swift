@@ -7,7 +7,7 @@
 //
 
 import Combine
-import protocol TangemUI.FloatingSheetContentViewModel
+import TangemUI
 
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel {

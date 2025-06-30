@@ -17,6 +17,7 @@ protocol UserWalletRepository: Initializable {
     var selectedUserWalletId: UserWalletId? { get }
     var selectedIndexUserWalletModel: Int? { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
+    var userWalletModelsReadyPublisher: AnyPublisher<Bool, Never> { get }
 
     func lock()
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
