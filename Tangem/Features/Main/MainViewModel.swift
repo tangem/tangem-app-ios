@@ -21,7 +21,6 @@ final class MainViewModel: ObservableObject {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.wcService) private var wcService: WCService
-    @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
 
     // MARK: - ViewState
 
@@ -149,14 +148,6 @@ final class MainViewModel: ObservableObject {
             }
         } else {
             uiManager.show()
-        }
-
-        // Workaround: presenting a bottom sheet via deeplink requires a delay to expand correctly
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay + 0.2) {
-            if uiManager.shoudExpandAtFirstAppearance {
-                self.bottomSheetStateController.expand()
-                uiManager.shoudExpandAtFirstAppearance.toggle()
-            }
         }
     }
 
@@ -340,7 +331,29 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
 
+    private func userWalletModelsDidLoad() {
+        coordinator?.beginHandlingIncomingActions()
+    }
+
     private func bind() {
+        // Some deeplinks depend on data from specific WalletModels.
+        // Since they may not be loaded when the coordinator or view model is initialized,
+        // deeplink handling is deferred until they're available (i.e. when all UserWalletModels are ready).
+        //
+        // A 0.6s delay was found to be the minimum reliable value to ensure
+        // proper deeplink presentation — avoiding animation overlaps and
+        // timing issues during main view initialization.
+        userWalletRepository.userWalletModelsReadyPublisher
+            .filter { $0 }
+            .prefix(1)
+            .delay(for: .seconds(0.6), scheduler: DispatchQueue.main)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.userWalletModelsDidLoad()
+            }
+            .store(in: &bag)
+
         $selectedCardIndex
             .dropFirst()
             .withWeakCaptureOf(self)
