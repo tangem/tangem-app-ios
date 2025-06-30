@@ -77,7 +77,7 @@ enum WalletConnectUIBuilder {
         )
 
         let rejectAlertAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
-        let acceptAlertAction = UIAlertAction(title: "I understand", style: .destructive, handler: { _ in acceptAction() })
+        let acceptAlertAction = UIAlertAction(title: Localization.wcAlertConnectAnyway, style: .destructive, handler: { _ in acceptAction() })
 
         alertViewController.addAction(rejectAlertAction)
         alertViewController.addAction(acceptAlertAction)

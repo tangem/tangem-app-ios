@@ -9,6 +9,7 @@
 enum WalletConnectDAppConnectionViewState {
     case connectionRequest(WalletConnectDAppConnectionRequestViewModel)
     case verifiedDomain(WalletConnectDAppDomainVerificationViewModel)
+    case solanaBlockchainWarning(WalletConnectSolanaBlockchainWarningViewModel)
     case walletSelector(WalletConnectWalletSelectorViewModel)
     case networkSelector(WalletConnectNetworksSelectorViewModel)
     case error(WalletConnectErrorViewModel)

@@ -2199,6 +2199,9 @@
 		C24A19702DEDEEE900B995E6 /* WalletConnectRejectDAppProposalUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24A196F2DEDEEDE00B995E6 /* WalletConnectRejectDAppProposalUseCase.swift */; };
 		C24A19732DEE28CA00B995E6 /* WalletConnectDAppConnectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24A19722DEE28BF00B995E6 /* WalletConnectDAppConnectionInteractor.swift */; };
 		C24DDCC82E0DAE820027445B /* WalletConnect+FloatingSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24DDCC72E0DAE790027445B /* WalletConnect+FloatingSheetView.swift */; };
+		C25022772E130BAE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25022762E130BAC00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift */; };
+		C25022792E130BD200D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25022782E130BCE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift */; };
+		C250227B2E130BD800D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C250227A2E130BD500D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift */; };
 		C252157F2DDF342F003014C2 /* WalletConnectDAppDescriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C252157E2DDF3426003014C2 /* WalletConnectDAppDescriptionViewModel.swift */; };
 		C259BBCD2D79FF64000DAFD1 /* Analytics+WalletConnectSessionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */; };
 		C25E10382DFF1B900050BC26 /* WalletConnectConnectedDAppRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25E10372DFF1B870050BC26 /* WalletConnectConnectedDAppRepository.swift */; };
@@ -5979,6 +5982,9 @@
 		C24A196F2DEDEEDE00B995E6 /* WalletConnectRejectDAppProposalUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRejectDAppProposalUseCase.swift; sourceTree = "<group>"; };
 		C24A19722DEE28BF00B995E6 /* WalletConnectDAppConnectionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionInteractor.swift; sourceTree = "<group>"; };
 		C24DDCC72E0DAE790027445B /* WalletConnect+FloatingSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletConnect+FloatingSheetView.swift"; sourceTree = "<group>"; };
+		C25022762E130BAC00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewModel.swift; sourceTree = "<group>"; };
+		C25022782E130BCE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewState.swift; sourceTree = "<group>"; };
+		C250227A2E130BD500D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewEvent.swift; sourceTree = "<group>"; };
 		C252157E2DDF3426003014C2 /* WalletConnectDAppDescriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppDescriptionViewModel.swift; sourceTree = "<group>"; };
 		C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectSessionSource.swift"; sourceTree = "<group>"; };
 		C25E10372DFF1B870050BC26 /* WalletConnectConnectedDAppRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppRepository.swift; sourceTree = "<group>"; };
@@ -14187,6 +14193,16 @@
 			path = "DApp connection";
 			sourceTree = "<group>";
 		};
+		C25022752E130B8A00D1A0D1 /* Solana warning */ = {
+			isa = PBXGroup;
+			children = (
+				C250227A2E130BD500D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift */,
+				C25022762E130BAC00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift */,
+				C25022782E130BCE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift */,
+			);
+			path = "Solana warning";
+			sourceTree = "<group>";
+		};
 		C252157D2DDF3415003014C2 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -14451,6 +14467,7 @@
 				C27672D12DE7149A0037F1FC /* Domain verification */,
 				C274DFB02DDBDC6A00B1D97B /* Networks selector */,
 				C274DFAF2DDBDC6300B1D97B /* Wallet selector */,
+				C25022752E130B8A00D1A0D1 /* Solana warning */,
 				C274DF972DDA385100B1D97B /* WalletConnectDAppConnectionViewState.swift */,
 				C274DFB32DDBDEDB00B1D97B /* WalletConnectDAppConnectionRoutable.swift */,
 				C274DFB12DDBDD1500B1D97B /* WalletConnectDAppConnectionViewModel.swift */,
@@ -20719,6 +20736,7 @@
 				DCB14AEF2DC615C60075F340 /* WalletConnectQRScanViewModel.swift in Sources */,
 				B06C08672A73FCDE00D982BC /* SingleWalletMainContentView.swift in Sources */,
 				EFC98FF02CD39A660098B7C8 /* OnrampProvidersBuilder.swift in Sources */,
+				C25022792E130BD200D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift in Sources */,
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
 				B0BE7D952AC2EB580012D9EE /* ExpressAvailabilityProvider.swift in Sources */,
 				0FE588572DF0388100E5663E /* CreateWalletSelectorView.swift in Sources */,
@@ -21128,6 +21146,7 @@
 				C2075EFF2DE6238F009AD2F7 /* WalletConnectURIProvider.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
 				DA90396B2C520DEB002C1E6E /* CommonSendTransactionSummaryDescriptionBuilder.swift in Sources */,
+				C25022772E130BAE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift in Sources */,
 				B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */,
 				DAB5E335297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift in Sources */,
 				B6EE593F2C8B2EB9003A0696 /* ViewHierarchySnapshotting.swift in Sources */,
@@ -21756,6 +21775,7 @@
 				EF6883122CF8B6C400658644 /* OnrampStatusCompactView.swift in Sources */,
 				EFF9A2FD2BD6B45E007C63D2 /* UserWalletSettingsViewModel.swift in Sources */,
 				B6EFF1382D83ACCA00D168AC /* NFTAvailabilityUtil.swift in Sources */,
+				C250227B2E130BD800D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift in Sources */,
 				DC5E6FDE2C9063B6008A98D0 /* CommonAppLockController.swift in Sources */,
 				C25E103A2DFF1EDC0050BC26 /* WalletConnectConnectedDApp.swift in Sources */,
 				B0290CDD2CAED941008ABBD2 /* MarketsTokenDetailsExchangeItemView.swift in Sources */,

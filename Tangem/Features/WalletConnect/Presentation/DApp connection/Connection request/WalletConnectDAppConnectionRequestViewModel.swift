@@ -246,6 +246,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
             return
         }
 
+        if selectedBlockchains.contains(.solana(curve: .ed25519, testnet: false)) {
+            print("has solana")
+        }
+
         guard loadedDAppProposal.verificationStatus.isVerified else {
             coordinator?.openDomainVerificationWarning(
                 loadedDAppProposal.verificationStatus,
