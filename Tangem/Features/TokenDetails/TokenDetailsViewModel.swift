@@ -14,6 +14,7 @@ import TangemExpress
 import TangemStaking
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
@@ -34,6 +35,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
+    private let pendingTransactionDetails: PendingTransactionDetails?
     private var bag = Set<AnyCancellable>()
 
     var iconUrl: URL? {
@@ -62,11 +64,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
         coordinator: TokenDetailsRoutable,
-        tokenRouter: SingleTokenRoutable
+        tokenRouter: SingleTokenRoutable,
+        pendingTransactionDetails: PendingTransactionDetails?
     ) {
         self.coordinator = coordinator
         self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
+        self.pendingTransactionDetails = pendingTransactionDetails
+
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
@@ -232,6 +237,25 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        // If a pending transaction was provided for deeplink-based presentation,
+        // wait for the first non-empty list of pending transactions,
+        // and if it contains a transaction matching the provided ID, present its status.
+        if let pendingTransactionDetails {
+            $pendingExpressTransactions
+                .filter { !$0.isEmpty }
+                .prefix(1)
+                .sink { [weak self] pendingTransactions in
+                    guard let self,
+                          let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
+                    else {
+                        return
+                    }
+
+                    didTapPendingExpressTransaction(id: matchingTransaction.id)
+                }
+                .store(in: &bag)
+        }
+
         bannerNotificationManager?.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
