@@ -1,5 +1,5 @@
 {
-  "originHash" : "06562fdc8da2f5be55d11f437b505ecfd769b856311b92665089ed1ebda9c8e0",
+  "originHash" : "ace35bf1d823618552089d0c0653b78f14fea55f8185e50c456f701028483b9b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/AmplitudeCore-Swift.git",
       "state" : {
-        "revision" : "ba5b2d3c7f41cdea70d879fe2338993d4395d12c",
-        "version" : "1.0.13"
+        "revision" : "13fd0eb0aa080816ffa409669758b2e8787322b2",
+        "version" : "1.1.0"
       }
     },
     {
@@ -627,8 +627,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/ton-swift.git",
       "state" : {
-        "revision" : "723cfeb8da0ea024158b4274fced8a1891bff88e",
-        "version" : "1.0.10-tangem3"
+        "revision" : "b3ca6e4e571c4adef888b5dbc3676f38895d37ba",
+        "version" : "1.0.17-tangem1"
       }
     },
     {

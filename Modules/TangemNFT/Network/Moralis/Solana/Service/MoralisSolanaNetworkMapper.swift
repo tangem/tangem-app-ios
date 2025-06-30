@@ -26,8 +26,10 @@ struct MoralisSolanaNetworkMapper {
             )
         }
 
-        // Moralis doesn't send collection image URL, so we are assigning first asset's image
-        let collectionMedia = domainAssets.first { $0.media != nil }?.media
+        // Moralis doesn't send collection image URL, so we are assigning first asset's image or animation
+        let collectionMedia = domainAssets
+            .compactMap { NFTAssetMediaExtractor.extractMedia(from: $0) }
+            .first
 
         guard let collection, let collectionId = collection.collectionAddress else {
             return NFTDummyCollectionMapper.map(
@@ -71,7 +73,7 @@ struct MoralisSolanaNetworkMapper {
         }
 
         let rarity = mapToRarity(attributes: asset.attributes)
-        let media = mapToMedia(properties: asset.properties)
+        let mediaFiles = mapToMediaFiles(properties: asset.properties)
         let traits = mapToTraits(attributes: asset.attributes)
         let decimalCount = asset.decimals ?? Constants.decimalCountFallback
 
@@ -85,7 +87,7 @@ struct MoralisSolanaNetworkMapper {
             name: asset.name ?? Constants.assetNameFallback,
             description: description,
             salePrice: nil,
-            media: media,
+            mediaFiles: mediaFiles,
             rarity: rarity,
             traits: traits
         )
@@ -113,28 +115,28 @@ struct MoralisSolanaNetworkMapper {
         )
     }
 
-    private func mapToMedia(properties: MoralisSolanaNetworkResult.Properties?) -> NFTMedia? {
-        guard let firstFile = properties?.files?.first else {
-            return nil
-        }
+    private func mapToMediaFiles(properties: MoralisSolanaNetworkResult.Properties?) -> [NFTMedia] {
+        return properties?
+            .files?
+            .compactMap { file -> NFTMedia? in
+                guard
+                    let uri = file.uri?.nilIfEmpty,
+                    let rawURL = URL(string: uri)
+                else {
+                    NFTLogger.warning(
+                        String(
+                            format: "Media missing required fields: uri %@",
+                            String(describing: file.uri)
+                        )
+                    )
+                    return nil
+                }
 
-        guard
-            let uri = firstFile.uri?.nilIfEmpty,
-            let url = URL(string: uri)
-        else {
-            NFTLogger.warning(
-                String(
-                    format: "Media missing required fields: uri %@",
-                    String(describing: firstFile.uri)
-                )
-            )
-            return nil
-        }
+                let kind = NFTMediaKindMapper.map(mimetype: file.type, defaultKind: .image)
+                let url = NFTIPFSURLConverter.convert(rawURL)
 
-        return NFTMedia(
-            kind: NFTMediaKindMapper.map(mimetype: firstFile.type, defaultKind: .image),
-            url: NFTIPFSURLConverter.convert(url)
-        )
+                return NFTMedia(kind: kind, url: url)
+            } ?? []
     }
 
     private func mapToTraits(attributes: [MoralisSolanaNetworkResult.Attribute]?) -> [NFTAsset.Trait] {

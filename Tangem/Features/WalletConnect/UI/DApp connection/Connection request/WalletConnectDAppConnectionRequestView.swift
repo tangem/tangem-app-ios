@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectDAppConnectionRequestView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionRequestViewModel
+    let kingfisherImageCache: ImageCache
 
     var body: some View {
         VStack(spacing: 14) {
@@ -30,6 +32,7 @@ struct WalletConnectDAppConnectionRequestView: View {
         VStack(spacing: .zero) {
             WalletConnectDAppDescriptionView(
                 viewModel: viewModel.state.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache,
                 verifiedDomainTapAction: { viewModel.handle(viewEvent: .verifiedDomainIconTapped) }
             )
             .padding(.vertical, 16)
