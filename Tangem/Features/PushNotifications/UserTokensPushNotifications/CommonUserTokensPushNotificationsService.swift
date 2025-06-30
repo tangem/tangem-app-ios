@@ -59,6 +59,12 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     // MARK: - Private Implementation
 
+    override init() {
+        super.init()
+
+        Messaging.messaging().delegate = self
+    }
+
     private func bind() {
         userWalletRepository
             .eventProvider
