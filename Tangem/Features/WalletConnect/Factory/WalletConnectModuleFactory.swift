@@ -9,12 +9,15 @@
 import Foundation
 import class UIKit.UIApplication
 import class SwiftUI.UIHostingController
+import class Kingfisher.ImageCache
 import TangemAssets
-import TangemLocalization
 import TangemFoundation
+import TangemLocalization
+import TangemNetworkUtils
 
 @MainActor
 enum WalletConnectModuleFactory {
+    @Injected(\.walletConnectKingfisherImageCache) private static var kingfisherCache: ImageCache
     @Injected(\.wcService) private static var walletConnectService: any WCService
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
     @Injected(\.connectedDAppRepository) private static var connectedDAppRepository: any WalletConnectConnectedDAppRepository
@@ -28,7 +31,18 @@ enum WalletConnectModuleFactory {
 
     private static let disconnectDAppService = ReownWalletConnectDisconnectDAppService(walletConnectService: Self.walletConnectService)
 
-    private static let dAppDataService = ReownWalletConnectDAppDataService(walletConnectService: Self.walletConnectService)
+    private static let dAppIconURLResolver = WalletConnectDAppIconURLResolver(
+        remoteURLResourceResolver: RemoteURLResourceResolver(
+            session: URLSession(configuration: .walletConnectIconsContentTypeResolveConfiguration)
+        ),
+        kingfisherCache: Self.kingfisherCache
+    )
+
+    private static let dAppDataService = ReownWalletConnectDAppDataService(
+        walletConnectService: Self.walletConnectService,
+        dAppIconURLResolver: Self.dAppIconURLResolver
+    )
+
     private static let dAppProposalApprovalService = ReownWalletConnectDAppProposalApprovalService(
         walletConnectService: Self.walletConnectService
     )

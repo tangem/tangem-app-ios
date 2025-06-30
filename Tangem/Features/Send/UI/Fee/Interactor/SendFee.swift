@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Fee
 import TangemFoundation
 
 struct SendFee: Hashable {
     let option: FeeOption
-    let value: LoadingValue<Fee>
+    let value: LoadingValue<BSDKFee>
 }

@@ -203,7 +203,7 @@ class VisaOnboardingViewModel: ObservableObject {
             card: card,
             walletData: .visa(activationStatus),
         )
-        let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+        let userWalletModel = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo)
 
         self.userWalletModel = userWalletModel
     }
