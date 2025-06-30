@@ -9,36 +9,17 @@
 import Foundation
 
 public struct DeeplinkNavigationAction: Equatable {
-    let destination: DeeplinkDestination
-    let params: DeeplinkParams
+    // MARK: - Properties
 
-    func hasMinimumDataForHandling() -> Bool {
-        switch destination {
-        case .token, .staking:
-            return params.tokenId != nil && params.networkId != nil
-        case .tokenChart:
-            return params.tokenId != nil
-        default:
-            return true
-        }
-    }
+    let destination: IncomingActionConstants.DeeplinkDestination
+    let params: Params
+}
 
-    enum DeeplinkDestination: String, Equatable {
-        case token
-        case referral
-        case buy
-        case sell
-        case swap
-        case markets
-        case tokenChart = "token_chart"
-        case staking
-        case onramp
-        case exchange
-        case link
-    }
+// MARK: - Types
 
-    struct DeeplinkParams: Equatable {
-        var kind: DeeplinkKind?
+extension DeeplinkNavigationAction {
+    struct Params: Equatable {
+        var type: IncomingActionConstants.DeeplinkType?
         var name: String?
         var tokenId: String?
         var networkId: String?
@@ -47,7 +28,7 @@ public struct DeeplinkNavigationAction: Equatable {
         var transactionId: String?
         var url: URL?
 
-        static let empty = DeeplinkParams()
+        static let empty = Params()
 
         enum DeeplinkKind: String {
             case promo
