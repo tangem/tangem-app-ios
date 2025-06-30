@@ -22,6 +22,8 @@ extension NFTCachedModels.V1 {
         // MARK: - NFTAsset
 
         let decimalCount: Int
+        // The number of identical assets of the same type (Applicable to ERC155 and some Solana tokens with supply greater than 1)
+        let amount: Int
         let name: String
         let description: String?
 
@@ -68,6 +70,7 @@ extension NFTCachedModels.V1.Asset {
         decimalCount = asset.decimalCount
         name = asset.name
         description = asset.description
+        amount = 1 // Currently not used
 
         // From NFTSalePrice
         lastPriceValue = asset.salePrice?.last.value
