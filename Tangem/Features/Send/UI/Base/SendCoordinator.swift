@@ -208,6 +208,12 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
+    func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
