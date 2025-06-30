@@ -177,6 +177,7 @@ private extension TokenDetailsView {
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
-        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator)
+        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator),
+        pendingTransactionDetails: nil
     ))
 }
