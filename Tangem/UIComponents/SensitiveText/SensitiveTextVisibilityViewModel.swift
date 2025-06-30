@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import UIKit
 import Combine
 import CoreMotion
+import TangemUI
 import TangemAssets
+import TangemLocalization
 
 class SensitiveTextVisibilityViewModel: ObservableObject {
     static let shared = SensitiveTextVisibilityViewModel()
@@ -27,7 +28,7 @@ class SensitiveTextVisibilityViewModel: ObservableObject {
     private let operationQueue = OperationQueue()
     private var previousIsFaceDown = false
     private var bag: Set<AnyCancellable> = []
-    private var toast: Toast<UndoToastView>?
+    private var toast: Toast<UndoToast>?
 
     private init() {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
@@ -73,7 +74,7 @@ private extension SensitiveTextVisibilityViewModel {
 
     func presentToast() {
         let type: BalanceHiddenToastType = isHidden ? .hidden : .shown
-        let toastView = UndoToastView(settings: type) { [weak self] in
+        let toastView = UndoToast(settings: type) { [weak self] in
             self?.toggleVisibility()
             self?.dismissToast()
         }
