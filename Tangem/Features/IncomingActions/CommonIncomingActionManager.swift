@@ -72,23 +72,35 @@ public class CommonIncomingActionManager {
     }
 
     private func tryHandleDeeplinkUrlByTransactionPush(with userInfo: [AnyHashable: Any]) {
-        let constants = TransactionPushActionURLHelper.Constants.self
+        let paramsConstants = IncomingActionConstants.DeeplinkParams.self
+        let typeConstants = IncomingActionConstants.DeeplinkType.self
+
+        let validTypes = [
+            typeConstants.incomeTransaction.rawValue,
+            typeConstants.swapStatusUpdate.rawValue,
+            typeConstants.onrampStatusUpdate.rawValue,
+        ]
 
         guard
-            let networkId = userInfo[constants.networkIdKey] as? String,
-            let tokenId = userInfo[constants.tokenIdKey] as? String,
-            let walletId = userInfo[constants.walletIdKey] as? String,
-            let type = userInfo[constants.typeKey] as? String,
-            type == constants.incomeTransaction
+            let networkId = userInfo[paramsConstants.networkId] as? String,
+            let tokenId = userInfo[paramsConstants.tokenId] as? String,
+            let walletId = userInfo[paramsConstants.userWalletId] as? String,
+            let type = userInfo[paramsConstants.type] as? String,
+            validTypes.contains(type)
         else {
             return
         }
+
+        let userWalletId = userInfo[paramsConstants.userWalletId] as? String
+        let derivationPath = userInfo[paramsConstants.derivationPath] as? String
 
         let transactionPushURLHelper = TransactionPushActionURLHelper(
             type: type, // See documentation.
             networkId: networkId,
             tokenId: tokenId,
-            walletId: walletId
+            walletId: walletId,
+            derivationPath: derivationPath,
+            userWalletId: userWalletId
         )
 
         let handleUrl = transactionPushURLHelper.buildURL(scheme: .withoutRedirectUniversalLink)
