@@ -10,5 +10,5 @@ import Foundation
 
 public enum HotAuth: Equatable {
     case password(_ password: String)
-    case biometry
+    case biometrics
 }
