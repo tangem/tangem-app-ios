@@ -6,40 +6,38 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-final class PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnectedDAppRepository {
+actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnectedDAppRepository {
     private let persistentStorage: any PersistentStorageProtocol
-    private let inMemoryCache: InMemoryCache
+    private var inMemoryCache: [WalletConnectConnectedDApp]
 
     private var continuation: AsyncStream<[WalletConnectConnectedDApp]>.Continuation?
 
     init(persistentStorage: some PersistentStorageProtocol) {
         self.persistentStorage = persistentStorage
-        inMemoryCache = InMemoryCache()
+        inMemoryCache = []
     }
 
     func makeDAppsStream() async -> AsyncStream<[WalletConnectConnectedDApp]> {
-        let allDApps = await inMemoryCache.retrieveAllDApps()
-
-        return AsyncStream { continuation in
+        AsyncStream { continuation in
             self.continuation = continuation
-            continuation.yield(allDApps)
+            continuation.yield(inMemoryCache)
         }
     }
 
     func replacingExistingDApps(with dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError) {
-        await inMemoryCache.replace(dApps: dApps)
-        try await persist(dApps)
-        continuation?.yield(dApps)
+        inMemoryCache = dApps
+        try await persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
     }
 
     func save(dApp: WalletConnectConnectedDApp) async throws(WalletConnectDAppPersistenceError) {
-        let allDApps = await inMemoryCache.storeDAppAndRetrieveAll(dApp)
-        try await persist(allDApps)
-        continuation?.yield(allDApps)
+        inMemoryCache.append(dApp)
+        try await persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
     }
 
     func getDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError) -> WalletConnectConnectedDApp {
-        guard let dApp = await inMemoryCache.retrieveDApp(for: sessionTopic) else {
+        guard let dApp = inMemoryCache.first(where: { $0.session.topic == sessionTopic }) else {
             throw WalletConnectDAppPersistenceError.notFound
         }
 
@@ -57,25 +55,20 @@ final class PersistentStorageWalletConnectConnectedDAppRepository: WalletConnect
 
         let dApps = dAppDTOs?.map(WalletConnectConnectedDAppMapper.mapToDomain) ?? []
 
-        await inMemoryCache.storeDApps(dApps)
-        continuation?.yield(dApps)
+        inMemoryCache = dApps
+        continuation?.yield(inMemoryCache)
 
-        return dApps
+        return inMemoryCache
     }
 
     func deleteDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError) {
-        let (deletedDApp, allDApps) = await inMemoryCache.removeDAppAndRetrieveAll(for: sessionTopic)
-
-        guard deletedDApp != nil else {
-            throw WalletConnectDAppPersistenceError.notFound
-        }
-
-        try await persist(allDApps)
-        continuation?.yield(allDApps)
+        inMemoryCache.removeAll(where: { $0.session.topic == sessionTopic })
+        try await persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
     }
 
     func deleteDApps(forUserWalletID userWalletID: String) async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
-        var filteredDApps = await inMemoryCache.retrieveAllDApps()
+        var filteredDApps = inMemoryCache
         var removedDApps = [WalletConnectConnectedDApp]()
 
         for i in stride(from: filteredDApps.count - 1, through: .zero, by: -1) {
@@ -84,10 +77,10 @@ final class PersistentStorageWalletConnectConnectedDAppRepository: WalletConnect
             }
         }
 
-        await inMemoryCache.replace(dApps: filteredDApps)
-        continuation?.yield(filteredDApps)
+        inMemoryCache = filteredDApps
+        continuation?.yield(inMemoryCache)
 
-        return removedDApps
+        return inMemoryCache
     }
 
     private func persist(_ allDApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError) {
@@ -97,42 +90,6 @@ final class PersistentStorageWalletConnectConnectedDAppRepository: WalletConnect
             try persistentStorage.store(value: dtos, for: .walletConnectSessions)
         } catch {
             throw WalletConnectDAppPersistenceError.savingFailed
-        }
-    }
-}
-
-extension PersistentStorageWalletConnectConnectedDAppRepository {
-    private actor InMemoryCache {
-        private var sessionTopicToConnectedDApp = [String: WalletConnectConnectedDApp]()
-
-        func storeDApps(_ dApps: [WalletConnectConnectedDApp]) {
-            dApps.forEach(storeDApp)
-        }
-
-        func storeDAppAndRetrieveAll(_ dApp: WalletConnectConnectedDApp) -> [WalletConnectConnectedDApp] {
-            storeDApp(dApp)
-            return retrieveAllDApps()
-        }
-
-        func retrieveDApp(for sessionTopic: String) -> WalletConnectConnectedDApp? {
-            sessionTopicToConnectedDApp[sessionTopic]
-        }
-
-        func retrieveAllDApps() -> [WalletConnectConnectedDApp] {
-            Array(sessionTopicToConnectedDApp.values)
-        }
-
-        func removeDAppAndRetrieveAll(for sessionTopic: String) -> (WalletConnectConnectedDApp?, [WalletConnectConnectedDApp]) {
-            (sessionTopicToConnectedDApp.removeValue(forKey: sessionTopic), retrieveAllDApps())
-        }
-
-        func replace(dApps: [WalletConnectConnectedDApp]) {
-            sessionTopicToConnectedDApp.removeAll()
-            dApps.forEach(storeDApp)
-        }
-
-        private func storeDApp(_ dApp: WalletConnectConnectedDApp) {
-            sessionTopicToConnectedDApp[dApp.session.topic] = dApp
         }
     }
 }

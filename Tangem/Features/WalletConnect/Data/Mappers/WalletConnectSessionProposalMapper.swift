@@ -6,10 +6,19 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import struct Foundation.URL
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectDAppSessionProposalMapper {
+    static func mapDomainURL(from reownSessionProposal: ReownWalletKit.Session.Proposal) throws(WalletConnectDAppProposalLoadingError) -> URL {
+        guard let domainURL = URL(string: reownSessionProposal.proposer.url) else {
+            throw WalletConnectDAppProposalLoadingError.invalidDomainURL(reownSessionProposal.proposer.url)
+        }
+
+        return domainURL
+    }
+
     static func mapRequiredBlockchains(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<BlockchainSdk.Blockchain> {
         mapDomainBlockchains(from: reownSessionProposal.requiredNamespaces)
     }
