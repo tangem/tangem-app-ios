@@ -16,12 +16,13 @@ protocol SendAmountInteractor {
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
     var externalAmountPublisher: AnyPublisher<SendAmount?, Never> { get }
 
-    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> { get }
+    var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
 
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
     func updateToMaxAmount() -> SendAmount
+    func removeReceivedToken()
 
     /// Use this method if have to updated from notification
     func externalUpdate(amount: Decimal?)
@@ -34,10 +35,11 @@ class CommonSendAmountInteractor {
 
     private weak var input: SendAmountInput?
     private weak var output: SendAmountOutput?
+    private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveTokenOutput: SendReceiveTokenOutput?
+
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
-    private let receiveTokenInput: SendReceiveTokenInput?
-
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -50,22 +52,24 @@ class CommonSendAmountInteractor {
     init(
         input: SendAmountInput,
         output: SendAmountOutput,
+        receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         maxAmount: Decimal,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        receiveTokenInput: SendReceiveTokenInput?,
         type: SendAmountCalculationType
     ) {
         self.input = input
         self.output = output
+        self.receiveTokenInput = receiveTokenInput
+        self.receiveTokenOutput = receiveTokenOutput
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.maxAmount = maxAmount
         self.validator = validator
         self.amountModifier = amountModifier
-        self.receiveTokenInput = receiveTokenInput
         self.type = type
 
         _cachedAmount = CurrentValueSubject(input.amount)
@@ -181,12 +185,12 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         _externalAmount.eraseToAnyPublisher()
     }
 
-    var receivedTokenPublisher: AnyPublisher<SendReceiveToken?, Never> {
+    var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
         guard let receiveTokenInput else {
             return Empty().eraseToAnyPublisher()
         }
 
-        return receiveTokenInput.receiveTokenPublisher
+        return receiveTokenInput.receiveTokenPublisher.eraseToAnyPublisher()
     }
 
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> {
@@ -243,6 +247,10 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             _cachedAmount.send(amount)
             return amount
         }
+    }
+
+    func removeReceivedToken() {
+        receiveTokenOutput?.userDidRequestClearSelection()
     }
 
     func externalUpdate(amount: Decimal?) {

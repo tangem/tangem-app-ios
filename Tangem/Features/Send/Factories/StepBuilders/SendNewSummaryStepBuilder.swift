@@ -20,7 +20,7 @@ struct SendNewSummaryStepBuilder {
         actionType: SendFlowActionType,
         descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
         notificationManager: NotificationManager,
-        feeLoader: SendFeeLoader,
+        sendFeeProvider: SendFeeProvider,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
@@ -48,7 +48,7 @@ struct SendNewSummaryStepBuilder {
         let step = SendNewSummaryStep(
             viewModel: viewModel,
             input: io.input,
-            feeLoader: feeLoader,
+            sendFeeProvider: sendFeeProvider,
             title: builder.summaryTitle(action: actionType)
         )
 
