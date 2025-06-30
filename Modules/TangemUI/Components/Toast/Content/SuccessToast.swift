@@ -1,18 +1,23 @@
 //
 //  SuccessToast.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 
-struct SuccessToast: View {
-    let text: String
+public struct SuccessToast: View {
+    private let text: String
 
-    var body: some View {
+    public init(text: String) {
+        self.text = text
+    }
+
+    public var body: some View {
         HStack(spacing: 6) {
             Assets.check.image
                 .renderingMode(.template)
@@ -29,6 +34,8 @@ struct SuccessToast: View {
         .cornerRadiusContinuous(10)
     }
 }
+
+// MARK: - Previews
 
 #Preview("Figma") {
     VStack {
