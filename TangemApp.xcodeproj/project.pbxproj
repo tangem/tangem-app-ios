@@ -2790,10 +2790,11 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
+		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
 		EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */; };
-		EA72BE332DF8828100648B53 /* PepecoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */; };
 		EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */; };
@@ -2802,7 +2803,7 @@
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
 		EAD10C5E2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */; };
 		EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */; };
-		EAF4F59A2DF729FA0045996D /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */; };
+		EAF545FC2E0C803000CF7343 /* DeeplinkValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */; };
 		EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */; };
 		EAF6A6842DF9C44A0094B883 /* IncomingURLValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67F2DF9C44A0094B883 /* IncomingURLValidatorTests.swift */; };
 		EAF6A6852DF9C44A0094B883 /* IncomingActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */; };
@@ -6416,10 +6417,11 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
+		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
 		EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkPresenter.swift; sourceTree = "<group>"; };
-		EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinTransactionTests.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParser.swift; sourceTree = "<group>"; };
 		EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
@@ -6428,7 +6430,7 @@
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
 		EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEvents.swift; sourceTree = "<group>"; };
 		EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigationAction.swift; sourceTree = "<group>"; };
-		EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
+		EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkValidator.swift; sourceTree = "<group>"; };
 		EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParserTests.swift; sourceTree = "<group>"; };
 		EAF6A67F2DF9C44A0094B883 /* IncomingURLValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidatorTests.swift; sourceTree = "<group>"; };
 		EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionsTests.swift; sourceTree = "<group>"; };
@@ -10151,6 +10153,7 @@
 				B61D2A1F2B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift */,
 				B0DD16262A331C2100CB23AA /* TokenDetailsViewModel.swift */,
 				B0DD16272A331C2100CB23AA /* TokenDetailsRoutable.swift */,
+				EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */,
 			);
 			path = TokenDetails;
 			sourceTree = "<group>";
@@ -16251,14 +16254,6 @@
 			path = DeeplinkPresenter;
 			sourceTree = "<group>";
 		};
-		EA72BE322DF8828100648B53 /* Pepecoin */ = {
-			isa = PBXGroup;
-			children = (
-				EA72BE312DF8828100648B53 /* PepecoinTransactionTests.swift */,
-			);
-			path = Pepecoin;
-			sourceTree = "<group>";
-		};
 		EAB55F5A2DF067AF0016BF78 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
@@ -16268,38 +16263,13 @@
 			path = Factories;
 			sourceTree = "<group>";
 		};
-		EAF4F58F2DF6ECDC0045996D /* IncomingActions */ = {
-			isa = PBXGroup;
-			children = (
-				DC4BF174298A4B810052EC19 /* IncomingActionsTests.swift */,
-				EAF4F5912DF6ECFA0045996D /* IncomingActionParserTests.swift */,
-				EAF4F5932DF706130045996D /* DeepLinkURLParserTests.swift */,
-			);
-			path = IncomingActions;
-			sourceTree = "<group>";
-		};
-		EAF4F5902DF6ECDC0045996D /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				EAF4F58F2DF6ECDC0045996D /* IncomingActions */,
-			);
-			path = Features;
-            sourceTree = "<group>";
-        };
-		EAF4F5982DF729DF0045996D /* Clore */ = {
-			isa = PBXGroup;
-			children = (
-				EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */,
-			);
-			path = Clore;
-			sourceTree = "<group>";
-		};
 		EAF6A6812DF9C44A0094B883 /* IncomingActions */ = {
 			isa = PBXGroup;
 			children = (
 				EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */,
 				EAF6A67F2DF9C44A0094B883 /* IncomingURLValidatorTests.swift */,
 				EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */,
+				EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */,
 			);
 			path = IncomingActions;
 			sourceTree = "<group>";
@@ -17510,18 +17480,16 @@
 				DC0DE2792B6175B100E7247F /* IncomingActionConstants.swift */,
 				EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */,
 				EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */,
-				EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */,
 				DC0DE2772B61709D00E7247F /* IncomingActionURLHelper.swift */,
 				DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */,
 				EF5E08362DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift */,
-				EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */,
-				EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */,
 				0AA6A79C2DBA6D83008F5D43 /* ReferralProgramURLParser.swift */,
 				DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */,
 				2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */,
-				EAB55F5E2DF07C8D0016BF78 /* DeepLinkURLParser.swift */,
+				EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */,
 				EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */,
 				EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */,
+				EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */,
 			);
 			path = IncomingActions;
 			sourceTree = "<group>";
@@ -20068,6 +20036,7 @@
 				2DC567632B0DFFAF00B0244F /* MarketsItemView.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
 				DCBAF6A12A4C4F650029480A /* DerivationManager.swift in Sources */,
+				EAF545FC2E0C803000CF7343 /* DeeplinkValidator.swift in Sources */,
 				B05A13A129FB971900FB511A /* TokenItemViewModel.swift in Sources */,
 				B0BB972F2B18654300053954 /* CommonExpressPendingTransactionRepository.swift in Sources */,
 				C2075EFC2DE62325009AD2F7 /* WalletConnectBlockchainMapper.swift in Sources */,
@@ -20382,6 +20351,7 @@
 				EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */,
 				EF0FBB6E2C53BE300095A6BD /* SendAmountCompactView.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
+				EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */,
 				B06C3A292BFE31E3005E6D40 /* ManageTokensListLoader.swift in Sources */,
 				DC9090512D393B2F00BF7A43 /* HotCryptoAddPortfolioBottomSheet.swift in Sources */,
 				B03574C82B1F876300118786 /* PendingExpressTxStatusRow.swift in Sources */,
@@ -21586,6 +21556,7 @@
 			files = (
 				B672633E2C7FB0D400F120E6 /* DecimalExtensionsTests.swift in Sources */,
 				5D51037B27C53E6E0025EA55 /* EIP712TypedDataTests.swift in Sources */,
+				EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */,
 				B097A3662C106AC1003CFD38 /* APIURLValidatorTests.swift in Sources */,
 				EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */,
 				EAF6A6842DF9C44A0094B883 /* IncomingURLValidatorTests.swift in Sources */,
