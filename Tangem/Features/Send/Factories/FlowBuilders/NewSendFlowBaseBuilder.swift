@@ -15,6 +15,7 @@ struct NewSendFlowBaseBuilder {
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendNewFeeStepBuilder
+    let swapProvidersBuilder: SendSwapProvidersBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
@@ -29,12 +30,6 @@ struct NewSendFlowBaseBuilder {
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
-        let fee = sendFeeStepBuilder.makeSendFee(
-            io: (input: sendModel, output: sendModel),
-            feeProvider: sendFeeProvider,
-            customFeeService: customFeeService
-        )
-
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
@@ -42,6 +37,7 @@ struct NewSendFlowBaseBuilder {
             amountModifier: .none,
             receiveTokenInput: sendModel,
             receiveTokenOutput: sendModel,
+            swapProvidersInput: sendModel,
             flowKind: flowKind
         )
 
@@ -50,6 +46,17 @@ struct NewSendFlowBaseBuilder {
             receiveTokenInput: sendModel,
             sendQRCodeService: sendQRCodeService,
             router: router
+        )
+
+        let fee = sendFeeStepBuilder.makeSendFee(
+            io: (input: sendModel, output: sendModel),
+            feeProvider: sendFeeProvider,
+            customFeeService: customFeeService
+        )
+
+        let providers = swapProvidersBuilder.makeSwapProviders(
+            io: (input: sendModel, output: sendModel),
+            receiveTokenInput: sendModel
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
@@ -71,6 +78,7 @@ struct NewSendFlowBaseBuilder {
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
             sendAmountCompactViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
+            sendSwapProviderFinishViewModel: providers.finish,
             sendFeeCompactViewModel: fee.finish,
         )
 
@@ -93,7 +101,8 @@ struct NewSendFlowBaseBuilder {
             destinationStep: destination.step,
             summaryStep: summary.step,
             finishStep: finish,
-            feeSelector: fee.feeSelector
+            feeSelector: fee.feeSelector,
+            providersSelector: providers.providersSelector
         )
 
         summary.step.set(router: stepsManager)

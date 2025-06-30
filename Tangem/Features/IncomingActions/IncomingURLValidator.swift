@@ -14,10 +14,6 @@ public protocol IncomingURLValidator {
 
 public struct CommonIncomingURLValidator {
     public init() {}
-
-    private func validateUniversalLilk(_ url: URL) -> Bool {
-        return false
-    }
 }
 
 extension CommonIncomingURLValidator: IncomingURLValidator {
@@ -33,7 +29,7 @@ extension CommonIncomingURLValidator: IncomingURLValidator {
             return true
         }
 
-        // The check for corretc host i.e. deeplink desitantion happens in deeplink parsers
+        // The check for correct host i.e. deeplink destination happens in deeplink parsers
         if scheme == IncomingActionConstants.universalLinkScheme {
             return true
         }
