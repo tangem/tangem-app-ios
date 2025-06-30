@@ -38,12 +38,9 @@ struct SendNewSummaryView: View {
 
     @ViewBuilder
     private var amountSectionView: some View {
-        GroupedSection(viewModel.sendAmountCompactViewModel) {
-            SendNewAmountCompactView(viewModel: $0)
+        if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
+            SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
         }
-        .backgroundColor(Colors.Background.action)
-        .innerContentPadding(0)
-        .horizontalPadding(0)
     }
 
     // MARK: - Destination
