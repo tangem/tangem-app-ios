@@ -16,6 +16,7 @@ struct SendNewFinishStepBuilder {
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
         sendAmountCompactViewModel: SendTokenAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
+        sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
     ) -> ReturnValue {
         let viewModel = SendNewFinishViewModel(
@@ -23,6 +24,7 @@ struct SendNewFinishStepBuilder {
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            sendSwapProviderFinishViewModel: sendSwapProviderFinishViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
