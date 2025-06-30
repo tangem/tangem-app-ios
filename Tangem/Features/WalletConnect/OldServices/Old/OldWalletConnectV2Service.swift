@@ -319,8 +319,9 @@ final class OldWalletConnectV2Service {
         }
 
         let blockchains = OldWalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
+
         let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
-        uiDelegate.showScreen(with: WalletConnectUIRequest(
+        let uiRequest = WalletConnectUIRequest(
             event: .establishSession,
             message: message,
             approveAction: { [weak self] in
@@ -329,7 +330,25 @@ final class OldWalletConnectV2Service {
             rejectAction: { [weak self] in
                 self?.sessionRejected(with: proposal)
             }
-        ))
+        )
+
+        let domainRequiredBlockchains = WalletConnectDAppSessionProposalMapper.mapRequiredBlockchains(from: proposal)
+        let domainOptionalBlockchains = WalletConnectDAppSessionProposalMapper.mapOptionalBlockchains(from: proposal)
+        let solanaBlockchain = Blockchain.solana(curve: .ed25519, testnet: false)
+
+        let hasSolana = domainRequiredBlockchains
+            .union(domainOptionalBlockchains)
+            .contains(solanaBlockchain)
+
+        if hasSolana {
+            uiDelegate.showSolanaNetworkWarning(
+                acceptAction: { [weak self] in
+                    self?.uiDelegate.showScreen(with: uiRequest)
+                }
+            )
+        } else {
+            uiDelegate.showScreen(with: uiRequest)
+        }
     }
 
     private func displayErrorUI(_ error: WalletConnectV2Error) {

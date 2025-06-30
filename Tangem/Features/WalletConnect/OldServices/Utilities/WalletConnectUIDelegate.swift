@@ -24,6 +24,8 @@ struct WalletConnectAsyncUIRequest<T> {
 
 protocol WalletConnectUIDelegate {
     func showScreen(with request: WalletConnectUIRequest)
+    func showSolanaNetworkWarning(acceptAction: @escaping () -> Void)
+
     @MainActor
     func getResponseFromUser<Result>(with request: WalletConnectAsyncUIRequest<Result>) async -> (() async throws -> Result)
 }
@@ -42,6 +44,13 @@ final class WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
             )
 
             self?.appPresenter.show(alert)
+        }
+    }
+
+    func showSolanaNetworkWarning(acceptAction: @escaping () -> Void) {
+        queue.async { [weak self] in
+            let alertViewController = WalletConnectUIBuilder.makeSolanaWarningAlert(acceptAction: acceptAction)
+            self?.appPresenter.show(alertViewController)
         }
     }
 
