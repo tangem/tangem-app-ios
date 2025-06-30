@@ -484,5 +484,6 @@ extension Analytics {
         case nftSentScreenOpened = "[NFT] NFT Sent Screen Opened"
 
         case nftErrors = "[NFT] NFT Errors"
+        case nftToggleSwitch = "[Settings / Wallet] NFT toggle switch"
     }
 }
