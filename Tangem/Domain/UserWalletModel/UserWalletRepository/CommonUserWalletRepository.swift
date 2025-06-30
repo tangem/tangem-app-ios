@@ -50,6 +50,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         models.isEmpty
     }
 
+    var userWalletModelsReadyPublisher: AnyPublisher<Bool, Never> {
+        userWalletModelsReadySubject.eraseToAnyPublisher()
+    }
+
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
         eventSubject.eraseToAnyPublisher()
     }
@@ -61,6 +65,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
 
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
+    private let userWalletModelsReadySubject = CurrentValueSubject<Bool, Never>(false)
 
     private let queue = DispatchQueue(label: "com.tangem.UserWalletRepository")
     private var bag: Set<AnyCancellable> = .init()
@@ -555,6 +560,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 return LockedUserWalletModel(with: userWalletStorageItem)
             }
+
+            self.userWalletModelsReadySubject.send(true)
         }
     }
 
