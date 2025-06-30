@@ -31,6 +31,10 @@ struct SendNewFinishView: View {
                 SendNewDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
+            if let sendSwapProviderFinishViewModel = viewModel.sendSwapProviderFinishViewModel {
+                SendSwapProviderFinishView(viewModel: sendSwapProviderFinishViewModel)
+            }
+
             if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
                 SendFeeCompactView(
                     viewModel: sendFeeCompactViewModel,

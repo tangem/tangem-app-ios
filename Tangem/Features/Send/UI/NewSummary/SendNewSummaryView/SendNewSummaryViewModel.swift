@@ -88,9 +88,8 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapValidator() {
-        // [REDACTED_TODO_COMMENT]
-        // didTapSummary()
-        // router?.summaryStepRequestEditValidators()
+        didTapSummary()
+        router?.summaryStepRequestEditValidators()
     }
 
     func userDidTapFee() {
@@ -109,8 +108,12 @@ extension SendNewSummaryViewModel: SendNewAmountCompactRoutable {
 
     func userDidTapReceiveTokenAmount() {
         didTapSummary()
-        // [REDACTED_TODO_COMMENT]
-        // router?.summaryStepRequestEditAmount()
+        router?.summaryStepRequestEditAmount()
+    }
+
+    func userDidTapSwapProvider() {
+        didTapSummary()
+        router?.summaryStepRequestEditProviders()
     }
 }
 
