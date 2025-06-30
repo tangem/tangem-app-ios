@@ -40,7 +40,7 @@ final class PrivateInfoStorage {
                 content: aesKey
             )
             try secureStorage.store(aesEncrypted, forKey: walletAuthInfo.walletID.storageEncryptionKey)
-        case .biometry:
+        case .biometrics:
             try biometricsStorage.store(aesKey, forKey: walletAuthInfo.walletID.storageEncryptionKey)
         }
 
@@ -79,7 +79,7 @@ final class PrivateInfoStorage {
                 password: value,
                 encryptedData: aesKeyEncrypted
             )
-        case .biometry:
+        case .biometrics:
             guard let key = try biometricsStorage.get(storageEncryptionKey) else {
                 throw PrivateInfoStorageError.noPrivateInfo(walletID: walletAuthInfo.walletID)
             }
@@ -103,7 +103,7 @@ final class PrivateInfoStorage {
                 content: aesKey
             )
             try secureStorage.store(aesEncrypted, forKey: storageEncryptionKey)
-        case .biometry:
+        case .biometrics:
             if walletAuthInfo.auth == .none {
                 try secureStorage.delete(walletAuthInfo.walletID.storageEncryptionKey)
             }
@@ -158,7 +158,7 @@ final class PrivateInfoStorage {
                         password: value,
                         encryptedData: aesKeyEncrypted
                     )
-                case .biometry:
+                case .biometrics:
                     guard let key = try biometricsStorage.get(walletAuthInfo.walletID.storageEncryptionKey) else {
                         throw PrivateInfoStorageError.noPrivateInfo(walletID: walletAuthInfo.walletID)
                     }
@@ -189,7 +189,7 @@ private extension HotWalletID {
 private extension PrivateInfoStorage {
     func authTypeData(for authType: HotAuth?) -> Data {
         let string = switch authType {
-        case .biometry: "biometry"
+        case .biometrics: "biometrics"
         case .password: "password"
         case .none: "no_auth"
         }

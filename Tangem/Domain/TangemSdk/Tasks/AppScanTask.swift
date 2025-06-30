@@ -36,7 +36,7 @@ struct AppScanTaskResponse {
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
-        var cardInfo = CardInfo(
+        let cardInfo = CardInfo(
             card: CardDTO(card: card),
             walletData: walletData,
             primaryCard: primaryCard

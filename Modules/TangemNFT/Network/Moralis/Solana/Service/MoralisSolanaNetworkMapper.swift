@@ -76,12 +76,16 @@ struct MoralisSolanaNetworkMapper {
         let mediaFiles = mapToMediaFiles(properties: asset.properties)
         let traits = mapToTraits(attributes: asset.attributes)
         let decimalCount = asset.decimals ?? Constants.decimalCountFallback
+        let standard = NFTContractTypeMapper.map(
+            contractType: asset.tokenStandard.flatMap(String.init),
+            isAnalyticsOnly: true
+        )
 
         return NFTAsset(
             assetIdentifier: Constants.dummyAssetIdentifier,
             assetContractAddress: contractAddress,
             chain: .solana,
-            contractType: .unknown,
+            contractType: standard,
             decimalCount: decimalCount,
             ownerAddress: ownerAddress,
             name: asset.name ?? Constants.assetNameFallback,
