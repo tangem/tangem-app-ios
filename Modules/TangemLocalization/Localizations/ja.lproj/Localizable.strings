@@ -401,6 +401,9 @@
 "home_button_scan" = "Tangemをスキャン";
 "hot_crypto_add_token_subtitle" = "%@へ";
 "hot_crypto_token_network" = "%@ネットワーク";
+"hw_backup_need_action" = "Go to backup";
+"hw_backup_need_description" = "To secure your wallet with a Access Code, complete the backup first.";
+"hw_backup_need_title" = "Finish Backup First";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
@@ -1262,6 +1265,8 @@
 "wallet_promo_banner_button_title" = "今すぐ10 %% オフで購入";
 "wallet_promo_banner_description" = "1.3万種類以上の暗号資産にアクセス。ワンタップで買付、売却、スワップ、ステーキングが可能です。\nバックアップ用に最大3枚のカードを連携できます。";
 "wallet_promo_banner_title" = "Tangemウォレットを見る";
+"wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
+"wallet_settings_access_code_title" = "Set/Change Access Code";
 "wallet_settings_push_notifications_description" = "ウォレットの受信取引とTangemの更新について通知を受け取る。";
 "wallet_settings_push_notifications_title" = "取引通知";
 "wallet_settings_title" = "ウォレット設定";
