@@ -2864,9 +2864,9 @@
 		DCFEFE532CF08A1B002DFE58 /* ActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */; };
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
-		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
@@ -6608,9 +6608,9 @@
 		DCFEFE522CF08A1A002DFE58 /* ActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
-		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
@@ -13695,7 +13695,6 @@
 				B62D43012CBC79E200C2460E /* Litecoin */,
 				B62D42ED2CBC79E100C2460E /* Mantle */,
 				B62D43152CBC79E300C2460E /* NEAR */,
-				EA72BE322DF8828100648B53 /* Pepecoin */,
 				B62D430F2CBC79E200C2460E /* Polkadot */,
 				30440D742D79A11C00460D15 /* Polygon */,
 				B62D432D2CBC79E400C2460E /* Radiant */,
@@ -16796,7 +16795,6 @@
 		EAF4F5982DF729DF0045996D /* Clore */ = {
 			isa = PBXGroup;
 			children = (
-				EAF4F5992DF729FA0045996D /* CloreTransactionTests.swift */,
 			);
 			path = Clore;
 			sourceTree = "<group>";
@@ -23595,14 +23593,12 @@
 				EFAF7E3F2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift in Sources */,
 				30C470222D7628C3003DFBFD /* Fact0rnAddressTests.swift in Sources */,
 				309939022D786F3200DA3667 /* TONAddressTests.swift in Sources */,
-				EA72BE332DF8828100648B53 /* PepecoinTransactionTests.swift in Sources */,
 				B62D43632CBC79E400C2460E /* NSError+.swift in Sources */,
 				30C4701E2D762390003DFBFD /* CosmosAddressTests.swift in Sources */,
 				30188F692D75CF9900217353 /* Keys.swift in Sources */,
 				30410B3F2D7740270044C703 /* NEARAddressTests.swift in Sources */,
 				B62D436C2CBC79E400C2460E /* ChiaTransactionTests.swift in Sources */,
 				B62D43562CBC79E400C2460E /* AptosTransactionTests.swift in Sources */,
-				EAF4F59A2DF729FA0045996D /* CloreTransactionTests.swift in Sources */,
 				305B22392D789E29009BCC73 /* BSCAddressTests.swift in Sources */,
 				B62D43592CBC79E400C2460E /* CosmosTransactionTests.swift in Sources */,
 				B62D43582CBC79E400C2460E /* EthereumTransactionTests.swift in Sources */,
@@ -29780,7 +29776,7 @@
 			repositoryURL = "git@github.com:tangem-developments/hedera-sdk-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.26.0-tangem5";
+				version = "0.40.0-tangem1";
 			};
 		};
 		B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
