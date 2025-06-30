@@ -29684,7 +29684,7 @@
 			repositoryURL = "git@github.com:tangem-developments/firebase-ios-sdk.git";
 			requirement = {
 				kind = exactVersion;
-				version = "11.7.0-tangem2";
+				version = "11.15.0-tangem2";
 			};
 		};
 		B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */ = {
