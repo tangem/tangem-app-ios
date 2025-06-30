@@ -90,7 +90,3 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         legacyQRScanViewCoordinator = coordinator
     }
 }
-
-// [REDACTED_TODO_COMMENT]
-extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {}
-extension WalletConnectDAppConnectionViewModel: FloatingSheetContentViewModel {}
