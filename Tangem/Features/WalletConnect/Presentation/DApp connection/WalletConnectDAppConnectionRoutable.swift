@@ -18,6 +18,8 @@ protocol WalletConnectDAppConnectionRoutable: AnyObject {
         connectAnywayAction: @escaping () async -> Void
     )
 
+    func openSolanaBlockchainWarning(dAppName: String, connectAnywayAction: @escaping () async -> Void)
+
     func openWalletSelector()
 
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult)
