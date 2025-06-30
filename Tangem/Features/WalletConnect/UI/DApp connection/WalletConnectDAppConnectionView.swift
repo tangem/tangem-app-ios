@@ -59,6 +59,9 @@ struct WalletConnectDAppConnectionView: View {
                 WalletConnectDAppDomainVerificationView(viewModel: viewModel)
                     .transition(.content)
 
+            case .solanaBlockchainWarning(let viewModel):
+                EmptyView()
+
             case .walletSelector(let viewModel):
                 WalletConnectWalletSelectorView(viewModel: viewModel, scrollProxy: scrollProxy)
                     .transition(.content)
@@ -88,6 +91,12 @@ struct WalletConnectDAppConnectionView: View {
             closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
 
         case .verifiedDomain(let viewModel):
+            title = nil
+            backgroundColor = Color.clear
+            backButtonAction = nil
+            closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
+
+        case .solanaBlockchainWarning(let viewModel):
             title = nil
             backgroundColor = Color.clear
             backButtonAction = nil
@@ -134,6 +143,10 @@ struct WalletConnectDAppConnectionView: View {
 
             case .verifiedDomain(let viewModel):
                 domainVerificationFooter(viewModel)
+                    .transition(.footer)
+
+            case .solanaBlockchainWarning(let viewModel):
+                solanaBlockchainFooter(viewModel)
                     .transition(.footer)
 
             case .walletSelector:
@@ -199,6 +212,26 @@ struct WalletConnectDAppConnectionView: View {
         .padding(16)
     }
 
+    private func solanaBlockchainFooter(_ viewModel: WalletConnectSolanaBlockchainWarningViewModel) -> some View {
+        VStack(spacing: 8) {
+            MainButton(
+                title: viewModel.state.cancelButtonTitle,
+                style: .primary,
+                action: {
+                    viewModel.handle(viewEvent: .cancelButtonTapped)
+                }
+            )
+
+            MainButton(
+                title: viewModel.state.connectAnywayButtonTitle,
+                style: .secondary,
+                action: {
+                    viewModel.handle(viewEvent: .connectAnywayButtonTapped)
+                }
+            )
+        }
+    }
+
     private func networksSelectorFooter(_ viewModel: WalletConnectNetworksSelectorViewModel) -> some View {
         MainButton(
             title: viewModel.state.doneButton.title,
@@ -250,6 +283,8 @@ private extension WalletConnectDAppConnectionViewState {
             "connectionRequest"
         case .verifiedDomain:
             "verifiedDomain"
+        case .solanaBlockchainWarning:
+            "solanaBlockchainWarning"
         case .walletSelector:
             "walletSelector"
         case .networkSelector:
