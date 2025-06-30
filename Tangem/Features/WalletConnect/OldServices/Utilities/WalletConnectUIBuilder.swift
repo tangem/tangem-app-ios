@@ -64,6 +64,27 @@ enum WalletConnectUIBuilder {
         return vc
     }
 
+    static func makeSolanaWarningAlert(acceptAction: @escaping () -> Void) -> UIAlertController {
+        let message = """
+        Solana Transaction Limitation.
+        Some Solana transactions may exceed the capabilities of your Tangem card, resulting in possible failures when signing.
+        """
+
+        let alertViewController = UIAlertController(
+            title: "WalletConnect",
+            message: message,
+            preferredStyle: .alert
+        )
+
+        let rejectAlertAction = UIAlertAction(title: Localization.commonCancel, style: .cancel)
+        let acceptAlertAction = UIAlertAction(title: "I understand", style: .destructive, handler: { _ in acceptAction() })
+
+        alertViewController.addAction(rejectAlertAction)
+        alertViewController.addAction(acceptAlertAction)
+
+        return alertViewController
+    }
+
     static func makeErrorAlert(_ error: Error) -> UIAlertController {
         makeAlert(for: .error, message: error.localizedDescription)
     }
