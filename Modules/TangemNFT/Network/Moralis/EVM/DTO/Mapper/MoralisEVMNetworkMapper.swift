@@ -29,7 +29,7 @@ struct MoralisEVMNetworkMapper {
                 return nil
             }
 
-            let contractType = NFTContractTypeMapper().map(contractType: collection.contractType)
+            let contractType = NFTContractTypeMapper.map(contractType: collection.contractType)
 
             return NFTCollection(
                 collectionIdentifier: collectionIdentifier,
@@ -83,7 +83,7 @@ struct MoralisEVMNetworkMapper {
 
         // [REDACTED_TODO_COMMENT]
         let mediaFiles = map(media: asset.media).map { [$0] } ?? []
-        let contractType = NFTContractTypeMapper().map(contractType: asset.contractType)
+        let contractType = NFTContractTypeMapper.map(contractType: asset.contractType)
         let rarity = map(rarityLabel: asset.rarityLabel, rarityPercentage: asset.rarityPercentage, rarityRank: asset.rarityRank)
         let traits = map(attributes: asset.normalizedMetadata?.attributes)
 
