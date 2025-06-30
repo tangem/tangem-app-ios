@@ -8,10 +8,13 @@
 
 public extension NFTAnalytics {
     struct Collections {
-        let logReceiveOpen: () -> Void
-        let logDetailsOpen: LogWithBlockchainClosure
+        public typealias Standard = String
+        public typealias LogDetailsOpenedClosure = (Blockchain, Standard) -> Void
 
-        public init(logReceiveOpen: @escaping () -> Void, logDetailsOpen: @escaping LogWithBlockchainClosure) {
+        let logReceiveOpen: () -> Void
+        let logDetailsOpen: LogDetailsOpenedClosure
+
+        public init(logReceiveOpen: @escaping () -> Void, logDetailsOpen: @escaping LogDetailsOpenedClosure) {
             self.logReceiveOpen = logReceiveOpen
             self.logDetailsOpen = logDetailsOpen
         }
