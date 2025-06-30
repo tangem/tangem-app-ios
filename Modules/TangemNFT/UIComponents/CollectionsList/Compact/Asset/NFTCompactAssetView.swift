@@ -65,15 +65,18 @@ struct NFTCompactAssetView: View {
 
     private func makeIcon(media: NFTMedia?) -> some View {
         SquaredOrRectangleImageView(media: media)
+            .shimmer()
     }
 
     private func makeTexts(title: String, subtitle: String?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .shimmer()
 
             Text(subtitle ?? "")
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .shimmer()
         }
     }
 }
@@ -103,7 +106,9 @@ extension NFTCompactAssetView {
                         name: "My asset",
                         description: "",
                         salePrice: nil,
-                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        mediaFiles: [
+                            NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        ],
                         rarity: nil,
                         traits: []
                     ),

@@ -22,7 +22,8 @@ struct NFTCollectionRow: View {
     var body: some View {
         HStack(spacing: Constants.iconTextsSpacing) {
             icon
-                .networkIconOverlay(imageAsset: iconOverlayImage)
+                .shimmer()
+                .networkIconOverlay(imageAsset: iconOverlayImage) // This reusable UI component has its own shimmer
 
             textsView
 
@@ -42,9 +43,11 @@ struct NFTCollectionRow: View {
         VStack(alignment: .leading, spacing: Constants.textsSpacing) {
             Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .shimmer()
 
             Text(subtitle)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .shimmer()
         }
     }
 
@@ -81,7 +84,7 @@ struct NFTCollectionRow: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: Constants.Icon.cornerRadius)
-            .fill(Colors.Field.primary)
+            .fill(Colors.Field.focused)
             .frame(size: Constants.Icon.size)
     }
 }

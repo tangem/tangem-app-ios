@@ -16,9 +16,12 @@ struct SendNewAmountView: View {
     let transitionService: SendTransitionService
 
     @FocusState private var focused: SendAmountCalculationType?
+    @State private var convertButtonSize: CGSize = .zero
+
+    private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(spacing: scrollViewSpacing) {
             content
 
             receiveTokenView
@@ -52,11 +55,43 @@ struct SendNewAmountView: View {
 
     @ViewBuilder
     private var receiveTokenView: some View {
-        GroupedSection(viewModel.receivedTokenViewModel) {
-            TokenWithAmountView(data: $0)
+        switch viewModel.receivedTokenViewType {
+        case .none:
+            EmptyView()
+
+        case .selectButton:
+            Button(action: viewModel.userDidTapReceivedTokenSelection) {
+                HStack(spacing: 8) {
+                    Assets.Glyphs.convertMiniNew.image
+                        .resizable()
+                        .frame(width: 14, height: 14)
+                        .foregroundStyle(Colors.Text.tertiary)
+                        .padding(.all, 3)
+                        .background(Circle().fill(Colors.Icon.secondary.opacity(0.1)))
+
+                    Text(Localization.sendAmountConvertToAnotherToken)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                }
+                .padding(.vertical, 13)
+                .infinityFrame()
+            }
+
+        case .selected(let receivedTokenViewModel):
+            ZStack(alignment: .top) {
+                GroupedSection(receivedTokenViewModel) {
+                    TokenWithAmountView(data: $0)
+                }
+                .backgroundColor(Colors.Background.action)
+                .innerContentPadding(14)
+
+                CircleButton(
+                    content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
+                    action: viewModel.removeReceivedToken
+                )
+                .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+                .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+            }
         }
-        .backgroundColor(Colors.Background.action)
-        .innerContentPadding(14)
     }
 
     @ViewBuilder

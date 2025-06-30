@@ -23,6 +23,7 @@ struct SendNewAmountStepBuilder {
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
@@ -30,6 +31,7 @@ struct SendNewAmountStepBuilder {
             sendAmountValidator: sendAmountValidator,
             amountModifier: amountModifier,
             receiveTokenInput: receiveTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             type: .crypto,
             actionType: actionType
         )
@@ -62,13 +64,12 @@ struct SendNewAmountStepBuilder {
     func makeSendAmountCompactViewModel(input: SendAmountInput, receiveTokenInput: SendReceiveTokenInput?, actionType: SendFlowActionType, flowKind: SendModel.PredefinedValues.FlowKind) -> SendNewAmountCompactViewModel {
         let token = makeSendReceiveToken()
         let viewModel = SendNewAmountCompactViewModel(
-            flow: flowKind,
-            sendToken: token,
             input: input,
-            balanceProvider: builder.makeTokenBalanceProvider()
+            sendToken: token,
+            flow: flowKind,
+            balanceProvider: builder.makeTokenBalanceProvider(),
+            receiveTokenInput: receiveTokenInput
         )
-
-        receiveTokenInput.map { viewModel.bind(receiveTokenInput: $0) }
 
         return viewModel
     }
@@ -101,18 +102,20 @@ private extension SendNewAmountStepBuilder {
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         receiveTokenInput: SendReceiveTokenInput?,
+        receiveTokenOutput: SendReceiveTokenOutput?,
         type: SendAmountCalculationType,
         actionType: SendFlowActionType
     ) -> SendAmountInteractor {
         CommonSendAmountInteractor(
             input: io.input,
             output: io.output,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
             validator: sendAmountValidator,
             amountModifier: amountModifier,
-            receiveTokenInput: receiveTokenInput,
             type: type
         )
     }

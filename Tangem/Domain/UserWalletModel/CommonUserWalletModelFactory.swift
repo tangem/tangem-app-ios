@@ -17,17 +17,21 @@ struct CommonUserWalletModelFactory {
 
         switch walletInfo.type {
         case .card(let cardInfo):
-            return makeModel(
+            return makeCommonUserWalletModel(
                 cardInfo: cardInfo,
                 name: userWallet.name,
                 associatedCardIds: userWallet.associatedCardIds
             )
         case .hot(let hotWalletInfo):
-            return makeModel(hotWalletInfo: hotWalletInfo, name: userWallet.name)
+            return makeHotUserWalletModel(hotWalletInfo: hotWalletInfo, name: userWallet.name)
         }
     }
 
-    func makeModel(cardInfo: CardInfo, name: String? = nil, associatedCardIds: Set<String> = []) -> UserWalletModel? {
+    func makeCommonUserWalletModel(
+        cardInfo: CardInfo,
+        name: String? = nil,
+        associatedCardIds: Set<String> = []
+    ) -> UserWalletModel? {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         guard let dependencies = CommonUserWalletModelDependencies(
@@ -55,8 +59,7 @@ struct CommonUserWalletModelFactory {
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
         )
 
-        dependencies.derivationManager?.delegate = model
-        dependencies.userTokensManager.keysDerivingProvider = model
+        dependencies.update(from: model)
 
         switch cardInfo.walletData {
         case .visa:
@@ -70,7 +73,7 @@ struct CommonUserWalletModelFactory {
         }
     }
 
-    func makeModel(hotWalletInfo: HotWalletInfo, name: String? = nil) -> UserWalletModel? {
+    func makeHotUserWalletModel(hotWalletInfo: HotWalletInfo, name: String? = nil) -> UserWalletModel? {
         let config = UserWalletConfigFactory().makeConfig(hotWalletInfo: hotWalletInfo)
 
         guard let dependencies = CommonUserWalletModelDependencies(
@@ -98,8 +101,7 @@ struct CommonUserWalletModelFactory {
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
         )
 
-        dependencies.derivationManager?.delegate = hotModel
-        dependencies.userTokensManager.keysDerivingProvider = hotModel
+        dependencies.update(from: hotModel)
 
         return hotModel
     }
@@ -203,5 +205,10 @@ private struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
 
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
+    }
+
+    func update(from model: UserWalletModel & DerivationManagerDelegate) {
+        derivationManager?.delegate = model
+        userTokensManager.keysDerivingProvider = model
     }
 }
