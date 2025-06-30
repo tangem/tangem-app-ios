@@ -1,5 +1,5 @@
 {
-  "originHash" : "ace35bf1d823618552089d0c0653b78f14fea55f8185e50c456f701028483b9b",
+  "originHash" : "8ccef28b10a8f77180974f6dc27ef6cfa78b6dcb39ab0289382056a191cd8d60",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "c2fa6bf2f470db5bc31fc4b3e23c6b327ee7b6a8",
-        "version" : "0.26.0-tangem5"
+        "revision" : "47776520d2c1e8c532b58629b4e2b397a4c476a7",
+        "version" : "0.40.0-tangem1"
       }
     },
     {
@@ -296,6 +296,15 @@
       "state" : {
         "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
         "version" : "6.0.0"
+      }
+    },
+    {
+      "identity" : "openssl-package",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/OpenSSL-Package.git",
+      "state" : {
+        "revision" : "71dbe0b4514cdaad95961470db72e8231f5943a6",
+        "version" : "3.3.3001"
       }
     },
     {
@@ -519,8 +528,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
-        "version" : "2.4.2"
+        "revision" : "33af3f9011e45dcd8ee696492d30dbcd5a8a67f3",
+        "version" : "2.6.0"
       }
     },
     {
