@@ -1,3 +1,9 @@
+"access_code_check_title" = "Enter Access Code";
+"access_code_confirm_description" = "Confirm your previously entered code to continue";
+"access_code_confirm_title" = "Re-enter Access Code";
+"access_code_create_description" = "Set a 6-digit Access Code to unlock your wallet.";
+"access_code_create_title" = "Create Access Code";
+"access_code_navtitle" = "Access code";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -117,6 +123,7 @@
 "common_contact_tangem_support" = "Contact Tangem Support";
 "common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Продовжити";
+"common_convert" = "Convert";
 "common_copy_address" = "Скопіювати адресу";
 "common_copy" = "Копіювати";
 "common_create" = "Створити";
@@ -139,6 +146,7 @@
 "common_fee_selector_option_slow" = "Повільно";
 "common_fee_selector_title" = "Швидкість та комісія";
 "common_finish" = "Завершити";
+"common_free" = "Free";
 "common_generate_addresses" = "Синхронізувати адреси";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
@@ -375,6 +383,11 @@
 "home_button_scan" = "Сканувати";
 "hot_crypto_add_token_subtitle" = "в %@";
 "hot_crypto_token_network" = "В мережі %@";
+"hw_create_keys_description" = "Get notified of incoming transactions";
+"hw_create_keys_title" = "Keys are stored in the app";
+"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_title" = "Seed phrase backup";
+"hw_create_title" = "Create Mobile Wallet";
 "information_generated_with_ai" = "Ця інформація була створена за допомогою ШІ.\nНатисніть тут, якщо знайшли помилку.";
 "initial_message_change_access_code_body" = "Щоб змінити код доступу, прикладіть картку або кільце, як показано вище, і не прибирайте її до закінчення операції";
 "initial_message_change_passcode_body" = "Щоб змінити пароль, прикладіть картку, як показано вище, і не прибирайте її до закінчення операції";
@@ -751,7 +764,9 @@
 "send_alert_fee_too_low_text" = "Ви вказали комісію нижче рекомендованої, це може спричинити затримку вашої транзакції. Продовжити?";
 "send_alert_transaction_failed_text" = "Причина: %1$@\nКод: %2$@";
 "send_alert_transaction_failed_title" = "Транзакція не завершена";
+"send_amount_convert_to_another_token" = "Convert to another token";
 "send_amount_label" = "Сума";
+"send_amount_receive_token_subtitle" = "Will be sent to recipient";
 "send_bitcoin_custom_fee_footer" = "Ви можете встановити розмір комісії за транзакцію, налаштувавши значення в полі Satoshi per vByte.";
 "send_custom_amount_fee_footer" = "Комісія, яка буде стягнута за вашу транзакцію. Ви можете встановити власне значення.";
 "send_custom_evm_max_fee_footer" = "Це вартість, яку ви готові платити за кожну одиницю газу. Чим вища ціна газу, тим швидше буде оброблено вашу транзакцію. (Пріоритетна плата входить у вартість)";
@@ -769,6 +784,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Перевірте підключення до мережі";
 "send_fee_unreachable_error_title" = "Інформація щодо комісії в мережі недоступна";
+"send_from_wallet_name" = "From %@";
 "send_from_wallet" = "Від **%@**";
 "send_gas_limit_footer" = "Це максимальна кількість газу, яка буде витрачена на здійснення транзакції чи контракту. Ліміт газу запобігає несподіваним або необмеженим стягненням під час виконання транзакції.";
 "send_gas_limit" = "Ліміт газу";
@@ -778,6 +794,7 @@
 "send_max_amount" = "Все";
 "send_max_fee" = "Комісія може сягати до";
 "send_memo_destination_tag_error" = "Недопустимий Memo";
+"send_memo" = "Memo: %@";
 "send_network_fee_warning_title" = "Покриття мережевої комісії";
 "send_nonce_footer" = "Unique number for each transaction. Use it to resend or cancel a pending transaction.";
 "send_nonce_hint" = "Enter nonce…";
@@ -790,6 +807,7 @@
 "send_notification_fee_too_high_title" = "Встановлена комісія завелика";
 "send_notification_high_fee_text" = "Через особливості мережі %1$@ комісія за переказ всього балансу вища. Щоб зменшити комісію, Ви можете залишити %2$@.";
 "send_notification_high_fee_title" = "Підвищена комісія";
+"send_notification_invalid_amount_rent_destination" = "The recipient account is not activated. The minimum transfer amount must be equal to or greater than the rent-exempt balance: %1$@.";
 "send_notification_invalid_amount_rent_fee" = "Баланс вашого рахунку не може бути меншим за орендну плату. Будь ласка, залиште на рахунку не менше %1$@ або виведіть всі кошти.";
 "send_notification_invalid_amount_text" = "Включена комісія перевищує суму переказу, що призводить до від’ємного значення";
 "send_notification_invalid_amount_title" = "Недопустима сума";
@@ -826,11 +844,14 @@
 "send_summary_transaction_description_suffix_fee_reduced" = "Комісія мережі буде зменшена, за рахунок використання %1$@ енергії";
 "send_summary_transaction_description_suffix_including" = "включно з комісією мережі %1$@";
 "send_summary_transaction_description" = "Ви надсилаєте **%1$@**, включно з комісію мережі %2$@";
+"send_to_address" = "To address";
 "send_transaction_success" = "Транзакція успішно підписана і відправлена до блокчейну. Баланс гаманця буде оновлено через деякий час";
 "send_tron_account_activation_error" = "%1$@ — це монета у мережі Tron. Щоб розрахувати комісію та здійснити транзакцію, вам необхідно внести певну кількість Tron (TRX) на свій рахунок.";
 "send_validation_destination_tag_required_description" = "Тег призначення (memo) потрібен для завершення цієї транзакції для вказаної адреси.";
 "send_validation_destination_tag_required_title" = "Тег призначення обов'язковий";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_recipient_amount_text" = "Will be sent a recipient";
+"send_with_swap_recipient_amount_title" = "Amount to receive";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Трансакцію надіслано";
 "settings_card_settings_footer" = "Підготуйтеся до сканування кільця або картки, яку ви хочете налаштувати.";
@@ -994,6 +1015,7 @@
 "swap_story_second_title" = "Найкращі тарифи";
 "swap_story_third_subtitle" = "Просто та зручно — обмін токенів в декілька дотиків";
 "swap_story_third_title" = "Легше, ніж будь-коли";
+"swap_via_provider" = "Swap via provider";
 "swapping_alert_cex_description_with_slippage" = "У суму входить:\n- комісія провайдера\n- мережева комісія за відправку %1$@ з біржі назад на адресу користувача. \n\nПроскакування провайдера становить до %2$@";
 "swapping_alert_cex_description" = "Сума включає: \n• комісію постачальника послуг\n• комісію мережі за відправлення %@ з біржі назад на адресу користувача.";
 "swapping_alert_dex_description_with_slippage" = "Сума включає комісію провайдера послуг. \n\nПроскакування провайдера до %@";
@@ -1191,6 +1213,15 @@
 "wallet_connect_subtitle" = "Підключення до dApps";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_toast_awaiting_session_proposal" = "Підключення може зайняти кілька секунд";
+"wallet_create_hardware_badge" = "From %@";
+"wallet_create_hardware_description" = "Buy Tangem Wallet — physical cards that securely store your crypto offline.";
+"wallet_create_hardware_title" = "Hardware Wallet";
+"wallet_create_mobile_description" = "A secure wallet is created on your phone in seconds.";
+"wallet_create_mobile_title" = "Mobile Wallet";
+"wallet_create_nav_info_title" = "What to choose?";
+"wallet_create_scan_question" = "Do you already have Tangem Wallet?";
+"wallet_create_scan_title" = "Scan Now";
+"wallet_create_title" = "Choose how you want to create your wallet";
 "wallet_marketplace_block_title" = "Ринкова ціна %@";
 "wallet_marketprice_block_update_time" = "за 24 години";
 "wallet_network_group_title" = "Мережа %@";
@@ -1293,8 +1324,8 @@
 "warning_testnet_card_title" = "Лише для цілей тестування";
 "warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your XLM account to associate this token";
 "warning_token_trustline_button_title" = "Enable Trustline";
-"warning_token_trustline_subtiile" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
-"warning_token_trustline_tiile" = "Trustline Required";
+"warning_token_trustline_subtitle" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
+"warning_token_trustline_title" = "Trustline Required";
 "wc_alert_audit_unknown_domain" = "Unknown domain";
 "wc_alert_connect_anyway" = "Connect anyway";
 "wc_alert_connection_timeout_description" = "Timeout error. Please, try again later.";

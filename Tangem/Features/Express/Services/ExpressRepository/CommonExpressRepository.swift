@@ -39,6 +39,13 @@ extension CommonExpressRepository: ExpressRepository {
         return providers
     }
 
+    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency]) async throws {
+        guard !currencies.isEmpty else { return }
+
+        let pairsTo = try await expressAPIProvider.pairs(from: [wallet], to: currencies)
+        pairs.formUnion(pairsTo.toSet())
+    }
+
     func updatePairs(for wallet: TangemExpress.ExpressWalletCurrency) async throws {
         let currencies = userCurrencies.filter { $0 != wallet }
 
