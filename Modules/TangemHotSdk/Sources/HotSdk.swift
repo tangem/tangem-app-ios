@@ -18,7 +18,4 @@ public protocol HotSdk {
 
     func delete(id: HotWalletID) async throws
     func changeAuth(walletAuthInfo: HotWalletAuthInfo, auth: HotAuth) async throws
-
-    func storeEncryptionKey(id: HotWalletID, password: String, encryptionKey: Data) async throws
-    func getEncryptionKey(id: HotWalletID, password: String) async throws -> Data?
 }

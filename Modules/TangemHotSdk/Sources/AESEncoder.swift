@@ -1,7 +1,6 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-import CryptoSwift
 
 /// EncodingProtocol provides static methods for encrypting and decrypting data using AES-GCM and password-based key derivation.
 /// It supports password-based encryption with PBKDF2 key stretching and includes encoding/decoding helpers for storing encrypted payloads.
@@ -147,7 +146,9 @@ enum AESEncoder {
             throw EncodingError.invalidPayload
         }
         let saltLenData = data[cursor ..< cursor + 4]
-        let saltLen = UInt32(bigEndian: saltLenData.withUnsafeBytes { $0.load(as: UInt32.self) })
+        let saltLen = saltLenData.withUnsafeBytes { ptr in
+            ptr.loadUnaligned(as: UInt32.self).bigEndian
+        }
         cursor += 4
 
         guard data.count >= cursor + Int(saltLen) else {
@@ -161,7 +162,9 @@ enum AESEncoder {
             throw EncodingError.invalidPayload
         }
         let encLenData = data[cursor ..< cursor + 4]
-        let encLen = UInt32(bigEndian: encLenData.withUnsafeBytes { $0.load(as: UInt32.self) })
+        let encLen = encLenData.withUnsafeBytes { ptr in
+            ptr.loadUnaligned(as: UInt32.self).bigEndian
+        }
         cursor += 4
 
         guard data.count >= cursor + Int(encLen) else {
@@ -183,15 +186,11 @@ enum AESEncoder {
             throw EncodingError.invalidPassword
         }
 
-        let stretched = try PKCS5.PBKDF2(
-            password: passwordData.bytes,
-            salt: salt.bytes,
-            iterations: Constants.iterations,
-            keyLength: Constants.stretchedPasswordLengthBytes,
-            variant: .sha256
-        ).calculate()
-
-        return Data(stretched)
+        return try passwordData.pbkdf2sha256(
+            salt: salt,
+            rounds: Constants.iterations,
+            keyByteCount: Constants.stretchedPasswordLengthBytes
+        )
     }
 
     /// Encodes an Int as a 4-byte big-endian UInt32.

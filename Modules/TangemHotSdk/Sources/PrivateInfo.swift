@@ -10,7 +10,7 @@ import Foundation
 
 public final class PrivateInfo {
     private(set) var entropy: Data
-    private(set) var passphrase: String?
+    let passphrase: String?
 
     public init(entropy: Data, passphrase: String?) {
         self.entropy = entropy
@@ -31,10 +31,10 @@ extension PrivateInfo {
         // Check packaging version
         let version = data[offset]
 
-        offset += 1
         // Validate packaging version
         guard version == Constants.packagingVersion else { return nil }
 
+        offset += 1
         guard data.count >= offset + 4 else { return nil }
         // Read entropy size
         let entropySize = Int(UInt32(bigEndian: data.subdata(in: offset ..< (offset + 4)).withUnsafeBytes { $0.load(as: UInt32.self) }))
@@ -67,13 +67,14 @@ extension PrivateInfo {
         data.append(Constants.packagingVersion)
         data.append(contentsOf: withUnsafeBytes(of: UInt32(entropy.count).bigEndian, Array.init))
         data.append(entropy)
-        if let passphrase, let passphraseBytes = passphrase.data(using: .utf8) {
-            let passphraseCount = UInt32(passphrase.count)
-            data.append(contentsOf: withUnsafeBytes(of: passphraseCount.bigEndian, Array.init))
+        
+        let passphraseCount = UInt32(passphrase?.count ?? 0)
+        data.append(contentsOf: withUnsafeBytes(of: passphraseCount.bigEndian, Array.init))
+        
+        if let passphraseBytes = passphrase?.data(using: .utf8) {
             data.append(contentsOf: passphraseBytes)
-        } else {
-            data.append(0) // 0 passphrase length
         }
+        
         return data
     }
 }

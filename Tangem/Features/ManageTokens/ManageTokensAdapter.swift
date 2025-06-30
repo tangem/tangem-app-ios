@@ -13,6 +13,7 @@ import CombineExt
 import TangemSdk
 import BlockchainSdk
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ManageTokensAdapter {
