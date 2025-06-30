@@ -22,8 +22,9 @@ struct SendNewAmountStepBuilder {
         actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        receiveTokenInput: SendReceiveTokenInput?,
-        receiveTokenOutput: SendReceiveTokenOutput?,
+        receiveTokenInput: any SendReceiveTokenInput,
+        receiveTokenOutput: any SendReceiveTokenOutput,
+        swapProvidersInput: any SendSwapProvidersInput,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
@@ -48,7 +49,13 @@ struct SendNewAmountStepBuilder {
             flowKind: flowKind
         )
 
-        let compact = makeSendAmountCompactViewModel(input: io.input, receiveTokenInput: receiveTokenInput, actionType: actionType, flowKind: flowKind)
+        let compact = makeSendAmountCompactViewModel(
+            input: io.input,
+            receiveTokenInput: receiveTokenInput,
+            swapProvidersInput: swapProvidersInput,
+            actionType: actionType,
+            flowKind: flowKind
+        )
         let finish = makeSendAmountCompactViewModel(input: io.input)
         return (step: step, interactor: interactor, compact: compact, finish: finish)
     }
@@ -61,14 +68,21 @@ struct SendNewAmountStepBuilder {
         return viewModel
     }
 
-    func makeSendAmountCompactViewModel(input: SendAmountInput, receiveTokenInput: SendReceiveTokenInput?, actionType: SendFlowActionType, flowKind: SendModel.PredefinedValues.FlowKind) -> SendNewAmountCompactViewModel {
+    func makeSendAmountCompactViewModel(
+        input: any SendAmountInput,
+        receiveTokenInput: any SendReceiveTokenInput,
+        swapProvidersInput: any SendSwapProvidersInput,
+        actionType: SendFlowActionType,
+        flowKind: SendModel.PredefinedValues.FlowKind
+    ) -> SendNewAmountCompactViewModel {
         let token = makeSendReceiveToken()
         let viewModel = SendNewAmountCompactViewModel(
             input: input,
             sendToken: token,
             flow: flowKind,
             balanceProvider: builder.makeTokenBalanceProvider(),
-            receiveTokenInput: receiveTokenInput
+            receiveTokenInput: receiveTokenInput,
+            swapProvidersInput: swapProvidersInput
         )
 
         return viewModel
