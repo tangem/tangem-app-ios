@@ -8,7 +8,7 @@
 
 extension NFTAnalytics.Collections {
     static var empty: Self {
-        .init(logReceiveOpen: {}, logDetailsOpen: { _ in })
+        .init(logReceiveOpen: {}, logDetailsOpen: { _, _ in })
     }
 }
 
@@ -39,6 +39,6 @@ extension NFTAnalytics.Error {
 
 extension NFTAnalytics.Entrypoint {
     static var empty: Self {
-        .init(logCollectionsOpen: { _, _, _ in })
+        .init(logCollectionsOpen: { _, _, _, _ in })
     }
 }
