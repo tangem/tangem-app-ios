@@ -122,6 +122,8 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
         state = .verifiedDomain(viewModel)
     }
 
+    func openSolanaBlockchainWarning(dAppName: String, connectAnywayAction: @escaping () async -> Void) {}
+
     func openWalletSelector() {
         walletSelectorViewModel.updateSelectedUserWallet(selectedUserWallet)
         state = .walletSelector(walletSelectorViewModel)
