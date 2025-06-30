@@ -51,7 +51,7 @@ struct DefaultIncomingLinkParserTests {
         if case .navigation(let action) = result {
             let params = action.params
 
-            #expect(params.kind == .incomeTransaction)
+            #expect(params.type == .incomeTransaction)
             #expect(params.name == "new_staking")
             #expect(params.tokenId == "bitcoin")
             #expect(params.networkId == "bitcoin")
@@ -85,7 +85,7 @@ struct DefaultIncomingLinkParserTests {
         if case .navigation(let action) = result {
             let params = action.params
 
-            #expect(params.kind == .incomeTransaction)
+            #expect(params.type == .incomeTransaction)
             #expect(params.name == "new_staking")
             #expect(params.tokenId == "bitcoin")
             #expect(params.networkId == "bitcoin")
@@ -99,8 +99,8 @@ struct DefaultIncomingLinkParserTests {
 
     // MARK: - Tests for valid host
 
-    @Test("Parses all known hosts with minimal valid params", arguments: DefaultIncomingLinkParser.Constants.Host.allCases)
-    func parsesSupportedHost(host: DefaultIncomingLinkParser.Constants.Host) {
+    @Test("Parses all known hosts with minimal valid params", arguments: IncomingActionConstants.DeeplinkDestination.allCases)
+    func parsesSupportedHost(host: IncomingActionConstants.DeeplinkDestination) {
         let rawValue = host.rawValue
 
         let urlString: String
@@ -146,7 +146,7 @@ struct DefaultIncomingLinkParserTests {
             #expect(action.destination == .token)
             #expect(action.params.tokenId == "ethereum")
             #expect(action.params.networkId == "ethereum")
-            #expect(action.params.kind?.rawValue == "income_transaction")
+            #expect(action.params.type?.rawValue == "income_transaction")
             #expect(action.params.name == "ETH")
         } else {
             #expect(Bool(false), "Expected navigation action for token deeplink")
@@ -192,6 +192,30 @@ struct DefaultIncomingLinkParserTests {
     }
 
     // MARK: - Missing Params Tests
+
+    @Test("Rejects tangem://token_chart links with missing token id")
+    func rejectsTokenCharWithoutTokenId() {
+        let url = URL(string: "tangem://token_chart?token_id=")!
+        let result = parser.parse(url)
+
+        #expect(result == nil)
+    }
+
+    @Test("Rejects tangem://token_chart links with empty token id")
+    func rejectsTokenCharWitEmptytTokenId() {
+        let url = URL(string: "tangem://token_chart?token_id=\"\"")!
+        let result = parser.parse(url)
+
+        #expect(result == nil)
+    }
+
+    @Test("Rejects tangem://token links with invalid tokenId")
+    func rejectsTokenCharWitInvalidTokenId() {
+        let url = URL(string: "tangem://token?token_id=ываываыа&network_id=ethereum")!
+        let result = parser.parse(url)
+
+        #expect(result == nil)
+    }
 
     @Test("Rejects tangem:// links with missing host")
     func rejectsNoHost() {
