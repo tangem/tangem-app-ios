@@ -14,13 +14,10 @@ protocol CustomFeeService: AnyObject {
     func initialSetupCustomFee(_ fee: Fee)
     func inputFieldModels() -> [SendCustomFeeInputFieldModel]
 
-    func setup(input: CustomFeeServiceInput, output: CustomFeeServiceOutput)
+    func setup(output: CustomFeeServiceOutput)
 }
 
-protocol CustomFeeServiceInput: AnyObject {
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
-    var destinationAddressPublisher: AnyPublisher<String, Never> { get }
-}
+typealias CustomFeeServiceInput = SendFeeProviderInput
 
 protocol CustomFeeServiceOutput: AnyObject {
     /// There is no way to push the nil fee. It causes to deselect the `selected fee`

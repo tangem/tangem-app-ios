@@ -18,14 +18,28 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     // MARK: State
 
-    @Published private(set) var state: ViewState
+    /// - Warning: Should never be mutated directly, use `updateState(to:)` method instead.
+    @Published private(set) var state: ViewState = .loading
     @Published var searchEntry: String = ""
+    @Published private(set) var isShimmerActive = false
     @Published private(set) var rowExpanded = false
     @Published private(set) var tappedRowID: AnyHashable? = nil
     @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
+    // MARK: - Private properties
+
+    private lazy var stateUpdater = NFTCollectionsListStateUpdater(
+        loadingStateStartThreshold: Constants.loadingStateStartThreshold,
+        loadingStateMinDuration: Constants.loadingStateMinDuration,
+        onStateChange: { [weak self] newValue in
+            self?.state = newValue
+        }
+    )
+
     private var collectionsViewModels: [NFTCollectionDisclosureGroupViewModel] = []
-    private var bag = Set<AnyCancellable>()
+    private var pullToRefreshCompletion: (() -> Void)?
+    private var didAppear = false
+    private var bag: Set<AnyCancellable> = []
 
     // MARK: Dependencies
 
@@ -33,10 +47,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private let navigationContext: NFTNavigationContext
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
-
     private weak var coordinator: NFTCollectionsListRoutable?
-    private var pullToRefreshCompletion: (() -> Void)?
-    private var didAppear = false
 
     public init(
         nftManager: NFTManager,
@@ -50,7 +61,6 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         self.dependencies = dependencies
         self.assetSendPublisher = assetSendPublisher
         self.navigationContext = navigationContext
-        state = .loading
     }
 
     func onViewAppear() {
@@ -60,7 +70,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
         didAppear = true
         bind()
-        updateInternal()
+        updateInternal(isInitialUpdate: true)
     }
 
     func onReceiveButtonTap() {
@@ -89,33 +99,20 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         collections.isEmpty && searchEntry.isEmpty
     }
 
-    private func updateInternal() {
-        nftManager.update(cachePolicy: .never)
-    }
-
     private func bind() {
         nftManager
             .statePublisher
             .withWeakCaptureOf(self)
             .map { viewModel, managerState in
-                let result = viewModel.map(managerState: managerState)
-                viewModel.collectionsViewModels = result.viewState.value ?? []
-
-                return ManagerStateMappingResult(
-                    viewState: viewModel.processViewState(result.viewState),
-                    notificationViewData: result.notificationViewData
-                )
+                return viewModel.map(managerState: managerState)
             }
-            .receiveOnMain()
             .withWeakCaptureOf(self)
+            .receiveOnMain()
             .sink { viewModel, result in
-                if let completion = viewModel.pullToRefreshCompletion, !result.viewState.isLoading {
-                    completion()
-                    viewModel.pullToRefreshCompletion = nil
-                }
-
-                viewModel.updateState(with: result)
+                viewModel.collectionsViewModels = result.viewState.value ?? []
                 viewModel.loadingTroublesViewData = result.notificationViewData
+                viewModel.updateState(with: result)
+                viewModel.updatePullToRefreshCompletion(with: result)
             }
             .store(in: &bag)
 
@@ -136,6 +133,57 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func updateInternal(isInitialUpdate: Bool = false) {
+        // Fetching the cached data, if available, on initial update
+        if isInitialUpdate {
+            nftManager.update(cachePolicy: .always)
+        }
+        nftManager.update(cachePolicy: .never)
+    }
+
+    private func updatePullToRefreshCompletion(with result: ManagerStateMappingResult) {
+        guard
+            let completion = pullToRefreshCompletion,
+            !result.viewState.isLoading
+        else {
+            return
+        }
+
+        completion()
+        pullToRefreshCompletion = nil
+    }
+
+    private func updateState(to newValue: ViewState) {
+        stateUpdater.updateState(to: newValue)
+    }
+
+    private func updateState(with result: ManagerStateMappingResult) {
+        isShimmerActive = false
+        // Since we are using the state queue, we need to access the most recent state here (`stateUpdater.mostRecentState`)
+        let currentCollections = stateUpdater.mostRecentState?.value ?? state.value ?? []
+
+        switch result.viewState {
+        case .loaded where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
+            // We don't need error here, NSError used to silence the compiler
+            updateState(to: .failedToLoad(error: NSError.dummy))
+
+        case .loaded where didHaveErrorsWithEmptyCollections(result):
+            break // Keep previous state
+
+        case .loaded:
+            updateState(to: .loaded(filteredCollections(entry: searchEntry)))
+
+        case .loading where currentCollections.isEmpty:
+            updateState(to: .loading)
+
+        case .loading:
+            isShimmerActive = true // Keep previous state and start shimmer animation
+
+        case .failedToLoad(let error):
+            updateState(to: .failedToLoad(error: error))
+        }
+    }
+
     private func map(managerState: NFTManagerState) -> ManagerStateMappingResult {
         switch managerState {
         case .failedToLoad(let error):
@@ -151,52 +199,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             )
 
         case .loaded(let collectionsResult):
-            let loadingTroublesViewData = collectionsResult.hasErrors ?
-                makeNotificationViewData()
-                : nil
-
+            let loadingTroublesViewData = collectionsResult.hasErrors ? makeNotificationViewData() : nil
             return .init(
                 viewState: .loaded(buildCollections(from: collectionsResult.value)),
                 notificationViewData: loadingTroublesViewData
             )
-        }
-    }
-
-    private func processViewState(_ viewState: ViewState) -> ViewState {
-        switch viewState {
-        case .loading:
-            .loading
-        case .failedToLoad(let error):
-            .failedToLoad(error: error)
-        case .loaded:
-            .loaded(filteredCollections(entry: searchEntry))
-        }
-    }
-
-    private func updateState(with result: ManagerStateMappingResult) {
-        let currentCollections = state.value ?? []
-
-        // We don't need error here, NSError used to silence the compiler
-        let errorState = ViewState.failedToLoad(error: NSError.dummy)
-
-        switch result.viewState {
-        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
-            state = errorState
-
-        case .loaded(let collections) where didHaveErrorsWithEmptyCollections(result):
-            break // Keep previous state
-
-        case .loaded:
-            state = .loaded(filteredCollections(entry: searchEntry))
-
-        case .loading where currentCollections.isEmpty:
-            state = .loading
-
-        case .loading:
-            break // Keep previous state
-
-        case .failedToLoad(let error):
-            state = .failedToLoad(error: error)
         }
     }
 
@@ -235,7 +242,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func filterAndAssignCollections(for entry: String) {
         guard case .loaded = state else { return }
-        state = .loaded(filteredCollections(entry: entry))
+        updateState(to: .loaded(filteredCollections(entry: entry)))
     }
 
     private func filteredCollections(entry: String) -> [NFTCollectionDisclosureGroupViewModel] {
@@ -259,9 +266,14 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         return filteredCollections
     }
 
-    private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
-        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
-        dependencies.analytics.logDetailsOpen(dependencies.nftChainNameProviding.provide(for: asset.id.chain))
+    private func shouldLoadAssets(for collection: NFTCollection, isExpanded: Bool) -> Bool {
+        let noAssetsLoaded = collection.assetsResult.value.isEmpty
+
+        return noAssetsLoaded && isExpanded
+    }
+
+    private func didHaveErrorsWithEmptyCollections(_ result: ManagerStateMappingResult) -> Bool {
+        result.notificationViewData != nil && result.viewState.value?.isEmpty ?? false
     }
 
     private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
@@ -273,10 +285,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func shouldLoadAssets(for collection: NFTCollection, isExpanded: Bool) -> Bool {
-        let noAssetsLoaded = collection.assetsResult.value.isEmpty
-
-        return noAssetsLoaded && isExpanded
+    private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
+        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
+        dependencies.analytics.logDetailsOpen(dependencies.nftChainNameProviding.provide(for: asset.id.chain))
     }
 
     private func makeNotificationViewData() -> NFTNotificationViewData {
@@ -286,16 +297,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             icon: Assets.warningIcon
         )
     }
-
-    private func didHaveErrorsWithEmptyCollections(
-        _ result: ManagerStateMappingResult
-    ) -> Bool {
-        result.notificationViewData != nil &&
-            result.viewState.value?.isEmpty ?? false
-    }
 }
 
-// MARK: - Helpers
+// MARK: - Auxiliary types
 
 private extension NFTCollectionsListViewModel {
     struct ManagerStateMappingResult {
@@ -310,5 +314,7 @@ private extension NFTCollectionsListViewModel {
     enum Constants {
         /// Delay (in seconds) before updating the list of NFT collections after sending an NFT asset.
         static let assetSendUpdateDelay: DispatchQueue.SchedulerTimeType.Stride = 1.0
+        static let loadingStateStartThreshold: TimeInterval = 0.1
+        static let loadingStateMinDuration: TimeInterval = 1.0
     }
 }
