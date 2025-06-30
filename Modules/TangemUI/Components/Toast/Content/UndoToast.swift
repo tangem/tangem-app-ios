@@ -1,6 +1,6 @@
 //
 //  UndoToastView.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -9,13 +9,23 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUI
+import TangemUIUtils
 
-struct UndoToastView: View {
-    let settings: UndoToastSettings
-    let undoAction: () -> Void
+public protocol UndoToastSettings {
+    var image: ImageType { get }
+    var title: String { get }
+}
 
-    var body: some View {
+public struct UndoToast: View {
+    private let settings: UndoToastSettings
+    private let undoAction: () -> Void
+
+    public init(settings: any UndoToastSettings, undoAction: @escaping () -> Void) {
+        self.settings = settings
+        self.undoAction = undoAction
+    }
+
+    public var body: some View {
         HStack(spacing: 0) {
             titleView
                 .padding(.horizontal, 8)
@@ -54,25 +64,29 @@ struct UndoToastView: View {
     }
 }
 
-protocol UndoToastSettings {
-    var image: ImageType { get }
-    var title: String { get }
+// MARK: - Previews
+
+#if DEBUG
+private struct PreviewUndoToastSettings: UndoToastSettings {
+    let image: ImageType
+    let title: String
 }
 
-struct UndoToastView_Preview: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            UndoToastView(settings: BalanceHiddenToastType.hidden) {}
+#Preview("Light Mode") {
+    VStack {
+        UndoToast(settings: PreviewUndoToastSettings(image: Assets.crossedEyeIcon, title: Localization.toastBalancesHidden)) {}
 
-            UndoToastView(settings: BalanceHiddenToastType.shown) {}
-        }
-        .preferredColorScheme(.light)
-
-        VStack {
-            UndoToastView(settings: BalanceHiddenToastType.hidden) {}
-
-            UndoToastView(settings: BalanceHiddenToastType.shown) {}
-        }
-        .preferredColorScheme(.dark)
+        UndoToast(settings: PreviewUndoToastSettings(image: Assets.eyeIconMini, title: Localization.toastBalancesShown)) {}
     }
+    .environment(\.colorScheme, .light)
 }
+
+#Preview("Dark Mode") {
+    VStack {
+        UndoToast(settings: PreviewUndoToastSettings(image: Assets.crossedEyeIcon, title: Localization.toastBalancesHidden)) {}
+
+        UndoToast(settings: PreviewUndoToastSettings(image: Assets.eyeIconMini, title: Localization.toastBalancesShown)) {}
+    }
+    .environment(\.colorScheme, .dark)
+}
+#endif // DEBUG

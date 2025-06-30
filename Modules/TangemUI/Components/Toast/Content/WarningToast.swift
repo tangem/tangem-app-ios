@@ -1,18 +1,23 @@
 //
 //  WarningToast.swift
-//  TangemApp
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 
-struct WarningToast: View {
-    let text: String
+public struct WarningToast: View {
+    private let text: String
 
-    var body: some View {
+    public init(text: String) {
+        self.text = text
+    }
+
+    public var body: some View {
         HStack(alignment: .top, spacing: 6) {
             Assets.warningIcon.image
                 .resizable()
@@ -28,9 +33,11 @@ struct WarningToast: View {
     }
 }
 
+// MARK: - Previews
+
 #Preview("Figma") {
     VStack {
-        WarningToast(text: "Dummy success toast text")
+        WarningToast(text: "Dummy warning toast text")
 
         Spacer()
     }
