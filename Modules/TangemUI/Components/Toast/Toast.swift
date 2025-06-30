@@ -1,6 +1,6 @@
 //
 //  Toast.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-final class Toast<V: View> {
+public final class Toast<V: View> {
     private var timer: Timer?
 
     private lazy var hostingController: UIHostingController<some View> = {
@@ -23,7 +23,7 @@ final class Toast<V: View> {
 
     private let view: V
 
-    init(view: V) {
+    public init(view: V) {
         self.view = view
     }
 
@@ -31,13 +31,12 @@ final class Toast<V: View> {
         dismiss(animated: false)
     }
 
-    func present(
+    public func present(
         layout: Layout,
         type: PresentationTime,
         animated: Bool = true
     ) {
         guard let window = UIApplication.mainWindow else {
-            AppLogger.error(error: "UIApplication.mainWindow not found")
             return
         }
 
@@ -73,7 +72,7 @@ final class Toast<V: View> {
         }
     }
 
-    func dismiss(animated: Bool, completion: @escaping () -> Void = {}) {
+    public func dismiss(animated: Bool, completion: @escaping () -> Void = {}) {
         timer?.invalidate()
         timer = nil
 
@@ -132,7 +131,7 @@ private extension Toast {
     }
 }
 
-extension Toast {
+public extension Toast {
     enum PresentationTime {
         case always
         case temporary(interval: TimeInterval = 2)
