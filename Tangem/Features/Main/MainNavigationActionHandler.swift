@@ -20,23 +20,13 @@ extension MainCoordinator {
 
         weak var coordinator: MainRoutable?
 
-        // MARK: - Init
-
-        init() {
-            becomeResponder()
-        }
-
         // MARK: - Public Implementation
 
-        func checkForPendingNavigationAction() {
-            incomingActionManager.checkForPendingActions()
+        func becomeIncomingActionsResponder() {
+            incomingActionManager.becomeFirstResponder(self)
         }
 
         // MARK: - Private Implementation
-
-        private func becomeResponder() {
-            incomingActionManager.becomeFirstResponder(self)
-        }
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
             guard coordinator != nil,
@@ -82,16 +72,10 @@ extension MainCoordinator {
 
             case .swap:
                 return routeSwapAction()
-
-            case .onramp:
-                return false
-
-            case .exchange:
-                return false
             }
         }
 
-        private func routeLinkAction(params: DeeplinkNavigationAction.DeeplinkParams) -> Bool {
+        private func routeLinkAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard let coordinator,
                   let externalUrl = params.url
             else {
@@ -107,7 +91,7 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeTokenChartAction(params: DeeplinkNavigationAction.DeeplinkParams) -> Bool {
+        private func routeTokenChartAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard let coordinator,
                   let tokenId = params.tokenId
             else {
@@ -120,12 +104,7 @@ extension MainCoordinator {
         }
 
         private func routeMarketAction() -> Bool {
-            if mainBottomSheetUIManager.isShown {
-                bottomSheetStateController.expand()
-            } else {
-                mainBottomSheetUIManager.shoudExpandAtFirstAppearance = true
-            }
-
+            coordinator?.openDeepLink(.market)
             return true
         }
 
@@ -161,7 +140,7 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeTokenAction(params: DeeplinkNavigationAction.DeeplinkParams) -> Bool {
+        private func routeTokenAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
                 let coordinator,
                 let userWalletModel = userWalletRepository.selectedModel,
@@ -174,7 +153,47 @@ extension MainCoordinator {
                 return false
             }
 
-            coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
+            if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
+                return routeExpressTransactionStatusAction(
+                    coordinator: coordinator,
+                    deeplinkType: type,
+                    transactionId: txId,
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel
+                )
+            } else {
+                coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
+                return true
+            }
+        }
+
+        private func routeExpressTransactionStatusAction(
+            coordinator: MainRoutable,
+            deeplinkType: IncomingActionConstants.DeeplinkType,
+            transactionId: String,
+            walletModel: any WalletModel,
+            userWalletModel: UserWalletModel
+        ) -> Bool {
+            let transactionType: PendingTransactionDetails.TransactionType
+
+            switch deeplinkType {
+            case .onrampStatusUpdate:
+                transactionType = .onramp
+            case .swapStatusUpdate:
+                transactionType = .swap
+            case .incomeTransaction, .promo:
+                // Transaction status deeplinks are not supported for these types
+                return false
+            }
+
+            coordinator.openDeepLink(
+                .expressTransactionStatus(
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel,
+                    transactionDetails: .init(type: transactionType, id: transactionId)
+                )
+            )
+
             return true
         }
 
@@ -197,7 +216,7 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeStakingAction(params: DeeplinkNavigationAction.DeeplinkParams) -> Bool {
+        private func routeStakingAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
                 let coordinator,
                 isFeatureSupported(feature: .staking),
