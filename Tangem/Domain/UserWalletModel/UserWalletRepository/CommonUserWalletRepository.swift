@@ -35,11 +35,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    var selectedUserWalletId: UserWalletId? {
-        didSet {
-            print("Selected user wallet ID changed to: \(String(describing: selectedUserWalletId))")
-        }
-    }
+    var selectedUserWalletId: UserWalletId?
 
     var selectedIndexUserWalletModel: Int? {
         models.firstIndex {
