@@ -11,18 +11,16 @@ import TangemSdk
 
 public final class CommonHotSdk: HotSdk {
     private let privateInfoStorage: PrivateInfoStorage
-    private let walletInfoEncryptionStorage: WalletInfoEncryptionStorage
 
     public init(secureStorage: SecureStorage, biometricsStorage: BiometricsStorage) {
         privateInfoStorage = PrivateInfoStorage(secureStorage: secureStorage, biometricsStorage: biometricsStorage)
-        walletInfoEncryptionStorage = WalletInfoEncryptionStorage(secureStorage: secureStorage)
     }
 
     public func importWallet(entropy: Data, passphrase: String?, auth: HotAuth?) throws -> HotWalletID {
         let authType: HotWalletID.AuthType? = {
             switch auth {
             case .password: return .password
-            case .biometry: return .biometry
+            case .biometrics: return .biometrics
             case .none: return nil
             }
         }()
@@ -68,13 +66,5 @@ public final class CommonHotSdk: HotSdk {
 
     public func changeAuth(walletAuthInfo: HotWalletAuthInfo, auth: HotAuth) async throws {
         try await privateInfoStorage.changeStore(walletAuthInfo: walletAuthInfo, newHotAuth: auth)
-    }
-
-    public func storeEncryptionKey(id: HotWalletID, password: String, encryptionKey: Data) throws {
-        try walletInfoEncryptionStorage.store(walletID: id, password: password, data: encryptionKey)
-    }
-
-    public func getEncryptionKey(id: HotWalletID, password: String) throws -> Data? {
-        try walletInfoEncryptionStorage.get(walletID: id, password: password)
     }
 }

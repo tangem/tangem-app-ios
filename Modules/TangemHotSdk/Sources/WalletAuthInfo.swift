@@ -15,8 +15,8 @@ public struct HotWalletAuthInfo {
     public init?(walletID: HotWalletID, auth: HotAuth?) {
         switch (walletID.authType, auth) {
         case (.none, .password?),
-             (.password?, .biometry?), (.password?, .password?),
-             (.biometry?, .biometry?):
+             (.password?, .biometrics?), (.password?, .password?),
+             (.biometrics?, .biometrics?):
             self.walletID = walletID
             self.auth = auth
         default: return nil

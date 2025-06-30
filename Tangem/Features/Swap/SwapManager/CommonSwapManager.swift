@@ -25,6 +25,10 @@ extension CommonSwapManager: SwapManager {
         interactor.getSwappingPair()
     }
 
+    var swappingPairPublisher: AnyPublisher<SwapManagerSwappingPair, Never> {
+        interactor.swappingPair
+    }
+
     var state: SwapManagerState {
         interactor.getState()
     }
@@ -33,8 +37,22 @@ extension CommonSwapManager: SwapManager {
         interactor.state
     }
 
-    var swappingPairPublisher: AnyPublisher<SwapManagerSwappingPair, Never> {
-        interactor.swappingPair
+    var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
+        statePublisher
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, _ in
+                await manager.interactor.getAllProviders()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+        statePublisher
+            .withWeakCaptureOf(self)
+            .asyncMap { manager, _ in
+                await manager.interactor.getSelectedProvider()
+            }
+            .eraseToAnyPublisher()
     }
 
     func update(amount: Decimal?) {

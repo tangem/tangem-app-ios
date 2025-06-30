@@ -23,7 +23,7 @@ public struct HotWalletID: Equatable, Hashable, Codable {
     }
 
     public enum AuthType: String, Codable, CaseIterable {
-        case biometry
+        case biometrics
         case password
     }
 }

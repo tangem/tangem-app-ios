@@ -10,6 +10,7 @@ extension MoralisSolanaNetworkResult {
     struct Asset: Decodable {
         let associatedTokenAddress: String?
         let mint: String?
+        let tokenStandard: Int?
         let name: String?
         let symbol: String?
         let amount: String?

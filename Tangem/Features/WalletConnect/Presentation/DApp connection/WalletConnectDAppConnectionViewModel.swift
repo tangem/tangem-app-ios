@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemUI
 
 @MainActor
 final class WalletConnectDAppConnectionViewModel: ObservableObject {
