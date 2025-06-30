@@ -401,6 +401,9 @@
 "home_button_scan" = "Сканировать";
 "hot_crypto_add_token_subtitle" = "в %@";
 "hot_crypto_token_network" = "В сети %@";
+"hw_backup_need_action" = "Go to backup";
+"hw_backup_need_description" = "To secure your wallet with a Access Code, complete the backup first.";
+"hw_backup_need_title" = "Finish Backup First";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
@@ -1262,6 +1265,8 @@
 "wallet_promo_banner_button_title" = "Получить с 10%% скидкой";
 "wallet_promo_banner_description" = "Получите доступ к более чем 13 000 криптовалют. Покупайте, продавайте, обменивайте и стейкайте в один клик. Свяжите до трех карт для резервного копирования. ";
 "wallet_promo_banner_title" = "Откройте Tangem Wallet";
+"wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
+"wallet_settings_access_code_title" = "Set/Change Access Code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
 "wallet_settings_push_notifications_title" = "Уведомления о транзакциях";
 "wallet_settings_title" = "Настройки кошелька";
