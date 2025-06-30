@@ -34,20 +34,6 @@ public extension UIApplication {
         top.dismiss(animated: animated, completion: completion)
     }
 
-    static func presentOverFullScreen(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
-        vc.modalPresentationStyle = .overFullScreen
-
-        guard let top = topViewController else { return }
-
-        if top.isBeingDismissed || top.isBeingPresented {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                presentOverFullScreen(vc, animated: animated, completion: completion)
-            }
-        } else {
-            top.present(vc, animated: animated, completion: completion)
-        }
-    }
-
     static func modalFromTop(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
         guard let top = topViewController else { return }
 
