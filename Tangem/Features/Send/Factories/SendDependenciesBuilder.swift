@@ -446,6 +446,14 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeExpressProviderFormatter() -> ExpressProviderFormatter {
+        .init(balanceFormatter: .init())
+    }
+
+    func makePriceChangeFormatter() -> PriceChangeFormatter {
+        .init(percentFormatter: .init())
+    }
+
     // MARK: - NFT support
 
     func makeNFTSendAmountValidator() -> SendAmountValidator {
