@@ -14,6 +14,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ReferralViewModel: ObservableObject {
