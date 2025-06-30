@@ -11,17 +11,19 @@ import Foundation
 struct DefaultIncomingLinkParser {
     // MARK: - Type Aliases
 
-    typealias DeeplinkParams = DeeplinkNavigationAction.DeeplinkParams
-    typealias DeeplinkKind = DeeplinkNavigationAction.DeeplinkParams.DeeplinkKind
+    typealias DeeplinkParams = DeeplinkNavigationAction.Params
+    typealias DeeplinkType = IncomingActionConstants.DeeplinkType
 
     // MARK: - Properties
 
     private let isFeatureAvailable: Bool
+    private let deeplinkValidator: DeeplinkValidator
 
     // MARK: - Init
 
-    init(isFeatureAvailable: Bool) {
+    init(isFeatureAvailable: Bool, deeplinkValidator: DeeplinkValidator = CommonDeepLinkValidator()) {
         self.isFeatureAvailable = isFeatureAvailable
+        self.deeplinkValidator = deeplinkValidator
     }
 
     // MARK: - Private Implementation
@@ -29,18 +31,18 @@ struct DefaultIncomingLinkParser {
     private func getDeeplinkParams(from url: URL) -> DeeplinkParams {
         let keyedQueryItems = url.getKeyedQueryItems()
         return DeeplinkParams(
-            kind: keyedQueryItems[Constants.typeParam].flatMap { DeeplinkKind(rawValue: $0) },
-            name: keyedQueryItems[Constants.nameParam],
-            tokenId: keyedQueryItems[Constants.tokenIdParam]?.lowercased(),
-            networkId: keyedQueryItems[Constants.networkIdParam]?.lowercased(),
-            userWalletId: keyedQueryItems[Constants.userWalletIdParam],
-            derivationPath: keyedQueryItems[Constants.derivationPathParam],
-            transactionId: keyedQueryItems[Constants.transactionIdParam]
+            type: keyedQueryItems[IncomingActionConstants.DeeplinkParams.type].flatMap { IncomingActionConstants.DeeplinkType(rawValue: $0) },
+            name: keyedQueryItems[IncomingActionConstants.DeeplinkParams.name],
+            tokenId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.tokenId]?.lowercased(),
+            networkId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.networkId]?.lowercased(),
+            userWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.userWalletId],
+            derivationPath: keyedQueryItems[IncomingActionConstants.DeeplinkParams.derivationPath],
+            transactionId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.transactionId]
         )
     }
 
-    private func destination(for host: String) -> DeeplinkNavigationAction.DeeplinkDestination? {
-        DeeplinkNavigationAction.DeeplinkDestination(rawValue: host)
+    private func destination(for host: String) -> IncomingActionConstants.DeeplinkDestination? {
+        IncomingActionConstants.DeeplinkDestination(rawValue: host)
     }
 
     private func parseExternalLink(_ url: URL) -> IncomingAction {
@@ -58,7 +60,7 @@ struct DefaultIncomingLinkParser {
         let params = getDeeplinkParams(from: url)
         let deeplinkNavAction = DeeplinkNavigationAction(destination: destination, params: params)
 
-        guard deeplinkNavAction.hasMinimumDataForHandling() else {
+        guard deeplinkValidator.hasMinimumDataForHandling(deeplink: deeplinkNavAction) else {
             return nil
         }
 
@@ -86,40 +88,13 @@ extension DefaultIncomingLinkParser: IncomingActionURLParser {
     }
 }
 
-// MARK: - Constants
-
-extension DefaultIncomingLinkParser {
-    enum Constants {
-        static let typeParam = "type"
-        static let nameParam = "name"
-        static let tokenIdParam = "token_id"
-        static let networkIdParam = "network_id"
-        static let userWalletIdParam = "user_wallet_id"
-        static let derivationPathParam = "derivation_path"
-        static let transactionIdParam = "transaction_id"
-
-        enum Host: String, CaseIterable {
-            case token
-            case referral
-            case buy
-            case sell
-            case markets
-            case tokenChart = "token_chart"
-            case staking
-            case onramp
-            case exchange
-            case link
-            case swap
-        }
-    }
-}
-
 // MARK: - Helpers
 
 private extension URL {
     func getKeyedQueryItems() -> [String: String] {
         URLComponents(url: self, resolvingAgainstBaseURL: false)?
             .queryItems?
+            .filter { $0.value?.isNotEmpty ?? false }
             .keyedFirst(by: \.name)
             .compactMapValues { $0.value?.removingPercentEncoding } ?? [:]
     }
