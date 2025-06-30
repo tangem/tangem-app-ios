@@ -14,6 +14,7 @@ import TangemExpress
 import TangemStaking
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
