@@ -17,6 +17,7 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var sendAmountCompactViewModel: SendTokenAmountCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
+    @Published private(set) var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
     private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
@@ -26,11 +27,13 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
         sendAmountCompactViewModel: SendTokenAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
+        sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
         self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
+        self.sendSwapProviderFinishViewModel = sendSwapProviderFinishViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
 
         bind(input: input)
