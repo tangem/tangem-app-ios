@@ -33,7 +33,8 @@ extension FeeCurrencyNavigating {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager
+                userTokensManager: userWalletModel.userTokensManager,
+                pendingTransactionDetails: nil
             )
         )
 
