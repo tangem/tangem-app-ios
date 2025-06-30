@@ -106,8 +106,6 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
         setupUI()
         bind()
-
-        navigationActionHandler.checkForPendingNavigationAction()
     }
 
     func hideMarketsTooltip() {
@@ -172,6 +170,10 @@ extension MainCoordinator {
 // MARK: - MainRoutable protocol conformance
 
 extension MainCoordinator: MainRoutable {
+    func beginHandlingIncomingActions() {
+        navigationActionHandler.becomeIncomingActionsResponder()
+    }
+
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         if case .externalLink(let url) = deepLink {
             safariManager.openURL(url)
@@ -239,7 +241,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager
+                userTokensManager: userWalletModel.userTokensManager,
+                pendingTransactionDetails: nil
             )
         )
 
@@ -622,6 +625,7 @@ extension MainCoordinator: WCTransactionRoutable {
 
 extension MainCoordinator {
     enum DeepLinkDestination {
+        case expressTransactionStatus(walletModel: any WalletModel, userWalletModel: UserWalletModel, transactionDetails: PendingTransactionDetails)
         case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
         case buy(userWalletModel: UserWalletModel)
         case sell(userWalletModel: UserWalletModel)
@@ -630,5 +634,6 @@ extension MainCoordinator {
         case staking(options: StakingDetailsCoordinator.Options)
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
+        case market
     }
 }
