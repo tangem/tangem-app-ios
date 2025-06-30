@@ -27,6 +27,10 @@ class FakeUserWalletRepository: UserWalletRepository {
         eventSubject.eraseToAnyPublisher()
     }
 
+    var userWalletModelsReadyPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
 
     init(models: [UserWalletModel] = FakeUserWalletModel.allFakeWalletModels) {
