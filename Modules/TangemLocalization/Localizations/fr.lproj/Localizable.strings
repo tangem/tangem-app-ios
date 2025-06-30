@@ -401,6 +401,9 @@
 "home_button_scan" = "Scannez";
 "hot_crypto_add_token_subtitle" = "à %@";
 "hot_crypto_token_network" = "Via %@";
+"hw_backup_need_action" = "Go to backup";
+"hw_backup_need_description" = "To secure your wallet with a Access Code, complete the backup first.";
+"hw_backup_need_title" = "Finish Backup First";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
@@ -1262,6 +1265,8 @@
 "wallet_promo_banner_button_title" = "Obtenez-le maintenant avec 10 %% de réduction";
 "wallet_promo_banner_description" = "Accédez à plus de 13 000 cryptomonnaies. Achetez, vendez, échangez et stakez en un seul clic.\nAssociez jusqu'à trois cartes pour une sauvegarde.";
 "wallet_promo_banner_title" = "Découvrez le Portefeuille Tangem";
+"wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
+"wallet_settings_access_code_title" = "Set/Change Access Code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
 "wallet_settings_push_notifications_title" = "Transaction Notifications";
 "wallet_settings_title" = "Paramètres du portefeuille";
