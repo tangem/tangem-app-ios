@@ -14,6 +14,7 @@ class CommonNewSendStepsManager {
     private let summaryStep: SendNewSummaryStep
     private let finishStep: SendNewFinishStep
     private let feeSelector: FeeSelectorContentViewModel
+    private let providersSelector: SendSwapProvidersSelectorViewModel
 
     private var stack: [SendStep]
     weak var router: SendRoutable?
@@ -28,13 +29,15 @@ class CommonNewSendStepsManager {
         destinationStep: SendNewDestinationStep,
         summaryStep: SendNewSummaryStep,
         finishStep: SendNewFinishStep,
-        feeSelector: FeeSelectorContentViewModel
+        feeSelector: FeeSelectorContentViewModel,
+        providersSelector: SendSwapProvidersSelectorViewModel
     ) {
         self.amountStep = amountStep
         self.destinationStep = destinationStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.feeSelector = feeSelector
+        self.providersSelector = providersSelector
 
         stack = [amountStep]
     }
@@ -183,6 +186,15 @@ extension CommonNewSendStepsManager: SendSummaryStepsRoutable {
         }
 
         router?.openFeeSelector(viewModel: feeSelector)
+    }
+
+    func summaryStepRequestEditProviders() {
+        guard case .newSummary = currentStep().type else {
+            assertionFailure("This code should only be called from summary")
+            return
+        }
+
+        router?.openSwapProvidersSelector(viewModel: providersSelector)
     }
 }
 
