@@ -243,7 +243,7 @@ struct NFTCachedModelsCollectionTests {
                 name: "Asset \(i) in \(identifier)",
                 description: "This is asset \(i) in collection \(identifier)",
                 salePrice: salePrice,
-                media: media,
+                mediaFiles: [media],
                 rarity: NFTAsset.Rarity(label: "Rare", percentage: 12.5, rank: 42),
                 traits: traits
             )

@@ -11,20 +11,32 @@ import UIKit
 import TangemFoundation
 
 public class IncomingActionParser {
+    // MARK: - Properties
+
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
+        DefaultIncomingLinkParser(isFeatureAvailable: FeatureProvider.isAvailable(.deeplink)),
         NDEFURLParser(),
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
-        ReferralProgramURLParser(),
         OnrampIncomingActionURLParser(),
     ]
 
-    public init() {}
+    private let urlValidator: IncomingURLValidator
 
-    public func parseDeeplink(_ url: URL) -> IncomingAction? {
-        guard validateURL(url) else { return nil }
+    // MARK: - Init
+
+    public init(urlValidator: IncomingURLValidator = CommonIncomingURLValidator()) {
+        self.urlValidator = urlValidator
+    }
+
+    // MARK: - Public Implementation
+
+    public func parseIncomingURL(_ url: URL) -> IncomingAction? {
+        guard urlValidator.validate(url) else {
+            return nil
+        }
 
         for parser in incomingActionURLParsers {
             if let action = try? parser.parse(url) {
@@ -43,19 +55,6 @@ public class IncomingActionParser {
             AppLogger.warning("Received unknown intent: \(intent)")
             return nil
         }
-    }
-
-    private func validateURL(_ url: URL) -> Bool {
-        let urlString = url.absoluteString
-
-        if urlString.starts(with: IncomingActionConstants.tangemDomain)
-            || urlString.starts(with: IncomingActionConstants.appTangemDomain)
-            || url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme)
-            || SupportedURLSchemeCheck.isURLSchemeSupported(for: url) {
-            return true
-        }
-
-        return false
     }
 }
 
