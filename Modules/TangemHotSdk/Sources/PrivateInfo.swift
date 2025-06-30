@@ -67,14 +67,14 @@ extension PrivateInfo {
         data.append(Constants.packagingVersion)
         data.append(contentsOf: withUnsafeBytes(of: UInt32(entropy.count).bigEndian, Array.init))
         data.append(entropy)
-        
+
         let passphraseCount = UInt32(passphrase?.count ?? 0)
         data.append(contentsOf: withUnsafeBytes(of: passphraseCount.bigEndian, Array.init))
-        
+
         if let passphraseBytes = passphrase?.data(using: .utf8) {
             data.append(contentsOf: passphraseBytes)
         }
-        
+
         return data
     }
 }
