@@ -13,9 +13,13 @@ import struct BlockchainSdk.Amount
 protocol SendFeeInput: AnyObject {
     var selectedFee: SendFee { get }
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
-    var feesPublisher: AnyPublisher<[SendFee], Never> { get }
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
-    var destinationAddressPublisher: AnyPublisher<String?, Never> { get }
+
+    var canChooseFeeOption: AnyPublisher<Bool, Never> { get }
+}
+
+extension SendFeeInput where Self: SendFeeProvider {
+    /// Convenient extension when the object support `SendFeeInput` and `SendFeeProvider`. E.g. `StakingModel`
+    var canChooseFeeOption: AnyPublisher<Bool, Never> { feesHasVariants }
 }
 
 protocol SendFeeOutput: AnyObject {

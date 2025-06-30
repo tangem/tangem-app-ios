@@ -7,12 +7,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectDAppConnectionView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionViewModel
+    let kingfisherImageCache: ImageCache
 
     @State private var navigationBarBottomSeparatorIsVisible = false
 
@@ -47,7 +49,7 @@ struct WalletConnectDAppConnectionView: View {
         ZStack {
             switch viewModel.state {
             case .connectionRequest(let viewModel):
-                WalletConnectDAppConnectionRequestView(viewModel: viewModel)
+                WalletConnectDAppConnectionRequestView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
                     .animation(.contentFrameUpdate, value: viewModel.state.connectionRequestSection.isExpanded)
                     .animation(.contentFrameUpdate, value: viewModel.state.dAppVerificationWarningSection)
                     .animation(.contentFrameUpdate, value: viewModel.state.networksWarningSection)
