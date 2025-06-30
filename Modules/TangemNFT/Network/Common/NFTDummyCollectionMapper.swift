@@ -9,6 +9,8 @@
 import TangemLocalization
 
 enum NFTDummyCollectionMapper {
+    static let dummyCollectionIdentifier = "dummy_collection"
+
     static func map(
         chain: NFTChain,
         assets: [NFTAsset],
@@ -19,7 +21,7 @@ enum NFTDummyCollectionMapper {
         media: NFTMedia?
     ) -> NFTCollection {
         NFTCollection(
-            collectionIdentifier: chain.id,
+            collectionIdentifier: dummyCollectionIdentifier,
             chain: chain,
             contractType: contractType,
             ownerAddress: ownerAddress,

@@ -66,10 +66,16 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     func openCollections() {
         coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+        let assetsWithoutCollectionCount = collections.reduce(into: 0) { sum, collection in
+            if collection.id.collectionIdentifier == NFTDummyCollectionMapper.dummyCollectionIdentifier {
+                sum += collection.assetsCount
+            }
+        }
         analytics.logCollectionsOpen(
             collections.isEmpty ? "Empty" : "Full",
             collections.count,
-            collections.map(\.assetsCount).reduce(0, +)
+            collections.map(\.assetsCount).reduce(0, +),
+            assetsWithoutCollectionCount
         )
     }
 

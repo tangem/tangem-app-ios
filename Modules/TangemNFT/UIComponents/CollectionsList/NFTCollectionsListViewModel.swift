@@ -287,7 +287,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
         coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
-        dependencies.analytics.logDetailsOpen(dependencies.nftChainNameProviding.provide(for: asset.id.chain))
+        dependencies.analytics.logDetailsOpen(
+            dependencies.nftChainNameProviding.provide(for: asset.id.chain),
+            asset.id.contractType.description
+        )
     }
 
     private func makeNotificationViewData() -> NFTNotificationViewData {
