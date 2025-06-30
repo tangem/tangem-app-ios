@@ -76,6 +76,7 @@ struct SendFlowFactory {
         let sendDestinationStepBuilder = SendNewDestinationStepBuilder(builder: builder)
         let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendFinishStepBuilder = SendNewFinishStepBuilder()
 
@@ -86,6 +87,7 @@ struct SendFlowFactory {
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
+            swapProvidersBuilder: swapProvidersBuilder,
             sendSummaryStepBuilder: sendSummaryStepBuilder,
             sendFinishStepBuilder: sendFinishStepBuilder,
             builder: builder

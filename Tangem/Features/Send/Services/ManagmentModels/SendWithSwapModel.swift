@@ -345,6 +345,26 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
     }
 }
 
+// MARK: - SendSwapProvidersInput
+
+extension SendWithSwapModel: SendSwapProvidersInput {
+    var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
+        swapManager.providersPublisher
+    }
+
+    var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
+        swapManager.selectedProviderPublisher
+    }
+}
+
+// MARK: - SendSwapProvidersOutput
+
+extension SendWithSwapModel: SendSwapProvidersOutput {
+    func userDidSelect(provider: ExpressAvailableProvider) {
+        swapManager.update(provider: provider)
+    }
+}
+
 // MARK: - SendFeeInput
 
 extension SendWithSwapModel: SendFeeInput {

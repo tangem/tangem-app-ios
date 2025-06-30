@@ -15,10 +15,13 @@ typealias SwapManagerSwappingPair = ExpressInteractor.SwappingPair
 
 protocol SwapManager {
     var swappingPair: SwapManagerSwappingPair { get }
-    var state: SwapManagerState { get }
-
     var swappingPairPublisher: AnyPublisher<SwapManagerSwappingPair, Never> { get }
+
+    var state: SwapManagerState { get }
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
+
+    var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
+    var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
     func update(amount: Decimal?)
     func update(destination: TokenItem?, address: String?)
