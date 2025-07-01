@@ -28,7 +28,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                         SeedPhraseTextView(
                             inputProcessor: viewModel.inputProcessor,
-                            shouldBecomeFirstResponderAtStart: true
+                            shouldBecomeFirstResponderOnDidAppear: true
                         )
                         .screenCaptureProtection()
                         .padding(.horizontal, 16)
