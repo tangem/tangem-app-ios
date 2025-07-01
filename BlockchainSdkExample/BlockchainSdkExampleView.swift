@@ -153,7 +153,9 @@ struct BlockchainSdkExampleView: View {
 
                 Section(header: Text("Transaction")) {
                     Button {
-                        model.sendTransaction()
+                        Task {
+                            await model.sendTransaction()
+                        }
                     } label: {
                         Text("Send \(model.enteredToken != nil ? "token" : "coin") transaction")
                     }
