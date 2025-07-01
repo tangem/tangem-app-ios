@@ -401,6 +401,14 @@
 "home_button_scan" = "掃描卡片";
 "hot_crypto_add_token_subtitle" = "to %@";
 "hot_crypto_token_network" = "On %@ network";
+"hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
+"hw_backup_icloud_title" = "iCloud backup";
+"hw_backup_need_action" = "Go to backup";
+"hw_backup_need_description" = "To secure your wallet with a Access Code, complete the backup first.";
+"hw_backup_need_title" = "Finish Backup First";
+"hw_backup_no_backup" = "No backup";
+"hw_backup_seed_description" = "Physical cards that securely store your crypto offline.";
+"hw_backup_seed_title" = "Recovery phrase";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
@@ -1262,6 +1270,8 @@
 "wallet_promo_banner_button_title" = "Get now with 10%% off";
 "wallet_promo_banner_description" = "Access 13,000+ cryptocurrencies. Buy, sell, swap, and stake with a single tap.\nLink up to three cards for a backup.";
 "wallet_promo_banner_title" = "Discover Tangem Wallet";
+"wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
+"wallet_settings_access_code_title" = "Set/Change Access Code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
 "wallet_settings_push_notifications_title" = "Transaction Notifications";
 "wallet_settings_title" = "Wallet settings";
@@ -1378,7 +1388,7 @@
 "wc_alert_unsupported_method_title" = "We've encountered unknown error";
 "wc_alert_unsupported_networks_description" = "Tangem does not currently support a required network by %@.";
 "wc_alert_unsupported_networks_title" = "Unsuported networks";
-"wc_alert_verified_domain_description" = "Tangem support a required network by %@.";
+"wc_alert_verified_domain_description" = "Tangem support a required network by %@";
 "wc_alert_verified_domain_title" = "Verified domain";
 "wc_alert_wrong_card_description" = "Wrong card or ring selected in the App";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
