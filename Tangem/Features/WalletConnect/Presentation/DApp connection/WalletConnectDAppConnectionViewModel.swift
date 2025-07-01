@@ -97,15 +97,15 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
 
     func openDomainVerificationWarning(
         _ verificationStatus: WalletConnectDAppVerificationStatus,
-        cancelAction: @escaping () async -> Void,
         connectAnywayAction: @escaping () async -> Void
     ) {
+        let openConnectionRequestAction: () -> Void = { [weak self] in
+            self?.openConnectionRequest()
+        }
+
         let viewModel = WalletConnectDAppDomainVerificationViewModel(
             warningVerificationStatus: verificationStatus,
-            closeAction: { [weak self] in
-                self?.dismiss()
-            },
-            cancelAction: cancelAction,
+            closeAction: openConnectionRequestAction,
             connectAnywayAction: connectAnywayAction
         )
 
@@ -122,7 +122,29 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
         state = .verifiedDomain(viewModel)
     }
 
-    func openSolanaBlockchainWarning(dAppName: String, connectAnywayAction: @escaping () async -> Void) {}
+    func openSolanaBlockchainWarning(dAppName: String, connectAnywayAction: @escaping () async -> Void) {
+        let openConnectionRequestAction: () -> Void = { [weak self] in
+            self?.openConnectionRequest()
+        }
+
+        let viewModel = WalletConnectSolanaBlockchainWarningViewModel(
+            navigationCloseButtonAction: openConnectionRequestAction,
+            cancelButtonAction: openConnectionRequestAction,
+            connectAnywayButtonAction: connectAnywayAction
+        )
+
+        viewModel
+            .$state
+            .map { state in
+                state.connectAnywayButton
+            }
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        state = .solanaBlockchainWarning(viewModel)
+    }
 
     func openWalletSelector() {
         walletSelectorViewModel.updateSelectedUserWallet(selectedUserWallet)
