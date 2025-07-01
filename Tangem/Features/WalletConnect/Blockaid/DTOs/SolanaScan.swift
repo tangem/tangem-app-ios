@@ -11,12 +11,17 @@ import Foundation
 extension BlockaidDTO {
     enum SolanaScan {
         struct Request: Encodable {
-            let accountAddress: String?
+            let encoding: String = "base58"
+
+            let account_address: String?
             let options: [Option] = [.simulation, .validation]
             let metadata: Metadata
 
             let method: String
             let transactions: [String]
+            struct Metadata: Encodable {
+                let url: String
+            }
         }
 
         struct Response: Decodable {
