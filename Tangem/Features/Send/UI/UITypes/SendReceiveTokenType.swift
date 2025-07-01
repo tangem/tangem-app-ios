@@ -8,8 +8,8 @@
 
 import Foundation
 
-enum SendReceiveTokenType: Hashable {
-    case same(TokenItem)
+enum SendReceiveTokenType: Equatable {
+    case same(SendSourceToken)
     case swap(SendReceiveToken)
 
     var receiveToken: SendReceiveToken? {
@@ -21,7 +21,7 @@ enum SendReceiveTokenType: Hashable {
 
     var tokenItem: TokenItem {
         switch self {
-        case .same(let token): token
+        case .same(let token): token.tokenItem
         case .swap(let token): token.tokenItem
         }
     }
