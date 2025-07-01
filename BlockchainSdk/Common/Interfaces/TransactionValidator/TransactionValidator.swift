@@ -222,8 +222,8 @@ extension TransactionValidator where Self: FeeResourceRestrictable {
 
 extension TransactionValidator where Self: RentExtemptionRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
+        try await validateDestinationForRentExtemption(amount: amount, destination: destination)
     }
 
     func validate(amount: Amount, fee: Fee) throws {
