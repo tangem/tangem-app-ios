@@ -12,12 +12,14 @@ import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
 class WalletConnectV2SignTransactionHandler {
-    private let ethTransaction: WalletConnectEthTransaction
+    private var ethTransaction: WalletConnectEthTransaction
     private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
     private let signer: TangemSigner
     private var transaction: Transaction?
+    private let request: AnyCodable
+    private let encoder = JSONEncoder()
 
     init(
         requestParams: AnyCodable,
@@ -43,14 +45,19 @@ class WalletConnectV2SignTransactionHandler {
         self.transactionBuilder = transactionBuilder
         self.messageComposer = messageComposer
         self.signer = signer
+        request = requestParams
     }
 }
 
-extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
+extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WCTransactionUpdatable {
     var method: WalletConnectMethod { .signTransaction }
 
     var requestData: Data {
-        Data()
+        (try? encoder.encode(ethTransaction)) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
     }
 
     var event: WalletConnectEvent { .sendTx }
@@ -75,5 +82,10 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
         async let signedHash = ethSigner.sign(transaction, signer: signer).async()
 
         return try await .response(AnyCodable(signedHash.lowercased()))
+    }
+
+    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
+        ethTransaction = updatedTransaction
+        transaction = nil
     }
 }
