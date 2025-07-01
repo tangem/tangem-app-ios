@@ -9,6 +9,7 @@
 import struct TangemAssets.ImageType
 import TangemLocalization
 
+// [REDACTED_TODO_COMMENT]
 struct WalletConnectSolanaBlockchainWarningViewState {
     let iconAsset: ImageType
     let title = "Solana Transaction Limitation"
