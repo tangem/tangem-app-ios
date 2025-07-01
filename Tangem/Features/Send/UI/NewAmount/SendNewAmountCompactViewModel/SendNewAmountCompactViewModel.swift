@@ -35,20 +35,26 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
     private var expressProviderSubscription: AnyCancellable?
 
     init(
-        input: SendAmountInput,
-        sendToken: SendReceiveToken,
-        flow: SendModel.PredefinedValues.FlowKind,
-        balanceProvider: TokenBalanceProvider,
+        sourceTokenInput: SendSourceTokenInput,
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput,
-        swapProvidersInput: SendSwapProvidersInput
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        swapProvidersInput: SendSwapProvidersInput,
+        flow: SendModel.PredefinedValues.FlowKind,
     ) {
         self.flow = flow
 
-        sendAmountCompactViewModel = .init(receiveToken: sendToken)
-        sendAmountCompactViewModel.bind(amountPublisher: input.amountPublisher)
-        sendAmountCompactViewModel.bind(balanceTypePublisher: balanceProvider.formattedBalanceTypePublisher)
+        sendAmountCompactViewModel = .init(sourceToken: sourceTokenInput.sourceToken)
+        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
+        sendAmountCompactViewModel.bind(
+            balanceTypePublisher: sourceTokenInput.sourceToken.availableBalanceProvider.formattedBalanceTypePublisher
+        )
 
-        bind(receiveTokenInput: receiveTokenInput, swapProvidersInput: swapProvidersInput)
+        bind(
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
+            swapProvidersInput: swapProvidersInput
+        )
     }
 
     func userDidTapAmount() {
@@ -67,12 +73,12 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
 // MARK: - SendNewAmountCompactViewModel
 
 private extension SendNewAmountCompactViewModel {
-    func bind(receiveTokenInput: SendReceiveTokenInput, swapProvidersInput: SendSwapProvidersInput) {
+    func bind(receiveTokenInput: SendReceiveTokenInput, receiveTokenAmountInput: SendReceiveTokenAmountInput, swapProvidersInput: SendSwapProvidersInput) {
         receiveTokenSubscription = receiveTokenInput
             .receiveTokenPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { $0.updateView(receiveTokenInput: receiveTokenInput, receiveToken: $1) }
+            .sink { $0.updateView(receiveTokenAmountInput: receiveTokenAmountInput, receiveToken: $1) }
 
         expressProviderSubscription = Publishers.CombineLatest(
             receiveTokenInput.receiveTokenPublisher,
@@ -89,19 +95,14 @@ private extension SendNewAmountCompactViewModel {
         }
     }
 
-    private func updateView(receiveTokenInput: SendReceiveTokenInput, receiveToken: SendReceiveTokenType) {
+    private func updateView(receiveTokenAmountInput: SendReceiveTokenAmountInput, receiveToken: SendReceiveTokenType) {
         switch receiveToken {
         case .same:
             sendReceiveTokenCompactViewModel = nil
             sendSwapProviderCompactViewData = nil
         case .swap(let receiveToken):
-            let amountPublisher = receiveTokenInput
-                .receiveAmountPublisher
-                .map { $0.value?.flatMap { $0 } }
-                .eraseToAnyPublisher()
-
             sendReceiveTokenCompactViewModel = .init(receiveToken: receiveToken)
-            sendReceiveTokenCompactViewModel?.bind(amountPublisher: amountPublisher)
+            sendReceiveTokenCompactViewModel?.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
         }
     }
 
