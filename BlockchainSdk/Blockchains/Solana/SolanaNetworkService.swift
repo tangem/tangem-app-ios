@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SolanaSwift
 import TangemFoundation
+import TangemSdk
 
 @available(iOS 13.0, *)
 class SolanaNetworkService {
@@ -46,6 +47,47 @@ class SolanaNetworkService {
             )
         }
         .eraseToAnyPublisher()
+    }
+
+    func getFee(amount: Amount, destination: String, publicKey: PublicKey) -> AnyPublisher<Fee, Error> {
+        checkAccountExists(accountId: destination)
+            .withWeakCaptureOf(self)
+            .flatMap { service, accountExists in
+                let feeParameters = SolanaNetworkService.mapFeeParameters(accountExists: accountExists)
+                let decimalValue: Decimal = pow(10, amount.decimals)
+                let intAmount = (amount.value * decimalValue).rounded().uint64Value
+
+                return service.getFeeForMessage(
+                    amount: intAmount,
+                    computeUnitLimit: feeParameters.computeUnitLimit,
+                    computeUnitPrice: feeParameters.computeUnitPrice,
+                    destinationAddress: destination,
+                    fromPublicKey: publicKey
+                )
+                .map { feeValue in
+                    let feeAmount = Amount(with: amount, value: feeValue)
+                    return Fee(feeAmount, parameters: feeParameters)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func checkAccountExists(accountId: String) -> AnyPublisher<Bool, Error> {
+        solanaSdk.api.getAccountInfo(account: accountId, decodedTo: AccountInfo.self)
+            .map { _ in return true }
+            .tryCatch { error -> AnyPublisher<Bool, Error> in
+                if let solanaError = error as? SolanaError {
+                    switch solanaError {
+                    case .nullValue:
+                        return .justWithError(output: false)
+                    default:
+                        break
+                    }
+                }
+
+                throw error
+            }
+            .eraseToAnyPublisher()
     }
 
     func sendSol(
@@ -97,30 +139,6 @@ class SolanaNetworkService {
             .eraseToAnyPublisher()
     }
 
-    func getFeeForMessage(
-        amount: UInt64,
-        computeUnitLimit: UInt32?,
-        computeUnitPrice: UInt64?,
-        destinationAddress: String,
-        fromPublicKey: PublicKey
-    ) -> AnyPublisher<Decimal, Error> {
-        solanaSdk.action.serializeMessage(
-            to: destinationAddress,
-            amount: amount,
-            computeUnitLimit: computeUnitLimit,
-            computeUnitPrice: computeUnitPrice,
-            allowUnfundedRecipient: true,
-            fromPublicKey: fromPublicKey
-        )
-        .flatMap { [solanaSdk] message, _ -> AnyPublisher<FeeForMessageResult, Error> in
-            solanaSdk.api.getFeeForMessage(message)
-        }
-        .map { [blockchain] in
-            Decimal($0.value) / blockchain.decimalValue
-        }
-        .eraseToAnyPublisher()
-    }
-
     func transactionFee(numberOfSignatures: Int) -> AnyPublisher<Decimal, Error> {
         solanaSdk.api.getFees(commitment: nil)
             .tryMap { [weak self] fee in
@@ -135,15 +153,6 @@ class SolanaNetworkService {
                 return Decimal(lamportsPerSignature) * Decimal(numberOfSignatures) / blockchain.decimalValue
             }
             .eraseToAnyPublisher()
-    }
-
-    /// This fee is deducted from the transaction amount itself (!)
-    func mainAccountCreationFee() -> AnyPublisher<Decimal, Error> {
-        minimalBalanceForRentExemption(dataLength: 0)
-    }
-
-    func mainAccountCreationFee(dataLength: UInt64) -> AnyPublisher<Decimal, Error> {
-        minimalBalanceForRentExemption(dataLength: dataLength)
     }
 
     func accountRentFeePerEpoch() -> AnyPublisher<Decimal, Error> {
@@ -195,6 +204,30 @@ class SolanaNetworkService {
                 throw BlockchainSdkError.failedToConvertPublicKey
             }
             .eraseToAnyPublisher()
+    }
+
+    private func getFeeForMessage(
+        amount: UInt64,
+        computeUnitLimit: UInt32?,
+        computeUnitPrice: UInt64?,
+        destinationAddress: String,
+        fromPublicKey: PublicKey
+    ) -> AnyPublisher<Decimal, Error> {
+        solanaSdk.action.serializeMessage(
+            to: destinationAddress,
+            amount: amount,
+            computeUnitLimit: computeUnitLimit,
+            computeUnitPrice: computeUnitPrice,
+            allowUnfundedRecipient: true,
+            fromPublicKey: fromPublicKey
+        )
+        .flatMap { [solanaSdk] message, _ -> AnyPublisher<FeeForMessageResult, Error> in
+            solanaSdk.api.getFeeForMessage(message)
+        }
+        .map { [blockchain] in
+            Decimal($0.value) / blockchain.decimalValue
+        }
+        .eraseToAnyPublisher()
     }
 
     private func mainAccountInfo(accountId: String) -> AnyPublisher<SolanaMainAccountInfoResponse, Error> {
@@ -299,5 +332,24 @@ class SolanaNetworkService {
                 return .anyFail(error: error)
             }
             .eraseToAnyPublisher()
+    }
+
+    private static func mapFeeParameters(accountExists: Bool) -> SolanaFeeParameters {
+        let computeUnitLimit: UInt32?
+        let computeUnitPrice: UInt64?
+
+        if NFCUtils.isPoorNfcQualityDevice {
+            computeUnitLimit = nil
+            computeUnitPrice = nil
+        } else {
+            // https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics
+            computeUnitLimit = accountExists ? 200_000 : 400_000
+            computeUnitPrice = accountExists ? 1_000_000 : 500_000
+        }
+
+        return SolanaFeeParameters(
+            computeUnitLimit: computeUnitLimit,
+            computeUnitPrice: computeUnitPrice,
+        )
     }
 }
