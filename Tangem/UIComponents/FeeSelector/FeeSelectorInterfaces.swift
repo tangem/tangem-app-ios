@@ -25,6 +25,8 @@ protocol FeeSelectorContentViewModelInput: AnyObject {
 
 protocol FeeSelectorContentViewModelOutput: AnyObject {
     func update(selectedSelectorFee: FeeSelectorFee)
+    func dismissFeeSelector()
+    func completeFeeSelection()
 }
 
 protocol FeeSelectorContentViewModelAnalytics {
