@@ -2202,6 +2202,7 @@
 		C25022772E130BAE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25022762E130BAC00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift */; };
 		C25022792E130BD200D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25022782E130BCE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift */; };
 		C250227B2E130BD800D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C250227A2E130BD500D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift */; };
+		C25022832E13164600D1A0D1 /* WalletConnectSolanaBlockchainWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25022822E13163B00D1A0D1 /* WalletConnectSolanaBlockchainWarningView.swift */; };
 		C252157F2DDF342F003014C2 /* WalletConnectDAppDescriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C252157E2DDF3426003014C2 /* WalletConnectDAppDescriptionViewModel.swift */; };
 		C259BBCD2D79FF64000DAFD1 /* Analytics+WalletConnectSessionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */; };
 		C25E10382DFF1B900050BC26 /* WalletConnectConnectedDAppRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25E10372DFF1B870050BC26 /* WalletConnectConnectedDAppRepository.swift */; };
@@ -5985,6 +5986,7 @@
 		C25022762E130BAC00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewModel.swift; sourceTree = "<group>"; };
 		C25022782E130BCE00D1A0D1 /* WalletConnectSolanaBlockchainWarningViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewState.swift; sourceTree = "<group>"; };
 		C250227A2E130BD500D1A0D1 /* WalletConnectSolanaBlockchainWarningViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningViewEvent.swift; sourceTree = "<group>"; };
+		C25022822E13163B00D1A0D1 /* WalletConnectSolanaBlockchainWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSolanaBlockchainWarningView.swift; sourceTree = "<group>"; };
 		C252157E2DDF3426003014C2 /* WalletConnectDAppDescriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppDescriptionViewModel.swift; sourceTree = "<group>"; };
 		C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectSessionSource.swift"; sourceTree = "<group>"; };
 		C25E10372DFF1B870050BC26 /* WalletConnectConnectedDAppRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppRepository.swift; sourceTree = "<group>"; };
@@ -14349,6 +14351,7 @@
 			children = (
 				C2E6D84D2DE0575D00F01D4D /* Connection request */,
 				C27672CE2DE713880037F1FC /* WalletConnectDAppDomainVerificationView.swift */,
+				C25022822E13163B00D1A0D1 /* WalletConnectSolanaBlockchainWarningView.swift */,
 				C207D6102DE60F8800A5FB2E /* WalletConnectWalletSelectorView.swift */,
 				C207D60F2DE60F8800A5FB2E /* WalletConnectNetworksSelectorView.swift */,
 				C274DFB62DDBE74700B1D97B /* WalletConnectDAppConnectionView.swift */,
@@ -21846,6 +21849,7 @@
 				C2E3ADD52D5F5D410042ADDA /* StoryDTO.swift in Sources */,
 				C2E3ADD62D5F5D410042ADDA /* StoryMapper.swift in Sources */,
 				C2E3ADD82D5F5D410042ADDA /* TangemStoriesEnvironment.swift in Sources */,
+				C25022832E13164600D1A0D1 /* WalletConnectSolanaBlockchainWarningView.swift in Sources */,
 				C274DFB72DDBE74800B1D97B /* WalletConnectDAppConnectionView.swift in Sources */,
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
 				B08E995F2D9FD168008F367F /* EmailConfig.swift in Sources */,
