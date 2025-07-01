@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Jul 01 09:36:25 GMT 2025","Tue Jul 01 09:38:43 GMT 2025","138616","","TangemUITests","","","","testScanMockWallet_ShouldShowMainScreen()",""
