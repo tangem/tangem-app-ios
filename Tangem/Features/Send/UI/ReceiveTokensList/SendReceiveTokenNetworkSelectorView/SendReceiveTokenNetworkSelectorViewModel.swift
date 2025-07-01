@@ -17,29 +17,29 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], Error> = .loading
 
-    private let tokenItem: TokenItem
+    private weak var sourceTokenInput: SendSourceTokenInput?
+    private weak var receiveTokenOutput: SendReceiveTokenOutput?
     private let networks: [TokenItem]
     private let expressRepository: ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
 
-    private weak var output: SendReceiveTokenOutput?
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
 
     private var loadTask: Task<Void, Never>?
 
     init(
-        tokenItem: TokenItem,
+        sourceTokenInput: SendSourceTokenInput,
+        receiveTokenOutput: SendReceiveTokenOutput,
         networks: [TokenItem],
         expressRepository: ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder,
-        output: SendReceiveTokenOutput,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
-        self.tokenItem = tokenItem
+        self.sourceTokenInput = sourceTokenInput
+        self.receiveTokenOutput = receiveTokenOutput
         self.networks = networks
         self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
-        self.output = output
         self.router = router
 
         load()
@@ -53,6 +53,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private func load() {
         loadTask = runTask(in: self) { viewModel in
             do {
+                if let items = try await viewModel.getNetworksWithoutLoad() {
+                    await runOnMain { viewModel.state = .success(items) }
+                    return
+                }
+
                 // We use the minimum loading time here
                 // Otherwise the bottom sheet is jumping
                 let items = try await runTask(withMinimumTime: 1) {
@@ -66,8 +71,30 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         }
     }
 
+    private func getNetworksWithoutLoad() async throws -> [SendReceiveTokenNetworkSelectorNetworkViewData]? {
+        guard let sourceToken = sourceTokenInput?.sourceToken else {
+            throw CommonError.objectReleased
+        }
+
+        let pairs = await expressRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
+        guard !pairs.isEmpty else {
+            return nil
+        }
+
+        let items = networks.map { network in
+            let isAvailable = pairs.contains(where: { $0.destination == network.expressCurrency.asCurrency })
+            return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network, isAvailable: isAvailable)
+        }
+
+        return items
+    }
+
     private func loadNetworks() async throws -> [SendReceiveTokenNetworkSelectorNetworkViewData] {
-        let source = tokenItem.expressCurrency
+        guard let sourceToken = sourceTokenInput?.sourceToken else {
+            throw CommonError.objectReleased
+        }
+
+        let source = sourceToken.tokenItem.expressCurrency
         try await expressRepository.updatePairs(from: source, to: networks.map(\.expressCurrency))
         let pairs = await expressRepository.getPairs(from: source)
 
@@ -92,7 +119,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
-        output?.userDidSelect(receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem))
+        receiveTokenOutput?.userDidSelect(receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem))
         router?.dismissNetworkSelector(isSelected: true)
     }
 }
