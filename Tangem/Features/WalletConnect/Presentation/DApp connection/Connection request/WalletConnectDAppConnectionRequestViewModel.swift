@@ -246,23 +246,57 @@ extension WalletConnectDAppConnectionRequestViewModel {
             return
         }
 
-        if selectedBlockchains.contains(.solana(curve: .ed25519, testnet: false)) {
-            print("has solana")
-        }
+        let solanaBlockchain = Blockchain.solana(curve: .ed25519, testnet: false)
+        let hasSolanaInSelectedBlockchains = selectedBlockchains.contains(solanaBlockchain)
 
-        guard loadedDAppProposal.verificationStatus.isVerified else {
-            coordinator?.openDomainVerificationWarning(
-                loadedDAppProposal.verificationStatus,
-                cancelAction: { [weak self] in
-                    self?.rejectDAppProposal()
-                },
-                connectAnywayAction: { [weak self] in
-                    await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
-                }
-            )
+        guard !hasSolanaInSelectedBlockchains else {
+            connectFromSolanaWarning(loadedDAppProposal: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
             return
         }
 
+        guard loadedDAppProposal.verificationStatus.isVerified else {
+            connectFromDomainVerificationWarning(loadedDAppProposal: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
+            return
+        }
+
+        connectFromCurrentContext(loadedDAppProposal: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
+    }
+
+    private func connectFromSolanaWarning(loadedDAppProposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [Blockchain]) {
+        let connectAnywayAction: () async -> Void
+
+        if loadedDAppProposal.verificationStatus.isVerified {
+            connectAnywayAction = { [weak self] in
+                await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
+            }
+        } else {
+            connectAnywayAction = { [weak self] in
+                self?.connectFromDomainVerificationWarning(
+                    loadedDAppProposal: loadedDAppProposal,
+                    selectedBlockchains: selectedBlockchains
+                )
+            }
+        }
+
+        coordinator?.openSolanaBlockchainWarning(dAppName: loadedDAppProposal.dApp.name, connectAnywayAction: connectAnywayAction)
+    }
+
+    private func connectFromDomainVerificationWarning(
+        loadedDAppProposal: WalletConnectDAppConnectionProposal,
+        selectedBlockchains: [Blockchain]
+    ) {
+        coordinator?.openDomainVerificationWarning(
+            loadedDAppProposal.verificationStatus,
+            connectAnywayAction: { [weak self] in
+                await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
+            }
+        )
+    }
+
+    private func connectFromCurrentContext(
+        loadedDAppProposal: WalletConnectDAppConnectionProposal,
+        selectedBlockchains: [Blockchain]
+    ) {
         state.connectButton.isLoading = true
 
         dAppConnectionTask?.cancel()
