@@ -32,7 +32,11 @@ struct SendDependenciesBuilder {
     }
 
     func makeFiatItem() -> FiatItem {
-        .init(currencyCode: AppSettings.shared.selectedCurrencyCode)
+        FiatItem(
+            iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),
+            currencyCode: AppSettings.shared.selectedCurrencyCode,
+            fractionDigits: 2
+        )
     }
 
     func sendFlowActionType(actionType: StakingAction.ActionType) -> SendFlowActionType {
@@ -278,7 +282,7 @@ struct SendDependenciesBuilder {
 
     func makeSendNewDestinationInteractorDependenciesProvider() -> SendNewDestinationInteractorDependenciesProvider {
         SendNewDestinationInteractorDependenciesProvider(
-            receivedTokenType: .same(walletModel.tokenItem),
+            receivedTokenType: .same(makeSourceToken()),
             sendingWalletData: .init(
                 walletAddresses: walletModel.addresses.map(\.value),
                 suggestedWallets: makeSuggestedWallets(),
@@ -361,13 +365,13 @@ struct SendDependenciesBuilder {
 
     func makeSendBaseDataBuilder(
         input: SendBaseDataBuilderInput,
-        receiveTokenIO: SendReceiveTokensListBuilder.IO? = .none
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder? = .none
     ) -> SendBaseDataBuilder {
         CommonSendBaseDataBuilder(
             input: input,
             walletModel: walletModel,
             emailDataProvider: userWalletModel,
-            sendReceiveTokensListBuilder: receiveTokenIO.map { makeSendReceiveTokensListBuilder(io: $0) }
+            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
         )
     }
 
@@ -411,15 +415,11 @@ struct SendDependenciesBuilder {
     func makeSendWithSwapModel(
         predefinedSellParameters: PredefinedSellParameters? = .none
     ) -> SendWithSwapModel {
-        let transactionDispatcher = makeTransactionDispatcher()
         let swapManager: SwapManager = makeSwapManager()
         let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
 
         return SendWithSwapModel(
-            tokenItem: walletModel.tokenItem,
-            balanceProvider: walletModel.availableBalanceProvider,
-            transactionDispatcher: transactionDispatcher,
-            transactionCreator: walletModel.transactionCreator,
+            userToken: makeSourceToken(),
             transactionSigner: userWalletModel.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
@@ -429,18 +429,40 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeSourceToken() -> SendSourceToken {
+        SendSourceToken(
+            wallet: userWalletModel.name,
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
+            tokenIconInfo: makeTokenIconInfo(),
+            fiatItem: makeFiatItem(),
+            availableBalanceProvider: walletModel.availableBalanceProvider,
+            fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
+            transactionValidator: walletModel.transactionValidator,
+            transactionCreator: walletModel.transactionCreator,
+            transactionDispatcher: makeTransactionDispatcher()
+        )
+    }
+
     func makeSwapManager() -> SwapManager {
         CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+    }
+
+    func makeSendSourceTokenAmountValidator(input: any SendSourceTokenInput) -> SendAmountValidator {
+        CommonSendSourceTokenAmountValidator(input: input)
     }
 
     func makeSendReceiveTokenBuilder() -> SendReceiveTokenBuilder {
         SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
     }
 
-    func makeSendReceiveTokensListBuilder(io: SendReceiveTokensListBuilder.IO) -> SendReceiveTokensListBuilder {
+    func makeSendReceiveTokensListBuilder(
+        sendSourceTokenInput: SendSourceTokenInput,
+        receiveTokenOutput: SendReceiveTokenOutput
+    ) -> SendReceiveTokensListBuilder {
         SendReceiveTokensListBuilder(
-            io: io,
-            tokenItem: walletModel.tokenItem,
+            sourceTokenInput: sendSourceTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             expressRepository: expressDependenciesFactory.expressRepository,
             receiveTokenBuilder: makeSendReceiveTokenBuilder()
         )
