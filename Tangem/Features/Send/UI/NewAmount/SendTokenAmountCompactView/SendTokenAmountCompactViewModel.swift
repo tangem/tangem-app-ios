@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemLocalization
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 class SendTokenAmountCompactViewModel: ObservableObject, Identifiable {
@@ -31,11 +32,29 @@ class SendTokenAmountCompactViewModel: ObservableObject, Identifiable {
     private var amountPublisherSubscription: AnyCancellable?
     private var balancePublisherSubscription: AnyCancellable?
 
-    init(receiveToken: SendReceiveToken) {
-        walletNameTitle = receiveToken.wallet
-        tokenIconInfo = receiveToken.tokenIconInfo
-        tokenItem = receiveToken.tokenItem
-        fiatItem = receiveToken.fiatItem
+    convenience init(receiveToken: SendReceiveToken) {
+        self.init(
+            wallet: receiveToken.wallet,
+            tokenIconInfo: receiveToken.tokenIconInfo,
+            tokenItem: receiveToken.tokenItem,
+            fiatItem: receiveToken.fiatItem
+        )
+    }
+
+    convenience init(sourceToken: SendSourceToken) {
+        self.init(
+            wallet: sourceToken.wallet,
+            tokenIconInfo: sourceToken.tokenIconInfo,
+            tokenItem: sourceToken.tokenItem,
+            fiatItem: sourceToken.fiatItem
+        )
+    }
+
+    init(wallet: String, tokenIconInfo: TokenIconInfo, tokenItem: TokenItem, fiatItem: FiatItem) {
+        walletNameTitle = wallet
+        self.tokenIconInfo = tokenIconInfo
+        self.tokenItem = tokenItem
+        self.fiatItem = fiatItem
 
         sendAmountFormatter = .init(tokenItem: tokenItem, fiatItem: fiatItem)
         loadableTokenBalanceViewStateBuilder = .init()
@@ -45,7 +64,7 @@ class SendTokenAmountCompactViewModel: ObservableObject, Identifiable {
         amountTextFieldViewModel = .init(maximumFractionDigits: tokenItem.decimalCount)
     }
 
-    func bind(amountPublisher: AnyPublisher<SendAmount?, Never>) {
+    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never>) {
         amountPublisherSubscription = amountPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
@@ -63,20 +82,27 @@ class SendTokenAmountCompactViewModel: ObservableObject, Identifiable {
             }
     }
 
-    private func updateAmount(from amount: SendAmount?) {
-        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+    private func updateAmount(from amount: LoadingResult<SendAmount?, Error>) {
+        switch amount {
+        case .loading:
+            break // [REDACTED_TODO_COMMENT]
+        case .failure, .success(.none):
+            amountTextFieldViewModel.update(value: .none)
+            alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
-        switch amount?.type {
-        case .typical(let crypto, _):
-            amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
-            amountTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
-            amountTextFieldViewModel.update(value: crypto)
-        case .alternative(let fiat, _):
-            amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
-            amountTextFieldViewModel.update(maximumFractionDigits: fiatItem.fractionDigits)
-            amountTextFieldViewModel.update(value: fiat)
-        case nil:
-            break
+        case .success(.some(let amount)):
+            switch amount.type {
+            case .typical(let crypto, _):
+                amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
+                amountTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
+                amountTextFieldViewModel.update(value: crypto)
+                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+            case .alternative(let fiat, _):
+                amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
+                amountTextFieldViewModel.update(maximumFractionDigits: fiatItem.fractionDigits)
+                amountTextFieldViewModel.update(value: fiat)
+                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
+            }
         }
     }
 }
