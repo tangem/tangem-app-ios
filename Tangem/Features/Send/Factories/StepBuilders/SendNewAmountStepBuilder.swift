@@ -10,37 +10,45 @@ import Foundation
 import TangemExpress
 
 struct SendNewAmountStepBuilder {
-    typealias IO = (input: SendAmountInput, output: SendAmountOutput)
-    typealias ReturnValue = (step: SendNewAmountStep, interactor: SendAmountInteractor, compact: SendNewAmountCompactViewModel, finish: SendTokenAmountCompactViewModel)
+    typealias SourceIO = (input: SendSourceTokenInput, output: SendSourceTokenOutput)
+    typealias ReceiveIO = (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)
+
+    typealias SourceAmountIO = (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
+    typealias ReceiveAmountIO = (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)
+
+    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendTokenAmountCompactViewModel)
 
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let builder: SendDependenciesBuilder
 
     func makeSendNewAmountStep(
-        io: IO,
+        sourceIO: SourceIO,
+        sourceAmountIO: SourceAmountIO,
+        receiveIO: ReceiveIO,
+        receiveAmountIO: ReceiveAmountIO,
+        swapProvidersInput: SendSwapProvidersInput,
         actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        receiveTokenInput: any SendReceiveTokenInput,
-        receiveTokenOutput: any SendReceiveTokenOutput,
-        swapProvidersInput: any SendSwapProvidersInput,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
-        let interactor = makeSendAmountInteractor(
-            io: io,
-            sendAmountValidator: sendAmountValidator,
+        let interactor = CommonSendNewAmountInteractor(
+            sourceTokenInput: sourceIO.input,
+            sourceTokenAmountInput: sourceAmountIO.input,
+            sourceTokenAmountOutput: sourceAmountIO.output,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenOutput: receiveIO.output,
+            receiveTokenAmountInput: receiveAmountIO.input,
+            validator: sendAmountValidator,
             amountModifier: amountModifier,
-            receiveTokenInput: receiveTokenInput,
-            receiveTokenOutput: receiveTokenOutput,
-            type: .crypto,
-            actionType: actionType
+            type: .crypto
         )
 
-        let viewModel = makeSendAmountViewModel(
-            io: io,
-            interactor: interactor,
-            actionType: actionType
+        let viewModel = SendNewAmountViewModel(
+            sourceTokenInput: sourceIO.input,
+            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
+            interactor: interactor
         )
 
         let step = SendNewAmountStep(
@@ -49,97 +57,28 @@ struct SendNewAmountStepBuilder {
             flowKind: flowKind
         )
 
-        let compact = makeSendAmountCompactViewModel(
-            input: io.input,
-            receiveTokenInput: receiveTokenInput,
+        let compact = SendNewAmountCompactViewModel(
+            sourceTokenInput: sourceIO.input,
+            sourceTokenAmountInput: sourceAmountIO.input,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenAmountInput: receiveAmountIO.input,
             swapProvidersInput: swapProvidersInput,
-            actionType: actionType,
-            flowKind: flowKind
+            flow: flowKind,
         )
-        let finish = makeSendAmountCompactViewModel(input: io.input)
-        return (step: step, interactor: interactor, compact: compact, finish: finish)
-    }
 
-    func makeSendAmountCompactViewModel(input: SendAmountInput) -> SendTokenAmountCompactViewModel {
-        let token = makeSendReceiveToken()
-        let viewModel = SendTokenAmountCompactViewModel(receiveToken: token)
-        viewModel.bind(amountPublisher: input.amountPublisher)
+        let amountUpdater = SendExternalAmountUpdater(viewModel: viewModel, interactor: interactor)
+        let finish = makeSendAmountCompactViewModel(tokenInput: sourceIO.input, amountInput: sourceAmountIO.input)
 
-        return viewModel
+        return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
     }
 
     func makeSendAmountCompactViewModel(
-        input: any SendAmountInput,
-        receiveTokenInput: any SendReceiveTokenInput,
-        swapProvidersInput: any SendSwapProvidersInput,
-        actionType: SendFlowActionType,
-        flowKind: SendModel.PredefinedValues.FlowKind
-    ) -> SendNewAmountCompactViewModel {
-        let token = makeSendReceiveToken()
-        let viewModel = SendNewAmountCompactViewModel(
-            input: input,
-            sendToken: token,
-            flow: flowKind,
-            balanceProvider: builder.makeTokenBalanceProvider(),
-            receiveTokenInput: receiveTokenInput,
-            swapProvidersInput: swapProvidersInput
-        )
+        tokenInput: SendSourceTokenInput,
+        amountInput: SendSourceTokenAmountInput
+    ) -> SendTokenAmountCompactViewModel {
+        let viewModel = SendTokenAmountCompactViewModel(sourceToken: tokenInput.sourceToken)
+        viewModel.bind(amountPublisher: amountInput.sourceAmountPublisher)
 
         return viewModel
-    }
-}
-
-// MARK: - Private
-
-private extension SendNewAmountStepBuilder {
-    func makeSendAmountViewModel(
-        io: IO,
-        interactor: SendAmountInteractor,
-        actionType: SendFlowActionType
-    ) -> SendNewAmountViewModel {
-        let initital = SendNewAmountViewModel.Settings(
-            walletHeaderText: builder.walletHeaderText(for: actionType),
-            tokenItem: tokenItem,
-            tokenIconInfo: builder.makeTokenIconInfo(),
-            balanceFormatted: builder.formattedBalance(for: io.input.amount, actionType: actionType),
-            fiatIconURL: builder.makeFiatIconURL(),
-            fiatItem: builder.makeFiatItem(),
-            possibleToChangeAmountType: builder.possibleToChangeAmountType(),
-            actionType: actionType
-        )
-
-        return SendNewAmountViewModel(initial: initital, interactor: interactor)
-    }
-
-    private func makeSendAmountInteractor(
-        io: IO,
-        sendAmountValidator: SendAmountValidator,
-        amountModifier: SendAmountModifier?,
-        receiveTokenInput: SendReceiveTokenInput?,
-        receiveTokenOutput: SendReceiveTokenOutput?,
-        type: SendAmountCalculationType,
-        actionType: SendFlowActionType
-    ) -> SendAmountInteractor {
-        CommonSendAmountInteractor(
-            input: io.input,
-            output: io.output,
-            receiveTokenInput: receiveTokenInput,
-            receiveTokenOutput: receiveTokenOutput,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
-            validator: sendAmountValidator,
-            amountModifier: amountModifier,
-            type: type
-        )
-    }
-
-    func makeSendReceiveToken() -> SendReceiveToken {
-        SendReceiveToken(
-            wallet: builder.walletName(),
-            tokenItem: tokenItem,
-            tokenIconInfo: builder.makeTokenIconInfo(),
-            fiatItem: builder.makeFiatItem()
-        )
     }
 }
