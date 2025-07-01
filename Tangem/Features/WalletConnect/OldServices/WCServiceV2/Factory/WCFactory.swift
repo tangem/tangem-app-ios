@@ -19,7 +19,6 @@ struct WCFactory {
             ethTransactionBuilder: ethTransactionBuilder
         )
         let wcHandlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
-
         let v2Service = WCServiceV2(wcHandlersService: wcHandlersService)
 
         return v2Service
