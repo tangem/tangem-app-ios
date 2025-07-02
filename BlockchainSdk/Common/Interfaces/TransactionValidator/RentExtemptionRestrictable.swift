@@ -12,6 +12,7 @@ protocol RentExtemptionRestrictable {
     var minimalAmountForRentExemption: Amount { get }
 
     func validateRentExtemption(amount: Amount, fee: Amount) throws
+    func validateDestinationForRentExtemption(amount: Amount, destination: DestinationType) async throws
 }
 
 extension RentExtemptionRestrictable where Self: WalletProvider {

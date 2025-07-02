@@ -66,6 +66,9 @@ struct SendCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
                 FeeSelectorContentView(viewModel: $0)
             }
+            .floatingSheetContent(for: SendSwapProvidersSelectorViewModel.self) {
+                SendSwapProvidersSelectorView(viewModel: $0)
+            }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
@@ -81,6 +84,9 @@ struct SendCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
+                SendReceiveTokenCoordinatorView(coordinator: $0)
             }
     }
 }
