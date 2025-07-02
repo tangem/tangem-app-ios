@@ -44,4 +44,5 @@ enum StorageType: String {
     case tronWarningWithdrawTokenDisplayed = "tron_warning_withdraw_token_displayed"
     case applicationUid = "application_uid"
     case lastStoredFCMToken = "last_stored_FCM_token"
+    case didMigrateWalletConnectSavedSessions = "tangem_did_migrate_wallet_connect_saved_sessions"
 }

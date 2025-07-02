@@ -32,6 +32,7 @@ public enum ValidationError: Hashable, LocalizedError {
     case amountExceedsFeeResourceCapacity(type: FeeResourceType, availableAmount: Decimal)
     case feeExceedsMaxFeeResource
     case remainingAmountIsLessThanRentExemption(amount: Amount)
+    case sendingAmountIsLessThanRentExemption(amount: Amount)
 
     case destinationMemoRequired
 
@@ -40,6 +41,7 @@ public enum ValidationError: Hashable, LocalizedError {
         case .balanceNotFound,
              .cardanoInsufficientBalanceToSendToken,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .cardanoHasTokens,
              .amountExceedsBalance,
              .dustAmount,
