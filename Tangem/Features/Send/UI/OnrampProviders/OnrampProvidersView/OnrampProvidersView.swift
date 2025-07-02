@@ -58,6 +58,9 @@ struct OnrampProvidersView: View {
 
     @ViewBuilder
     private var providersSection: some View {
-        ExpressProvidersList(providersViewData: viewModel.providersViewData)
+        ExpressProvidersList(
+            selectedProviderID: viewModel.selectedProviderID ?? -1,
+            providersViewData: viewModel.providersViewData
+        )
     }
 }
