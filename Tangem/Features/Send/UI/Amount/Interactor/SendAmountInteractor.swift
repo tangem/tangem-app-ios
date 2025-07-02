@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol SendAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
@@ -30,9 +31,9 @@ class CommonSendAmountInteractor {
 
     private weak var input: SendAmountInput?
     private weak var output: SendAmountOutput?
+
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
-
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>

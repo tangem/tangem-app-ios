@@ -9,7 +9,7 @@
 import Foundation
 
 protocol ExpressDestinationService {
-    func getDestination(source: any WalletModel) async throws -> any WalletModel
+    func getDestination(source: any ExpressInteractorSourceWallet) async throws -> any ExpressInteractorSourceWallet
 }
 
 enum ExpressDestinationServiceError: Error {
