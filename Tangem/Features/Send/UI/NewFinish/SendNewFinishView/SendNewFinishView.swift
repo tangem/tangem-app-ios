@@ -23,12 +23,16 @@ struct SendNewFinishView: View {
             }
 
             if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
-                SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+                SendTokenAmountCompactView(viewModel: sendAmountCompactViewModel)
                     .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
             }
 
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
                 SendNewDestinationCompactView(viewModel: sendDestinationCompactViewModel)
+            }
+
+            if let sendSwapProviderFinishViewModel = viewModel.sendSwapProviderFinishViewModel {
+                SendSwapProviderFinishView(viewModel: sendSwapProviderFinishViewModel)
             }
 
             if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
