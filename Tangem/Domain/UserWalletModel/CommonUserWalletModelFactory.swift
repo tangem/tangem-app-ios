@@ -10,22 +10,135 @@ import Foundation
 import TangemNFT
 
 struct CommonUserWalletModelFactory {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
-        let cardInfo = userWallet.cardInfo()
-        return makeModel(cardInfo: cardInfo, associatedCardIds: userWallet.associatedCardIds)
+        let walletInfo = userWallet.info
+
+        switch walletInfo.type {
+        case .card(let cardInfo):
+            return makeCommonUserWalletModel(
+                cardInfo: cardInfo,
+                name: userWallet.name,
+                associatedCardIds: userWallet.associatedCardIds
+            )
+        case .hot(let hotWalletInfo):
+            return makeHotUserWalletModel(hotWalletInfo: hotWalletInfo, name: userWallet.name)
+        }
     }
 
-    func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> UserWalletModel? {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+    func makeCommonUserWalletModel(
+        cardInfo: CardInfo,
+        name: String? = nil,
+        associatedCardIds: Set<String> = []
+    ) -> UserWalletModel? {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
-        guard let userWalletIdSeed = config.userWalletIdSeed,
+        guard let dependencies = CommonUserWalletModelDependencies(
+            config: config,
+            keysRepository: { CommonKeysRepository(with: cardInfo.card.wallets.map(\.walletPublicInfo)) },
+            userWalletIdSeed: config.userWalletIdSeed,
+        ) else {
+            return nil
+        }
+
+        let model = CommonUserWalletModel(
+            cardInfo: cardInfo,
+            name: name ?? fallbackName(config: config),
+            config: config,
+            userWalletId: dependencies.userWalletId,
+            associatedCardIds: associatedCardIds,
+            walletManagersRepository: dependencies.walletManagersRepository,
+            walletModelsManager: dependencies.walletModelsManager,
+            userTokensManager: dependencies.userTokensManager,
+            userTokenListManager: dependencies.userTokenListManager,
+            nftManager: dependencies.nftManager,
+            keysRepository: dependencies.keysRepository,
+            derivationManager: dependencies.derivationManager,
+            totalBalanceProvider: dependencies.totalBalanceProvider,
+            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
+        )
+
+        dependencies.update(from: model)
+
+        switch cardInfo.walletData {
+        case .visa:
+            return VisaUserWalletModel(
+                userWalletModel: model,
+                cardInfo:
+                cardInfo
+            )
+        default:
+            return model
+        }
+    }
+
+    func makeHotUserWalletModel(hotWalletInfo: HotWalletInfo, name: String? = nil) -> UserWalletModel? {
+        let config = UserWalletConfigFactory().makeConfig(hotWalletInfo: hotWalletInfo)
+
+        guard let dependencies = CommonUserWalletModelDependencies(
+            config: config,
+            keysRepository: { CommonKeysRepository(with: hotWalletInfo.wallets.map(\.walletPublicInfo)) },
+            userWalletIdSeed: config.userWalletIdSeed,
+        ) else {
+            return nil
+        }
+
+        let hotModel = HotUserWalletModel(
+            hotWalletInfo: hotWalletInfo,
+            name: name ?? fallbackName(config: config),
+            config: config,
+            userWalletId: dependencies.userWalletId,
+            associatedCardIds: [],
+            walletManagersRepository: dependencies.walletManagersRepository,
+            walletModelsManager: dependencies.walletModelsManager,
+            userTokensManager: dependencies.userTokensManager,
+            userTokenListManager: dependencies.userTokenListManager,
+            nftManager: dependencies.nftManager,
+            keysRepository: dependencies.keysRepository,
+            derivationManager: dependencies.derivationManager,
+            totalBalanceProvider: dependencies.totalBalanceProvider,
+            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
+        )
+
+        dependencies.update(from: hotModel)
+
+        return hotModel
+    }
+
+    private func fallbackName(config: UserWalletConfig) -> String {
+        UserWalletNameIndexationHelper.suggestedName(
+            config.defaultName,
+            names: userWalletRepository.models.map(\.name)
+        )
+    }
+}
+
+private struct CommonUserWalletModelDependencies {
+    let userWalletId: UserWalletId
+    let keysRepository: KeysRepository
+    let userTokenListManager: UserTokenListManager
+    let walletManagersRepository: WalletManagersRepository
+
+    let walletModelsManager: WalletModelsManager
+    let derivationManager: CommonDerivationManager?
+    let totalBalanceProvider: TotalBalanceProvider
+    let userTokensManager: CommonUserTokensManager
+    let nftManager: NFTManager
+    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+
+    init?(
+        config: UserWalletConfig,
+        keysRepository: () -> KeysRepository,
+        userWalletIdSeed: Data?
+    ) {
+        guard let userWalletIdSeed,
               let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
         }
 
-        let userWalletId = UserWalletId(with: userWalletIdSeed)
-
-        let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
+        userWalletId = UserWalletId(with: userWalletIdSeed)
+        self.keysRepository = keysRepository()
 
         let userTokenListManager = CommonUserTokenListManager(
             userWalletId: userWalletId.value,
@@ -35,37 +148,33 @@ struct CommonUserWalletModelFactory {
             defaultBlockchains: config.defaultBlockchains
         )
 
-        let walletManagersRepository = CommonWalletManagersRepository(
-            keysProvider: keysRepository,
+        self.userTokenListManager = userTokenListManager
+
+        walletManagersRepository = CommonWalletManagersRepository(
+            keysProvider: self.keysRepository,
             userTokenListManager: userTokenListManager,
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsManager = CommonWalletModelsManager(
+        walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
         )
 
-        let derivationManager: CommonDerivationManager? = {
-            guard config.hasFeature(.hdWallets) else {
-                return nil
-            }
-
-            let commonDerivationManager = CommonDerivationManager(
-                keysRepository: keysRepository,
+        derivationManager = config.hasFeature(.hdWallets)
+            ? CommonDerivationManager(
+                keysRepository: self.keysRepository,
                 userTokenListManager: userTokenListManager
             )
+            : nil
 
-            return commonDerivationManager
-        }()
-
-        let totalBalanceProvider = TotalBalanceProvider(
+        totalBalanceProvider = TotalBalanceProvider(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             derivationManager: derivationManager
         )
 
-        let userTokensManager = CommonUserTokensManager(
+        userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
             shouldLoadExpressAvailability: config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange),
             userTokenListManager: userTokenListManager,
@@ -76,7 +185,7 @@ struct CommonUserWalletModelFactory {
             longHashesSupported: config.hasFeature(.longHashes)
         )
 
-        let nftManager = CommonNFTManager(
+        nftManager = CommonNFTManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
             analytics: NFTAnalytics.Error(
@@ -93,33 +202,13 @@ struct CommonUserWalletModelFactory {
             userTokenListManager: userTokenListManager
         )
 
-        let model = CommonUserWalletModel(
-            cardInfo: cardInfo,
-            config: config,
-            userWalletId: userWalletId,
-            associatedCardIds: associatedCardIds,
-            walletManagersRepository: walletManagersRepository,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            userTokenListManager: userTokenListManager,
-            nftManager: nftManager,
-            keysRepository: keysRepository,
-            derivationManager: derivationManager,
-            totalBalanceProvider: totalBalanceProvider,
-            userTokensPushNotificationsManager: userTokensPushNotificationsManager
-        )
+        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
 
+        userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
+    }
+
+    func update(from model: UserWalletModel & DerivationManagerDelegate) {
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
-
-        // Set walletModelsManager as the source of addresses for the token list manager & pushNotifyStatus
-        userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
-
-        switch cardInfo.walletData {
-        case .visa:
-            return VisaUserWalletModel(userWalletModel: model, cardInfo: cardInfo)
-        default:
-            return model
-        }
     }
 }
