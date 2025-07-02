@@ -17,7 +17,6 @@ class PolkadotNetworkService: MultiNetworkProvider {
     let providers: [PolkadotJsonRpcProvider]
 
     private let network: PolkadotNetwork
-    private let codec = SCALE.default
 
     init(providers: [PolkadotJsonRpcProvider], network: PolkadotNetwork) {
         self.providers = providers
@@ -35,10 +34,9 @@ class PolkadotNetworkService: MultiNetworkProvider {
                 .flatMap { key -> AnyPublisher<String?, Error> in
                     provider.storage(key: key.hex().addHexPrefix())
                 }
-                .withWeakCaptureOf(self)
-                .tryMap { service, storage in
+                .tryMap { storage in
                     if let storage {
-                        let info = try service.codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+                        let info = try decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
                         return info.data.free
                     }
 
@@ -95,9 +93,8 @@ class PolkadotNetworkService: MultiNetworkProvider {
             let payload = extrinsic + extrinsic.count.bytes4LE
             return provider
                 .queryInfo(payload.hex().addHexPrefix())
-                .withWeakCaptureOf(self)
-                .tryMap { networkService, output in
-                    try networkService.codec.decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
+                .tryMap { output in
+                    try decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
                 }
                 .eraseToAnyPublisher()
         }
