@@ -17,44 +17,12 @@ public protocol TransactionCreator: TransactionValidator {
         changeAddress: String?,
         contractAddress: String?,
         params: TransactionParams?
-    ) throws -> Transaction
-
-    func createTransaction(
-        amount: Amount,
-        fee: Fee,
-        sourceAddress: String?,
-        destinationAddress: String,
-        changeAddress: String?,
-        contractAddress: String?,
-        params: TransactionParams?
     ) async throws -> Transaction
 }
 
 // MARK: - Default
 
 public extension TransactionCreator {
-    func createTransaction(
-        amount: Amount,
-        fee: Fee,
-        sourceAddress: String? = nil,
-        destinationAddress: String,
-        changeAddress: String? = nil,
-        contractAddress: String? = nil,
-        params: TransactionParams? = nil
-    ) throws -> Transaction {
-        try validate(amount: amount, fee: fee)
-
-        return Transaction(
-            amount: amount,
-            fee: fee,
-            sourceAddress: sourceAddress ?? defaultSourceAddress,
-            destinationAddress: destinationAddress,
-            changeAddress: changeAddress ?? defaultChangeAddress,
-            contractAddress: contractAddress ?? amount.type.token?.contractAddress,
-            params: params
-        )
-    }
-
     func createTransaction(
         amount: Amount,
         fee: Fee,

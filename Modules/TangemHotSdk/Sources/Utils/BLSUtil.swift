@@ -8,13 +8,12 @@
 
 import Foundation
 import TangemSdk
-import WalletCore
 
 enum BLSUtil {
     static func publicKey(
         entropy: Data,
         passphrase: String? = nil,
-    ) throws -> Data {
+    ) throws -> ExtendedPublicKey {
         let factory = try AnyMasterKeyFactory(
             mnemonic: Mnemonic(entropyData: entropy),
             passphrase: passphrase ?? ""
@@ -22,7 +21,6 @@ enum BLSUtil {
         return try factory
             .makeMasterKey(for: .bls12381_G2_AUG)
             .makePublicKey(for: .bls12381_G2_AUG)
-            .publicKey
     }
 
     static func sign(hashes: [Data], entropy: Data, passphrase: String? = nil) throws -> [Data] {
