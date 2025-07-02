@@ -60,12 +60,16 @@ struct TokenWithAmountView: View {
             Text(amount)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
         case .select(.some(let amount), let action):
-            HStack(spacing: 8) {
-                Text(amount)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+            Button(action: action) {
+                HStack(spacing: 4) {
+                    Text(amount)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                Button(action: action) {
                     Assets.Glyphs.selectIcon.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .foregroundStyle(Colors.Text.tertiary)
+                        .frame(width: 18, height: 24)
                 }
             }
         case .select(.none, let action):

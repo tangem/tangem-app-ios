@@ -40,7 +40,7 @@ struct StakingFlowBaseBuilder {
         let amount = sendAmountStepBuilder.makeSendAmountStep(
             io: (input: stakingModel, output: stakingModel),
             actionType: .stake,
-            sendFeeLoader: stakingModel,
+            sendFeeProvider: stakingModel,
             sendQRCodeService: .none,
             sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
             amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
@@ -51,7 +51,7 @@ struct StakingFlowBaseBuilder {
             io: (input: stakingModel, output: stakingModel),
             manager: manager,
             actionType: .stake,
-            sendFeeLoader: stakingModel
+            sendFeeProvider: stakingModel
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
