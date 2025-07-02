@@ -11,7 +11,8 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct OnrampProviderRowView: View {
+struct OnrampProviderRowView: SelectableSectionRow {
+    var isSelected: Bool
     let data: OnrampProviderRowViewData
 
     private var hasInfoBelowProviderName: Bool {
@@ -46,7 +47,7 @@ struct OnrampProviderRowView: View {
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
         .overlay {
-            if data.isSelected { SelectionOverlay() }
+            if isSelected { SelectionOverlay() }
         }
         .contentShape(Rectangle())
     }
@@ -127,7 +128,7 @@ struct OnrampProviderRowView: View {
             EmptyView()
         case .percent(let text, let signType):
             Text(text)
-                .style(Fonts.Regular.subheadline, color: signType.textColor)
+                .style(Fonts.Regular.caption1, color: signType.textColor)
         case .bestRate:
             Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
@@ -165,7 +166,6 @@ struct OnrampProviderRowView: View {
                 formattedAmount: "0,00453 BTC",
                 state: .available,
                 badge: .bestRate,
-                isSelected: true,
                 action: {}
             ),
             OnrampProviderRowViewData(
@@ -175,11 +175,10 @@ struct OnrampProviderRowView: View {
                 formattedAmount: "0,00450 BTC",
                 state: .availableFromAmount(minAmount: "15 USD"),
                 badge: .percent("-0.03%", signType: .negative),
-                isSelected: false,
                 action: {}
             ),
         ]) {
-            OnrampProviderRowView(data: $0)
+            OnrampProviderRowView(isSelected: $0.name == "1Inch", data: $0)
         }
     }
     .padding()
