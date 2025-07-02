@@ -12,8 +12,6 @@ import Combine
 
 class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactViewModel?
-    @Published private(set) var sendAmountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle?
-    @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -50,7 +48,6 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     weak var router: SendSummaryStepsRoutable?
 
-    private var receiveTokenSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -58,7 +55,6 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         interactor: SendSummaryInteractor,
         notificationManager: NotificationManager,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
-        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -71,10 +67,11 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
-        self.sendReceiveTokenCompactViewModel = sendReceiveTokenCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
+
+        sendAmountCompactViewModel?.router = self
 
         bind()
     }
@@ -90,6 +87,20 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditDestination()
     }
 
+    func userDidTapValidator() {
+        didTapSummary()
+        router?.summaryStepRequestEditValidators()
+    }
+
+    func userDidTapFee() {
+        didTapSummary()
+        router?.summaryStepRequestEditFee()
+    }
+}
+
+// MARK: - SendNewAmountCompactRoutable
+
+extension SendNewSummaryViewModel: SendNewAmountCompactRoutable {
     func userDidTapAmount() {
         didTapSummary()
         router?.summaryStepRequestEditAmount()
@@ -97,19 +108,12 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapReceiveTokenAmount() {
         didTapSummary()
-        // [REDACTED_TODO_COMMENT]
-        // router?.summaryStepRequestEditAmount()
+        router?.summaryStepRequestEditAmount()
     }
 
-    func userDidTapValidator() {
-        // [REDACTED_TODO_COMMENT]
-        // didTapSummary()
-        // router?.summaryStepRequestEditValidators()
-    }
-
-    func userDidTapFee() {
+    func userDidTapSwapProvider() {
         didTapSummary()
-        router?.summaryStepRequestEditFee()
+        router?.summaryStepRequestEditProviders()
     }
 }
 
@@ -142,22 +146,6 @@ private extension SendNewSummaryViewModel {
                 viewModel.notificationInputs = notificationInputs
             }
             .store(in: &bag)
-    }
-}
-
-// MARK: - Receive token
-
-extension SendNewSummaryViewModel {
-    private func bind(input: SendReceiveTokenInput) {
-        receiveTokenSubscription = input.receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .receiveOnMain()
-            .sink { viewModel, receiveToken in
-                viewModel.sendReceiveTokenCompactViewModel = receiveToken.map { .init(receiveToken: $0) }
-                viewModel.sendReceiveTokenCompactViewModel?.bind(amountPublisher: input.receiveAmountPublisher)
-                // [REDACTED_TODO_COMMENT]
-                viewModel.sendAmountsSeparator = receiveToken == nil ? nil : .title("Send via Swap")
-            }
     }
 }
 
