@@ -8,14 +8,23 @@
 
 import Foundation
 import ReownWalletKit
+import BlockchainSdk
 
 struct WCHandleTransactionData {
     let method: WalletConnectMethod
     let userWalletModel: UserWalletModel
+    let blockchain: BlockchainSdk.Blockchain
+    let rawTransaction: String?
     let requestData: Data
-    let dappInfo: WalletConnectSavedSession.DAppInfo
+    let dAppData: WalletConnectDAppData
     let accept: () async throws -> Void
     let reject: () async throws -> Void
+
+    weak var updatableHandler: WCTransactionUpdatable?
+
+    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
+        updatableHandler?.updateTransaction(updatedTransaction)
+    }
 }
 
 extension WCHandleTransactionData {
@@ -26,9 +35,12 @@ extension WCHandleTransactionData {
     ) {
         userWalletModel = validatedRequest.userWalletModel
         method = dto.method
+        rawTransaction = dto.rawTransaction
+        blockchain = dto.blockchain
         requestData = dto.requestData
 
-        dappInfo = validatedRequest.session.sessionInfo.dAppInfo
+        dAppData = validatedRequest.dAppData
+        updatableHandler = dto.updatableHandler
 
         accept = {
             let result = try await dto.accept()
