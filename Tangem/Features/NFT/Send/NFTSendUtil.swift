@@ -37,7 +37,7 @@ struct NFTSendUtil {
             tokenBalanceProvider: tokenBalanceProvider,
             transactionSendAvailabilityProvider: sendAvailabilityProvider
         )
-        walletModelProxy.prepare()
+
         let parameters = SendParameters(nonFungibleTokenParameters: (asset, collection))
 
         return SendCoordinator.Options(
