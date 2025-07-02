@@ -15,6 +15,7 @@ struct NewSendFlowBaseBuilder {
     let sendAmountStepBuilder: SendNewAmountStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendNewFeeStepBuilder
+    let swapProvidersBuilder: SendSwapProvidersBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
@@ -24,25 +25,39 @@ struct NewSendFlowBaseBuilder {
 
         let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendModel()
+        let sendModel = builder.makeSendWithSwapModel()
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
-
-        let fee = sendFeeStepBuilder.makeSendFee(
-            io: (input: sendModel, output: sendModel),
-        )
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
+        let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
-            io: (input: sendModel, output: sendModel),
+            sourceIO: (input: sendModel, output: sendModel),
+            sourceAmountIO: (input: sendModel, output: sendModel),
+            receiveIO: (input: sendModel, output: sendModel),
+            receiveAmountIO: (input: sendModel, output: sendModel),
+            swapProvidersInput: sendModel,
             actionType: .send,
-            sendAmountValidator: builder.makeSendAmountValidator(),
+            sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
             flowKind: flowKind
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
+            receiveTokenInput: sendModel,
             sendQRCodeService: sendQRCodeService,
             router: router
+        )
+
+        let fee = sendFeeStepBuilder.makeSendFee(
+            io: (input: sendModel, output: sendModel),
+            feeProvider: sendFeeProvider,
+            customFeeService: customFeeService
+        )
+
+        let providers = swapProvidersBuilder.makeSwapProviders(
+            io: (input: sendModel, output: sendModel),
+            receiveTokenInput: sendModel
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
@@ -50,12 +65,11 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            feeLoader: fee.interactor,
+            sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
             amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
-            sendReceiveTokenCompactViewModel: nil,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -63,17 +77,17 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendAmountCompactViewModel: amount.compact,
-            sendReceiveTokenCompactViewModel: nil,
+            sendAmountCompactViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
+            sendSwapProviderFinishViewModel: providers.finish,
             sendFeeCompactViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
-        sendModel.sendAmountInteractor = amount.interactor
-        sendModel.sendFeeInteractor = fee.interactor
+        sendModel.externalAmountUpdater = amount.amountUpdater
+        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            sendFeeInteractor: fee.interactor
+            input: sendModel, output: sendModel, provider: sendFeeProvider
         )
 
         notificationManager.setup(input: sendModel)
@@ -86,13 +100,24 @@ struct NewSendFlowBaseBuilder {
         let stepsManager = CommonNewSendStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
-            feeSelector: fee.feeSelector
+            feeSelector: fee.feeSelector,
+            providersSelector: providers.providersSelector
         )
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
+
+        let sendReceiveTokensListBuilder = builder.makeSendReceiveTokensListBuilder(
+            sendSourceTokenInput: sendModel,
+            receiveTokenOutput: sendModel
+        )
+
+        let dataBuilder = builder.makeSendBaseDataBuilder(
+            input: sendModel,
+            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
+        )
 
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)
 
@@ -101,7 +126,7 @@ struct NewSendFlowBaseBuilder {
             stepsManager: stepsManager,
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
+            dataBuilder: dataBuilder,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
@@ -114,6 +139,7 @@ struct NewSendFlowBaseBuilder {
         // [REDACTED_TODO_COMMENT]
         // fee.step.set(alertPresenter: viewModel)
         sendModel.router = viewModel
+        amount.step.set(router: viewModel)
 
         return viewModel
     }

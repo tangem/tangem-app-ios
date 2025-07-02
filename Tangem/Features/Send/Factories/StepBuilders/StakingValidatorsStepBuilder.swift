@@ -22,7 +22,7 @@ struct StakingValidatorsStepBuilder {
         manager: some StakingManager,
         currentValidator: ValidatorInfo? = nil,
         actionType: SendFlowActionType,
-        sendFeeLoader: SendFeeLoader
+        sendFeeProvider: SendFeeProvider
     ) -> ReturnValue {
         let interactor = makeStakingValidatorsInteractor(
             io: io,
@@ -35,7 +35,7 @@ struct StakingValidatorsStepBuilder {
         var step: StakingValidatorsStep?
 
         if let validatorInfos = manager.state.yieldInfo?.preferredValidators, validatorInfos.count > 1 {
-            step = StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeLoader: sendFeeLoader)
+            step = StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeProvider: sendFeeProvider)
         }
 
         let compact = makeStakingValidatorsCompactViewModel(io: io)
@@ -48,7 +48,7 @@ struct StakingValidatorsStepBuilder {
         manager: some StakingManager,
         currentValidator: ValidatorInfo? = nil,
         actionType: SendFlowActionType,
-        sendFeeLoader: SendFeeLoader
+        sendFeeProvider: SendFeeProvider
     ) -> StakingValidatorsStep {
         let interactor = makeStakingValidatorsInteractor(
             io: io,
@@ -57,7 +57,7 @@ struct StakingValidatorsStepBuilder {
             actionType: actionType
         )
         let viewModel = makeStakingValidatorsViewModel(interactor: interactor)
-        return StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeLoader: sendFeeLoader)
+        return StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeProvider: sendFeeProvider)
     }
 
     func makeStakingValidatorsCompactViewModel(io: IO) -> StakingValidatorsCompactViewModel {

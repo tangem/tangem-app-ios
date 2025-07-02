@@ -7,10 +7,12 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemUI
 
 struct WalletConnectCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WalletConnectCoordinator
+    @Injected(\.walletConnectKingfisherImageCache) private var kingfisherImageCache: ImageCache
 
     var body: some View {
         if let legacyViewModel = coordinator.legacyViewModel {
@@ -22,11 +24,8 @@ struct WalletConnectCoordinatorView: CoordinatorView {
         }
 
         if let viewModel = coordinator.viewModel {
-            WalletConnectView(viewModel: viewModel)
+            WalletConnectView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
                 .fullScreenCover(item: $coordinator.qrScanCoordinator, content: WalletConnectQRScanCoordinatorView.init)
-                .floatingSheetContent(for: WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
-                    WalletConnectConnectedDAppDetailsView(viewModel: viewModel)
-                }
         }
     }
 }
