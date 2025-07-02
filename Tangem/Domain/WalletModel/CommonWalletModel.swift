@@ -569,10 +569,6 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? EthereumTransactionDataBuilder
     }
 
-    var addressResolver: AddressResolver? {
-        walletManager as? AddressResolver
-    }
-
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
         walletManager as? WithdrawalNotificationProvider
     }
