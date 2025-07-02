@@ -27,7 +27,7 @@ struct SendDestinationView: View {
                     .setClearButtonNamespaceId(namespace.names.addressClearButton)
             } footer: {
                 if viewModel.auxiliaryViewsVisible {
-                    Text(viewModel.addressDescription)
+                    Text(.init(viewModel.addressDescription))
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .transition(transitionService.destinationAuxiliaryViewTransition)
                 }

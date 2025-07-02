@@ -42,6 +42,15 @@ public enum ExpressProviderManagerState {
             return state.quote
         }
     }
+
+    public var isPermissionRequired: Bool {
+        switch self {
+        case .permissionRequired:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 extension ExpressProviderManagerState: CustomStringConvertible {

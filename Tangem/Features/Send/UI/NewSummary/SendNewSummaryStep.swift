@@ -13,18 +13,18 @@ import SwiftUI
 class SendNewSummaryStep {
     private let viewModel: SendNewSummaryViewModel
     private let input: SendSummaryInput
-    private let feeLoader: SendFeeLoader
+    private let sendFeeProvider: SendFeeProvider
     private let _title: String?
 
     init(
         viewModel: SendNewSummaryViewModel,
         input: SendSummaryInput,
-        feeLoader: SendFeeLoader,
+        sendFeeProvider: SendFeeProvider,
         title: String?
     ) {
         self.viewModel = viewModel
         self.input = input
-        self.feeLoader = feeLoader
+        self.sendFeeProvider = sendFeeProvider
         _title = title
     }
 
@@ -50,6 +50,6 @@ extension SendNewSummaryStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
-        feeLoader.updateFees()
+        sendFeeProvider.updateFees()
     }
 }

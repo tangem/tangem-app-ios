@@ -19,7 +19,7 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardSetLabel: String? { get }
 
-    var cardName: String { get }
+    var defaultName: String { get }
 
     /// Actual state of current card's curves or main card's curves in case of biometrics
     var existingCurves: [EllipticCurve] { get }
