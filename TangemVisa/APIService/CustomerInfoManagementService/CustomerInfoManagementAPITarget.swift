@@ -15,19 +15,23 @@ struct CustomerInfoManagementAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL
+        apiType.baseURL.appendingPathComponent("customer/")
     }
 
     var path: String {
         switch target {
         case .getCustomerInfo:
-            return "customer/me"
+            return "me"
+        case .getKYCAccessToken:
+            return "kyc"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .getCustomerInfo: return .get
+        case .getCustomerInfo,
+             .getKYCAccessToken:
+            return .get
         }
     }
 
@@ -38,6 +42,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
                 "cid": cardId,
             ]
             return .requestParameters(parameters: params, encoding: URLEncoding())
+
+        case .getKYCAccessToken:
+            return .requestPlain
         }
     }
 
@@ -54,5 +61,8 @@ extension CustomerInfoManagementAPITarget {
         /// Load all available customer info. Can be used for loading data about payment account address
         /// Will be updated later, not fully implemented on BFF
         case getCustomerInfo(cardId: String)
+
+        /// Retrieves an access token for the SumSub KYC flow
+        case getKYCAccessToken
     }
 }
