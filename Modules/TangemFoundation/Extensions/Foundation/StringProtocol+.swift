@@ -9,6 +9,9 @@
 import Foundation
 
 public extension StringProtocol {
+    /// Just empty `""`
+    static var empty: Self { "" }
+
     /// MINUS SIGN, Unicode U+2212.
     static var minusSign: Self { "−" }
 
