@@ -11,29 +11,11 @@ import TangemSdk
 import CryptoSwift
 
 struct EthereumAddressService {
-    func toChecksumAddress(_ address: String) -> String? {
-        let address = address.lowercased().removeHexPrefix()
-        guard let hashData = address.data(using: .utf8) else {
-            return nil
-        }
+    private let evmAddressService = EVMAddressService()
+    private let ensProcessor: ENSProcessor
 
-        let hash = hashData.sha3(.keccak256).hex().removeHexPrefix()
-
-        var ret = "0x"
-        let hashChars = Array(hash)
-        let addressChars = Array(address)
-        for i in 0 ..< addressChars.count {
-            guard let intValue = Int(String(hashChars[i]), radix: 16) else {
-                return nil
-            }
-
-            if intValue >= 8 {
-                ret.append(addressChars[i].uppercased())
-            } else {
-                ret.append(addressChars[i])
-            }
-        }
-        return ret
+    init(ensProcessor: ENSProcessor) {
+        self.ensProcessor = ensProcessor
     }
 }
 
@@ -42,17 +24,7 @@ struct EthereumAddressService {
 @available(iOS 13.0, *)
 extension EthereumAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        let walletPublicKey = try Secp256k1Key(with: publicKey.blockchainKey).decompress()
-        // Skip secp256k1 prefix
-        let keccak = walletPublicKey[1...].sha3(.keccak256)
-        let addressBytes = keccak[12...]
-        let address = addressBytes.hex().addHexPrefix()
-
-        guard let checksumAddress = toChecksumAddress(address) else {
-            throw EthereumAddressServiceError.failedToGetChecksumAddress
-        }
-
-        return PlainAddress(value: checksumAddress, publicKey: publicKey, type: addressType)
+        try evmAddressService.makeAddress(for: publicKey, with: addressType)
     }
 }
 
@@ -60,24 +32,17 @@ extension EthereumAddressService: AddressProvider {
 
 @available(iOS 13.0, *)
 extension EthereumAddressService: AddressValidator {
+    /// Checks if the given address string is a valid Ethereum address or a valid ENS name.
+    ///
+    /// - Parameter address: The address string to validate. Can be a hex address (with 0x prefix) or an ENS name.
+    /// - Returns: `true` if the address is a valid hex address (with or without checksum), or a valid ENS name; otherwise, `false`.
     func validate(_ address: String) -> Bool {
-        guard !address.isEmpty, address.hasHexPrefixStrictCheck(), address.count == 42 else {
-            return false
-        }
-
-        if let checksummed = toChecksumAddress(address), checksummed == address {
+        if evmAddressService.validate(address) {
             return true
         } else {
-            let cleanHex = address.removeHexPrefix()
-            if cleanHex.lowercased() != cleanHex, cleanHex.uppercased() != cleanHex {
-                return false
-            }
+            // Fallback valid ENS value address from AddressResolver protocol
+            let encodeData = try? ensProcessor.encode(name: address)
+            return !(encodeData?.isEmpty ?? true)
         }
-
-        return true
     }
-}
-
-enum EthereumAddressServiceError: Error {
-    case failedToGetChecksumAddress
 }

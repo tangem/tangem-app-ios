@@ -14,17 +14,17 @@ struct SendNewFinishStepBuilder {
     func makeSendFinishStep(
         input: SendFinishInput,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
-        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
-        sendReceiveTokenCompactViewModel: SendNewAmountCompactViewModel?,
+        sendAmountCompactViewModel: SendTokenAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
+        sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
     ) -> ReturnValue {
         let viewModel = SendNewFinishViewModel(
             input: input,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendReceiveTokenCompactViewModel: sendReceiveTokenCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            sendSwapProviderFinishViewModel: sendSwapProviderFinishViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
