@@ -8,53 +8,52 @@
 
 import Combine
 import Dispatch
+import enum TangemAssets.Assets
 import TangemLocalization
 import TangemLogger
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
-    private let walletConnectService: any WCService
-    private let userWalletRepository: any UserWalletRepository
     private let establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
+    private let getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase
+    private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
 
     private weak var coordinator: (any WalletConnectRoutable)?
 
     private let logger: Logger
 
-    private var newSessionsTask: Task<Void, Never>?
+    private var connectedDAppsTask: Task<Void, Never>?
     private var disconnectAllDAppsTask: Task<Void, Never>?
-    private var cancellables: Set<AnyCancellable>
 
     @Published private(set) var state: WalletConnectViewState
 
     init(
         state: WalletConnectViewState = .initial,
-        walletConnectService: some WCService,
-        userWalletRepository: some UserWalletRepository,
         establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase,
+        getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase,
+        disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
         coordinator: some WalletConnectRoutable
     ) {
         self.state = state
-        self.walletConnectService = walletConnectService
-        self.userWalletRepository = userWalletRepository
         self.establishDAppConnectionUseCase = establishDAppConnectionUseCase
+        self.getConnectedDAppsUseCase = getConnectedDAppsUseCase
+        self.disconnectDAppUseCase = disconnectDAppUseCase
         self.coordinator = coordinator
 
         logger = WCLogger
-        cancellables = []
 
-        bindToWalletConnectService()
+        bindConnectedDApps()
     }
 
     deinit {
-        newSessionsTask?.cancel()
+        connectedDAppsTask?.cancel()
         disconnectAllDAppsTask?.cancel()
     }
 
-    private func bindToWalletConnectService() {
-        newSessionsTask = Task { [weak self, walletConnectService] in
-            for await sessions in await walletConnectService.newSessions {
-                self?.handle(viewEvent: .connectedDAppsChanged(sessions))
+    private func bindConnectedDApps() {
+        connectedDAppsTask = Task { [weak self, getConnectedDAppsUseCase] in
+            for await connectedDApps in await getConnectedDAppsUseCase() {
+                self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
             }
         }
     }
@@ -69,7 +68,7 @@ final class WalletConnectViewModel: ObservableObject {
             await withTaskGroup(of: Void.self) { group in
                 for dApp in allConnectedDApps {
                     group.addTask {
-                        await self?.walletConnectService.disconnectSession(with: dApp.id)
+                        try? await self?.disconnectDAppUseCase(dApp.domainModel)
                     }
                 }
             }
@@ -170,28 +169,24 @@ extension WalletConnectViewModel {
         state.dialog = .alert(.disconnectAllDApps(action: disconnectAllDAppsAction))
     }
 
-    private func handleDAppButtonTapped(_ dApp: WalletConnectSavedSession) {
+    private func handleDAppButtonTapped(_ dApp: WalletConnectConnectedDApp) {
         coordinator?.openConnectedDAppDetails(dApp)
     }
 
-    private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectSavedSession]) {
+    private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
         guard !connectedDApps.isEmpty else {
             state.contentState = .empty(.init())
             return
         }
 
-        let userWalletIdToConnectedDApps = connectedDApps.grouped(by: \.userWalletId)
+        let userWalletToConnectedDApps = connectedDApps.grouped(by: \.userWallet)
 
-        let walletsWithDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = userWalletIdToConnectedDApps
-            .compactMap { userWalletId, dApps in
-                guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletId }) else {
-                    return nil
-                }
-
+        let walletsWithDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = userWalletToConnectedDApps
+            .compactMap { userWallet, dApps in
                 return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
-                    walletId: userWalletId,
+                    walletId: userWallet.id,
                     walletName: userWallet.name,
-                    dApps: dApps
+                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
                 )
             }
 

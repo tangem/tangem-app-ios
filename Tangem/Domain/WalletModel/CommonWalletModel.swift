@@ -314,7 +314,7 @@ extension CommonWalletModel: WalletModel {
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         // Update context menu for hedera after address creation
-        if wallet.address.isEmpty {
+        if wallet.address.isEmpty, case .hasOnlyCachedBalance = sendingRestrictions {
             return Publishers.Merge3(
                 expressAvailabilityProvider.availabilityDidChangePublisher,
                 stakingManagerStatePublisher.mapToVoid(),
@@ -525,6 +525,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+        wallet.feeCurrencyBalance(amountType: amountType)
+    }
+
     func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
         wallet.hasFeeCurrency(amountType: amountType)
     }
@@ -563,10 +567,6 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         walletManager as? EthereumTransactionDataBuilder
-    }
-
-    var addressResolver: AddressResolver? {
-        walletManager as? AddressResolver
     }
 
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
@@ -740,14 +740,6 @@ extension CommonWalletModel: TransactionHistoryFetcher {
 
     func clearHistory() {
         _transactionHistoryService?.clearHistory()
-    }
-}
-
-// MARK: - Express
-
-extension CommonWalletModel: ExpressWallet {
-    func getFeeCurrencyBalance() -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
     }
 }
 
