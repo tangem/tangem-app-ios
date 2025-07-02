@@ -27,7 +27,7 @@ class CommonCardInitializer {
 
 extension CommonCardInitializer: CardInitializer {
     func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         let task = PreparePrimaryCardTask(curves: config.createWalletCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
 
         let isRing = RingUtil().isRing(batchId: cardInfo.card.batchId)

@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 /// Will be supported in BTC-like / Fact0rn / Radiant and etc.
 protocol TransactionRecordMapper {
     associatedtype Transaction
