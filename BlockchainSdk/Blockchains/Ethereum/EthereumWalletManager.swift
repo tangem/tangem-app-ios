@@ -427,6 +427,8 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
     }
 }
 
+// MARK: - StakeKitTransactionDataBroadcaster
+
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
