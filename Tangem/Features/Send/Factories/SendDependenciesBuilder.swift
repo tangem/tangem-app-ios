@@ -288,7 +288,7 @@ struct SendDependenciesBuilder {
                 suggestedWallets: makeSuggestedWallets(),
                 transactionHistoryUpdater: walletModel,
                 transactionHistoryMapper: makeTransactionHistoryMapper(),
-                addressResolver: walletModel.addressResolver
+                addressResolver: makeAddressResolver()
             )
         )
     }
@@ -317,6 +317,12 @@ struct SendDependenciesBuilder {
             walletAddresses: walletModel.addresses.map { $0.value },
             showSign: false
         )
+    }
+
+    func makeAddressResolver() -> AddressResolver? {
+        let addressResolverFactory = AddressResolverFactoryProvider().factory
+        let addressResolver = addressResolverFactory.makeAddressResolver(for: walletModel.tokenItem.blockchain)
+        return addressResolver
     }
 
     func makeSuggestedWallets() -> [SendSuggestedDestinationWallet] {
