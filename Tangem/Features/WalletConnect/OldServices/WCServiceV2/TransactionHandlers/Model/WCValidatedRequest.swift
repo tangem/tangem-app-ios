@@ -10,7 +10,7 @@ import ReownWalletKit
 
 struct WCValidatedRequest {
     let request: Request
-    let session: WalletConnectSavedSession
+    let dAppData: WalletConnectDAppData
     let targetBlockchain: WCUtils.BlockchainMeta
     let userWalletModel: UserWalletModel
 }
