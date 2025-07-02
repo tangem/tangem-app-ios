@@ -31,6 +31,7 @@ struct SendNewAmountStepBuilder {
         actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
+        notificationService: SendAmountNotificationService?,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) -> ReturnValue {
         let interactor = CommonSendNewAmountInteractor(
@@ -42,6 +43,7 @@ struct SendNewAmountStepBuilder {
             receiveTokenAmountInput: receiveAmountIO.input,
             validator: sendAmountValidator,
             amountModifier: amountModifier,
+            notificationService: notificationService,
             type: .crypto
         )
 
