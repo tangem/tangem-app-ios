@@ -26,7 +26,8 @@ struct SendDecimalNumberTextField: View {
 
     // Setupable
     private var initialFocusBehavior: InitialFocusBehavior = .noFocus
-    private var toolbarType: ToolbarType?
+    private var leadingToolbarType: LeadingToolbarType?
+    private var trailingToolbarType: TrailingToolbarType? = .hideKeyboard
     private var appearance: DecimalNumberTextField.Appearance = .init()
     private var alignment: Alignment = .leading
     private var onFocusChanged: ((Bool) -> Void)?
@@ -56,6 +57,10 @@ struct SendDecimalNumberTextField: View {
         case .some:
             return appearance.textColor
         }
+    }
+
+    private var showToolbar: Bool {
+        leadingToolbarType != nil || trailingToolbarType != nil
     }
 
     init(viewModel: DecimalNumberTextField.ViewModel) {
@@ -137,23 +142,14 @@ struct SendDecimalNumberTextField: View {
             .appearance(appearance)
             .placeholder(Constants.placeholder)
             .focused($isInputActive)
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    leadingToolbarView
+            .if(showToolbar) {
+                $0.toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        leadingToolbarView
 
-                    Spacer()
+                        Spacer()
 
-                    Button {
-                        isInputActive = false
-                        // HACK
-                        // Sometimes this toolbar can be showed on the sheet page
-                        // Which was presented by view which uses this `TextField`
-                        // Then we call `endEditing` to be sure that the keyboard will be closed
-                        UIApplication.shared.endEditing()
-                    } label: {
-                        Assets.hideKeyboard.image
-                            .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
+                        trailingToolbarView
                     }
                 }
             }
@@ -172,13 +168,34 @@ struct SendDecimalNumberTextField: View {
 
     @ViewBuilder
     private var leadingToolbarView: some View {
-        switch toolbarType {
+        switch leadingToolbarType {
         case .none:
             EmptyView()
         case .maxAmount(let action):
             Button(action: action) {
                 Text(Localization.sendMaxAmountLabel)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var trailingToolbarView: some View {
+        switch trailingToolbarType {
+        case .none:
+            EmptyView()
+        case .hideKeyboard:
+            Button {
+                isInputActive = false
+                // HACK
+                // Sometimes this toolbar can be showed on the sheet page
+                // Which was presented by view which uses this `TextField`
+                // Then we call `endEditing` to be sure that the keyboard will be closed
+                UIApplication.shared.endEditing()
+            } label: {
+                Assets.hideKeyboard.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.primary1)
             }
         }
     }
@@ -251,8 +268,12 @@ struct SendDecimalNumberTextField: View {
 // MARK: - Setupable
 
 extension SendDecimalNumberTextField: Setupable {
-    func toolbarType(_ toolbarType: ToolbarType?) -> Self {
-        map { $0.toolbarType = toolbarType }
+    func leadingToolbarType(_ toolbarType: LeadingToolbarType?) -> Self {
+        map { $0.leadingToolbarType = toolbarType }
+    }
+
+    func trailingToolbarType(_ toolbarType: TrailingToolbarType?) -> Self {
+        map { $0.trailingToolbarType = toolbarType }
     }
 
     func prefixSuffixOptions(_ prefixSuffixOptions: PrefixSuffixOptions?) -> Self {
@@ -283,8 +304,12 @@ extension SendDecimalNumberTextField: Setupable {
 }
 
 extension SendDecimalNumberTextField {
-    enum ToolbarType {
+    enum LeadingToolbarType {
         case maxAmount(action: () -> Void)
+    }
+
+    enum TrailingToolbarType {
+        case hideKeyboard
     }
 
     enum InitialFocusBehavior {

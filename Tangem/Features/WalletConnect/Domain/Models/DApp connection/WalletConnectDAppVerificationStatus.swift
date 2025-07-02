@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum WalletConnectDAppVerificationStatus {
+enum WalletConnectDAppVerificationStatus: Equatable {
     case verified
     case unknownDomain
     case malicious([AttackType])
@@ -22,7 +22,7 @@ enum WalletConnectDAppVerificationStatus {
 }
 
 extension WalletConnectDAppVerificationStatus {
-    enum AttackType {
+    enum AttackType: Equatable {
         case signatureFarming
         case approvalFarming
         case setApprovalForAll

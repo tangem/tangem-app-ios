@@ -6,9 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUICore
-import struct SwiftUI.Animation
+import Combine
 import TangemUI
 
 @MainActor
@@ -23,8 +21,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     // MARK: Public properties
 
-    let id = UUID().uuidString
-    let dappInfo: WalletConnectSavedSession.DAppInfo
+    let dAppData: WalletConnectDAppData
     let transactionData: WCHandleTransactionData
 
     var userWalletName: String {
@@ -40,13 +37,11 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         }
     }
 
-    private let contentSwitchAnimation: Animation = .timingCurve(0.69, 0.07, 0.27, 0.95, duration: 0.5)
-
     init(
-        dappInfo: WalletConnectSavedSession.DAppInfo,
+        dAppData: WalletConnectDAppData,
         transactionData: WCHandleTransactionData
     ) {
-        self.dappInfo = dappInfo
+        self.dAppData = dAppData
         self.transactionData = transactionData
     }
 
@@ -93,9 +88,7 @@ private extension WCTransactionViewModel {
     }
 
     func returnToTransactionDetails() {
-        withAnimation(contentSwitchAnimation) {
-            presentationState = .transactionDetails
-        }
+        presentationState = .transactionDetails
     }
 
     func showRequestData() {
@@ -104,9 +97,7 @@ private extension WCTransactionViewModel {
             backAction: returnToTransactionDetails
         )
 
-        withAnimation(contentSwitchAnimation) {
-            presentationState = .requestData(input)
-        }
+        presentationState = .requestData(input)
     }
 }
 

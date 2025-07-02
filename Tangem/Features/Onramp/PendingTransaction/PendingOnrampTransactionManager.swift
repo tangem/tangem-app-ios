@@ -86,9 +86,21 @@ class CommonPendingOnrampTransactionsManager {
                 return savedPendingTransactions
             }
             .withPrevious()
-            .sink { [pollingService] previous, current in
+            .withWeakCaptureOf(self)
+            .sink { [pollingService] manager, previousAndCurrentRequests in
+                let previous = previousAndCurrentRequests.previous
+                let current = previousAndCurrentRequests.current
+
                 let shouldForceReload = previous?.count ?? 0 != current.count
                 pollingService.startPolling(requests: current, force: shouldForceReload)
+
+                // If polling requests is empty, it means that
+                // `manager.filterRelatedTokenTransactions(list: txRecords)`
+                // has filtered out records, so we should send an empty array
+                // Otherwise, filtered out transactions will stay on screen
+                if current.isEmpty {
+                    manager.pendingTransactionsSubject.send([])
+                }
             }
             .store(in: &bag)
 

@@ -21,7 +21,6 @@ struct NFTSendAmountStepBuilder {
     func makeSendAmountStep(
         io: IO,
         actionType: SendFlowActionType,
-        sendFeeLoader: any SendFeeLoader,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier

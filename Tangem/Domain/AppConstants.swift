@@ -27,6 +27,7 @@ enum AppConstants {
     static let unbreakableSpace = "\u{00a0}"
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
+    static let approximatelyEqualSign = "≈"
     static let dotSign = "•"
     static let rubCurrencyCode = "RUB"
     static let rubSign = "₽"
