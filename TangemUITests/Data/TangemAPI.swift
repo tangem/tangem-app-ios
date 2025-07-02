@@ -1,5 +1,5 @@
 //
-//  TestData.swift
+//  TangemAPI.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,8 @@
 
 import XCTest
 
-public enum TestData {}
+enum TangemAPI: String {
+    case prod
+    case dev
+    case mock
+}
