@@ -9,11 +9,11 @@
 import Foundation
 
 extension CommonUserWalletModel {
-    static let mock = CommonUserWalletModelFactory().makeModel(
+    static let mock = CommonUserWalletModelFactory().makeCommonUserWalletModel(
         cardInfo: CardMock.wallet.cardInfo
     )
 
-    static let visaMock = CommonUserWalletModelFactory().makeModel(
+    static let visaMock = CommonUserWalletModelFactory().makeCommonUserWalletModel(
         cardInfo: CardMock.visa.cardInfo
     )
 }

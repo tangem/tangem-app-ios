@@ -38,7 +38,7 @@ struct UnstakingFlowBaseBuilder {
         let amount = sendAmountStepBuilder.makeSendAmountStep(
             io: io,
             actionType: actionType,
-            sendFeeLoader: unstakingModel,
+            sendFeeProvider: unstakingModel,
             sendQRCodeService: .none,
             sendAmountValidator: builder.makeUnstakingSendAmountValidator(
                 stakingManager: manager,
