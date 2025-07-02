@@ -49,7 +49,7 @@ final class CommonPushNotificationsService: NSObject {
                 self?.isForegroundPushDisplayEnabled = false
             }
             .store(in: &bag)
-        
+
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in
                 self?.isForegroundPushDisplayEnabled = true
