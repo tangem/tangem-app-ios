@@ -366,8 +366,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tesseract-one/ScaleCodec.swift",
       "state" : {
-        "revision" : "bd39b2d68d87126a61b62a071ee4c065e2a1fe30",
-        "version" : "0.2.1"
+        "revision" : "af241cfa8491ac0312ff89ff0389c09879d41a74",
+        "version" : "0.3.1"
       }
     },
     {
@@ -629,6 +629,15 @@
       "state" : {
         "revision" : "b3ca6e4e571c4adef888b5dbc3676f38895d37ba",
         "version" : "1.0.17-tangem1"
+      }
+    },
+    {
+      "identity" : "tuples.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tesseract-one/Tuples.swift.git",
+      "state" : {
+        "revision" : "4d2cf7c64443cdf4df833d0bedd767bf9dbc49d9",
+        "version" : "0.1.3"
       }
     },
     {
