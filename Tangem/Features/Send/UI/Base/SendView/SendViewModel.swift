@@ -46,6 +46,10 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
+    var shouldShowShareExploreButtons: Bool {
+        !tokenItem.blockchain.isTransactionAsync
+    }
+
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let userWalletModel: UserWalletModel
@@ -60,6 +64,7 @@ final class SendViewModel: ObservableObject {
 
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
+    private var isValidContinueSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
@@ -133,7 +138,7 @@ final class SendViewModel: ObservableObject {
 
     func onAppear(newStep: any SendStep) {
         switch (step.type, newStep.type) {
-        case (_, .summary), (_, .newSummary), (_, .newDestination):
+        case (_, .summary), (_, .newSummary):
             isKeyboardActive = false
         default:
             break
@@ -149,7 +154,7 @@ final class SendViewModel: ObservableObject {
         // if the destination's TextField will be support @FocusState
         // case (_, .destination):
         //    isKeyboardActive = true
-        case (_, .amount), (_, .newAmount):
+        case (_, .amount), (_, .newAmount), (_, .newDestination):
             isKeyboardActive = true
         default:
             break
@@ -388,6 +393,21 @@ extension SendViewModel: SendModelRoutable {
         }
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - SendNewAmountRoutable
+
+extension SendViewModel: SendNewAmountRoutable {
+    func openReceiveTokensList() {
+        do {
+            isKeyboardActive = false
+            let builder = try dataBuilder.sendBuilder()
+            let tokensListBuilder = try builder.makeSendReceiveTokensList()
+            coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
+        } catch {
+            alert = error.alertBinder
+        }
     }
 }
 

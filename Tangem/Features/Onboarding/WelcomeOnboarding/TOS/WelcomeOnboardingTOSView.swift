@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct WelcomeOnboardingTOSView: View {
     @ObservedObject var viewModel: WelcomeOnboardingTOSViewModel
@@ -21,6 +22,7 @@ struct WelcomeOnboardingTOSView: View {
                 title: Localization.commonAccept,
                 action: viewModel.didTapAccept
             )
+            .accessibilityIdentifier(TOSAccessibilityIdentifiers.acceptButton)
             .padding(.top, 14)
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
