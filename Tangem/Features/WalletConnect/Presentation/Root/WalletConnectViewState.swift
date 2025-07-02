@@ -6,7 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import enum TangemAssets.Assets
+import struct Foundation.URL
+import TangemAssets
 import enum TangemLocalization.Localization
 
 // [REDACTED_TODO_COMMENT]
@@ -79,9 +80,36 @@ extension WalletConnectViewState.ContentState {
     struct WalletWithConnectedDApps: Identifiable, Equatable {
         let walletId: String
         let walletName: String
-        let dApps: [WalletConnectSavedSession]
+        let dApps: [ConnectedDApp]
 
         var id: String { walletId }
+    }
+
+    struct ConnectedDApp: Identifiable, Equatable {
+        let domainModel: WalletConnectConnectedDApp
+        let fallbackIconAsset = Assets.Glyphs.explore
+
+        var id: String {
+            domainModel.session.topic
+        }
+
+        var iconURL: URL? {
+            domainModel.dAppData.icon
+        }
+
+        var name: String {
+            domainModel.dAppData.name
+        }
+
+        var domain: String {
+            domainModel.dAppData.domain.host ?? ""
+        }
+
+        var verifiedDomainIconAsset: ImageType? {
+            domainModel.verificationStatus.isVerified
+                ? Assets.Glyphs.verified
+                : nil
+        }
     }
 }
 
