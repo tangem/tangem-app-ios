@@ -106,14 +106,14 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupWelcome() {
-        let dismissAction: Action<ScanDismissOptions> = { [weak self] options in
+        let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
             switch options {
             case .main(let model):
                 openMain(with: model)
             case .onboarding(let input):
-                openOnboarding(with: input)
+                openOnboarding(with: .input(input))
             }
         }
 
@@ -130,7 +130,7 @@ class AppCoordinator: CoordinatorObject {
             case .main(let model):
                 openMain(with: model)
             case .onboarding(let input):
-                openOnboarding(with: input)
+                openOnboarding(with: .input(input))
             }
         }
 
@@ -284,7 +284,7 @@ extension AppCoordinator {
 // Navigation
 
 extension AppCoordinator {
-    func openOnboarding(with input: OnboardingInput) {
+    func openOnboarding(with inputOptions: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):
@@ -295,8 +295,7 @@ extension AppCoordinator {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
-        coordinator.start(with: options)
+        coordinator.start(with: inputOptions)
         setState(.onboarding(coordinator))
     }
 
