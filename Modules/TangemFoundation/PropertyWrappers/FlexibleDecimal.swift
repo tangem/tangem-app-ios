@@ -12,23 +12,30 @@ import Foundation
 /// This allows parsing Decimal from both types
 @propertyWrapper
 public struct FlexibleDecimal: Decodable {
-    public var wrappedValue: Decimal
+    public var wrappedValue: Decimal?
 
+    /// Allow usage like `@FlexibleDecimal var x: Decimal?`
+    public init(wrappedValue: Decimal?) {
+        self.wrappedValue = wrappedValue
+    }
+
+    /// Decode from JSON (number, string, or nil) — never throws on bad shape.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        let value: Decimal?
 
-        if let decimal = try? container.decode(Decimal.self) {
-            wrappedValue = decimal
-        } else if let string = try? container.decode(String.self),
-                  let decimal = Decimal(string: string) {
-            wrappedValue = decimal
+        if container.decodeNil() {
+            value = nil
+        } else if let dec = try? container.decode(Decimal.self) {
+            value = dec
+        } else if let str = try? container.decode(String.self),
+                  let dec = Decimal(string: str) {
+            value = dec
         } else {
-            throw DecodingError.dataCorrupted(
-                .init(
-                    codingPath: [],
-                    debugDescription: "Expected a decimal or a string representing a decimal."
-                )
-            )
+            value = nil
         }
+
+        // MUST call your own init(wrappedValue:) here:
+        self.init(wrappedValue: value)
     }
 }
