@@ -1,0 +1,43 @@
+//
+//  EVMAddressService.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemSdk
+import CryptoSwift
+
+struct EVMAddressService {}
+
+// MARK: - AddressProvider
+
+extension EVMAddressService: AddressProvider {
+    func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
+        let walletPublicKey = try Secp256k1Key(with: publicKey.blockchainKey).decompress()
+        // Skip secp256k1 prefix
+        let keccak = walletPublicKey[1...].sha3(.keccak256)
+        let addressBytes = keccak[12...]
+        let address = addressBytes.hex().addHexPrefix()
+
+        guard let checksumAddress = EthereumAddressUtils.toChecksumAddress(address) else {
+            throw EVMAddressServiceError.failedToGetChecksumAddress
+        }
+
+        return PlainAddress(value: checksumAddress, publicKey: publicKey, type: addressType)
+    }
+}
+
+// MARK: - AddressValidator
+
+extension EVMAddressService: AddressValidator {
+    func validate(_ address: String) -> Bool {
+        EthereumAddressUtils.isValidAddressHex(value: address)
+    }
+}
+
+enum EVMAddressServiceError: Error {
+    case failedToGetChecksumAddress
+}

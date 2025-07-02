@@ -13,4 +13,11 @@ protocol SendSummaryStepsRoutable: AnyObject {
     func summaryStepRequestEditAmount()
     func summaryStepRequestEditFee()
     func summaryStepRequestEditValidators()
+    func summaryStepRequestEditProviders()
+}
+
+extension SendSummaryStepsRoutable {
+    func summaryStepRequestEditProviders() {
+        assertionFailure("This action is not implemented")
+    }
 }
