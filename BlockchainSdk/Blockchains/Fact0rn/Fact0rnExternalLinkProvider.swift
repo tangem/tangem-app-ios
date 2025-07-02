@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 struct Fact0rnExternalLinkProvider: ExternalLinkProvider {
     private let baseExplorerUrl = "https://explorer.fact0rn.io"
 

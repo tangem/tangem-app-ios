@@ -89,32 +89,28 @@ class CommonUserWalletRepository: UserWalletRepository {
                 failedCardScanTracker.resetCounter()
                 sendEvent(.scan(isScanning: false))
 
-                var cardInfo = response.getCardInfo()
+                let cardInfo = response.getCardInfo()
                 updateAssociatedCard(for: cardInfo)
                 resetServices()
                 initializeAnalyticsContext(with: cardInfo)
-                let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                cardInfo.name = UserWalletNameIndexationHelper.suggestedName(
-                    config.cardName,
-                    names: models.map(\.name)
-                )
+                let userWalletModel = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo)
 
-                let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
                 if let userWalletModel {
                     initializeServices(for: userWalletModel)
                 }
 
+                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
                 let factory = OnboardingInputFactory(
-                    cardInfo: cardInfo,
                     userWalletModel: userWalletModel,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config,
                     pushNotificationsInteractor: pushNotificationsInteractor
                 )
 
-                if let onboardingInput = factory.makeOnboardingInput() {
+                if let onboardingInput = factory.makeOnboardingInput(cardInfo: cardInfo) {
                     return .justWithError(output: .onboarding(onboardingInput))
                 } else if let userWalletModel {
                     return .justWithError(output: .success(userWalletModel))
@@ -309,7 +305,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         models.removeAll { $0.userWalletId == userWalletId }
 
         encryptionKeyStorage.delete(userWalletId)
-        try? visaRefreshTokenRepository.deleteToken(cardId: userWallet.card.cardId)
+
+        if case .card(let card) = userWallet.walletInfo {
+            try? visaRefreshTokenRepository.deleteToken(cardId: card.cardId)
+        }
 
         if AppSettings.shared.saveAccessCodes {
             do {
@@ -383,7 +382,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     /// we can initialize it right after scan for more accurate analytics
     func initializeAnalyticsContext(with cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         let userWalletId = UserWalletIdFactory().userWalletId(config: config)
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
@@ -404,8 +403,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func clearVisaRefreshTokenRepository(except userWalletModelToKeep: UserWalletModel? = nil) {
-        if let userWalletModelToKeep, let cardId = userWalletModelToKeep.userWallet?.card.cardId {
-            visaRefreshTokenRepository.clear(cardIdTokenToKeep: cardId)
+        if let userWalletModelToKeep, case .card(let card) = userWalletModelToKeep.userWallet?.walletInfo {
+            visaRefreshTokenRepository.clear(cardIdTokenToKeep: card.cardId)
         } else {
             visaRefreshTokenRepository.clear()
         }

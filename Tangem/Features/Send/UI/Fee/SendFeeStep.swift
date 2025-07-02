@@ -14,7 +14,7 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFeeStep {
     private let viewModel: SendFeeViewModel
-    private let interactor: SendFeeInteractor
+    private let feeProvider: SendFeeProvider
     private let notificationManager: NotificationManager
     private let feeTokenItem: TokenItem
 
@@ -24,12 +24,12 @@ class SendFeeStep {
 
     init(
         viewModel: SendFeeViewModel,
-        interactor: SendFeeInteractor,
+        feeProvider: SendFeeProvider,
         notificationManager: NotificationManager,
         feeTokenItem: TokenItem
     ) {
         self.viewModel = viewModel
-        self.interactor = interactor
+        self.feeProvider = feeProvider
         self.notificationManager = notificationManager
         self.feeTokenItem = feeTokenItem
     }
@@ -85,7 +85,7 @@ extension SendFeeStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
-        interactor.updateFees()
+        feeProvider.updateFees()
     }
 }
 
