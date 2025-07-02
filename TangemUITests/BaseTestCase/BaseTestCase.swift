@@ -53,4 +53,30 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
     }
+
+    func launchApp(
+        tangemApiType: TangemAPI? = nil,
+        resetToS: Bool = false,
+        additionalArguments: [String] = []
+    ) {
+        var arguments = ["--uitesting", "--alpha"]
+
+        // Check if tangem_api_type is already passed via fastlane/xcargs
+        let hasTangemApiTypeFromFastlane = ProcessInfo.processInfo.arguments.contains("-tangem_api_type")
+
+        // Only add tangem_api_type if it's not already provided by fastlane
+        if !hasTangemApiTypeFromFastlane, let tangemApiType {
+            arguments.append(contentsOf: ["-tangem_api_type", tangemApiType.rawValue])
+        }
+
+        if resetToS {
+            arguments.append(contentsOf: ["-tangem_tap_terms_of_service_accepted", "NULL"])
+        }
+
+        arguments.append(contentsOf: additionalArguments)
+
+        app.launchArguments = arguments
+        app.launchEnvironment = ["UITEST": "1"]
+        app.launch()
+    }
 }
