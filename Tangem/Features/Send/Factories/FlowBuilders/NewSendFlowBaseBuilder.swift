@@ -23,9 +23,9 @@ struct NewSendFlowBaseBuilder {
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let flowKind = SendModel.PredefinedValues.FlowKind.send
 
-        let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
         let sendModel = builder.makeSendWithSwapModel()
+        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
@@ -39,6 +39,7 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
+            notificationService: notificationManager as? SendAmountNotificationService,
             flowKind: flowKind
         )
 
