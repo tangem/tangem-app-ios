@@ -482,6 +482,18 @@ struct SendDependenciesBuilder {
         .init(percentFormatter: .init())
     }
 
+    func makeExpressNotificationManager() -> ExpressNotificationManager {
+        ExpressNotificationManager(expressInteractor: expressDependenciesFactory.expressInteractor)
+    }
+
+    func makeSendNewNotificationManager(receiveTokenInput: SendReceiveTokenInput?) -> SendNotificationManager {
+        CommonSendNewNotificationManager(
+            receiveTokenInput: receiveTokenInput,
+            sendNotificationManager: makeSendNotificationManager(),
+            expressNotificationManager: makeExpressNotificationManager()
+        )
+    }
+
     // MARK: - NFT support
 
     func makeNFTSendAmountValidator() -> SendAmountValidator {
