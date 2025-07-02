@@ -616,7 +616,7 @@ private extension CommonVisaActivationManager {
     /// - Throws: `VisaActivationError` if token refresh fails.
     func saveActivatedCardRefreshToken() async throws(VisaActivationError) {
         do {
-            try await authorizationTokensHandler.forceRefreshToken()
+            try await authorizationTokensHandler.exchageTokens()
         } catch {
             VisaLogger.error("Failed to retreive activated card refresh token", error: error)
             throw .underlyingError(error)
