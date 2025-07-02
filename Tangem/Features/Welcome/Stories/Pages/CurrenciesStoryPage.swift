@@ -14,9 +14,13 @@ import TangemUI
 struct CurrenciesStoryPage: View {
     var progress: Double
     var isScanning: Bool
+    let createWallet: () -> Void
+    let importWallet: () -> Void
     let scanCard: () -> Void
     let orderCard: () -> Void
     let searchTokens: () -> Void
+
+    private let isHotWalletEnabled = FeatureProvider.isAvailable(.hotWallet)
 
     private let numberOfRows = 6
     private let rowImages = [
@@ -73,24 +77,26 @@ struct CurrenciesStoryPage: View {
                         }
                     )
 
-                MainButton(
-                    title: Localization.commonSearchTokens,
-                    icon: .leading(Assets.search),
-                    style: .secondary,
-                    isDisabled: isScanning,
-                    action: searchTokens
-                )
-                .padding(.horizontal, 16)
+                if !isHotWalletEnabled {
+                    MainButton(
+                        title: Localization.commonSearchTokens,
+                        icon: .leading(Assets.search),
+                        style: .secondary,
+                        isDisabled: isScanning,
+                        action: searchTokens
+                    )
+                    .padding(.horizontal, 16)
+                }
             }
 
             StoriesBottomButtons(
-                scanColorStyle: .primary,
-                orderColorStyle: .secondary,
                 isScanning: isScanning,
+                createWallet: createWallet,
+                importWallet: importWallet,
                 scanCard: scanCard,
                 orderCard: orderCard
             )
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
             .padding(.bottom, 6)
         }
         .background(Colors.Old.tangemStoryBackground.edgesIgnoringSafeArea(.all))
@@ -110,7 +116,15 @@ struct CurrenciesStoryPage: View {
 
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        CurrenciesStoryPage(progress: 1, isScanning: false) {} orderCard: {} searchTokens: {}
-            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+        CurrenciesStoryPage(
+            progress: 1,
+            isScanning: false,
+            createWallet: {},
+            importWallet: {},
+            scanCard: {},
+            orderCard: {},
+            searchTokens: {}
+        )
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }

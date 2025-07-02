@@ -19,7 +19,7 @@ struct SendAmountStepBuilder {
     func makeSendAmountStep(
         io: IO,
         actionType: SendFlowActionType,
-        sendFeeLoader: any SendFeeLoader,
+        sendFeeProvider: any SendFeeProvider,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
@@ -42,7 +42,7 @@ struct SendAmountStepBuilder {
         let step = SendAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeLoader: sendFeeLoader,
+            sendFeeProvider: sendFeeProvider,
             flowKind: flowKind
         )
 
