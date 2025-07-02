@@ -31,6 +31,10 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         return formatter.string(from: data.date)
     }
 
+    var shouldShowShareExploreButtons: Bool {
+        !data.source.tokenItem.blockchain.isTransactionAsync
+    }
+
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData

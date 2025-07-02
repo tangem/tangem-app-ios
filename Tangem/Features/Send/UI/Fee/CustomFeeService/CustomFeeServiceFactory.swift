@@ -15,12 +15,13 @@ struct CustomFeeServiceFactory {
         self.walletModel = walletModel
     }
 
-    func makeService() -> CustomFeeService? {
+    func makeService(input: CustomFeeServiceInput) -> CustomFeeService? {
         let blockchain = walletModel.tokenItem.blockchain
 
         if case .bitcoin = blockchain,
            let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
             return CustomBitcoinFeeService(
+                input: input,
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator

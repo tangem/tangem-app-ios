@@ -19,4 +19,6 @@ protocol SendRoutable: SendFeeRoutable, SendDestinationRoutable, OnrampRoutable,
     func openShareSheet(url: URL)
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput)
     func openFeeSelector(viewModel: FeeSelectorContentViewModel)
+    func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
 }

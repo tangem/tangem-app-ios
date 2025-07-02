@@ -16,7 +16,7 @@ class MarketsWalletSelectorViewModel: ObservableObject {
     @Published var icon: LoadingValue<ImageValue> = .loading
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
-    private let cardImageProvider: CardImageProviding
+    private let walletImageProvider: WalletImageProviding
 
     private var bag: Set<AnyCancellable> = []
 
@@ -24,10 +24,10 @@ class MarketsWalletSelectorViewModel: ObservableObject {
 
     init(
         userWalletNamePublisher: AnyPublisher<String, Never>,
-        cardImageProvider: CardImageProviding
+        walletImageProvider: WalletImageProviding
     ) {
         self.userWalletNamePublisher = userWalletNamePublisher
-        self.cardImageProvider = cardImageProvider
+        self.walletImageProvider = walletImageProvider
 
         bind()
         loadImage()
@@ -35,7 +35,7 @@ class MarketsWalletSelectorViewModel: ObservableObject {
 
     func loadImage() {
         runTask(in: self) { viewModel in
-            let image = await viewModel.cardImageProvider.loadSmallImage()
+            let image = await viewModel.walletImageProvider.loadSmallImage()
 
             await runOnMain {
                 viewModel.icon = .loaded(image)
