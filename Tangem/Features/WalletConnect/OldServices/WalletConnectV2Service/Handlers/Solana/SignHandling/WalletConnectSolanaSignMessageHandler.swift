@@ -15,6 +15,7 @@ struct WalletConnectSolanaSignMessageHandler {
     private let message: String
     private let signer: WalletConnectSigner
     private let walletModel: any WalletModel
+    private let request: AnyCodable
 
     init(
         request: AnyCodable,
@@ -38,6 +39,7 @@ struct WalletConnectSolanaSignMessageHandler {
         }
 
         self.signer = signer
+        self.request = request
     }
 }
 
@@ -46,6 +48,10 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
 
     var requestData: Data {
         message.data(using: .utf8) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
     }
 
     var event: WalletConnectEvent { .sign }

@@ -12,7 +12,7 @@ import TangemFoundation
 
 final class CommonReferralNotificationController {
     private let userWalletModel: UserWalletModel
-    private let showReferralNotificationSubject: CurrentValueSubject<Bool?, Never> = .init(nil)
+    private let showReferralNotificationSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
@@ -27,9 +27,10 @@ final class CommonReferralNotificationController {
 }
 
 extension CommonReferralNotificationController: ReferralNotificationController {
-    var showReferralNotificationPublisher: AnyPublisher<Bool?, Never> {
+    var showReferralNotificationPublisher: AnyPublisher<Bool, Never> {
         showReferralNotificationSubject
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 

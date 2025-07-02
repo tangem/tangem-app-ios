@@ -17,6 +17,7 @@ struct WalletConnectV2SignTypedDataHandler {
     private let typedData: EIP712TypedData
     private let signer: WalletConnectSigner
     private let walletModel: any WalletModel
+    private let request: AnyCodable
 
     init(
         requestParams: AnyCodable,
@@ -43,6 +44,7 @@ struct WalletConnectV2SignTypedDataHandler {
 
         self.typedData = typedData
         self.signer = signer
+        request = requestParams
     }
 }
 
@@ -51,6 +53,10 @@ extension WalletConnectV2SignTypedDataHandler: WalletConnectMessageHandler {
 
     var requestData: Data {
         message.data(using: .utf8) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
     }
 
     var event: WalletConnectEvent { .sign }

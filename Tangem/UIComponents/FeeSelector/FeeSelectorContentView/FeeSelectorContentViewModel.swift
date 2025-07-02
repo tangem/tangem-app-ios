@@ -12,15 +12,13 @@ import SwiftUI
 import TangemFoundation
 
 class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    var id: String { "FeeSelectorViewModel" }
-
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     @Published var selectedFeeOption: FeeOption = .market
     @Published private(set) var feesRowData: [FeeSelectorContentRowViewModel] = []
 
-    private weak var input: FeeSelectorContentViewModelInput?
-    private weak var output: FeeSelectorContentViewModelOutput?
+    private let input: FeeSelectorContentViewModelInput
+    private let output: FeeSelectorContentViewModelOutput
     private let analytics: FeeSelectorContentViewModelAnalytics
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder
     private let feeTokenItem: TokenItem
@@ -30,7 +28,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
         balanceConverter: .init()
     )
 
-    private var feesSubscriptions: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     init(
         input: FeeSelectorContentViewModelInput,
@@ -62,16 +60,16 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
     @MainActor
     func dismiss() {
-        floatingSheetPresenter.removeActiveSheet()
+        output.dismissFeeSelector()
     }
 
     @MainActor
     func done() {
-        if let fee = input?.selectorFees.first(where: { $0.option == selectedFeeOption }) {
-            output?.update(selectedSelectorFee: fee)
+        if let fee = input.selectorFees.first(where: { $0.option == selectedFeeOption }) {
+            output.update(selectedSelectorFee: fee)
         }
 
-        floatingSheetPresenter.removeActiveSheet()
+        output.completeFeeSelection()
     }
 }
 
@@ -79,12 +77,25 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
 private extension FeeSelectorContentViewModel {
     func bind(input: FeeSelectorContentViewModelInput) {
-        feesSubscriptions = input.selectorFeesPublisher
+        if let currentSelectedFee = input.selectedSelectorFee {
+            selectedFeeOption = currentSelectedFee.option
+        }
+
+        input.selectorFeesPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, values in
                 viewModel.updateViewModels(values: values)
             }
+            .store(in: &bag)
+
+        input.selectedSelectorFeePublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, selectedFee in
+                viewModel.selectedFeeOption = selectedFee.option
+            }
+            .store(in: &bag)
     }
 
     func updateViewModels(values: [FeeSelectorFee]) {

@@ -11,6 +11,7 @@ import Combine
 import TangemAssets
 import TangemSdk
 import TangemNFT
+import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -31,7 +32,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
-    var cardImageProvider: CardImageProviding {
+    var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
     }
 
@@ -49,7 +50,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
 
