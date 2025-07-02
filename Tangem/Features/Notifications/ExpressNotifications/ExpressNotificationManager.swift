@@ -178,6 +178,7 @@ class ExpressNotificationManager {
              .notEnoughMana,
              .manaLimit,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .koinosInsufficientBalanceToSendKoin,
              .destinationMemoRequired:
             event = .validationErrorEvent(event: validationErrorEvent, context: context)
@@ -230,7 +231,7 @@ class ExpressNotificationManager {
         return notification
     }
 
-    private func makeNotEnoughFeeForTokenTx(sender: any WalletModel) -> ExpressNotificationEvent? {
+    private func makeNotEnoughFeeForTokenTx(sender: any ExpressInteractorSourceWallet) -> ExpressNotificationEvent? {
         guard !sender.isFeeCurrency else {
             return nil
         }

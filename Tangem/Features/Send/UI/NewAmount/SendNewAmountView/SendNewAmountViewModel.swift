@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class SendNewAmountViewModel: ObservableObject, Identifiable {
@@ -22,6 +23,8 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
 
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
+
+    @Published var receivedTokenViewType: ReceivedTokenViewType?
 
     lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
         tokenIconInfo: tokenIconInfo,
@@ -46,8 +49,12 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     }
 
     let walletHeaderText: String
-    let fiatIconURL: URL
+    let fiatIconURL: URL?
     let possibleToChangeAmountType: Bool
+
+    // MARK: - Router
+
+    weak var router: SendNewAmountRoutable?
 
     // MARK: - Dependencies
 
@@ -55,29 +62,38 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     private let tokenIconInfo: TokenIconInfo
     private let balanceFormatted: String
     private let fiatCurrencyCode: String
-    private let interactor: SendAmountInteractor
+    private let interactor: SendNewAmountInteractor
     private let actionType: SendFlowActionType
     private let sendAmountFormatter: SendAmountFormatter
+
     private var bag: Set<AnyCancellable> = []
 
-    init(initial: Settings, interactor: SendAmountInteractor) {
-        walletHeaderText = initial.walletHeaderText
-        tokenItem = initial.tokenItem
-        balanceFormatted = initial.balanceFormatted
-        tokenIconInfo = initial.tokenIconInfo
-        fiatIconURL = initial.fiatIconURL
-        fiatCurrencyCode = initial.fiatItem.currencyCode
-        possibleToChangeAmountType = initial.possibleToChangeAmountType
-        actionType = initial.actionType
+    init(
+        sourceTokenInput: SendSourceTokenInput,
+        settings: Settings,
+        interactor: SendNewAmountInteractor
+    ) {
+        walletHeaderText = sourceTokenInput.sourceToken.wallet
+        tokenItem = sourceTokenInput.sourceToken.tokenItem
+        balanceFormatted = Localization.commonCryptoFiatFormat(
+            sourceTokenInput.sourceToken.availableBalanceProvider.formattedBalanceType.value,
+            sourceTokenInput.sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value
+        )
 
-        cryptoTextFieldViewModel = .init(maximumFractionDigits: initial.tokenItem.decimalCount)
+        tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
+        fiatIconURL = sourceTokenInput.sourceToken.fiatItem.iconURL
+        fiatCurrencyCode = sourceTokenInput.sourceToken.fiatItem.currencyCode
+        possibleToChangeAmountType = settings.possibleToChangeAmountType
+        actionType = settings.actionType
+
+        cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
         fiatTextFieldViewModel = .init(maximumFractionDigits: SendAmountStep.Constants.fiatMaximumFractionDigits)
 
         let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
-        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: initial.tokenItem.currencySymbol)
-        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: initial.fiatItem.currencyCode)
+        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceTokenInput.sourceToken.tokenItem.currencySymbol)
+        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceTokenInput.sourceToken.fiatItem.currencyCode)
 
-        sendAmountFormatter = .init(tokenItem: initial.tokenItem, fiatItem: initial.fiatItem)
+        sendAmountFormatter = .init(tokenItem: sourceTokenInput.sourceToken.tokenItem, fiatItem: sourceTokenInput.sourceToken.fiatItem)
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
         self.interactor = interactor
@@ -96,9 +112,17 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         default: break
         }
 
-        let amount = interactor.updateToMaxAmount()
+        let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.success()
         updateAmountsUI(amount: amount)
+    }
+
+    func userDidTapReceivedTokenSelection() {
+        router?.openReceiveTokensList()
+    }
+
+    func removeReceivedToken() {
+        interactor.removeReceivedToken()
     }
 }
 
@@ -133,24 +157,21 @@ private extension SendNewAmountViewModel {
             .assign(to: \.bottomInfoText, on: self, ownership: .weak)
             .store(in: &bag)
 
-        interactor
-            .externalAmountPublisher
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, amount in
-                viewModel.setExternalAmount(amount)
-            }
-            .store(in: &bag)
-    }
-
-    func setExternalAmount(_ amount: SendAmount?) {
-        updateAmountsUI(amount: amount)
-        textFieldValueDidChanged(amount: amount?.main)
+        Publishers.CombineLatest(
+            interactor.receivedTokenPublisher,
+            interactor.receivedTokenAmountPublisher,
+        )
+        .withWeakCaptureOf(self)
+        .receive(on: DispatchQueue.main)
+        .sink { viewModel, args in
+            let (token, amount) = args
+            viewModel.updateReceivedToken(receiveToken: token, amount: amount)
+        }
+        .store(in: &bag)
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
-        let amount = interactor.update(amount: amount)
+        let amount = try? interactor.update(amount: amount)
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
 
         // Update another text field value
@@ -166,7 +187,7 @@ private extension SendNewAmountViewModel {
     }
 
     func update(amountType: SendAmountCalculationType) {
-        let amount = interactor.update(type: amountType)
+        let amount = try? interactor.update(type: amountType)
         updateAmountsUI(amount: amount)
     }
 
@@ -175,6 +196,54 @@ private extension SendNewAmountViewModel {
         fiatTextFieldViewModel.update(value: amount?.fiat)
 
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: amountType)
+    }
+}
+
+// MARK: - Express
+
+extension SendNewAmountViewModel {
+    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount?, Error>?) {
+        guard FeatureProvider.isAvailable(.sendViaSwap) else {
+            receivedTokenViewType = .none
+            return
+        }
+
+        switch receiveToken {
+        case .same:
+            receivedTokenViewType = .selectButton
+        case .swap(let receiveToken):
+            receivedTokenViewType = .selected(TokenWithAmountViewData(
+                tokenIconInfo: receiveToken.tokenIconInfo,
+                title: receiveToken.tokenItem.name,
+                subtitle: Localization.sendAmountReceiveTokenSubtitle,
+                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
+                action: { [weak self] in
+                    self?.router?.openReceiveTokensList()
+                }
+            ))
+        }
+    }
+
+    func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
+        switch amount {
+        case .success(let success):
+            return .select(amount: success?.crypto?.stringValue) { [weak self] in
+                self?.router?.openReceiveTokensList()
+            }
+        case .none, .failure:
+            return nil
+        case .loading:
+            return .loading
+        }
+    }
+}
+
+// MARK: - SendExternalAmountUpdatableViewModel
+
+extension SendNewAmountViewModel: SendExternalAmountUpdatableViewModel {
+    func externalUpdate(amount: SendAmount?) {
+        updateAmountsUI(amount: amount)
+        textFieldValueDidChanged(amount: amount?.main)
     }
 }
 
@@ -188,15 +257,14 @@ extension SendNewAmountViewModel: SendStepViewAnimatable {
 
 extension SendNewAmountViewModel {
     struct Settings {
-        let walletHeaderText: String
-        let tokenItem: TokenItem
-        let tokenIconInfo: TokenIconInfo
-        let balanceFormatted: String
-        let fiatIconURL: URL
-        let fiatItem: FiatItem
         let possibleToChangeAmountType: Bool
         let actionType: SendFlowActionType
     }
 
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
+
+    enum ReceivedTokenViewType {
+        case selectButton
+        case selected(TokenWithAmountViewData)
+    }
 }

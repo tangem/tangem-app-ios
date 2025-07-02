@@ -16,6 +16,14 @@ struct WalletConnectWarningNotificationViewModel: Equatable {
     let iconAsset: ImageType
     let title: String
     let body: String
+
+    init(containerStyle: ContainerStyle, severity: Severity, iconAsset: ImageType, title: String, body: String) {
+        self.containerStyle = containerStyle
+        self.severity = severity
+        self.iconAsset = iconAsset
+        self.title = title
+        self.body = body
+    }
 }
 
 extension WalletConnectWarningNotificationViewModel {
@@ -27,6 +35,23 @@ extension WalletConnectWarningNotificationViewModel {
     enum Severity: Equatable {
         case attention
         case critical
+    }
+}
+
+// MARK: - Convenience initializers
+
+extension WalletConnectWarningNotificationViewModel {
+    init?(_ verificationStatus: WalletConnectDAppVerificationStatus) {
+        switch verificationStatus {
+        case .verified:
+            return nil
+
+        case .unknownDomain:
+            self = .dAppUnknownDomain
+
+        case .malicious:
+            self = .dAppKnownSecurityRisk
+        }
     }
 }
 
