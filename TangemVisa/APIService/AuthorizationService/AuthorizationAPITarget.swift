@@ -25,6 +25,8 @@ struct AuthorizationAPITarget: TargetType {
             return "token"
         case .refreshAuthorizationTokens:
             return "token/refresh"
+        case .exchangeAuthorizationTokens:
+            return "token/exchange"
         }
     }
 
@@ -32,7 +34,8 @@ struct AuthorizationAPITarget: TargetType {
         switch target {
         case .generateNonce,
              .getAuthorizationTokens,
-             .refreshAuthorizationTokens:
+             .refreshAuthorizationTokens,
+             .exchangeAuthorizationTokens:
             return .post
         }
     }
@@ -47,6 +50,8 @@ struct AuthorizationAPITarget: TargetType {
         case .getAuthorizationTokens(let request):
             encodable = request
         case .refreshAuthorizationTokens(let request):
+            encodable = request
+        case .exchangeAuthorizationTokens(let request):
             encodable = request
         }
         return .requestCustomJSONEncodable(encodable, encoder: jsonEncoder)
@@ -91,5 +96,7 @@ extension AuthorizationAPITarget {
         case getAuthorizationTokens(request: GetAuthorizationTokensRequestDTO)
         /// Refresh staled access token
         case refreshAuthorizationTokens(request: RefreshAuthoriationTokensRequestDTO)
+        /// Change activation process authorization tokens to activated authorization tokens
+        case exchangeAuthorizationTokens(request: AuthorizationTokenDTO)
     }
 }

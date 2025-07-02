@@ -10,6 +10,6 @@ import struct Foundation.URL
 
 enum WalletConnectErrorViewEvent {
     case closeButtonTapped
-    case linkTapped(URL)
+    case contactSupportLinkTapped
     case buttonTapped
 }
