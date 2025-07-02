@@ -105,7 +105,6 @@ protocol WalletModelDependenciesProvider {
     var blockchainDataProvider: BlockchainDataProvider { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var assetRequirementsManager: AssetRequirementsManager? { get }
-    var addressResolver: AddressResolver? { get }
 
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
