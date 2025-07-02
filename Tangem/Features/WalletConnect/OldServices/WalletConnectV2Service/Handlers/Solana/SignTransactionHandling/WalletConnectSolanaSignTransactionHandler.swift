@@ -15,6 +15,7 @@ final class WalletConnectSolanaSignTransactionHandler {
     private let walletModel: any WalletModel
     private let signer: WalletConnectSigner
     private let transaction: String
+    private let request: AnyCodable
 
     init(
         request: AnyCodable,
@@ -38,6 +39,7 @@ final class WalletConnectSolanaSignTransactionHandler {
         }
 
         self.signer = signer
+        self.request = request
     }
 
     /// Remove signatures placeholder from raw transaction
@@ -51,7 +53,11 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     var method: WalletConnectMethod { .solanaSignTransaction }
 
     var requestData: Data {
-        transaction.data(using: .utf8) ?? Data()
+        (try? prepareTransactionToSign()) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
     }
 
     var event: WalletConnectEvent { .sign }
