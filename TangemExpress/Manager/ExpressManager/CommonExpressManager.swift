@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemLogger
 import TangemFoundation
+import BlockchainSdk
 
 actor CommonExpressManager {
     // MARK: - Dependencies
@@ -22,7 +23,7 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ExpressApprovePolicy = .unlimited
+    private var _approvePolicy: ApprovePolicy = .unlimited
     private var _feeOption: ExpressFee.Option = .market
     private var _amount: Decimal?
 
@@ -87,7 +88,7 @@ extension CommonExpressManager: ExpressManager {
         return try await selectedProviderState()
     }
 
-    func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState {
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
             ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
