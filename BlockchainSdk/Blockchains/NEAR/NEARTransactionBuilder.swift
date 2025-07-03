@@ -18,14 +18,14 @@ final class NEARTransactionBuilder {
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
         let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         guard output.error == .ok else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return output.dataHash
@@ -33,14 +33,14 @@ final class NEARTransactionBuilder {
 
     func buildForSend(transaction: Transaction, signature: Data) throws -> Data {
         guard let transactionParams = transaction.params as? NEARTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let input = try buildInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let compiledTransaction = TransactionCompiler.compileWithSignatures(
@@ -52,13 +52,13 @@ final class NEARTransactionBuilder {
         let output = try NEARSigningOutput(serializedData: compiledTransaction)
 
         guard output.error == .ok else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let serializedData = output.signedTransaction
 
         guard !serializedData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return serializedData
@@ -66,7 +66,7 @@ final class NEARTransactionBuilder {
 
     private func buildInput(transaction: Transaction) throws -> NEARSigningInput {
         guard let transactionParams = transaction.params as? NEARTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let deposit = try depositPayload(from: transaction.amount)
@@ -92,7 +92,7 @@ final class NEARTransactionBuilder {
         let decimalValue = amount.value * pow(Decimal(10), amount.decimals)
 
         guard let bigUIntValue = BigUInt(decimal: decimalValue) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let rawPayload = Data(bigUIntValue.serialize().reversed())

@@ -73,6 +73,12 @@ extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
     }
 }
 
+extension CommonExpressAvailabilityProvider {
+    enum Error: Swift.Error {
+        case providerNotCreated
+    }
+}
+
 // MARK: - Private
 
 private extension CommonExpressAvailabilityProvider {
@@ -217,12 +223,6 @@ private extension CommonExpressAvailabilityProvider {
 private extension CommonExpressAvailabilityProvider {
     struct QueueItem {
         let currencies: CurrenciesSet
-    }
-}
-
-private extension CommonExpressAvailabilityProvider {
-    enum Error: Swift.Error {
-        case providerNotCreated
     }
 }
 
