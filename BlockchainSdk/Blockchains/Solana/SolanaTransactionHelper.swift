@@ -17,15 +17,11 @@ public struct SolanaTransactionHelper {
     public func removeSignaturesPlaceholders(from transaction: Data) throws -> Data {
         guard let firstByte = transaction.bytes.first else {
             BSDKLogger.error(error: "Failed to remove placeholders: transaction is empty")
-            throw SolanaTransactionHelperError.transactionIsEmpty
+            throw SolanaBSDKError.transactionIsEmpty
         }
         let signaturesPlaceholderLength = 1 + Int(firstByte) * Constants.signatureLength
         return transaction.dropFirst(signaturesPlaceholderLength)
     }
-}
-
-enum SolanaTransactionHelperError: Error {
-    case transactionIsEmpty
 }
 
 private extension SolanaTransactionHelper {
