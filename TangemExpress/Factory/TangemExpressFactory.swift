@@ -105,4 +105,5 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
     case develop
     case production
     case stage
+    case mock
 }
