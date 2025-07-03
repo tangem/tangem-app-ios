@@ -9,6 +9,16 @@
 import Foundation
 
 enum HederaError: LocalizedError {
+    case accountDoesNotExist
+    case accountBalanceNotFound
+    case transactionNotFound
+    case multipleAccountsFound
+    case failedToCreateAccount
+    case unsupportedCurve(curveName: String)
+    case fixedFeeInAnotherToken
+    case conversionFromConsensusToMirrorFailed(transactionId: String)
+    case conversionFromMirrorToConsensusFailed(transactionId: String)
+
     var errorDescription: String? {
         switch self {
         case .accountDoesNotExist:
@@ -25,14 +35,10 @@ enum HederaError: LocalizedError {
             return "Hedera supports either ED25519 or ECDSA (secp256k1) curves. Curve '\(curveName)' is not supported"
         case .fixedFeeInAnotherToken:
             return "Fixed fee in another token"
+        case .conversionFromConsensusToMirrorFailed(let transactionId):
+            return "Failed to convert transaction ID \(transactionId) from Consensus Node to Mirror Node format"
+        case .conversionFromMirrorToConsensusFailed(let transactionId):
+            return "Failed to convert transaction ID \(transactionId) from Mirror Node to Consensus Node format"
         }
     }
-
-    case accountDoesNotExist
-    case accountBalanceNotFound
-    case transactionNotFound
-    case multipleAccountsFound
-    case failedToCreateAccount
-    case unsupportedCurve(curveName: String)
-    case fixedFeeInAnotherToken
 }

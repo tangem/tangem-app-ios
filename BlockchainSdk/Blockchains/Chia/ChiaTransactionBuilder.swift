@@ -60,7 +60,7 @@ final class ChiaTransactionBuilder {
         let availableInputValue = availableAmount()
 
         guard !unspentCoins.isEmpty, transaction.amount <= availableInputValue else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let change = try calculateChange(
