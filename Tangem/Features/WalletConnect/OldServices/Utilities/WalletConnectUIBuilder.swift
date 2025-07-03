@@ -64,6 +64,7 @@ enum WalletConnectUIBuilder {
         return vc
     }
 
+    // [REDACTED_TODO_COMMENT]
     static func makeSolanaWarningAlert(acceptAction: @escaping () -> Void) -> UIAlertController {
         let message = """
         Solana Transaction Limitation.

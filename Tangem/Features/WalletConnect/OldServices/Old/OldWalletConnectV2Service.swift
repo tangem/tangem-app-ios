@@ -334,11 +334,12 @@ final class OldWalletConnectV2Service {
 
         let domainRequiredBlockchains = WalletConnectDAppSessionProposalMapper.mapRequiredBlockchains(from: proposal)
         let domainOptionalBlockchains = WalletConnectDAppSessionProposalMapper.mapOptionalBlockchains(from: proposal)
-        let solanaBlockchain = Blockchain.solana(curve: .ed25519, testnet: false)
+        let solanaNetworkID = Blockchain.solana(curve: .ed25519, testnet: false).networkId
 
         let hasSolana = domainRequiredBlockchains
             .union(domainOptionalBlockchains)
-            .contains(solanaBlockchain)
+            .map(\.networkId)
+            .contains(solanaNetworkID)
 
         if hasSolana {
             uiDelegate.showSolanaNetworkWarning(
