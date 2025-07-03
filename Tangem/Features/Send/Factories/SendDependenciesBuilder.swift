@@ -286,9 +286,7 @@ struct SendDependenciesBuilder {
             sendingWalletData: .init(
                 walletAddresses: walletModel.addresses.map(\.value),
                 suggestedWallets: makeSuggestedWallets(),
-                transactionHistoryUpdater: walletModel,
-                transactionHistoryMapper: makeTransactionHistoryMapper(),
-                addressResolver: makeAddressResolver()
+                destinationTransactionHistoryProvider: makeSendDestinationTransactionHistoryProvider()
             )
         )
     }
