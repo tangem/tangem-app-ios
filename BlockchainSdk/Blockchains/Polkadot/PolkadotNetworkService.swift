@@ -113,7 +113,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
             // [REDACTED_TODO_COMMENT]
             let addressHash = Sodium().genericHash.hash(message: addressBytes.bytes, outputLength: 16)
         else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         // XXHash of "System" module and "Account" storage item.

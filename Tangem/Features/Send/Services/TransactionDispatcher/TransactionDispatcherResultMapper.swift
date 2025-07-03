@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 struct TransactionDispatcherResultMapper {
     func mapResult(
@@ -28,7 +29,7 @@ struct TransactionDispatcherResultMapper {
         return TransactionDispatcherResult(hash: result.hash, url: explorerUrl, signerType: signerType)
     }
 
-    func mapError(_ error: Error, transaction: SendTransactionType) -> TransactionDispatcherResult.Error {
+    func mapError(_ error: UniversalError, transaction: SendTransactionType) -> TransactionDispatcherResult.Error {
         let sendError = error as? SendTxError ?? SendTxError(error: error)
         let internalError = sendError.error
 

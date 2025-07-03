@@ -103,7 +103,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
             ])
             VisaLogger.error("Failed to sign approve data", error: error)
             if !error.isCancellationError {
-                await delegate?.showAlertAsync(error.universalErrorAlertBinder)
+                await delegate?.showAlertAsync(error.alertBinder)
             }
         }
         isLoading = false
