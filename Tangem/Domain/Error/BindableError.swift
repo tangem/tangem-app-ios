@@ -18,6 +18,42 @@ protocol BindableError {
     func alertBinder(okAction: @escaping () -> Void) -> AlertBinder
 }
 
+// MARK: - Error + BindableError
+
+extension Error {
+    var alertBinder: AlertBinder {
+        toBindable().binder
+    }
+
+    func alertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        toBindable().alertBinder(okAction: okAction)
+    }
+
+    private func toBindable() -> BindableError {
+        self as? BindableError ?? BindableErrorWrapper(self)
+    }
+}
+
+private struct BindableErrorWrapper: BindableError {
+    var binder: AlertBinder {
+        alertBinder(okAction: {})
+    }
+
+    private let error: Error
+
+    init(_ error: Error) {
+        self.error = error
+    }
+
+    func alertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        return AlertBinder(alert: Alert(
+            title: Text(Localization.commonError),
+            message: Text(error.localizedDescription),
+            dismissButton: Alert.Button.default(Text(Localization.commonOk), action: okAction)
+        ))
+    }
+}
+
 // MARK: - TangemSdkError + BindableError
 
 extension TangemSdkError: BindableError {
