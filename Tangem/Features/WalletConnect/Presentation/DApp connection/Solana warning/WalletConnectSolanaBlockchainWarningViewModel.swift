@@ -57,7 +57,6 @@ final class WalletConnectSolanaBlockchainWarningViewModel: ObservableObject {
 
         state.connectAnywayButton.isLoading = true
 
-        connectAnywayTask?.cancel()
         connectAnywayTask = Task { [weak self] in
             await self?.connectAnywayButtonAction()
             self?.state.connectAnywayButton.isLoading = false
