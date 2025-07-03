@@ -13,7 +13,7 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
         let wallet = input.wallet
 
         guard let chainId = wallet.blockchain.chainId else {
-            throw EthereumWalletAssemblyError.chainIdNotFound
+            throw ETHError.chainIdNotFound
         }
 
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
