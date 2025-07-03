@@ -520,7 +520,7 @@ struct SendDependenciesBuilder {
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
             stakingTransactionDispatcher: makeStakingTransactionDispatcher(stakingManger: stakingManager),
             transactionDispatcher: makeTransactionDispatcher(),
-            allowanceProvider: makeAllowanceProvider(),
+            allowanceService: makeAllowanceService(),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem
         )
@@ -603,12 +603,12 @@ struct SendDependenciesBuilder {
         StakingTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem)
     }
 
-    func makeAllowanceProvider() -> AllowanceProvider {
-        CommonAllowanceProvider(
+    func makeAllowanceService() -> AllowanceService {
+        CommonAllowanceService(
             tokenItem: walletModel.tokenItem,
             allowanceChecker: .init(
-                tokenItem: walletModel.tokenItem,
-                feeTokenItem: walletModel.feeTokenItem,
+                blockchain: walletModel.tokenItem.blockchain,
+                amountType: walletModel.tokenItem.amountType,
                 walletAddress: walletModel.defaultAddressString,
                 ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
                 ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
