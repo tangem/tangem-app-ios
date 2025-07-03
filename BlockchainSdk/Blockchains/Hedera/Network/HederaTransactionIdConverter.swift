@@ -14,13 +14,13 @@ struct HederaTransactionIdConverter {
         let firstStageParts = transactionId.components(separatedBy: Constants.consensusTimestampSeparator)
 
         guard firstStageParts.count == 2 else {
-            throw ConversionError.conversionFromConsensusToMirrorFailed(transactionId: transactionId)
+            throw HederaError.conversionFromConsensusToMirrorFailed(transactionId: transactionId)
         }
 
         let secondStageParts = firstStageParts[1].components(separatedBy: Constants.consensusNanosecondsSeparator)
 
         guard secondStageParts.count == 2 else {
-            throw ConversionError.conversionFromConsensusToMirrorFailed(transactionId: transactionId)
+            throw HederaError.conversionFromConsensusToMirrorFailed(transactionId: transactionId)
         }
 
         return [
@@ -35,7 +35,7 @@ struct HederaTransactionIdConverter {
         let firstStageParts = transactionId.components(separatedBy: Constants.mirrorSeparator)
 
         guard firstStageParts.count == 3 else {
-            throw ConversionError.conversionFromMirrorToConsensusFailed(transactionId: transactionId)
+            throw HederaError.conversionFromMirrorToConsensusFailed(transactionId: transactionId)
         }
 
         let intermediateResult = [
@@ -47,15 +47,6 @@ struct HederaTransactionIdConverter {
             String(firstStageParts[0]),
             intermediateResult,
         ].joined(separator: Constants.consensusTimestampSeparator)
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension HederaTransactionIdConverter {
-    enum ConversionError: Error {
-        case conversionFromConsensusToMirrorFailed(transactionId: String)
-        case conversionFromMirrorToConsensusFailed(transactionId: String)
     }
 }
 

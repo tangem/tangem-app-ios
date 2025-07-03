@@ -58,7 +58,7 @@ final class HederaTransactionBuilder {
         nodeAccountIds: [Int]?
     ) throws -> CompiledTransaction {
         guard let feeParams = transaction.fee.parameters as? HederaFeeParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         // deduct additionalHBARFee, since it's for UI only
@@ -122,13 +122,13 @@ final class HederaTransactionBuilder {
         let (validStartDateNSec, multiplicationOverflow) = UInt64(validStartDate.seconds).multipliedReportingOverflow(by: NSEC_PER_SEC)
         if multiplicationOverflow {
             BSDKLogger.error(error: "Unable to create tx id due to multiplication overflow of '\(validStartDate)'")
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let (unixTimestampNSec, addingOverflow) = validStartDateNSec.addingReportingOverflow(UInt64(validStartDate.nanoseconds))
         if addingOverflow {
             BSDKLogger.error(error: "Unable to create tx id due to adding overflow of '\(validStartDate)'")
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let validStart = Timestamp(fromUnixTimestampNanos: unixTimestampNSec)
@@ -157,7 +157,7 @@ final class HederaTransactionBuilder {
                 .tokenTransfer(tokenId, sourceAccountId, -transactionAmount)
                 .tokenTransfer(tokenId, destinationAccountId, transactionAmount)
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 

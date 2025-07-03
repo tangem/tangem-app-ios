@@ -1,5 +1,5 @@
 //
-//  VisaErrorsList.swift
+//  Visa+UniversalError.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -26,6 +26,7 @@ import TangemSdk
 /// `009` - Common Visa
 /// `010` - Payment account token Info loader
 /// `011` - PIN validator
+/// `012` - VisaWalletPublicKeyUtility.SearchError
 /// `100` - BFF API
 extension VisaAuthorizationTokensHandlerError: VisaError {
     public var errorCode: Int {
@@ -65,19 +66,7 @@ extension VisaActivationError: VisaError {
         case .missingActivationInput: return 104003019
         case .paymentologyPinError: return 104003020
         case .missingActivationOrder: return 104003021
-        case .underlyingError(let error):
-            if let tangemError = error as? UniversalError {
-                return tangemError.errorCode
-            }
-
-            // During activation task might be inside tangem sdk error, while TangemSdkError
-            // doesn't conform `UniversalError` protocol we need to manually unwrap it
-            if let tangemSdkError = error as? TangemSdkError,
-               let errorCode = tangemSdkError.visaErrorCode {
-                return errorCode
-            }
-
-            return 104003999
+        case .underlyingError(let error): return error.toUniversalError().errorCode
         }
     }
 }
@@ -127,12 +116,7 @@ extension VisaCardAuthorizationProcessorError: VisaError {
         switch self {
         case .authorizationChallengeNotFound: return 104008001
         case .invalidCardInput: return 104008001
-        case .networkError(let error):
-            if let tangemError = error as? UniversalError {
-                return tangemError.errorCode
-            }
-
-            return 104008003
+        case .networkError(let error): return error.toUniversalError().errorCode
         }
     }
 }
@@ -141,12 +125,7 @@ extension VisaUtilitiesError: VisaError {
     public var errorCode: Int {
         switch self {
         case .failedToCreateDerivation: return 104009001
-        case .failedToCreateAddress(let error):
-            if let tangemError = error as? UniversalError {
-                return tangemError.errorCode
-            }
-
-            return 104009002
+        case .failedToCreateAddress(let error): return error.toUniversalError().errorCode
         }
     }
 }
@@ -175,6 +154,23 @@ extension VisaPinValidator.PinValidationError: VisaError {
     }
 }
 
+extension VisaWalletPublicKeyUtility.SearchError: VisaError {
+    public var errorCode: Int {
+        switch self {
+        case .failedToGenerateDerivationPath:
+            104012000
+        case .missingWalletOnTargetCurve:
+            104012001
+        case .missingDerivedKeys:
+            104012002
+        case .failedToGenerateAddress(let error):
+            error.toUniversalError().errorCode
+        case .addressesNotMatch:
+            104012003
+        }
+    }
+}
+
 extension VisaAPIError: VisaError {
     public var errorCode: Int {
         guard (100_000 ..< 1_000_000).contains(code) else {
@@ -183,18 +179,5 @@ extension VisaAPIError: VisaError {
         }
 
         return 104_000_000 + code
-    }
-}
-
-private extension TangemSdkError {
-    var visaErrorCode: Int? {
-        guard
-            case .underlying(let error) = self,
-            let visaError = error as? VisaError
-        else {
-            return nil
-        }
-
-        return visaError.errorCode
     }
 }

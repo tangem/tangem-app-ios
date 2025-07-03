@@ -34,7 +34,7 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
                       let minFeeDecimal = Decimal(string: minFee),
                       let normalFeeDecimal = Decimal(string: normalFee),
                       let maxFeeDecimal = Decimal(string: maxFee) else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 return XRPFeeResponse(min: minFeeDecimal, normal: normalFeeDecimal, max: maxFeeDecimal)
@@ -46,18 +46,18 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
         return request(.submit(tx: blob))
             .tryMap { xrpResponse -> String in
                 guard let code = xrpResponse.result?.engine_result_code else {
-                    throw WalletError.failedToSendTx
+                    throw BlockchainSdkError.failedToSendTx
                 }
 
                 if code != 0 {
-                    let message = xrpResponse.result?.engine_result_message ?? WalletError.failedToSendTx.localizedDescription
+                    let message = xrpResponse.result?.engine_result_message ?? BlockchainSdkError.failedToSendTx.localizedDescription
                     if message != "Held until escalated fee drops." { // [REDACTED_TODO_COMMENT]
                         throw message
                     }
                 }
 
                 guard let hash = xrpResponse.result?.tx_json?.hash else {
-                    throw WalletError.failedToSendTx
+                    throw BlockchainSdkError.failedToSendTx
                 }
 
                 return hash

@@ -74,7 +74,7 @@ struct DerivationUtilTests {
         ]
     )
     func unsupportedCurveThrows(curve: EllipticCurve) throws {
-        #expect(throws: HotWalletError.self) {
+        #expect(throws: HotBlockchainSdkError.self) {
             try DerivationUtil.deriveKeys(
                 entropy: entropy,
                 derivationPath: "m/44'/0'/0'/0/0",
