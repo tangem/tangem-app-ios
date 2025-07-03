@@ -7920,6 +7920,16 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		0F84C1232E1683CD00DC7FB1 /* SeedPhraseReveal */ = {
+			isa = PBXGroup;
+			children = (
+				0F84C1242E16859C00DC7FB1 /* HotOnboardingSeedPhraseRevealView.swift */,
+				0F84C1262E1685A500DC7FB1 /* HotOnboardingSeedPhraseRevealViewModel.swift */,
+				0F84C1282E1685B000DC7FB1 /* HotOnboardingSeedPhraseRevealDelegate.swift */,
+			);
+			path = SeedPhraseReveal;
+			sourceTree = "<group>";
+		};
 		0FBB13EC2E015DA10086784A /* SeedPhraseIntro */ = {
 			isa = PBXGroup;
 			children = (
