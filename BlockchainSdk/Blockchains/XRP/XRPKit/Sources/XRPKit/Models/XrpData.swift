@@ -18,7 +18,7 @@ struct XrpResponse: Codable {
         if let code = result?.error_code, code == 19 {
             let networkName = Blockchain.xrp(curve: .secp256k1).displayName
             let amountToCreate: Decimal = 1
-            throw WalletError.noAccount(
+            throw BlockchainSdkError.noAccount(
                 message: Localization.noAccountGeneric(networkName, "\(amountToCreate)", "XRP"),
                 amountToCreate: amountToCreate
             )

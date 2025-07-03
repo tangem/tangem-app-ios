@@ -49,9 +49,3 @@ extension ChiaAddressService {
         }
     }
 }
-
-extension ChiaAddressService {
-    enum ChiaAddressError: Error {
-        case invalidHumanReadablePart
-    }
-}

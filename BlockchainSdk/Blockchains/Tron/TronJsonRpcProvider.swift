@@ -66,7 +66,7 @@ class TronJsonRpcProvider: HostProvider {
             .map(T.self)
             .mapError { moyaError in
                 if case .objectMapping(_, let response) = moyaError {
-                    return WalletError.failedToParseNetworkResponse(response)
+                    return BlockchainSdkError.failedToParseNetworkResponse(response)
                 }
                 return moyaError
             }
