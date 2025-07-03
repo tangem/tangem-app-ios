@@ -21,6 +21,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
     var amountToCreateAccount: Decimal { get }
 
+    var allowanceService: AllowanceService { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any TransactionValidator { get }
     var expressTransactionBuilder: ExpressTransactionBuilder { get }
