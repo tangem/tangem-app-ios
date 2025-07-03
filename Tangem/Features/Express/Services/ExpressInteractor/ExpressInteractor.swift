@@ -154,7 +154,7 @@ extension ExpressInteractor {
         }
     }
 
-    func updateApprovePolicy(policy: ExpressApprovePolicy) {
+    func updateApprovePolicy(policy: BSDKApprovePolicy) {
         updateState(.loading(type: .refreshRates))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
@@ -278,7 +278,7 @@ extension ExpressInteractor {
         let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        sender.allowanceProvider.didSendApproveTransaction(for: state.data.spender)
+        sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
         logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
@@ -621,11 +621,11 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) {
         expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String) {
         expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
     }
 
@@ -750,7 +750,7 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
-        let policy: ExpressApprovePolicy
+        let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
         let fees: Fees
     }
