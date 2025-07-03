@@ -85,7 +85,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 bodyModel: .init(
                     userWalletModel: model,
                     isMultiWallet: isMultiWalletPage,
-                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                    lockedUserWalletDelegate: lockedUserWalletDelegate,
+                    coordinator: coordinator
                 )
             )
         }
@@ -210,7 +211,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 bodyModel: .init(
                     userWalletModel: visaUserWalletModel,
                     isMultiWallet: false,
-                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                    lockedUserWalletDelegate: lockedUserWalletDelegate,
+                    coordinator: coordinator
                 )
             )
         }
