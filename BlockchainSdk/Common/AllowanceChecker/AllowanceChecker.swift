@@ -7,37 +7,36 @@
 //
 
 import Foundation
-import BlockchainSdk
 
-struct AllowanceChecker {
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
+public struct AllowanceChecker {
+    private let blockchain: Blockchain
+    private let amountType: Amount.AmountType
     private let walletAddress: String
     private let ethereumNetworkProvider: EthereumNetworkProvider?
     private let ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
 
-    init(
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
+    public init(
+        blockchain: Blockchain,
+        amountType: Amount.AmountType,
         walletAddress: String,
         ethereumNetworkProvider: EthereumNetworkProvider?,
         ethereumTransactionDataBuilder: EthereumTransactionDataBuilder?
     ) {
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
+        self.blockchain = blockchain
+        self.amountType = amountType
         self.walletAddress = walletAddress
         self.ethereumNetworkProvider = ethereumNetworkProvider
         self.ethereumTransactionDataBuilder = ethereumTransactionDataBuilder
     }
 
-    func isPermissionRequired(amount: Decimal, spender: String) async throws -> Bool {
-        guard let contract = tokenItem.contractAddress else {
+    public func isPermissionRequired(amount: Decimal, spender: String) async throws -> Bool {
+        guard let contract = amountType.token?.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
         var allowance = try await getAllowance(owner: walletAddress, to: spender, contract: contract)
-        allowance /= tokenItem.decimalValue
-        AppLogger.info("\(tokenItem.name) allowance - \(allowance)")
+        allowance /= blockchain.decimalValue
+        BSDKLogger.info("\(amountType.token?.name as Any) allowance - \(allowance)")
 
         // If we don't have enough allowance
         guard allowance < amount else {
@@ -47,7 +46,7 @@ struct AllowanceChecker {
         return true
     }
 
-    func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
+    public func getAllowance(owner: String, to spender: String, contract: String) async throws -> Decimal {
         guard let ethereumNetworkProvider = ethereumNetworkProvider else {
             throw AllowanceCheckerError.ethereumNetworkProviderNotFound
         }
@@ -59,7 +58,7 @@ struct AllowanceChecker {
         return allowance
     }
 
-    func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
+    public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
         guard let ethereumTransactionDataBuilder = ethereumTransactionDataBuilder else {
             throw AllowanceCheckerError.ethereumTransactionDataBuilderNotFound
         }
@@ -68,21 +67,17 @@ struct AllowanceChecker {
             throw AllowanceCheckerError.ethereumNetworkProviderNotFound
         }
 
-        guard let contract = tokenItem.contractAddress else {
+        guard let contract = amountType.token?.contractAddress else {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
         let approveAmount: Decimal = switch policy {
-        case .specified: amount * tokenItem.decimalValue
+        case .specified: amount * blockchain.decimalValue
         case .unlimited: .greatestFiniteMagnitude
         }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
-        let amount = BSDKAmount(
-            with: feeTokenItem.blockchain,
-            type: feeTokenItem.amountType,
-            value: 0
-        )
+        let amount = Amount(with: blockchain, type: .coin, value: 0)
 
         let fee = try await ethereumNetworkProvider
             .getFee(destination: contract, value: amount.encodedForSend, data: data)
@@ -97,9 +92,18 @@ struct AllowanceChecker {
     }
 }
 
-enum AllowanceCheckerError: String, Hashable, LocalizedError {
+public enum AllowanceCheckerError: String, Hashable, LocalizedError {
     case contractAddressNotFound
     case ethereumNetworkProviderNotFound
     case ethereumTransactionDataBuilderNotFound
     case approveFeeNotFound
+
+    public var errorDescription: String? {
+        switch self {
+        case .contractAddressNotFound: "Contract address not found."
+        case .ethereumNetworkProviderNotFound: "Ethereum network provider not found."
+        case .ethereumTransactionDataBuilderNotFound: "Ethereum transaction data builder not found."
+        case .approveFeeNotFound: "Approve fee not found."
+        }
+    }
 }
