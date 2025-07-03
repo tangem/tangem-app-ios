@@ -7,9 +7,8 @@
 //
 
 import Foundation
-import TangemLocalization
 
-public enum ValidationError: Hashable, LocalizedError {
+public enum ValidationError: Error, Equatable {
     case balanceNotFound
     case invalidAmount
     case amountExceedsBalance
@@ -35,31 +34,4 @@ public enum ValidationError: Hashable, LocalizedError {
     case sendingAmountIsLessThanRentExemption(amount: Amount)
 
     case destinationMemoRequired
-
-    public var errorDescription: String? {
-        switch self {
-        case .balanceNotFound,
-             .cardanoInsufficientBalanceToSendToken,
-             .remainingAmountIsLessThanRentExemption,
-             .sendingAmountIsLessThanRentExemption,
-             .cardanoHasTokens,
-             .amountExceedsBalance,
-             .dustAmount,
-             .dustChange,
-             .minimumBalance,
-             .feeExceedsBalance,
-             .feeExceedsMaxFeeResource,
-             .invalidAmount,
-             .amountExceedsFeeResourceCapacity,
-             .totalExceedsBalance,
-             .invalidFee,
-             .maximumUTXO,
-             .reserve,
-             .insufficientFeeResource,
-             .minimumRestrictAmount,
-             .destinationMemoRequired:
-            assertionFailure("Potential text loss detected. Please ensure all UI strings and localizations are preserved.")
-            return .none // displayed as notification
-        }
-    }
 }
