@@ -21,16 +21,17 @@ public final class KYCService {
 
     @MainActor
     @discardableResult
-    private init(token: String, locale: String, getToken: @escaping () async -> String?) async throws {
+    private init(getToken: @escaping () async throws -> VisaKYCAccessTokenResponse) async throws {
         guard Self.shared == nil else {
             throw KYCServiceError.alreadyPresent
         }
 
+        let kycResponse = try await getToken()
         sdk = SNSMobileSDK(
-            accessToken: token,
+            accessToken: kycResponse.token,
             environment: .production
         )
-        sdk.locale = locale
+        sdk.locale = kycResponse.locale
 
         guard sdk.isReady else {
             throw KYCServiceError.sdkIsNotReady
@@ -45,7 +46,7 @@ public final class KYCService {
 
         sdk.tokenExpirationHandler { onComplete in
             Task {
-                onComplete(await getToken())
+                onComplete(try? await getToken().token)
             }
         }
 
@@ -101,7 +102,7 @@ extension KYCService {
 }
 
 public extension KYCService {
-    static func start(token: String, locale: String, getToken: @escaping () async -> String?) async throws {
-        try await KYCService(token: token, locale: locale, getToken: getToken)
+    static func start(getToken: @escaping () async throws -> VisaKYCAccessTokenResponse) async throws {
+        try await KYCService(getToken: getToken)
     }
 }
