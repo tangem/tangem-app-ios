@@ -33,6 +33,7 @@ struct HotOnboardingSeedPhraseIntroView: View {
                 action: viewModel.onContinueTap
             )
         }
+        .padding(.top, 32)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
