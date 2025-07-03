@@ -28,12 +28,13 @@ struct HotOnboardingView: View {
                 }
 
                 pageContent
-                    .padding(.top, 32)
                     .frame(maxHeight: .infinity, alignment: .top)
+                    .transition(.opacity)
             }
         }
         .animation(.default, value: viewModel.currentStep)
         .background(Colors.Background.primary)
+        .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarHidden(true)
     }
 }
@@ -48,7 +49,8 @@ private extension HotOnboardingView {
                 backgroundColor: .clear,
                 height: viewModel.navigationBarHeight
             ),
-            leftButtons: navBarLeadingButtons
+            leftButtons: navBarLeadingButtons,
+            rightButtons: navBarTrailingButtons
         )
     }
 
@@ -67,6 +69,25 @@ private extension HotOnboardingView {
                 .padding(.leading, 16)
         case .none:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    func navBarTrailingButtons() -> some View {
+        switch viewModel.trailingButtonStyle {
+        case .skip:
+            skipButton
+                .padding(.trailing, 16)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    var skipButton: some View {
+        Button(action: viewModel.onSkipTap) {
+            Text(viewModel.skipTitle)
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .frame(height: viewModel.navigationBarHeight)
         }
     }
 }
@@ -91,7 +112,10 @@ private extension HotOnboardingView {
             case .createWallet:
                 HotOnboardingCreateWalletView(viewModel: viewModel.createWalletViewModel)
             case .importWallet:
-                HotOnboardingImportWalletView(viewModel: viewModel.importWalletViewModel)
+                OnboardingSeedPhraseImportView(viewModel: viewModel.importWalletViewModel)
+                    .padding(.top, 32)
+            case .importCompleted:
+                HotOnboardingSuccessView(viewModel: viewModel.importCompletedViewModel)
             case .seedPhraseIntro:
                 HotOnboardingSeedPhraseIntroView(viewModel: viewModel.seedPhraseIntroViewModel)
             case .seedPhraseRecovery:
@@ -101,9 +125,22 @@ private extension HotOnboardingView {
             case .seedPhraseUserValidation:
                 viewModel.seedPhraseUserValidationViewModel.map {
                     OnboardingSeedPhraseUserValidationView(viewModel: $0)
+                        .padding(.top, 32)
                 }
             case .seedPhraseCompleted:
-                HotOnboardingSeedPhraseCompletedView(viewModel: viewModel.seedPhraseCompletedViewModel)
+                HotOnboardingSuccessView(viewModel: viewModel.seedPhraseCompletedViewModel)
+            case .checkAccessCode:
+                HotOnboardingCheckAccessCodeView(viewModel: viewModel.checkAccessCodeViewModel)
+            case .accessCode:
+                HotOnboardingAccessCodeView(viewModel: viewModel.accessCodeViewModel)
+            case .pushNotifications:
+                PushNotificationsPermissionRequestView(
+                    viewModel: viewModel.pushNotificationsViewModel,
+                    topInset: 0,
+                    buttonsAxis: .vertical
+                )
+            case .done:
+                HotOnboardingSuccessView(viewModel: viewModel.doneViewModel)
             }
         }
     }
