@@ -89,7 +89,7 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
                 return .init(records: records)
             }
             .mapError { moyaError -> Swift.Error in
-                return WalletError.failedToParseNetworkResponse()
+                return BlockchainSdkError.failedToParseNetworkResponse()
             }
             .eraseToAnyPublisher()
     }

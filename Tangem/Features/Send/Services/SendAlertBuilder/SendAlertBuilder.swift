@@ -23,11 +23,9 @@ protocol SendAlertBuilder {
 extension SendAlertBuilder {
     func makeTransactionFailedAlert(sendTxError: SendTxError, openMailAction: @escaping () -> Void) -> AlertBinder {
         let reason = String(sendTxError.localizedDescription.dropTrailingPeriod)
-        let errorCode = (sendTxError.error as? ErrorCodeProviding).map { "\($0.errorCode)" } ?? "-"
-
         return AlertBuilder.makeAlert(
             title: Localization.sendAlertTransactionFailedTitle,
-            message: Localization.sendAlertTransactionFailedText(reason, errorCode),
+            message: Localization.sendAlertTransactionFailedText(reason, sendTxError.errorCode),
             primaryButton: .default(Text(Localization.alertButtonRequestSupport), action: openMailAction),
             secondaryButton: .default(Text(Localization.commonCancel))
         )
