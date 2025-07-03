@@ -36,7 +36,7 @@ class SolanaNetworkService {
         )
         .tryMap { [weak self] mainAccount, splTokenAccounts, token2022Accounts in
             guard let self = self else {
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
 
             let tokenAccounts = splTokenAccounts + token2022Accounts
@@ -143,7 +143,7 @@ class SolanaNetworkService {
         solanaSdk.api.getFees(commitment: nil)
             .tryMap { [weak self] fee in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 guard let lamportsPerSignature = fee.feeCalculator?.lamportsPerSignature else {
@@ -180,7 +180,7 @@ class SolanaNetworkService {
         solanaSdk.api.getMinimumBalanceForRentExemption(dataLength: dataLength)
             .tryMap { [weak self] balanceInLamports in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return Decimal(balanceInLamports) / blockchain.decimalValue
