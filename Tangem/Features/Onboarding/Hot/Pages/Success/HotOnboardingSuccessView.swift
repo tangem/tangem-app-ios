@@ -1,5 +1,5 @@
 //
-//  HotOnboardingSeedPhraseCompletedView.swift
+//  HotOnboardingSuccessView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct HotOnboardingSeedPhraseCompletedView: View {
-    typealias ViewModel = HotOnboardingSeedPhraseCompletedViewModel
+struct HotOnboardingSuccessView: View {
+    typealias ViewModel = HotOnboardingSuccessViewModel
 
     let viewModel: ViewModel
 
@@ -22,6 +22,7 @@ struct HotOnboardingSeedPhraseCompletedView: View {
             Spacer()
             continueButton(viewModel.continueItem)
         }
+        .onAppear(perform: viewModel.onAppear)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
@@ -29,7 +30,7 @@ struct HotOnboardingSeedPhraseCompletedView: View {
 
 // MARK: - Subviews
 
-extension HotOnboardingSeedPhraseCompletedView {
+extension HotOnboardingSuccessView {
     func infoView(_ item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 20) {
             item.icon.image
@@ -41,7 +42,6 @@ extension HotOnboardingSeedPhraseCompletedView {
                 Text(item.description)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 48)
             }
         }
     }
