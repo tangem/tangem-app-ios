@@ -36,7 +36,7 @@ extension NEARAddressResolver: AddressResolver {
                 .tryMap { accountInfo in
                     switch accountInfo {
                     case .notInitialized:
-                        throw WalletError.empty // The particular type of this error doesn't matter
+                        throw BlockchainSdkError.empty // The particular type of this error doesn't matter
                     case .initialized(let account):
                         return account
                     }

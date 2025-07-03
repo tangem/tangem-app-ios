@@ -125,8 +125,15 @@ struct ScriptChunkHelper {
 
 // MARK: - Errors
 
-enum ScriptChunkError: Error {
+enum ScriptChunkError: Error, LocalizedError {
     case error(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .error(let message):
+            return "ScriptChunkError: \(message)"
+        }
+    }
 }
 
 // MARK: - Utils

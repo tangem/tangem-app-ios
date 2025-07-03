@@ -8,14 +8,25 @@
 
 import Foundation
 import TangemLocalization
+import TangemFoundation
+import Moya
 
-public enum BlockchainSdkError: Int, LocalizedError {
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
-
-    case signatureCountNotMatched = 0
-    case failedToCreateMultisigScript = 1
-    case failedToConvertPublicKey = 2
-    case notImplemented = -1000
+public enum BlockchainSdkError: LocalizedError {
+    case noAPIInfo
+    case noAccount(message: String, amountToCreate: Decimal)
+    case failedToGetFee
+    case failedToBuildTx
+    case failedToParseNetworkResponse(Response? = nil)
+    case failedToSendTx
+    case failedToCalculateTxSize
+    case empty
+    case blockchainUnavailable(underlyingError: Error)
+    case accountNotActivated
+    case addressesIsEmpty
+    case signatureCountNotMatched
+    case failedToCreateMultisigScript
+    case failedToConvertPublicKey
+    case notImplemented
     case decodingFailed
     case failedToLoadFee
     case failedToLoadTxDetails
@@ -23,46 +34,23 @@ public enum BlockchainSdkError: Int, LocalizedError {
     case failedToFindTxInputs
     case feeForPushTxNotEnough
     case networkProvidersNotSupportsRbf
-    case noAPIInfo
-
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
+    case networkUnavailable
+    case twMakeAddressFailed
 
     public var errorDescription: String? {
         switch self {
+        case .noAccount(let message, _):
+            return message
+        case .failedToGetFee:
+            return Localization.commonFeeError
+        case .failedToBuildTx:
+            return Localization.commonBuildTxError
+        case .failedToSendTx:
+            return Localization.commonSendTxError
         case .failedToLoadFee:
             return Localization.commonFeeError
-        case .signatureCountNotMatched, .notImplemented:
-            // [REDACTED_TODO_COMMENT]
-            return Localization.genericError
         default:
-            return Localization.genericError
+            return Localization.genericErrorCode(errorCode)
         }
     }
-
-    @available(*, deprecated, message: "Use errorDescription and errorCode instead")
-    public var errorDescriptionWithCode: String {
-        switch self {
-        case .failedToLoadFee:
-            return Localization.commonFeeError
-        case .signatureCountNotMatched, .notImplemented:
-            // [REDACTED_TODO_COMMENT]
-            return Localization.genericErrorCode(errorCodeDescription)
-        default:
-            return Localization.genericErrorCode(errorCodeDescription)
-        }
-    }
-
-    private var errorCodeDescription: String {
-        "blockchain_sdk_error \(rawValue)"
-    }
-}
-
-extension BlockchainSdkError: ErrorCodeProviding {
-    public var errorCode: Int {
-        rawValue
-    }
-}
-
-public enum NetworkServiceError: Error {
-    case notAvailable
 }

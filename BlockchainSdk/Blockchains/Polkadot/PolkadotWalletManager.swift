@@ -74,7 +74,7 @@ extension PolkadotWalletManager: TransactionSender {
             let existentialDeposit = network.existentialDeposit
             if transaction.amount < existentialDeposit, destinationBalance == BigUInt(0) {
                 let message = Localization.noAccountPolkadot(existentialDeposit.string(roundingMode: .plain))
-                return Fail(error: WalletError.noAccount(message: message, amountToCreate: existentialDeposit.value)).eraseToAnyPublisher()
+                return Fail(error: BlockchainSdkError.noAccount(message: message, amountToCreate: existentialDeposit.value)).eraseToAnyPublisher()
             }
 
             return sign(amount: transaction.amount, destination: transaction.destinationAddress, meta: meta, signer: signer)
@@ -85,7 +85,7 @@ extension PolkadotWalletManager: TransactionSender {
             }
             return networkService
                 .submitExtrinsic(data: image)
-                .mapSendError(tx: image.hex())
+                .mapAndEraseSendTxError(tx: image.hex())
                 .eraseToAnyPublisher()
         }
         .tryMap { [weak self] hash in
@@ -94,7 +94,7 @@ extension PolkadotWalletManager: TransactionSender {
             self?.wallet.addPendingTransaction(record)
             return TransactionSendResult(hash: hash)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 
@@ -112,7 +112,7 @@ extension PolkadotWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .tryMap { walletManager, bigUIntValue in
                 guard let feeDecimalValue = bigUIntValue.decimal else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 let feeAmount = Amount(
@@ -130,7 +130,7 @@ extension PolkadotWalletManager: TransactionSender {
         return Just(())
             .tryMap { [weak self] _ in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
                 return try txBuilder.buildForSign(
                     amount: amount,
@@ -146,7 +146,7 @@ extension PolkadotWalletManager: TransactionSender {
             }
             .tryMap { [weak self] signature in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
                 return try txBuilder.buildForSend(
                     amount: amount,
@@ -179,7 +179,7 @@ private class Ed25519DummyTransactionSigner: TransactionSigner {
     private let privateKey = Data(repeating: 0, count: 32)
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        Fail(error: WalletError.empty).eraseToAnyPublisher()
+        Fail(error: BlockchainSdkError.empty).eraseToAnyPublisher()
     }
 
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
@@ -195,6 +195,6 @@ private class Ed25519DummyTransactionSigner: TransactionSigner {
         dataToSign: [SignData],
         seedKey: Data
     ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
-        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
+        Fail(error: BlockchainSdkError.failedToGetFee).eraseToAnyPublisher()
     }
 }

@@ -9,10 +9,14 @@
 import Foundation
 
 /// Returned on 2xx/4xx/5xx HTTP status codes.
-extension SubscanAPIResult {
+extension SubscanAPIResult: LocalizedError {
     struct Error: Swift.Error {
         let code: Int
         let message: String?
+
+        var errorDescription: String? {
+            "Subscan Error: code: \(code), message: \(String(describing: message))"
+        }
     }
 }
 

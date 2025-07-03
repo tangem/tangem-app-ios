@@ -124,7 +124,7 @@ private func convertToDecimal(_ str: String) -> Decimal {
 // MARK: - Migration
 
 extension ExpressPendingTransactionRecord {
-    private enum MigrationError: Error {
+    enum MigrationError: Error {
         case networkMismatch
     }
 
