@@ -1,5 +1,5 @@
 //
-//  CommonAllowanceProvider.swift
+//  CommonAllowanceService.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,7 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-// Convenient aliases. Move it to BSDK
-// [REDACTED_TODO_COMMENT]
-typealias AllowanceState = TangemExpress.AllowanceState
-typealias ApprovePolicy = TangemExpress.ExpressApprovePolicy
-typealias ApproveTransactionData = TangemExpress.ApproveTransactionData
-typealias AllowanceProvider = TangemExpress.AllowanceProvider
-
-class CommonAllowanceProvider {
+class CommonAllowanceService {
     private let tokenItem: TokenItem
     private let allowanceChecker: AllowanceChecker
 
@@ -29,9 +22,9 @@ class CommonAllowanceProvider {
     }
 }
 
-// MARK: - AllowanceProvider
+// MARK: - AllowanceService
 
-extension CommonAllowanceProvider: ExpressAllowanceProvider {
+extension CommonAllowanceService: AllowanceService {
     var isSupportAllowance: Bool {
         tokenItem.blockchain.isEvm && tokenItem.isToken
     }
