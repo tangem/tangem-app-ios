@@ -56,17 +56,18 @@ class BaseTestCase: XCTestCase {
 
     func launchApp(
         tangemApiType: TangemAPI? = nil,
+        expressApiType: ExpressAPI? = nil,
         resetToS: Bool = false,
         additionalArguments: [String] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
-        // Check if tangem_api_type is already passed via fastlane/xcargs
-        let hasTangemApiTypeFromFastlane = ProcessInfo.processInfo.arguments.contains("-tangem_api_type")
-
-        // Only add tangem_api_type if it's not already provided by fastlane
-        if !hasTangemApiTypeFromFastlane, let tangemApiType {
+        if let tangemApiType {
             arguments.append(contentsOf: ["-tangem_api_type", tangemApiType.rawValue])
+        }
+
+        if let expressApiType {
+            arguments.append(contentsOf: ["-api_express", expressApiType.rawValue])
         }
 
         if resetToS {
