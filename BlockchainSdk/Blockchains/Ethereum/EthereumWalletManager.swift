@@ -363,7 +363,7 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransaction in
                 walletManager.networkService.send(transaction: rawTransaction)
-                    .mapSendError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction)
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
@@ -373,7 +373,7 @@ extension EthereumWalletManager: TransactionSender {
 
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
