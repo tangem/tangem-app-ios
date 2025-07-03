@@ -36,7 +36,7 @@ class KaspaNetworkProviderKRC20: HostProvider {
             .map(T.self, using: decoder)
             .mapError { moyaError in
                 if case .objectMapping = moyaError {
-                    return WalletError.failedToParseNetworkResponse()
+                    return BlockchainSdkError.failedToParseNetworkResponse()
                 }
                 return moyaError
             }

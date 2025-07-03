@@ -548,7 +548,7 @@ extension Error {
     var marketsAnalyticsParams: [Analytics.ParameterKey: String] {
         var analyticsParams = [Analytics.ParameterKey: String]()
 
-        analyticsParams[.errorMessage] = (self as? LocalizedError)?.localizedDescription
+        analyticsParams[.errorMessage] = localizedDescription
         analyticsParams[.errorCode] = marketsErrorCode(for: self)
         analyticsParams[.errorType] = marketsErrorType(for: self).rawValue
 
