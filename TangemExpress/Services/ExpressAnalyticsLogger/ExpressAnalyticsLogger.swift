@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public protocol ExpressAnalyticsLogger {
     /// Swap
@@ -15,8 +16,8 @@ public protocol ExpressAnalyticsLogger {
     func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?)
 
     func logSwapTransactionAnalyticsEvent(destination: String?)
-    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy, destination: String?)
-    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String)
+    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?)
+    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String)
 
     // Onramp
     func logAppError(_ error: Error, provider: ExpressProvider)
