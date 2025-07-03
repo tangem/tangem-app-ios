@@ -39,7 +39,7 @@ struct PolkadotQueriedInfo: ScaleCodec.Decodable {
             partialFee = .init(fee)
         case 16:
             let bytes: Data = try decoder.decode(.fixed(16))
-            partialFee = BigUInt(bytes)
+            partialFee = BigUInt(littleEndian: bytes)
         default:
             throw BlockchainSdkError.failedToGetFee
         }
@@ -67,6 +67,6 @@ struct PolkadotAccountData: ScaleCodec.Decodable {
 
     init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
         let bytes: Data = try decoder.decode(.fixed(32))
-        free = BigUInt(bytes)
+        free = BigUInt(littleEndian: bytes)
     }
 }
