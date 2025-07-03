@@ -80,7 +80,7 @@ class AlephiumNetworkService: MultiNetworkProvider {
                         let balance = Decimal(stringValue: $0.balance),
                         let lockedBalance = Decimal(stringValue: $0.lockedBalance)
                     else {
-                        throw WalletError.empty
+                        throw BlockchainSdkError.empty
                     }
 
                     return AlephiumBalanceInfo(value: balance, lockedValue: lockedBalance)
