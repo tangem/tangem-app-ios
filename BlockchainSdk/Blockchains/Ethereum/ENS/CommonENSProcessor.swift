@@ -83,7 +83,7 @@ struct CommonENSProcessor: ENSProcessor {
     private func normalizeAndCheckName(_ name: String) throws -> String {
         let normalized = name.lowercased()
         let range = NSRange(location: 0, length: normalized.utf16.count)
-        
+
         guard ensNameRegex.firstMatch(in: normalized, range: NSRange(location: 0, length: normalized.count)) != nil else {
             throw Error.invalidName(normalized)
         }

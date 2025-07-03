@@ -246,8 +246,11 @@ extension WalletConnectDAppConnectionRequestViewModel {
             return
         }
 
-        let solanaBlockchain = Blockchain.solana(curve: .ed25519, testnet: false)
-        let hasSolanaInSelectedBlockchains = selectedBlockchains.contains(solanaBlockchain)
+        let solanaNetworkID = Blockchain.solana(curve: .ed25519, testnet: false).networkId
+
+        let hasSolanaInSelectedBlockchains = selectedBlockchains
+            .map(\.networkId)
+            .contains(solanaNetworkID)
 
         guard !hasSolanaInSelectedBlockchains else {
             connectFromSolanaWarning(loadedDAppProposal: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
