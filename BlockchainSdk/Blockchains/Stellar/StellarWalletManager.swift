@@ -126,27 +126,27 @@ extension StellarWalletManager: TransactionSender {
                 .map { return ($0, buildForSignResponse) }.eraseToAnyPublisher()
             }
             .tryMap { [weak self] result throws -> String in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 guard let tx = self.txBuilder.buildForSend(signature: result.0, transaction: result.1.transaction) else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
 
                 return tx
             }
             .flatMap { [weak self] rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
                 self?.networkService.send(transaction: rawTransactionHash).tryMap { [weak self] hash in
-                    guard let self = self else { throw WalletError.empty }
+                    guard let self = self else { throw BlockchainSdkError.empty }
 
                     let mapper = PendingTransactionRecordMapper()
                     let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                     wallet.addPendingTransaction(record)
                     return TransactionSendResult(hash: hash)
                 }
-                .mapSendError(tx: rawTransactionHash)
+                .mapAndEraseSendTxError(tx: rawTransactionHash)
                 .eraseToAnyPublisher() ?? .emptyFail
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 

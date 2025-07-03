@@ -54,7 +54,7 @@ extension VisaNotificationEvent: NotificationEvent {
     var description: String? {
         switch self {
         case .error(let error):
-            return error.universalErrorMessage
+            return error.localizedDescription
         case .onboardingAccountActivationInfo:
             return Localization.visaOnboardingApproveWalletSelectorNotificationMessage
         case .missingValidRefreshToken:
