@@ -15,7 +15,6 @@ protocol SendNewDestinationInteractor {
     var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 
-    var hasError: Bool { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
     var destinationValid: AnyPublisher<Bool, Never> { get }
@@ -47,6 +46,7 @@ class CommonSendNewDestinationInteractor {
     private let _suggestedWallets: CurrentValueSubject<[SendSuggestedDestinationWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendSuggestedDestinationTransactionRecord], Never> = .init([])
 
+    private var updatingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -129,10 +129,10 @@ class CommonSendNewDestinationInteractor {
             return address
         }
 
+        defer { _isValidatingDestination.send(false) }
+
         _isValidatingDestination.send(true)
         let resolved = try await addressResolver.resolve(address)
-        _isValidatingDestination.send(false)
-
         return resolved
     }
 }
@@ -199,14 +199,16 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
             return
         }
 
-        runTask(in: self) { interactor in
+        updatingTask?.cancel()
+        updatingTask = runTask(in: self) {
             do {
                 try validator.validate(destination: address)
-                let resolved = try await interactor.resolveIfPossible(address: address)
-
-                interactor.update(destination: .success(resolved), source: source)
+                let resolved = try await $0.resolveIfPossible(address: address)
+                $0.update(destination: .success(resolved), source: source)
+            } catch is CancellationError {
+                // Do nothing
             } catch {
-                interactor.update(destination: .failure(error), source: source)
+                $0.update(destination: .failure(error), source: source)
             }
         }
     }
