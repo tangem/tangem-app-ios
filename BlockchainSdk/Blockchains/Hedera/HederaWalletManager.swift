@@ -359,7 +359,7 @@ final class HederaWalletManager: BaseManager {
                     )
                 }
             )
-            .mapError(WalletError.blockchainUnavailable(underlyingError:))
+            .mapError(BlockchainSdkError.blockchainUnavailable(underlyingError:))
     }
 
     // MARK: - Token associations management
@@ -423,7 +423,7 @@ final class HederaWalletManager: BaseManager {
                 .map(Optional.init)
                 .eraseToAnyPublisher()
         case .reserve, .feeResource:
-            return .anyFail(error: WalletError.failedToGetFee)
+            return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
         return Publishers.CombineLatest3(
@@ -472,7 +472,7 @@ final class HederaWalletManager: BaseManager {
         return Deferred {
             return Future { (promise: Future<HederaTransactionBuilder.CompiledTransaction, Error>.Promise) in
                 guard let validStartDate = Self.makeTransactionValidStartDate() else {
-                    return promise(.failure(WalletError.failedToBuildTx))
+                    return promise(.failure(BlockchainSdkError.failedToBuildTx))
                 }
 
                 let compiledTransaction = Result { try transactionFactory(validStartDate) }
@@ -504,7 +504,7 @@ final class HederaWalletManager: BaseManager {
             return walletManager
                 .networkService
                 .send(transaction: compiledTransaction)
-                .mapSendError(tx: transactionRawData?.hex())
+                .mapAndEraseSendTxError(tx: transactionRawData?.hex())
                 .eraseToAnyPublisher()
         }
     }
@@ -533,7 +533,7 @@ extension HederaWalletManager: WalletManager {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         return sendCompiledTransaction(signedUsing: signer) { [weak self] validStartDate in
             guard let self else {
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
 
             return try transactionBuilder
@@ -547,7 +547,7 @@ extension HederaWalletManager: WalletManager {
         .handleEvents(receiveOutput: { walletManager, sendResult in
             walletManager.updateWalletWithPendingTransferTransaction(transaction, sendResult: sendResult)
         })
-        .eraseSendError()
+        .mapSendTxError()
         .map(\.1)
         .eraseToAnyPublisher()
     }
@@ -590,7 +590,7 @@ extension HederaWalletManager: AssetRequirementsManager {
         case .token(let token):
             return sendCompiledTransaction(signedUsing: signer) { [weak self] validStartDate in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return try transactionBuilder.buildTokenAssociationForSign(
