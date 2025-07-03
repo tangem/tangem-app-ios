@@ -48,7 +48,7 @@ final class AptosTransactionBuilder {
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
@@ -56,7 +56,7 @@ final class AptosTransactionBuilder {
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error("AptosPreSigningOutput has a error", error: preSigningOutput.errorMessage)
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return preSigningOutput.data
@@ -67,7 +67,7 @@ final class AptosTransactionBuilder {
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let compiledTransaction = TransactionCompiler.compileWithSignatures(
@@ -81,11 +81,11 @@ final class AptosTransactionBuilder {
 
         guard signingOutput.error == .ok, signingOutput.hasAuthenticator else {
             BSDKLogger.error(error: "AptosSigningOutput has a error")
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         guard let convertJsonData = signingOutput.json.data(using: .utf8) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return convertJsonData
