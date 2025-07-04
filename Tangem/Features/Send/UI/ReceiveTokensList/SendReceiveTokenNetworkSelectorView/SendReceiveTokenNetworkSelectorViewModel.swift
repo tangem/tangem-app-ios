@@ -72,18 +72,14 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func getNetworksWithoutLoad() async throws -> [SendReceiveTokenNetworkSelectorNetworkViewData]? {
-        guard let sourceToken = sourceTokenInput?.sourceToken else {
-            throw CommonError.objectReleased
-        }
+        let availableNetworks = try await availableNetworks()
 
-        let pairs = await expressRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
-        guard !pairs.isEmpty else {
+        guard !availableNetworks.isEmpty else {
             return nil
         }
 
-        let items = networks.map { network in
-            let isAvailable = pairs.contains(where: { $0.destination == network.expressCurrency.asCurrency })
-            return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network, isAvailable: isAvailable)
+        let items = availableNetworks.map { network in
+            return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network)
         }
 
         return items
@@ -94,25 +90,34 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        let source = sourceToken.tokenItem.expressCurrency
-        try await expressRepository.updatePairs(from: source, to: networks.map(\.expressCurrency))
-        let pairs = await expressRepository.getPairs(from: source)
+        try await expressRepository.updatePairs(from: sourceToken.tokenItem.expressCurrency, to: networks.map(\.expressCurrency))
 
-        let items = networks.map { network in
-            let isAvailable = pairs.contains(where: { $0.destination == network.expressCurrency.asCurrency })
-            return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network, isAvailable: isAvailable)
+        let items = try await availableNetworks().map { network in
+            return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network)
         }
 
         return items
     }
 
-    private func mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: TokenItem, isAvailable: Bool) -> SendReceiveTokenNetworkSelectorNetworkViewData {
+    private func availableNetworks() async throws -> [TokenItem] {
+        guard let sourceToken = sourceTokenInput?.sourceToken else {
+            throw CommonError.objectReleased
+        }
+
+        let pairs = await expressRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
+        let availableNetworks = networks.filter { network in
+            pairs.contains { $0.destination == network.expressCurrency.asCurrency }
+        }
+
+        return availableNetworks
+    }
+
+    private func mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: TokenItem) -> SendReceiveTokenNetworkSelectorNetworkViewData {
         SendReceiveTokenNetworkSelectorNetworkViewData(
             id: tokenItem.blockchain.networkId,
             iconURL: IconURLBuilder().tokenIconURL(id: tokenItem.blockchain.coinId, size: .large),
             name: tokenItem.blockchain.displayName,
-            symbol: tokenItem.blockchain.currencySymbol,
-            isAvailable: isAvailable
+            symbol: tokenItem.blockchain.currencySymbol
         ) { [weak self] in
             self?.userDidSelect(tokenItem: tokenItem)
         }
