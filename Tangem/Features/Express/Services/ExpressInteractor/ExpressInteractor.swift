@@ -209,6 +209,26 @@ extension ExpressInteractor: ApproveViewModelInput {
 // MARK: - Send
 
 extension ExpressInteractor {
+    func sendTransaction() async throws -> TransactionSendResultState {
+        switch getState() {
+        case .idle, .loading, .restriction:
+            throw ExpressInteractorError.transactionDataNotFound
+        case .permissionRequired:
+            assertionFailure("Should called sendApproveTransaction()")
+            throw ExpressInteractorError.transactionDataNotFound
+        case .previewCEX(let state, _):
+            guard let provider = await expressManager.getSelectedProvider() else {
+                throw ExpressInteractorError.providerNotFound
+            }
+            return try await sendCEXTransaction(state: state, provider: provider.provider)
+        case .readyToSwap(let state, _):
+            guard let provider = await expressManager.getSelectedProvider() else {
+                throw ExpressInteractorError.providerNotFound
+            }
+            return try await sendDEXTransaction(state: state, provider: provider.provider)
+        }
+    }
+
     func send() async throws -> SentExpressTransactionData {
         guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
@@ -216,30 +236,12 @@ extension ExpressInteractor {
 
         logSwapTransactionAnalyticsEvent()
 
-        let result: TransactionSendResultState = try await {
-            switch getState() {
-            case .idle, .loading, .restriction:
-                throw ExpressInteractorError.transactionDataNotFound
-            case .permissionRequired:
-                assertionFailure("Should called sendApproveTransaction()")
-                throw ExpressInteractorError.transactionDataNotFound
-            case .previewCEX(let state, _):
-                guard let provider = await expressManager.getSelectedProvider() else {
-                    throw ExpressInteractorError.providerNotFound
-                }
-                return try await sendCEXTransaction(state: state, provider: provider.provider)
-            case .readyToSwap(let state, _):
-                guard let provider = await expressManager.getSelectedProvider() else {
-                    throw ExpressInteractorError.providerNotFound
-                }
-                return try await sendDEXTransaction(state: state, provider: provider.provider)
-            }
-        }()
+        let result: TransactionSendResultState = try await sendTransaction()
 
         // Ignore error here
         let source = getSender()
         let expressSentResult = ExpressTransactionSentResult(
-            hash: result.hash,
+            hash: result.dispatcherResult.hash,
             source: source.tokenItem.expressCurrency,
             address: source.defaultAddressString,
             data: result.data
@@ -248,7 +250,7 @@ extension ExpressInteractor {
 
         updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
-            hash: result.hash,
+            hash: result.dispatcherResult.hash,
             source: getSender(),
             destination: destination,
             fee: result.fee.amount.value,
@@ -258,7 +260,7 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
-        logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.signerType)
+        logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
 
         return sentTransactionData
@@ -475,7 +477,7 @@ private extension ExpressInteractor {
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: state.data, fee: fee)
         let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
 
-        return TransactionSendResultState(hash: result.hash, signerType: result.signerType, data: state.data, fee: fee, provider: provider)
+        return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: provider)
     }
 
     func sendCEXTransaction(state: PreviewCEXState, provider: ExpressProvider) async throws -> TransactionSendResultState {
@@ -485,7 +487,7 @@ private extension ExpressInteractor {
         let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: data, fee: fee)
         let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .transfer(transaction))
 
-        return TransactionSendResultState(hash: result.hash, signerType: result.signerType, data: data, fee: fee, provider: provider)
+        return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: provider)
     }
 }
 
@@ -782,8 +784,7 @@ extension ExpressInteractor {
     }
 
     struct TransactionSendResultState {
-        let hash: String
-        let signerType: String
+        let dispatcherResult: TransactionDispatcherResult
         let data: ExpressTransactionData
         let fee: Fee
         let provider: ExpressProvider
