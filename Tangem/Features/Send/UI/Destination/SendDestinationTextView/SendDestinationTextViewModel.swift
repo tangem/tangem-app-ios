@@ -66,6 +66,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
             // Skip the initial value
             .dropFirst()
             .removeDuplicates()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 self?.didEnterDestination($0)
             }
