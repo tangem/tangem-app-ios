@@ -1,5 +1,5 @@
 //
-//  TokenWithAmountViewData.swift
+//  SendNewAmountTokenViewData.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemUI
 
-struct TokenWithAmountViewData: Identifiable {
+struct SendNewAmountTokenViewData: Identifiable {
     var id: Int { hashValue }
 
     let tokenIconInfo: TokenIconInfo
@@ -17,7 +17,13 @@ struct TokenWithAmountViewData: Identifiable {
     let detailsType: DetailsType?
     let action: (() -> Void)?
 
-    init(tokenIconInfo: TokenIconInfo, title: String, subtitle: String, detailsType: DetailsType? = .none, action: (() -> Void)? = nil) {
+    init(
+        tokenIconInfo: TokenIconInfo,
+        title: String,
+        subtitle: String,
+        detailsType: DetailsType? = .none,
+        action: (() -> Void)? = nil
+    ) {
         self.tokenIconInfo = tokenIconInfo
         self.title = title
         self.subtitle = subtitle
@@ -26,8 +32,8 @@ struct TokenWithAmountViewData: Identifiable {
     }
 }
 
-extension TokenWithAmountViewData: Hashable {
-    static func == (lhs: TokenWithAmountViewData, rhs: TokenWithAmountViewData) -> Bool {
+extension SendNewAmountTokenViewData: Hashable {
+    static func == (lhs: SendNewAmountTokenViewData, rhs: SendNewAmountTokenViewData) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 
@@ -36,18 +42,25 @@ extension TokenWithAmountViewData: Hashable {
         hasher.combine(title)
         hasher.combine(subtitle)
         hasher.combine(detailsType)
-        hasher.combine(action == nil)
     }
 }
 
-extension TokenWithAmountViewData {
+extension SendNewAmountTokenViewData {
     enum DetailsType: Hashable {
         case loading
         case max(action: () -> Void)
-        case amount(String)
-        case select(amount: String? = .none, action: () -> Void)
+        case select(amount: String? = .none, individualAction: (() -> Void)? = .none)
 
-        static func == (lhs: TokenWithAmountViewData.DetailsType, rhs: TokenWithAmountViewData.DetailsType) -> Bool {
+        var individualAction: (() -> Void)? {
+            switch self {
+            case .loading, .max:
+                return nil
+            case .select(_, individualAction: let individualAction):
+                return individualAction
+            }
+        }
+
+        static func == (lhs: SendNewAmountTokenViewData.DetailsType, rhs: SendNewAmountTokenViewData.DetailsType) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
 
@@ -55,7 +68,6 @@ extension TokenWithAmountViewData {
             switch self {
             case .loading: hasher.combine("loading")
             case .max: hasher.combine("max")
-            case .amount(let string): hasher.combine(string)
             case .select(let amount, _): hasher.combine(amount)
             }
         }
