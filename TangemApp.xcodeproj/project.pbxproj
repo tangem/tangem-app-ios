@@ -21812,8 +21812,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/IcpKit.git";
 			requirement = {
-				kind = exactVersion;
-				version = "0.1.2-tangem4";
+				branch = "feature/IOS-9480_migrate_bsdk_to_spm";
+				kind = branch;
 			};
 		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {
