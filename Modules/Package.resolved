@@ -1,5 +1,5 @@
 {
-  "originHash" : "7066dd3e29479733d3ec2d6b4286ee13d24f3b081dfe58eb2d07dd6c90117d46",
+  "originHash" : "de210b902f975ebb7046310d117280755168a0773ba3a3fc993622629ad5bf8d",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -321,8 +321,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "33af3f9011e45dcd8ee696492d30dbcd5a8a67f3",
-        "version" : "2.6.0"
+        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
+        "version" : "2.4.2"
       }
     },
     {
