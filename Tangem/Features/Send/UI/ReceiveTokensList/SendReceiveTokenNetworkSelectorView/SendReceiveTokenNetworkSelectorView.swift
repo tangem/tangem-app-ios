@@ -57,7 +57,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
         switch viewModel.state {
         case .loading:
             ProgressView()
-                .padding(.vertical, 100)
+                .padding(.vertical, 150)
         case .success:
             EmptyView()
         case .failure(let error):
