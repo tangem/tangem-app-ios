@@ -399,8 +399,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, swapManager: SwapManager? = .none) -> CommonSendFeeProvider {
-        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader(), swapManager: swapManager)
+    func makeSendFeeProvider(input: any SendFeeProviderInput) -> CommonSendFeeProvider {
+        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader())
     }
 
     func makeFeeSelectorContentViewModelAnalytics(flowKind: SendModel.PredefinedValues.FlowKind) -> FeeSelectorContentViewModelAnalytics {
@@ -417,9 +417,9 @@ struct SendDependenciesBuilder {
     // MARK: - Send via swap
 
     func makeSendWithSwapModel(
+        swapManager: SwapManager,
         predefinedSellParameters: PredefinedSellParameters? = .none
     ) -> SendWithSwapModel {
-        let swapManager: SwapManager = makeSwapManager()
         let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
 
         return SendWithSwapModel(
@@ -489,6 +489,22 @@ struct SendDependenciesBuilder {
             receiveTokenInput: receiveTokenInput,
             sendNotificationManager: makeSendNotificationManager(),
             expressNotificationManager: makeExpressNotificationManager()
+        )
+    }
+
+    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
+        SwapFeeProvider(swapManager: swapManager)
+    }
+
+    func makeSendWithSwapFeeProvider(
+        receiveTokenInput: SendReceiveTokenInput,
+        sendFeeProvider: SendFeeProvider,
+        swapFeeProvider: SendFeeProvider
+    ) -> SendFeeProvider {
+        SendWithSwapFeeProvider(
+            receiveTokenInput: receiveTokenInput,
+            sendFeeProvider: sendFeeProvider,
+            swapFeeProvider: swapFeeProvider
         )
     }
 
