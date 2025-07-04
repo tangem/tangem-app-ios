@@ -23,8 +23,12 @@ protocol SwapManager {
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
+    var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
+
     func update(amount: Decimal?)
     func update(destination: TokenItem?, address: String?)
-
     func update(provider: ExpressAvailableProvider)
+
+    func updateFees()
+    func send() async throws -> TransactionDispatcherResult
 }
