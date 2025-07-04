@@ -59,7 +59,7 @@ extension CommonExpressAvailabilityProvider.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .providerNotCreated:
-            10304000
+            103004000
         }
     }
 }
