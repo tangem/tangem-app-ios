@@ -56,6 +56,7 @@ let package = Package(
 /// Valid examples are `CommonUI`, `Utils`, `NetworkLayer`, `ModelData`, etc.
 var serviceModules: [PackageDescription.Target] {
     [
+        // [REDACTED_TODO_COMMENT]
         .tangemTarget(
             name: "TangemAccessibilityIdentifiers",
             dependencies: []
@@ -180,6 +181,7 @@ var serviceModules: [PackageDescription.Target] {
 /// Valid examples are `Onboarding`, `Auth`, `Catalog`, etc.
 var featureModules: [PackageDescription.Target] {
     [
+        // [REDACTED_TODO_COMMENT]
         .tangemTarget(
             name: "TangemStories",
             dependencies: [
