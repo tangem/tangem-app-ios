@@ -47,7 +47,7 @@ struct SendNewAmountView: View {
 
             Separator(color: Colors.Stroke.primary)
 
-            TokenWithAmountView(data: viewModel.tokenWithAmountViewData)
+            SendNewAmountTokenView(data: viewModel.tokenWithAmountViewData)
                 .padding(.vertical, 14)
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
@@ -79,7 +79,7 @@ struct SendNewAmountView: View {
         case .selected(let receivedTokenViewModel):
             ZStack(alignment: .top) {
                 GroupedSection(receivedTokenViewModel) {
-                    TokenWithAmountView(data: $0)
+                    SendNewAmountTokenView(data: $0)
                 }
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(14)

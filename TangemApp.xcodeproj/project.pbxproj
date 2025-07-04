@@ -3067,8 +3067,8 @@
 		EF4041372DE46B62002F996A /* SendNewSummaryStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */; };
 		EF4041432DE4819D002F996A /* FiatItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041422DE48198002F996A /* FiatItem.swift */; };
 		EF4041452DE4830E002F996A /* SendAmountFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041442DE4830E002F996A /* SendAmountFormatter.swift */; };
-		EF4041492DE4E08B002F996A /* SendTokenAmountCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041382DE4712C002F996A /* SendTokenAmountCompactView.swift */; };
-		EF40414A2DE4E091002F996A /* SendTokenAmountCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40413B2DE47401002F996A /* SendTokenAmountCompactViewModel.swift */; };
+		EF4041492DE4E08B002F996A /* SendNewAmountCompactTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041382DE4712C002F996A /* SendNewAmountCompactTokenView.swift */; };
+		EF40414A2DE4E091002F996A /* SendNewAmountCompactTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40413B2DE47401002F996A /* SendNewAmountCompactTokenViewModel.swift */; };
 		EF40414C2DE4E098002F996A /* SendNewAmountCompactViewSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40414B2DE4E098002F996A /* SendNewAmountCompactViewSeparator.swift */; };
 		EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */; };
 		EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */; };
@@ -3531,7 +3531,7 @@
 		EFC692752D424FFD00A3CD44 /* BalanceFormatted.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC692742D424FFD00A3CD44 /* BalanceFormatted.swift */; };
 		EFC7AD5B2DD4F40F00AE78E1 /* SendNewAmountStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD5A2DD4F40F00AE78E1 /* SendNewAmountStepBuilder.swift */; };
 		EFC7AD5D2DD4F44000AE78E1 /* SendNewAmountStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD5C2DD4F44000AE78E1 /* SendNewAmountStep.swift */; };
-		EFC7AD612DD6128500AE78E1 /* TokenWithAmountViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD602DD6128500AE78E1 /* TokenWithAmountViewData.swift */; };
+		EFC7AD612DD6128500AE78E1 /* SendNewAmountTokenViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD602DD6128500AE78E1 /* SendNewAmountTokenViewData.swift */; };
 		EFC7AD632DD7620300AE78E1 /* SUITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD622DD7620300AE78E1 /* SUITextView.swift */; };
 		EFC7AD682DD770B800AE78E1 /* StringPasteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD672DD770B800AE78E1 /* StringPasteButton.swift */; };
 		EFC7AD6A2DD787F400AE78E1 /* SendNewDestinationTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD692DD787F400AE78E1 /* SendNewDestinationTextView.swift */; };
@@ -3621,7 +3621,7 @@
 		EFE8C7102C77388A0067CF2E /* MultipleRewardsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */; };
 		EFEB07C12C7CDFBC00E88352 /* WalletModelRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEB07C02C7CDFBC00E88352 /* WalletModelRate.swift */; };
 		EFECDDDE2D5CD5A0006793F6 /* LegacyFileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFECDDDD2D5CD5A0006793F6 /* LegacyFileLogger.swift */; };
-		EFED25A72DD247F100C70863 /* TokenWithAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFED25A62DD247F100C70863 /* TokenWithAmountView.swift */; };
+		EFED25A72DD247F100C70863 /* SendNewAmountTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFED25A62DD247F100C70863 /* SendNewAmountTokenView.swift */; };
 		EFEE22BA2BFCE3D10099917E /* WithdrawalNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE22B92BFCE3D10099917E /* WithdrawalNotificationEvent.swift */; };
 		EFEE22BC2BFCE44B0099917E /* ValidationErrorEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE22BB2BFCE44B0099917E /* ValidationErrorEvent.swift */; };
 		EFEE22BF2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE22BE2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift */; };
@@ -6891,8 +6891,8 @@
 		EF4041312DE46749002F996A /* SendNewSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryView.swift; sourceTree = "<group>"; };
 		EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryViewModel.swift; sourceTree = "<group>"; };
 		EF4041362DE46B62002F996A /* SendNewSummaryStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryStepBuilder.swift; sourceTree = "<group>"; };
-		EF4041382DE4712C002F996A /* SendTokenAmountCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTokenAmountCompactView.swift; sourceTree = "<group>"; };
-		EF40413B2DE47401002F996A /* SendTokenAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTokenAmountCompactViewModel.swift; sourceTree = "<group>"; };
+		EF4041382DE4712C002F996A /* SendNewAmountCompactTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountCompactTokenView.swift; sourceTree = "<group>"; };
+		EF40413B2DE47401002F996A /* SendNewAmountCompactTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountCompactTokenViewModel.swift; sourceTree = "<group>"; };
 		EF4041422DE48198002F996A /* FiatItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatItem.swift; sourceTree = "<group>"; };
 		EF4041442DE4830E002F996A /* SendAmountFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountFormatter.swift; sourceTree = "<group>"; };
 		EF40414B2DE4E098002F996A /* SendNewAmountCompactViewSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountCompactViewSeparator.swift; sourceTree = "<group>"; };
@@ -7363,7 +7363,7 @@
 		EFC692742D424FFD00A3CD44 /* BalanceFormatted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceFormatted.swift; sourceTree = "<group>"; };
 		EFC7AD5A2DD4F40F00AE78E1 /* SendNewAmountStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountStepBuilder.swift; sourceTree = "<group>"; };
 		EFC7AD5C2DD4F44000AE78E1 /* SendNewAmountStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountStep.swift; sourceTree = "<group>"; };
-		EFC7AD602DD6128500AE78E1 /* TokenWithAmountViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenWithAmountViewData.swift; sourceTree = "<group>"; };
+		EFC7AD602DD6128500AE78E1 /* SendNewAmountTokenViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountTokenViewData.swift; sourceTree = "<group>"; };
 		EFC7AD622DD7620300AE78E1 /* SUITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUITextView.swift; sourceTree = "<group>"; };
 		EFC7AD672DD770B800AE78E1 /* StringPasteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringPasteButton.swift; sourceTree = "<group>"; };
 		EFC7AD692DD787F400AE78E1 /* SendNewDestinationTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewDestinationTextView.swift; sourceTree = "<group>"; };
@@ -7452,7 +7452,7 @@
 		EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsRoutable.swift; sourceTree = "<group>"; };
 		EFEB07C02C7CDFBC00E88352 /* WalletModelRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelRate.swift; sourceTree = "<group>"; };
 		EFECDDDD2D5CD5A0006793F6 /* LegacyFileLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyFileLogger.swift; sourceTree = "<group>"; };
-		EFED25A62DD247F100C70863 /* TokenWithAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenWithAmountView.swift; sourceTree = "<group>"; };
+		EFED25A62DD247F100C70863 /* SendNewAmountTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewAmountTokenView.swift; sourceTree = "<group>"; };
 		EFEE22B92BFCE3D10099917E /* WithdrawalNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawalNotificationEvent.swift; sourceTree = "<group>"; };
 		EFEE22BB2BFCE44B0099917E /* ValidationErrorEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationErrorEvent.swift; sourceTree = "<group>"; };
 		EFEE22BE2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainSDKNotificationMapper.swift; sourceTree = "<group>"; };
@@ -17527,7 +17527,8 @@
 			children = (
 				EF29E89D2DF99D5200859AC7 /* SendNewAmountCompactView.swift */,
 				EF29E89F2DF9BFA400859AC7 /* SendNewAmountCompactViewModel.swift */,
-				EF40413A2DE47139002F996A /* SendTokenAmountCompactView */,
+				EF40413A2DE47139002F996A /* SendNewAmountCompactTokenView */,
+				EFF09E872DE71EF9008E4FE0 /* SendNewAmountCompactViewSeparator */,
 			);
 			path = SendNewAmountCompactViewModel;
 			sourceTree = "<group>";
@@ -17568,6 +17569,7 @@
 				EF3045F62DD3636100E14B3B /* SendNewAmountView.swift */,
 				EFA696F62DD4971600370459 /* SendNewAmountViewModel.swift */,
 				EFB4CA5B2E0C41D0003C1522 /* SendNewAmountRoutable.swift */,
+				EFED25A52DD247D300C70863 /* SendNewAmountTokenView */,
 			);
 			path = SendNewAmountView;
 			sourceTree = "<group>";
@@ -17644,13 +17646,13 @@
 			path = SendNewSummaryView;
 			sourceTree = "<group>";
 		};
-		EF40413A2DE47139002F996A /* SendTokenAmountCompactView */ = {
+		EF40413A2DE47139002F996A /* SendNewAmountCompactTokenView */ = {
 			isa = PBXGroup;
 			children = (
-				EF4041382DE4712C002F996A /* SendTokenAmountCompactView.swift */,
-				EF40413B2DE47401002F996A /* SendTokenAmountCompactViewModel.swift */,
+				EF4041382DE4712C002F996A /* SendNewAmountCompactTokenView.swift */,
+				EF40413B2DE47401002F996A /* SendNewAmountCompactTokenViewModel.swift */,
 			);
-			path = SendTokenAmountCompactView;
+			path = SendNewAmountCompactTokenView;
 			sourceTree = "<group>";
 		};
 		EF4041462DE48316002F996A /* Formatter */ = {
@@ -19576,10 +19578,8 @@
 				EFADE7922E0ED86C00CA7916 /* SendSourceTokenInput.swift */,
 				EFADE79B2E0EF42E00CA7916 /* SendSourceTokenAmountInput.swift */,
 				EF3045F82DD3636700E14B3B /* SendNewAmountView */,
-				EFED25A52DD247D300C70863 /* TokenWithAmountView */,
 				EF29E89A2DF99D3F00859AC7 /* SendNewAmountCompactViewModel */,
 				EF5A93832E166FD700570ABE /* SendNewAmountFinishViewModel */,
-				EFF09E872DE71EF9008E4FE0 /* SendNewAmountCompactViewSeparator */,
 				EFADE7942E0ED8DD00CA7916 /* Interactor */,
 				EF4041462DE48316002F996A /* Formatter */,
 			);
@@ -19866,13 +19866,13 @@
 			path = MultipleRewards;
 			sourceTree = "<group>";
 		};
-		EFED25A52DD247D300C70863 /* TokenWithAmountView */ = {
+		EFED25A52DD247D300C70863 /* SendNewAmountTokenView */ = {
 			isa = PBXGroup;
 			children = (
-				EFED25A62DD247F100C70863 /* TokenWithAmountView.swift */,
-				EFC7AD602DD6128500AE78E1 /* TokenWithAmountViewData.swift */,
+				EFED25A62DD247F100C70863 /* SendNewAmountTokenView.swift */,
+				EFC7AD602DD6128500AE78E1 /* SendNewAmountTokenViewData.swift */,
 			);
-			path = TokenWithAmountView;
+			path = SendNewAmountTokenView;
 			sourceTree = "<group>";
 		};
 		EFEE22BD2BFCF2D10099917E /* BlockchainSDKNotifications */ = {
@@ -20687,7 +20687,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCB14B152DC61FD40075F340 /* OldCommonWalletConnectService.swift in Sources */,
-				EF40414A2DE4E091002F996A /* SendTokenAmountCompactViewModel.swift in Sources */,
+				EF40414A2DE4E091002F996A /* SendNewAmountCompactTokenViewModel.swift in Sources */,
 				C26435772DF055A200C1F8B5 /* WalletConnectDAppProposalLoadingError.swift in Sources */,
 				DCB14B162DC61FD40075F340 /* OldWalletConnectService.swift in Sources */,
 				DCB14B172DC61FD40075F340 /* OldWalletConnectV2Factory.swift in Sources */,
@@ -20957,7 +20957,7 @@
 				B0B3FF6E2C0757E700B61EF7 /* ManageTokensView.swift in Sources */,
 				EF0DC11C2A0CE29E007E3DA7 /* ExpressApproveViewModel.swift in Sources */,
 				DCE2F7D72CE350F500BDE145 /* SellTokenSelectorStrings.swift in Sources */,
-				EFC7AD612DD6128500AE78E1 /* TokenWithAmountViewData.swift in Sources */,
+				EFC7AD612DD6128500AE78E1 /* SendNewAmountTokenViewData.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
 				EF4041432DE4819D002F996A /* FiatItem.swift in Sources */,
 				DC9632612C5140DB009B250A /* CommonExpressRefundedTokenHandler.swift in Sources */,
@@ -21046,7 +21046,7 @@
 				DC075F892DE1A1840092457A /* WCTransactionNetworkRow.swift in Sources */,
 				EFBB77B22CCBE925002D4A10 /* OnrampSummaryRoutable.swift in Sources */,
 				DC8E03112DE16AE6008967D8 /* WCValidatedRequest.swift in Sources */,
-				EF4041492DE4E08B002F996A /* SendTokenAmountCompactView.swift in Sources */,
+				EF4041492DE4E08B002F996A /* SendNewAmountCompactTokenView.swift in Sources */,
 				B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */,
 				EFA9854F2947787F00D1FCB3 /* FeeFormatterMock.swift in Sources */,
 				DC60D0F02CEAFB9500FF6BA8 /* ActionButtonsSwapView.swift in Sources */,
@@ -21393,7 +21393,7 @@
 				B64E38692C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift in Sources */,
 				EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */,
 				EF6961652CEE0BDD001EC00A /* OnrampNotificationEvent.swift in Sources */,
-				EFED25A72DD247F100C70863 /* TokenWithAmountView.swift in Sources */,
+				EFED25A72DD247F100C70863 /* SendNewAmountTokenView.swift in Sources */,
 				EFFA43742E03F5B1001E0E54 /* CommonExpressDependenciesFactory.swift in Sources */,
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */,
