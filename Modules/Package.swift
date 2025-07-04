@@ -172,7 +172,11 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
                 .product(name: "TonSwift", package: "ton-swift"),
                 // BSDK internal deps:
-                // TangemModules (different submodules)
+                // Use `find . -iname "*.swift" -type f  -exec grep -rF "import Tangem" {} \; | cut -d ':' -f2 | sort | uniq` to find all internal dependencies
+                "TangemFoundation",
+                "TangemLocalization",
+                "TangemLogger",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
