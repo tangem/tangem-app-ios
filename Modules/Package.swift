@@ -19,6 +19,12 @@ let package = Package(
                 modulesWrapperLibraryName,
             ]
         ),
+        .library(
+            name: "BlockchainSDK",
+            targets: [
+                "BlockchainSdk",
+            ]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
@@ -146,7 +152,7 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "BlockchainSdk",  // [REDACTED_TODO_COMMENT]
+            name: "BlockchainSdk", // [REDACTED_TODO_COMMENT]
             dependencies: [
                 // BSDK external deps:
                 "AnyCodable",
