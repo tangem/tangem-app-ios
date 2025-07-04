@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
-        "revision" : "48d906f7a3eca66dd4cbc239f21fd829dfc9decf",
-        "version" : "0.1.2-tangem4"
+        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
+        "revision" : "bcc4ffa9fbd7afb9213b263254d4f2852c01f841"
       }
     },
     {
