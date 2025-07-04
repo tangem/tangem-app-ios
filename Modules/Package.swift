@@ -48,6 +48,9 @@ let package = Package(
         // TangemSDK
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
+        // Other transitive deps (temp)
+        .package(url: "https://github.com/outfoxx/PotentCodables.git", exact: "3.5.0"),
+        .package(url: "https://github.com/apple/swift-nio.git", exact: "2.63.0"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
