@@ -18,9 +18,9 @@ protocol SendNewAmountCompactRoutable: AnyObject {
 }
 
 class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
-    @Published private(set) var sendAmountCompactViewModel: SendTokenAmountCompactViewModel
+    @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactTokenViewModel
 
-    @Published private(set) var sendReceiveTokenCompactViewModel: SendTokenAmountCompactViewModel?
+    @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactTokenViewModel?
     @Published private(set) var sendSwapProviderCompactViewData: SendSwapProviderCompactViewData?
 
     var amountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle {
