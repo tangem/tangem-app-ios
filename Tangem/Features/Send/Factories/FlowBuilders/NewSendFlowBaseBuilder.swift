@@ -78,9 +78,8 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendAmountCompactViewModel: amount.finish,
+            sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
-            sendSwapProviderFinishViewModel: providers.finish,
             sendFeeCompactViewModel: fee.finish,
         )
 
@@ -104,7 +103,7 @@ struct NewSendFlowBaseBuilder {
             summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers.providersSelector
+            providersSelector: providers
         )
 
         summary.set(router: stepsManager)
