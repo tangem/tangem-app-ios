@@ -29,6 +29,25 @@ let package = Package(
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
         .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.22.0")),
+        // [REDACTED_TODO_COMMENT]
+        // BSDK only deps:
+        // AnyCodable
+        .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.16"),
+        .package(url: "https://github.com/jedisct1/swift-sodium.git", exact: "0.9.1"),
+        // CombineExt
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.8.4"),
+        .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", exact: "0.26.0-tangem5"),
+        .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem4"),
+        // Moya
+        .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
+        .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem14"),
+        .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
+        .package(url: "https://github.com/valpackett/SwiftCBOR.git", exact: "0.5.0"),
+        .package(url: "git@github.com:tangem-developments/swift-protobuf-binaries.git", exact: "1.25.2-tangem4"),
+        // TangemModules (different submodules)
+        // TangemSDK
+        .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
+        .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
