@@ -16,7 +16,7 @@ struct SendNewAmountStepBuilder {
     typealias SourceAmountIO = (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
     typealias ReceiveAmountIO = (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)
 
-    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendTokenAmountCompactViewModel)
+    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
 
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -69,18 +69,15 @@ struct SendNewAmountStepBuilder {
         )
 
         let amountUpdater = SendExternalAmountUpdater(viewModel: viewModel, interactor: interactor)
-        let finish = makeSendAmountCompactViewModel(tokenInput: sourceIO.input, amountInput: sourceAmountIO.input)
+        let finish = SendNewAmountFinishViewModel(
+            sourceTokenInput: sourceIO.input,
+            sourceTokenAmountInput: sourceAmountIO.input,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenAmountInput: receiveAmountIO.input,
+            swapProvidersInput: swapProvidersInput,
+            flow: flowKind,
+        )
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
-    }
-
-    func makeSendAmountCompactViewModel(
-        tokenInput: SendSourceTokenInput,
-        amountInput: SendSourceTokenAmountInput
-    ) -> SendTokenAmountCompactViewModel {
-        let viewModel = SendTokenAmountCompactViewModel(sourceToken: tokenInput.sourceToken)
-        viewModel.bind(amountPublisher: amountInput.sourceAmountPublisher)
-
-        return viewModel
     }
 }
