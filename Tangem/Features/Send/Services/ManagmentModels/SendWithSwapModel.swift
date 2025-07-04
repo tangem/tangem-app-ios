@@ -85,21 +85,19 @@ private extension SendWithSwapModel {
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
-            .asyncMap { manager, args async -> Result<BSDKTransaction, Error> in
-                do {
-                    let transaction = try await manager.makeTransaction(
-                        amountValue: args.0,
-                        destination: args.1,
-                        fee: args.2
-                    )
-                    return .success(transaction)
-                } catch {
-                    return .failure(error)
-                }
+            .setFailureType(to: Error.self)
+            .asyncTryMap { manager, args -> BSDKTransaction in
+                let (amount, destination, fee) = args
+
+                return try await manager.makeTransaction(
+                    amountValue: amount,
+                    destination: destination,
+                    fee: fee
+                )
             }
-            .sink { [weak self] result in
-                self?._transaction.send(result)
-            }
+            .mapToResult()
+            .withWeakCaptureOf(self)
+            .sink { $0._transaction.send($1) }
             .store(in: &bag)
 
         Publishers
@@ -178,6 +176,15 @@ private extension SendWithSwapModel {
     }
 
     private func send() async throws -> TransactionDispatcherResult {
+        switch receiveToken {
+        case .same:
+            return try await simpleSend()
+        case .swap:
+            return try await swapManager.send()
+        }
+    }
+
+    private func simpleSend() async throws -> TransactionDispatcherResult {
         guard let transaction = _transaction.value?.value else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
@@ -420,7 +427,15 @@ extension SendWithSwapModel: SendFeeOutput {
 
 extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMap { model, token in
+                switch token {
+                case .same: model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+                case .swap: model.swapManager.isReadyToSendPublisher
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
