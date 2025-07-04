@@ -144,6 +144,34 @@ var serviceModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "BlockchainSdk",  // [REDACTED_TODO_COMMENT]
+            dependencies: [
+                // BSDK external deps:
+                "AnyCodable",
+                .product(name: "BinanceChain", package: "SwiftBinanceChain"),
+                .product(name: "Sodium", package: "swift-sodium"),
+                "CombineExt",
+                "CryptoSwift",
+                .product(name: "Hedera", package: "hedera-sdk-swift"),
+                "IcpKit",
+                "Moya",
+                .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
+                "SwiftCBOR",
+                .product(name: "SwiftProtobuf", package: "swift-protobuf-binaries"),
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+                .product(name: "TonSwift", package: "ton-swift"),
+                // BSDK internal deps:
+                // TangemModules (different submodules)
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
