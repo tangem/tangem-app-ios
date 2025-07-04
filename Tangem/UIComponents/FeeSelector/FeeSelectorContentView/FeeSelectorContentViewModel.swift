@@ -105,12 +105,6 @@ private extension FeeSelectorContentViewModel {
     }
 
     private func mapToFeeRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel? {
-        // Temporary turn off the `.custom` fee
-        // [REDACTED_TODO_COMMENT]
-        guard fee.option != .custom else {
-            return nil
-        }
-
         let feeComponents = feeFormatter.formattedFeeComponents(
             fee: fee.value,
             tokenItem: feeTokenItem,
