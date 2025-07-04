@@ -30255,8 +30255,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/valpackett/SwiftCBOR.git";
 			requirement = {
-				kind = exactVersion;
-				version = 0.5.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
 			};
 		};
 		B62D344B2CBC675600C2460E /* XCRemoteSwiftPackageReference "stellar-ios-mac-sdk" */ = {
@@ -30311,8 +30311,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tesseract-one/ScaleCodec.swift";
 			requirement = {
-				kind = exactVersion;
-				version = 0.3.1;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
 			};
 		};
 		B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */ = {
@@ -30415,8 +30415,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.6.5;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
