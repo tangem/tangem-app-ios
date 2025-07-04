@@ -12,6 +12,9 @@ import TangemSdk
 import TangemFoundation
 
 class KaspaTransactionBuilder {
+    /// 0.2 KAS
+    static let dustValue: Int = 20_000_000
+
     private let blockchain: Blockchain
     private let walletPublicKey: Wallet.PublicKey
     private let unspentOutputManager: UnspentOutputManager
@@ -156,7 +159,7 @@ extension KaspaTransactionBuilder {
         }
 
         func preImage() async throws -> (preImage: PreImageTransaction, targetOutputAmount: Int) {
-            let dust = (Decimal(0.2) * blockchain.decimalValue).intValue()
+            let dust = KaspaTransactionBuilder.dustValue
 
             switch feeType {
             case .exactly(let fee):
