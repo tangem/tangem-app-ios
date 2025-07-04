@@ -3465,6 +3465,8 @@
 		EFADE79E2E0EF4E300CA7916 /* SendReceiveTokenAmountInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADE79D2E0EF4E300CA7916 /* SendReceiveTokenAmountInput.swift */; };
 		EFADE7A12E127D6A00CA7916 /* CommonSendNewNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADE7A02E127D6A00CA7916 /* CommonSendNewNotificationManager.swift */; };
 		EFADE7A32E1289BC00CA7916 /* SendAmountNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADE7A22E1289BC00CA7916 /* SendAmountNotificationService.swift */; };
+		EFADE7A62E12BD6F00CA7916 /* SwapFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADE7A52E12BD6F00CA7916 /* SwapFeeProvider.swift */; };
+		EFADE7A82E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADE7A72E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift */; };
 		EFAE31462DA6E69300E8B81F /* Base58.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAE31452DA6E69300E8B81F /* Base58.swift */; };
 		EFAECCF12C1B702D0051710F /* SendAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */; };
 		EFAF7E3C2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E3B2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift */; };
@@ -7294,6 +7296,8 @@
 		EFADE79D2E0EF4E300CA7916 /* SendReceiveTokenAmountInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenAmountInput.swift; sourceTree = "<group>"; };
 		EFADE7A02E127D6A00CA7916 /* CommonSendNewNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendNewNotificationManager.swift; sourceTree = "<group>"; };
 		EFADE7A22E1289BC00CA7916 /* SendAmountNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountNotificationService.swift; sourceTree = "<group>"; };
+		EFADE7A52E12BD6F00CA7916 /* SwapFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapFeeProvider.swift; sourceTree = "<group>"; };
+		EFADE7A72E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendWithSwapFeeProvider.swift; sourceTree = "<group>"; };
 		EFAE31452DA6E69300E8B81F /* Base58.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base58.swift; sourceTree = "<group>"; };
 		EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountValidator.swift; sourceTree = "<group>"; };
 		EFAF7E3B2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
@@ -19820,6 +19824,8 @@
 				EF339E502C21FCCC00B5CDC9 /* SendFeeLoader.swift */,
 				EF77CB242E093D50009246A1 /* SendFeeProvider.swift */,
 				EFE0D5D72E095D5B00936D4F /* CommonSendFeeProvider.swift */,
+				EFADE7A52E12BD6F00CA7916 /* SwapFeeProvider.swift */,
+				EFADE7A72E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift */,
 			);
 			path = SendFeeProvider;
 			sourceTree = "<group>";
@@ -21494,6 +21500,7 @@
 				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
 				B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */,
+				EFADE7A62E12BD6F00CA7916 /* SwapFeeProvider.swift in Sources */,
 				DAF59CC52ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorViewModel.swift in Sources */,
 				B656FCEE2C47546C002B5BF2 /* OverlayContentStateObserver.swift in Sources */,
 				DA559C4C2B02622600F59584 /* SendSummaryInputOutputMock.swift in Sources */,
@@ -21532,6 +21539,7 @@
 				EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */,
 				B06C3A292BFE31E3005E6D40 /* ManageTokensListLoader.swift in Sources */,
 				DC9090512D393B2F00BF7A43 /* HotCryptoAddPortfolioBottomSheet.swift in Sources */,
+				EFADE7A82E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift in Sources */,
 				B03574C82B1F876300118786 /* PendingExpressTxStatusRow.swift in Sources */,
 				B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */,
 				DCE2F7DE2CE352AC00BDE145 /* CommonSellTokenAvailabilitySorter.swift in Sources */,
