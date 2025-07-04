@@ -24,11 +24,17 @@ struct NewSendFlowBaseBuilder {
         let flowKind = SendModel.PredefinedValues.FlowKind.send
 
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendWithSwapModel()
+        let swapManager: SwapManager = builder.makeSwapManager()
+        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager)
         let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
-        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
+
+        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
+            receiveTokenInput: sendModel,
+            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
+            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
+        )
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             sourceIO: (input: sendModel, output: sendModel),
