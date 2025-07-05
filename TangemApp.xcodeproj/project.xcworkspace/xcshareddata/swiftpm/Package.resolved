@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "c2fa6bf2f470db5bc31fc4b3e23c6b327ee7b6a8",
-        "version" : "0.26.0-tangem5"
+        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
+        "revision" : "ef768b619677336312373062994c94ad7e0f641c"
       }
     },
     {
