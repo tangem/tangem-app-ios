@@ -570,7 +570,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
 extension KaspaWalletManager: DustRestrictable {
     var dustValue: Amount {
-        Amount(with: wallet.blockchain, value: Decimal(0.2))
+        let value = Decimal(KaspaTransactionBuilder.dustValue) / wallet.blockchain.decimalValue
+        return Amount(with: wallet.blockchain, value: value)
     }
 
     func validateDust(amount: Amount, fee: Amount) throws {
