@@ -49,10 +49,12 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
         .package(url: "https://github.com/valpackett/SwiftCBOR.git", exact: "0.5.0"),
         .package(url: "git@github.com:tangem-developments/swift-protobuf-binaries.git", exact: "1.25.2-tangem4"),
-        // TangemModules (different submodules)
+        // TangemModules
         // TangemSDK
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
+        // Transitive BSDK deps:
+        .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -177,6 +179,8 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemLogger",
                 "TangemNetworkUtils",
+                // Transitive BSDK deps:
+                "BigInt",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
