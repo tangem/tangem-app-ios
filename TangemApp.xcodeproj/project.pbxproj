@@ -21780,8 +21780,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/hedera-sdk-swift.git";
 			requirement = {
-				kind = exactVersion;
-				version = "0.26.0-tangem5";
+				branch = "feature/IOS-9480_migrate_bsdk_to_spm";
+				kind = branch;
 			};
 		};
 		B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
