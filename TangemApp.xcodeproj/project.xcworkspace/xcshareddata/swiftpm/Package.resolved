@@ -214,7 +214,7 @@
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
         "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
-        "revision" : "ef768b619677336312373062994c94ad7e0f641c"
+        "revision" : "864b522372b5966666b2c8a82e78f707b0100809"
       }
     },
     {
@@ -223,7 +223,7 @@
       "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
         "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
-        "revision" : "bcc4ffa9fbd7afb9213b263254d4f2852c01f841"
+        "revision" : "0e19de6d0cdbd1f8f464556d20d2feebfce9970c"
       }
     },
     {
