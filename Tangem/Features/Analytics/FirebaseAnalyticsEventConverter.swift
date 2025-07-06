@@ -13,6 +13,7 @@ import Regex
 /// Firebase Analytics limitations and reasons why this converter is required.
 enum FirebaseAnalyticsEventConverter {
     private static let trimmingCharacterSet = CharacterSet(charactersIn: Constants.wordSeparator)
+    private static let regex = NSRegularExpression(Constants.replacingPattern)
 
     static func convert(event: String) -> String {
         return convert(string: event)
@@ -27,8 +28,26 @@ enum FirebaseAnalyticsEventConverter {
     }
 
     private static func convert(string: String) -> String {
-        return string
-            .replacingAll(matching: Constants.replacingPattern, with: Constants.wordSeparator)
+        var modifiedString = string
+        let range = NSRange(location: 0, length: modifiedString.utf16.count)
+        let matches = Self.regex.matches(in: modifiedString, range: range)
+
+        for match in matches.reversed() {
+            let replacement = regex.replacementString(
+                for: match,
+                in: modifiedString,
+                offset: 0,
+                template: Constants.wordSeparator
+            )
+
+            guard let replacementRange = Range(match.range, in: modifiedString) else {
+                continue
+            }
+
+            modifiedString.replaceSubrange(replacementRange, with: replacement)
+        }
+
+        return modifiedString
             .trimmingCharacters(in: trimmingCharacterSet)
             .trim(toLength: Constants.firebaseEventNameMaxLength)
     }
@@ -53,7 +72,7 @@ private extension FirebaseAnalyticsEventConverter {
     enum Constants {
         /// The `\w` meta character matches word characters.
         /// A word character is a character a-z, A-Z, 0-9, including _ (underscore).
-        static let replacingPattern: StaticString = "[^\\w]+"
+        static let replacingPattern = "[^\\w]+"
         static let wordSeparator = "_"
         static let firebaseEventNameMaxLength = 40
         static let firebaseEventValueMaxLength = 100
