@@ -11,6 +11,7 @@ import Dispatch
 import enum TangemAssets.Assets
 import TangemLocalization
 import TangemLogger
+import TangemFoundation
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
