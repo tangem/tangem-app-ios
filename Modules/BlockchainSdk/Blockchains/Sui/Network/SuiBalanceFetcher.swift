@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class SuiBalanceFetcher {
     typealias RequestPublisherBuilder = (_ address: String, _ coin: String, _ cursor: String?) -> AnyPublisher<SuiGetCoins, Error>
@@ -73,7 +74,7 @@ class SuiBalanceFetcher {
 
                     load(address: address, coin: coin, cursor: response.nextCursor, requestPublisher: nextPublisher)
                 } else {
-                    subject.send(.success(coins.asArray))
+                    subject.send(.success(coins.toArray()))
                     clear()
                 }
             }
