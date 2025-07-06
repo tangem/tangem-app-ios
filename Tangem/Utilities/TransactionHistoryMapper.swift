@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct TransactionHistoryMapper {
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
