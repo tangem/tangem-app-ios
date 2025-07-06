@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import enum BlockchainSdk.Blockchain
 
 struct UserTokenListConverter {

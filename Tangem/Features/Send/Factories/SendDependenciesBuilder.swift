@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemStaking
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 struct SendDependenciesBuilder {
