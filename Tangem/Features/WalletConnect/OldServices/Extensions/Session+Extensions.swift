@@ -7,6 +7,7 @@
 //
 
 import struct Foundation.Date
+import TangemFoundation
 import ReownWalletKit
 
 extension Session.Proposal {
@@ -15,22 +16,22 @@ extension Session.Proposal {
     }
 
     var namespaceChains: [WalletConnectUtils.Blockchain] {
-        let requiredChains = requiredNamespaces.values.compactMap(\.chains).flatMap { $0.asArray }
-        let optionalChains = optionalNamespaces?.values.compactMap(\.chains).flatMap { $0.asArray } ?? []
+        let requiredChains = requiredNamespaces.values.compactMap(\.chains).flatMap { $0 }
+        let optionalChains = optionalNamespaces?.values.compactMap(\.chains).flatMap { $0 } ?? []
 
         return requiredChains + optionalChains
     }
 
     var namespaceMethods: [String] {
-        let requiredMethods = requiredNamespaces.values.flatMap { $0.methods.asArray }
-        let optionalMethods = optionalNamespaces?.values.flatMap { $0.methods.asArray } ?? []
+        let requiredMethods = requiredNamespaces.values.flatMap { $0.methods.toArray() }
+        let optionalMethods = optionalNamespaces?.values.flatMap { $0.methods.toArray() } ?? []
 
         return requiredMethods + optionalMethods
     }
 
     var namespaceEvents: [String] {
-        let requiredEvents = requiredNamespaces.values.flatMap { $0.events.asArray }
-        let optionalEvents = optionalNamespaces?.values.flatMap { $0.events.asArray } ?? []
+        let requiredEvents = requiredNamespaces.values.flatMap { $0.events.toArray() }
+        let optionalEvents = optionalNamespaces?.values.flatMap { $0.events.toArray() } ?? []
 
         return requiredEvents + optionalEvents
     }
