@@ -907,6 +907,7 @@
 		B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */; };
 		B66AB8B52BBC682A00C8F3E7 /* UserTokensReorderingSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B42BBC682A00C8F3E7 /* UserTokensReorderingSource.swift */; };
 		B66AB8B72BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B62BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift */; };
+		B66BBD8C2E18B4B200446329 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B66BBD8B2E18B4B200446329 /* BigInt */; };
 		B66BDAEC2C743F5A0047FD67 /* OverlayContentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66BDAEB2C743F5A0047FD67 /* OverlayContentState.swift */; };
 		B66C259E2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */; };
 		B66C8CC12D42F0F600A91763 /* PerformanceTracker+Metric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66C8CC02D42F0F600A91763 /* PerformanceTracker+Metric.swift */; };
@@ -5118,6 +5119,7 @@
 				DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */,
 				B62C167F2CBE0B7900522683 /* Moya in Frameworks */,
 				B6EE3B622C789C6E00B464FC /* DGCharts in Frameworks */,
+				B66BBD8C2E18B4B200446329 /* BigInt in Frameworks */,
 				B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */,
 				B6C0D3E12CBDC2E3001113ED /* TangemModules in Frameworks */,
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
@@ -14509,6 +14511,8 @@
 				B64404402D3FE77300195004 /* FirebasePerformance */,
 				B0776C362DA69090004A8765 /* Lottie */,
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
+				B67AEDB02E18AFAA00DB9A5D /* NumberKit */,
+				B66BBD8B2E18B4B200446329 /* BigInt */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -14779,6 +14783,7 @@
 				B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */,
+				B66BBD8A2E18B4B200446329 /* XCRemoteSwiftPackageReference "BigInt" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -21764,6 +21769,14 @@
 				minimumVersion = 0.6.7;
 			};
 		};
+		B66BBD8A2E18B4B200446329 /* XCRemoteSwiftPackageReference "BigInt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/attaswift/BigInt.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.3.0;
+			};
+		};
 		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
@@ -22001,6 +22014,11 @@
 		B64404402D3FE77300195004 /* FirebasePerformance */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebasePerformance;
+		};
+		B66BBD8B2E18B4B200446329 /* BigInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B66BBD8A2E18B4B200446329 /* XCRemoteSwiftPackageReference "BigInt" */;
+			productName = BigInt;
 		};
 		B67E38BA2CC7179000D660EB /* TangemSdk */ = {
 			isa = XCSwiftPackageProductDependency;
