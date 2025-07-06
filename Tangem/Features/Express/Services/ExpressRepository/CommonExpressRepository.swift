@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemExpress
 
 actor CommonExpressRepository {
@@ -69,11 +70,11 @@ extension CommonExpressRepository: ExpressRepository {
     }
 
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
+        pairs.filter { $0.destination == wallet.asCurrency }.toArray()
     }
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        pairs.filter { $0.source == wallet.asCurrency }.toArray()
     }
 }
 
