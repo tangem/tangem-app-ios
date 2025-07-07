@@ -40,7 +40,7 @@ struct LineChartViewConfigurator {
 
     private func makeDataSet() -> LineChartDataSet {
         let chartDataEntries = chartData.xAxis.values.map { value in
-            return ChartDataEntry(x: value.timeStamp.doubleValue, y: value.price.doubleValue, data: value)
+            return ChartDataEntry(x: Double(value.timeStamp), y: value.price.doubleValue, data: value)
         }
 
         let dataSet = ColorSplitLineChartDataSet(entries: chartDataEntries)
