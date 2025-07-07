@@ -16,6 +16,7 @@ final class WalletConnectSolanaSignTransactionHandler {
     private let signer: WalletConnectSigner
     private let transaction: String
     private let request: AnyCodable
+    private let encoder = JSONEncoder()
 
     init(
         request: AnyCodable,
@@ -53,7 +54,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     var method: WalletConnectMethod { .solanaSignTransaction }
 
     var requestData: Data {
-        (try? prepareTransactionToSign()) ?? Data()
+        (try? encoder.encode([transaction])) ?? Data()
     }
 
     var rawTransaction: String? {
