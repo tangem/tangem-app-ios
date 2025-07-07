@@ -11,5 +11,6 @@ import XCTest
 enum TangemAPI: String {
     case prod
     case dev
+    case stage
     case mock
 }
