@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct Hedera.AccountId
+import Hedera
 
 public struct HederaTokenContractAddressConverter {
     public func convertFromEVMToHedera(_ evmAddress: String) throws -> String {
