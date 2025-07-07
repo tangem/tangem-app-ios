@@ -1,5 +1,5 @@
 {
-  "originHash" : "36f76c9fc83d9d12f7a6b843ffb5c39ec171966a512d505b91c1ab7cf49c6e4f",
+  "originHash" : "c81fd476634ae77c1ecc21e51d0639d9f5412cc1aa6479abe6d6426441e56c5c",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -214,7 +214,7 @@
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
         "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
-        "revision" : "864b522372b5966666b2c8a82e78f707b0100809"
+        "revision" : "9bb370fb98c271e1db8387bbe7df597ad62ee3f8"
       }
     },
     {
