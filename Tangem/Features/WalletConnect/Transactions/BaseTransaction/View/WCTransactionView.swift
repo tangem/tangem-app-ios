@@ -31,6 +31,9 @@ struct WCTransactionView: View {
             case .customAllowance(let input):
                 WCCustomAllowanceView(input: input)
                     .transition(topEdgeTransition)
+            case .securityAlert(let viewModel):
+                WCTransactionSecurityAlertView(viewModel: viewModel)
+                    .transition(bottomEdgeTransition)
             }
         }
         .allowsHitTesting(viewModel.presentationState != .signing)
