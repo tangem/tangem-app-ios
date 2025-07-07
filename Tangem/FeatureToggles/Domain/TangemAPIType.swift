@@ -11,6 +11,7 @@ import Foundation
 public enum TangemAPIType: String, CaseIterable, Codable {
     case prod
     case dev
+    case stage
     case mock
 
     public var apiBaseUrl: URL {
@@ -19,8 +20,10 @@ public enum TangemAPIType: String, CaseIterable, Codable {
             return URL(string: "https://api.tangem.org/v1")!
         case .dev:
             return URL(string: "https://api.tests-d.com/v1")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com/v1")!
         case .mock:
-            return URL(string: "https://wiremock.tests-d.com/")!
+            return URL(string: "https://wiremock.tests-d.com/v1")!
         }
     }
 
@@ -28,7 +31,7 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         switch self {
         case .prod:
             return URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!
-        case .dev, .mock:
+        case .dev, .stage, .mock:
             return URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api.dev/")!
         }
     }
@@ -37,7 +40,7 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         switch self {
         case .prod:
             return URL(string: "https://tangem.com")!
-        case .dev, .mock:
+        case .dev, .stage, .mock:
             return URL(string: "https://devweb.tangem.com")!
         }
     }
