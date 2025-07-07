@@ -85,13 +85,13 @@ struct WCTransactionSimulationDisplayService {
             return WCTransactionSimulationDisplayModel.ValidationBanner(
                 type: .malicious,
                 title: "Malicious transaction",
-                description: "The transaction approves erc20 tokens to a known malicious address"
+                description: status.description
             )
         case .warning:
             return WCTransactionSimulationDisplayModel.ValidationBanner(
                 type: .suspicious,
                 title: "Suspicious transaction",
-                description: "The transaction is likely to be a user-mistake transaction resulting in a loss of assets without any compensation"
+                description: status.description
             )
         case .benign:
             return nil
