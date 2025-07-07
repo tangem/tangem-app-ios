@@ -25,7 +25,7 @@ public struct StakingBlockchainParams {
     public var stakingDeposit: UInt64 {
         switch blockchain {
         case .cardano: 2
-        default: .zero
+        default: 0
         }
     }
 
