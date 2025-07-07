@@ -1,5 +1,5 @@
 //
-//  HotOnboardingAccessCodeDelegate.swift
+//  HotOnboardingAccessCodeCreateDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol HotOnboardingAccessCodeDelegate: AnyObject {
+protocol HotOnboardingAccessCodeCreateDelegate: AnyObject {
     func isRequestBiometricsNeeded() -> Bool
     func accessCodeComplete(accessCode: String)
 }

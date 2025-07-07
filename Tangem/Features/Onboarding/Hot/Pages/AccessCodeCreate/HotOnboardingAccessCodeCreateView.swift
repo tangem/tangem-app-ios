@@ -1,5 +1,5 @@
 //
-//  HotOnboardingAccessCodeView.swift
+//  HotOnboardingAccessCodeCreateView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import SwiftUI
 import TangemAssets
 
-struct HotOnboardingAccessCodeView: View {
-    typealias ViewModel = HotOnboardingAccessCodeViewModel
+struct HotOnboardingAccessCodeCreateView: View {
+    typealias ViewModel = HotOnboardingAccessCodeCreateViewModel
 
     @ObservedObject var viewModel: ViewModel
 
@@ -22,7 +22,7 @@ struct HotOnboardingAccessCodeView: View {
 
 // MARK: - Subviews
 
-private extension HotOnboardingAccessCodeView {
+private extension HotOnboardingAccessCodeCreateView {
     @ViewBuilder
     var content: some View {
         VStack(spacing: 40) {

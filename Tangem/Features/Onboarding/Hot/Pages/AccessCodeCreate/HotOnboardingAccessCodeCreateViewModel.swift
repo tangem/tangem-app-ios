@@ -1,5 +1,5 @@
 //
-//  HotOnboardingAccessCodeViewModel.swift
+//  HotOnboardingAccessCodeCreateViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import TangemSdk
 import TangemAssets
 import TangemLocalization
 
-final class HotOnboardingAccessCodeViewModel: ObservableObject {
+final class HotOnboardingAccessCodeCreateViewModel: ObservableObject {
     @Published private(set) var state: State = .accessCode
 
     @Published private var accessCode: String = ""
@@ -76,11 +76,11 @@ final class HotOnboardingAccessCodeViewModel: ObservableObject {
         }
     }
 
-    private weak var delegate: HotOnboardingAccessCodeDelegate?
+    private weak var delegate: HotOnboardingAccessCodeCreateDelegate?
 
     private var bag = Set<AnyCancellable>()
 
-    init(delegate: HotOnboardingAccessCodeDelegate) {
+    init(delegate: HotOnboardingAccessCodeCreateDelegate) {
         self.delegate = delegate
         bind()
     }
@@ -88,7 +88,7 @@ final class HotOnboardingAccessCodeViewModel: ObservableObject {
 
 // MARK: - Internal methods
 
-extension HotOnboardingAccessCodeViewModel {
+extension HotOnboardingAccessCodeCreateViewModel {
     func resetState() {
         accessCode = ""
         confirmAccessCode = ""
@@ -98,7 +98,7 @@ extension HotOnboardingAccessCodeViewModel {
 
 // MARK: - Private methods
 
-private extension HotOnboardingAccessCodeViewModel {
+private extension HotOnboardingAccessCodeCreateViewModel {
     func bind() {
         $accessCode
             .dropFirst()
@@ -145,7 +145,7 @@ private extension HotOnboardingAccessCodeViewModel {
 
 // MARK: - Types
 
-extension HotOnboardingAccessCodeViewModel {
+extension HotOnboardingAccessCodeCreateViewModel {
     enum State {
         case accessCode
         case confirmAccessCode

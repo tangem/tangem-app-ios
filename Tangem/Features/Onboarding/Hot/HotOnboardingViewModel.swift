@@ -30,8 +30,8 @@ final class HotOnboardingViewModel: ObservableObject {
     lazy var seedPhraseRevealViewModel = HotOnboardingSeedPhraseRevealViewModel(delegate: self)
     lazy var seedPhaseBackupContinueViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupContinue, delegate: self)
     lazy var seedPhaseBackupFinishViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupFinish, delegate: self)
-    lazy var accessCodeCreateViewModel = HotOnboardingAccessCodeViewModel(delegate: self)
-    lazy var accessCodeValidateViewModel = HotOnboardingCheckAccessCodeViewModel(delegate: self)
+    lazy var accessCodeCreateViewModel = HotOnboardingAccessCodeCreateViewModel(delegate: self)
+    lazy var accessCodeValidateViewModel = HotAccessCodeViewModel(manager: accessCodeManager, delegate: self)
     lazy var doneViewModel = HotOnboardingSuccessViewModel(type: .walletReady, delegate: self)
 
     lazy var importWalletViewModel = OnboardingSeedPhraseImportViewModel(
@@ -113,6 +113,16 @@ final class HotOnboardingViewModel: ObservableObject {
     }
 
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+
+    // [REDACTED_TODO_COMMENT]
+    private lazy var accessCodeManager: HotAccessCodeManager = CommonHotAccessCodeManager(
+        storage: CommonHotAccessCodeStorage(
+            userWalletId: "userWalletId",
+            manager: CommonHotAccessCodeStorageManager()
+        ),
+        validator: CommonHotAccessCodeValidator(userWalletId: "userWalletId"),
+        delegate: self
+    )
 
     private lazy var pushNotificationsPermissionManager: PushNotificationsPermissionManager = {
         let factory = PushNotificationsHelpersFactory()
@@ -315,22 +325,17 @@ extension HotOnboardingViewModel: HotOnboardingSeedPhraseRecoveryDelegate {
     }
 }
 
-// MARK: - HotOnboardingCheckAccessCodeDelegate
+// MARK: - HotAccessCodeDelegate
 
-extension HotOnboardingViewModel: HotOnboardingCheckAccessCodeDelegate {
-    func validateAccessCode(_ accessCode: String) -> Bool {
-        // [REDACTED_TODO_COMMENT]
-        accessCode == "111111"
-    }
-
-    func validateSuccessful() {
+extension HotOnboardingViewModel: HotAccessCodeDelegate {
+    func accessCodeSuccessful() {
         goToNextStep()
     }
 }
 
 // MARK: - HotOnboardingAccessCodeDelegate
 
-extension HotOnboardingViewModel: HotOnboardingAccessCodeDelegate {
+extension HotOnboardingViewModel: HotOnboardingAccessCodeCreateDelegate {
     func isRequestBiometricsNeeded() -> Bool {
         switch input.flow {
         case .walletImport, .walletActivate, .accessCodeCreate:
@@ -343,6 +348,14 @@ extension HotOnboardingViewModel: HotOnboardingAccessCodeDelegate {
     func accessCodeComplete(accessCode: String) {
         // [REDACTED_TODO_COMMENT]
         goToNextStep()
+    }
+}
+
+// MARK: - CommonHotAccessCodeManagerDelegate
+
+extension HotOnboardingViewModel: CommonHotAccessCodeManagerDelegate {
+    func needDeleteWallet() {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
