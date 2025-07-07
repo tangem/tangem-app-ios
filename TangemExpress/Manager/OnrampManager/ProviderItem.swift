@@ -54,7 +54,7 @@ public class ProviderItem {
 
         sort().indexed().forEach { index, provider in
             switch (index, provider.state) {
-            case (.zero, .loaded(let quote)):
+            case (0, .loaded(let quote)):
                 provider.update(attractiveType: .best)
                 bestQuote = quote.expectedAmount
 
