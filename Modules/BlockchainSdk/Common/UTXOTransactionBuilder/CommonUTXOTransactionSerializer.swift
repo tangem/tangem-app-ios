@@ -14,7 +14,7 @@ struct CommonUTXOTransactionSerializer {
 
     let version: UInt32
     let sequence: SequenceType
-    let locktime: UInt32 = .zero
+    let locktime: UInt32 = 0
     let signHashType: UTXONetworkParamsSignHashType
 
     init(version: UInt32 = 1, sequence: SequenceType, signHashType: UTXONetworkParamsSignHashType = .bitcoinAll) {
@@ -98,7 +98,7 @@ private extension CommonUTXOTransactionSerializer {
             bytes += lockingScript.count.byte
             bytes += lockingScript
         case .blank:
-            bytes += UInt8.zero.data
+            bytes += UInt8(0).data
         case .signed(let signatureInfo):
             var script = Data()
             let signature = signatureInfo.signature + signHashType.value.data
@@ -127,7 +127,7 @@ private extension CommonUTXOTransactionSerializer {
     func encodeWitnessInput(_ input: ScriptUnspentOutput, signature: Data) throws -> Data {
         guard input.script.type.isWitness else {
             // Empty witness byte
-            return UInt8.zero.data
+            return UInt8(0).data
         }
 
         guard let spendable = input.script.spendable else {
@@ -139,7 +139,7 @@ private extension CommonUTXOTransactionSerializer {
         var data = [OpCode.push(signature + signHashType.value.data), OpCode.push(spendable.data)]
         if input.script.type == .p2wsh {
             // Currently applicable only for `Twin` cards
-            data.insert(UInt8.zero.data, at: 0)
+            data.insert(UInt8(0).data, at: 0)
         }
 
         bytes += data.count.byte
