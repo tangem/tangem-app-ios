@@ -19,14 +19,20 @@ enum HotAccessCodeState: Equatable {
     case unavailable
 
     enum AvailableState: Equatable {
+        /// Initial input.
         case normal
+        /// Input attempts before transitioning to lock with timeout duration.
         case beforeLock(remaining: Int)
+        /// Input attempts before transitioning to warning lock with timeout duration.
         case beforeWarning(remaining: Int)
+        /// Input attempts before delete.
         case beforeDelete(remaining: Int)
     }
 
     enum LockedState: Equatable {
+        /// Timeout waiting timer before transitioning to warning lock.
         case beforeWarning(remaining: Int, timeout: TimeInterval)
+        /// Timeout waiting timer before delete.
         case beforeDelete(remaining: Int, timeout: TimeInterval)
     }
 }

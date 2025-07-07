@@ -11,21 +11,18 @@ import Combine
 import TangemFoundation
 
 final class CommonHotAccessCodeManager {
-    /// Limit of failed attempts before the access code is locked.
-    private let attemptsToLockLimit: Int = 3 // 5
-    /// Limit of failed attempts after which deletion warning starts.
-    private let attemptsBeforeWarningLimit: Int = 5 // 10
-    /// Limit of failed attempts before deleting the wallet.
-    private let attemptsBeforeDeleteLimit: Int = 20 // 30
-    /// Timeout interval of locked input.
-    private let lockedTimeout: TimeInterval = 5 // 60
-
     private let stateSubject = CurrentValueSubject<HotAccessCodeState, Never>(.available(.normal))
     private let stateCommandSubject = PassthroughSubject<StateCommand, Never>()
 
     private let storage: HotAccessCodeStorage
     private let validator: HotAccessCodeValidator
+    private let configuration: HotAccessCodeConfiguration
     private weak var delegate: CommonHotAccessCodeManagerDelegate?
+
+    private var attemptsToLockLimit: Int { configuration.attemptsToLockLimit }
+    private var attemptsBeforeWarningLimit: Int { configuration.attemptsBeforeWarningLimit }
+    private var attemptsBeforeDeleteLimit: Int { configuration.attemptsBeforeDeleteLimit }
+    private var lockedTimeout: TimeInterval { configuration.lockedTimeout }
 
     private var bag: Set<AnyCancellable> = []
     private var timersBag: Set<AnyCancellable> = []
@@ -33,10 +30,12 @@ final class CommonHotAccessCodeManager {
     init(
         storage: HotAccessCodeStorage,
         validator: HotAccessCodeValidator,
+        configuration: HotAccessCodeConfiguration = .default,
         delegate: CommonHotAccessCodeManagerDelegate
     ) {
         self.storage = storage
         self.validator = validator
+        self.configuration = configuration
         self.delegate = delegate
         bind()
         getInitialState()
@@ -236,7 +235,6 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
         }
     }
 
-    /// Make command for failed validation.
     private func makeInvalidCommand(availableState: HotAccessCodeState.AvailableState) -> StateCommand {
         switch availableState {
         case .normal:

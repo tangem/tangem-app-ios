@@ -9,6 +9,7 @@
 import Foundation
 
 protocol HotAccessCodeStorageManager: AnyObject {
+    // [REDACTED_TODO_COMMENT]
     typealias UserWalletId = String
     func getWrongAccessCodeStore(userWalletId: UserWalletId) -> HotWrongAccessCodeStore
     func storeWrongAccessCode(userWalletId: UserWalletId, date: Date)

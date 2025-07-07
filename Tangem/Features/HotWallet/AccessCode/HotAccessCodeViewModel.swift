@@ -98,12 +98,12 @@ private extension HotAccessCodeViewModel {
         case .normal:
             infoState = nil
         case .beforeLock(let remaining):
-            let item = InfoWarningItem(title: "Wrong access code. App will be locked with \(remaining) more input errors")
+            let item = InfoWarningItem(title: Localization.accessCodeCheckWariningLock(remaining))
             infoState = .warning(item)
         case .beforeWarning:
             infoState = nil
         case .beforeDelete(let remaining):
-            let item = InfoWarningItem(title: "Wrong access code. Your hot wallet will be deleted after \(remaining) more incorrect attempts.")
+            let item = InfoWarningItem(title: Localization.accessCodeCheckWariningDelete(remaining))
             infoState = .warning(item)
         }
     }
@@ -119,7 +119,7 @@ private extension HotAccessCodeViewModel {
 
         let seconds = Int(ceil(timeoutInterval))
 
-        let item = InfoWarningItem(title: "Wrong access code.\nPlease wait \(seconds) seconds and try again.")
+        let item = InfoWarningItem(title: Localization.accessCodeCheckWariningWait(seconds))
         infoState = .warning(item)
     }
 

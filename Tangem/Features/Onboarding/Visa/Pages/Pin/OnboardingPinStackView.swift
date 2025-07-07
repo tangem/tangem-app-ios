@@ -39,8 +39,8 @@ struct OnboardingPinStackView: View {
             }
         }
         .onChange(of: isDisabled) { newValue in
-            /// Observes `isDisabled` property changes. When the view becomes enabled (`isDisabled` is false),
-            /// it sets the text field as first responder to bring up the keyboard.
+            // Observes `isDisabled` property changes. When the view becomes enabled (`isDisabled` is false),
+            // it sets the text field as first responder to bring up the keyboard.
             if !isDisabled {
                 setFirstResponser(true)
             }
