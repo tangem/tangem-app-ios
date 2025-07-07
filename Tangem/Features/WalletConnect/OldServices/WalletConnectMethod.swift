@@ -29,4 +29,30 @@ enum WalletConnectMethod: String, Equatable {
     case solanaSignTransaction = "solana_signTransaction"
     case solanaSignMessage = "solana_signMessage"
     case solanaSignAllTransactions = "solana_signAllTransactions"
+
+    var trimmedPrefixValue: String {
+        switch self {
+        case .personalSign: "personalSign"
+        case .switchChain:
+            "switchChain"
+        case .signTransaction:
+            "signTransaction"
+        case .sendTransaction:
+            "sendTransaction"
+        case .signTypedData:
+            "signTypedData"
+        case .signTypedDataV4:
+            "signTypedDataV4"
+        case .bnbSign:
+            "sign"
+        case .bnbTxConfirmation:
+            "txConfirmation"
+        case .solanaSignTransaction:
+            "signTransaction"
+        case .solanaSignMessage:
+            "signMessage"
+        case .solanaSignAllTransactions:
+            "signAllTransactions"
+        }
+    }
 }
