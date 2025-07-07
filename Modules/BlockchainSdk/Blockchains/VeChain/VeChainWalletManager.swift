@@ -166,7 +166,7 @@ final class VeChainWalletManager: BaseManager {
     private func getVMGas(amount: Amount, destination: String) -> AnyPublisher<Int, Error> {
         switch amount.type {
         case .coin:
-            return .justWithError(output: .zero)
+            return .justWithError(output: 0)
         case .token(let value):
             return networkService.getVMGas(token: value, amount: amount, source: wallet.address, destination: destination)
         case .reserve, .feeResource:
