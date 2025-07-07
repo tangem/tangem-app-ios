@@ -18,7 +18,7 @@ import struct TangemUIUtils.AlertBinder
 class LogsViewModel: ObservableObject {
     var selectedCategory: String { categories[selectedCategoryIndex] }
 
-    @Published var selectedCategoryIndex: Int = .zero
+    @Published var selectedCategoryIndex: Int = 0
     @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
     @Published var categories: [String] = ["All"]
     @Published var alert: AlertBinder?
@@ -59,7 +59,7 @@ class LogsViewModel: ObservableObject {
                 try? OSLogFileParser.removeFile()
                 try? OSLogZipFileBuilder.removeFile()
 
-                self?.selectedCategoryIndex = .zero
+                self?.selectedCategoryIndex = 0
                 self?.load()
             })
         )
