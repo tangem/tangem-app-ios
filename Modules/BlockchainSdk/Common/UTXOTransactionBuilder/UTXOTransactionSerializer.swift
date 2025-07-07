@@ -43,7 +43,7 @@ enum SequenceType {
 
     var value: UInt32 {
         switch self {
-        case .zero: .zero
+        case .zero: 0
         case .rbf: 0xfffffffd
         case .final: .max
         }

@@ -90,7 +90,7 @@ private extension CommonUnspentOutputManager {
             .destination(destinationScript, value: preImage.destination),
         ]
 
-        if preImage.change > .zero {
+        if preImage.change > 0 {
             outputs.append(.change(changeScript, value: preImage.change))
         }
 
