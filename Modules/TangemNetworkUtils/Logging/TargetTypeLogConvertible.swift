@@ -10,7 +10,3 @@ public protocol TargetTypeLogConvertible {
     var requestDescription: String { get }
     var shouldLogResponseBody: Bool { get }
 }
-
-public extension TargetTypeLogConvertible {
-    var shouldLogResponseBody: Bool { true }
-}
