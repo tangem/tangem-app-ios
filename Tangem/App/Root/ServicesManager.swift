@@ -36,6 +36,7 @@ class ServicesManager {
 
     func initialize() {
         TangemLoggerConfigurator().initialize()
+
         let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
@@ -61,6 +62,10 @@ class ServicesManager {
     }
 
     private func configureFirebase() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
 
         guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
