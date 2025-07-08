@@ -16,11 +16,13 @@ extension UIViewController {
             swizzledSelector: #selector(UIViewController.swizzled_present(_:animated:completion:))
         )
         toggleSwizzling(
-            originalSelector: #selector(UIViewController.viewWillLayoutSubviews),
-            swizzledSelector: #selector(UIViewController.swizzled_viewWillLayoutSubviews)
+            originalSelector: #selector(UIViewController.viewDidLoad),
+            swizzledSelector: #selector(UIViewController.swizzled_viewDidLoad)
         )
     }
 }
+
+private let headerTag = 0xDEADBEEF
 
 private extension UIViewController {
     var isKYCSDKController: Bool {
@@ -41,17 +43,83 @@ private extension UIViewController {
     }
 
     @objc
-    func swizzled_viewWillLayoutSubviews() {
-        swizzled_viewWillLayoutSubviews()
+    func swizzled_viewDidLoad() {
+        swizzled_viewDidLoad()
 
-        guard isKYCSDKController,
-              let navigationController,
-              navigationController.modalPresentationStyle != .formSheet
-        else {
-            return
+        let className = String(describing: type(of: self))
+
+        if let nav = self as? UINavigationController, let service = KYCService.shared {
+            let bar = nav.navigationBar
+
+            print("TAG: NAVCONTROLLER:", className)
+            let overlay = KYCHeaderUIView(
+                stepPublisher: service.kycStepPublisher,
+                back: invokeRightBarButtonAction,
+                close: service.dismiss
+            )
+            overlay.tag = headerTag
+            bar.addSubview(overlay)
+            overlay.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                overlay.leadingAnchor.constraint(equalTo: bar.leadingAnchor),
+                overlay.trailingAnchor.constraint(equalTo: bar.trailingAnchor),
+                overlay.topAnchor.constraint(equalTo: bar.topAnchor),
+                overlay.bottomAnchor.constraint(equalTo: bar.bottomAnchor),
+            ])
+            bar.hide(except: headerTag)
+        } else {
+            print("TAG:", className)
         }
 
-        navigationController.isNavigationBarHidden = true
+//        guard isKYCSDKController,
+//              let navigationController,
+//              navigationController.modalPresentationStyle != .formSheet,
+//              let service = KYCService.shared
+//        else {
+//            return
+//        }
+//
+//        var isInitialScreen = false
+//        switch className {
+//        case "AgreementViewController":
+//            title = "Country of residence"
+//            isInitialScreen = true
+//
+//        case "SNSStatusVC":
+//            title = "Account verification"
+//            isInitialScreen = true
+//
+//        case "QuestionnaireViewController":
+//            title = "Personal information"
+//
+//        case "SNSDocTypePickerVC":
+//            title = "Identity document"
+//
+//        case "SNSCameraVC":
+//            title = "Upload document"
+//
+//        case "SNSPreviewVC":
+//            title = "Upload document"
+//
+//        case "SNSFaceScanVC":
+//            title = "Liveness check"
+//
+//        default:
+//            break
+//        }
+//
+//        if let rightBarButtonItem = navigationItem.rightBarButtonItem {
+//            if !isInitialScreen {
+//                let closeButton = UIBarButtonItem(
+//                    title: "Close",
+//                    style: .plain,
+//                    target: service,
+//                    action: #selector(KYCService.dismiss)
+//                )
+//                closeButton.tintColor = UIColor(hex: "#1E1E1E")
+//                navigationItem.setLeftBarButton(closeButton, animated: false)
+//            }
+//        }
     }
 
     @objc
@@ -73,20 +141,24 @@ private extension UIViewController {
             return
         }
 
-        let hostingController = UIHostingController(
-            rootView: VStack(spacing: .zero) {
-                KYCHeaderView(
-                    stepPublisher: service.kycStepPublisher,
-                    back: viewControllerToPresent.invokeRightBarButtonAction,
-                    close: service.dismiss
-                )
-                UIViewControllerWrapper(controller: viewControllerToPresent)
-            }
-        )
-        hostingController.modalTransitionStyle = viewControllerToPresent.modalTransitionStyle
-        // Override .fullScreen to .overFullScreen to prevent gesture issues
-        hostingController.modalPresentationStyle = .overFullScreen
-        modifiedViewControllerToPresent = hostingController
+        modifiedViewControllerToPresent = viewControllerToPresent
+//        modifiedViewControllerToPresent.modalPresentationStyle = .overFullScreen
+//        modifiedViewControllerToPresent.modalTransitionStyle = viewControllerToPresent.modalTransitionStyle
+
+//        let hostingController = UIHostingController(
+//            rootView: VStack(spacing: .zero) {
+//                KYCHeaderView(
+//                    stepPublisher: service.kycStepPublisher,
+//                    back: viewControllerToPresent.invokeRightBarButtonAction,
+//                    close: service.dismiss
+//                )
+//                UIViewControllerWrapper(controller: viewControllerToPresent)
+//            }
+//        )
+//        hostingController.modalTransitionStyle = viewControllerToPresent.modalTransitionStyle
+//        // Override .fullScreen to .overFullScreen to prevent gesture issues
+//        hostingController.modalPresentationStyle = .overFullScreen
+//        modifiedViewControllerToPresent = hostingController
     }
 }
 
@@ -112,3 +184,20 @@ private struct UIViewControllerWrapper: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
+
+extension UINavigationBar {
+    func hide(except tag: Int) {
+        for subview in subviews {
+            // 1) Always keep your overlay intact
+            if subview.tag == tag { continue }
+
+            // 2) Keep the bar’s background container
+            let name = String(describing: type(of: subview))
+            if name == "_UIBarBackground" { continue }
+
+            // 3) Everything else (buttons, labels, chevrons) gets alpha = 0
+            subview.alpha = 0
+        }
+    }
+}
+ 
