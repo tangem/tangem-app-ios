@@ -156,6 +156,6 @@ private extension TargetType {
     }
 
     var shouldLogResponseBody: Bool {
-        (self as? TargetTypeLogConvertible)?.shouldLogResponseBody ?? true
+        (self as? TargetTypeLogConvertible)?.shouldLogResponseBody ?? false
     }
 }
