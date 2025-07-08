@@ -313,19 +313,10 @@ extension CommonWalletModel: WalletModel {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        // Update context menu for hedera after address creation
-        if wallet.address.isEmpty, case .hasOnlyCachedBalance = sendingRestrictions {
-            return Publishers.Merge3(
-                expressAvailabilityProvider.availabilityDidChangePublisher,
-                stakingManagerStatePublisher.mapToVoid(),
-                walletManager.walletPublisher.mapToVoid()
-            )
-            .eraseToAnyPublisher()
-        }
-
-        return Publishers.Merge(
+        Publishers.Merge3(
             expressAvailabilityProvider.availabilityDidChangePublisher,
-            stakingManagerStatePublisher.mapToVoid()
+            stakingManagerStatePublisher.mapToVoid(),
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
         )
         .eraseToAnyPublisher()
     }
