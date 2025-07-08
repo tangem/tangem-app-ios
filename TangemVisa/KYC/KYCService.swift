@@ -9,6 +9,7 @@
 import Combine
 import IdensicMobileSDK
 import SwiftUI
+import TangemAssets
 
 enum KYCServiceError: Error {
     case sdkIsNotReady
@@ -73,16 +74,48 @@ public final class KYCService {
     }
 
     private func configureSDKTheme() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-//        sdk.theme.fonts.headline1 = .systemFont(ofSize: 28, weight: .bold)
-//        sdk.theme.fonts.subtitle2 = .systemFont(ofSize: 15, weight: .regular)
-//        sdk.theme.fonts.subtitle1 = .systemFont(ofSize: 16, weight: .medium)
-//
-//        sdk.theme.colors.contentStrong = .hex("#1E1E1E")
-//        sdk.theme.colors.contentNeutral = .hex("#656565")
-//        sdk.theme.colors.primaryButtonContent = .hex("#FFFFFF")
-//        sdk.theme.colors.primaryButtonBackground = .hex("#1E1E1E")
+        sdk.theme.fonts.headline1 = UIFonts.Bold.title1 // Title
+        sdk.theme.fonts.headline2 = UIFonts.Bold.footnote // Section title (e.g. "Select country where your ID document was issued")
+        sdk.theme.fonts.subtitle2 = UIFonts.Regular.subheadline // Subtitle
+        sdk.theme.fonts.subtitle1 = UIFonts.Regular.callout // Action button
+        sdk.theme.fonts.caption = UIFonts.Regular.caption1
+        sdk.theme.fonts.body = UIFonts.Regular.subheadline
+
+        sdk.theme.colors.contentStrong = UIColor(hex: "#1E1E1E") // Title
+        sdk.theme.colors.contentNeutral = UIColor(hex: "#656565") // Subtitle
+        sdk.theme.colors.contentWeak = UIColor(hex: "#1E1E1E") // Status card image color
+        sdk.theme.colors.contentWarning = UIColor(hex: "#1E1E1E") // Status card image color when submitted
+        sdk.theme.colors.primaryButtonContent = UIColor(hex: "#FFFFFF")
+        sdk.theme.colors.primaryButtonBackground = UIColor(hex: "#1E1E1E")
+        sdk.theme.colors.primaryButtonBackgroundDisabled = UIColor(hex: "#1E1E1E").withAlphaComponent(0.5)
+        sdk.theme.colors.primaryButtonBackgroundHighlighted = UIColor(hex: "#1E1E1E").withAlphaComponent(0.8)
+        sdk.theme.colors.fieldBorder = UIColor(hex: "#0099FF")
+
+        sdk.theme.metrics.verificationStepCardStyle = .plain
+        sdk.theme.metrics.documentTypeCardStyle = .plain
+        sdk.theme.metrics.sectionHeaderAlignment = .natural
+        sdk.theme.metrics.buttonCornerRadius = 14
+
+//        sdk.theme.images.iconDisclosure = UIImage()
+
+//        sdk.theme.images.verificationStepIcons = [
+//            .applicantData: UIImage(),
+//            .default: UIImage(),
+//            .ekyc: UIImage(),
+//            .emailVerification: UIImage(),
+//            .esign: UIImage(),
+//            .identity: UIImage(),
+//            .identity2: UIImage(),
+//            .identity3: UIImage(),
+//            .identity4: UIImage(),
+//            .phoneVerification: UIImage(),
+//            .proofOfResidence: UIImage(),
+//            .proofOfResidence2: UIImage(),
+//            .questionnaire: UIImage(),
+//            .selfie: UIImage(),
+//            .selfie2: UIImage(),
+//            .videoIdent: UIImage(),
+//        ]
     }
 }
 
@@ -96,6 +129,7 @@ extension KYCService {
             .eraseToAnyPublisher()
     }
 
+    @objc
     func dismiss() {
         sdk.dismiss()
     }
@@ -104,5 +138,11 @@ extension KYCService {
 public extension KYCService {
     static func start(getToken: @escaping () async throws -> VisaKYCAccessTokenResponse) async throws {
         try await KYCService(getToken: getToken)
+    }
+}
+
+extension UIColor {
+    convenience init(hex: String) {
+        self.init(cgColor: Color(hex: hex)!.cgColor!)
     }
 }
