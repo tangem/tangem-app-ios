@@ -1,5 +1,5 @@
 //
-//  NewWalletSelectorCoordinator.swift
+//  CreateWalletSelectorCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,12 +11,11 @@ import SwiftUI
 import TangemLocalization
 import TangemUIUtils
 
-class NewWalletSelectorCoordinator: CoordinatorObject {
+class CreateWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     @Published private(set) var createViewModel: CreateWalletSelectorViewModel?
-    @Published private(set) var importViewModel: ImportWalletSelectorViewModel?
     @Published var mailViewModel: MailViewModel?
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
@@ -38,24 +37,16 @@ class NewWalletSelectorCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        switch options.input {
-        case .create:
-            createViewModel = CreateWalletSelectorViewModel(
-                coordinator: self,
-                delegate: self
-            )
-        case .import:
-            importViewModel = ImportWalletSelectorViewModel(
-                coordinator: self,
-                delegate: self
-            )
-        }
+        createViewModel = CreateWalletSelectorViewModel(
+            coordinator: self,
+            delegate: self
+        )
     }
 }
 
 // MARK: - CreateNewWalletSelectorRoutable
 
-extension NewWalletSelectorCoordinator: CreateWalletSelectorRoutable {
+extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
     func openMobileWallet() {
         let input = HotOnboardingInput(flow: .walletCreate)
         let options = OnboardingCoordinator.Options.hotInput(input)
@@ -73,7 +64,7 @@ extension NewWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 
 // MARK: - CreateWalletSelectorDelegate
 
-extension NewWalletSelectorCoordinator: CreateWalletSelectorDelegate {
+extension CreateWalletSelectorCoordinator: CreateWalletSelectorDelegate {
     func scanCard() {
         Analytics.beginLoggingCardScan(source: .welcome)
 
@@ -83,27 +74,9 @@ extension NewWalletSelectorCoordinator: CreateWalletSelectorDelegate {
     }
 }
 
-// MARK: - ImportWalletSelectorRoutable
-
-extension NewWalletSelectorCoordinator: ImportWalletSelectorRoutable {
-    func openOnboarding() {
-        let input = HotOnboardingInput(flow: .walletImport)
-        let options = OnboardingCoordinator.Options.hotInput(input)
-        openOnboarding(with: options)
-    }
-
-    func openBuyCard() {
-        openCardPricing()
-    }
-}
-
-// MARK: - ImportWalletSelectorDelegate
-
-extension NewWalletSelectorCoordinator: ImportWalletSelectorDelegate {}
-
 // MARK: - Navigation
 
-private extension NewWalletSelectorCoordinator {
+private extension CreateWalletSelectorCoordinator {
     func openOnboarding(with inputOptions: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -124,9 +97,18 @@ private extension NewWalletSelectorCoordinator {
             title: Text(Localization.alertTroubleshootingScanCardTitle),
             message: Text(Localization.alertTroubleshootingScanCardMessage),
             buttons: [
-                .default(Text(Localization.alertButtonTryAgain), action: weakify(self, forFunction: NewWalletSelectorCoordinator.tryAgain)),
-                .default(Text(Localization.commonReadMore), action: weakify(self, forFunction: NewWalletSelectorCoordinator.openScanCardManual)),
-                .default(Text(Localization.alertButtonRequestSupport), action: weakify(self, forFunction: NewWalletSelectorCoordinator.requestSupport)),
+                .default(
+                    Text(Localization.alertButtonTryAgain),
+                    action: weakify(self, forFunction: CreateWalletSelectorCoordinator.tryAgain)
+                ),
+                .default(
+                    Text(Localization.commonReadMore),
+                    action: weakify(self, forFunction: CreateWalletSelectorCoordinator.openScanCardManual)
+                ),
+                .default(
+                    Text(Localization.alertButtonRequestSupport),
+                    action: weakify(self, forFunction: CreateWalletSelectorCoordinator.requestSupport)
+                ),
                 .cancel(),
             ]
         )
@@ -154,7 +136,7 @@ private extension NewWalletSelectorCoordinator {
 
 // MARK: - Private methods
 
-private extension NewWalletSelectorCoordinator {
+private extension CreateWalletSelectorCoordinator {
     func unlockDidFinish(with result: UserWalletRepositoryResult?) {
         if result?.isSuccess != true {
             incomingActionManager.discardIncomingAction()
@@ -195,10 +177,8 @@ private extension NewWalletSelectorCoordinator {
 
 // MARK: - Options
 
-extension NewWalletSelectorCoordinator {
-    struct InputOptions {
-        let input: NewWalletSelectorInput
-    }
+extension CreateWalletSelectorCoordinator {
+    struct InputOptions {}
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)

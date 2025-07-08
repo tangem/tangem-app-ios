@@ -1,5 +1,5 @@
 //
-//  NewWalletSelectorInput.swift
+//  ImportWalletSelectorDelegate.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,6 @@
 
 import Foundation
 
-enum NewWalletSelectorInput {
-    case create
-    case `import`
+protocol ImportWalletSelectorDelegate: AnyObject {
+    func scanCard()
 }

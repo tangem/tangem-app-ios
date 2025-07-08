@@ -42,7 +42,7 @@ extension ImportWalletSelectorViewModel {
     }
 
     func onBuyTap() {
-        delegate?.openBuyCard()
+        coordinator?.openBuyCard()
     }
 }
 
