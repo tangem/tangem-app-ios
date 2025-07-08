@@ -97,4 +97,6 @@ extension FilecoinTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         type.method
     }
+
+    var shouldLogResponseBody: Bool { true }
 }
