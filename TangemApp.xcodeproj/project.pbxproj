@@ -111,6 +111,7 @@
 		0FA453C22E1D3AFE0055B5BB /* HotAccessCodeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453B22E1D3AFE0055B5BB /* HotAccessCodeDelegate.swift */; };
 		0FA453C32E1D3AFE0055B5BB /* CommonHotAccessCodeManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453A32E1D3AFE0055B5BB /* CommonHotAccessCodeManagerDelegate.swift */; };
 		0FA453C62E1D47910055B5BB /* HotAccessCodeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453C52E1D47910055B5BB /* HotAccessCodeConfiguration.swift */; };
+		0FA453C82E1D597C0055B5BB /* BadgeView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA453C72E1D597C0055B5BB /* BadgeView+.swift */; };
 		0FBB13EE2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift */; };
 		0FBB13F12E015F290086784A /* HotOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* HotOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift */; };
@@ -4026,6 +4027,7 @@
 		0FA453B42E1D3AFE0055B5BB /* HotAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeViewModel.swift; sourceTree = "<group>"; };
 		0FA453C52E1D47910055B5BB /* HotAccessCodeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeConfiguration.swift; sourceTree = "<group>"; };
 		0FA453712E1D10C10055B5BB /* HotBackupUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotBackupUtil.swift; sourceTree = "<group>"; };
+		0FA453C72E1D597C0055B5BB /* BadgeView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BadgeView+.swift"; sourceTree = "<group>"; };
 		0FBB13EA2E015D690086784A /* HotOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		0FBB13ED2E015DD80086784A /* HotOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* HotOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
@@ -7883,6 +7885,7 @@
 			isa = PBXGroup;
 			children = (
 				0F3D64292E1280D500670DC9 /* BadgeView.swift */,
+				0FA453C72E1D597C0055B5BB /* BadgeView+.swift */,
 			);
 			path = BadgeView;
 			sourceTree = "<group>";
@@ -21629,6 +21632,7 @@
 				DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */,
 				DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */,
 				DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */,
+				0FA453C82E1D597C0055B5BB /* BadgeView+.swift in Sources */,
 				0F3D641F2E0ECF9C00670DC9 /* HotBackupNeededView.swift in Sources */,
 				DC2AB6DC2C08CF6C0050796C /* WelcomeOnboardingRoutable.swift in Sources */,
 				B6761A612DB9790600402277 /* NFTReceiveWalletModelFinder.swift in Sources */,

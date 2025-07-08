@@ -34,12 +34,12 @@ private extension HotBackupTypesViewModel {
 
         // [REDACTED_TODO_COMMENT]
         if false {
-            badge = BadgeView.Item(title: Localization.commonDone, style: .accent)
+            badge = .done
             action = { [routable] in
                 routable?.openHotBackupSeedPhrase()
             }
         } else {
-            badge = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
+            badge = .noBackup
             action = { [routable] in
                 routable?.openHotBackupOnboarding()
             }

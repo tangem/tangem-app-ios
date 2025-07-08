@@ -31,6 +31,10 @@ struct SettingsUserWalletRowView: View {
 
             Spacer()
 
+            if viewModel.isUserWalletBackupNeeded {
+                BadgeView.noBackup
+            }
+
             if !viewModel.isUserWalletLocked {
                 Assets.chevron.image
             }
@@ -107,6 +111,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -118,6 +123,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -129,6 +135,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -140,6 +147,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
+                    isUserWalletBackupNeededPublisher: .just(output: true),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
