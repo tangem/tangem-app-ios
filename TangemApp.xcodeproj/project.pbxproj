@@ -875,6 +875,7 @@
 		B64598FF2B59B4AC000FD73F /* RateAppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64598FE2B59B4AC000FD73F /* RateAppAction.swift */; };
 		B645BF3E2C59239700D8A2A5 /* CommonMarketsHistoryChartProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645BF3C2C59239700D8A2A5 /* CommonMarketsHistoryChartProvider.swift */; };
 		B645BF3F2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B645BF3D2C59239700D8A2A5 /* MarketsHistoryChartProvider.swift */; };
+		B645D8932E1F2F9C00C21FBC /* Hedera in Frameworks */ = {isa = PBXBuildFile; productRef = B645D8922E1F2F9C00C21FBC /* Hedera */; };
 		B64781E22C22F74300B0E882 /* CustomTokenContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */; };
 		B64959832C414E8900B71164 /* RootViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64959822C414E8900B71164 /* RootViewControllerFactory.swift */; };
 		B64E38692C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64E38682C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift */; };
@@ -5143,6 +5144,7 @@
 				B6D8F6BC2E18B24D003EFAF6 /* CryptoSwift in Frameworks */,
 				B620FCAE2C5D337900AD0FD1 /* DGCharts in Frameworks */,
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
+				B645D8932E1F2F9C00C21FBC /* Hedera in Frameworks */,
 				B64404412D3FE77300195004 /* FirebasePerformance in Frameworks */,
 				F92DB9C72CD4C24800C16530 /* TangemModules in Frameworks */,
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
@@ -14580,6 +14582,7 @@
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
 				B6D8F6BB2E18B24D003EFAF6 /* CryptoSwift */,
 				B66BBD8B2E18B4B200446329 /* BigInt */,
+				B645D8922E1F2F9C00C21FBC /* Hedera */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -22087,6 +22090,11 @@
 		B64404402D3FE77300195004 /* FirebasePerformance */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebasePerformance;
+		};
+		B645D8922E1F2F9C00C21FBC /* Hedera */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B682DF552E1DA886003EDBF6 /* XCLocalSwiftPackageReference "../../hedera-sdk-swift" */;
+			productName = Hedera;
 		};
 		B66BBD8B2E18B4B200446329 /* BigInt */ = {
 			isa = XCSwiftPackageProductDependency;
