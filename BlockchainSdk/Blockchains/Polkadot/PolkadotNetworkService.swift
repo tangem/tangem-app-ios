@@ -16,6 +16,8 @@ class PolkadotNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
     let providers: [PolkadotJsonRpcProvider]
 
+    let blockchainName: String = Blockchain.polkadot(curve: .ed25519_slip0010, testnet: false).displayName
+
     private let network: PolkadotNetwork
 
     init(providers: [PolkadotJsonRpcProvider], network: PolkadotNetwork) {
