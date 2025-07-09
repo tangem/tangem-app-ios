@@ -216,6 +216,7 @@ private extension SendWithSwapModel {
             Analytics.log(event: .sendErrorTransactionRejected, params: [
                 .token: sourceToken.tokenItem.currencySymbol,
                 .errorCode: "\(error.universalErrorCode)",
+                .blockchain: sourceToken.tokenItem.blockchain.displayName
             ])
         }
     }

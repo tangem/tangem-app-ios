@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol ExceptionHandlerOutput {
-    func handleAPISwitch(currentHost: String, nextHost: String, message: String)
+    func handleAPISwitch(currentHost: String, nextHost: String, message: String, blockchainName: String)
 }
 
 public final class ExceptionHandler {
@@ -29,12 +29,13 @@ public final class ExceptionHandler {
 
     // MARK: - Handle
 
-    func handleAPISwitch(currentHost: String, nextHost: String, message: String) {
+    func handleAPISwitch(currentHost: String, nextHost: String, message: String, blockchainName: String) {
         outputs.forEach { output in
             output.handleAPISwitch(
                 currentHost: currentHost,
                 nextHost: nextHost,
-                message: message
+                message: message,
+                blockchainName: blockchainName
             )
         }
     }
