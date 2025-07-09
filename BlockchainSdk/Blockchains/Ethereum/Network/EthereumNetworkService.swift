@@ -17,6 +17,8 @@ class EthereumNetworkService: MultiNetworkProvider {
     let providers: [EthereumJsonRpcProvider]
     var currentProviderIndex: Int = 0
 
+    let blockchainName: String = Blockchain.ethereum(testnet: false).displayName
+
     private let decimals: Int
     private let abiEncoder: ABIEncoder
 
