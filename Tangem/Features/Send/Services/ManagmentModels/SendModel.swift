@@ -198,6 +198,7 @@ private extension SendModel {
             Analytics.log(event: .sendErrorTransactionRejected, params: [
                 .token: tokenItem.currencySymbol,
                 .errorCode: "\(error.universalErrorCode)",
+                .blockchain: tokenItem.blockchain.displayName
             ])
         }
     }
