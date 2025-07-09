@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 class CosmosNetworkService: MultiNetworkProvider {
+    let blockchainName: String = Blockchain.cosmos(testnet: false).displayName
     let providers: [CosmosRestProvider]
     var currentProviderIndex: Int = 0
 

@@ -13,6 +13,7 @@ import WalletCore
 final class SuiNetworkService: MultiNetworkProvider {
     let providers: [SuiNetworkProvider]
     let balanceFetcher = SuiBalanceFetcher()
+    let blockchainName: String = Blockchain.sui(curve: .ed25519_slip0010, testnet: false).displayName
     var currentProviderIndex: Int
 
     init(providers: [SuiNetworkProvider]) {
