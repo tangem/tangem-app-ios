@@ -81,10 +81,8 @@ struct SendNewAmountTokenView: View {
                     .foregroundStyle(Colors.Text.tertiary)
                     .frame(width: 18, height: 24)
             }
-
         case .select(.none, .none):
             Assets.Glyphs.selectIcon.image
-
         case .select(.none, .some):
             HStack(spacing: 8) {
                 // Expand tappable area
