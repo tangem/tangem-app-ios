@@ -20,6 +20,10 @@ class TONNetworkService: MultiNetworkProvider {
     let providers: [TONProvider]
     var currentProviderIndex: Int = 0
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     private var blockchain: Blockchain
 
     // MARK: - Init
