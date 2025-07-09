@@ -13,6 +13,7 @@ import CombineExt
 class KaspaNetworkServiceKRC20: MultiNetworkProvider {
     let providers: [KaspaNetworkProviderKRC20]
     var currentProviderIndex: Int = 0
+    let blockchainName: String = Blockchain.kaspa(testnet: false).displayName + "KRC20"
 
     init(providers: [KaspaNetworkProviderKRC20]) {
         self.providers = providers
