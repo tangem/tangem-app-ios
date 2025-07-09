@@ -16,8 +16,8 @@ extension UIViewController {
             swizzledSelector: #selector(UIViewController.swizzled_present(_:animated:completion:))
         )
         toggleSwizzling(
-            originalSelector: #selector(UIViewController.viewDidLoad),
-            swizzledSelector: #selector(UIViewController.swizzled_viewDidLoad)
+            originalSelector: #selector(UIViewController.viewWillAppear),
+            swizzledSelector: #selector(UIViewController.swizzled_viewWillAppear)
         )
     }
 }
@@ -43,83 +43,79 @@ private extension UIViewController {
     }
 
     @objc
-    func swizzled_viewDidLoad() {
-        swizzled_viewDidLoad()
-
+    func swizzled_viewWillAppear() {
+        swizzled_viewWillAppear()
+        
+        guard isKYCSDKController,
+              let navigationController,
+              navigationController.modalPresentationStyle != .formSheet,
+              let service = KYCService.shared
+        else {
+            return
+        }
+        
         let className = String(describing: type(of: self))
 
-        if let nav = self as? UINavigationController, let service = KYCService.shared {
-            let bar = nav.navigationBar
+        var isInitialScreen = false
+        switch className {
+        case "AgreementViewController":
+            title = "Country of residence"
+            isInitialScreen = true
 
-            print("TAG: NAVCONTROLLER:", className)
-            let overlay = KYCHeaderUIView(
-                stepPublisher: service.kycStepPublisher,
-                back: invokeRightBarButtonAction,
-                close: service.dismiss
-            )
-            overlay.tag = headerTag
-            bar.addSubview(overlay)
-            overlay.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                overlay.leadingAnchor.constraint(equalTo: bar.leadingAnchor),
-                overlay.trailingAnchor.constraint(equalTo: bar.trailingAnchor),
-                overlay.topAnchor.constraint(equalTo: bar.topAnchor),
-                overlay.bottomAnchor.constraint(equalTo: bar.bottomAnchor),
-            ])
-            bar.hide(except: headerTag)
-        } else {
-            print("TAG:", className)
+        case "SNSStatusVC":
+            title = "Account verification"
+            isInitialScreen = true
+
+        case "QuestionnaireViewController":
+            title = "Personal information"
+
+        case "SNSDocTypePickerVC":
+            title = "Identity document"
+
+        case "SNSCameraVC":
+            title = "Upload document"
+
+        case "SNSPreviewVC":
+            title = "Upload document"
+
+        case "SNSFaceScanVC":
+            title = "Liveness check"
+
+        default:
+            break
         }
 
-//        guard isKYCSDKController,
-//              let navigationController,
-//              navigationController.modalPresentationStyle != .formSheet,
-//              let service = KYCService.shared
-//        else {
-//            return
-//        }
-//
-//        var isInitialScreen = false
-//        switch className {
-//        case "AgreementViewController":
-//            title = "Country of residence"
-//            isInitialScreen = true
-//
-//        case "SNSStatusVC":
-//            title = "Account verification"
-//            isInitialScreen = true
-//
-//        case "QuestionnaireViewController":
-//            title = "Personal information"
-//
-//        case "SNSDocTypePickerVC":
-//            title = "Identity document"
-//
-//        case "SNSCameraVC":
-//            title = "Upload document"
-//
-//        case "SNSPreviewVC":
-//            title = "Upload document"
-//
-//        case "SNSFaceScanVC":
-//            title = "Liveness check"
-//
-//        default:
-//            break
-//        }
-//
-//        if let rightBarButtonItem = navigationItem.rightBarButtonItem {
-//            if !isInitialScreen {
-//                let closeButton = UIBarButtonItem(
-//                    title: "Close",
-//                    style: .plain,
-//                    target: service,
-//                    action: #selector(KYCService.dismiss)
-//                )
-//                closeButton.tintColor = UIColor(hex: "#1E1E1E")
-//                navigationItem.setLeftBarButton(closeButton, animated: false)
-//            }
-//        }
+        navigationController.navigationBar.semanticContentAttribute = .forceRightToLeft
+        if let rightBarButtonItem = navigationItem.rightBarButtonItem {
+            if isInitialScreen {
+                let backButton = UIBarButtonItem(
+                    title: "Close",
+                    style: .plain,
+                    target: rightBarButtonItem.target,
+                    action: rightBarButtonItem.action
+                )
+                backButton.tintColor = UIColor(hex: "#1E1E1E")
+                navigationItem.setRightBarButton(backButton, animated: false)
+            } else {
+                let backButton = UIBarButtonItem(
+                    title: "Back",
+                    style: .plain,
+                    target: rightBarButtonItem.target,
+                    action: rightBarButtonItem.action
+                )
+                backButton.tintColor = UIColor(hex: "#1E1E1E")
+                navigationItem.setRightBarButton(backButton, animated: false)
+
+                let closeButton = UIBarButtonItem(
+                    title: "Close",
+                    style: .plain,
+                    target: service,
+                    action: #selector(KYCService.dismiss)
+                )
+                closeButton.tintColor = UIColor(hex: "#1E1E1E")
+                navigationItem.setLeftBarButton(closeButton, animated: false)
+            }
+        }
     }
 
     @objc
@@ -142,8 +138,7 @@ private extension UIViewController {
         }
 
         modifiedViewControllerToPresent = viewControllerToPresent
-//        modifiedViewControllerToPresent.modalPresentationStyle = .overFullScreen
-//        modifiedViewControllerToPresent.modalTransitionStyle = viewControllerToPresent.modalTransitionStyle
+        modifiedViewControllerToPresent.modalPresentationStyle = .overFullScreen
 
 //        let hostingController = UIHostingController(
 //            rootView: VStack(spacing: .zero) {
@@ -200,4 +195,3 @@ extension UINavigationBar {
         }
     }
 }
- 
