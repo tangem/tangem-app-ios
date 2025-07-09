@@ -55,7 +55,11 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = BitcoinCashNetworkService(providers: providers)
+        let networkService = BitcoinCashNetworkService(
+            providers: providers,
+            blockchainName: Blockchain.bitcoinCash.displayName
+        )
+
         return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
