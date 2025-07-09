@@ -15,6 +15,9 @@ class AlgorandNetworkService: MultiNetworkProvider {
     let blockchain: Blockchain
     let providers: [AlgorandNetworkProvider]
     var currentProviderIndex: Int = 0
+    var blockchainName: String {
+        blockchain.displayName
+    }
 
     // MARK: - Init
 
