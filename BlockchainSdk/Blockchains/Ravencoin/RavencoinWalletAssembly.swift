@@ -34,7 +34,11 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
                 }
             }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.ravencoin(testnet: false).displayName
+        )
+
         return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
