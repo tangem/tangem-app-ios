@@ -18,6 +18,8 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
         blockBookProviders
     }
 
+    let blockchainName: String
+
     private let blockBookProviders: [BlockBookUTXOProvider]
     private let mapper: Mapper
 
@@ -27,10 +29,12 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
 
     init(
         blockBookProviders: [BlockBookUTXOProvider],
-        mapper: Mapper
+        mapper: Mapper,
+        blockchainName: String
     ) {
         self.blockBookProviders = blockBookProviders
         self.mapper = mapper
+        self.blockchainName = blockchainName
     }
 }
 
