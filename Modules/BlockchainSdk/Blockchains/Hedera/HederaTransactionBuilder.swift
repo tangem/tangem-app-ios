@@ -241,7 +241,7 @@ extension Hedera.EntityId {
     /// and `[0x]40*HEXDIG` (Solidity/EVM) forms.
     static func fromSolidityAddressOrString<S: StringProtocol>(_ input: S) throws -> Self {
         // Solidity/EVM address parsing rules are stricter, so we're trying to parse Solidity/EVM addresses first
-        return .init(num: 1) // [REDACTED_TODO_COMMENT]
+        return try (try? fromSolidityAddress(input)) ?? fromString(input)
     }
 }
 
