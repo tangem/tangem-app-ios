@@ -11,7 +11,9 @@ import Hedera
 
 public struct HederaTokenContractAddressConverter {
     public func convertFromEVMToHedera(_ evmAddress: String) throws -> String {
-        return "" // [REDACTED_TODO_COMMENT]
+        return try AccountId
+            .fromSolidityAddress(evmAddress.addHexPrefix()) // adding the '0x' prefix just for consistency
+            .toString()
     }
 
     public func convertFromHederaToEVM(_ hederaAddress: String) throws -> String {
