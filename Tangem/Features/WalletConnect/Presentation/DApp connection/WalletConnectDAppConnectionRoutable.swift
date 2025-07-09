@@ -14,7 +14,6 @@ protocol WalletConnectDAppConnectionRoutable: AnyObject {
 
     func openDomainVerificationWarning(
         _ verificationStatus: WalletConnectDAppVerificationStatus,
-        cancelAction: @escaping () async -> Void,
         connectAnywayAction: @escaping () async -> Void
     )
 
