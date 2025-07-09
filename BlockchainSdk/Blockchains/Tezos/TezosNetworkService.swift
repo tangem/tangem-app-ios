@@ -12,6 +12,7 @@ import Combine
 
 class TezosNetworkService: MultiNetworkProvider {
     let providers: [TezosJsonRpcProvider]
+    let blockchainName: String = Blockchain.tezos(curve: .ed25519_slip0010).displayName
     var currentProviderIndex: Int = 0
 
     init(providers: [TezosJsonRpcProvider]) {
