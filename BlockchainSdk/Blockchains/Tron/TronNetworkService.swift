@@ -20,6 +20,10 @@ class TronNetworkService: MultiNetworkProvider {
         Blockchain.tron(testnet: isTestnet)
     }
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     init(isTestnet: Bool, providers: [TronJsonRpcProvider]) {
         self.isTestnet = isTestnet
         self.providers = providers
