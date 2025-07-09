@@ -11,7 +11,12 @@ import SolanaSwift
 
 struct SolanaApiLoggerUtil: NetworkingRouterSwitchApiLogger {
     func handle(error: any Error, currentHost: String, nextHost: String) {
-        ExceptionHandler.shared.handleAPISwitch(currentHost: currentHost, nextHost: nextHost, message: error.localizedDescription)
+        ExceptionHandler.shared.handleAPISwitch(
+            currentHost: currentHost,
+            nextHost: nextHost,
+            message: error.localizedDescription,
+            blockchainName: Blockchain.solana(curve: .ed25519_slip0010, testnet: false).displayName
+        )
     }
 
     func handle(error message: String) {

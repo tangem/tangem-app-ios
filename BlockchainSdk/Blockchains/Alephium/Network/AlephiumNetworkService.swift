@@ -15,6 +15,7 @@ class AlephiumNetworkService: MultiNetworkProvider {
 
     let providers: [AlephiumNetworkProvider]
     var currentProviderIndex: Int = 0
+    let blockchainName = Blockchain.alephium(testnet: false).displayName
 
     // MARK: - Init
 
