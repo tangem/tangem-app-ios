@@ -11,6 +11,7 @@ import Combine
 
 final class HederaNetworkService {
     var currentProviderIndex: Int
+    let blockchainName: String = Blockchain.hedera(curve: .ed25519_slip0010, testnet: false).displayName
 
     private let consensusProvider: HederaConsensusNetworkProvider
     private let restProviders: [HederaRESTNetworkProvider]
