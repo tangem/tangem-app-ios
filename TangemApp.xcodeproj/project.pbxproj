@@ -2342,6 +2342,9 @@
 		DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */; };
 		DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */; };
 		DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046162AAA180900808FA8 /* LineChartView.swift */; };
+		DA709FF82E167E2A006B9774 /* IdensicMobileSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DA709FF72E167E2A006B9774 /* IdensicMobileSDK */; };
+		DA709FFA2E167E36006B9774 /* IdensicMobileSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DA709FF92E167E36006B9774 /* IdensicMobileSDK */; };
+		DA709FFD2E167E7F006B9774 /* KYCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA709FFC2E167E7C006B9774 /* KYCService.swift */; };
 		DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */; };
 		DA7444242A27889600F926A9 /* PromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444222A27889600F926A9 /* PromotionService.swift */; };
 		DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */; };
@@ -2373,6 +2376,9 @@
 		DA90396D2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90396C2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift */; };
 		DA91770E2A25DD3F006CD67B /* OneInchGradientViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */; };
 		DA9493E72B9978A900F2BE0F /* EmailDataProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA9493E62B9978A900F2BE0F /* EmailDataProviderMock.swift */; };
+		DA99CA762E16A46F00A0A73B /* KYCStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA99CA752E16A46F00A0A73B /* KYCStep.swift */; };
+		DA99CA782E16A48B00A0A73B /* KYCHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA99CA772E16A48B00A0A73B /* KYCHeaderView.swift */; };
+		DA99CA7E2E16E12000A0A73B /* UIViewController+swizzling.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA99CA7D2E16E12000A0A73B /* UIViewController+swizzling.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA5E30028D21369003C0E80 /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */; };
@@ -6167,6 +6173,7 @@
 		DA6C7527292613D00070EEFD /* UserWalletIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletIdFactory.swift; sourceTree = "<group>"; };
 		DA6C752B292909B20070EEFD /* UserWalletRepositoryUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryUtil.swift; sourceTree = "<group>"; };
 		DA7046162AAA180900808FA8 /* LineChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
+		DA709FFC2E167E7C006B9774 /* KYCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCService.swift; sourceTree = "<group>"; };
 		DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnAndEarnStoryPage.swift; sourceTree = "<group>"; };
 		DA7444222A27889600F926A9 /* PromotionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionService.swift; sourceTree = "<group>"; };
 		DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionServiceProtocol.swift; sourceTree = "<group>"; };
@@ -6198,6 +6205,9 @@
 		DA90396C2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KoinosSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneInchGradientViews.swift; sourceTree = "<group>"; };
 		DA9493E62B9978A900F2BE0F /* EmailDataProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailDataProviderMock.swift; sourceTree = "<group>"; };
+		DA99CA752E16A46F00A0A73B /* KYCStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCStep.swift; sourceTree = "<group>"; };
+		DA99CA772E16A48B00A0A73B /* KYCHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCHeaderView.swift; sourceTree = "<group>"; };
+		DA99CA7D2E16E12000A0A73B /* UIViewController+swizzling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+swizzling.swift"; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAA5E2FC28D21368003C0E80 /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
@@ -7560,6 +7570,7 @@
 				B63BAA6C2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */,
 				B620FCA02C5D326D00AD0FD1 /* DGCharts in Frameworks */,
+				DA709FFA2E167E36006B9774 /* IdensicMobileSDK in Frameworks */,
 				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
 			);
@@ -7591,6 +7602,7 @@
 				B62D34102CBC4C5800C2460E /* BlockchainSdk.framework in Frameworks */,
 				B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */,
 				B67E38BB2CC7179000D660EB /* TangemSdk in Frameworks */,
+				DA709FF82E167E2A006B9774 /* IdensicMobileSDK in Frameworks */,
 				B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -10276,6 +10288,7 @@
 		B09933782B5517E500240CDB /* TangemVisa */ = {
 			isa = PBXGroup;
 			children = (
+				DA709FFB2E167E67006B9774 /* KYC */,
 				B07469E42D59E15E00681AF6 /* Config */,
 				B03C19AA2CF0857B00CCB4F1 /* TangemSdk */,
 				B03A472B2D9BDA4900AC7373 /* BlockchainSdk */,
@@ -14710,6 +14723,17 @@
 				DA7046162AAA180900808FA8 /* LineChartView.swift */,
 			);
 			path = Charts;
+			sourceTree = "<group>";
+		};
+		DA709FFB2E167E67006B9774 /* KYC */ = {
+			isa = PBXGroup;
+			children = (
+				DA99CA772E16A48B00A0A73B /* KYCHeaderView.swift */,
+				DA99CA752E16A46F00A0A73B /* KYCStep.swift */,
+				DA709FFC2E167E7C006B9774 /* KYCService.swift */,
+				DA99CA7D2E16E12000A0A73B /* UIViewController+swizzling.swift */,
+			);
+			path = KYC;
 			sourceTree = "<group>";
 		};
 		DA7444212A27889600F926A9 /* PromotionService */ = {
@@ -20201,6 +20225,7 @@
 				B64404402D3FE77300195004 /* FirebasePerformance */,
 				B0776C362DA69090004A8765 /* Lottie */,
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
+				DA709FF92E167E36006B9774 /* IdensicMobileSDK */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -20266,6 +20291,7 @@
 				B67E38BA2CC7179000D660EB /* TangemSdk */,
 				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 				F92DB9C82CD4C2F400C16530 /* TangemModules */,
+				DA709FF72E167E2A006B9774 /* IdensicMobileSDK */,
 			);
 			productName = TangemVisa;
 			productReference = B09933772B5517E300240CDB /* TangemVisa.framework */;
@@ -20568,6 +20594,7 @@
 				B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */,
+				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -22967,6 +22994,7 @@
 				B05E36922CDA0F2C00CE44F2 /* VisaAuthorizationService.swift in Sources */,
 				B086AE0D2D51EA230042B955 /* ProductActivationServiceBuilder.swift in Sources */,
 				B01168BA2D4CC8AC001DCC6E /* ProductActivationAPIModels.swift in Sources */,
+				DA709FFD2E167E7F006B9774 /* KYCService.swift in Sources */,
 				B0731E372D6470CD00816DD5 /* EthereumDataParser.swift in Sources */,
 				B0A2A0B42D8078BA007A90B5 /* VisaAccessCodeValidationError.swift in Sources */,
 				B0BB3A882CF472C800631829 /* CardAuthorizationProcessor.swift in Sources */,
@@ -22990,6 +23018,7 @@
 				B0DB542F2CF47AF90069131C /* CardActivationOrderProvider.swift in Sources */,
 				B0A359AE2CE7021B0001499E /* AuthorizationTokensHolder.swift in Sources */,
 				B08BC1BE2BF72C0B00041E95 /* VisaTokenInfoLoader.swift in Sources */,
+				DA99CA762E16A46F00A0A73B /* KYCStep.swift in Sources */,
 				B0569C662CFD97D700CCD55F /* JWTTokenHelper.swift in Sources */,
 				B07D96782CD4CCE700A3BAF2 /* VisaActivationManager.swift in Sources */,
 				B050F5002B60FCE500B2E53C /* VisaAPIServiceBuilder.swift in Sources */,
@@ -23011,6 +23040,7 @@
 				B06F03412B5A8C6300F04F0E /* VisaParserError.swift in Sources */,
 				B063D5D02D56114100ED8EC1 /* PINCodeProcessor.swift in Sources */,
 				B05E36D22CDA3D2200CE44F2 /* APIService.swift in Sources */,
+				DA99CA782E16A48B00A0A73B /* KYCHeaderView.swift in Sources */,
 				B099339D2B55196700240CDB /* VisaPaymentAccountInteractor.swift in Sources */,
 				B0874DA82D4A733200A5BBF0 /* ProductActivationService.swift in Sources */,
 				B086AE0B2D51E0260042B955 /* VisaUtilitiesError.swift in Sources */,
@@ -23023,6 +23053,7 @@
 				B06C6D2A2CE48A1900B30325 /* VisaAuthorizationTokensHandler.swift in Sources */,
 				B072324B2D11B70500E30614 /* MoyaProviderBuilder.swift in Sources */,
 				B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */,
+				DA99CA7E2E16E12000A0A73B /* UIViewController+swizzling.swift in Sources */,
 				B0A359AA2CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift in Sources */,
 				B05145122B59349100EDAD1E /* SmartContractMethodIdCreator.swift in Sources */,
 				B03FF8A22B5E5C4500202EC0 /* VisaLogger.swift in Sources */,
@@ -30479,6 +30510,14 @@
 				version = "5.1.0-tangem3";
 			};
 		};
+		DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.36.0;
+			};
+		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -30771,6 +30810,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */;
 			productName = DGCharts;
+		};
+		DA709FF72E167E2A006B9774 /* IdensicMobileSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */;
+			productName = IdensicMobileSDK;
+		};
+		DA709FF92E167E36006B9774 /* IdensicMobileSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */;
+			productName = IdensicMobileSDK;
 		};
 		DCB616E42CB39AE100BE4481 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
