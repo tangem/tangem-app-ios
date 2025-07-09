@@ -18,6 +18,10 @@ final class ICPNetworkService: MultiNetworkProvider {
     let providers: [ICPNetworkProvider]
     var currentProviderIndex: Int = 0
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     private var blockchain: Blockchain
 
     // MARK: - Init
