@@ -38,7 +38,10 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
             wallet: input.wallet,
             transactionBuilder: transactionBuilder,
             unspentOutputManager: unspentOutputManager,
-            networkService: MultiUTXONetworkProvider(providers: providers)
+            networkService: MultiUTXONetworkProvider(
+                providers: providers,
+                blockchainName: Blockchain.radiant(testnet: false).displayName
+            )
         )
     }
 }

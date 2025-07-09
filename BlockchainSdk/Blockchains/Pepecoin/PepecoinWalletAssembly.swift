@@ -36,7 +36,11 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
             )
         }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.pepecoin(testnet: false).displayName
+        )
+
         return PepecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }

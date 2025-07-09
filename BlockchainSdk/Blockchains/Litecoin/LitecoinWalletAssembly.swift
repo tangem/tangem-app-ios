@@ -39,7 +39,11 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = LitecoinNetworkService(providers: providers)
+        let networkService = LitecoinNetworkService(
+            providers: providers,
+            blockchainName: Blockchain.litecoin.displayName
+        )
+
         return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }

@@ -17,6 +17,10 @@ class ChiaNetworkService: MultiNetworkProvider {
 
     private var blockchain: Blockchain
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     // MARK: - Init
 
     init(providers: [ChiaNetworkProvider], blockchain: Blockchain) {
