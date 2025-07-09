@@ -16,6 +16,10 @@ final class NEARNetworkService: MultiNetworkProvider {
 
     private let blockchain: Blockchain
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     init(
         blockchain: Blockchain,
         providers: [NEARNetworkProvider]
