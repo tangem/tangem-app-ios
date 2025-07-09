@@ -17,6 +17,7 @@ class AptosNetworkService: MultiNetworkProvider {
     let providers: [AptosNetworkProvider]
 
     var currentProviderIndex: Int = 0
+    let blockchainName: String = Blockchain.aptos(curve: .ed25519_slip0010, testnet: false).displayName
 
     // MARK: - Init
 

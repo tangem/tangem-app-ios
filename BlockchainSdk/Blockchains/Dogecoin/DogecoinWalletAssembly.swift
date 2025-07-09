@@ -52,7 +52,11 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.dogecoin.displayName
+        )
+
         return DogecoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,
