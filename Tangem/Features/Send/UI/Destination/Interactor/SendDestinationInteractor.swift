@@ -87,6 +87,7 @@ class CommonSendDestinationInteractor {
 
         case .failure(let error):
             _destinationValid.send(false)
+            _isValidatingDestination.send(false)
             _destinationError.send(error)
             analyticsLogger.log(isAddressValid: false, source: source)
             output?.destinationDidChanged(.none)
@@ -181,7 +182,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
                     } catch is CancellationError {
                         // Do Nothig
                     } catch {
-                        interactor.update(destination: .failure(error), source: source)
+                        AppLogger.error("Failed to check resolve address with error:", error: error)
+                        interactor.update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
                     }
                 }
             } else {
