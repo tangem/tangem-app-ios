@@ -133,8 +133,10 @@ private extension WCServiceV2 {
                 Task {
                     do {
                         let validatedRequest = try await self.wcHandlersService.validate(request)
+                        let connectedBlockchains = try await self.connectedDAppRepository.getDApp(with: request.topic).blockchains
                         let transactionDTO = try await self.wcHandlersService.makeHandleTransactionDTO(
-                            from: validatedRequest
+                            from: validatedRequest,
+                            connectedBlockchains: connectedBlockchains
                         )
 
                         self.transactionRequestSubject.send(

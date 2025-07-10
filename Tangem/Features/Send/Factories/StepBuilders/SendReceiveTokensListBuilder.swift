@@ -9,21 +9,19 @@
 import TangemExpress
 
 struct SendReceiveTokensListBuilder {
-    typealias IO = (input: SendReceiveTokenInput, output: SendReceiveTokenOutput)
-
-    private let io: IO
-    private let tokenItem: TokenItem
-    private let expressRepository: ExpressRepository
+    private let sourceTokenInput: any SendSourceTokenInput
+    private let receiveTokenOutput: any SendReceiveTokenOutput
+    private let expressRepository: any ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
 
     init(
-        io: IO,
-        tokenItem: TokenItem,
-        expressRepository: ExpressRepository,
+        sourceTokenInput: any SendSourceTokenInput,
+        receiveTokenOutput: any SendReceiveTokenOutput,
+        expressRepository: any ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder
     ) {
-        self.io = io
-        self.tokenItem = tokenItem
+        self.sourceTokenInput = sourceTokenInput
+        self.receiveTokenOutput = receiveTokenOutput
         self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
     }
@@ -33,13 +31,16 @@ struct SendReceiveTokensListBuilder {
         return viewModel
     }
 
-    func makeReceiveTokenNetworkSelectorViewModel(networks: [TokenItem], router: any SendReceiveTokenNetworkSelectorViewRoutable) -> SendReceiveTokenNetworkSelectorViewModel {
+    func makeReceiveTokenNetworkSelectorViewModel(
+        networks: [TokenItem],
+        router: any SendReceiveTokenNetworkSelectorViewRoutable
+    ) -> SendReceiveTokenNetworkSelectorViewModel {
         let viewModel = SendReceiveTokenNetworkSelectorViewModel(
-            tokenItem: tokenItem,
+            sourceTokenInput: sourceTokenInput,
+            receiveTokenOutput: receiveTokenOutput,
             networks: networks,
             expressRepository: expressRepository,
             receiveTokenBuilder: receiveTokenBuilder,
-            output: io.output,
             router: router
         )
 

@@ -23,21 +23,29 @@ struct NewSendFlowBaseBuilder {
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let flowKind = SendModel.PredefinedValues.FlowKind.send
 
-        let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendWithSwapModel()
+        let swapManager: SwapManager = builder.makeSwapManager()
+        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager)
+        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
-        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
-        let amount = sendAmountStepBuilder.makeSendNewAmountStep(
-            io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            sendAmountValidator: builder.makeSendAmountValidator(),
-            amountModifier: .none,
+        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
             receiveTokenInput: sendModel,
-            receiveTokenOutput: sendModel,
+            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
+            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
+        )
+
+        let amount = sendAmountStepBuilder.makeSendNewAmountStep(
+            sourceIO: (input: sendModel, output: sendModel),
+            sourceAmountIO: (input: sendModel, output: sendModel),
+            receiveIO: (input: sendModel, output: sendModel),
+            receiveAmountIO: (input: sendModel, output: sendModel),
             swapProvidersInput: sendModel,
+            actionType: .send,
+            sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
+            amountModifier: .none,
+            notificationService: notificationManager as? SendAmountNotificationService,
             flowKind: flowKind
         )
 
@@ -76,14 +84,13 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendAmountCompactViewModel: amount.finish,
+            sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
-            sendSwapProviderFinishViewModel: providers.finish,
             sendFeeCompactViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
-        sendModel.sendAmountInteractor = amount.interactor
+        sendModel.externalAmountUpdater = amount.amountUpdater
         sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             input: sendModel, output: sendModel, provider: sendFeeProvider
@@ -99,18 +106,23 @@ struct NewSendFlowBaseBuilder {
         let stepsManager = CommonNewSendStepsManager(
             amountStep: amount.step,
             destinationStep: destination.step,
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers.providersSelector
+            providersSelector: providers
         )
 
-        summary.step.set(router: stepsManager)
+        summary.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
+
+        let sendReceiveTokensListBuilder = builder.makeSendReceiveTokensListBuilder(
+            sendSourceTokenInput: sendModel,
+            receiveTokenOutput: sendModel
+        )
 
         let dataBuilder = builder.makeSendBaseDataBuilder(
             input: sendModel,
-            receiveTokenIO: (input: sendModel, output: sendModel)
+            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
         )
 
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)

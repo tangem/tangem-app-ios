@@ -10,7 +10,7 @@ import Foundation
 
 struct SendNewSummaryStepBuilder {
     typealias IO = (input: SendSummaryInput, output: SendSummaryOutput)
-    typealias ReturnValue = (step: SendNewSummaryStep, interactor: SendSummaryInteractor)
+    typealias ReturnValue = SendNewSummaryStep
 
     let tokenItem: TokenItem
     let builder: SendDependenciesBuilder
@@ -52,7 +52,7 @@ struct SendNewSummaryStepBuilder {
             title: builder.summaryTitle(action: actionType)
         )
 
-        return (step: step, interactor: interactor)
+        return step
     }
 }
 
