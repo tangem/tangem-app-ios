@@ -845,6 +845,7 @@
 		B62C24892CF48327003377F1 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B62C24882CF48327003377F1 /* FirebaseCrashlytics */; };
 		B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B62C248A2CF48327003377F1 /* FirebaseMessaging */; };
 		B62C65CE2C38D06B00189AD4 /* CommonPushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62C65C72C38D06A00189AD4 /* CommonPushNotificationsService.swift */; };
+		B62C8DB12E2081FB00A94882 /* TangemWalletCoreBinariesWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */; };
 		B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E1C252DDC0FD400CE8049 /* NFTPriceFormatter.swift */; };
 		B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31B2B28977B006BA412 /* RateAppResponse.swift */; };
 		B62EE31E2B28A0FE006BA412 /* AppStoreReviewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31D2B28A0FE006BA412 /* AppStoreReviewModifier.swift */; };
@@ -5239,9 +5240,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B62C8DB12E2081FB00A94882 /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */,
-				B62D43C22CBC823A00C2460E /* TangemWalletCoreBinariesWrapper in Frameworks */,
-				B655F57C2CBC872E002391AF /* TweetNacl in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8306,14 +8306,12 @@
 		B62D43792CBC7EC700C2460E /* BlockchainSdkExample */ = {
 			isa = PBXGroup;
 			children = (
-				B655F5902CBC8E03002391AF /* tangem-app-config */,
 				B62D43952CBC7FCD00C2460E /* APIListUtils.swift */,
 				B62D437A2CBC7EC700C2460E /* BlockchainSdkExampleApp.swift */,
 				B62D43922CBC7FCD00C2460E /* BlockchainSdkExampleView.swift */,
 				B62D43932CBC7FCD00C2460E /* BlockchainSdkExampleViewModel.swift */,
 				B62D43942CBC7FCD00C2460E /* InMemoryBlockchainDataStorage.swift */,
 				B62D43A92CBC7FCE00C2460E /* SimpleAccountCreator.swift */,
-				B6F271032CC2C10A00A2A5B1 /* SimpleTransactionSigner.swift */,
 				B62D43962CBC7FCD00C2460E /* BlockchainSdkExample.entitlements */,
 				B62D437E2CBC7ECA00C2460E /* Assets.xcassets */,
 				B62D43802CBC7ECA00C2460E /* Preview Content */,
@@ -14773,7 +14771,6 @@
 			name = BlockchainSdkExample;
 			packageProductDependencies = (
 				B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */,
-				B655F57B2CBC872E002391AF /* TweetNacl */,
 				B67E38C22CC71B5F00D660EB /* TangemSdk */,
 			);
 			productName = BlockchainSdkExample;
@@ -15065,13 +15062,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B655F5972CBC8E03002391AF /* config_beta.json in Resources */,
-				B655F5982CBC8E03002391AF /* config_dev.json in Resources */,
-				B62D43822CBC7ECA00C2460E /* Preview Assets.xcassets in Resources */,
-				B655F59B2CBC8E03002391AF /* providers_order.json in Resources */,
-				B655F5962CBC8E03002391AF /* config_alpha.json in Resources */,
-				B62D437F2CBC7ECA00C2460E /* Assets.xcassets in Resources */,
-				B655F5992CBC8E03002391AF /* config_prod.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -17431,13 +17421,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B62D43AA2CBC7FCE00C2460E /* BlockchainSdkExampleView.swift in Sources */,
-				B6F271042CC2C10A00A2A5B1 /* SimpleTransactionSigner.swift in Sources */,
-				B62D43AD2CBC7FCE00C2460E /* APIListUtils.swift in Sources */,
-				B62D43AC2CBC7FCE00C2460E /* InMemoryBlockchainDataStorage.swift in Sources */,
-				B62D43AB2CBC7FCE00C2460E /* BlockchainSdkExampleViewModel.swift in Sources */,
-				B62D43BD2CBC7FCE00C2460E /* SimpleAccountCreator.swift in Sources */,
-				B62D437B2CBC7EC700C2460E /* BlockchainSdkExampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
