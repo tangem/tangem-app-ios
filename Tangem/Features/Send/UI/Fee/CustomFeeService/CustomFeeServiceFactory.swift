@@ -47,10 +47,10 @@ struct CustomFeeServiceFactory {
 
         if blockchain.isEvm {
             if FeatureProvider.isAvailable(.newSendUI) {
-                return NewCustomEvmFeeService(feeTokenItem: walletModel.feeTokenItem)
+                return NewCustomEvmFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
             }
 
-            return CustomEvmFeeService(feeTokenItem: walletModel.feeTokenItem)
+            return CustomEvmFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         }
 
         return nil
