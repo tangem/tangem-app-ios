@@ -48,6 +48,8 @@ class CommonSendDestinationInteractor {
     private let _additionalFieldValid: CurrentValueSubject<Bool, Never> = .init(true)
     private let _destinationAdditionalFieldError: CurrentValueSubject<Error?, Never> = .init(nil)
 
+    private var resolveDestinationTask: Task<Void, Never>?
+
     init(
         input: SendDestinationInput,
         output: SendDestinationOutput,
@@ -170,10 +172,14 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             try validator.validate(destination: address)
 
             if let addressResolver = addressResolver {
-                runTask(in: self) { interactor in
+                resolveDestinationTask?.cancel()
+
+                resolveDestinationTask = runTask(in: self) { interactor in
                     do {
                         let resolved = try await interactor.resolve(destination: address, resolver: addressResolver)
                         interactor.update(destination: .success(resolved), source: source)
+                    } catch is CancellationError {
+                        // Do Nothig
                     } catch {
                         interactor.update(destination: .failure(error), source: source)
                     }

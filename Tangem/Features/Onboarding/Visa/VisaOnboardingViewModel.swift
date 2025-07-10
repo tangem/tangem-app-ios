@@ -415,7 +415,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func showContactSupportAlert(for error: Error) async {
         let alert = AlertBuilder.makeAlert(
             title: Localization.commonError,
-            message: error.universalErrorMessage,
+            message: error.localizedDescription,
             primaryButton: .default(
                 Text(Localization.detailsRowTitleContactToSupport),
                 action: { [weak self] in
