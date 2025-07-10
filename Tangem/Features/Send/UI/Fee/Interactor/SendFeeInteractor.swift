@@ -22,6 +22,10 @@ protocol SendFeeInteractor {
 }
 
 class CommonSendFeeInteractor {
+    // MARK: Dependencies
+
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     private weak var input: SendFeeInput?
     private weak var output: SendFeeOutput?
 
@@ -178,12 +182,24 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
     }
 }
 
-// MARK: - FeeSelectorContentViewModelInput
+// MARK: - FeeSelectorContentViewModelOutput
 
 extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
     func update(selectedSelectorFee: FeeSelectorFee) {
         if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
             update(selectedFee: fee)
+        }
+    }
+
+    func dismissFeeSelector() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 }

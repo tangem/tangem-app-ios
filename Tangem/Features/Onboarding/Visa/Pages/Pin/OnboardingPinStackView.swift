@@ -14,7 +14,9 @@ struct OnboardingPinStackView: View {
 
     @Binding var pinText: String
 
-    @State private var pinInput: String = ""
+    @Environment(\.pinStackColor) private var pinColor
+    @Environment(\.pinStackSecured) private var pinSecured
+
     @State private var firstResponder: Bool? = true
 
     var body: some View {
@@ -25,7 +27,7 @@ struct OnboardingPinStackView: View {
             HStack(spacing: 12) {
                 ForEach(0 ..< maxDigits, id: \.self) { index in
                     Text(getDigit(index))
-                        .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.title1, color: pinColor)
                         .frame(width: 42, height: 58)
                         .background(Colors.Field.primary)
                         .cornerRadius(14)
@@ -43,15 +45,8 @@ struct OnboardingPinStackView: View {
 
     @ViewBuilder
     private var backgroundField: some View {
-        let binding = Binding<String> {
-            return pinInput
-        } set: { value in
-            pinInput = value
-            pinText = value
-        }
-
         CustomTextField(
-            text: binding,
+            text: $pinText,
             isResponder: $firstResponder,
             actionButtonTapped: Binding.constant(false),
             handleKeyboard: true,
@@ -64,10 +59,10 @@ struct OnboardingPinStackView: View {
     }
 
     private func getDigit(_ index: Int) -> String {
-        let pin = Array(pinInput)
+        let pin = Array(pinText)
 
         if pin.indices.contains(index), !String(pin[index]).isEmpty {
-            return String(pin[index])
+            return pinSecured ? AppConstants.dotSign : String(pin[index])
         }
 
         return ""
@@ -77,6 +72,36 @@ struct OnboardingPinStackView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             firstResponder = value
         }
+    }
+}
+
+private struct PinStackColorKey: EnvironmentKey {
+    static let defaultValue: Color = Colors.Text.primary1
+}
+
+private struct PinStackSecuredKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    var pinStackColor: Color {
+        get { self[PinStackColorKey.self] }
+        set { self[PinStackColorKey.self] = newValue }
+    }
+
+    var pinStackSecured: Bool {
+        get { self[PinStackSecuredKey.self] }
+        set { self[PinStackSecuredKey.self] = newValue }
+    }
+}
+
+extension View {
+    func pinStackColor(_ color: Color) -> some View {
+        environment(\.pinStackColor, color)
+    }
+
+    func pinStackSecured(_ isSecured: Bool) -> some View {
+        environment(\.pinStackSecured, isSecured)
     }
 }
 

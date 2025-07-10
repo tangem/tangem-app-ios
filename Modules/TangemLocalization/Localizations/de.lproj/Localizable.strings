@@ -401,9 +401,14 @@
 "home_button_scan" = "Karte oder Ring scannen";
 "hot_crypto_add_token_subtitle" = "An %@";
 "hot_crypto_token_network" = "Im %@ Netzwerk";
+"hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
+"hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
 "hw_backup_need_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_need_title" = "Finish Backup First";
+"hw_backup_no_backup" = "No backup";
+"hw_backup_seed_description" = "Physical cards that securely store your crypto offline.";
+"hw_backup_seed_title" = "Recovery phrase";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
@@ -1383,7 +1388,7 @@
 "wc_alert_unsupported_method_title" = "Wir haben einen unbekannten Fehler festgestellt.";
 "wc_alert_unsupported_networks_description" = "Tangem unterstützt derzeit das erforderliches Netzwerk von %@ nicht.";
 "wc_alert_unsupported_networks_title" = "Nicht unterstützte Netzwerke";
-"wc_alert_verified_domain_description" = "Tangem unterstützt ein erforderliches Netzwerk um %@.";
+"wc_alert_verified_domain_description" = "Tangem unterstützt ein erforderliches Netzwerk um %@";
 "wc_alert_verified_domain_title" = "Verifizierte Domain";
 "wc_alert_wrong_card_description" = "Falsche Karte oder falscher Ring in der App ausgewählt";
 "wc_alert_wrong_card_title" = "Wir haben eine Art Problem";
