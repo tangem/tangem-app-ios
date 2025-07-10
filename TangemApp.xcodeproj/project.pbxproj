@@ -447,6 +447,7 @@
 		30C470202D762609003DFBFD /* EthereumAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C4701F2D7625FE003DFBFD /* EthereumAddressTests.swift */; };
 		30C470222D7628C3003DFBFD /* Fact0rnAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470212D7628B3003DFBFD /* Fact0rnAddressTests.swift */; };
 		30C470242D762C47003DFBFD /* HederaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470232D762C42003DFBFD /* HederaAddressTests.swift */; };
+		30C962B32E1BEC320049E490 /* RPCEndpoint+HostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C962B22E1BEC2C0049E490 /* RPCEndpoint+HostProvider.swift */; };
 		30D24FF92DA3FA42003B90B5 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */; };
 		30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */; };
@@ -4311,6 +4312,7 @@
 		30C4701F2D7625FE003DFBFD /* EthereumAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressTests.swift; sourceTree = "<group>"; };
 		30C470212D7628B3003DFBFD /* Fact0rnAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnAddressTests.swift; sourceTree = "<group>"; };
 		30C470232D762C42003DFBFD /* HederaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaAddressTests.swift; sourceTree = "<group>"; };
+		30C962B22E1BEC2C0049E490 /* RPCEndpoint+HostProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RPCEndpoint+HostProvider.swift"; sourceTree = "<group>"; };
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
@@ -12440,6 +12442,7 @@
 		B62D3DFE2CBC79D900C2460E /* Solana */ = {
 			isa = PBXGroup;
 			children = (
+				30C962B22E1BEC2C0049E490 /* RPCEndpoint+HostProvider.swift */,
 				DC2F88F82E1458230034D437 /* SolanaBSDKError.swift */,
 				B62D3DF12CBC79D900C2460E /* SolanaAddressService.swift */,
 				B62D3DF22CBC79D900C2460E /* SolanaApiLoggerUtil.swift */,
@@ -23320,6 +23323,7 @@
 				B62D410D2CBC79DA00C2460E /* KoinosAccountNonce.swift in Sources */,
 				EF8DBE582D8095890050DBFB /* CloreBlockBookUTXOProvider.swift in Sources */,
 				B62D41E62CBC79DB00C2460E /* VeChainAccountInfo.swift in Sources */,
+				30C962B32E1BEC320049E490 /* RPCEndpoint+HostProvider.swift in Sources */,
 				B62D413C2CBC79DA00C2460E /* NEARNetworkResult.ProtocolConfig.swift in Sources */,
 				B62D423A2CBC79DB00C2460E /* AccountCreator.swift in Sources */,
 				B62D406A2CBC79DA00C2460E /* CosmosModels.swift in Sources */,
