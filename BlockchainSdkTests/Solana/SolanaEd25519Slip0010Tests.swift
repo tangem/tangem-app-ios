@@ -34,11 +34,10 @@ struct SolanaEd25519Slip0010Tests {
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         manager = .init(wallet: wallet)
-        manager.solanaSdk = solanaSdk
         manager.networkService = SolanaNetworkService(
+            providers: [],
             solanaSdk: solanaSdk,
-            blockchain: blockchain,
-            hostProvider: networkingRouter
+            blockchain: blockchain
         )
     }
 
