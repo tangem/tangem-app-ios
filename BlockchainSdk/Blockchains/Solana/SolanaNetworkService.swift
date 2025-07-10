@@ -13,19 +13,17 @@ import TangemFoundation
 import TangemSdk
 
 @available(iOS 13.0, *)
-class SolanaNetworkService {
-    var host: String {
-        hostProvider.host
-    }
+final class SolanaNetworkService: MultiNetworkProvider {
+    let providers: [RPCEndpoint]
+    var currentProviderIndex: Int = 0
 
     private let solanaSdk: Solana
     private let blockchain: Blockchain
-    private let hostProvider: HostProvider
 
-    init(solanaSdk: Solana, blockchain: Blockchain, hostProvider: HostProvider) {
+    init(providers: [RPCEndpoint], solanaSdk: Solana, blockchain: Blockchain) {
+        self.providers = providers
         self.solanaSdk = solanaSdk
         self.blockchain = blockchain
-        self.hostProvider = hostProvider
     }
 
     func getInfo(accountId: String, tokens: [Token]) -> AnyPublisher<SolanaAccountInfoResponse, Error> {
