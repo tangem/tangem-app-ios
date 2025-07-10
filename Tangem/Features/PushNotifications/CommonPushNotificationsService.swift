@@ -28,16 +28,33 @@ final class CommonPushNotificationsService: NSObject {
     private var respondedNotificationIds: Set<String> = []
     private let userNotificationCenter = UNUserNotificationCenter.current()
     private let application: UIApplication
+    private var bag = Set<AnyCancellable>()
+    private var isForegroundPushDisplayEnabled = true
 
     init(application: UIApplication) {
         self.application = application
         super.init()
         userNotificationCenter.delegate = self
+        bind()
     }
 
     @MainActor
     private func registerForRemoteNotifications() async {
         application.registerForRemoteNotifications()
+    }
+
+    private func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
+            .sink { [weak self] _ in
+                self?.isForegroundPushDisplayEnabled = false
+            }
+            .store(in: &bag)
+
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.isForegroundPushDisplayEnabled = true
+            }
+            .store(in: &bag)
     }
 }
 
@@ -111,7 +128,6 @@ extension CommonPushNotificationsService: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // Allow banners for push notifications while app is foregrounded
-        completionHandler(.banner)
+        completionHandler(isForegroundPushDisplayEnabled ? .banner : [])
     }
 }
