@@ -16,6 +16,9 @@ import TangemSdk
 final class SolanaNetworkService: MultiNetworkProvider {
     let providers: [RPCEndpoint]
     var currentProviderIndex: Int = 0
+    var blockchainName: String {
+        blockchain.displayName
+    }
 
     private let solanaSdk: Solana
     private let blockchain: Blockchain
