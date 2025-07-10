@@ -12,6 +12,7 @@ import Combine
 public protocol TransactionValidator: WalletProvider {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
     func validate(amount: Amount, fee: Fee) throws
+    func validate(fee: Amount) throws
 
     func validate(transaction: Transaction) async throws
 }
@@ -67,17 +68,7 @@ public extension TransactionValidator {
     }
 
     func validate(fee: Amount) throws {
-        guard fee.value >= 0 else {
-            throw ValidationError.invalidFee
-        }
-
-        guard let feeBalance = wallet.amounts[fee.type] else {
-            throw ValidationError.balanceNotFound
-        }
-
-        guard feeBalance >= fee else {
-            throw ValidationError.feeExceedsBalance
-        }
+        try _validateFee(fee)
     }
 
     func validateTotal(amount: Amount, fee: Amount) throws {
@@ -95,6 +86,22 @@ public extension TransactionValidator {
 
         guard balance >= total else {
             throw ValidationError.totalExceedsBalance
+        }
+    }
+}
+
+private extension TransactionValidator {
+    func _validateFee(_ fee: Amount) throws {
+        guard fee.value >= 0 else {
+            throw ValidationError.invalidFee
+        }
+
+        guard let feeBalance = wallet.amounts[fee.type] else {
+            throw ValidationError.balanceNotFound
+        }
+
+        guard feeBalance >= fee else {
+            throw ValidationError.feeExceedsBalance
         }
     }
 }
@@ -235,5 +242,11 @@ extension TransactionValidator where Self: RentExtemptionRestrictable {
             // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
             try validate(fee: fee.amount)
         }
+    }
+
+    func validate(fee: Amount) throws {
+        try _validateFee(fee)
+
+        try validateRentExtemption(amount: Amount(with: fee, value: .zero), fee: fee)
     }
 }
