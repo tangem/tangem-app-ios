@@ -35,7 +35,7 @@ extension ALPH {
             networkId: NetworkId
         ) throws -> UnsignedTransaction {
             guard checkBuildUtils.checkTotalAttoAlphAmount(outputData.attoAlphAmount) else {
-                throw TxError.alphAmountOverflow
+                throw AlephiumError.alphAmountOverflow
             }
 
             let totalAmounts = try calculateTotalAmountNeeded(outputInfo: outputData)
@@ -115,7 +115,7 @@ extension ALPH {
                     if let newAmount = totalAmount.add(amount) {
                         result[tokenId] = newAmount
                     } else {
-                        return .failure(TxError.alphAmountOverflow)
+                        return .failure(AlephiumError.alphAmountOverflow)
                     }
                 } else {
                     result[tokenId] = amount
@@ -177,11 +177,11 @@ extension ALPH {
                 throw error
             case .success(let gasFee):
                 guard checkBuildUtils.checkMinimalAlphPerOutput(output: outputInfos) else {
-                    throw NSError(domain: "TxError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Tx output value is too small"])
+                    throw AlephiumError.txOutputValueTooSmall
                 }
 
                 guard checkBuildUtils.checkTokenValuesNonZero(output: outputInfos) else {
-                    throw NSError(domain: "TxError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Token values must be non-zero"])
+                    throw AlephiumError.tokenValuesMustBeNonZero
                 }
 
                 let txOutputs = calculateBuildUtils.buildOutputs(outputInfo: outputInfos)
@@ -201,14 +201,5 @@ extension ALPH {
                 }
             }
         }
-    }
-}
-
-// MARK: - Error
-
-extension ALPH {
-    enum TxError: Error {
-        case alphAmountOverflow
-        case runtime(String)
     }
 }

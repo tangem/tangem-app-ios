@@ -13,12 +13,12 @@ import SwiftUI
 
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
-    private let interactor: SendAmountInteractor
+    private let interactor: SendNewAmountInteractor
     private let flowKind: SendModel.PredefinedValues.FlowKind
 
     init(
         viewModel: SendNewAmountViewModel,
-        interactor: SendAmountInteractor,
+        interactor: SendNewAmountInteractor,
         flowKind: SendModel.PredefinedValues.FlowKind
     ) {
         self.viewModel = viewModel

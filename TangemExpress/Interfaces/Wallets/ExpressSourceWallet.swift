@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var feeCurrency: ExpressWalletCurrency { get }
