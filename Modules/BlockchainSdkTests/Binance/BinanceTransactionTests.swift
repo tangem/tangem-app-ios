@@ -1,3 +1,4 @@
+import Foundation
 @testable import BlockchainSdk
 import Testing
 import CryptoKit
