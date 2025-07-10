@@ -152,4 +152,6 @@ extension NEARTarget: TargetTypeLogConvertible {
             "transactionStatus"
         }
     }
+
+    var shouldLogResponseBody: Bool { true }
 }
