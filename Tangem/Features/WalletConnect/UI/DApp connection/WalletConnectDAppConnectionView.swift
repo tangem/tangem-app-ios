@@ -181,6 +181,7 @@ struct WalletConnectDAppConnectionView: View {
             )
         }
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func domainVerificationFooter(_ viewModel: WalletConnectDAppDomainVerificationViewModel) -> some View {
@@ -197,6 +198,7 @@ struct WalletConnectDAppConnectionView: View {
             }
         }
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func networksSelectorFooter(_ viewModel: WalletConnectNetworksSelectorViewModel) -> some View {
@@ -208,6 +210,7 @@ struct WalletConnectDAppConnectionView: View {
             action: { viewModel.handle(viewEvent: .doneButtonTapped) }
         )
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func errorFooter(_ viewModel: WalletConnectErrorViewModel) -> some View {
@@ -218,6 +221,7 @@ struct WalletConnectDAppConnectionView: View {
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
+        .transformEffect(.identity)
     }
 
     private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {

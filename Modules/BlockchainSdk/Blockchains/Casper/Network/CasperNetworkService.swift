@@ -18,6 +18,7 @@ final class CasperNetworkService: MultiNetworkProvider {
 
     let providers: [CasperNetworkProvider]
     let blockchainDecimalValue: Decimal
+    let blockchainName: String = Blockchain.casper(curve: .ed25519_slip0010, testnet: false).displayName
 
     // MARK: - Init
 

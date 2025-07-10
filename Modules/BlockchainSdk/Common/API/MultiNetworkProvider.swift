@@ -18,6 +18,7 @@ protocol MultiNetworkProvider: AnyObject, HostProvider {
     associatedtype Provider: HostProvider
 
     var providers: [Provider] { get }
+    var blockchainName: String { get }
     var currentProviderIndex: Int { get set }
 }
 
@@ -70,7 +71,8 @@ extension MultiNetworkProvider {
                         ExceptionHandler.shared.handleAPISwitch(
                             currentHost: currentHost,
                             nextHost: nextHost,
-                            message: error.localizedDescription
+                            message: error.localizedDescription,
+                            blockchainName: blockchainName
                         )
                     }
 

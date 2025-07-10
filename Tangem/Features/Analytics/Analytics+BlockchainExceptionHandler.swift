@@ -11,10 +11,15 @@ import BlockchainSdk
 
 extension Analytics {
     struct BlockchainExceptionHandler: ExceptionHandlerOutput {
-        func handleAPISwitch(currentHost: String, nextHost: String, message: String) {
+        func handleAPISwitch(currentHost: String, nextHost: String, message: String, blockchainName: String) {
             Analytics.log(
                 event: .blockchainSdkException,
-                params: [.exceptionHost: currentHost, .selectedHost: nextHost, .errorDescription: message]
+                params: [
+                    .exceptionHost: currentHost,
+                    .selectedHost: nextHost,
+                    .errorDescription: message,
+                    .blockchain: blockchainName,
+                ]
             )
         }
     }
