@@ -12,6 +12,7 @@ import Combine
 class KaspaNetworkService: MultiNetworkProvider {
     let providers: [KaspaNetworkProvider]
     var currentProviderIndex: Int = 0
+    let blockchainName: String = Blockchain.kaspa(testnet: false).displayName
 
     init(providers: [KaspaNetworkProvider]) {
         self.providers = providers

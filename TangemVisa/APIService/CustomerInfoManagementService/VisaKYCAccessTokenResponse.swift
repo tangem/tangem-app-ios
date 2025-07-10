@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-struct VisaKYCAccessTokenResponse: Decodable {
-    let token: String
-    let locale: String
+public struct VisaKYCAccessTokenResponse: Decodable {
+    public let token: String
+    public let locale: String
 }
