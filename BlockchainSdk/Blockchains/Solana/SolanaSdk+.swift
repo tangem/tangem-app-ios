@@ -296,9 +296,3 @@ extension Action {
         .eraseToAnyPublisher()
     }
 }
-
-extension NetworkingRouter: HostProvider {
-    var host: String {
-        endpoint.url.hostOrUnknown
-    }
-}
