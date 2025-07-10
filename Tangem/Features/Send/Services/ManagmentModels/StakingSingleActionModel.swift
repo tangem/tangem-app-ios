@@ -109,7 +109,7 @@ private extension StakingSingleActionModel {
 
     func validate(amount: Decimal, fee: Decimal) -> StakingSingleActionModel.State? {
         do {
-            try transactionValidator.validate(amount: makeAmount(value: amount), fee: makeFee(value: fee))
+            try transactionValidator.validate(fee: makeFee(value: fee).amount)
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
