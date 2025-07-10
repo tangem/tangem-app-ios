@@ -1,0 +1,59 @@
+//
+//  LegacyTokenTransferTestCase.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Testing
+@testable import BlockchainSdk
+
+extension EthereumTransactionTests {
+    enum LegacyTokenTransferTestCase {
+        struct Success {
+            let name: Comment
+            let token: Token
+            let transactionData: (expectedHashToSign: Data, expectedSignedTransaction: Data)
+
+            static let usdcToken_correctData: Self = .init(
+                name: "USDC Token",
+                token: .usdcToken_18Decimals,
+                transactionData: (
+                    expectedHashToSign: Data(hex: "2F47B058A0C4A91EC6E26372FA926ACB899235D7A639565B4FC82C7A9356D6C5"),
+                    expectedSignedTransaction: Data(hex: "F8A90F856EDF2A079E82520894A0B86991C6218B36C1D19D4A2E9EB0CE3606EB4880B844A9059CBB0000000000000000000000007655B9B19FFAB8B897F836857DAE22A1E7F8D735000000000000000000000000000000000000000000000000016345785D8A000025A0851F97334C95A9E16141A138E29B73F95E4CBFDFB3D4DA6B605D09F33E43C983A01E63ABE038F802028899041078C4D66D2B04833E5D1EC14AB751738BAFAF6A75")
+                )
+            )
+
+            static let nftERC721Token_correctData: Self = .init(
+                name: "NFT ERC721 Token",
+                token: .nftERC721Token,
+                transactionData: (
+                    expectedHashToSign: Data(hex: "8FF06A76B5E5EEFE45C1147729D940F320B931EB473FC4AE540BA971DE4AD263"),
+                    expectedSignedTransaction: Data(hex: "F8C90F856EDF2A079E82520894BD3531DA5CF5857E7CFAA92426877B022E612CF880B86442842E0E000000000000000000000000D0EEE5DAE303C76548C2BC2D4FBE753FDB014D000000000000000000000000007655B9B19FFAB8B897F836857DAE22A1E7F8D7350000000000000000000000000000000000000000000000000000000000000BDA26A079BA2DCC939C4FDEB93355D2A8398E2989FC727E1CCD53C5A92B437D65C33705A05F39236A56FC10877C7166DCA14D9B1E95EF731CC6977BF3E99E0D36E0B5DF88")
+                )
+            )
+
+            static let nftERC1155Token_correctData: Self = .init(
+                name: "NFT ERC1155 Token",
+                token: .nftERC1155Token,
+                transactionData: (
+                    expectedHashToSign: Data(hex: "36C62B7E5C4804D9A7EDA150A69B4A93C58E8B681458560FCB70EA9C6620F656"),
+                    expectedSignedTransaction: Data(hex: "F901290F856EDF2A079E8252089422D5F9B75C524FEC1D6619787E582644CD4D742280B8C4F242432A000000000000000000000000D0EEE5DAE303C76548C2BC2D4FBE753FDB014D000000000000000000000000007655B9B19FFAB8B897F836857DAE22A1E7F8D73500000000000000000000000000000000000000000000000000000000000000FB00000000000000000000000000000000000000000000000000000000000186A000000000000000000000000000000000000000000000000000000000000000A0000000000000000000000000000000000000000000000000000000000000000026A0891D0EF89B12CBDE972E6A056EF6752C20378D4F4CB886DA9251382E41C717A4A00CF97FD96BE7257278B328F510F501FA3B3DBDE16D7F0507BB2D3777349F79E8")
+                )
+            )
+        }
+
+        struct Failure {
+            let name: String
+            let token: Token
+            let error: EthereumTransactionBuilderError
+
+            static let nftUnknownStandardToken_throwsError: Self = .init(
+                name: "NFT Unknown Standard Token",
+                token: .nftUnknownStandardToken,
+                error: .unsupportedContractType
+            )
+        }
+    }
+}
