@@ -34,6 +34,12 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
         }
     }
 
+    func getSequence(account: String) -> AnyPublisher<Int, Error> {
+        providerPublisher { provider in
+            provider.getSequence(account: account)
+        }
+    }
+
     func send(blob: String) -> AnyPublisher<String, Error> {
         providerPublisher { provider in
             provider.send(blob: blob)
