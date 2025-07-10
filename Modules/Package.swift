@@ -22,7 +22,7 @@ let package = Package(
         .library(
             name: "BlockchainSDK",
             targets: [
-                "BlockchainSdk",
+                "BlockchainSDK",
             ]
         ),
     ],
@@ -156,7 +156,7 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
-            name: "BlockchainSdk", // [REDACTED_TODO_COMMENT]
+            name: "BlockchainSDK",
             dependencies: [
                 // BSDK external deps:
                 "AnyCodable",
@@ -265,7 +265,7 @@ var unitTestsModules: [PackageDescription.Target] {
         .tangemTestTarget(
             name: "BlockchainSDKTests",
             dependencies: [
-                "BlockchainSdk",
+                "BlockchainSDK",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
