@@ -47,7 +47,7 @@ struct AlephiumAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
