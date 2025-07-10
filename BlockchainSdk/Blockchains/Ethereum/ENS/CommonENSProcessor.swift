@@ -84,7 +84,7 @@ struct CommonENSProcessor: ENSProcessor {
         let normalized = name.lowercased()
         let range = NSRange(location: 0, length: normalized.utf16.count)
 
-        guard ensNameRegex.firstMatch(in: normalized, range: NSRange(location: 0, length: normalized.count)) != nil else {
+        guard ensNameRegex.firstMatch(in: normalized, range: range) != nil else {
             throw Error.invalidName(normalized)
         }
 
