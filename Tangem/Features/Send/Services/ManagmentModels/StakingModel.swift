@@ -39,7 +39,7 @@ class StakingModel {
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let stakingTransactionDispatcher: TransactionDispatcher
     private let transactionDispatcher: TransactionDispatcher
-    private let allowanceProvider: AllowanceProvider
+    private let allowanceService: AllowanceService
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -52,7 +52,7 @@ class StakingModel {
         feeIncludedCalculator: FeeIncludedCalculator,
         stakingTransactionDispatcher: TransactionDispatcher,
         transactionDispatcher: TransactionDispatcher,
-        allowanceProvider: AllowanceProvider,
+        allowanceService: AllowanceService,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) {
@@ -62,7 +62,7 @@ class StakingModel {
         self.feeIncludedCalculator = feeIncludedCalculator
         self.stakingTransactionDispatcher = stakingTransactionDispatcher
         self.transactionDispatcher = transactionDispatcher
-        self.allowanceProvider = allowanceProvider
+        self.allowanceService = allowanceService
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
     }
@@ -148,11 +148,11 @@ private extension StakingModel {
     }
 
     func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy) async throws -> AllowanceState? {
-        guard allowanceProvider.isSupportAllowance, let spender = stakingManager.allowanceAddress else {
+        guard allowanceService.isSupportAllowance, let spender = stakingManager.allowanceAddress else {
             return nil
         }
 
-        return try await allowanceProvider
+        return try await allowanceService
             .allowanceState(amount: amount, spender: spender, approvePolicy: approvePolicy)
     }
 
@@ -284,7 +284,7 @@ private extension StakingModel {
             proceed(error: error)
             throw error
         } catch {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error)
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
     }
 
@@ -503,7 +503,7 @@ extension StakingModel: ApproveViewModelInput {
         )
 
         _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
-        allowanceProvider.didSendApproveTransaction(for: approveData.spender)
+        allowanceService.didSendApproveTransaction(for: approveData.spender)
         updateState()
 
         // Setup timer for autoupdate

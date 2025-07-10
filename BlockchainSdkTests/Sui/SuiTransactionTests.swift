@@ -52,10 +52,10 @@ struct SuiTransactionTests {
         do {
             let unsupportedAmount = Amount(type: .feeResource(.mana), currencySymbol: "ANY_CURRENCY", value: 12, decimals: 9)
             _ = try sut.buildForInspect(amount: unsupportedAmount, destination: walletAddress, referenceGasPrice: 1000)
-        } catch WalletError.failedToBuildTx {
+        } catch BlockchainSdkError.failedToBuildTx {
             // expected error thrown. Task failed successfully :)
         } catch {
-            let expectedError = WalletError.failedToBuildTx
+            let expectedError = BlockchainSdkError.failedToBuildTx
             #expect(Bool(false), "Expected to fail with: \(expectedError), received: \(error)")
         }
     }
@@ -141,10 +141,10 @@ struct SuiTransactionTests {
                 changeAddress: ""
             )
             _ = try sut.buildForSign(transaction: invalidTransaction)
-        } catch WalletError.failedToBuildTx {
+        } catch BlockchainSdkError.failedToBuildTx {
             // expected error thrown. Task failed successfully :)
         } catch {
-            let expectedError = WalletError.failedToBuildTx
+            let expectedError = BlockchainSdkError.failedToBuildTx
             #expect(Bool(false), "Expected to fail with: \(expectedError), received: \(error)")
         }
     }

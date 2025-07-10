@@ -19,7 +19,7 @@ enum KoinosDTOMapper {
               let computeBandwidthLimit = BigUInt(limits.computeBandwidthLimit),
               let computeBandwidthCost = BigUInt(limits.computeBandwidthCost)
         else {
-            throw KoinosDTOMapperError.failedToMapKoinosDTO
+            throw KoinosError.failedToMapKoinosDTO
         }
 
         return KoinosResourceLimitData(
@@ -50,7 +50,7 @@ enum KoinosDTOMapper {
         let base64EncodedNonce = dto.nonce
 
         guard let data = base64EncodedNonce.base64URLDecodedData() else {
-            throw KoinosDTOMapperError.failedToMapKoinosDTO
+            throw KoinosError.failedToMapKoinosDTO
         }
 
         let type = try Koinos_Chain_value_type(serializedData: data)
@@ -63,7 +63,7 @@ enum KoinosDTOMapper {
               let encodedEvent = dto.events.first?.data,
               let data = encodedEvent.base64URLDecodedData()
         else {
-            throw KoinosDTOMapperError.failedToMapKoinosDTO
+            throw KoinosError.failedToMapKoinosDTO
         }
 
         let decodedEvent = try Koinos_Contracts_Token_transfer_event(serializedData: data)
@@ -81,8 +81,4 @@ enum KoinosDTOMapper {
             )
         )
     }
-}
-
-enum KoinosDTOMapperError: Error {
-    case failedToMapKoinosDTO
 }

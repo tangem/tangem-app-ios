@@ -28,21 +28,21 @@ final class VeChainTransactionBuilder {
 
     func buildForSign(transaction: Transaction) throws -> Data {
         guard transaction.params is VeChainTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let input = try buildInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
         let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         guard output.error == .ok else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return output.dataHash
@@ -50,14 +50,14 @@ final class VeChainTransactionBuilder {
 
     func buildForSend(transaction: Transaction, hash: Data, signature: Data) throws -> Data {
         guard let transactionParams = transaction.params as? VeChainTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let input = try buildInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let publicKey = try Secp256k1Key(with: transactionParams.publicKey.blockchainKey).decompress()
@@ -77,13 +77,13 @@ final class VeChainTransactionBuilder {
         let output = try VeChainSigningOutput(serializedData: compiledTransaction)
 
         guard output.error == .ok else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let serializedData = output.encoded
 
         guard !serializedData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return serializedData
@@ -100,7 +100,7 @@ final class VeChainTransactionBuilder {
 
     private func buildInput(transaction: Transaction) throws -> VeChainSigningInput {
         guard let transactionParams = transaction.params as? VeChainTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let feeCalculator = VeChainFeeCalculator(isTestnet: isTestnet)
@@ -141,7 +141,7 @@ final class VeChainTransactionBuilder {
                 input.data = tokenMethod.data
             case .reserve, .feeResource:
                 // Not supported
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
         }
 
@@ -154,7 +154,7 @@ final class VeChainTransactionBuilder {
         let roundedValue = decimalValue.rounded(roundingMode: .down)
 
         guard let bigUIntValue = BigUInt(decimal: roundedValue) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return bigUIntValue

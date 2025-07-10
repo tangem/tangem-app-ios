@@ -7,12 +7,14 @@
 //
 
 import ReownWalletKit
+import BlockchainSdk
 
 protocol WCHandlersService {
     func validate(_ request: Request) async throws -> WCValidatedRequest
 
     func makeHandleTransactionDTO(
-        from validatedRequest: WCValidatedRequest
+        from validatedRequest: WCValidatedRequest,
+        connectedBlockchains: [BlockchainSdk.Blockchain]
     ) async throws -> WCHandleTransactionDTO
 }
 
@@ -97,9 +99,9 @@ extension CommonWCHandlersService: WCHandlersService {
     }
 
     func makeHandleTransactionDTO(
-        from validatedRequest: WCValidatedRequest
+        from validatedRequest: WCValidatedRequest,
+        connectedBlockchains: [BlockchainSdk.Blockchain]
     ) async throws -> WCHandleTransactionDTO {
-        // Process the request with the factory
         let handler = try await getHandler(
             for: validatedRequest.request,
             blockchainId: validatedRequest.targetBlockchain.id,
@@ -107,11 +109,16 @@ extension CommonWCHandlersService: WCHandlersService {
             walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider
         )
 
+        guard let blockchain = connectedBlockchains.first(where: { $0.networkId == validatedRequest.targetBlockchain.id }) else { throw WalletConnectV2Error.missingActiveUserWalletModel }
+
         return WCHandleTransactionDTO(
             method: handler.method,
+            rawTransaction: handler.rawTransaction,
             requestData: handler.requestData,
+            blockchain: blockchain,
             accept: { try await handler.handle() },
-            reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) }
+            reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
+            updatableHandler: handler as? WCTransactionUpdatable
         )
     }
 }

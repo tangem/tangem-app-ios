@@ -28,7 +28,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
         balanceConverter: .init()
     )
 
-    private var feesSubscriptions: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     init(
         input: FeeSelectorContentViewModelInput,
@@ -60,7 +60,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
     @MainActor
     func dismiss() {
-        floatingSheetPresenter.removeActiveSheet()
+        output.dismissFeeSelector()
     }
 
     @MainActor
@@ -69,7 +69,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
             output.update(selectedSelectorFee: fee)
         }
 
-        floatingSheetPresenter.removeActiveSheet()
+        output.completeFeeSelection()
     }
 }
 
@@ -77,12 +77,25 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
 private extension FeeSelectorContentViewModel {
     func bind(input: FeeSelectorContentViewModelInput) {
-        feesSubscriptions = input.selectorFeesPublisher
+        if let currentSelectedFee = input.selectedSelectorFee {
+            selectedFeeOption = currentSelectedFee.option
+        }
+
+        input.selectorFeesPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, values in
                 viewModel.updateViewModels(values: values)
             }
+            .store(in: &bag)
+
+        input.selectedSelectorFeePublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, selectedFee in
+                viewModel.selectedFeeOption = selectedFee.option
+            }
+            .store(in: &bag)
     }
 
     func updateViewModels(values: [FeeSelectorFee]) {
@@ -92,12 +105,6 @@ private extension FeeSelectorContentViewModel {
     }
 
     private func mapToFeeRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel? {
-        // Temporary turn off the `.custom` fee
-        // [REDACTED_TODO_COMMENT]
-        guard fee.option != .custom else {
-            return nil
-        }
-
         let feeComponents = feeFormatter.formattedFeeComponents(
             fee: fee.value,
             tokenItem: feeTokenItem,

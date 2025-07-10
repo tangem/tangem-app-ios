@@ -107,6 +107,12 @@ struct SS58 {
     }
 }
 
+extension SS58 {
+    enum Error: Swift.Error {
+        case invalidAddress
+    }
+}
+
 private extension SS58 {
     enum Constants {
         static let publicKeySize: UInt = 32
@@ -114,10 +120,6 @@ private extension SS58 {
         static let maxPrefixSize: UInt = 2
         static let checksumSize: Int = 2
         static let rangeLimit: UInt16 = 64
-    }
-
-    enum Error: Swift.Error {
-        case invalidAddress
     }
 }
 

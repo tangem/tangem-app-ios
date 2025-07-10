@@ -69,7 +69,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         Analytics.log(event: .swapButtonSwap, params: parameters)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy, destination: String?) {
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy, destination: String?) {
         var parameters: [Analytics.ParameterKey: String] = [.sendToken: tokenItem.currencySymbol]
 
         switch policy {
@@ -84,7 +84,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String) {
         let permissionType: Analytics.ParameterValue = {
             switch policy {
             case .specified:

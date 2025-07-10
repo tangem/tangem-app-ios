@@ -118,4 +118,6 @@ extension EthereumTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         rpcMethod
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

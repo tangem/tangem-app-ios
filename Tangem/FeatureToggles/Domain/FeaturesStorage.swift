@@ -20,9 +20,6 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.availableFeatures)
     var availableFeatures: [Feature: FeatureState] = [:]
 
-    @AppStorageCompat(FeatureStorageKeys.useDevApi)
-    var useDevApi = false
-
     @AppStorageCompat(FeatureStorageKeys.apiExpress)
     var apiExpress: String = "production"
 
@@ -47,6 +44,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.visaAPIType)
     var visaAPIType = VisaAPIType.prod
 
+    @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
+    var tangemAPIType = TangemAPIType.prod
+
     private init() {}
 }
 
@@ -55,7 +55,6 @@ class FeatureStorage {
 private enum FeatureStorageKeys: String {
     case testnet
     case availableFeatures = "integrated_features"
-    case useDevApi = "use_dev_api"
     case apiExpress = "api_express"
     case supportedBlockchainsIds
     case stakingBlockchainsIds
@@ -65,4 +64,5 @@ private enum FeatureStorageKeys: String {
     case useVisaTestnet = "use_visa_testnet"
     case useVisaAPIMocks = "use_visa_api_mocks"
     case visaAPIType = "visa_api_type"
+    case tangemAPIType = "tangem_api_type"
 }

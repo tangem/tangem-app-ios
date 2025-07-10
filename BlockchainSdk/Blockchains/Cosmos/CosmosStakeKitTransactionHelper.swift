@@ -38,7 +38,7 @@ struct CosmosStakeKitTransactionHelper {
         let feeValue = feeMessage.feeAmount
 
         guard let message = CosmosMessage.createStakeMessage(message: stakingProtoMessage.delegateContainer.delegate) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let serializedInput = try builder.serializeInput(
