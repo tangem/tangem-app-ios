@@ -33,7 +33,7 @@ struct CustomFeeServiceFactory {
         }
 
         if blockchain.isEvm {
-            return CustomEvmFeeService(feeTokenItem: walletModel.feeTokenItem)
+            return CustomEvmFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         }
 
         return nil
