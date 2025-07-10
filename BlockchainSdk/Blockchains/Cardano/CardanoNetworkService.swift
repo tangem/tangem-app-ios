@@ -41,6 +41,7 @@ class AnyCardanoNetworkProvider: CardanoNetworkProvider {
 class CardanoNetworkService: MultiNetworkProvider, CardanoNetworkProvider {
     let providers: [AnyCardanoNetworkProvider]
     var currentProviderIndex: Int = 0
+    let blockchainName: String = Blockchain.cardano(extended: false).displayName
 
     init(providers: [AnyCardanoNetworkProvider]) {
         self.providers = providers

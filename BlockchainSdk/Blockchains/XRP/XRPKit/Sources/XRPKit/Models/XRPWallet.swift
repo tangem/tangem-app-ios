@@ -7,14 +7,6 @@
 
 import Foundation
 
-enum SeedError: Error {
-    case invalidSeed
-}
-
-enum KeyPairError: Error {
-    case invalidPrivateKey
-}
-
 enum SeedType {
     case ed25519
     case secp256k1

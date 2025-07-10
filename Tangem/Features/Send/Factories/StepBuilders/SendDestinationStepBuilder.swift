@@ -89,7 +89,7 @@ private extension SendDestinationStepBuilder {
             output: io.output,
             validator: builder.makeSendDestinationValidator(),
             transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
-            addressResolver: walletModel.addressResolver,
+            addressResolver: builder.makeAddressResolver(),
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
             parametersBuilder: builder.makeSendTransactionParametersBuilder(),
             analyticsLogger: builder.makeDestinationAnalyticsLogger()

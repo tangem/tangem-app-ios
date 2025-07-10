@@ -153,10 +153,10 @@ class CommonWalletModel {
             }
 
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
-        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+        case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            return .failed(error: error.detailedLocalizedDescription)
+            return .failed(error: error.toUniversalError().localizedDescription)
         case .loading:
             return .loading
         case .initial:
@@ -313,19 +313,10 @@ extension CommonWalletModel: WalletModel {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        // Update context menu for hedera after address creation
-        if wallet.address.isEmpty, case .hasOnlyCachedBalance = sendingRestrictions {
-            return Publishers.Merge3(
-                expressAvailabilityProvider.availabilityDidChangePublisher,
-                stakingManagerStatePublisher.mapToVoid(),
-                walletManager.walletPublisher.mapToVoid()
-            )
-            .eraseToAnyPublisher()
-        }
-
-        return Publishers.Merge(
+        Publishers.Merge3(
             expressAvailabilityProvider.availabilityDidChangePublisher,
-            stakingManagerStatePublisher.mapToVoid()
+            stakingManagerStatePublisher.mapToVoid(),
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
         )
         .eraseToAnyPublisher()
     }
@@ -567,10 +558,6 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         walletManager as? EthereumTransactionDataBuilder
-    }
-
-    var addressResolver: AddressResolver? {
-        walletManager as? AddressResolver
     }
 
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {

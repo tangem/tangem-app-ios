@@ -13,7 +13,7 @@ struct ExpressInteractorWalletWrapper {
     private let walletModel: any WalletModel
 
     private let _feeProvider: any TangemExpress.FeeProvider
-    private let _allowanceProvider: any TangemExpress.AllowanceProvider
+    private let _allowanceService: any AllowanceService
     private let _balanceProvider: any TangemExpress.BalanceProvider
 
     private let _transactionBuilder: any ExpressTransactionBuilder
@@ -28,11 +28,11 @@ struct ExpressInteractorWalletWrapper {
             ethereumNetworkProvider: walletModel.ethereumNetworkProvider
         )
 
-        _allowanceProvider = CommonAllowanceProvider(
+        _allowanceService = CommonAllowanceService(
             tokenItem: walletModel.tokenItem,
             allowanceChecker: .init(
-                tokenItem: walletModel.tokenItem,
-                feeTokenItem: walletModel.feeTokenItem,
+                blockchain: walletModel.tokenItem.blockchain,
+                amountType: walletModel.tokenItem.amountType,
                 walletAddress: walletModel.defaultAddressString,
                 ethereumNetworkProvider: walletModel.ethereumNetworkProvider,
                 ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
@@ -74,6 +74,7 @@ extension ExpressInteractorWalletWrapper: ExpressInteractorSourceWallet {
         return 0
     }
 
+    var allowanceService: any AllowanceService { _allowanceService }
     var availableBalanceProvider: any TokenBalanceProvider { walletModel.availableBalanceProvider }
     var transactionValidator: any TransactionValidator { walletModel.transactionValidator }
     var expressTransactionBuilder: any ExpressTransactionBuilder { _transactionBuilder }
@@ -96,7 +97,7 @@ extension ExpressInteractorWalletWrapper: ExpressSourceWallet {
     var feeCurrency: TangemExpress.ExpressWalletCurrency { feeTokenItem.expressCurrency }
 
     var feeProvider: any TangemExpress.FeeProvider { _feeProvider }
-    var allowanceProvider: any TangemExpress.AllowanceProvider { _allowanceProvider }
+    var allowanceProvider: any TangemExpress.AllowanceProvider { _allowanceService }
     var balanceProvider: any TangemExpress.BalanceProvider { _balanceProvider }
 }
 

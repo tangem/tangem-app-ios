@@ -14,7 +14,7 @@ struct SubstrateWalletAssembly: WalletManagerAssembly {
         let blockchain = input.wallet.blockchain
 
         guard let network = PolkadotNetwork(blockchain: blockchain) else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         return PolkadotWalletManager(network: network, wallet: input.wallet).then { walletManager in

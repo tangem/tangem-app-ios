@@ -18,6 +18,7 @@ final class CasperNetworkService: MultiNetworkProvider {
 
     let providers: [CasperNetworkProvider]
     let blockchainDecimalValue: Decimal
+    let blockchainName: String = Blockchain.casper(curve: .ed25519_slip0010, testnet: false).displayName
 
     // MARK: - Init
 
@@ -35,7 +36,7 @@ final class CasperNetworkService: MultiNetworkProvider {
                 .withWeakCaptureOf(self)
                 .tryMap { service, result in
                     guard let balanceValue = Decimal(stringValue: result.balance) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     let decimalBalanceValue = balanceValue / service.blockchainDecimalValue

@@ -91,22 +91,22 @@ enum CLTypeSerializeHelper {
             do {
                 let result = try CLTypeSerializeHelper.bigNumberSerialize(input: u128Class.valueInStr, withPrefix0x: withPrefix0x)
                 return result
-            } catch CSPRError.invalidNumber {
-                throw CSPRError.invalidNumber
+            } catch CasperError.invalidNumber {
+                throw CasperError.invalidNumber
             }
         case .u256(let u256Class):
             do {
                 let result = try CLTypeSerializeHelper.bigNumberSerialize(input: u256Class.valueInStr, withPrefix0x: withPrefix0x)
                 return result
-            } catch CSPRError.invalidNumber {
-                throw CSPRError.invalidNumber
+            } catch CasperError.invalidNumber {
+                throw CasperError.invalidNumber
             }
         case .u512(let u512Class):
             do {
                 let result = try CLTypeSerializeHelper.bigNumberSerialize(input: u512Class.valueInStr, withPrefix0x: withPrefix0x)
                 return result
-            } catch CSPRError.invalidNumber {
-                throw CSPRError.invalidNumber
+            } catch CasperError.invalidNumber {
+                throw CasperError.invalidNumber
             }
         case .unit:
             return ""
@@ -166,7 +166,7 @@ enum CLTypeSerializeHelper {
                     }
                     return ret
                 } catch {
-                    throw CSPRError.invalidNumber
+                    throw CasperError.invalidNumber
                 }
             }
         case .listWrapper(let array):
@@ -182,7 +182,7 @@ enum CLTypeSerializeHelper {
                 }
                 return result
             } catch {
-                throw CSPRError.invalidNumber
+                throw CasperError.invalidNumber
             }
         case .fixedListWrapper(let array):
             var result = ""
@@ -193,7 +193,7 @@ enum CLTypeSerializeHelper {
                 }
                 return result
             } catch {
-                throw CSPRError.invalidNumber
+                throw CasperError.invalidNumber
             }
         case .resultWrapper(let string, let cLValueWrapper):
             var result = ""
@@ -208,7 +208,7 @@ enum CLTypeSerializeHelper {
                     result = result + ret
                     return result
                 } catch {
-                    throw CSPRError.invalidNumber
+                    throw CasperError.invalidNumber
                 }
             } else if string == "Err" {
                 if withPrefix0x == true {
@@ -221,7 +221,7 @@ enum CLTypeSerializeHelper {
                     result = result + ret
                     return result
                 } catch {
-                    throw CSPRError.invalidNumber
+                    throw CasperError.invalidNumber
                 }
             }
         case .mapWrapper(let keyArray, let valueArray):
@@ -436,7 +436,7 @@ enum CLTypeSerializeHelper {
                 let ret2 = try CLTypeSerializeHelper.CLValueSerialize(input: cLValueWrapper, withPrefix0x: false)
                 return ret + ret2
             } catch {
-                throw CSPRError.invalidNumber
+                throw CasperError.invalidNumber
             }
         case .tuple2Wrapper(let cLValueWrapper1, let cLValueWrapper2):
             do {
@@ -448,7 +448,7 @@ enum CLTypeSerializeHelper {
                 let ret2 = try CLTypeSerializeHelper.CLValueSerialize(input: cLValueWrapper2, withPrefix0x: false)
                 return ret + ret1 + ret2
             } catch {
-                throw CSPRError.invalidNumber
+                throw CasperError.invalidNumber
             }
         case .tuple3Wrapper(let cLValueWrapper1, let cLValueWrapper2, let cLValueWrapper3):
             do {
@@ -461,7 +461,7 @@ enum CLTypeSerializeHelper {
                 let ret3 = try CLTypeSerializeHelper.CLValueSerialize(input: cLValueWrapper3, withPrefix0x: false)
                 return ret + ret1 + ret2 + ret3
             } catch {
-                throw CSPRError.invalidNumber
+                throw CasperError.invalidNumber
             }
         case .anyCLValue:
             // non-serializable object
@@ -654,7 +654,7 @@ enum CLTypeSerializeHelper {
             let ret = try CLTypeSerializeHelper.bigNumberSerialize(input: input, withPrefix0x: withPrefix0x)
             return ret
         } catch {
-            throw CSPRError.invalidNumber
+            throw CasperError.invalidNumber
         }
     }
 
@@ -670,7 +670,7 @@ enum CLTypeSerializeHelper {
             let ret = try CLTypeSerializeHelper.bigNumberSerialize(input: input, withPrefix0x: withPrefix0x)
             return ret
         } catch {
-            throw CSPRError.invalidNumber
+            throw CasperError.invalidNumber
         }
     }
 
@@ -686,7 +686,7 @@ enum CLTypeSerializeHelper {
             let ret = try CLTypeSerializeHelper.bigNumberSerialize(input: input, withPrefix0x: withPrefix0x)
             return ret
         } catch {
-            throw CSPRError.invalidNumber
+            throw CasperError.invalidNumber
         }
     }
 
@@ -705,7 +705,7 @@ enum CLTypeSerializeHelper {
             let numberSerialize: String = CLTypeSerializeHelper.numberSerialize(input: input)
             return CLTypeSerializeHelper.fromBigToLittleEdian(input: numberSerialize, withPrefix0x: withPrefix0x)
         } else {
-            throw CSPRError.invalidNumber
+            throw CasperError.invalidNumber
         }
     }
 

@@ -11,12 +11,29 @@ import Foundation
 extension BlockaidDTO {
     enum SolanaScan {
         struct Request: Encodable {
+            let encoding = "base64"
+            let blockchain = "mainnet"
+
             let accountAddress: String?
             let options: [Option] = [.simulation, .validation]
             let metadata: Metadata
 
             let method: String
             let transactions: [String]
+
+            struct Metadata: Encodable {
+                let url: String
+            }
+
+            enum CodingKeys: String, CodingKey {
+                case encoding
+                case blockchain
+                case accountAddress = "account_address"
+                case options
+                case metadata
+                case method
+                case transactions
+            }
         }
 
         struct Response: Decodable {
