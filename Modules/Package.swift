@@ -262,6 +262,16 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemHotSdk",
             ]
         ),
+        .tangemTestTarget(
+            name: "BlockchainSDKTests",
+            dependencies: [
+                "BlockchainSdk",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
