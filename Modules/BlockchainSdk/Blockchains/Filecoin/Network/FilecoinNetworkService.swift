@@ -13,6 +13,7 @@ import TangemLocalization
 class FilecoinNetworkService: MultiNetworkProvider {
     let providers: [FilecoinNetworkProvider]
     var currentProviderIndex = 0
+    let blockchainName: String = Blockchain.filecoin.displayName
 
     init(providers: [FilecoinNetworkProvider]) {
         self.providers = providers
