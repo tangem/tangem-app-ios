@@ -73,7 +73,6 @@ struct XRPTransactionTests {
         let transaction = try makeTransaction(publickKey: publicKey, curve: curve)
         let builder = try XRPTransactionBuilder(walletPublicKey: publicKey, curve: curve)
         builder.account = ""
-        builder.sequence = 1
 
         // when
         let (_, messageToSign) = try #require(try builder.buildForSign(transaction: transaction))
@@ -95,7 +94,8 @@ struct XRPTransactionTests {
             fee: .init(.init(with: blockchain, value: Decimal(stringValue: "0.001")!)),
             sourceAddress: address.value,
             destinationAddress: "rDTXLQ7ZKZVKz33zJbHjgVShjsBnqMBhmN", // Random address from explorer
-            changeAddress: address.value
+            changeAddress: address.value,
+            params: XRPTransactionParams(sequence: 1)
         )
     }
 }
