@@ -110,7 +110,7 @@ private extension CommonSendNotificationManager {
             }
 
             let hasActivationError = errors.contains { error in
-                if case WalletError.accountNotActivated = error {
+                if case BlockchainSdkError.accountNotActivated = error {
                     return true
                 }
                 return false
@@ -276,7 +276,8 @@ private extension CommonSendNotificationManager {
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             switch validationErrorEvent {
-            case .remainingAmountIsLessThanRentExemption:
+            case .remainingAmountIsLessThanRentExemption,
+                 .sendingAmountIsLessThanRentExemption:
                 hideFeeWillBeSubtractedNotification()
                 fallthrough
             case .dustRestriction,

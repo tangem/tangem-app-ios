@@ -33,6 +33,7 @@ private extension CreateWalletSelectorView {
             Text(viewModel.screenTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 8) {
                 ForEach(Array(viewModel.walletItems.enumerated()), id: \.offset) { _, item in
@@ -74,6 +75,7 @@ private extension CreateWalletSelectorView {
                 Text(item.description)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 18)
@@ -87,6 +89,8 @@ private extension CreateWalletSelectorView {
         HStack(spacing: 0) {
             Text(item.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 22)
 

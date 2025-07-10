@@ -31,7 +31,7 @@ class SuiBalanceFetcher {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let requestPublisher = self?.requestPublisherBuilder?(address, coin, cursor) else {
-                self?.subject.send(.failure(WalletError.empty))
+                self?.subject.send(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -54,7 +54,7 @@ class SuiBalanceFetcher {
         requestPublisher
             .sink { [weak self] completionSubscriptions in
                 if case .failure = completionSubscriptions {
-                    self?.subject.send(.failure(WalletError.empty))
+                    self?.subject.send(.failure(BlockchainSdkError.empty))
                     self?.clear()
                 }
             } receiveValue: { [weak self] response in
@@ -66,7 +66,7 @@ class SuiBalanceFetcher {
 
                 if response.hasNextPage {
                     guard let nextPublisher = requestPublisherBuilder?(address, coin, response.nextCursor) else {
-                        subject.send(.failure(WalletError.empty))
+                        subject.send(.failure(BlockchainSdkError.empty))
                         clear()
                         return
                     }

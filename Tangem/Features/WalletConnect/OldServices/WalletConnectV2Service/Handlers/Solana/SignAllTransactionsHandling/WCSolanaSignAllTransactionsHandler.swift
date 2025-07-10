@@ -15,6 +15,8 @@ final class WCSolanaSignAllTransactionsHandler {
     private let walletModel: any WalletModel
     private let signer: WalletConnectSigner
     private let hashesToSign: [String]
+    private let request: AnyCodable
+    private let encoder = JSONEncoder()
 
     init(
         request: AnyCodable,
@@ -38,6 +40,7 @@ final class WCSolanaSignAllTransactionsHandler {
         }
 
         self.signer = signer
+        self.request = request
     }
 
     /// Remove signatures placeholder from raw transaction
@@ -51,7 +54,11 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
     var method: WalletConnectMethod { .solanaSignAllTransactions }
 
     var requestData: Data {
-        Data()
+        (try? encoder.encode(hashesToSign)) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
     }
 
     var event: WalletConnectEvent { .sign }

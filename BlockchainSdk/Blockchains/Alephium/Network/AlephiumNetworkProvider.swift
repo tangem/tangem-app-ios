@@ -67,7 +67,7 @@ struct AlephiumNetworkProvider: HostProvider {
         return provider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
             .map(T.self, using: decoder)
-            .mapError { _ in WalletError.empty }
+            .mapError { _ in BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 }
