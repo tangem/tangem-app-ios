@@ -97,16 +97,31 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     func getAccountInfo(account: String) -> AnyPublisher<(balance: Decimal, sequence: Int), Error> {
         return request(.accountInfo(account: account))
             .tryMap { xrpResponse in
-                try xrpResponse.assertAccountCreated()
+                let accountResponse = try Self.validateXRPResponseAndGetAccountResponse(xrpResponse)
 
-                guard let accountResponse = xrpResponse.result?.account_data,
-                      let balanceString = accountResponse.balance,
-                      let sequence = accountResponse.sequence,
-                      let balance = Decimal(stringValue: balanceString) else {
+                guard
+                    let balanceString = accountResponse.balance,
+                    let sequence = accountResponse.sequence,
+                    let balance = Decimal(stringValue: balanceString)
+                else {
                     throw XRPError.failedLoadInfo
                 }
 
                 return (balance: balance, sequence: sequence)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getSequence(account: String) -> AnyPublisher<Int, Error> {
+        return request(.accountInfo(account: account))
+            .tryMap { xrpResponse in
+                let accountResponse = try Self.validateXRPResponseAndGetAccountResponse(xrpResponse)
+
+                guard let sequence = accountResponse.sequence else {
+                    throw XRPError.failedLoadInfo
+                }
+
+                return sequence
             }
             .eraseToAnyPublisher()
     }
@@ -156,5 +171,15 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .requestPublisher(XRPTarget(node: node, target: target))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(XrpResponse.self)
+    }
+
+    private static func validateXRPResponseAndGetAccountResponse(_ xrpResponse: XrpResponse) throws -> XrpAccountData {
+        try xrpResponse.assertAccountCreated()
+
+        if let accountResponse = xrpResponse.result?.account_data {
+            return accountResponse
+        }
+
+        throw XRPError.failedLoadInfo
     }
 }
