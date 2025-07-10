@@ -314,6 +314,10 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             )
         )
     }
+
+    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
+        VisaKYCAccessTokenResponse(token: "", locale: "")
+    }
 }
 
 private struct RandomBytesGenerator {

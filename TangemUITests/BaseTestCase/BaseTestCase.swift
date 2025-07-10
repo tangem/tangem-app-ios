@@ -53,4 +53,31 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
     }
+
+    func launchApp(
+        tangemApiType: TangemAPI? = nil,
+        expressApiType: ExpressAPI? = nil,
+        resetToS: Bool = false,
+        additionalArguments: [String] = []
+    ) {
+        var arguments = ["--uitesting", "--alpha"]
+
+        if let tangemApiType {
+            arguments.append(contentsOf: ["-tangem_api_type", tangemApiType.rawValue])
+        }
+
+        if let expressApiType {
+            arguments.append(contentsOf: ["-api_express", expressApiType.rawValue])
+        }
+
+        if resetToS {
+            arguments.append(contentsOf: ["-tangem_tap_terms_of_service_accepted", "NULL"])
+        }
+
+        arguments.append(contentsOf: additionalArguments)
+
+        app.launchArguments = arguments
+        app.launchEnvironment = ["UITEST": "1"]
+        app.launch()
+    }
 }

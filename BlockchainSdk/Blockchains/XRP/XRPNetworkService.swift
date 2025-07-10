@@ -22,6 +22,8 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
     let providers: [XRPNetworkProvider]
     var currentProviderIndex: Int = 0
 
+    let blockchainName: String = Blockchain.xrp(curve: .ed25519_slip0010).displayName
+
     init(providers: [XRPNetworkProvider]) {
         self.providers = providers
     }

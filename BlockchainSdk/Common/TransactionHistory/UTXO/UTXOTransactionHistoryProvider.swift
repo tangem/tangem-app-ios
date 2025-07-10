@@ -18,6 +18,8 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
         blockBookProviders
     }
 
+    let blockchainName: String
+
     private let blockBookProviders: [BlockBookUTXOProvider]
     private let mapper: Mapper
 
@@ -27,10 +29,12 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
 
     init(
         blockBookProviders: [BlockBookUTXOProvider],
-        mapper: Mapper
+        mapper: Mapper,
+        blockchainName: String
     ) {
         self.blockBookProviders = blockBookProviders
         self.mapper = mapper
+        self.blockchainName = blockchainName
     }
 }
 
@@ -59,7 +63,7 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
         providerPublisher { [weak self] provider in
             guard let self else {
-                return .anyFail(error: WalletError.empty)
+                return .anyFail(error: BlockchainSdkError.empty)
             }
 
             let requestPage: Int
@@ -80,7 +84,7 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
             return provider.addressData(address: request.address, parameters: parameters)
                 .tryMap { [weak self] response -> TransactionHistory.Response in
                     guard let self else {
-                        throw WalletError.empty
+                        throw BlockchainSdkError.empty
                     }
 
                     let records = try mapper.mapToTransactionRecords(

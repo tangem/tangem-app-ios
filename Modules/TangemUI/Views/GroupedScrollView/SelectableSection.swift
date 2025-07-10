@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemFoundation
 
 public protocol SelectableSectionRow: View {
     var isSelected: Bool { get set }
@@ -36,15 +37,19 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
                 let currentIsSelected = rowView.isSelected
                 let shouldShowSeparator = !nextIsSelected && !rowView.isSelected && models.last?.id != model.id
 
-                rowView.overlay(alignment: .bottom) {
-                    if currentIsSelected {
-                        SelectionOverlay()
-                    } else if shouldShowSeparator {
-                        Separator(color: Colors.Stroke.primary)
-                            .padding(.leading, separatorPadding.leading)
-                            .padding(.trailing, separatorPadding.trailing)
+                rowView
+                    .onChange(of: rowView.isSelected) { newValue in
+                        FeedbackGenerator.selectionChanged()
                     }
-                }
+                    .overlay(alignment: .bottom) {
+                        if currentIsSelected {
+                            SelectionOverlay()
+                        } else if shouldShowSeparator {
+                            Separator(color: Colors.Stroke.primary)
+                                .padding(.leading, separatorPadding.leading)
+                                .padding(.trailing, separatorPadding.trailing)
+                        }
+                    }
             }
         }
     }

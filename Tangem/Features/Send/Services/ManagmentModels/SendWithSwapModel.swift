@@ -16,6 +16,7 @@ import TangemFoundation
 class SendWithSwapModel {
     // MARK: - Data
 
+    private let _sendingToken: CurrentValueSubject<SendSourceToken, Never>
     private let _receivedToken: CurrentValueSubject<SendReceiveTokenType, Never>
     private let _destination: CurrentValueSubject<SendAddress?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
@@ -29,18 +30,14 @@ class SendWithSwapModel {
 
     // MARK: - Dependencies
 
-    var sendAmountInteractor: SendAmountInteractor!
+    var externalAmountUpdater: SendExternalAmountUpdater!
     var sendFeeProvider: SendFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
     weak var router: SendModelRoutable?
 
     // MARK: - Private injections
 
-    private let tokenItem: TokenItem
-    private let balanceProvider: TokenBalanceProvider
-    private let transactionDispatcher: TransactionDispatcher
     private let transactionSigner: TransactionSigner
-    private let transactionCreator: TransactionCreator
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
@@ -52,10 +49,7 @@ class SendWithSwapModel {
     // MARK: - Public interface
 
     init(
-        tokenItem: TokenItem,
-        balanceProvider: TokenBalanceProvider,
-        transactionDispatcher: TransactionDispatcher,
-        transactionCreator: TransactionCreator,
+        userToken: SendSourceToken,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
@@ -63,24 +57,20 @@ class SendWithSwapModel {
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
-        self.tokenItem = tokenItem
-        self.balanceProvider = balanceProvider
-        self.transactionDispatcher = transactionDispatcher
         self.transactionSigner = transactionSigner
-        self.transactionCreator = transactionCreator
         self.feeIncludedCalculator = feeIncludedCalculator
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
         self.swapManager = swapManager
 
         flowKind = predefinedValues.flowKind
-        _receivedToken = .init(.same(tokenItem))
+        _sendingToken = .init(userToken)
+        _receivedToken = .init(.same(userToken))
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
 
         bind()
-        bindSwapManager()
     }
 }
 
@@ -95,25 +85,21 @@ private extension SendWithSwapModel {
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
-            .asyncMap { manager, args async -> Result<BSDKTransaction, Error> in
-                do {
-                    let transaction = try await manager.makeTransaction(
-                        amountValue: args.0,
-                        destination: args.1,
-                        fee: args.2
-                    )
-                    return .success(transaction)
-                } catch {
-                    return .failure(error)
-                }
-            }
-            .sink { [weak self] result in
-                self?._transaction.send(result)
-            }
-            .store(in: &bag)
-    }
+            .setFailureType(to: Error.self)
+            .asyncTryMap { manager, args -> BSDKTransaction in
+                let (amount, destination, fee) = args
 
-    private func bindSwapManager() {
+                return try await manager.makeTransaction(
+                    amountValue: amount,
+                    destination: destination,
+                    fee: fee
+                )
+            }
+            .mapToResult()
+            .withWeakCaptureOf(self)
+            .sink { $0._transaction.send($1) }
+            .store(in: &bag)
+
         Publishers
             .CombineLatest(
                 _amount.removeDuplicates(),
@@ -154,7 +140,7 @@ private extension SendWithSwapModel {
             transactionsParams = params
         }
 
-        let transaction = try await transactionCreator.createTransaction(
+        let transaction = try await sourceToken.transactionCreator.createTransaction(
             amount: amount,
             fee: fee,
             destinationAddress: destination,
@@ -165,11 +151,8 @@ private extension SendWithSwapModel {
     }
 
     private func makeAmount(decimal: Decimal) -> Amount {
-        Amount(
-            with: tokenItem.blockchain,
-            type: tokenItem.amountType,
-            value: decimal
-        )
+        let tokenItem = _sendingToken.value.tokenItem
+        return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: decimal)
     }
 }
 
@@ -193,12 +176,21 @@ private extension SendWithSwapModel {
     }
 
     private func send() async throws -> TransactionDispatcherResult {
+        switch receiveToken {
+        case .same:
+            return try await simpleSend()
+        case .swap:
+            return try await swapManager.send()
+        }
+    }
+
+    private func simpleSend() async throws -> TransactionDispatcherResult {
         guard let transaction = _transaction.value?.value else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
         do {
-            let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
+            let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
             proceed(transaction: transaction, result: result)
             return result
         } catch let error as TransactionDispatcherResult.Error {
@@ -229,8 +221,9 @@ private extension SendWithSwapModel {
             break
         case .sendTxError(_, let error):
             Analytics.log(event: .sendErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
+                .token: sourceToken.tokenItem.currencySymbol,
                 .errorCode: "\(error.universalErrorCode)",
+                .blockchain: sourceToken.tokenItem.blockchain.displayName
             ])
         }
     }
@@ -244,7 +237,7 @@ private extension SendWithSwapModel {
         case .fungible:
             UserWalletFinder().addToken(
                 token,
-                in: tokenItem.blockchain,
+                in: sourceToken.tokenItem.blockchain,
                 for: transaction.destinationAddress
             )
         case .nonFungible:
@@ -279,20 +272,38 @@ extension SendWithSwapModel: SendDestinationOutput {
     }
 }
 
-// MARK: - SendAmountInput
+// MARK: - SendSourceTokenInput
 
-extension SendWithSwapModel: SendAmountInput {
-    var amount: SendAmount? { _amount.value }
+extension SendWithSwapModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken { _sendingToken.value }
 
-    var amountPublisher: AnyPublisher<SendAmount?, Never> {
-        _amount.eraseToAnyPublisher()
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        _sendingToken.eraseToAnyPublisher()
     }
 }
 
-// MARK: - SendAmountOutput
+// MARK: - SendReceiveTokenOutput
 
-extension SendWithSwapModel: SendAmountOutput {
-    func amountDidChanged(amount: SendAmount?) {
+extension SendWithSwapModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {
+        _sendingToken.send(sourceToken)
+    }
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension SendWithSwapModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount?, any Error> { .success(_amount.value) }
+
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
+        _amount.map { .success($0) }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendSourceTokenAmountOutput
+
+extension SendWithSwapModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
     }
 }
@@ -307,7 +318,23 @@ extension SendWithSwapModel: SendReceiveTokenInput {
     var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
         _receivedToken.eraseToAnyPublisher()
     }
+}
 
+// MARK: - SendReceiveTokenOutput
+
+extension SendWithSwapModel: SendReceiveTokenOutput {
+    func userDidSelect(receiveToken: SendReceiveToken) {
+        _receivedToken.send(.swap(receiveToken))
+    }
+
+    func userDidRequestClearSelection() {
+        _receivedToken.send(.same(_sendingToken.value))
+    }
+}
+
+// MARK: - SendReceiveTokenAmountInput
+
+extension SendWithSwapModel: SendReceiveTokenAmountInput {
     var receiveAmount: LoadingResult<SendAmount?, any Error> {
         mapToReceiveSendAmount(state: swapManager.state)
     }
@@ -335,13 +362,9 @@ extension SendWithSwapModel: SendReceiveTokenInput {
 
 // MARK: - SendReceiveTokenOutput
 
-extension SendWithSwapModel: SendReceiveTokenOutput {
-    func userDidSelect(receiveToken: SendReceiveToken) {
-        _receivedToken.send(.swap(receiveToken))
-    }
-
-    func userDidRequestClearSelection() {
-        _receivedToken.send(.same(tokenItem))
+extension SendWithSwapModel: SendReceiveTokenAmountOutput {
+    func receiveAmountDidChanged(amount: SendAmount?) {
+        assertionFailure("Unsupported until fixed rate is available")
     }
 }
 
@@ -405,7 +428,15 @@ extension SendWithSwapModel: SendFeeOutput {
 
 extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMap { model, token in
+                switch token {
+                case .same: model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+                case .swap: model.swapManager.isReadyToSendPublisher
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
@@ -484,7 +515,7 @@ extension SendWithSwapModel: NotificationTapDelegate {
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
-            balanceProvider.balanceType.value.flatMap {
+            sourceToken.availableBalanceProvider.balanceType.value.flatMap {
                 leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
             }
         case .reduceAmountBy(let amount, _):
@@ -519,13 +550,13 @@ extension SendWithSwapModel: NotificationTapDelegate {
     private func leaveMinimalAmountOnBalance(amountToLeave amount: Decimal, balance: Decimal) {
         var newAmount = balance - amount
 
-        if let fee = selectedFee.value.value?.amount, tokenItem.amountType == fee.type {
+        if let fee = selectedFee.value.value?.amount, sourceToken.tokenItem.amountType == fee.type {
             // In case when fee can be more that amount
             newAmount = max(0, newAmount - fee.value)
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        sendAmountInteractor.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(amount: newAmount)
     }
 
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
@@ -535,12 +566,12 @@ extension SendWithSwapModel: NotificationTapDelegate {
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        sendAmountInteractor.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(amount: newAmount)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
         // Amount will be changed automatically via SendAmountOutput
-        sendAmountInteractor.externalUpdate(amount: amount)
+        externalAmountUpdater.externalUpdate(amount: amount)
     }
 }
 
@@ -565,12 +596,12 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
 private extension SendWithSwapModel {
     func logTransactionAnalytics(signerType: String) {
         let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-        let source = flowKind.analyticsValue(for: tokenItem)
+        let source = flowKind.analyticsValue(for: sourceToken.tokenItem)
 
         Analytics.log(event: .transactionSent, params: [
             .source: source.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
+            .token: sourceToken.tokenItem.currencySymbol,
+            .blockchain: sourceToken.tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
             .memo: additionalFieldAnalyticsParameter().rawValue,
             .walletForm: signerType,

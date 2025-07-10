@@ -8,11 +8,12 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 final class CreateWalletSelectorViewModel {
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
-    let supportButtonTitle = "What to choose?"
-    let screenTitle = "Choose how you want to create your wallet"
+    let supportButtonTitle = Localization.walletCreateNavInfoTitle
+    let screenTitle = Localization.walletCreateTitle
 
     var walletItems: [WalletItem] = []
     let scanItem: ScanItem
@@ -24,8 +25,8 @@ final class CreateWalletSelectorViewModel {
         self.coordinator = coordinator
         self.delegate = delegate
         scanItem = ScanItem(
-            title: "Do you already have Tangem Wallet?",
-            buttonTitle: "Scan device",
+            title: Localization.walletCreateScanQuestion,
+            buttonTitle: Localization.walletCreateScanTitle,
             buttonIcon: Assets.tangemIcon
         )
         walletItems = makeWalletItems()
@@ -50,17 +51,17 @@ private extension CreateWalletSelectorViewModel {
     func makeWalletItems() -> [WalletItem] {
         [
             WalletItem(
-                title: "Mobile Wallet",
-                infoTag: InfoTag(text: "Free", style: .secondary),
-                description: "A secure wallet is created on your phone in seconds.",
+                title: Localization.walletCreateMobileTitle,
+                infoTag: InfoTag(text: Localization.commonFree, style: .secondary),
+                description: Localization.walletCreateMobileDescription,
                 action: { [weak coordinator] in
                     coordinator?.openMobileWallet()
                 }
             ),
             WalletItem(
-                title: "Hardware Wallet",
-                infoTag: InfoTag(text: "From $54.90", style: .accent),
-                description: "Buy Tangem Wallet — physical cards that securely store your crypto offline.",
+                title: Localization.walletCreateHardwareTitle,
+                infoTag: InfoTag(text: Localization.walletCreateHardwareBadge("$54.90"), style: .accent),
+                description: Localization.walletCreateHardwareDescription,
                 action: { [weak coordinator] in
                     coordinator?.openHardwareWallet()
                 }

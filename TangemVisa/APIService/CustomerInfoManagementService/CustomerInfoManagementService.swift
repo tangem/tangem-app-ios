@@ -11,6 +11,7 @@ import Moya
 
 protocol CustomerInfoManagementService {
     func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse
+    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 }
 
 class CommonCustomerInfoManagementService {
@@ -45,6 +46,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
             makeRequest(for: .getCustomerInfo(cardId: cardId))
+        )
+    }
+
+    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
+        try await apiService.request(
+            makeRequest(for: .getKYCAccessToken)
         )
     }
 }

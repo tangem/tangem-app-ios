@@ -248,10 +248,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.assetRequirementsManager
     }
 
-    var addressResolver: AddressResolver? {
-        mainTokenWalletModel.addressResolver
-    }
-
     var transactionCreator: TransactionCreator {
         mainTokenWalletModel.transactionCreator
     }

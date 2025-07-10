@@ -12,6 +12,7 @@ import Combine
 
 class TezosNetworkService: MultiNetworkProvider {
     let providers: [TezosJsonRpcProvider]
+    let blockchainName: String = Blockchain.tezos(curve: .ed25519_slip0010).displayName
     var currentProviderIndex: Int = 0
 
     init(providers: [TezosJsonRpcProvider]) {
@@ -29,7 +30,7 @@ class TezosNetworkService: MultiNetworkProvider {
                       let balance = Decimal(string: balanceString),
                       let counterString = tezosAddress.counter,
                       let counter = Int(counterString) else {
-                    throw WalletError.failedToParseNetworkResponse()
+                    throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
                 let balanceConverted = balance / Blockchain.tezos(curve: .ed25519).decimalValue
@@ -51,7 +52,7 @@ class TezosNetworkService: MultiNetworkProvider {
             $0.getHeader()
                 .tryMap { headerResponse -> TezosHeader in
                     guard let proto = headerResponse.protocol, let hash = headerResponse.hash else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return TezosHeader(protocol: proto, hash: hash)

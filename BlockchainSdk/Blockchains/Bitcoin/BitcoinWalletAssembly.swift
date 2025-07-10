@@ -50,7 +50,11 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.bitcoin(testnet: false).displayName
+        )
+
         return BitcoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,
