@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNetworkUtils
+import SolanaSwift
 
 public struct WalletNetworkServiceFactory {
     // MARK: - Private Properties
@@ -106,7 +107,7 @@ extension WalletNetworkServiceFactory {
         case .dogecoin:
             throw Error.notImplemeneted
         case .solana:
-            throw Error.notImplemeneted
+            return makeSolanaNetworkService(for: blockchain)
         case .polkadot:
             throw Error.notImplemeneted
         case .kusama:
@@ -204,6 +205,47 @@ private extension WalletNetworkServiceFactory {
 
         return networkService
     }
+
+    /// Solana
+    func makeSolanaNetworkService(for blockchain: Blockchain) -> SolanaNetworkService {
+        let endpoints: [RPCEndpoint] = if blockchain.isTestnet {
+            [.devnetSolana, .devnetGenesysGo]
+        } else {
+            APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+                .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, networkProviderType in
+                    guard var components = URLComponents(url: nodeInfo.url, resolvingAgainstBaseURL: false) else {
+                        return nil
+                    }
+
+                    components.scheme = SolanaConstants.webSocketScheme
+                    guard let urlWebSocket = components.url else {
+                        return nil
+                    }
+
+                    let headerNameValue: (name: String?, value: String?)? = if case .nowNodes = networkProviderType {
+                        (nodeInfo.headers?.headerName, nodeInfo.headers?.headerValue)
+                    } else {
+                        nil
+                    }
+
+                    return RPCEndpoint(
+                        url: nodeInfo.url,
+                        urlWebSocket: urlWebSocket,
+                        network: .mainnetBeta,
+                        apiKeyHeaderName: headerNameValue?.name,
+                        apiKeyHeaderValue: headerNameValue?.value
+                    )
+                }
+        }
+
+        let apiLogger = SolanaApiLoggerUtil()
+        let session = TangemTrustEvaluatorUtil.makeSession(configuration: .ephemeralConfiguration)
+        let networkRouter = NetworkingRouter(endpoints: endpoints, session: session, apiLogger: apiLogger)
+        let accountStorage = SolanaDummyAccountStorage()
+        let solanaSdk = Solana(router: networkRouter, accountStorage: accountStorage)
+
+        return SolanaNetworkService(providers: endpoints, solanaSdk: solanaSdk, blockchain: blockchain)
+    }
 }
 
 // MARK: - Errors
@@ -213,5 +255,13 @@ extension WalletNetworkServiceFactory {
         // [REDACTED_TODO_COMMENT]
         case notImplemeneted
         case unsupportedType
+    }
+}
+
+// MARK: - Constants
+
+extension WalletNetworkServiceFactory {
+    enum SolanaConstants {
+        static let webSocketScheme = "wss"
     }
 }
