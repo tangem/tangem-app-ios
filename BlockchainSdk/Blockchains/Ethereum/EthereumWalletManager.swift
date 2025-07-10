@@ -77,41 +77,35 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
     func sign(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<String, Error> {
-        let noncePublisher: AnyPublisher<Int, Error> =
-            (transaction.fee.parameters as? EthereumFeeParameters)?
-                .nonce
-                .map { Just($0).setFailureType(to: Error.self).eraseToAnyPublisher() }
-                ?? networkService.getPendingTxCount(transaction.sourceAddress)
-
-        return Publishers.Zip(addressConverter.convertToETHAddressesPublisher(in: transaction), noncePublisher)
-            .map { convertedTransaction, nonce in
-                convertedTransaction.then { convertedTransaction in
-                    let ethParams = convertedTransaction.params as? EthereumTransactionParams
-                    convertedTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
-                }
+        Publishers.Zip(
+            addressConverter.convertToETHAddressesPublisher(in: transaction),
+            networkService.getPendingTxCount(transaction.sourceAddress)
+        )
+        .map { convertedTransaction, pendingNonce in
+            Self.enrichTransactionWithNonce(transaction: convertedTransaction, pendingNonce: pendingNonce)
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { walletManager, convertedTransaction in
+            Result {
+                try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
             }
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedTransaction in
-                Result {
-                    try walletManager.txBuilder.buildForSign(transaction: convertedTransaction)
-                }
-                .publisher
-                .withWeakCaptureOf(walletManager)
-                .flatMap { walletManager, hashToSign in
-                    signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
-                }
-                .withWeakCaptureOf(walletManager)
-                .tryMap { walletManager, signatureInfo -> String in
-                    try walletManager.txBuilder
-                        .buildForSend(
-                            transaction: convertedTransaction,
-                            signatureInfo: signatureInfo
-                        )
-                        .hex()
-                        .addHexPrefix()
-                }
+            .publisher
+            .withWeakCaptureOf(walletManager)
+            .flatMap { walletManager, hashToSign in
+                signer.sign(hash: hashToSign, walletPublicKey: walletManager.wallet.publicKey)
             }
-            .eraseToAnyPublisher()
+            .withWeakCaptureOf(walletManager)
+            .tryMap { walletManager, signatureInfo -> String in
+                try walletManager.txBuilder
+                    .buildForSend(
+                        transaction: convertedTransaction,
+                        signatureInfo: signatureInfo
+                    )
+                    .hex()
+                    .addHexPrefix()
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     /// It can't be into extension because it will be overridden in the `MantleWalletManager`
@@ -128,6 +122,23 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     .getGasLimit(to: to, from: from, value: value, data: data)
             }
             .eraseToAnyPublisher()
+    }
+
+    private static func enrichTransactionWithNonce(transaction: Transaction, pendingNonce: Int) -> Transaction {
+        let userNonce = (transaction.fee.parameters as? EthereumFeeParameters)?.nonce
+
+        let nonce: Int
+
+        if let userNonce, userNonce < pendingNonce {
+            nonce = userNonce
+        } else {
+            nonce = pendingNonce
+        }
+
+        var mutableTransaction = transaction
+        let ethParams = mutableTransaction.params as? EthereumTransactionParams
+        mutableTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
+        return mutableTransaction
     }
 }
 
@@ -363,7 +374,7 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransaction in
                 walletManager.networkService.send(transaction: rawTransaction)
-                    .mapSendError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction)
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
@@ -373,7 +384,7 @@ extension EthereumWalletManager: TransactionSender {
 
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
@@ -426,6 +437,8 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
             .addHexPrefix()
     }
 }
+
+// MARK: - StakeKitTransactionDataBroadcaster
 
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
