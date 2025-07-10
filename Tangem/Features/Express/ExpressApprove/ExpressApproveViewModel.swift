@@ -19,8 +19,8 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
 
     @Published var subtitle: String
 
-    @Published var menuRowViewModel: DefaultMenuRowViewModel<ExpressApprovePolicy>?
-    @Published var selectedAction: ExpressApprovePolicy
+    @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
+    @Published var selectedAction: BSDKApprovePolicy
     @Published var feeRowViewModel: DefaultRowViewModel?
 
     @Published var isLoading = false
@@ -171,15 +171,15 @@ extension ExpressApproveViewModel {
         let tokenItem: TokenItem
         let feeTokenItem: TokenItem
 
-        let selectedPolicy: ExpressApprovePolicy
+        let selectedPolicy: BSDKApprovePolicy
     }
 }
 
-extension ExpressApprovePolicy: @retroactive Identifiable {
+extension BSDKApprovePolicy: @retroactive Identifiable {
     public var id: Int { hashValue }
 }
 
-extension ExpressApprovePolicy: DefaultMenuRowViewModelAction {
+extension BSDKApprovePolicy: DefaultMenuRowViewModelAction {
     public var title: String {
         switch self {
         case .specified:

@@ -81,7 +81,7 @@ class FakeWalletManager: WalletManager {
         _ transaction: BlockchainSdk.Transaction,
         signer: BlockchainSdk.TransactionSigner
     ) -> AnyPublisher<BlockchainSdk.TransactionSendResult, SendTxError> {
-        Fail(error: SendTxError(error: WalletError.empty, tx: Data.randomData(count: 32).hexString))
+        Fail(error: SendTxError(error: BlockchainSdkError.empty, tx: Data.randomData(count: 32).hexString))
             .eraseToAnyPublisher()
     }
 

@@ -47,7 +47,7 @@ extension Publisher {
 
 extension Publisher {
     static var emptyFail: AnyPublisher<Output, Error> {
-        return Fail(error: WalletError.empty)
+        return Fail(error: BlockchainSdkError.empty)
             .eraseToAnyPublisher()
     }
 
@@ -57,7 +57,7 @@ extension Publisher {
     }
 
     static func sendTxFail(error: Error) -> AnyPublisher<Output, SendTxError> {
-        return Fail(error: SendTxError(error: error))
+        return Fail(error: SendTxError(error: error.toUniversalError()))
             .eraseToAnyPublisher()
     }
 
@@ -83,18 +83,26 @@ extension Publisher where Failure == Error {
      This method is used to override a network error when sending a transaction.
      Use only pair with send method for {{Blockchain}}NetworkService.
      */
-    public func mapSendError(tx: String? = nil) -> Publishers.MapError<Self, Error> {
+    public func mapAndEraseSendTxError(tx: String? = nil) -> Publishers.MapError<Self, Error> {
         mapError { error in
-            SendTxErrorFactory().make(error: error, with: tx)
+            if let sendTxError = error as? SendTxError {
+                return sendTxError
+            }
+
+            return SendTxError(error: error.toUniversalError(), tx: tx)
         }
     }
 
     /**
      This method is used to override a network error when sending a transaction after all chains publishers.
      */
-    func eraseSendError() -> Publishers.MapError<Self, SendTxError> {
+    func mapSendTxError(tx: String? = nil) -> Publishers.MapError<Self, SendTxError> {
         mapError { error in
-            SendTxErrorFactory().make(error: error)
+            if let sendTxError = error as? SendTxError {
+                return sendTxError
+            }
+
+            return SendTxError(error: error.toUniversalError(), tx: tx)
         }
     }
 }

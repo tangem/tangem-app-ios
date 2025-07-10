@@ -10,15 +10,16 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 import BlockchainSdk
+import ReownWalletKit
 
 protocol BlockaidAPIService {
     func scanSite(url: URL) async throws -> BlockaidDTO.SiteScan.Response
 
     func scanEvm(
         address: String?,
-        blockchain: Blockchain,
+        blockchain: BlockchainSdk.Blockchain,
         method: String,
-        transaction: WalletConnectEthTransaction, // not sure whether this model will still be used
+        params: [AnyCodable],
         domain: URL
     ) async throws -> BlockaidDTO.EvmScan.Response
 

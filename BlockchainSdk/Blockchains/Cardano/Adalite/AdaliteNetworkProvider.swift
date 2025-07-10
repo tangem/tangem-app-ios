@@ -49,7 +49,7 @@ class AdaliteNetworkProvider: CardanoNetworkProvider {
             .Zip(getUnspents(addresses: addresses), getBalance(addresses: addresses))
             .tryMap { [weak self] unspents, responses -> CardanoAddressResponse in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let txHashes = responses.flatMap { $0.transactions }
@@ -70,7 +70,7 @@ class AdaliteNetworkProvider: CardanoNetworkProvider {
             .map(AdaliteBaseResponseDTO<String, [AdaliteUnspentOutputResponseDTO]>.self)
             .tryMap { [weak self] response throws -> [CardanoUnspentOutput] in
                 guard let self, let unspentOutputs = response.right else {
-                    throw response.left ?? WalletError.empty
+                    throw response.left ?? BlockchainSdkError.empty
                 }
 
                 return unspentOutputs.compactMap { self.mapToCardanoUnspentOutput($0) }
@@ -88,7 +88,7 @@ class AdaliteNetworkProvider: CardanoNetworkProvider {
                 .map(AdaliteBaseResponseDTO<String, AdaliteBalanceResponseDTO>.self)
                 .tryMap { [weak self] response throws -> AdaliteBalanceResponse in
                     guard let self, let balanceResponse = response.right else {
-                        throw response.left ?? WalletError.empty
+                        throw response.left ?? BlockchainSdkError.empty
                     }
 
                     return self.mapToAdaliteBalanceResponse(balanceResponse)

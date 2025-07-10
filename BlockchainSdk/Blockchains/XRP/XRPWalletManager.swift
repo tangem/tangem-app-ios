@@ -11,22 +11,6 @@ import Combine
 import TangemSdk
 import TangemLocalization
 
-enum XRPError: Int, Error, LocalizedError {
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
-
-    case failedLoadUnconfirmed
-    case failedLoadReserve
-    case failedLoadInfo
-    case missingReserve
-    case distinctTagsFound
-
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
-
-    var errorDescription: String? {
-        Localization.genericErrorCode("xrp_error \(rawValue)")
-    }
-}
-
 class XRPWalletManager: BaseManager, WalletManager {
     var txBuilder: XRPTransactionBuilder!
     var networkService: XRPNetworkService!
@@ -80,7 +64,7 @@ extension XRPWalletManager: TransactionSender {
         return networkService
             .checkAccountCreated(account: addressDecoded)
             .tryMap { [weak self] isAccountCreated -> (XRPTransaction, Data) in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 guard let walletReserve = wallet.amounts[.reserve],
                       let buldResponse = try txBuilder.buildForSign(transaction: transaction) else {
@@ -88,7 +72,7 @@ extension XRPWalletManager: TransactionSender {
                 }
 
                 if !isAccountCreated, transaction.amount.value < walletReserve.value {
-                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
+                    throw BlockchainSdkError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
                 }
 
                 return buldResponse
@@ -104,24 +88,24 @@ extension XRPWalletManager: TransactionSender {
                 }.eraseToAnyPublisher()
             }
             .tryMap { [weak self] response -> (String) in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 return try txBuilder.buildForSend(transaction: response.0, signature: response.1)
             }
             .flatMap { [weak self] rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
                 self?.networkService.send(blob: rawTransactionHash)
                     .tryMap { [weak self] hash in
-                        guard let self = self else { throw WalletError.empty }
+                        guard let self = self else { throw BlockchainSdkError.empty }
 
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
                         wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: hash)
                     }
-                    .mapSendError(tx: rawTransactionHash)
+                    .mapAndEraseSendTxError(tx: rawTransactionHash)
                     .eraseToAnyPublisher() ?? .emptyFail
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
