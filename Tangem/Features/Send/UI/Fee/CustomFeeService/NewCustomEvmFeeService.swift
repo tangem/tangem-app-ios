@@ -15,6 +15,7 @@ import BigInt
 class NewCustomEvmFeeService {
     private weak var output: CustomFeeServiceOutput?
 
+    private let sourceTokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
     private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
@@ -60,7 +61,8 @@ class NewCustomEvmFeeService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(feeTokenItem: TokenItem) {
+    init(sourceTokenItem: TokenItem, feeTokenItem: TokenItem) {
+        self.sourceTokenItem = sourceTokenItem
         self.feeTokenItem = feeTokenItem
 
         bind()
@@ -359,7 +361,12 @@ private extension NewCustomEvmFeeService {
         } else {
             let customNonceAfterEditing = nonce
             if customNonceAfterEditing != customNonceBeforeEditing {
-                Analytics.log(.sendNonceInserted)
+                let params: [Analytics.ParameterKey: String] = [
+                    .token: sourceTokenItem.currencySymbol,
+                    .blockchain: sourceTokenItem.blockchain.currencySymbol,
+                ]
+
+                Analytics.log(event: .sendNonceInserted, params: params)
             }
 
             customNonceBeforeEditing = nil
