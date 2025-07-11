@@ -67,210 +67,63 @@ struct CosmosProtoMessage: Sendable {
 
     var unknownFields = SwiftProtobuf.UnknownStorage()
 
+    struct DelegateData: Sendable {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      var delegatorAddress: String = String()
+
+      var validatorAddress: String = String()
+
+      var delegateAmount: CosmosProtoMessage.DelegateAmount {
+        get {return _delegateAmount ?? CosmosProtoMessage.DelegateAmount()}
+        set {_delegateAmount = newValue}
+      }
+      /// Returns true if `delegateAmount` has been explicitly set.
+      var hasDelegateAmount: Bool {return self._delegateAmount != nil}
+      /// Clears the value of `delegateAmount`. Subsequent reads from it will return its default value.
+      mutating func clearDelegateAmount() {self._delegateAmount = nil}
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      init() {}
+
+      fileprivate var _delegateAmount: CosmosProtoMessage.DelegateAmount? = nil
+    }
+
+    struct RedelegateData: Sendable {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      var delegatorAddress: String = String()
+
+      var validatorSrcAddress: String = String()
+
+      var validatorDstAddress: String = String()
+
+      var delegateAmount: CosmosProtoMessage.DelegateAmount {
+        get {return _delegateAmount ?? CosmosProtoMessage.DelegateAmount()}
+        set {_delegateAmount = newValue}
+      }
+      /// Returns true if `delegateAmount` has been explicitly set.
+      var hasDelegateAmount: Bool {return self._delegateAmount != nil}
+      /// Clears the value of `delegateAmount`. Subsequent reads from it will return its default value.
+      mutating func clearDelegateAmount() {self._delegateAmount = nil}
+
+      var typePrefix: String = String()
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      init() {}
+
+      fileprivate var _delegateAmount: CosmosProtoMessage.DelegateAmount? = nil
+    }
+
     init() {}
 
     fileprivate var _delegate: CosmosProtoMessage.CosmosMessageDelegate? = nil
-  }
-
-  struct CosmosMessageDelegate: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var messageType: String = String()
-
-    var delegateData: CosmosProtoMessage.DelegateData {
-      get {return _delegateData ?? CosmosProtoMessage.DelegateData()}
-      set {_delegateData = newValue}
-    }
-    /// Returns true if `delegateData` has been explicitly set.
-    var hasDelegateData: Bool {return self._delegateData != nil}
-    /// Clears the value of `delegateData`. Subsequent reads from it will return its default value.
-    mutating func clearDelegateData() {self._delegateData = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _delegateData: CosmosProtoMessage.DelegateData? = nil
-  }
-
-  struct CosmosMessagePublicKeyContainer: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var publicKeyWrapper: CosmosProtoMessage.CosmosMessagePublicKeyWrapper {
-      get {return _publicKeyWrapper ?? CosmosProtoMessage.CosmosMessagePublicKeyWrapper()}
-      set {_publicKeyWrapper = newValue}
-    }
-    /// Returns true if `publicKeyWrapper` has been explicitly set.
-    var hasPublicKeyWrapper: Bool {return self._publicKeyWrapper != nil}
-    /// Clears the value of `publicKeyWrapper`. Subsequent reads from it will return its default value.
-    mutating func clearPublicKeyWrapper() {self._publicKeyWrapper = nil}
-
-    var publicKeyParamWrapper: CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper {
-      get {return _publicKeyParamWrapper ?? CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper()}
-      set {_publicKeyParamWrapper = newValue}
-    }
-    /// Returns true if `publicKeyParamWrapper` has been explicitly set.
-    var hasPublicKeyParamWrapper: Bool {return self._publicKeyParamWrapper != nil}
-    /// Clears the value of `publicKeyParamWrapper`. Subsequent reads from it will return its default value.
-    mutating func clearPublicKeyParamWrapper() {self._publicKeyParamWrapper = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _publicKeyWrapper: CosmosProtoMessage.CosmosMessagePublicKeyWrapper? = nil
-    fileprivate var _publicKeyParamWrapper: CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper? = nil
-  }
-
-  struct CosmosMessagePublicKeyWrapper: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var publicKeyType: String = String()
-
-    var publicKey: CosmosProtoMessage.CosmosMessagePublicKey {
-      get {return _publicKey ?? CosmosProtoMessage.CosmosMessagePublicKey()}
-      set {_publicKey = newValue}
-    }
-    /// Returns true if `publicKey` has been explicitly set.
-    var hasPublicKey: Bool {return self._publicKey != nil}
-    /// Clears the value of `publicKey`. Subsequent reads from it will return its default value.
-    mutating func clearPublicKey() {self._publicKey = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _publicKey: CosmosProtoMessage.CosmosMessagePublicKey? = nil
-  }
-
-  struct CosmosMessagePublicKeyParam: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var param: Int32 = 0
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-  }
-
-  struct DelegateData: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var delegatorAddress: String = String()
-
-    var validatorAddress: String = String()
-
-    var delegateAmount: CosmosProtoMessage.DelegateAmount {
-      get {return _delegateAmount ?? CosmosProtoMessage.DelegateAmount()}
-      set {_delegateAmount = newValue}
-    }
-    /// Returns true if `delegateAmount` has been explicitly set.
-    var hasDelegateAmount: Bool {return self._delegateAmount != nil}
-    /// Clears the value of `delegateAmount`. Subsequent reads from it will return its default value.
-    mutating func clearDelegateAmount() {self._delegateAmount = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _delegateAmount: CosmosProtoMessage.DelegateAmount? = nil
-  }
-
-  struct CosmosMessageFeeAndKeyContainer: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var publicKeyContainer: CosmosProtoMessage.CosmosMessagePublicKeyContainer {
-      get {return _publicKeyContainer ?? CosmosProtoMessage.CosmosMessagePublicKeyContainer()}
-      set {_publicKeyContainer = newValue}
-    }
-    /// Returns true if `publicKeyContainer` has been explicitly set.
-    var hasPublicKeyContainer: Bool {return self._publicKeyContainer != nil}
-    /// Clears the value of `publicKeyContainer`. Subsequent reads from it will return its default value.
-    mutating func clearPublicKeyContainer() {self._publicKeyContainer = nil}
-
-    var feeContainer: CosmosProtoMessage.CosmosMessageFeeContainer {
-      get {return _feeContainer ?? CosmosProtoMessage.CosmosMessageFeeContainer()}
-      set {_feeContainer = newValue}
-    }
-    /// Returns true if `feeContainer` has been explicitly set.
-    var hasFeeContainer: Bool {return self._feeContainer != nil}
-    /// Clears the value of `feeContainer`. Subsequent reads from it will return its default value.
-    mutating func clearFeeContainer() {self._feeContainer = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _publicKeyContainer: CosmosProtoMessage.CosmosMessagePublicKeyContainer? = nil
-    fileprivate var _feeContainer: CosmosProtoMessage.CosmosMessageFeeContainer? = nil
-  }
-
-  struct CosmosMessagePublicKey: @unchecked Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var publicKey: Data = Data()
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-  }
-
-  struct CosmosMessagePublicKeyParamWrapper: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var publicKeyParam: CosmosProtoMessage.CosmosMessagePublicKeyParam {
-      get {return _publicKeyParam ?? CosmosProtoMessage.CosmosMessagePublicKeyParam()}
-      set {_publicKeyParam = newValue}
-    }
-    /// Returns true if `publicKeyParam` has been explicitly set.
-    var hasPublicKeyParam: Bool {return self._publicKeyParam != nil}
-    /// Clears the value of `publicKeyParam`. Subsequent reads from it will return its default value.
-    mutating func clearPublicKeyParam() {self._publicKeyParam = nil}
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _publicKeyParam: CosmosProtoMessage.CosmosMessagePublicKeyParam? = nil
-  }
-
-  struct CosmosMessageFeeContainer: Sendable {
-    // SwiftProtobuf.Message conformance is added in an extension below. See the
-    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-    // methods supported on all messages.
-
-    var feeAmount: CosmosProtoMessage.DelegateAmount {
-      get {return _feeAmount ?? CosmosProtoMessage.DelegateAmount()}
-      set {_feeAmount = newValue}
-    }
-    /// Returns true if `feeAmount` has been explicitly set.
-    var hasFeeAmount: Bool {return self._feeAmount != nil}
-    /// Clears the value of `feeAmount`. Subsequent reads from it will return its default value.
-    mutating func clearFeeAmount() {self._feeAmount = nil}
-
-    var gas: UInt64 = 0
-
-    var unknownFields = SwiftProtobuf.UnknownStorage()
-
-    init() {}
-
-    fileprivate var _feeAmount: CosmosProtoMessage.DelegateAmount? = nil
   }
 
   struct DelegateAmount: Sendable {
@@ -287,6 +140,182 @@ struct CosmosProtoMessage: Sendable {
     init() {}
   }
 
+  struct CosmosMessageDelegate: @unchecked Sendable {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    var messageType: String = String()
+
+    var delegateData: Data {
+      get {return _delegateData ?? Data()}
+      set {_delegateData = newValue}
+    }
+    /// Returns true if `delegateData` has been explicitly set.
+    var hasDelegateData: Bool {return self._delegateData != nil}
+    /// Clears the value of `delegateData`. Subsequent reads from it will return its default value.
+    mutating func clearDelegateData() {self._delegateData = nil}
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    init() {}
+
+    fileprivate var _delegateData: Data? = nil
+  }
+
+  struct CosmosMessageFeeAndKeyContainer: Sendable {
+    // SwiftProtobuf.Message conformance is added in an extension below. See the
+    // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+    // methods supported on all messages.
+
+    var publicKeyContainer: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer {
+      get {return _publicKeyContainer ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer()}
+      set {_publicKeyContainer = newValue}
+    }
+    /// Returns true if `publicKeyContainer` has been explicitly set.
+    var hasPublicKeyContainer: Bool {return self._publicKeyContainer != nil}
+    /// Clears the value of `publicKeyContainer`. Subsequent reads from it will return its default value.
+    mutating func clearPublicKeyContainer() {self._publicKeyContainer = nil}
+
+    var feeContainer: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer {
+      get {return _feeContainer ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer()}
+      set {_feeContainer = newValue}
+    }
+    /// Returns true if `feeContainer` has been explicitly set.
+    var hasFeeContainer: Bool {return self._feeContainer != nil}
+    /// Clears the value of `feeContainer`. Subsequent reads from it will return its default value.
+    mutating func clearFeeContainer() {self._feeContainer = nil}
+
+    var unknownFields = SwiftProtobuf.UnknownStorage()
+
+    struct CosmosMessagePublicKeyContainer: Sendable {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      var publicKeyWrapper: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper {
+        get {return _publicKeyWrapper ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper()}
+        set {_publicKeyWrapper = newValue}
+      }
+      /// Returns true if `publicKeyWrapper` has been explicitly set.
+      var hasPublicKeyWrapper: Bool {return self._publicKeyWrapper != nil}
+      /// Clears the value of `publicKeyWrapper`. Subsequent reads from it will return its default value.
+      mutating func clearPublicKeyWrapper() {self._publicKeyWrapper = nil}
+
+      var publicKeyParamWrapper: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper {
+        get {return _publicKeyParamWrapper ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper()}
+        set {_publicKeyParamWrapper = newValue}
+      }
+      /// Returns true if `publicKeyParamWrapper` has been explicitly set.
+      var hasPublicKeyParamWrapper: Bool {return self._publicKeyParamWrapper != nil}
+      /// Clears the value of `publicKeyParamWrapper`. Subsequent reads from it will return its default value.
+      mutating func clearPublicKeyParamWrapper() {self._publicKeyParamWrapper = nil}
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      struct CosmosMessagePublicKeyWrapper: Sendable {
+        // SwiftProtobuf.Message conformance is added in an extension below. See the
+        // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+        // methods supported on all messages.
+
+        var publicKeyType: String = String()
+
+        var publicKey: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey {
+          get {return _publicKey ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey()}
+          set {_publicKey = newValue}
+        }
+        /// Returns true if `publicKey` has been explicitly set.
+        var hasPublicKey: Bool {return self._publicKey != nil}
+        /// Clears the value of `publicKey`. Subsequent reads from it will return its default value.
+        mutating func clearPublicKey() {self._publicKey = nil}
+
+        var unknownFields = SwiftProtobuf.UnknownStorage()
+
+        struct CosmosMessagePublicKey: @unchecked Sendable {
+          // SwiftProtobuf.Message conformance is added in an extension below. See the
+          // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+          // methods supported on all messages.
+
+          var publicKey: Data = Data()
+
+          var unknownFields = SwiftProtobuf.UnknownStorage()
+
+          init() {}
+        }
+
+        init() {}
+
+        fileprivate var _publicKey: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey? = nil
+      }
+
+      struct CosmosMessagePublicKeyParamWrapper: Sendable {
+        // SwiftProtobuf.Message conformance is added in an extension below. See the
+        // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+        // methods supported on all messages.
+
+        var publicKeyParam: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam {
+          get {return _publicKeyParam ?? CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam()}
+          set {_publicKeyParam = newValue}
+        }
+        /// Returns true if `publicKeyParam` has been explicitly set.
+        var hasPublicKeyParam: Bool {return self._publicKeyParam != nil}
+        /// Clears the value of `publicKeyParam`. Subsequent reads from it will return its default value.
+        mutating func clearPublicKeyParam() {self._publicKeyParam = nil}
+
+        var unknownFields = SwiftProtobuf.UnknownStorage()
+
+        struct CosmosMessagePublicKeyParam: Sendable {
+          // SwiftProtobuf.Message conformance is added in an extension below. See the
+          // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+          // methods supported on all messages.
+
+          var param: Int32 = 0
+
+          var unknownFields = SwiftProtobuf.UnknownStorage()
+
+          init() {}
+        }
+
+        init() {}
+
+        fileprivate var _publicKeyParam: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam? = nil
+      }
+
+      init() {}
+
+      fileprivate var _publicKeyWrapper: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper? = nil
+      fileprivate var _publicKeyParamWrapper: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper? = nil
+    }
+
+    struct CosmosMessageFeeContainer: Sendable {
+      // SwiftProtobuf.Message conformance is added in an extension below. See the
+      // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+      // methods supported on all messages.
+
+      var feeAmount: CosmosProtoMessage.DelegateAmount {
+        get {return _feeAmount ?? CosmosProtoMessage.DelegateAmount()}
+        set {_feeAmount = newValue}
+      }
+      /// Returns true if `feeAmount` has been explicitly set.
+      var hasFeeAmount: Bool {return self._feeAmount != nil}
+      /// Clears the value of `feeAmount`. Subsequent reads from it will return its default value.
+      mutating func clearFeeAmount() {self._feeAmount = nil}
+
+      var gas: UInt64 = 0
+
+      var unknownFields = SwiftProtobuf.UnknownStorage()
+
+      init() {}
+
+      fileprivate var _feeAmount: CosmosProtoMessage.DelegateAmount? = nil
+    }
+
+    init() {}
+
+    fileprivate var _publicKeyContainer: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer? = nil
+    fileprivate var _feeContainer: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer? = nil
+  }
+
   init() {}
 
   fileprivate var _delegateContainer: CosmosProtoMessage.CosmosMessageDelegateContainer? = nil
@@ -298,10 +327,10 @@ struct CosmosProtoMessage: Sendable {
 extension CosmosProtoMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "CosmosProtoMessage"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "delegateContainer"),
-    2: .same(proto: "feeAndKeyContainer"),
-    3: .same(proto: "chainId"),
-    4: .same(proto: "accountNumber"),
+    1: .standard(proto: "delegate_container"),
+    2: .standard(proto: "fee_and_key_container"),
+    3: .standard(proto: "chain_id"),
+    4: .standard(proto: "account_number"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -353,7 +382,7 @@ extension CosmosProtoMessage.CosmosMessageDelegateContainer: SwiftProtobuf.Messa
   static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageDelegateContainer"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     1: .same(proto: "delegate"),
-    2: .same(proto: "stakingProvider"),
+    2: .standard(proto: "staking_provider"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -391,170 +420,12 @@ extension CosmosProtoMessage.CosmosMessageDelegateContainer: SwiftProtobuf.Messa
   }
 }
 
-extension CosmosProtoMessage.CosmosMessageDelegate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageDelegate"
+extension CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageDelegateContainer.protoMessageName + ".DelegateData"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "messageType"),
-    2: .same(proto: "delegateData"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.messageType) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._delegateData) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    if !self.messageType.isEmpty {
-      try visitor.visitSingularStringField(value: self.messageType, fieldNumber: 1)
-    }
-    try { if let v = self._delegateData {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    } }()
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessageDelegate, rhs: CosmosProtoMessage.CosmosMessageDelegate) -> Bool {
-    if lhs.messageType != rhs.messageType {return false}
-    if lhs._delegateData != rhs._delegateData {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessagePublicKeyContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessagePublicKeyContainer"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "publicKeyWrapper"),
-    2: .same(proto: "publicKeyParamWrapper"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyWrapper) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._publicKeyParamWrapper) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    try { if let v = self._publicKeyWrapper {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    } }()
-    try { if let v = self._publicKeyParamWrapper {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    } }()
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessagePublicKeyContainer, rhs: CosmosProtoMessage.CosmosMessagePublicKeyContainer) -> Bool {
-    if lhs._publicKeyWrapper != rhs._publicKeyWrapper {return false}
-    if lhs._publicKeyParamWrapper != rhs._publicKeyParamWrapper {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessagePublicKeyWrapper: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessagePublicKeyWrapper"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "publicKeyType"),
-    2: .same(proto: "publicKey"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularStringField(value: &self.publicKeyType) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._publicKey) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    if !self.publicKeyType.isEmpty {
-      try visitor.visitSingularStringField(value: self.publicKeyType, fieldNumber: 1)
-    }
-    try { if let v = self._publicKey {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    } }()
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessagePublicKeyWrapper, rhs: CosmosProtoMessage.CosmosMessagePublicKeyWrapper) -> Bool {
-    if lhs.publicKeyType != rhs.publicKeyType {return false}
-    if lhs._publicKey != rhs._publicKey {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessagePublicKeyParam: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessagePublicKeyParam"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "param"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularInt32Field(value: &self.param) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if self.param != 0 {
-      try visitor.visitSingularInt32Field(value: self.param, fieldNumber: 1)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessagePublicKeyParam, rhs: CosmosProtoMessage.CosmosMessagePublicKeyParam) -> Bool {
-    if lhs.param != rhs.param {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.DelegateData: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".DelegateData"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "delegatorAddress"),
-    2: .same(proto: "validatorAddress"),
-    3: .same(proto: "delegateAmount"),
+    1: .standard(proto: "delegator_address"),
+    2: .standard(proto: "validator_address"),
+    3: .standard(proto: "delegate_amount"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -588,7 +459,7 @@ extension CosmosProtoMessage.DelegateData: SwiftProtobuf.Message, SwiftProtobuf.
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: CosmosProtoMessage.DelegateData, rhs: CosmosProtoMessage.DelegateData) -> Bool {
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData, rhs: CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData) -> Bool {
     if lhs.delegatorAddress != rhs.delegatorAddress {return false}
     if lhs.validatorAddress != rhs.validatorAddress {return false}
     if lhs._delegateAmount != rhs._delegateAmount {return false}
@@ -597,11 +468,14 @@ extension CosmosProtoMessage.DelegateData: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageFeeAndKeyContainer"
+extension CosmosProtoMessage.CosmosMessageDelegateContainer.RedelegateData: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageDelegateContainer.protoMessageName + ".RedelegateData"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "publicKeyContainer"),
-    2: .same(proto: "feeContainer"),
+    1: .standard(proto: "delegator_address"),
+    2: .standard(proto: "validator_src_address"),
+    3: .standard(proto: "validator_dst_address"),
+    4: .standard(proto: "delegate_amount"),
+    5: .standard(proto: "type_prefix"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -610,8 +484,11 @@ extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer: SwiftProtobuf.Mess
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyContainer) }()
-      case 2: try { try decoder.decodeSingularMessageField(value: &self._feeContainer) }()
+      case 1: try { try decoder.decodeSingularStringField(value: &self.delegatorAddress) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.validatorSrcAddress) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.validatorDstAddress) }()
+      case 4: try { try decoder.decodeSingularMessageField(value: &self._delegateAmount) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.typePrefix) }()
       default: break
       }
     }
@@ -622,128 +499,30 @@ extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer: SwiftProtobuf.Mess
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
     // https://github.com/apple/swift-protobuf/issues/1182
-    try { if let v = self._publicKeyContainer {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    } }()
-    try { if let v = self._feeContainer {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
-    } }()
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer) -> Bool {
-    if lhs._publicKeyContainer != rhs._publicKeyContainer {return false}
-    if lhs._feeContainer != rhs._feeContainer {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessagePublicKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessagePublicKey"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "publicKey"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularBytesField(value: &self.publicKey) }()
-      default: break
-      }
+    if !self.delegatorAddress.isEmpty {
+      try visitor.visitSingularStringField(value: self.delegatorAddress, fieldNumber: 1)
     }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.publicKey.isEmpty {
-      try visitor.visitSingularBytesField(value: self.publicKey, fieldNumber: 1)
+    if !self.validatorSrcAddress.isEmpty {
+      try visitor.visitSingularStringField(value: self.validatorSrcAddress, fieldNumber: 2)
+    }
+    if !self.validatorDstAddress.isEmpty {
+      try visitor.visitSingularStringField(value: self.validatorDstAddress, fieldNumber: 3)
+    }
+    try { if let v = self._delegateAmount {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
+    } }()
+    if !self.typePrefix.isEmpty {
+      try visitor.visitSingularStringField(value: self.typePrefix, fieldNumber: 5)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: CosmosProtoMessage.CosmosMessagePublicKey, rhs: CosmosProtoMessage.CosmosMessagePublicKey) -> Bool {
-    if lhs.publicKey != rhs.publicKey {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessagePublicKeyParamWrapper"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "publicKeyParam"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyParam) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    try { if let v = self._publicKeyParam {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    } }()
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper, rhs: CosmosProtoMessage.CosmosMessagePublicKeyParamWrapper) -> Bool {
-    if lhs._publicKeyParam != rhs._publicKeyParam {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
-extension CosmosProtoMessage.CosmosMessageFeeContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageFeeContainer"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .same(proto: "feeAmount"),
-    2: .same(proto: "gas"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._feeAmount) }()
-      case 2: try { try decoder.decodeSingularUInt64Field(value: &self.gas) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    try { if let v = self._feeAmount {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
-    } }()
-    if self.gas != 0 {
-      try visitor.visitSingularUInt64Field(value: self.gas, fieldNumber: 2)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeContainer, rhs: CosmosProtoMessage.CosmosMessageFeeContainer) -> Bool {
-    if lhs._feeAmount != rhs._feeAmount {return false}
-    if lhs.gas != rhs.gas {return false}
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageDelegateContainer.RedelegateData, rhs: CosmosProtoMessage.CosmosMessageDelegateContainer.RedelegateData) -> Bool {
+    if lhs.delegatorAddress != rhs.delegatorAddress {return false}
+    if lhs.validatorSrcAddress != rhs.validatorSrcAddress {return false}
+    if lhs.validatorDstAddress != rhs.validatorDstAddress {return false}
+    if lhs._delegateAmount != rhs._delegateAmount {return false}
+    if lhs.typePrefix != rhs.typePrefix {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -782,6 +561,316 @@ extension CosmosProtoMessage.DelegateAmount: SwiftProtobuf.Message, SwiftProtobu
   static func ==(lhs: CosmosProtoMessage.DelegateAmount, rhs: CosmosProtoMessage.DelegateAmount) -> Bool {
     if lhs.denomination != rhs.denomination {return false}
     if lhs.amount != rhs.amount {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageDelegate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageDelegate"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "message_type"),
+    2: .standard(proto: "delegate_data"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.messageType) }()
+      case 2: try { try decoder.decodeSingularBytesField(value: &self._delegateData) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if !self.messageType.isEmpty {
+      try visitor.visitSingularStringField(value: self.messageType, fieldNumber: 1)
+    }
+    try { if let v = self._delegateData {
+      try visitor.visitSingularBytesField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageDelegate, rhs: CosmosProtoMessage.CosmosMessageDelegate) -> Bool {
+    if lhs.messageType != rhs.messageType {return false}
+    if lhs._delegateData != rhs._delegateData {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.protoMessageName + ".CosmosMessageFeeAndKeyContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "public_key_container"),
+    2: .standard(proto: "fee_container"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyContainer) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._feeContainer) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._publicKeyContainer {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    } }()
+    try { if let v = self._feeContainer {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer) -> Bool {
+    if lhs._publicKeyContainer != rhs._publicKeyContainer {return false}
+    if lhs._feeContainer != rhs._feeContainer {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.protoMessageName + ".CosmosMessagePublicKeyContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "public_key_wrapper"),
+    2: .standard(proto: "public_key_param_wrapper"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyWrapper) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._publicKeyParamWrapper) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._publicKeyWrapper {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    } }()
+    try { if let v = self._publicKeyParamWrapper {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer) -> Bool {
+    if lhs._publicKeyWrapper != rhs._publicKeyWrapper {return false}
+    if lhs._publicKeyParamWrapper != rhs._publicKeyParamWrapper {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.protoMessageName + ".CosmosMessagePublicKeyWrapper"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "public_key_type"),
+    2: .standard(proto: "public_key"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.publicKeyType) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._publicKey) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if !self.publicKeyType.isEmpty {
+      try visitor.visitSingularStringField(value: self.publicKeyType, fieldNumber: 1)
+    }
+    try { if let v = self._publicKey {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper) -> Bool {
+    if lhs.publicKeyType != rhs.publicKeyType {return false}
+    if lhs._publicKey != rhs._publicKey {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.protoMessageName + ".CosmosMessagePublicKey"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "public_key"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularBytesField(value: &self.publicKey) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.publicKey.isEmpty {
+      try visitor.visitSingularBytesField(value: self.publicKey, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyWrapper.CosmosMessagePublicKey) -> Bool {
+    if lhs.publicKey != rhs.publicKey {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.protoMessageName + ".CosmosMessagePublicKeyParamWrapper"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "public_key_param"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._publicKeyParam) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._publicKeyParam {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper) -> Bool {
+    if lhs._publicKeyParam != rhs._publicKeyParam {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.protoMessageName + ".CosmosMessagePublicKeyParam"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "param"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularInt32Field(value: &self.param) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.param != 0 {
+      try visitor.visitSingularInt32Field(value: self.param, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessagePublicKeyContainer.CosmosMessagePublicKeyParamWrapper.CosmosMessagePublicKeyParam) -> Bool {
+    if lhs.param != rhs.param {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.protoMessageName + ".CosmosMessageFeeContainer"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "fee_amount"),
+    2: .same(proto: "gas"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularMessageField(value: &self._feeAmount) }()
+      case 2: try { try decoder.decodeSingularUInt64Field(value: &self.gas) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    try { if let v = self._feeAmount {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    } }()
+    if self.gas != 0 {
+      try visitor.visitSingularUInt64Field(value: self.gas, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer, rhs: CosmosProtoMessage.CosmosMessageFeeAndKeyContainer.CosmosMessageFeeContainer) -> Bool {
+    if lhs._feeAmount != rhs._feeAmount {return false}
+    if lhs.gas != rhs.gas {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
