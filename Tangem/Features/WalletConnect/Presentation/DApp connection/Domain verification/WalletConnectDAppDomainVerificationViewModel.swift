@@ -13,7 +13,6 @@ import TangemLocalization
 @MainActor
 final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
     private let closeAction: () -> Void
-    private let cancelAction: (() async -> Void)?
     private let connectAnywayAction: (() async -> Void)?
 
     private var cancelTask: Task<Void, Never>?
@@ -23,7 +22,6 @@ final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
 
     init(verifiedDAppName: String, closeAction: @escaping () -> Void) {
         self.closeAction = closeAction
-        cancelAction = nil
         connectAnywayAction = nil
 
         state = .verifiedDomain(forDAppName: verifiedDAppName)
@@ -32,20 +30,17 @@ final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
     init(
         warningVerificationStatus: WalletConnectDAppVerificationStatus,
         closeAction: @escaping () -> Void,
-        cancelAction: @escaping () async -> Void,
         connectAnywayAction: @escaping () async -> Void
     ) {
         assert(!warningVerificationStatus.isVerified, "WalletConnectDAppDomainVerificationViewModel invalid init used.")
 
         self.closeAction = closeAction
-        self.cancelAction = cancelAction
         self.connectAnywayAction = connectAnywayAction
 
         state = .domainWarning(warningVerificationStatus)
     }
 
     deinit {
-        cancelTask?.cancel()
         connectAnywayTask?.cancel()
     }
 }
@@ -57,31 +52,15 @@ extension WalletConnectDAppDomainVerificationViewModel {
     func handle(viewEvent: WalletConnectDAppDomainVerificationViewEvent) {
         switch viewEvent {
         case .navigationCloseButtonTapped, .actionButtonTapped(.done):
+            connectAnywayTask?.cancel()
             closeAction()
 
         case .actionButtonTapped(.cancel):
-            handleCancelButtonTapped()
+            connectAnywayTask?.cancel()
+            closeAction()
 
         case .actionButtonTapped(.connectAnyway):
             handleConnectAnywayButtonTapped()
-        }
-    }
-
-    private func handleCancelButtonTapped() {
-        guard
-            let cancelAction,
-            let cancelButtonIndex = state.buttons.firstIndex(where: { $0.role == .cancel }),
-            !state.buttons[cancelButtonIndex].isLoading
-        else {
-            return
-        }
-
-        state.buttons[cancelButtonIndex].isLoading = true
-
-        connectAnywayTask?.cancel()
-        cancelTask = Task { [weak self] in
-            await cancelAction()
-            self?.state.buttons[cancelButtonIndex].isLoading = false
         }
     }
 
