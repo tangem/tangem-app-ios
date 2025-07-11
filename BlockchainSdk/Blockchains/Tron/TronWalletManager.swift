@@ -53,12 +53,12 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapSendError(tx: data.hex())
+                .mapAndEraseSendTxError(tx: data.hex())
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
             guard broadcastResponse.result == true else {
-                throw WalletError.failedToSendTx
+                throw BlockchainSdkError.failedToSendTx
             }
 
             let hash = broadcastResponse.txid
@@ -67,7 +67,7 @@ class TronWalletManager: BaseManager, WalletManager {
             manager.wallet.addPendingTransaction(record)
             return TransactionSendResult(hash: hash)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 

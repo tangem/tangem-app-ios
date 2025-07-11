@@ -66,7 +66,7 @@ class AlgorandNetworkService: MultiNetworkProvider {
                 .tryMap { response in
                     // This paramenter mast be writen for building transaction
                     guard let genesisHash = Data(base64Encoded: response.genesisHash) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     let transactionParams = AlgorandTransactionBuildParams(
@@ -113,7 +113,7 @@ class AlgorandNetworkService: MultiNetworkProvider {
                     } else if confirmedRound == 0, !response.poolError.isEmpty {
                         return AlgorandTransactionInfo(transactionHash: transactionHash, status: .removed)
                     } else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
                 }
                 .eraseToAnyPublisher()

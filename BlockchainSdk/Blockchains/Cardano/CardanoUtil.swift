@@ -19,7 +19,7 @@ public struct CardanoUtil {
     public func extendedDerivationPath(for derivationPath: DerivationPath) throws -> DerivationPath {
         var nodes = derivationPath.nodes
         guard nodes.count == 5 else {
-            throw Errors.derivationPathIsShort
+            throw CardanoError.derivationPathIsShort
         }
 
         nodes[3] = .nonHardened(2)
@@ -36,11 +36,5 @@ public struct CardanoUtil {
     /// - Returns: The computed `PublicKey` is 128 bytes in size.
     func extendPublicKey(_ publicKey: ExtendedPublicKey, with extendedPublicKey: ExtendedPublicKey) -> Data {
         publicKey.publicKey + publicKey.chainCode + extendedPublicKey.publicKey + extendedPublicKey.chainCode
-    }
-}
-
-extension CardanoUtil {
-    enum Errors: Error {
-        case derivationPathIsShort
     }
 }

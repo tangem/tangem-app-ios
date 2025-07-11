@@ -405,7 +405,7 @@ extension CommonUserTokensManager: UserTokensReordering {
 }
 
 extension CommonUserTokensManager {
-    enum Error: Swift.Error, LocalizedError {
+    enum Error: LocalizedError {
         case addressNotFound
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
@@ -417,7 +417,7 @@ extension CommonUserTokensManager {
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .addressNotFound:
-                return nil
+                return Localization.genericErrorCode(errorCode)
             }
         }
     }

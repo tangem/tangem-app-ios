@@ -26,7 +26,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
 
     @Published var receivedTokenViewType: ReceivedTokenViewType?
 
-    lazy var tokenWithAmountViewData: TokenWithAmountViewData = .init(
+    lazy var tokenWithAmountViewData: SendNewAmountTokenViewData = .init(
         tokenIconInfo: tokenIconInfo,
         title: tokenItem.name,
         subtitle: balanceFormatted,
@@ -212,11 +212,11 @@ extension SendNewAmountViewModel {
         case .same:
             receivedTokenViewType = .selectButton
         case .swap(let receiveToken):
-            receivedTokenViewType = .selected(TokenWithAmountViewData(
+            receivedTokenViewType = .selected(SendNewAmountTokenViewData(
                 tokenIconInfo: receiveToken.tokenIconInfo,
                 title: receiveToken.tokenItem.name,
                 subtitle: Localization.sendAmountReceiveTokenSubtitle,
-                detailsType: mapToTokenWithAmountViewDataDetailsType(amount: amount),
+                detailsType: mapToSendNewAmountTokenViewDataDetailsType(amount: amount),
                 action: { [weak self] in
                     self?.router?.openReceiveTokensList()
                 }
@@ -224,12 +224,11 @@ extension SendNewAmountViewModel {
         }
     }
 
-    func mapToTokenWithAmountViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> TokenWithAmountViewData.DetailsType? {
+    func mapToSendNewAmountTokenViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> SendNewAmountTokenViewData.DetailsType? {
         switch amount {
         case .success(let success):
-            return .select(amount: success?.crypto?.stringValue) { [weak self] in
-                self?.router?.openReceiveTokensList()
-            }
+            // The `individualAction` should be use when the fixed rate will available
+            return .select(amount: success?.crypto?.stringValue, individualAction: nil)
         case .none, .failure:
             return nil
         case .loading:
@@ -265,6 +264,6 @@ extension SendNewAmountViewModel {
 
     enum ReceivedTokenViewType {
         case selectButton
-        case selected(TokenWithAmountViewData)
+        case selected(SendNewAmountTokenViewData)
     }
 }

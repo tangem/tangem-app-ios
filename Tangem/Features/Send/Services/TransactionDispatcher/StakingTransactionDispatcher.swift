@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemStaking
+import TangemFoundation
 
 class StakingTransactionDispatcher {
     private let walletModel: any WalletModel
@@ -56,7 +57,7 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
                 return transactionDispatcherResult
             }
         } catch {
-            throw mapper.mapError(error, transaction: transaction)
+            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
         }
     }
 }
@@ -66,7 +67,7 @@ extension StakingTransactionDispatcher: TransactionDispatcher {
 private extension StakingTransactionDispatcher {
     func stakeKitTransactionSender() throws -> StakeKitTransactionSender {
         guard let stakeKitTransactionSender = walletModel.stakeKitTransactionSender else {
-            throw Errors.stakingUnsupported
+            throw Error.stakingUnsupported
         }
 
         return stakeKitTransactionSender
@@ -99,15 +100,12 @@ private extension StakingTransactionDispatcher {
             for try await result in stream {
                 transactionDispatcherResult = try await sendHash(action: action, result: result)
             }
-        } catch let error as StakeKitTransactionSendError {
-            stuck = .init(action: action, type: .send(transaction: error.transaction))
-            throw error.error
         } catch {
             throw error
         }
 
         guard let transactionDispatcherResult else {
-            throw Errors.resultNotFound
+            throw Error.resultNotFound
         }
 
         walletModel.updateAfterSendingTransaction()
@@ -141,7 +139,7 @@ extension StakingTransactionDispatcher {
         }
     }
 
-    enum Errors: Error {
+    enum Error: Swift.Error {
         case stakingUnsupported
         case resultNotFound
     }
