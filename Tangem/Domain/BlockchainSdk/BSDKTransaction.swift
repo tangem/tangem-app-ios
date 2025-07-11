@@ -14,3 +14,5 @@ typealias StakeKitTransaction = BlockchainSdk.StakeKitTransaction
 
 typealias BSDKAmount = BlockchainSdk.Amount
 typealias BSDKFee = BlockchainSdk.Fee
+
+typealias BSDKApprovePolicy = BlockchainSdk.ApprovePolicy
