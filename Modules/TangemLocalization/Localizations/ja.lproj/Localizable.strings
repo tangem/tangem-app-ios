@@ -2,6 +2,9 @@
 "access_code_alert_skip_ok" = "とにかくスキップ";
 "access_code_alert_skip_title" = "アクセスコードが設定されていません";
 "access_code_check_title" = "アクセスコードを入力";
+"access_code_check_warining_delete" = "アクセスコードが間違っています。あと%@回間違えるとホットウォレットが削除されます。";
+"access_code_check_warining_lock" = "アクセスコードが間違っています。あと%@回入力エラーが発生するとアプリがロックされます。";
+"access_code_check_warining_wait" = "アクセスコードが間違っています。 \n %@秒待ってから再試行してください。";
 "access_code_confirm_description" = "続行するには、以前に入力したコードを確認してください";
 "access_code_confirm_title" = "アクセスコードを再入力";
 "access_code_create_description" = "ウォレットのロックを解除するには、 %@桁のアクセスコードを設定します。";
@@ -63,6 +66,7 @@
 "app_settings_warning_subtitle" = "Tangemアプリで生体認証を有効にするには、設定に移動します";
 "app_settings_warning_title" = "生体認証を有効にする";
 "backup_complete_description" = "ウォレットのバックアップが正常に完了しました。";
+"backup_complete_seed_description" = "これらの単語は紛失した場合、復元できません。必ず安全な場所に保管してください。";
 "backup_complete_title" = "バックアップが完了しました";
 "backup_info_description" = "シークレットリカバリーフレーズは、ウォレットへのアクセスと復元のために使用される%@のランダムな単語のセットです。";
 "backup_info_keep_description" = "これらの単語は紛失した場合、復元できません。必ず安全な場所に保管してください。";
@@ -70,6 +74,7 @@
 "backup_info_save_description" = "これらの%@個の単語をパスワードマネージャーなどの安全な場所に保存し、決して他の人と共有しないでください。";
 "backup_info_save_title" = "復元は不可能です";
 "backup_info_title" = "リカバリーフレーズ";
+"backup_seed_caution" = "Never share these words. Anyone who learns them can steal all of your crypto. Tangem will never ask you for them. The %@ words below are your wallet's recovery phrase. This phrase lets you recover your wallet if you lose your device.";
 "backup_seed_description" = "これらの%@語を順番に書き留めて、安全かつプライベートに保管してください。";
 "backup_seed_responsibility" = "ウォレットと、リカバリーフレーズのセキュリティとバックアップの全責任は、Tangemではなくユーザーにあります。";
 "backup_seed_title" = "リカバリーフレーズ";
@@ -401,6 +406,10 @@
 "home_button_scan" = "Tangemをスキャン";
 "hot_crypto_add_token_subtitle" = "%@へ";
 "hot_crypto_token_network" = "%@ネットワーク";
+"hw_activation_need_backup" = "今すぐバックアップ";
+"hw_activation_need_description" = "セットアップを完了するには、ウォレットをバックアップし、アクセスコードを使用してアプリへのアクセスを保護します。";
+"hw_activation_need_finish" = "今すぐ実施";
+"hw_activation_need_title" = "ウォレットのアクティベーションを完了する";
 "hw_backup_icloud_description" = "iCloudバックアップに保存されている既存のウォレットを復元する";
 "hw_backup_icloud_title" = "iCloudバックアップ";
 "hw_backup_need_action" = "バックアップへ移動";
@@ -876,6 +885,7 @@
 "send_tron_account_activation_error" = "%1$@はTronネットワークのアセットです。手数料を計算して取引を行うには、アカウントにTron（TRX）を入金する必要があります。";
 "send_validation_destination_tag_required_description" = "指定されたアドレスへの取引を完了するには、宛先タグ（メモ）が必要です。";
 "send_validation_destination_tag_required_title" = "宛先タグが必要です";
+"send_with_swap_confirm_title" = "スワップして送信";
 "send_with_swap_notification_text" = "トークンを送信すれば、送信中に変換されます。受信者は必要なものをシームレスに受け取ります。";
 "send_with_swap_recipient_amount_text" = "受信者に送信されます";
 "send_with_swap_recipient_amount_title" = "受取金額";
@@ -1125,7 +1135,7 @@
 "twins_recreate_toolbar" = "Tangemツイン";
 "twins_recreate_warning" = "この操作は元に戻せません。古いウォレットにはアクセスできなくなります。";
 "twins_scan_twin_with_number" = "番号%@のツインカードをタップし、操作が終了するまで取り外さないでください。";
-"unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
+"unexpected_error_description" = "しばらくしてからもう一度お試しください。問題が解決しない場合は、サポートにお問い合わせください。";
 "unexpected_error_title" = "問題が発生しました。";
 "universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
@@ -1299,8 +1309,8 @@
 "warning_express_approval_in_progress_message" = "スワップ承認は現在進行中で、まもなく完了する予定です。";
 "warning_express_approval_in_progress_title" = "承認が進行中";
 "warning_express_dust_message" = "最低のスワップ金額は%1$@ です。スワップ後の残金が%2$@ を下回らないようにしてください。";
-"warning_express_no_exchangeable_coins_description" = "あなたのリストには、交換可能な %@ トークンがありません。";
-"warning_express_no_exchangeable_coins_title" = "スワップ可能なトークンがありません";
+"warning_express_no_exchangeable_coins_description" = "ポートフォリオ内に%@とスワップ可能なトークンがありません。交換を有効にするには、別のトークンを追加してください。";
+"warning_express_no_exchangeable_coins_title" = "互換性のあるトークンが追加されていません";
 "warning_express_not_enough_fee_for_token_tx_description" = "取引を行うには、 %1$@ %2$@を入金する必要があります。";
 "warning_express_not_enough_fee_for_token_tx_title" = "%@ 手数料を支払えません";
 "warning_express_notification_invalid_reserve_amount_title" = "受け取る金額は、 %@ 以上である必要があります。";
@@ -1359,20 +1369,18 @@
 "warning_some_networks_unreachable_message" = "下にスワイプして更新するか、後でもう一度お試しください。";
 "warning_some_networks_unreachable_title" = "一部のネットワークにアクセスできません";
 "warning_some_token_balances_not_updated" = "一部のトークン残高を更新できませんでした";
-"warning_stellar_token_trustline_button_title" = "トラストラインを有効にする";
 "warning_stellar_token_trustline_not_enough_xlm" = "%@が足りません。このトークンを関連付けるには、XLMアカウントに資金を追加してください。";
-"warning_stellar_token_trustline_subtitle" = "このトークンを受け取るには、トラストラインを有効にする必要があります。ネットワークには 0.5 XLMの準備金が必要です。";
-"warning_stellar_token_trustline_title" = "トラストラインが必要";
 "warning_system_deprecation_title" = "システムアップデートが必要です";
 "warning_system_deprecation_with_date_message" = "お使いのバージョンのオペレーティングシステムのサポートは%@に終了します。今後アプリのアップデートを受け取るには、最新バージョンにアップデートする必要があります。";
 "warning_system_update_message" = "Tangemは、安定・安全な操作のために最新のiOSアップデートをインストールすることを推奨しています。";
 "warning_system_update_title" = "システムアップデートが可能です";
 "warning_testnet_card_message" = "これはテストネットカードです。取引処理はできませんので、テストおよび開発目的でのみご利用ください。";
 "warning_testnet_card_title" = "テスト目的のみ";
-"warning_token_required_min_coin_reserve" = "%1$@が足りません。このトークンを関連付けるには、XLMアカウントにチャージしてください。";
+"warning_token_required_min_coin_reserve" = "%1$@が足りません。このトークンを関連付けるには、 %2$@アカウントにチャージしてください。";
 "warning_token_trustline_button_title" = "トラストラインを有効にする";
 "warning_token_trustline_subtitle" = "このトークンを受け取るには、トラストラインを有効にする必要があります。ネットワークには%1$@ %2$@予備金が必要です。";
 "warning_token_trustline_title" = "トラストラインが必要";
+"wc_alert_audit_malicious_domain" = "悪意のあるドメイン";
 "wc_alert_audit_unknown_domain" = "不明なドメイン";
 "wc_alert_connect_anyway" = "とにかく接続する";
 "wc_alert_connection_timeout_description" = "タイムアウトエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -1384,6 +1392,8 @@
 "wc_alert_unknown_error_description_no_error_code" = "問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_description" = "エラーコード: %@ 。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unknown_error_title" = "不明なエラーが発生しました";
+"wc_alert_unsupported_dapps_description" = "Tangemウォレットは、現在%sをサポートしていません。";
+"wc_alert_unsupported_dapps_title" = "サポートされていないdApp";
 "wc_alert_unsupported_method_description" = "エラーコード: 8 005。問題が解決しない場合は、お気軽にサポートまでお問い合わせください。";
 "wc_alert_unsupported_method_title" = "不明なエラーが発生しました";
 "wc_alert_unsupported_networks_description" = "Tangemは現在%@で必要なネットワークをサポートしていません。";
