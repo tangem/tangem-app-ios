@@ -13,6 +13,7 @@ import protocol TangemUI.FloatingSheetContentViewModel
 import Foundation
 import BlockchainSdk
 import TangemUI
+import TangemLocalization
 
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel {
@@ -346,21 +347,49 @@ extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
 
 private extension WCTransactionViewModel {
     func sign() {
-        Task { @MainActor in
-            do {
-                presentationState = .signing
+        Task { @MainActor [weak self] in
+            switch self?.simulationState {
+            case .simulationSucceeded(let result) where result.validationStatus == .warning || result.validationStatus == .malicious:
+                guard
+                    let validationStatus = result.validationStatus,
+                    let securityAlertViewModel = WCTransactionSecurityAlertFactory.makeSecurityAlertViewModel(
+                        input: .init(
+                            validationStatus: validationStatus,
+                            primaryAction: { self?.cancel() },
+                            secondaryAction: {
+                                Task { [weak self] in
+                                    await self?.signTransaction()
+                                }
+                            },
+                            closeAction: { self?.cancel() }
+                        )
+                    )
+                else {
+                    return
+                }
 
-                try await transactionData.accept()
-
-                presentationState = .transactionDetails
-
-                makeSuccessToast(with: "")
-
-                floatingSheetPresenter.removeActiveSheet()
-            } catch {
-                presentationState = .transactionDetails
-                makeWarningToast(with: error.localizedDescription)
+                self?.presentationState = .securityAlert(securityAlertViewModel)
+            default:
+                self?.presentationState = .signing
+                await self?.signTransaction(onComplete: self?.returnToTransactionDetails)
             }
+        }
+    }
+
+    @MainActor
+    func signTransaction(onComplete: (() -> Void)? = nil) async {
+        do {
+            try await transactionData.accept()
+
+            onComplete?()
+
+            makeSuccessToast(with: Localization.sendTransactionSuccess)
+
+            floatingSheetPresenter.removeActiveSheet()
+        } catch {
+            onComplete?()
+
+            makeWarningToast(with: error.localizedDescription)
         }
     }
 
@@ -422,6 +451,7 @@ extension WCTransactionViewModel {
         case requestData(WCRequestDetailsInput)
         case feeSelector(FeeSelectorContentViewModel)
         case customAllowance(WCCustomAllowanceInput)
+        case securityAlert(WCTransactionSecurityAlertViewModel)
 
         static func == (lhs: PresentationState, rhs: PresentationState) -> Bool {
             switch (lhs, rhs) {
@@ -434,6 +464,8 @@ extension WCTransactionViewModel {
                 return true
             case (.customAllowance(let lhsInput), .customAllowance(let rhsInput)):
                 return lhsInput == rhsInput
+            case (.securityAlert(let lhsStatus), .securityAlert(let rhsStatus)):
+                return lhsStatus == rhsStatus
             default:
                 return false
             }
