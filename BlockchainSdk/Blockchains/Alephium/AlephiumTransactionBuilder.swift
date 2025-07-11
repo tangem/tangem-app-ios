@@ -99,7 +99,7 @@ final class AlephiumTransactionBuilder {
             let feeParameters = fee.parameters as? AlephiumFeeParameters,
             let gasPriceValue = BigUInt(feeParameters.gasPrice.stringValue)
         else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let fromLockupScript = ALPH.Lockup.P2PKH(pkHash: ALPH.Blake2b.hash(walletPublicKey))
