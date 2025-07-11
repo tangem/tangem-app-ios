@@ -33,7 +33,7 @@ final class ICPNetworkService: MultiNetworkProvider {
 
     func getBalance(address: String) -> AnyPublisher<Decimal, Error> {
         guard let balanceRequestData = try? makeBalanceRequestData(address: address) else {
-            return .anyFail(error: WalletError.empty).eraseToAnyPublisher()
+            return .anyFail(error: BlockchainSdkError.empty).eraseToAnyPublisher()
         }
         return providerPublisher { [blockchain] provider in
             provider
@@ -67,7 +67,7 @@ final class ICPNetworkService: MultiNetworkProvider {
             case .success(.some(let value)):
                 .justWithError(output: .success(value))
             case .success(nil):
-                Fail(error: WalletError.empty)
+                Fail(error: BlockchainSdkError.empty)
                     .delay(
                         for: .milliseconds(Constants.readStateRetryDelayMilliseconds),
                         scheduler: DispatchQueue.main
