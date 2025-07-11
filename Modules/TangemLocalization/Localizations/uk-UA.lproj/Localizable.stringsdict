@@ -151,7 +151,7 @@
         <key>one</key>
         <string>%li колекції</string>
         <key>few</key>
-        <string></string>
+        <string>%li колекціях</string>
         <key>many</key>
         <string>%li колекціях</string>
         <key>other</key>
