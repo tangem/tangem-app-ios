@@ -424,8 +424,8 @@ private extension StakingDetailsViewModel {
         )
 
         alert = AlertBuilder.makeAlert(
-            title: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
-            message: "",
+            title: "",
+            message: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
             primaryButton: .default(Text(Localization.warningButtonOk), action: {})
         )
     }
