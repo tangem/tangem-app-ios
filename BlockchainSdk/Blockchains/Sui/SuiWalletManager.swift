@@ -92,7 +92,7 @@ extension SuiWalletManager: TransactionFeeProvider {
             .withWeakCaptureOf(self)
             .flatMap { manager, referencedGasPrice -> AnyPublisher<SuiInspectTransaction, any Error> in
                 guard let decimalGasPrice = Decimal(stringValue: referencedGasPrice) else {
-                    return .anyFail(error: WalletError.failedToParseNetworkResponse())
+                    return .anyFail(error: BlockchainSdkError.failedToParseNetworkResponse())
                 }
 
                 return manager.estimateFee(amount: amount, destination: destination, referenceGasPrice: decimalGasPrice)
@@ -100,7 +100,7 @@ extension SuiWalletManager: TransactionFeeProvider {
             .withWeakCaptureOf(self)
             .tryMap { manager, inspectTransaction in
                 guard inspectTransaction.effects.isSuccess() else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 guard
@@ -108,7 +108,7 @@ extension SuiWalletManager: TransactionFeeProvider {
                     let computationCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.computationCost),
                     let storageCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.storageCost)
                 else {
-                    throw WalletError.failedToParseNetworkResponse()
+                    throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
                 let budget = computationCost + storageCost
@@ -162,7 +162,7 @@ extension SuiWalletManager: TransactionSender {
         .flatMap { manager, builtTransaction -> AnyPublisher<SuiExecuteTransaction, Error> in
             return manager.networkService
                 .sendTransaction(transaction: builtTransaction.txBytes, signature: builtTransaction.signature)
-                .mapSendError(tx: builtTransaction.txBytes)
+                .mapAndEraseSendTxError(tx: builtTransaction.txBytes)
                 .eraseToAnyPublisher()
         }
         .withWeakCaptureOf(self)
@@ -174,7 +174,7 @@ extension SuiWalletManager: TransactionSender {
 
             return TransactionSendResult(hash: tx.digest)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 }

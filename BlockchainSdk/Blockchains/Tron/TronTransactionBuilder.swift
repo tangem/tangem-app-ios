@@ -155,7 +155,7 @@ class TronTransactionBuilder {
         }
 
         guard let tronParams = params as? TronTransactionParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return tronParams
