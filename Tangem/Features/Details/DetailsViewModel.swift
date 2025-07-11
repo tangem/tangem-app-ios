@@ -217,6 +217,29 @@ extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
+    func openAddNewUserWallet() {
+        let sheet = ActionSheet(
+            title: Text("Add Wallet"),
+            buttons: [
+                .default(
+                    Text(Localization.homeButtonCreateNewWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
+                ),
+                .default(
+                    Text(Localization.homeButtonAddExistingWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openImportWallet)
+                ),
+                .default(
+                    Text(Localization.detailsBuyWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+                ),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     func openCreateWallet() {
         coordinator?.openCreateWallet()
     }
@@ -291,7 +314,7 @@ private extension DetailsViewModel {
         if FeatureProvider.isAvailable(.hotWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.addNewUserWallet)
+                action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
             )
         } else {
             addOrScanNewUserWalletViewModel = DefaultRowViewModel(
@@ -378,29 +401,6 @@ private extension DetailsViewModel {
                 coordinator?.dismiss()
             }
         }
-    }
-
-    func addNewUserWallet() {
-        let sheet = ActionSheet(
-            title: Text("Add Wallet"),
-            buttons: [
-                .default(
-                    Text(Localization.homeButtonCreateNewWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
-                ),
-                .default(
-                    Text(Localization.homeButtonAddExistingWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openImportWallet)
-                ),
-                .default(
-                    Text(Localization.detailsBuyWallet),
-                    action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
-                ),
-                .cancel(),
-            ]
-        )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
     }
 }
 

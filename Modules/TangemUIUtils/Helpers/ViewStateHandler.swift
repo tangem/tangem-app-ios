@@ -13,6 +13,10 @@ import SwiftUI
 // MARK: - Convenience extensions
 
 public extension View {
+    func onDidLoad(perform: @escaping () -> Void) -> some View {
+        modifier(DidLoadModifier(callback: perform))
+    }
+
     func onWillDisappear(perform: @escaping () -> Void) -> some View {
         modifier(WillDisappearModifier(callback: perform))
     }
@@ -165,6 +169,22 @@ private struct DidAppearModifier: ViewModifier {
                 onWillDisappear: nil,
                 onDidDisappear: nil
             ))
+    }
+}
+
+private struct DidLoadModifier: ViewModifier {
+    let callback: () -> Void
+
+    @State private var isFirstTimeAppeared = true
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                if isFirstTimeAppeared {
+                    isFirstTimeAppeared = false
+                    callback()
+                }
+            }
     }
 }
 
