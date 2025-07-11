@@ -33,8 +33,10 @@ public struct NFTNetworkSelectionListView: View {
             .bindAlert($viewModel.alert)
             .onAppear {
                 viewModel.onViewAppear()
-                // Workaround for iOS 17 bug with incorrect search field layout in navigation bar drawer on initial appear
-                searchFieldDisplayMode = .automatic
+                // Workaround for iOS 15 and 17 bug with incorrect search field layout in navigation bar drawer on initial appear
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    searchFieldDisplayMode = .automatic
+                }
             }
     }
 
