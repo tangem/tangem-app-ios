@@ -68,7 +68,7 @@ extension ExpressCoordinator: ExpressRoutable {
         expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
-    func presentApproveView(provider: ExpressProvider, selectedPolicy: ExpressApprovePolicy) {
+    func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
         expressApproveViewModel = factory.makeExpressApproveViewModel(
             providerName: provider.name,
             selectedPolicy: selectedPolicy,

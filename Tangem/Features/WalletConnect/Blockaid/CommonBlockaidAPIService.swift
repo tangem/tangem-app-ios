@@ -62,7 +62,7 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
         domain: URL
     ) async throws -> BlockaidDTO.SolanaScan.Response {
         let scanRequest = BlockaidDTO.SolanaScan.Request(
-            account_address: address,
+            accountAddress: address,
             metadata: .init(url: domain.absoluteString),
             method: method,
             transactions: transactions

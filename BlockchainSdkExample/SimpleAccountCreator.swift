@@ -61,7 +61,7 @@ final class SimpleAccountCreator: AccountCreator {
                 .dataTaskPublisher(for: request)
                 .tryMap { data, response in
                     guard let response = response as? HTTPURLResponse else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     BSDKLogger.info("Got network response with code \(response.statusCode): \(data.utf8String ?? "")")
@@ -69,7 +69,7 @@ final class SimpleAccountCreator: AccountCreator {
                 }
                 .tryMap { createAccount in
                     guard let accountId = createAccount.data?.accountId else {
-                        throw createAccount.error ?? WalletError.failedToParseNetworkResponse()
+                        throw createAccount.error ?? BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return HederaCreatedAccount(accountId: accountId)
