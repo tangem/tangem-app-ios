@@ -249,9 +249,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
         guard loadedDAppProposal.verificationStatus.isVerified else {
             coordinator?.openDomainVerificationWarning(
                 loadedDAppProposal.verificationStatus,
-                cancelAction: { [weak self] in
-                    self?.rejectDAppProposal()
-                },
                 connectAnywayAction: { [weak self] in
                     await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
                 }

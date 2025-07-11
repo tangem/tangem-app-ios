@@ -27,6 +27,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
     private let sendQRCodeService: SendQRCodeService
     private weak var router: SendDestinationRoutable?
 
+    private var allFieldsIsValidSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     weak var stepRouter: SendDestinationStepRoutable?
@@ -198,14 +199,21 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             additionalFieldViewModel?.update(text: additionalField)
         }
 
-        guard !interactor.hasError else {
-            return
-        }
-
-        // Give some time to update UI fields
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.stepRouter?.destinationStepFulfilled()
-        }
+        allFieldsIsValidSubscription = interactor.allFieldsIsValid
+            // Drop initial value
+            .dropFirst()
+            .combineLatest(destinationAddressViewModel.$sendAddress)
+            // Take only one with this address
+            .first { $1.value == destination.address }
+            // Give some time to update UI fields
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            // Move to next steps only when all is valid
+            .filter { $0.0 }
+            .withWeakCaptureOf(self)
+            .sink {
+                $0.0.allFieldsIsValidSubscription?.cancel()
+                $0.0.stepRouter?.destinationStepFulfilled()
+            }
     }
 }
 

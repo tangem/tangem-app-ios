@@ -41,7 +41,7 @@ class TronNetworkService: MultiNetworkProvider {
                         let dynamicEnergyIncreaseFactorParameter = $0.chainParameter.first(where: { $0.key == "getDynamicEnergyIncreaseFactor" }),
                         let dynamicEnergyIncreaseFactor = dynamicEnergyIncreaseFactorParameter.value
                     else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return TronChainParameters(
@@ -87,11 +87,11 @@ class TronNetworkService: MultiNetworkProvider {
         providerPublisher {
             $0.getAccountResource(for: address)
                 .mapError { error in
-                    if case WalletError.failedToParseNetworkResponse(let response) = error,
+                    if case BlockchainSdkError.failedToParseNetworkResponse(let response) = error,
                        let data = response?.data,
                        let string = String(data: data, encoding: .utf8),
                        string.trimmingCharacters(in: .whitespacesAndNewlines) == "{}" {
-                        return WalletError.accountNotActivated
+                        return BlockchainSdkError.accountNotActivated
                     }
                     return error
                 }
@@ -106,7 +106,7 @@ class TronNetworkService: MultiNetworkProvider {
                     true
                 }
                 .tryCatch { error -> AnyPublisher<Bool, Error> in
-                    if case WalletError.failedToParseNetworkResponse = error {
+                    if case BlockchainSdkError.failedToParseNetworkResponse = error {
                         return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
                     throw error
@@ -143,7 +143,7 @@ class TronNetworkService: MultiNetworkProvider {
         providerPublisher {
             $0.getAccount(for: address)
                 .tryCatch { error -> AnyPublisher<TronGetAccountResponse, Error> in
-                    if case WalletError.failedToParseNetworkResponse = error {
+                    if case BlockchainSdkError.failedToParseNetworkResponse = error {
                         return Just(TronGetAccountResponse(balance: 0, address: address))
                             .setFailureType(to: Error.self)
                             .eraseToAnyPublisher()
@@ -205,7 +205,7 @@ class TronNetworkService: MultiNetworkProvider {
             .setFailureType(to: Error.self)
             .flatMap { [weak self] transactionID -> AnyPublisher<String?, Error> in
                 guard let self = self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
                 return transactionConfirmed(id: transactionID)
             }
@@ -227,7 +227,7 @@ class TronNetworkService: MultiNetworkProvider {
                     return id
                 }
                 .tryCatch { error -> AnyPublisher<String?, Error> in
-                    if case WalletError.failedToParseNetworkResponse = error {
+                    if case BlockchainSdkError.failedToParseNetworkResponse = error {
                         return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
                     throw error

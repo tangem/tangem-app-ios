@@ -55,6 +55,19 @@ extension CommonSwapManager: SwapManager {
             .eraseToAnyPublisher()
     }
 
+    var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
+        interactor.state.map { state in
+            switch state {
+            case .idle, .loading, .restriction:
+                return false
+            case .permissionRequired:
+                return true
+            case .readyToSwap, .previewCEX:
+                return true
+            }
+        }.eraseToAnyPublisher()
+    }
+
     func update(amount: Decimal?) {
         interactor.update(amount: amount, by: .amountChange)
     }
@@ -75,6 +88,14 @@ extension CommonSwapManager: SwapManager {
 
     func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
+    }
+
+    func updateFees() {
+        interactor.refresh(type: .fee)
+    }
+
+    func send() async throws -> TransactionDispatcherResult {
+        try await interactor.sendTransaction().dispatcherResult
     }
 }
 

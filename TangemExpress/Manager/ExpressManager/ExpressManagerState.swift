@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public enum ExpressManagerState {
     case idle
@@ -43,7 +44,7 @@ public enum ExpressManagerState {
 
 public extension ExpressManagerState {
     struct PermissionRequired {
-        public let policy: ExpressApprovePolicy
+        public let policy: ApprovePolicy
         public let data: ApproveTransactionData
         public let quote: ExpressQuote
     }
