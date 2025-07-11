@@ -19,7 +19,7 @@ extension ALPH {
         /// Throwing initializer (for "unsafe" creation)
         init(unsafeMillis: Int64) throws {
             guard unsafeMillis >= 0 else {
-                throw DurationError.negativeDuration
+                throw AlephiumError.negativeDuration
             }
             millis = unsafeMillis
         }
@@ -80,9 +80,5 @@ extension ALPH {
         var description: String {
             "Duration(\(millis)ms)"
         }
-    }
-
-    enum DurationError: Error {
-        case negativeDuration
     }
 }

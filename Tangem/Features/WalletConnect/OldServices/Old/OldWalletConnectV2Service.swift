@@ -441,7 +441,7 @@ final class OldWalletConnectV2Service {
                 from: session.sessionInfo.dAppInfo,
                 blockchainId: targetBlockchain.id,
                 signer: userWallet.signer,
-                walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager) // Actuallty don't know where this generation should be...
+                walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager)
             )
 
             WCLogger.info("Receive result from user \(result) for \(logSuffix)")

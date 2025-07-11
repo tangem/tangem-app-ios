@@ -37,14 +37,14 @@ class AptosNetworkService: MultiNetworkProvider {
                         let accountJson = response.first(where: { $0.type == Constants.accountKeyPrefix }),
                         let coinJson = response.first(where: { $0.type == Constants.coinStoreKeyPrefix })
                     else {
-                        throw WalletError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
+                        throw BlockchainSdkError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
                     }
 
                     guard
                         let balanceValue = Decimal(stringValue: coinJson.data.coin?.value),
                         let sequenceNumber = Decimal(stringValue: accountJson.data.sequenceNumber)
                     else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return AptosAccountInfo(sequenceNumber: sequenceNumber.int64Value, balance: balanceValue)
@@ -67,7 +67,7 @@ class AptosNetworkService: MultiNetworkProvider {
     func calculateUsedGasPriceUnit(info: AptosTransactionInfo) -> AnyPublisher<AptosFeeInfo, Error> {
         providerPublisher { [weak self] provider in
             guard let self = self else {
-                return .anyFail(error: WalletError.failedToGetFee)
+                return .anyFail(error: BlockchainSdkError.failedToGetFee)
             }
 
             let transactionBody = convertTransaction(info: info)
@@ -77,7 +77,7 @@ class AptosNetworkService: MultiNetworkProvider {
                 .withWeakCaptureOf(self)
                 .tryMap { service, response in
                     guard let gasUsed = Decimal(stringValue: response.first?.gasUsed) else {
-                        throw WalletError.failedToGetFee
+                        throw BlockchainSdkError.failedToGetFee
                     }
 
                     let maxGasAmount = gasUsed * Constants.successTransactionSafeFactor
@@ -101,7 +101,7 @@ class AptosNetworkService: MultiNetworkProvider {
                 .submitTransaction(data: data)
                 .tryMap { response in
                     guard let transactionHash = response.hash else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return transactionHash
