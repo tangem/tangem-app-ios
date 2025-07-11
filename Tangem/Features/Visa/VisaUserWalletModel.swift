@@ -250,6 +250,10 @@ final class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            try await KYCService.start(getToken: customerCardInfoProvider.loadKYCAccessToken)
+
             await reloadHistoryAsync()
             let builder = await VisaPaymentAccountInteractorBuilder(
                 isTestnet: blockchain.isTestnet,

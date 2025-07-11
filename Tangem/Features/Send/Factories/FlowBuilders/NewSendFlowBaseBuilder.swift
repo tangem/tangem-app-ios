@@ -23,12 +23,18 @@ struct NewSendFlowBaseBuilder {
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let flowKind = SendModel.PredefinedValues.FlowKind.send
 
-        let notificationManager = builder.makeSendNotificationManager()
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendWithSwapModel()
+        let swapManager: SwapManager = builder.makeSwapManager()
+        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager)
+        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
         let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
-        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
+
+        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
+            receiveTokenInput: sendModel,
+            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
+            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
+        )
 
         let amount = sendAmountStepBuilder.makeSendNewAmountStep(
             sourceIO: (input: sendModel, output: sendModel),
@@ -39,6 +45,7 @@ struct NewSendFlowBaseBuilder {
             actionType: .send,
             sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
+            notificationService: notificationManager as? SendAmountNotificationService,
             flowKind: flowKind
         )
 
@@ -77,9 +84,8 @@ struct NewSendFlowBaseBuilder {
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
-            sendAmountCompactViewModel: amount.finish,
+            sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
-            sendSwapProviderFinishViewModel: providers.finish,
             sendFeeCompactViewModel: fee.finish,
         )
 
@@ -103,7 +109,7 @@ struct NewSendFlowBaseBuilder {
             summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers.providersSelector
+            providersSelector: providers
         )
 
         summary.set(router: stepsManager)

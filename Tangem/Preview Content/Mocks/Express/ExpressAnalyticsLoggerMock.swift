@@ -7,6 +7,7 @@
 //
 
 import TangemExpress
+import BlockchainSdk
 
 struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
     func bestProviderSelected(_ provider: TangemExpress.ExpressAvailableProvider) {}
@@ -21,7 +22,7 @@ struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
 
     func logSwapTransactionAnalyticsEvent(destination: String?) {}
 
-    func logApproveTransactionAnalyticsEvent(policy: TangemExpress.ExpressApprovePolicy, destination: String?) {}
+    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?) {}
 
-    func logApproveTransactionSentAnalyticsEvent(policy: TangemExpress.ExpressApprovePolicy, signerType: String) {}
+    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String) {}
 }
