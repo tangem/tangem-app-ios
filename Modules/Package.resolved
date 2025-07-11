@@ -1,13 +1,13 @@
 {
-  "originHash" : "4b5714fe019c2d9d8a35dfb63dcb2c77f4ed8cf2072a86030480fed10abc82d7",
+  "originHash" : "3801e602cca2a80c5af4544426a67a4fe7428a3e88e6bfc5d91213ebb3274020",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
-        "version" : "5.9.1"
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "af71ad9f37f12f744cf8c3485e624b9079103868",
-        "version" : "3.21.3"
+        "revision" : "fe21f909c07ddc3759e71eb6be8d16eae2ccf845",
+        "version" : "3.22.2"
       }
     },
     {
