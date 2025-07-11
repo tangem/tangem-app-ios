@@ -18,12 +18,12 @@ struct SendNewAmountCompactView: View {
     var body: some View {
         VStack(spacing: .zero) {
             Button(action: viewModel.userDidTapAmount) {
-                SendTokenAmountCompactView(viewModel: viewModel.sendAmountCompactViewModel)
+                SendNewAmountCompactTokenView(viewModel: viewModel.sendAmountCompactViewModel)
             }
 
             if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
                 Button(action: viewModel.userDidTapReceiveTokenAmount) {
-                    SendTokenAmountCompactView(viewModel: receiveTokenViewModel)
+                    SendNewAmountCompactTokenView(viewModel: receiveTokenViewModel)
                 }
                 .overlay(alignment: .top) {
                     SendNewAmountCompactViewSeparator(style: viewModel.amountsSeparator)
