@@ -37,7 +37,7 @@ struct CosmosStakeKitTransactionHelper {
         let feeMessage = stakingProtoMessage.feeAndKeyContainer.feeContainer
         let feeValue = feeMessage.feeAmount
 
-        guard let message = CosmosMessage.createStakeMessage(message: stakingProtoMessage.delegateContainer.delegate) else {
+        guard let message = try CosmosMessage.createStakeMessage(message: stakingProtoMessage.delegateContainer.delegate) else {
             throw BlockchainSdkError.failedToBuildTx
         }
 
