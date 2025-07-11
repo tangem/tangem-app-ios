@@ -90,7 +90,7 @@ class CasperWalletManager: BaseManager, WalletManager {
             .flatMap { walletManager, rawTransactionData in
                 walletManager.networkService
                     .putDeploy(rawData: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
             }
             .withWeakCaptureOf(self)
             .map { walletManager, transactionHash in
@@ -99,7 +99,7 @@ class CasperWalletManager: BaseManager, WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: transactionHash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
