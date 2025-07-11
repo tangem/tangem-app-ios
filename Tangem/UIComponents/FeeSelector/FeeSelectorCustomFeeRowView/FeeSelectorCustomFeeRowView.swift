@@ -24,7 +24,9 @@ struct FeeSelectorCustomFeeRowView: View {
                     .appearance(.init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1))
                     .prefixSuffixOptions(.suffix(text: viewModel.suffix, hasSpace: true))
                     .initialFocusBehavior(.noFocus)
-                    .disabled(viewModel.isEditable)
+                    .trailingToolbarType(.none)
+                    .onFocusChanged(viewModel.onFocusChanged)
+                    .disabled(!viewModel.isEditable)
 
                 Spacer()
 
