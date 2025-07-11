@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class HotOnboardingSeedPhraseRecoveryViewModel {
-    let continueButtonTitle = "Continue"
-    let responsibilityDescription = "Full responsibility for the security and backup of the wallet and recovery phrase lies with the user, not with Tangem."
+    let continueButtonTitle = Localization.commonContinue
+    let responsibilityDescription = Localization.backupSeedResponsibility
 
     lazy var infoItem: InfoItem = makeInfoItem()
     lazy var phraseItem: PhraseItem = makePhraseItem()
@@ -35,8 +36,8 @@ extension HotOnboardingSeedPhraseRecoveryViewModel {
 private extension HotOnboardingSeedPhraseRecoveryViewModel {
     func makeInfoItem() -> InfoItem {
         InfoItem(
-            title: "Recovery phrase",
-            description: "Write down these \(seedPhrase.words.count) words in order and keep them safe and private"
+            title: Localization.backupSeedTitle,
+            description: Localization.backupSeedDescription("\(seedPhrase.words.count)")
         )
     }
 
