@@ -67,7 +67,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
         guard let bigUIntValue = amount.bigUIntValue else {
-            return .anyFail(error: WalletError.failedToGetFee)
+            return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
         return networkService
@@ -90,7 +90,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
             .withWeakCaptureOf(self)
             .tryMap { (walletManager: FilecoinWalletManager, gasInfo) -> [Fee] in
                 guard let gasFeeCapDecimal = Decimal(stringValue: gasInfo.gasFeeCap) else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 let gasLimitDecimal = Decimal(gasInfo.gasLimit)
@@ -146,7 +146,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
             .flatMap { walletManager, message in
                 walletManager.networkService
                     .submitTransaction(signedMessage: message)
-                    .mapSendError(tx: try? JSONEncoder().encode(message).utf8String)
+                    .mapAndEraseSendTxError(tx: try? JSONEncoder().encode(message).utf8String)
             }
             .withWeakCaptureOf(self)
             .map { walletManager, txId in
@@ -155,7 +155,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
