@@ -66,7 +66,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .flatMap { manager, transaction in
             manager.networkService
                 .send(transaction: transaction)
-                .mapSendError(tx: transaction.hex())
+                .mapAndEraseSendTxError(tx: transaction.hex())
         }
         .handleEvents(receiveOutput: { [weak self] hash in
             let mapper = PendingTransactionRecordMapper()
@@ -74,14 +74,14 @@ class CosmosWalletManager: BaseManager, WalletManager {
             self?.wallet.addPendingTransaction(record)
         })
         .map { TransactionSendResult(hash: $0) }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         return estimateGas(amount: amount, destination: destination)
             .tryMap { [weak self] gas in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 let blockchain = cosmosChain.blockchain
                 let gasPrices = cosmosChain.gasPrices(for: amount.type)
@@ -133,7 +133,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         return Just(())
             .setFailureType(to: Error.self)
             .tryMap { [weak self] () -> Data in
-                guard let self else { throw WalletError.empty }
+                guard let self else { throw BlockchainSdkError.empty }
 
                 let dummyFee = Fee(
                     Amount(with: amount, value: 0),
@@ -154,11 +154,11 @@ class CosmosWalletManager: BaseManager, WalletManager {
                 )
             }
             .tryCatch { _ -> AnyPublisher<Data, Error> in
-                .anyFail(error: WalletError.failedToGetFee)
+                .anyFail(error: BlockchainSdkError.failedToGetFee)
             }
             .flatMap { [weak self] transaction -> AnyPublisher<UInt64, Error> in
                 guard let self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
 
                 return networkService.estimateGas(for: transaction)
