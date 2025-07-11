@@ -514,3 +514,9 @@ extension ValidationError: UniversalError {
         }
     }
 }
+
+extension JSONRPC.APIError: UniversalError {
+    var errorCode: Int {
+        code ?? -1
+    }
+}
