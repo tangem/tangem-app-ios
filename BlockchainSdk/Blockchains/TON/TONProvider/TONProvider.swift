@@ -125,7 +125,7 @@ struct TONProvider: HostProvider {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(TONProviderResponse<T>.self, using: decoder)
             .map(\.result)
-            .mapError { _ in WalletError.empty }
+            .mapError { _ in BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 }
