@@ -9,5 +9,6 @@
 import Foundation
 
 protocol CommonHotAccessCodeManagerDelegate: AnyObject {
-    func needDeleteWallet()
+    func handleAccessCodeSuccessful(userWalletModel: UserWalletModel)
+    func handleAccessCodeDelete(userWalletModel: UserWalletModel)
 }

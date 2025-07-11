@@ -21,11 +21,11 @@ struct HotOnboardingStepsBuilder {
             buildWalletActivateSteps()
         case .accessCodeCreate:
             buildAccessCodeCreateSteps()
-        case .accessCodeChange(let needAccessCodeValidation):
+        case .accessCodeChange(_, let needAccessCodeValidation):
             buildAccessCodeChangeSteps(needAccessCodeValidation: needAccessCodeValidation)
         case .seedPhraseBackup:
             buildSeedPhraseBackupSteps()
-        case .seedPhraseReveal(let needAccessCodeValidation):
+        case .seedPhraseReveal(_, let needAccessCodeValidation):
             buildSeedPhraseRevealSteps(needAccessCodeValidation: needAccessCodeValidation)
         }
     }

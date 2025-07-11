@@ -1,5 +1,5 @@
 //
-//  HotAccessCodeDelegate.swift
+//  HotAccessCodeManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,4 @@
 
 import Foundation
 
-protocol HotAccessCodeDelegate: AnyObject {
-    func accessCodeSuccessful()
-}
+protocol HotAccessCodeManager: HotAccessCodeStateManager {}

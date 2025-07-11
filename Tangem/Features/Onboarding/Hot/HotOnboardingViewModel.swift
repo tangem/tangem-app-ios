@@ -31,7 +31,6 @@ final class HotOnboardingViewModel: ObservableObject {
     lazy var seedPhaseBackupContinueViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupContinue, delegate: self)
     lazy var seedPhaseBackupFinishViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupFinish, delegate: self)
     lazy var accessCodeCreateViewModel = HotOnboardingAccessCodeCreateViewModel(delegate: self)
-    lazy var accessCodeValidateViewModel = HotAccessCodeViewModel(manager: accessCodeManager, delegate: self)
     lazy var doneViewModel = HotOnboardingSuccessViewModel(type: .walletReady, delegate: self)
 
     lazy var importWalletViewModel = OnboardingSeedPhraseImportViewModel(
@@ -114,16 +113,6 @@ final class HotOnboardingViewModel: ObservableObject {
 
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    // [REDACTED_TODO_COMMENT]
-    private lazy var accessCodeManager: HotAccessCodeManager = CommonHotAccessCodeManager(
-        storage: CommonHotAccessCodeStorage(
-            userWalletId: "userWalletId",
-            manager: CommonHotAccessCodeStorageManager()
-        ),
-        validator: CommonHotAccessCodeValidator(userWalletId: "userWalletId"),
-        delegate: self
-    )
-
     private lazy var pushNotificationsPermissionManager: PushNotificationsPermissionManager = {
         let factory = PushNotificationsHelpersFactory()
         return factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
@@ -152,6 +141,20 @@ final class HotOnboardingViewModel: ObservableObject {
 extension HotOnboardingViewModel {
     func onDismissalAttempt() {
         // [REDACTED_TODO_COMMENT]
+    }
+
+    func makeHotAccessCodeViewModel() -> HotAccessCodeViewModel? {
+        let userWalletModel: UserWalletModel
+
+        switch input.flow {
+        case .accessCodeChange(let model, _), .seedPhraseReveal(let model, _):
+            userWalletModel = model
+        default:
+            return nil
+        }
+
+        let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
+        return HotAccessCodeViewModel(manager: manager)
     }
 }
 
@@ -325,14 +328,6 @@ extension HotOnboardingViewModel: HotOnboardingSeedPhraseRecoveryDelegate {
     }
 }
 
-// MARK: - HotAccessCodeDelegate
-
-extension HotOnboardingViewModel: HotAccessCodeDelegate {
-    func accessCodeSuccessful() {
-        goToNextStep()
-    }
-}
-
 // MARK: - HotOnboardingAccessCodeDelegate
 
 extension HotOnboardingViewModel: HotOnboardingAccessCodeCreateDelegate {
@@ -348,14 +343,6 @@ extension HotOnboardingViewModel: HotOnboardingAccessCodeCreateDelegate {
     func accessCodeComplete(accessCode: String) {
         // [REDACTED_TODO_COMMENT]
         goToNextStep()
-    }
-}
-
-// MARK: - CommonHotAccessCodeManagerDelegate
-
-extension HotOnboardingViewModel: CommonHotAccessCodeManagerDelegate {
-    func needDeleteWallet() {
-        // [REDACTED_TODO_COMMENT]
     }
 }
 
@@ -385,6 +372,18 @@ extension HotOnboardingViewModel: HotOnboardingSuccessDelegate {
         default:
             break
         }
+    }
+}
+
+// MARK: - CommonHotAccessCodeManagerDelegate
+
+extension HotOnboardingViewModel: CommonHotAccessCodeManagerDelegate {
+    func handleAccessCodeSuccessful(userWalletModel: UserWalletModel) {
+        coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
+    }
+
+    func handleAccessCodeDelete(userWalletModel: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 

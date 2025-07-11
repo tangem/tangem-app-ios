@@ -17,7 +17,7 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
     func openManageTokens(userWalletModel: UserWalletModel)
 
     func openHotBackupNeeded()
-    func openHotBackupTypes()
+    func openHotBackupTypes(userWalletModel: UserWalletModel)
 
     func openAppSettings()
 

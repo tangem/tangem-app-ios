@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol HotAccessCodeValidator: AnyObject {
+protocol HotAccessCodeValidator {
     func isValid(accessCode: String) -> Bool
 }

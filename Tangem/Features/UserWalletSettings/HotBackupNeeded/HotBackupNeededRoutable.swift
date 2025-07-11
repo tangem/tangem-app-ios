@@ -1,5 +1,5 @@
 //
-//  HotBackupNeedRoutable.swift
+//  HotBackupNeededRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol HotBackupNeedRoutable: HotBackupOnboardingRoutable {
+protocol HotBackupNeededRoutable: HotBackupOnboardingRoutable {
     func dismissHotBackupNeeded()
 }

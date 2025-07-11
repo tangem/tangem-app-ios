@@ -15,9 +15,9 @@ final class HotBackupNeededViewModel {
     let description = Localization.hwBackupNeedDescription
     let actionTitle = Localization.hwBackupNeedAction
 
-    private weak var routable: HotBackupNeedRoutable?
+    private weak var routable: HotBackupNeededRoutable?
 
-    init(routable: HotBackupNeedRoutable) {
+    init(routable: HotBackupNeededRoutable) {
         self.routable = routable
     }
 }

@@ -29,16 +29,11 @@ final class HotAccessCodeViewModel: ObservableObject {
     }
 
     private let manager: HotAccessCodeManager
-    private weak var delegate: HotAccessCodeDelegate?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        manager: HotAccessCodeManager,
-        delegate: HotAccessCodeDelegate
-    ) {
+    init(manager: HotAccessCodeManager) {
         self.manager = manager
-        self.delegate = delegate
         bind()
     }
 }
@@ -127,7 +122,6 @@ private extension HotAccessCodeViewModel {
         isAccessCodeAvailable = false
         isSuccessful = true
         infoState = nil
-        delegate?.accessCodeSuccessful()
     }
 
     func proccessUnavailableState() {

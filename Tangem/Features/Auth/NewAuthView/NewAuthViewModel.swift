@@ -58,7 +58,7 @@ private extension NewAuthViewModel {
             return makeDefaultState()
         }
 
-        if !unlockOnAppear {
+        if unlockOnAppear {
             DispatchQueue.main.async { [weak self] in
                 self?.unlockWithBiometry()
             }
@@ -66,7 +66,7 @@ private extension NewAuthViewModel {
         } else {
             if let singleWallet = singleSecureHotWallet() {
                 DispatchQueue.main.async { [weak self] in
-                    self?.openHotAccessCode(userWalletId: singleWallet.userWalletId)
+                    self?.openHotAccessCode(userWalletModel: singleWallet)
                 }
             }
             return makeUnlockedState()
@@ -131,7 +131,7 @@ private extension NewAuthViewModel {
                 isSecured: false,
                 icon: Assets.Cards.walletDouble,
                 action: { [weak self] in
-                    self?.openHotAccessCode(userWalletId: UserWalletId(value: Data()))
+                    self?.openHotAccessCode(userWalletModel: UserWalletModelMock())
                 }
             ),
         ]
@@ -139,7 +139,7 @@ private extension NewAuthViewModel {
         return []
     }
 
-    /// Check if there are only unsecure hot wallets, meaning there are no secure hot wallets or cold wallets.
+    /// Check if there are only unsecure hot wallets, meaning there are no secure hot wallets or any cold wallets.
     func haveOnlyUnsecureHotWallets() -> Bool {
         // [REDACTED_TODO_COMMENT]
         return false
@@ -271,8 +271,8 @@ private extension NewAuthViewModel {
         coordinator?.openShop()
     }
 
-    func openHotAccessCode(userWalletId: UserWalletId) {
-        coordinator?.openHotAccessCode(with: userWalletId)
+    func openHotAccessCode(userWalletModel: UserWalletModel) {
+        coordinator?.openHotAccessCode(with: userWalletModel)
     }
 
     func openOnboarding(with input: OnboardingInput) {

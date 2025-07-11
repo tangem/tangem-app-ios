@@ -8,8 +8,7 @@
 
 import Foundation
 
-protocol HotAccessCodeStorage: AnyObject {
+protocol HotAccessCodeStorage {
     func getWrongAccessCodeStore() -> HotWrongAccessCodeStore
     func storeWrongAccessCodeAttempt(date: Date)
-    func clearWrongAccessCodeStore()
 }

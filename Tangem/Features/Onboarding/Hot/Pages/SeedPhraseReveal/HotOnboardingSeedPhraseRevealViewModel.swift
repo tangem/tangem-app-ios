@@ -14,9 +14,9 @@ final class HotOnboardingSeedPhraseRevealViewModel {
     lazy var phraseItem: PhraseItem = makePhraseItem()
 
     private let seedPhrase: SeedPhrase
-    private weak var delegate: HotOnboardingSeedPhraseRecoveryDelegate?
+    private weak var delegate: HotOnboardingSeedPhraseRevealDelegate?
 
-    init(delegate: HotOnboardingSeedPhraseRecoveryDelegate) {
+    init(delegate: HotOnboardingSeedPhraseRevealDelegate) {
         self.delegate = delegate
         seedPhrase = SeedPhrase(words: delegate.getSeedPhrase())
     }

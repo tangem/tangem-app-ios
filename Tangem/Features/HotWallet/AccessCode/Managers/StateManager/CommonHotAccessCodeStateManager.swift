@@ -1,5 +1,5 @@
 //
-//  CommonHotAccessCodeManager.swift
+//  CommonHotAccessCodeStateManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,14 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class CommonHotAccessCodeManager {
+final class CommonHotAccessCodeStateManager {
     private let stateSubject = CurrentValueSubject<HotAccessCodeState, Never>(.available(.normal))
     private let stateCommandSubject = PassthroughSubject<StateCommand, Never>()
 
     private let storage: HotAccessCodeStorage
     private let validator: HotAccessCodeValidator
+    private let handler: HotAccessCodeHandler
     private let configuration: HotAccessCodeConfiguration
-    private weak var delegate: CommonHotAccessCodeManagerDelegate?
 
     private var attemptsToLockLimit: Int { configuration.attemptsToLockLimit }
     private var attemptsBeforeWarningLimit: Int { configuration.attemptsBeforeWarningLimit }
@@ -30,13 +30,13 @@ final class CommonHotAccessCodeManager {
     init(
         storage: HotAccessCodeStorage,
         validator: HotAccessCodeValidator,
-        configuration: HotAccessCodeConfiguration = .default,
-        delegate: CommonHotAccessCodeManagerDelegate
+        handler: HotAccessCodeHandler,
+        configuration: HotAccessCodeConfiguration
     ) {
         self.storage = storage
         self.validator = validator
+        self.handler = handler
         self.configuration = configuration
-        self.delegate = delegate
         bind()
         getInitialState()
     }
@@ -44,7 +44,7 @@ final class CommonHotAccessCodeManager {
 
 // MARK: - Private methods
 
-private extension CommonHotAccessCodeManager {
+private extension CommonHotAccessCodeStateManager {
     func bind() {
         stateCommandSubject
             .withWeakCaptureOf(self)
@@ -62,7 +62,7 @@ private extension CommonHotAccessCodeManager {
 
 // MARK: - State methods
 
-private extension CommonHotAccessCodeManager {
+private extension CommonHotAccessCodeStateManager {
     func makeStatePublisher(command: StateCommand) -> AnyPublisher<HotAccessCodeState, Never> {
         switch command {
         case .load:
@@ -150,7 +150,7 @@ private extension CommonHotAccessCodeManager {
 
 // MARK: - Timers
 
-private extension CommonHotAccessCodeManager {
+private extension CommonHotAccessCodeStateManager {
     func makeLockedTimerPublisher(timer: LockedTimer) -> AnyPublisher<HotAccessCodeState, Never> {
         let beginDate = Date()
         let endDate = beginDate.addingTimeInterval(timer.duration)
@@ -207,7 +207,7 @@ private extension CommonHotAccessCodeManager {
 
 // MARK: - HotAccessCodeManager
 
-extension CommonHotAccessCodeManager: HotAccessCodeManager {
+extension CommonHotAccessCodeStateManager: HotAccessCodeStateManager {
     var statePublisher: AnyPublisher<HotAccessCodeState, Never> {
         stateSubject.eraseToAnyPublisher()
     }
@@ -219,7 +219,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
 
             let command: StateCommand
             if isValid {
-                storage.clearWrongAccessCodeStore()
+                handler.handleAccessCodeSuccessful()
                 command = makeValidCommand()
             } else {
                 storage.storeWrongAccessCodeAttempt(date: Date())
@@ -228,7 +228,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
             stateCommandSubject.send(command)
 
         case .locked:
-            throw HotAccessCodeError.hotAccessCodeStateLocked
+            throw HotAccessCodeStateError.hotAccessCodeStateLocked
 
         case .valid, .unavailable:
             break
@@ -277,8 +277,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
                     duration: lockedTimeout
                 )
             } else {
-                storage.clearWrongAccessCodeStore()
-                delegate?.needDeleteWallet()
+                handler.handleAccessCodeDelete()
                 return makeUnavailableCommand()
             }
         }
@@ -287,7 +286,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
 
 // MARK: - Commands maker
 
-private extension CommonHotAccessCodeManager {
+private extension CommonHotAccessCodeStateManager {
     // Available commands
 
     func makeAvailableBeforeLockCommand(remaining: Int) -> StateCommand {
@@ -336,7 +335,7 @@ private extension CommonHotAccessCodeManager {
 
 // MARK: - Types
 
-private extension CommonHotAccessCodeManager {
+private extension CommonHotAccessCodeStateManager {
     enum StateCommand {
         case load
         case update(HotAccessCodeState)
@@ -356,6 +355,6 @@ private extension CommonHotAccessCodeManager {
 
 // MARK: - Errors
 
-enum HotAccessCodeError: LocalizedError {
+enum HotAccessCodeStateError: LocalizedError {
     case hotAccessCodeStateLocked
 }

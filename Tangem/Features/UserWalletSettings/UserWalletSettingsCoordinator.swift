@@ -64,7 +64,7 @@ extension UserWalletSettingsCoordinator {
 extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable,
-    HotBackupNeedRoutable,
+    HotBackupNeededRoutable,
     HotBackupTypesRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
@@ -126,8 +126,8 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openHotBackupTypes() {
-        hotBackupTypesViewModel = HotBackupTypesViewModel(routable: self)
+    func openHotBackupTypes(userWalletModel: UserWalletModel) {
+        hotBackupTypesViewModel = HotBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
     }
 
     func openAppSettings() {
@@ -160,7 +160,7 @@ extension UserWalletSettingsCoordinator:
         openOnboardingModal(with: .hotInput(backupInput))
     }
 
-    // MARK: - HotBackupNeedRoutable
+    // MARK: - HotBackupNeededRoutable
 
     func dismissHotBackupNeeded() {
         Task { @MainActor in
@@ -170,8 +170,31 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - HotBackupTypesRoutable
 
-    func openHotBackupSeedPhrase() {
+    func openHotBackupRevealSeedPhrase(userWalletModel: UserWalletModel) {
+        let hotBackupUtil = HotBackupUtil(userWalletModel: userWalletModel)
+
+        if hotBackupUtil.isAccessCodeRequired() {
+            openHotOnboardingModal(userWalletModel: userWalletModel, needAccessCodeValidation: true)
+        } else {
+            HotBiometricsUtil.requestBiometrics { [weak self] isSuccessfull in
+                self?.openHotOnboardingModal(
+                    userWalletModel: userWalletModel,
+                    needAccessCodeValidation: !isSuccessfull
+                )
+            }
+        }
+    }
+
+    func openHotBackupOnboardingSeedPhrase() {
         let backupInput = HotOnboardingInput(flow: .seedPhraseBackup)
+        openOnboardingModal(with: .hotInput(backupInput))
+    }
+
+    func openHotOnboardingModal(userWalletModel: UserWalletModel, needAccessCodeValidation: Bool) {
+        let backupInput = HotOnboardingInput(flow: .seedPhraseReveal(
+            userWalletModel: userWalletModel,
+            needAccessCodeValidation: needAccessCodeValidation
+        ))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 }

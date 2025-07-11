@@ -1,5 +1,5 @@
 //
-//  HotAccessCodeManager.swift
+//  HotAccessCodeStateManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol HotAccessCodeManager: AnyObject {
+protocol HotAccessCodeStateManager {
     var statePublisher: AnyPublisher<HotAccessCodeState, Never> { get }
     func validate(accessCode: String) throws
 }

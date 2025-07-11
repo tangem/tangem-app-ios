@@ -84,21 +84,9 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
-    func openHotAccessCode(with userWalletId: UserWalletId) {
-        // [REDACTED_TODO_COMMENT]
-        let storageManager = CommonHotAccessCodeStorage(
-            userWalletId: "userWalletId",
-            manager: CommonHotAccessCodeStorageManager()
-        )
-        let manager = CommonHotAccessCodeManager(
-            storage: storageManager,
-            validator: CommonHotAccessCodeValidator(userWalletId: "userWalletId"),
-            delegate: self
-        )
-        hotAccessCodeViewModel = HotAccessCodeViewModel(
-            manager: manager,
-            delegate: self
-        )
+    func openHotAccessCode(with userWalletModel: UserWalletModel) {
+        let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
+        hotAccessCodeViewModel = HotAccessCodeViewModel(manager: manager)
     }
 
     func openCreateWallet() {
@@ -134,18 +122,14 @@ extension AuthCoordinator: NewAuthRoutable {
     }
 }
 
-// MARK: - HotAccessCodeDelegate
-
-extension AuthCoordinator: HotAccessCodeDelegate {
-    func accessCodeSuccessful() {
-        // [REDACTED_TODO_COMMENT]
-    }
-}
-
 // MARK: - CommonHotAccessCodeManagerDelegate
 
 extension AuthCoordinator: CommonHotAccessCodeManagerDelegate {
-    func needDeleteWallet() {
+    func handleAccessCodeSuccessful(userWalletModel: UserWalletModel) {
+        openMain(with: userWalletModel)
+    }
+
+    func handleAccessCodeDelete(userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
     }
 }

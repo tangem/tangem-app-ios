@@ -130,7 +130,9 @@ private extension HotOnboardingView {
             case .seedPhaseBackupFinish:
                 HotOnboardingSuccessView(viewModel: viewModel.seedPhaseBackupFinishViewModel)
             case .accessCodeValidate:
-                HotAccessCodeView(viewModel: viewModel.accessCodeValidateViewModel)
+                viewModel.makeHotAccessCodeViewModel().map {
+                    HotAccessCodeView(viewModel: $0)
+                }
             case .accessCodeCreate:
                 HotOnboardingAccessCodeCreateView(viewModel: viewModel.accessCodeCreateViewModel)
             case .seedPhraseReveal:
