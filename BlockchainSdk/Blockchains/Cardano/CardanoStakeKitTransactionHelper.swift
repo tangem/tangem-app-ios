@@ -30,11 +30,11 @@ struct CardanoStakeKitTransactionHelper {
     private func cardanoTransaction(from unsignedData: String) throws -> CardanoTransaction {
         let data = Data(hex: unsignedData)
         guard let cbor = try CBOR.decode(data.bytes) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         guard let body = CardanoTransactionBody(cbor: cbor) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return CardanoTransaction(body: body, witnessSet: nil, isValid: true, auxiliaryData: nil)
