@@ -14,7 +14,7 @@ extension AccountService {
     func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
         Future<Bool, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -34,7 +34,7 @@ extension AccountService {
     func getAccountDetails(accountId: String) -> AnyPublisher<AccountResponse, Error> {
         let future = Future<AccountResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -78,7 +78,7 @@ extension FeeStatsService {
     func getFeeStats() -> AnyPublisher<FeeStatsResponse, Error> {
         Future<FeeStatsResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -99,7 +99,7 @@ extension LedgersService {
     func getLatestLedger() -> AnyPublisher<LedgerResponse, Error> {
         let future = Future<LedgerResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -124,7 +124,7 @@ extension TransactionsService {
     func postTransaction(transactionEnvelope: String) -> AnyPublisher<SubmitTransactionResponse, Error> {
         let future = Future<SubmitTransactionResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -167,7 +167,7 @@ extension OperationsService {
         func pageRequest(accountId: String, recordsLimit: Int = 200) -> AnyPublisher<PageResponse<OperationResponse>, Error> {
             Future<PageResponse<OperationResponse>, Error> { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
