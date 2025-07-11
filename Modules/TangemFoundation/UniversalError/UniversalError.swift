@@ -49,4 +49,8 @@ public struct UniversalErrorWrapper: UniversalError {
     }
 
     public var errorCode: Int { -1 }
+
+    public var errorDescription: String? {
+        (underlyingError as? LocalizedError)?.localizedDescription
+    }
 }
