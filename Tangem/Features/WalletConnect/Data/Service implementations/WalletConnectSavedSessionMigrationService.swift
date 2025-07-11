@@ -92,7 +92,7 @@ final class WalletConnectSavedSessionMigrationService {
 }
 
 extension WalletConnectSavedSessionMigrationService {
-    private enum Error: Swift.Error {
+    enum Error: Swift.Error {
         case userWalletNotFound
         case invalidDAppDomain
     }
