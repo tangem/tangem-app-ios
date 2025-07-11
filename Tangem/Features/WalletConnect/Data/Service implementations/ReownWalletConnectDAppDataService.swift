@@ -122,8 +122,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
 // MARK: - Validation
 
 extension ReownWalletConnectDAppDataService {
-    private static let unsupportedDAppDomains = [
-        "dydx.exchange",
+    private static let unsupportedDAppHosts = [
+        "dydx.trade",
         "pro.apex.exchange",
         "sandbox.game",
         "app.paradex.trade",
@@ -132,15 +132,15 @@ extension ReownWalletConnectDAppDataService {
     private static func validateDomainIsSupported(
         from reownSessionProposal: Session.Proposal
     ) throws(WalletConnectDAppProposalLoadingError) {
-        let dAppRawDomain = reownSessionProposal.proposer.url
+        let dAppRawURL = reownSessionProposal.proposer.url
 
-        for unsupportedDAppDomain in Self.unsupportedDAppDomains {
-            if dAppRawDomain.contains(unsupportedDAppDomain) {
+        for unsupportedDAppHost in Self.unsupportedDAppHosts {
+            if dAppRawURL.contains(unsupportedDAppHost) {
                 throw WalletConnectDAppProposalLoadingError.unsupportedDomain(
                     .init(
                         proposalID: reownSessionProposal.id,
                         dAppName: reownSessionProposal.proposer.name,
-                        dAppRawDomain: dAppRawDomain
+                        dAppRawURL: dAppRawURL
                     )
                 )
             }
