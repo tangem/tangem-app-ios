@@ -323,7 +323,7 @@ private extension SendViewModel {
         }
     }
 
-    func openMail(error: Error) {
+    func openMail(error: UniversalError) {
         Analytics.log(.requestSupport, params: [.source: .send])
 
         do {
