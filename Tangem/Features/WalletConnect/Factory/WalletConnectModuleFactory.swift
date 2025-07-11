@@ -186,6 +186,10 @@ enum WalletConnectModuleFactory {
             disconnectDAppUseCase: disconnectDAppUseCase,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
+            },
+            onDisconnect: {
+                makeSuccessToast(with: "dApp disconnected")
+                    .present(layout: .top(padding: 20), type: .temporary())
             }
         )
     }
