@@ -71,7 +71,7 @@ class CosmosRestProvider: HostProvider {
                 }
 
                 if case .objectMapping = moyaError {
-                    return WalletError.failedToParseNetworkResponse()
+                    return BlockchainSdkError.failedToParseNetworkResponse()
                 }
                 return moyaError
             }

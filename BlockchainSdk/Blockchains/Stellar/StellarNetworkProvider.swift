@@ -43,7 +43,7 @@ class StellarNetworkProvider: HostProvider {
                     throw "Result code: \(submitTransactionResponse.transactionResult.code)"
                 }
             }
-            .mapError { [weak self] in self?.mapError($0) ?? WalletError.empty }
+            .mapError { [weak self] in self?.mapError($0) ?? BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 
@@ -51,14 +51,14 @@ class StellarNetworkProvider: HostProvider {
         return stellarData(accountId: accountId)
             .tryMap { [weak self] accountResponse, ledgerResponse throws -> StellarResponse in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let baseReserveStroops = Decimal(ledgerResponse.baseReserveInStroops)
                 guard let balance = Decimal(
                     stringValue: accountResponse.balances.first(where: { $0.assetType == AssetTypeAsString.NATIVE })?.balance
                 ) else {
-                    throw WalletError.failedToParseNetworkResponse()
+                    throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
                 let sequence = accountResponse.sequenceNumber
@@ -68,7 +68,7 @@ class StellarNetworkProvider: HostProvider {
                         guard let code = assetBalance.assetCode,
                               let issuer = assetBalance.assetIssuer,
                               let balance = Decimal(stringValue: assetBalance.balance) else {
-                            throw WalletError.failedToParseNetworkResponse()
+                            throw BlockchainSdkError.failedToParseNetworkResponse()
                         }
 
                         return StellarAssetResponse(code: code, issuer: issuer, balance: balance)
@@ -84,7 +84,7 @@ class StellarNetworkProvider: HostProvider {
                     sequence: sequence
                 )
             }
-            .mapError { [weak self] in self?.mapError($0, isAsset: isAsset) ?? WalletError.empty }
+            .mapError { [weak self] in self?.mapError($0, isAsset: isAsset) ?? BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 
@@ -95,7 +95,7 @@ class StellarNetworkProvider: HostProvider {
                       let feeChargedP80InStroops = Decimal(stringValue: feeStats.feeCharged.p80),
                       let feeChargedP99InStroops = Decimal(stringValue: feeStats.feeCharged.p99)
                 else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 let divider = blockchain.decimalValue
@@ -129,13 +129,13 @@ class StellarNetworkProvider: HostProvider {
         if let horizonError = error as? HorizonRequestError {
             if case .notFound = horizonError, let isAsset = isAsset {
                 if isAsset {
-                    return WalletError.noAccount(
+                    return BlockchainSdkError.noAccount(
                         message: StellarError.assetCreateAccount.localizedDescription,
                         amountToCreate: StellarWalletManager.Constants.minAmountToCreateAssetAccount
                     )
                 }
 
-                return WalletError.noAccount(
+                return BlockchainSdkError.noAccount(
                     message: StellarError.xlmCreateAccount.localizedDescription,
                     amountToCreate: StellarWalletManager.Constants.minAmountToCreateCoinAccount
                 )
@@ -158,7 +158,7 @@ extension StellarNetworkProvider {
             .map { items in
                 items.filter { $0.sourceAccount == accountId }.count
             }
-            .mapError { [weak self] in self?.mapError($0) ?? WalletError.empty }
+            .mapError { [weak self] in self?.mapError($0) ?? BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 }
