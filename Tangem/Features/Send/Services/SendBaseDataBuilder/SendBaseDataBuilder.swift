@@ -9,6 +9,7 @@
 import BlockchainSdk
 import TangemStaking
 import TangemExpress
+import TangemFoundation
 
 protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
@@ -16,7 +17,7 @@ protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
 }
 
 protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
-    func makeMailData(stakingRequestError error: Error) throws -> (dataCollector: EmailDataCollector, recipient: String)
+    func makeMailData(stakingRequestError error: UniversalError) throws -> (dataCollector: EmailDataCollector, recipient: String)
     func makeMailData(action: StakingTransactionAction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeDataForExpressApproveViewModel() throws -> (settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput)
 }

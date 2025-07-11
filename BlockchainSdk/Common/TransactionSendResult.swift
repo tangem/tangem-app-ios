@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct TransactionSendResult: Hashable {
     public let hash: String
@@ -16,13 +17,17 @@ public struct TransactionSendResult: Hashable {
     }
 }
 
-public struct SendTxError: LocalizedError {
-    public let error: Error
+public struct SendTxError: UniversalError {
+    public let error: UniversalError
     public let tx: String?
     public let lastRetryHost: String?
 
     public var errorDescription: String? {
         error.localizedDescription
+    }
+
+    public var errorCode: Int {
+        error.errorCode
     }
 
     var description: String {
@@ -35,7 +40,7 @@ public struct SendTxError: LocalizedError {
 
     // MARK: - Init
 
-    public init(error: Error, tx: String? = nil, lastRetryHost: String? = nil) {
+    public init(error: UniversalError, tx: String? = nil, lastRetryHost: String? = nil) {
         self.error = error
         self.tx = tx
         self.lastRetryHost = lastRetryHost
