@@ -37,6 +37,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private var cardIds: [String]?
     private var stepPublisher: AnyCancellable?
 
+    private var isPrimaryCardRing: Bool {
+        // Case for scanning a card with created wallets. Scan primary card state
+        // Workaround by cardId.
+        let batchId = String(input.primaryCardId.prefix(8))
+        return RingUtil().isRing(batchId: batchId)
+    }
+
     private var cardIdDisplayFormat: CardIdDisplayFormat = .lastMasked(4)
 
     override var navbarTitle: String {
@@ -662,6 +669,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Future { [weak self] promise in
                 guard let self = self else { return }
 
+                // Ring onboarding. Set custom image for ring.
+                backupService.config.setupForProduct(isPrimaryCardRing ? .ring : .card)
                 backupService.readPrimaryCard(cardId: input.primaryCardId) { result in
                     switch result {
                     case .success:
