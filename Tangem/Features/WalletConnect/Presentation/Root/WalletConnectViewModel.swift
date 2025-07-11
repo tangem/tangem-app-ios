@@ -73,8 +73,15 @@ final class WalletConnectViewModel: ObservableObject {
                 }
             }
 
+            self?.showDisconnectAllDAppsToast()
             self?.state.contentState = .empty(.init())
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func showDisconnectAllDAppsToast() {
+        WalletConnectModuleFactory.makeSuccessToast(with: "Disconnected all dApps")
+            .present(layout: .top(padding: 20), type: .temporary())
     }
 }
 

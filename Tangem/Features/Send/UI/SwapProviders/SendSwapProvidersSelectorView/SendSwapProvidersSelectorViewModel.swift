@@ -75,22 +75,22 @@ private extension SendSwapProvidersSelectorViewModel {
     func bind() {
         providersSubscription = input?
             .expressProvidersPublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { $0.updateView(providers: $1) }
 
         input?
             .selectedExpressProviderPublisher
+            .receiveOnMain()
             .assign(to: &$selectedProvider)
     }
 
     private func updateView(providers: [ExpressAvailableProvider]) {
         self.providers = providers
+        showFCAWarningIfNeeded(providers: providers.map(\.provider))
 
-        runTask(in: self) { viewModel in
-            let providers = await viewModel.prepareProviderRows(providers: providers)
-            await runOnMain {
-                viewModel.providerViewModels = providers
-            }
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.providerViewModels = await viewModel.prepareProviderRows(providers: providers)
         }
     }
 
@@ -169,6 +169,7 @@ private extension SendSwapProvidersSelectorViewModel {
             title: provider.name,
             providerIcon: provider.imageURL,
             providerType: provider.type.title,
+            isTappable: state.quote != nil,
             badge: badge,
             subtitles: subtitles
         )

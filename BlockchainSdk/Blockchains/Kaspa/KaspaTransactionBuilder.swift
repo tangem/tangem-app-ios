@@ -155,7 +155,7 @@ extension KaspaTransactionBuilder {
 
     private func buildCommitTransactionKRC20(amount: Amount, feeType: FeeType, sourceAddress: String, destination: String) async throws -> KaspaKRC20.CommitTransaction {
         guard case .token(let token) = amount.type else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         func preImage() async throws -> (preImage: PreImageTransaction, targetOutputAmount: Int) {
@@ -166,7 +166,7 @@ extension KaspaTransactionBuilder {
                 try validateAvailableAmount(amount: fee.amount)
 
                 guard let feeParams = fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
 
                 let targetOutputAmount = dust + feeParams.revealFee.asSmallest().value.intValue()
@@ -216,7 +216,7 @@ extension KaspaTransactionBuilder {
 
         // Get transactionId of the Commit transaction for use when creating utxo for Reveal transaction
         guard let txid = commitTransaction.transactionId else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         // Return CommitTransaction structure, that includes IncompleteTokenTransactionParams to persist if the Reveal transaction fails
@@ -245,7 +245,7 @@ extension KaspaTransactionBuilder {
         let sourceAddressScript = try addressService.scriptPublicKey(address: sourceAddress)
 
         guard let feeParams = fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let inputs: [KaspaTransaction.Input] = [
@@ -346,7 +346,7 @@ private extension KaspaTransactionBuilder {
 
         guard amount.type == availableInputValue.type,
               amount <= availableInputValue else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         // All good
