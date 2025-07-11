@@ -51,13 +51,13 @@ extension TezosWalletManager: TransactionSender {
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         guard let contents = txBuilder.buildContents(transaction: transaction) else {
-            return .sendTxFail(error: WalletError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
         }
 
         return networkService
             .getHeader()
             .tryMap { [weak self] header -> (TezosHeader, String) in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 let forged = try txBuilder
                     .forgeContents(headerHash: header.hash, contents: contents)
@@ -68,7 +68,7 @@ extension TezosWalletManager: TransactionSender {
                 guard let self = self else { return .emptyFail }
 
                 guard let txToSign: Data = txBuilder.buildToSign(forgedContents: forgedContents) else {
-                    return Fail(error: WalletError.failedToBuildTx).eraseToAnyPublisher()
+                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
                 }
 
                 return signer.sign(
@@ -96,17 +96,17 @@ extension TezosWalletManager: TransactionSender {
                 return networkService
                     .sendTransaction(rawTransaction)
                     .tryMap { [weak self] response in
-                        guard let self = self else { throw WalletError.empty }
+                        guard let self = self else { throw BlockchainSdkError.empty }
 
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: rawTransaction)
                         wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: rawTransaction)
                     }
-                    .mapSendError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction)
                     .eraseToAnyPublisher()
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -121,7 +121,7 @@ extension TezosWalletManager: TransactionSender {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         networkService.getInfo(address: destination)
             .tryMap { [weak self] destinationInfo -> [Fee] in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 var fee = TezosFee.transaction.rawValue
                 if txBuilder.isPublicKeyRevealed == false {

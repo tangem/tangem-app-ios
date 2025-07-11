@@ -167,7 +167,7 @@ private extension StakingSingleActionModel {
             proceed(error: error)
             throw error
         } catch {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error)
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
     }
 
