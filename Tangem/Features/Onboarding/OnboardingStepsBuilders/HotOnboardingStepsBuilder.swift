@@ -11,11 +11,20 @@ struct HotOnboardingStepsBuilder {
         [.createWallet]
     }
 
-    func buildImportingSteps() -> [HotOnboardingStep] {
-        [.importWallet]
+    func buildImportSteps(isPushNotificationsAvailable: Bool) -> [HotOnboardingStep] {
+        let pushNotificationsSteps: [HotOnboardingStep] = isPushNotificationsAvailable ? [.pushNotifications] : []
+        return [.importWallet, .importCompleted] + buildAccessCodeSteps() + pushNotificationsSteps + [.done]
     }
 
     func buildBackupSteps() -> [HotOnboardingStep] {
+        buildSeedPhraseSteps() + buildAccessCodeSteps() + [.done]
+    }
+
+    func buildSeedPhraseSteps() -> [HotOnboardingStep] {
         [.seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation, .seedPhraseCompleted]
+    }
+
+    func buildAccessCodeSteps() -> [HotOnboardingStep] {
+        [.checkAccessCode, .accessCode]
     }
 }

@@ -25,7 +25,7 @@ final class SuiNetworkService: MultiNetworkProvider {
         return balanceFetcher
             .setupRequestPublisherBuilder { [weak self] nextAddress, nextCoin, nextCursor in
                 guard let self else {
-                    return .anyFail(error: NetworkServiceError.notAvailable)
+                    return .anyFail(error: BlockchainSdkError.networkUnavailable)
                 }
                 return providerPublisher { provider in
                     provider
