@@ -33,7 +33,7 @@ struct WalletFactory {
     /// With multisig script public key
     func makeWallet(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> Wallet {
         guard let addressProvider = addressProvider as? BitcoinScriptAddressesProvider else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         let addresses = try addressProvider.makeAddresses(publicKey: publicKey, pairPublicKey: pairPublicKey)
