@@ -13,6 +13,7 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
     private let connectedDApp: WalletConnectConnectedDApp
     private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
     private let closeAction: () -> Void
+    private let onDisconnect: () -> Void
 
     private var disconnectDAppTask: Task<Void, Never>?
 
@@ -22,12 +23,14 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
         state: WalletConnectConnectedDAppDetailsViewState,
         connectedDApp: WalletConnectConnectedDApp,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
-        closeAction: @escaping () -> Void
+        closeAction: @escaping () -> Void,
+        onDisconnect: @escaping () -> Void
     ) {
         self.state = state
         self.connectedDApp = connectedDApp
         self.disconnectDAppUseCase = disconnectDAppUseCase
         self.closeAction = closeAction
+        self.onDisconnect = onDisconnect
     }
 
     deinit {
@@ -76,9 +79,10 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         state = .dAppDetails(dAppDetailsViewState)
 
         disconnectDAppTask?.cancel()
-        disconnectDAppTask = Task { [disconnectDAppUseCase, closeAction, connectedDApp] in
+        disconnectDAppTask = Task { [disconnectDAppUseCase, closeAction, onDisconnect, connectedDApp] in
             try? await disconnectDAppUseCase(connectedDApp)
             closeAction()
+            onDisconnect()
         }
     }
 }
