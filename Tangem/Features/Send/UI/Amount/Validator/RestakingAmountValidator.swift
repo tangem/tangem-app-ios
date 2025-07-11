@@ -25,10 +25,6 @@ class RestakingAmountValidator {
         action: StakingAction.ActionType,
         stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
     ) {
-        switch tokenItem.blockchain {
-        case .cardano: break
-        default: assertionFailure("Currently used only for Cardano")
-        }
         self.tokenItem = tokenItem
         self.stakingManagerStatePublisher = stakingManagerStatePublisher
         self.action = action
