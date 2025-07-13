@@ -25,6 +25,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private var initialBag: Set<AnyCancellable> = []
     private var reproducedBag: Set<AnyCancellable> = []
+    private var updateStateTask: Task<Void, Never>?
 
     private var applicationUid: String {
         AppSettings.shared.applicationUid
@@ -36,8 +37,6 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
             return
         }
-
-        bind()
 
         runTask { [weak self] in
             guard let self else { return }
@@ -51,9 +50,11 @@ final class CommonUserTokensPushNotificationsService: NSObject {
                 await updateApplication(fcmToken: fcmToken)
             }
 
+            isInitialized = true
+
             await fetchEntries()
 
-            isInitialized = true
+            bind()
         }
     }
 
@@ -75,7 +76,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             .store(in: &initialBag)
     }
 
-    func bindWhenUserWalletRepositoryDidUpdated() {
+    private func bindWhenUserWalletRepositoryDidUpdated() {
         reproducedBag.removeAll()
 
         userWalletRepository.models.map {
@@ -100,9 +101,13 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         case .locked, .selected, .scan:
             return
         case .inserted, .updated, .deleted, .biometryUnlocked, .replaced:
-            updateEntryByUserWalletModelIfNeeded()
-            bindWhenUserWalletRepositoryDidUpdated()
+            updateState()
         }
+    }
+
+    private func updateState() {
+        updateEntryByUserWalletModelIfNeeded()
+        bindWhenUserWalletRepositoryDidUpdated()
     }
 }
 
@@ -186,6 +191,7 @@ private extension CommonUserTokensPushNotificationsService {
                 updateLocalWallet(name: $0.name, by: $0.id)
             }
         } catch {
+            AppLogger.error(error: error)
             await update(entries: [])
         }
     }
@@ -212,9 +218,9 @@ private extension CommonUserTokensPushNotificationsService {
             )
         }
 
-        let needUpdate = entries.map { $0.id }.toSet().isDisjoint(with: toUpdateEntries.map { $0.id })
+        let differenceEntries = Set(entries.map { $0.id }).symmetricDifference(Set(toUpdateEntries.map { $0.id }))
 
-        guard needUpdate else {
+        guard !differenceEntries.isEmpty else {
             return
         }
 
@@ -222,18 +228,16 @@ private extension CommonUserTokensPushNotificationsService {
             UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
         }
 
-        runTask { [weak self] in
-            guard let self else {
-                return
-            }
+        updateStateTask?.cancel()
 
+        updateStateTask = runTask(in: self) { service in
             do {
-                try await tangemApiService.createAndConnectUserWallet(
-                    applicationUid: applicationUid,
+                try await service.tangemApiService.createAndConnectUserWallet(
+                    applicationUid: service.applicationUid,
                     items: toUpdateItems
                 )
 
-                await update(entries: toUpdateEntries)
+                await service.update(entries: toUpdateEntries)
             } catch {
                 // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
                 AppLogger.error(error: error)
