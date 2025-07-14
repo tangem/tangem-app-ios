@@ -21,6 +21,7 @@
 		0A2261802D9588F3004DC848 /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */; };
 		0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261822D958ADA004DC848 /* CardanoTransaction.swift */; };
 		0A2261852D95A8DC004DC848 /* StakingBlockchainParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */; };
+		0A249D652E1FEF5500E0C87E /* CosmosProtoMessage.proto in Sources */ = {isa = PBXBuildFile; fileRef = 0A249D642E1FEF5500E0C87E /* CosmosProtoMessage.proto */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
 		0A2D94512DCB5832008AEC67 /* StakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */; };
 		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
@@ -3838,6 +3839,7 @@
 		0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		0A2261822D958ADA004DC848 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
 		0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBlockchainParams.swift; sourceTree = "<group>"; };
+		0A249D642E1FEF5500E0C87E /* CosmosProtoMessage.proto */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.protobuf; path = CosmosProtoMessage.proto; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
@@ -10990,6 +10992,7 @@
 			isa = PBXGroup;
 			children = (
 				B62D3C9C2CBC79D900C2460E /* CosmosProtoMessage.pb.swift */,
+				0A249D642E1FEF5500E0C87E /* CosmosProtoMessage.proto */,
 			);
 			path = protobuf;
 			sourceTree = "<group>";
@@ -23308,6 +23311,7 @@
 				B62D41EB2CBC79DB00C2460E /* VeChainNetworkParams.ContractCall.swift in Sources */,
 				B62D42C22CBC79DB00C2460E /* Bech32.swift in Sources */,
 				B62D42DB2CBC79DB00C2460E /* TWCoin+.swift in Sources */,
+				0A249D652E1FEF5500E0C87E /* CosmosProtoMessage.proto in Sources */,
 				B62D40C92CBC79DA00C2460E /* EthereumWalletAssembly.swift in Sources */,
 				B62D41342CBC79DA00C2460E /* NEARNetworkParams.swift in Sources */,
 				2D53D2442D95796D00865200 /* PepecoinWalletAssembly.swift in Sources */,
@@ -30096,7 +30100,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 3.22.1;
+				version = 3.22.2;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
