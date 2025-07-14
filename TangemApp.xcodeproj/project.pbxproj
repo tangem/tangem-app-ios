@@ -3986,9 +3986,6 @@
 		0F3D64262E0ED64B00670DC9 /* HotBackupNeededRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotBackupNeededRoutable.swift; sourceTree = "<group>"; };
 		0F3D64292E1280D500670DC9 /* BadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeView.swift; sourceTree = "<group>"; };
 		0F5B40682DE9ED470065A177 /* HotOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingStep.swift; sourceTree = "<group>"; };
-		0F65AC662E0C2A24004AD460 /* HotAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeView.swift; sourceTree = "<group>"; };
-		0F65AC682E0C2A64004AD460 /* HotAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeViewModel.swift; sourceTree = "<group>"; };
-		0F65AC6A2E0C2A6B004AD460 /* HotAccessCodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeDelegate.swift; sourceTree = "<group>"; };
 		0F84C10A2E1299DB00DC7FB1 /* HotBackupTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotBackupTypesView.swift; sourceTree = "<group>"; };
 		0F84C10C2E1299E900DC7FB1 /* HotBackupTypesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotBackupTypesViewModel.swift; sourceTree = "<group>"; };
 		0F84C10E2E129ADE00DC7FB1 /* HotBackupTypesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotBackupTypesRoutable.swift; sourceTree = "<group>"; };
@@ -4005,7 +4002,6 @@
 		0F84C1282E1685B000DC7FB1 /* HotOnboardingSeedPhraseRevealDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRevealDelegate.swift; sourceTree = "<group>"; };
 		0FA453712E1D10C10055B5BB /* HotSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotSettingsUtil.swift; sourceTree = "<group>"; };
 		0FA4534E2E1816450055B5BB /* HotAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeManager.swift; sourceTree = "<group>"; };
-		0FA453512E1816830055B5BB /* CommonHotAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeManager.swift; sourceTree = "<group>"; };
 		0FA453532E181C5B0055B5BB /* HotAccessCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeState.swift; sourceTree = "<group>"; };
 		0FA453572E1908760055B5BB /* HotAccessCodeStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeStorage.swift; sourceTree = "<group>"; };
 		0FA4535B2E190A890055B5BB /* CommonHotAccessCodeStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeStorage.swift; sourceTree = "<group>"; };
@@ -4014,10 +4010,11 @@
 		0FA453642E1BC2590055B5BB /* CommonHotAccessCodeManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeManagerDelegate.swift; sourceTree = "<group>"; };
 		0FA453662E1BC8910055B5BB /* HotWrongAccessCodeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotWrongAccessCodeStore.swift; sourceTree = "<group>"; };
 		0FA4536A2E1BDC850055B5BB /* CommonHotAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeStorageManager.swift; sourceTree = "<group>"; };
-		0FA4536D2E1BDCD00055B5BB /* HotAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FA453A22E1D3AFE0055B5BB /* CommonHotAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeManager.swift; sourceTree = "<group>"; };
 		0FA453A32E1D3AFE0055B5BB /* CommonHotAccessCodeManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeManagerDelegate.swift; sourceTree = "<group>"; };
 		0FA453A42E1D3AFE0055B5BB /* HotAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeManager.swift; sourceTree = "<group>"; };
+		0FA453A22E1D3AFE0055B5BB /* CommonHotAccessCodeStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeStateManager.swift; sourceTree = "<group>"; };
+		0FA453A42E1D3AFE0055B5BB /* HotAccessCodeStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeStateManager.swift; sourceTree = "<group>"; };
 		0FA453A52E1D3AFE0055B5BB /* HotAccessCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeState.swift; sourceTree = "<group>"; };
 		0FA453A72E1D3AFE0055B5BB /* CommonHotAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonHotAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FA453A82E1D3AFE0055B5BB /* HotAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotAccessCodeStorageManager.swift; sourceTree = "<group>"; };
@@ -7962,27 +7959,6 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		0FA453A12E1D3A4E0055B5BB /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				0F65AC6A2E0C2A6B004AD460 /* HotAccessCodeDelegate.swift */,
-				0FA4535B2E190A890055B5BB /* CommonHotAccessCodeStorage.swift */,
-				0FA4536D2E1BDCD00055B5BB /* HotAccessCodeStorageManager.swift */,
-				0F65AC682E0C2A64004AD460 /* HotAccessCodeViewModel.swift */,
-				0FA453532E181C5B0055B5BB /* HotAccessCodeState.swift */,
-				0FA4536A2E1BDC850055B5BB /* CommonHotAccessCodeStorageManager.swift */,
-				0FA4534E2E1816450055B5BB /* HotAccessCodeManager.swift */,
-				0FA453602E1943A10055B5BB /* CommonHotAccessCodeValidator.swift */,
-				0FA453572E1908760055B5BB /* HotAccessCodeStorage.swift */,
-				0F65AC662E0C2A24004AD460 /* HotAccessCodeView.swift */,
-				0FA453512E1816830055B5BB /* CommonHotAccessCodeManager.swift */,
-				0FA453642E1BC2590055B5BB /* CommonHotAccessCodeManagerDelegate.swift */,
-				0FA4535E2E1943890055B5BB /* HotAccessCodeValidator.swift */,
-				0FA453662E1BC8910055B5BB /* HotWrongAccessCodeStore.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		0FA453A62E1D3AFE0055B5BB /* StateManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -9147,7 +9123,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				0FA453A12E1D3A4E0055B5BB /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};

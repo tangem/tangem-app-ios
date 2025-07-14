@@ -65,24 +65,6 @@ private extension NewAuthView {
                     .padding(.bottom, 6)
             }
         }
-
-//        VStack(spacing: 32) {
-//            topBar(item: item.addWallet)
-//
-//            infoView(item: item.info)
-//                .padding(.horizontal, 16)
-//
-//            ZStack(alignment: .bottom) {
-//                walletsView(items: item.wallets)
-//                    .ignoresSafeArea(edges: .bottom)
-//
-//                item.unlock.map {
-//                    unlockButton(item: $0)
-//                        .padding(.bottom, 6)
-//                }
-//            }
-//            .padding(.horizontal, 16)
-//        }
     }
 }
 

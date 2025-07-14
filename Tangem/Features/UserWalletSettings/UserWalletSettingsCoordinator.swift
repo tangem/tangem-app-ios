@@ -171,18 +171,14 @@ extension UserWalletSettingsCoordinator:
     // MARK: - HotBackupTypesRoutable
 
     func openHotBackupRevealSeedPhrase(userWalletModel: UserWalletModel) {
-        let hotBackupUtil = HotBackupUtil(userWalletModel: userWalletModel)
-
-        if hotBackupUtil.isAccessCodeRequired() {
-            openHotOnboardingModal(userWalletModel: userWalletModel, needAccessCodeValidation: true)
-        } else {
-            HotBiometricsUtil.requestBiometrics { [weak self] isSuccessfull in
-                self?.openHotOnboardingModal(
-                    userWalletModel: userWalletModel,
-                    needAccessCodeValidation: !isSuccessfull
-                )
-            }
-        }
+        let backupUtil = HotBackupUtil(userWalletModel: userWalletModel)
+        let handler = HotBackupUtil.SeedPhraseHandler(onReveal: { [weak self] needAccessCodeValidation in
+            self?.openHotOnboardingModal(
+                userWalletModel: userWalletModel,
+                needAccessCodeValidation: needAccessCodeValidation
+            )
+        })
+        backupUtil.revealSeedPhrase(handler: handler)
     }
 
     func openHotBackupOnboardingSeedPhrase() {
