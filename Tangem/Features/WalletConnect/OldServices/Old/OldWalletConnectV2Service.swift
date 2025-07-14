@@ -23,9 +23,8 @@ protocol OldWalletConnectUserWalletInfoProvider: AnyObject {
 final class OldWalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.keysManager) private var keysManager: KeysManager
 
-    private let factory = WalletConnectV2DefaultSocketFactory()
+    private let walletKitClient: WalletKitClient
     private let uiDelegate: WalletConnectUIDelegate
     private let messageComposer: WalletConnectV2MessageComposable
     private let wcHandlersService: WalletConnectV2HandlersServicing
@@ -48,48 +47,20 @@ final class OldWalletConnectV2Service {
     private weak var infoProvider: OldWalletConnectUserWalletInfoProvider?
 
     init(
+        walletKitClient: WalletKitClient,
         uiDelegate: WalletConnectUIDelegate,
         messageComposer: WalletConnectV2MessageComposable,
         wcHandlersService: WalletConnectV2HandlersServicing
     ) {
+        self.walletKitClient = walletKitClient
         self.uiDelegate = uiDelegate
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
 
         guard !FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
-        Networking.configure(
-            groupIdentifier: AppEnvironment.current.suiteName,
-            projectId: keysManager.walletConnectProjectId,
-            socketFactory: factory,
-            socketConnectionType: .automatic
-        )
-
-        do {
-            try configureWalletKit()
-        } catch {
-            WCLogger.error("WalletConnect redirect configure failure", error: error)
-        }
-
         setupSessionSubscriptions()
         setupMessagesSubscriptions()
-    }
-
-    func configureWalletKit() throws {
-        let redirect = try AppMetadata.Redirect(
-            native: IncomingActionConstants.universalLinkScheme,
-            universal: IncomingActionConstants.tangemDomain
-        )
-
-        let metadata = AppMetadata(
-            name: "Tangem iOS",
-            description: "Tangem is a card-shaped self-custodial cold hardware wallet",
-            url: "https://tangem.com",
-            icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"],
-            redirect: redirect
-        )
-
-        WalletKit.configure(metadata: metadata, crypto: WalletConnectCryptoProvider())
     }
 
     func initialize(with infoProvider: OldWalletConnectUserWalletInfoProvider) {
@@ -118,7 +89,7 @@ final class OldWalletConnectV2Service {
 
         do {
             WCLogger.info("Attempt to disconnect session with topic: \(session.topic)")
-            try await WalletKit.instance.disconnect(topic: session.topic)
+            try await walletKitClient.disconnect(topic: session.topic)
 
             Analytics.log(
                 event: .walletConnectDAppDisconnected,
@@ -145,13 +116,13 @@ final class OldWalletConnectV2Service {
     }
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
-        runTask { [weak self] in
+        runTask { [weak self, walletKitClient] in
             guard let self else { return }
 
             let removedSessions = await sessionsStorage.removeSessions(for: userWalletId)
             for session in removedSessions {
                 do {
-                    try await WalletKit.instance.disconnect(topic: session.topic)
+                    try await walletKitClient.disconnect(topic: session.topic)
                 } catch {
                     WCLogger.error("Failed to disconnect session while disconnecting all sessions for user wallet with id: \(userWalletId)", error: error)
                 }
@@ -164,7 +135,7 @@ final class OldWalletConnectV2Service {
         Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
 
         do {
-            try await WalletKit.instance.pair(uri: url)
+            try await walletKitClient.pair(uri: url)
             try Task.checkCancellation()
             WCLogger.info("Established pair for \(url)")
             DispatchQueue.main.async {
@@ -187,7 +158,7 @@ final class OldWalletConnectV2Service {
 
     private func disconnect(topic: String) async {
         do {
-            try await WalletKit.instance.disconnect(topic: topic)
+            try await walletKitClient.disconnect(topic: topic)
             WCLogger.info("Success disconnect/delete topic \(topic)")
         } catch {
             WCLogger.error("Failed to disconnect/delete topic \(topic)", error: error)
@@ -197,7 +168,8 @@ final class OldWalletConnectV2Service {
     // MARK: - Subscriptions
 
     private func setupSessionSubscriptions() {
-        WalletKit.instance.sessionProposalPublisher
+        walletKitClient
+            .sessionProposalPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessionProposal, context in
                 WCLogger.info("Session proposal: \(sessionProposal) with verify context: \(String(describing: context))")
@@ -206,7 +178,8 @@ final class OldWalletConnectV2Service {
             }
             .store(in: &sessionSubscriptions)
 
-        WalletKit.instance.sessionSettlePublisher
+        walletKitClient
+            .sessionSettlePublisher
             .receive(on: DispatchQueue.main)
             .asyncMap { [weak self] session in
                 guard let self else { return }
@@ -227,7 +200,8 @@ final class OldWalletConnectV2Service {
             .sink()
             .store(in: &sessionSubscriptions)
 
-        WalletKit.instance.sessionDeletePublisher
+        walletKitClient
+            .sessionDeletePublisher
             .receive(on: DispatchQueue.main)
             .asyncMap { [weak self] topic, reason in
                 guard let self else { return }
@@ -255,7 +229,8 @@ final class OldWalletConnectV2Service {
     }
 
     private func setupMessagesSubscriptions() {
-        WalletKit.instance.sessionRequestPublisher
+        walletKitClient
+            .sessionRequestPublisher
             .receive(on: DispatchQueue.main)
             .asyncMap { [weak self] request, context in
                 guard let self else { return }
@@ -347,7 +322,7 @@ final class OldWalletConnectV2Service {
         runTask(in: self) { strongSelf in
             do {
                 WCLogger.info("Namespaces to approve for session connection: \(namespaces)")
-                _ = try await WalletKit.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+                _ = try await strongSelf.walletKitClient.approve(proposalId: proposal.id, namespaces: namespaces)
                 Self.logDAppConnected(proposal: proposal, blockchainNames: blockchainNames)
             } catch let error as WalletConnectV2Error {
                 strongSelf.displayErrorUI(error)
@@ -364,7 +339,7 @@ final class OldWalletConnectV2Service {
     private func sessionRejected(with proposal: Session.Proposal) {
         runTask(in: self) { strongSelf in
             do {
-                try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: .userRejected)
+                try await strongSelf.walletKitClient.rejectSession(proposalId: proposal.id, reason: .userRejected)
                 WCLogger.info("User reject WC connection")
             } catch {
                 WCLogger.error("Failed to reject WC connection", error: error)
@@ -386,7 +361,7 @@ final class OldWalletConnectV2Service {
                 error: error
             )
 
-            try? await WalletKit.instance.respond(
+            try? await walletKitClient.respond(
                 topic: request.topic,
                 requestId: request.id,
                 response: .error(.init(code: 0, message: error.localizedDescription))
@@ -445,7 +420,7 @@ final class OldWalletConnectV2Service {
             )
 
             WCLogger.info("Receive result from user \(result) for \(logSuffix)")
-            try await WalletKit.instance.respond(topic: session.topic, requestId: request.id, response: result)
+            try await walletKitClient.respond(topic: session.topic, requestId: request.id, response: result)
 
             let event: Analytics.Event
             let signatureHandlingError: WalletConnectV2Error?
