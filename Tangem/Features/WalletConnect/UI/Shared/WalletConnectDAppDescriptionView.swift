@@ -84,7 +84,7 @@ struct WalletConnectDAppDescriptionView: View {
         switch viewModel {
         case .content(let contentState):
             Text(contentState.name)
-                .lineLimit(1)
+                .lineLimit(2)
                 .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
                 .transition(.opacity)
 
