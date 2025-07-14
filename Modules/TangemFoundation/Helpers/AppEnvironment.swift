@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public enum AppEnvironment: String {
     case beta = "Beta"
     case production = "Production"
@@ -30,6 +32,14 @@ public extension AppEnvironment {
     var isDebug: Bool {
         #if DEBUG
         return true
+        #else
+        return false
+        #endif
+    }
+
+    var isUITest: Bool {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["UITEST"] == "1"
         #else
         return false
         #endif
