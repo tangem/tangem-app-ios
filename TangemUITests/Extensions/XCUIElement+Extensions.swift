@@ -75,16 +75,6 @@ extension XCUIElement {
         }
         return value
     }
-
-    func hideKeyboardIfNeeded() {
-        let keyboardDoneButton = toolbars.buttons["KeyboardDoneButton"].firstMatch
-        let doneButton = toolbars.buttons["Done"].firstMatch
-        if keyboardDoneButton.exists {
-            keyboardDoneButton.tap()
-        } else if doneButton.exists {
-            doneButton.tap()
-        }
-    }
 }
 
 // MARK: Find elements
