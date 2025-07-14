@@ -10,10 +10,12 @@ import Combine
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import class TangemSdk.BiometricsUtil
 
 final class HotAccessCodeViewModel: ObservableObject {
     @Published var accessCode: String = .empty
 
+    @Published private(set) var unlockItem: UnlockItem?
     @Published private(set) var infoState: InfoState?
     @Published private(set) var isAccessCodeAvailable = true
     @Published private(set) var isSuccessful: Bool?
@@ -28,13 +30,19 @@ final class HotAccessCodeViewModel: ObservableObject {
         return isSuccessful ? Colors.Text.accent : Colors.Text.warning
     }
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+
     private let manager: HotAccessCodeManager
+    private let unlockMode: UnlockMode?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(manager: HotAccessCodeManager) {
+    init(manager: HotAccessCodeManager, unlockMode: UnlockMode? = nil) {
         self.manager = manager
+        self.unlockMode = unlockMode
         bind()
+        setupUnlockItem()
     }
 }
 
@@ -65,6 +73,50 @@ private extension HotAccessCodeViewModel {
             return
         }
         try? manager.validate(accessCode: accessCode)
+    }
+}
+
+// MARK: - Unlocking
+
+private extension HotAccessCodeViewModel {
+    func setupUnlockItem() {
+        guard
+            case .biometry(let item) = unlockMode,
+            BiometricsUtil.isAvailable
+        else {
+            return
+        }
+
+        unlockItem = UnlockItem(
+            title: Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name),
+            action: { [weak self] in
+                self?.unlockWithBiometry(item: item)
+            }
+        )
+    }
+
+    func unlockWithBiometry(item: BiometryUnlockModeItem) {
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.handleUnlock(result: result)
+            }
+        }
+    }
+
+    func handleUnlock(result: UserWalletRepositoryResult?) {
+        if result?.isSuccess != true {
+            incomingActionManager.discardIncomingAction()
+        }
+
+        guard let result else { return }
+
+        switch result {
+        case .success(let model), .partial(let model, _):
+            openMain(with: model)
+        case .error, .troubleshooting, .onboarding:
+            // [REDACTED_TODO_COMMENT]
+            break
+        }
     }
 }
 
@@ -135,14 +187,40 @@ private extension HotAccessCodeViewModel {
     }
 }
 
+// MARK: - Navigation
+
+private extension HotAccessCodeViewModel {
+    func openMain(with model: UserWalletModel) {
+        switch unlockMode {
+        case .biometry(let item):
+            item.openMain(model)
+        case .none:
+            break
+        }
+    }
+}
+
 // MARK: - Types
 
 extension HotAccessCodeViewModel {
+    enum UnlockMode {
+        case biometry(BiometryUnlockModeItem)
+    }
+
+    struct BiometryUnlockModeItem {
+        let openMain: (UserWalletModel) -> Void
+    }
+
     enum InfoState {
         case warning(InfoWarningItem)
     }
 
     struct InfoWarningItem {
         let title: String
+    }
+
+    struct UnlockItem {
+        let title: String
+        let action: () -> Void
     }
 }

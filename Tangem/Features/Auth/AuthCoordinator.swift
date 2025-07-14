@@ -86,7 +86,13 @@ extension AuthCoordinator: AuthRoutable {
 extension AuthCoordinator: NewAuthRoutable {
     func openHotAccessCode(with userWalletModel: UserWalletModel) {
         let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
-        hotAccessCodeViewModel = HotAccessCodeViewModel(manager: manager)
+        let unlockItem = HotAccessCodeViewModel.BiometryUnlockModeItem(
+            openMain: weakify(self, forFunction: AuthCoordinator.openMain)
+        )
+        hotAccessCodeViewModel = HotAccessCodeViewModel(
+            manager: manager,
+            unlockMode: .biometry(unlockItem)
+        )
     }
 
     func openCreateWallet() {

@@ -40,6 +40,14 @@ private extension HotAccessCodeView {
                 infoView(state: $0)
                     .padding(.horizontal, 40)
             }
+
+            Spacer()
+
+            viewModel.unlockItem.map {
+                unlockButton(item: $0)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+            }
         }
         .padding(.top, 32)
     }
@@ -57,5 +65,16 @@ private extension HotAccessCodeView {
             .style(Fonts.Regular.footnote, color: Colors.Text.warning)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    func unlockButton(item: ViewModel.UnlockItem) -> some View {
+        Button(action: item.action) {
+            Text(item.title)
+                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .background(Colors.Button.secondary)
+                .cornerRadius(14, corners: .allCorners)
+        }
     }
 }
