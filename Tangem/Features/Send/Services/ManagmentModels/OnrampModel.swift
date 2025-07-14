@@ -301,6 +301,14 @@ private extension OnrampModel {
 
             // Clear repo
             onrampRepository.updatePreference(country: nil, currency: nil)
+
+            // For UI tests, set default country and currency instead of showing bottom sheet
+            guard !AppEnvironment.current.isUITest else {
+                let (defaultCountry, defaultCurrency) = makeDefaultValuesForUITests()
+                onrampRepository.updatePreference(country: defaultCountry, currency: defaultCurrency)
+                return false
+            }
+
             await runOnMain {
                 router?.openOnrampCountryBottomSheet(country: country)
             }
@@ -313,6 +321,14 @@ private extension OnrampModel {
     }
 
     func initiateCountryDefinition() async {
+        // For UI tests, set default country and currency to avoid showing bottom sheet
+        guard !AppEnvironment.current.isUITest else {
+            let (defaultCountry, defaultCurrency) = makeDefaultValuesForUITests()
+            onrampRepository.updatePreference(country: defaultCountry, currency: defaultCurrency)
+            _currency.send(.success(defaultCurrency))
+            return
+        }
+
         do {
             let country = try await onrampManager.initialSetupCountry()
 
@@ -326,6 +342,17 @@ private extension OnrampModel {
         } catch {
             _currency.send(.failure(error))
         }
+    }
+
+    // MARK: - UI Tests helpers
+
+    private func makeDefaultValuesForUITests() -> (country: OnrampCountry, currency: OnrampFiatCurrency) {
+        let defaultCountryIdentity = OnrampIdentity(name: "Spain", code: "ES", image: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/Countries/Name%3DES%20Spain.png"))
+        let defaultCurrencyIdentity = OnrampIdentity(name: "Euro", code: "EUR", image: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/Currencies/EUR.png"))
+        let defaultCurrency = OnrampFiatCurrency(identity: defaultCurrencyIdentity, precision: 2)
+        let defaultCountry = OnrampCountry(identity: defaultCountryIdentity, currency: defaultCurrency, onrampAvailable: true)
+
+        return (defaultCountry, defaultCurrency)
     }
 }
 
