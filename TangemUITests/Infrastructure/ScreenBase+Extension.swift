@@ -128,7 +128,7 @@ extension ScreenBase {
             clearButton.tap()
         }
         element.typeText(text)
-        element.hideKeyboardIfNeeded()
+        app.hideKeyboard()
     }
 
     func clearText(element: XCUIElement) {

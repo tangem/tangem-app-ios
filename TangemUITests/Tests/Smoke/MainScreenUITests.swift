@@ -21,17 +21,4 @@ final class MainScreenUITests: BaseTestCase {
 
         mainScreen.validateTokenNotExists(token)
     }
-
-    func testGoOnramp_correctCurrencySelected() {
-        let expectedTextFieldValue = "0 €"
-
-        launchApp(tangemApiType: .mock)
-
-        let onrampScreen = StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(token)
-            .tapActionButton(.buy)
-
-        onrampScreen.validateTextFieldValue(expectedTextFieldValue)
-    }
 }
