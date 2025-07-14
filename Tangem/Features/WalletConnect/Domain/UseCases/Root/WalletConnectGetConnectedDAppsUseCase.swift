@@ -16,4 +16,8 @@ final class WalletConnectGetConnectedDAppsUseCase {
     func callAsFunction() async -> AsyncStream<[WalletConnectConnectedDApp]> {
         await repository.makeDAppsStream()
     }
+
+    func callAsFunction() async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
+        try await repository.getAllDApps()
+    }
 }
