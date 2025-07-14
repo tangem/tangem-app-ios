@@ -40,25 +40,10 @@ class BaseTestCase: XCTestCase {
         }
     }
 
-    func launchApp(resetToS: Bool = false, additionalArguments: [String] = []) {
-        var arguments = ["--uitesting", "--alpha"]
-
-        if resetToS {
-            arguments.append(contentsOf: ["-tangem_tap_terms_of_service_accepted", "NULL"])
-        }
-
-        arguments.append(contentsOf: additionalArguments)
-
-        app.launchArguments = arguments
-        app.launchEnvironment = ["UITEST": "1"]
-        app.launch()
-    }
-
     func launchApp(
         tangemApiType: TangemAPI? = nil,
         expressApiType: ExpressAPI? = nil,
-        resetToS: Bool = false,
-        additionalArguments: [String] = []
+        skipToS: Bool = true
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
@@ -70,11 +55,9 @@ class BaseTestCase: XCTestCase {
             arguments.append(contentsOf: ["-api_express", expressApiType.rawValue])
         }
 
-        if resetToS {
-            arguments.append(contentsOf: ["-tangem_tap_terms_of_service_accepted", "NULL"])
+        if skipToS {
+            arguments.append("-uitest-skip-tos")
         }
-
-        arguments.append(contentsOf: additionalArguments)
 
         app.launchArguments = arguments
         app.launchEnvironment = ["UITEST": "1"]

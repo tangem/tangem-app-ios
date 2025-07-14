@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 /// Same as `DecimalNumberTextField` with  support
 /// - `InitialFocusBehavior`
@@ -134,6 +135,7 @@ struct SendDecimalNumberTextField: View {
             .hidden(true) // Native `.hidden()` may affect layout
             .allowsHitTesting(false)
             .readGeometry(\.size, bindTo: $viewModel.measuredTextSize)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.decimalNumberTextField)
     }
 
     @ViewBuilder
