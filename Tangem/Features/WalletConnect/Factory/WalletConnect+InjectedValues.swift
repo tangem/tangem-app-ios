@@ -6,13 +6,53 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import typealias Foundation.TimeInterval
+import Foundation
 import class Kingfisher.ImageCache
+import ReownWalletKit
+import TangemNetworkUtils
 
 private final class WalletConnectEnvironment {
     @Injected(\.walletConnectSessionsStorage) private var legacySessionsStorage: any WalletConnectSessionsStorage
     @Injected(\.persistentStorage) private var persistentStorage: any PersistentStorageProtocol
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
+
+    private lazy var walletKitClient = WalletKitClientFactory.make()
+    private lazy var messageComposer = WalletConnectV2MessageComposer()
+    private lazy var alertUIDelegate = WalletConnectAlertUIDelegate()
+
+    private lazy var handlersFactory = WalletConnectHandlersFactory(
+        messageComposer: messageComposer,
+        uiDelegate: alertUIDelegate,
+        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder()
+    )
+
+    private lazy var handlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
+
+    lazy var dAppSessionsExtender = WalletConnectDAppSessionsExtender(
+        connectedDAppRepository: connectedDAppRepository,
+        savedSessionMigrationService: WalletConnectSavedSessionMigrationService(
+            sessionsStorage: legacySessionsStorage,
+            userWalletRepository: userWalletRepository,
+            dAppVerificationService: dAppVerificationService,
+            dAppIconURLResolver: dAppIconURLResolver,
+            appSettings: AppSettings.shared
+        ),
+        dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient)
+    )
+
+    lazy var wcService: CommonWCService = {
+        let v2Service = WCServiceV2(walletKitClient: walletKitClient, wcHandlersService: handlersService)
+        return CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
+    }()
+
+    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(apiService: BlockaidFactory().makeBlockaidAPIService())
+    lazy var dAppIconURLResolver = WalletConnectDAppIconURLResolver(
+        remoteURLResourceResolver: RemoteURLResourceResolver(
+            session: URLSession(configuration: .walletConnectIconsContentTypeResolveConfiguration)
+        ),
+        kingfisherCache: kingfisherCache
+    )
+    lazy var connectedDAppRepository = PersistentStorageWalletConnectConnectedDAppRepository(persistentStorage: persistentStorage)
 
     lazy var kingfisherCache: ImageCache = {
         let inMemoryCacheCountLimit = 50
@@ -25,20 +65,23 @@ private final class WalletConnectEnvironment {
         return cache
     }()
 
-    lazy var connectedDAppRepository = PersistentStorageWalletConnectConnectedDAppRepository(persistentStorage: persistentStorage)
-    lazy var wcService = CommonWCService()
-    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(apiService: BlockaidFactory().makeBlockaidAPIService())
+    // MARK: - Legacy
 
-    lazy var dAppSessionsExtender = CommonWalletConnectDAppSessionsExtender(
-        connectedDAppRepository: connectedDAppRepository,
-        savedSessionMigrationService: WalletConnectSavedSessionMigrationService(
-            sessionsStorage: legacySessionsStorage,
-            userWalletRepository: userWalletRepository,
-            dAppVerificationService: dAppVerificationService,
-            appSettings: AppSettings.shared
-        ),
-        walletConnectService: wcService
+    private lazy var oldHandlersService = OldWalletConnectV2HandlersService(
+        uiDelegate: alertUIDelegate,
+        handlersCreator: handlersFactory
     )
+
+    lazy var oldWalletConnectService: OldCommonWalletConnectService = {
+        let oldV2Service = OldWalletConnectV2Service(
+            walletKitClient: walletKitClient,
+            uiDelegate: alertUIDelegate,
+            messageComposer: messageComposer,
+            wcHandlersService: oldHandlersService
+        )
+
+        return OldCommonWalletConnectService(v2Service: oldV2Service)
+    }()
 }
 
 private struct WalletConnectEnvironmentInjectionKey: InjectionKey {
@@ -67,7 +110,19 @@ extension InjectedValues {
         walletConnectEnvironment.dAppVerificationService
     }
 
-    var dAppSessionsExtender: any WalletConnectDAppSessionsExtender {
+    var dAppIconURLResolver: WalletConnectDAppIconURLResolver {
+        walletConnectEnvironment.dAppIconURLResolver
+    }
+
+    var dAppSessionsExtender: WalletConnectDAppSessionsExtender {
         walletConnectEnvironment.dAppSessionsExtender
+    }
+}
+
+// MARK: - Legacy
+
+extension InjectedValues {
+    var walletConnectService: any OldWalletConnectService {
+        walletConnectEnvironment.oldWalletConnectService
     }
 }
