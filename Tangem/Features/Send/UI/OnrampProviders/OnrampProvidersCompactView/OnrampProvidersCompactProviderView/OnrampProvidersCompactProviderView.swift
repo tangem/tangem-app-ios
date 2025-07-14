@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct OnrampProvidersCompactProviderView: View {
     let data: OnrampProvidersCompactProviderViewData
@@ -18,6 +19,7 @@ struct OnrampProvidersCompactProviderView: View {
             content
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.payWithBlock)
     }
 
     private var content: some View {
