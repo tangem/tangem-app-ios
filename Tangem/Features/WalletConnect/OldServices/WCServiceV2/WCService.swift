@@ -19,7 +19,6 @@ protocol WCService {
     func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session
     func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
     func disconnectSession(withTopic topic: String) async throws
-    func extendSession(withTopic topic: String) async throws
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
 }
