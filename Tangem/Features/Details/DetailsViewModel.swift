@@ -219,7 +219,7 @@ extension DetailsViewModel {
 
     func openAddNewUserWallet() {
         let sheet = ActionSheet(
-            title: Text("Add Wallet"),
+            title: Text(Localization.userWalletListAddButton),
             buttons: [
                 .default(
                     Text(Localization.homeButtonCreateNewWallet),

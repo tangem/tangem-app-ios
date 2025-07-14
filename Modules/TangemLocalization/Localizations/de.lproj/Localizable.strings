@@ -65,6 +65,9 @@
 "app_settings_title" = "App Einstellungen";
 "app_settings_warning_subtitle" = "Gehe zu den Einstellungen, um die biometrische Authentifizierung in der Tangem-App zu aktivieren";
 "app_settings_warning_title" = "Biometrische Authentifizierung aktivieren";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "Du hast Deine Wallet erfolgreich gesichert.";
 "backup_complete_seed_description" = "Diese Wörter können bei Verlust nicht wiederhergestellt werden. Bewahre diese an einem sicheren Ort auf.";
 "backup_complete_title" = "Sicherung abgeschlossen";
@@ -423,6 +426,7 @@
 "hw_create_seed_description" = "Bleibe über die neuesten Funktionen und Neuigkeiten auf dem Laufenden";
 "hw_create_seed_title" = "Sicherung der Seed-Phrase";
 "hw_create_title" = "Mobile Wallet erstellen";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "Diese Informationen wurden mithilfe von KI generiert.\nTippe hier, wenn Du Fehler finden.";
 "initial_message_change_access_code_body" = "Um den Zugangscode zu ändern, halte die Karte oder Ring wie oben gezeigt an das Gerät und entferne sie erst am Ende des Vorgangs.";
 "initial_message_change_passcode_body" = "Um den Passcode zu ändern, halte die Karte oder Ring wie oben gezeigt an das Gerät und entferne sie erst am Ende des Vorgangs.";

@@ -65,6 +65,9 @@
 "app_settings_title" = "APP設置";
 "app_settings_warning_subtitle" = "轉到設置以在 Tangem 應用程序中啟用生物識別身份驗證";
 "app_settings_warning_title" = "啟用生物識別驗證";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -423,6 +426,7 @@
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here, if you find any errors.";
 "initial_message_change_access_code_body" = "要更改訪問密碼，請完全按照上圖所示連接手機和卡片";
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";

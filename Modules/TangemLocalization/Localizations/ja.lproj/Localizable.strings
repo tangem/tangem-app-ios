@@ -65,6 +65,9 @@
 "app_settings_title" = "アプリ設定";
 "app_settings_warning_subtitle" = "Tangemアプリで生体認証を有効にするには、設定に移動します";
 "app_settings_warning_title" = "生体認証を有効にする";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "ウォレットのバックアップが正常に完了しました。";
 "backup_complete_seed_description" = "これらの単語は紛失した場合、復元できません。必ず安全な場所に保管してください。";
 "backup_complete_title" = "バックアップが完了しました";
@@ -423,6 +426,7 @@
 "hw_create_seed_description" = "最新の機能とニュースをお届けします";
 "hw_create_seed_title" = "シードフレーズのバックアップ";
 "hw_create_title" = "モバイルウォレットを作成する";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "この情報はAIで生成されました。 \nエラーが見つかった場合は、ここをタップしてください。";
 "initial_message_change_access_code_body" = "アクセスコードを変更するには、上図のようにカードまたはリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_message_change_passcode_body" = "パスコードを変更するには、上記のようにカードをタップし、操作が終了するまで取り外さないでください。";

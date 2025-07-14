@@ -65,6 +65,9 @@
 "app_settings_title" = "Налаштування застосунку";
 "app_settings_warning_subtitle" = "Перейдіть до налаштувань, щоб увімкнути біометричну автентифікацію в додатку Tangem";
 "app_settings_warning_title" = "Увімкнути біометричну автентифікацію";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -423,6 +426,7 @@
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "Ця інформація була створена за допомогою ШІ.\nНатисніть тут, якщо знайшли помилку.";
 "initial_message_change_access_code_body" = "Щоб змінити код доступу, прикладіть картку або кільце, як показано вище, і не прибирайте її до закінчення операції";
 "initial_message_change_passcode_body" = "Щоб змінити пароль, прикладіть картку, як показано вище, і не прибирайте її до закінчення операції";

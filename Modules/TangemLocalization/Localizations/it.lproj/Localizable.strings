@@ -65,6 +65,9 @@
 "app_settings_title" = "App settings";
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_warning_title" = "Enable biometric authentication";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -423,6 +426,7 @@
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here, if you find any errors.";
 "initial_message_change_access_code_body" = "Avvicina per modificare il codice di accesso";
 "initial_message_change_passcode_body" = "Avvicina per modificare la password";

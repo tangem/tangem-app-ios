@@ -83,13 +83,13 @@ private extension NewAuthViewModel {
 
     func makeUnlockedState() -> State {
         let addWallet = AddWalletItem(
-            title: "Add Wallet",
+            title: Localization.authInfoAddWalletTitle,
             action: weakify(self, forFunction: NewAuthViewModel.openAddWallet)
         )
 
         let info = InfoItem(
-            title: "Welcome back!",
-            description: "Select a wallet to log in"
+            title: Localization.welcomeUnlockTitle,
+            description: Localization.authInfoSubtitle
         )
 
         let wallets = makeWalletsItems()
@@ -115,26 +115,6 @@ private extension NewAuthViewModel {
     }
 
     func makeWalletsItems() -> [WalletItem] {
-        return [ // remove !!!
-            WalletItem(
-                name: "Cold wallet",
-                description: "3 cards",
-                isSecured: true,
-                icon: Assets.Cards.babyDogeDouble,
-                action: { [weak self] in
-                    self?.onUnlockWithCardTap()
-                }
-            ),
-            WalletItem(
-                name: "Hot wallet",
-                description: "Phone Wallet",
-                isSecured: false,
-                icon: Assets.Cards.walletDouble,
-                action: { [weak self] in
-                    self?.openHotAccessCode(userWalletModel: UserWalletModelMock())
-                }
-            ),
-        ]
         // [REDACTED_TODO_COMMENT]
         return []
     }
@@ -237,7 +217,7 @@ private extension NewAuthViewModel {
 
     func openAddWallet() {
         let sheet = ActionSheet(
-            title: Text("Add Wallet"),
+            title: Text(Localization.authInfoAddWalletTitle),
             buttons: [
                 .default(
                     Text(Localization.homeButtonCreateNewWallet),
