@@ -50,7 +50,9 @@ final class CommonUserTokensPushNotificationsService: NSObject {
                 await updateApplication(fcmToken: fcmToken)
             }
 
-            isInitialized = true
+            await MainActor.run {
+                self.isInitialized = true
+            }
 
             await fetchEntries()
 
