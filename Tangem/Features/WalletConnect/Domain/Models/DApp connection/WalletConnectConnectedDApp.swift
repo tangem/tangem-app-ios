@@ -11,16 +11,9 @@ import enum BlockchainSdk.Blockchain
 
 struct WalletConnectConnectedDApp: Equatable {
     let session: WalletConnectDAppSession
-    let userWallet: Self.UserWallet
+    let userWalletID: String
     let dAppData: WalletConnectDAppData
     let verificationStatus: WalletConnectDAppVerificationStatus
     let blockchains: [Blockchain]
     let connectionDate: Date
-}
-
-extension WalletConnectConnectedDApp {
-    struct UserWallet: Hashable {
-        let id: String
-        let name: String
-    }
 }
