@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import FirebaseMessaging
 import Combine
+import CombineExt
 
 final class CommonUserTokensPushNotificationsService: NSObject {
     // MARK: - Services
@@ -21,11 +22,13 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private let _applicationEntries: CurrentValueSubject<[ApplicationWalletEntry], Never> = .init([])
 
-    private var isInitialized = false
+    @MainActor private var isInitialized = false
 
-    private var initialBag: Set<AnyCancellable> = []
+    private var initialSubscription: AnyCancellable?
     private var reproducedBag: Set<AnyCancellable> = []
     private var updateStateTask: Task<Void, Never>?
+
+    private var _syncEventSubject: PassthroughSubject<Void, Never> = .init()
 
     private var applicationUid: String {
         AppSettings.shared.applicationUid
@@ -38,25 +41,21 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             return
         }
 
-        runTask { [weak self] in
-            guard let self else { return }
-
+        runTask(in: self) { service in
             let fcmToken = Messaging.messaging().fcmToken ?? ""
 
-            switch defineInitializeType() {
+            switch service.defineInitializeType() {
             case .create:
-                await createApplication(fcmToken: fcmToken)
+                await service.createApplication(fcmToken: fcmToken)
             case .update:
-                await updateApplication(fcmToken: fcmToken)
+                await service.updateApplication(fcmToken: fcmToken)
             }
 
-            await MainActor.run {
-                self.isInitialized = true
-            }
+            await service.update(isInitialized: true)
 
-            await fetchEntries()
+            await service.fetchEntries()
 
-            bind()
+            service._syncEventSubject.send(())
         }
     }
 
@@ -66,16 +65,21 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         super.init()
 
         Messaging.messaging().delegate = self
+
+        bind()
     }
 
+    // FaceId до запросов
+
     private func bind() {
-        userWalletRepository
-            .eventProvider
+        initialSubscription = _syncEventSubject
+            .combineLatest(userWalletRepository.eventProvider)
+            .map(\.1)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { service, event in
+            .receiveValue { service, event in
                 service.handleUserWalletUpdates(by: event)
             }
-            .store(in: &initialBag)
     }
 
     private func bindWhenUserWalletRepositoryDidUpdated() {
@@ -301,6 +305,11 @@ private extension CommonUserTokensPushNotificationsService {
     func update(entries: [ApplicationWalletEntry]) async {
         _applicationEntries.send(entries)
     }
+
+    @MainActor
+    func update(isInitialized: Bool) async {
+        self.isInitialized = isInitialized
+    }
 }
 
 extension CommonUserTokensPushNotificationsService {
@@ -320,17 +329,17 @@ extension CommonUserTokensPushNotificationsService {
 
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        // Skip when service did not initilized
-        guard isInitialized else {
-            return
-        }
+        runTask(in: self) { service in
+            // Skip when service did not initilized
+            guard await service.isInitialized else {
+                return
+            }
 
-        let appUid = AppSettings.shared.applicationUid
-        let lastStoredFCMToken = AppSettings.shared.lastStoredFCMToken
+            let appUid = await AppSettings.shared.applicationUid
+            let lastStoredFCMToken = await AppSettings.shared.lastStoredFCMToken
 
-        if !appUid.isEmpty, lastStoredFCMToken != fcmToken {
-            runTask { [weak self] in
-                await self?.updateApplication(fcmToken: fcmToken)
+            if !appUid.isEmpty, lastStoredFCMToken != fcmToken {
+                await service.updateApplication(fcmToken: fcmToken)
             }
         }
     }
