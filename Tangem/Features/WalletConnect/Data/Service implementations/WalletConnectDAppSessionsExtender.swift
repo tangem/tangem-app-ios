@@ -130,7 +130,7 @@ private extension WalletConnectConnectedDApp {
     func with(updatedExpiryDate: Date) -> WalletConnectConnectedDApp {
         WalletConnectConnectedDApp(
             session: WalletConnectDAppSession(topic: session.topic, expiryDate: updatedExpiryDate),
-            userWallet: userWallet,
+            userWalletID: userWalletID,
             dAppData: dAppData,
             verificationStatus: verificationStatus,
             blockchains: blockchains,
