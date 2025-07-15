@@ -386,6 +386,10 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         switch walletModel.stakingBalanceProvider.balanceType {
         case .empty:
             return false
+        case .loaded(let amount) where amount == .zero:
+            return false
+        case .failure(let cached) where cached?.balance == .zero || cached == nil:
+            return false
         case .failure, .loading, .loaded:
             return true
         }

@@ -55,8 +55,8 @@ extension UnstakingAmountValidator: SendAmountValidator {
             throw UnstakingValidationError.amountRequirementError(minAmount: minAmount)
         }
 
-        guard amount >= 0 else {
-            throw ValidationError.invalidAmount
+        guard amount > 0 else {
+            throw SendAmountValidatorError.zeroAmount
         }
 
         guard amount <= stakedAmount else {
