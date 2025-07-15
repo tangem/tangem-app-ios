@@ -70,6 +70,7 @@ enum WalletConnectModuleFactory {
             getConnectedDAppsUseCase: getConnectedDAppsUseCase,
             dAppsSessionExtender: dAppsSessionExtender,
             disconnectDAppUseCase: disconnectDAppUseCase,
+            userWalletRepository: userWalletRepository,
             coordinator: coordinator
         )
     }
@@ -144,6 +145,7 @@ enum WalletConnectModuleFactory {
         return WalletConnectConnectedDAppDetailsViewModel(
             connectedDApp: dApp,
             disconnectDAppUseCase: disconnectDAppUseCase,
+            userWalletRepository: userWalletRepository,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
             },
