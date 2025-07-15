@@ -40,12 +40,14 @@ final class WalletConnectResolveAvailableBlockchainsUseCase {
         let sortedAvailableBlockchains = (resultAvailableRequiredBlockchains + resultAvailableOptionalBlockchains)
             .sorted(by: \.blockchain.displayName)
 
-        let sortedUnavailableBlockchains = unavailableOptionalBlockchains.sorted(by: \.displayName)
+        let sortedUnavailableOptionalBlockchains = unavailableOptionalBlockchains
+            .subtracting(unavailableRequiredBlockchains)
+            .sorted(by: \.displayName)
 
         return WalletConnectDAppBlockchainsAvailabilityResult(
             unavailableRequiredBlockchains: sortedUnavailableRequiredBlockchains,
             availableBlockchains: sortedAvailableBlockchains,
-            notAddedBlockchains: sortedUnavailableBlockchains
+            notAddedBlockchains: sortedUnavailableOptionalBlockchains
         )
     }
 
