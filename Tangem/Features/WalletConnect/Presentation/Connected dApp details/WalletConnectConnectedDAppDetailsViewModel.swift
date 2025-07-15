@@ -25,6 +25,7 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
     init(
         connectedDApp: WalletConnectConnectedDApp,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
+        userWalletRepository: some UserWalletRepository,
         closeAction: @escaping () -> Void,
         onDisconnect: @escaping () -> Void
     ) {
@@ -35,7 +36,7 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
 
         let dateFormatter = Self.makeDateFormatter()
         self.dateFormatter = dateFormatter
-        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter)
+        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter, userWalletRepository: userWalletRepository)
 
         subscribeToConnectedTimeUpdates()
     }
@@ -126,9 +127,11 @@ extension WalletConnectConnectedDAppDetailsViewModel {
 
     private static func makeInitialState(
         for dApp: WalletConnectConnectedDApp,
-        using dateFormatter: RelativeDateTimeFormatter
+        using dateFormatter: RelativeDateTimeFormatter,
+        userWalletRepository: some UserWalletRepository
     ) -> WalletConnectConnectedDAppDetailsViewState {
         let imageProvider = NetworkImageProvider()
+        let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID })?.name ?? ""
 
         return WalletConnectConnectedDAppDetailsViewState.dAppDetails(
             WalletConnectConnectedDAppDetailsViewState.DAppDetails(
@@ -141,7 +144,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                         verificationStatus: dApp.verificationStatus
                     )
                 ),
-                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: dApp.userWallet.name),
+                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),
                 dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
                 connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
                     blockchains: dApp.blockchains.map { blockchain in
