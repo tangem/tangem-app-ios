@@ -84,23 +84,21 @@ public class CommonIncomingActionManager {
         guard
             let networkId = userInfo[paramsConstants.networkId] as? String,
             let tokenId = userInfo[paramsConstants.tokenId] as? String,
-            let walletId = userInfo[paramsConstants.userWalletId] as? String,
+            let userWalletId = userInfo[paramsConstants.userWalletId] as? String,
             let type = userInfo[paramsConstants.type] as? String,
             validTypes.contains(type)
         else {
             return
         }
 
-        let userWalletId = userInfo[paramsConstants.userWalletId] as? String
         let derivationPath = userInfo[paramsConstants.derivationPath] as? String
 
         let transactionPushURLHelper = TransactionPushActionURLHelper(
             type: type, // See documentation.
             networkId: networkId,
             tokenId: tokenId,
-            walletId: walletId,
-            derivationPath: derivationPath,
-            userWalletId: userWalletId
+            userWalletId: userWalletId,
+            derivationPath: derivationPath
         )
 
         let handleUrl = transactionPushURLHelper.buildURL(scheme: .withoutRedirectUniversalLink)
