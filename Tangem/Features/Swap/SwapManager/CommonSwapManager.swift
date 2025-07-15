@@ -9,12 +9,21 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 class CommonSwapManager {
+    // Dependencies
+
     private let interactor: ExpressInteractor
+
+    // Private
+    private var refreshDataTask: Task<Void, Error>?
+    private var bag: Set<AnyCancellable> = []
 
     init(interactor: ExpressInteractor) {
         self.interactor = interactor
+
+        bind()
     }
 }
 
@@ -55,19 +64,6 @@ extension CommonSwapManager: SwapManager {
             .eraseToAnyPublisher()
     }
 
-    var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        interactor.state.map { state in
-            switch state {
-            case .idle, .loading, .restriction:
-                return false
-            case .permissionRequired:
-                return true
-            case .readyToSwap, .previewCEX:
-                return true
-            }
-        }.eraseToAnyPublisher()
-    }
-
     func update(amount: Decimal?) {
         interactor.update(amount: amount, by: .amountChange)
     }
@@ -90,6 +86,10 @@ extension CommonSwapManager: SwapManager {
         interactor.updateProvider(provider: provider)
     }
 
+    func update() {
+        interactor.refresh(type: .full)
+    }
+
     func updateFees() {
         interactor.refresh(type: .fee)
     }
@@ -101,4 +101,42 @@ extension CommonSwapManager: SwapManager {
 
 // MARK: - Private
 
-private extension CommonSwapManager {}
+private extension CommonSwapManager {
+    func bind() {
+        // Timer
+        statePublisher
+            .withWeakCaptureOf(self)
+            .sink { $0.updateTimer(state: $1) }
+            .store(in: &bag)
+    }
+
+    func updateTimer(state: SwapManagerState) {
+        switch state {
+        case .restriction(.hasPendingApproveTransaction, _),
+             .permissionRequired,
+             .previewCEX,
+             .readyToSwap:
+            restartTimer()
+        case .idle, .loading, .restriction:
+            stopTimer()
+        }
+    }
+
+    func stopTimer() {
+        AppLogger.info("Stop timer")
+        refreshDataTask?.cancel()
+    }
+
+    func restartTimer() {
+        AppLogger.info("Start timer")
+
+        refreshDataTask?.cancel()
+        refreshDataTask = runTask(in: self) {
+            try await Task.sleep(seconds: 10)
+            try Task.checkCancellation()
+
+            AppLogger.info("Timer call autoupdate")
+            $0.interactor.refresh(type: .refreshRates)
+        }
+    }
+}
