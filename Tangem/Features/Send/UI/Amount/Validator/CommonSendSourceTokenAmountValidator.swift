@@ -23,6 +23,10 @@ extension CommonSendSourceTokenAmountValidator: SendAmountValidator {
             throw Error.sendSourceTokenInputNotFound
         }
 
+        guard amount > 0 else {
+            throw SendAmountValidatorError.zeroAmount
+        }
+
         let amount = Amount(with: sourceToken.tokenItem.blockchain, type: sourceToken.tokenItem.amountType, value: amount)
         try sourceToken.transactionValidator.validate(amount: amount)
     }
