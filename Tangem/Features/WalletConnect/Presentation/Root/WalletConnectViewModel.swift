@@ -18,6 +18,7 @@ final class WalletConnectViewModel: ObservableObject {
     private let getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase
     private let dAppsSessionExtender: WalletConnectDAppSessionsExtender
     private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
+    private let userWalletRepository: any UserWalletRepository
 
     private weak var coordinator: (any WalletConnectRoutable)?
 
@@ -35,6 +36,7 @@ final class WalletConnectViewModel: ObservableObject {
         getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase,
         dAppsSessionExtender: WalletConnectDAppSessionsExtender,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
+        userWalletRepository: some UserWalletRepository,
         coordinator: some WalletConnectRoutable
     ) {
         self.state = state
@@ -42,6 +44,7 @@ final class WalletConnectViewModel: ObservableObject {
         self.getConnectedDAppsUseCase = getConnectedDAppsUseCase
         self.dAppsSessionExtender = dAppsSessionExtender
         self.disconnectDAppUseCase = disconnectDAppUseCase
+        self.userWalletRepository = userWalletRepository
         self.coordinator = coordinator
 
         logger = WCLogger
@@ -209,16 +212,7 @@ extension WalletConnectViewModel {
             return
         }
 
-        let userWalletToConnectedDApps = connectedDApps.grouped(by: \.userWallet)
-
-        let walletsWithDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = userWalletToConnectedDApps
-            .compactMap { userWallet, dApps in
-                return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
-                    walletId: userWallet.id,
-                    walletName: userWallet.name,
-                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
-                )
-            }
+        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps)
 
         guard !walletsWithDApps.isEmpty else {
             state.contentState = .empty(.init())
@@ -232,5 +226,43 @@ extension WalletConnectViewModel {
 
     private func handleCloseDialogButtonTapped() {
         state.dialog = nil
+    }
+}
+
+// MARK: - Factory methods and state mapping
+
+extension WalletConnectViewModel {
+    private func makeWalletsWithConnectedDApps(
+        from connectedDApps: [WalletConnectConnectedDApp]
+    ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
+        var userWalletIDToConnectedDApps = [String: [WalletConnectConnectedDApp]]()
+        var orderedUserWalletIDs = [String]()
+
+        for dApp in connectedDApps {
+            let connectedDApps: [WalletConnectConnectedDApp]
+
+            if var addedDApps = userWalletIDToConnectedDApps[dApp.userWalletID] {
+                addedDApps.append(dApp)
+                connectedDApps = addedDApps
+            } else {
+                orderedUserWalletIDs.append(dApp.userWalletID)
+                connectedDApps = [dApp]
+            }
+
+            userWalletIDToConnectedDApps[dApp.userWalletID] = connectedDApps
+        }
+
+        return orderedUserWalletIDs
+            .compactMap { userWalletID in
+                guard let dApps = userWalletIDToConnectedDApps[userWalletID] else { return nil }
+
+                let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID })?.name ?? ""
+
+                return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
+                    walletId: userWalletID,
+                    walletName: walletName,
+                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
+                )
+            }
     }
 }
