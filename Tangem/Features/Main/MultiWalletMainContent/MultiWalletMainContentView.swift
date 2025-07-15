@@ -51,6 +51,7 @@ struct MultiWalletMainContentView: View {
                     action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
             }
         }
         .padding(.horizontal, 16)
