@@ -17,7 +17,7 @@ struct OnboardingPinStackView: View {
     @Environment(\.pinStackColor) private var pinColor
     @Environment(\.pinStackSecured) private var pinSecured
 
-    @State private var firstResponder: Bool? = true
+    @State private var isResponder: Bool? = false
 
     var body: some View {
         ZStack {
@@ -35,18 +35,17 @@ struct OnboardingPinStackView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                setFirstResponser(true)
+                isResponder = !isDisabled
             }
         }
-        .onChange(of: isDisabled) { newValue in
-            // Observes `isDisabled` property changes. When the view becomes enabled (`isDisabled` is false),
-            // it sets the text field as first responder to bring up the keyboard.
-            if !isDisabled {
-                setFirstResponser(true)
-            }
+        .onChange(of: isDisabled) { disabled in
+            isResponder = !disabled
         }
-        .onAppear {
-            setFirstResponser(true)
+        .onDidAppear {
+            isResponder = !isDisabled
+        }
+        .onWillDisappear {
+            isResponder = false
         }
     }
 
@@ -54,7 +53,7 @@ struct OnboardingPinStackView: View {
     private var backgroundField: some View {
         CustomTextField(
             text: $pinText,
-            isResponder: $firstResponder,
+            isResponder: $isResponder,
             actionButtonTapped: Binding.constant(false),
             handleKeyboard: true,
             keyboard: .numberPad,
@@ -62,7 +61,6 @@ struct OnboardingPinStackView: View {
             maxCount: maxDigits
         )
         .setAutocapitalizationType(.none)
-        .disabled(isDisabled)
     }
 
     private func getDigit(_ index: Int) -> String {
@@ -73,12 +71,6 @@ struct OnboardingPinStackView: View {
         }
 
         return ""
-    }
-
-    private func setFirstResponser(_ value: Bool) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            firstResponder = value
-        }
     }
 }
 
