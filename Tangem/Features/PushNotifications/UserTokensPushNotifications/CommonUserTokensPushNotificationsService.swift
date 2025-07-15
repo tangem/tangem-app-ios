@@ -28,6 +28,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     private var reproducedBag: Set<AnyCancellable> = []
     private var updateStateTask: Task<Void, Never>?
 
+    /// Subject for synchronizing the initialization request and receiving events from userWalletRepository.
     private var _syncEventSubject: PassthroughSubject<Void, Never> = .init()
 
     private var applicationUid: String {
@@ -36,6 +37,10 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     // MARK: - Implementation
 
+    /// Initializes the push notifications service.
+    /// Checks the registration of appUid (creates or updates the application on the server),
+    /// updates the isInitialized flag, and fetches the list of wallets linked to the appUid.
+    /// After successful initialization, sends a synchronization event.
     func initialize() {
         guard FeatureProvider.isAvailable(.pushTransactionNotifications) else {
             return
@@ -69,8 +74,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         bind()
     }
 
-    // FaceId до запросов
-
+    /// Subscribes to repository changes using combineLatest to ensure the service is fully initialized before handling events.
     private func bind() {
         initialSubscription = _syncEventSubject
             .combineLatest(userWalletRepository.eventProvider)
@@ -82,6 +86,8 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             }
     }
 
+    /// Subscribes to changes in the wallet name state.
+    /// The subscription is stored in reproducedBag because it is recreated each time the repository changes.
     private func bindWhenUserWalletRepositoryDidUpdated() {
         reproducedBag.removeAll()
 
