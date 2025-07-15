@@ -101,11 +101,12 @@ final class TONWalletManager: BaseManager, WalletManager {
                     .mapAndEraseSendTxError(tx: message)
                     .eraseToAnyPublisher()
             }
-            .map { [weak self] hash in
+            .map { [weak self] base64String in
                 let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                let hex = Data(base64Encoded: base64String)?.hex() ?? ""
+                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hex)
                 self?.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hex)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
