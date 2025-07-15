@@ -75,8 +75,6 @@ final class WalletConnectSavedSessionMigrationService {
         async let verificationStatus = (try? await dAppVerificationService.verify(dAppDomain: dAppDomain)) ?? .unknownDomain
         async let dAppIcon = await dAppIconURLResolver.resolveURL(from: legacySession.sessionInfo.dAppInfo.iconLinks)
 
-        let userWallet = WalletConnectConnectedDApp.UserWallet(id: userWalletModel.userWalletId.stringValue, name: userWalletModel.name)
-
         let dAppData = WalletConnectDAppData(
             name: legacySession.sessionInfo.dAppInfo.name,
             domain: dAppDomain,
@@ -85,7 +83,7 @@ final class WalletConnectSavedSessionMigrationService {
 
         return WalletConnectConnectedDApp(
             session: WalletConnectDAppSession(topic: legacySession.topic, expiryDate: Date()),
-            userWallet: userWallet,
+            userWalletID: userWalletModel.userWalletId.stringValue,
             dAppData: dAppData,
             verificationStatus: await verificationStatus,
             blockchains: Set(legacySession.connectedBlockchains).sorted(by: \.displayName),
