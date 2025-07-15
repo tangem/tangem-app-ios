@@ -21,6 +21,10 @@ struct CommonSendAmountValidator {
 
 extension CommonSendAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
+        guard amount > 0 else {
+            throw SendAmountValidatorError.zeroAmount
+        }
+
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
         try validator.validate(amount: amount)
     }
