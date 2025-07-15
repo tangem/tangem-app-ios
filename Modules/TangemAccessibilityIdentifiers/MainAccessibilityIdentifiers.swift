@@ -13,4 +13,6 @@ public enum MainAccessibilityIdentifiers {
     public static let exchangeTitle = "mainExchangeTitle"
     public static let sellTitle = "mainSellTitle"
     public static let tokensList = "mainTokensList"
+    public static let organizeTokensButton = "mainOrganizeTokensButton"
+    public static let tokenTitle = "mainTokenTitle"
 }
