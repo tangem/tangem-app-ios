@@ -24,7 +24,7 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var networksSection: NetworksSection
     var networksWarningSection: WalletConnectWarningNotificationViewModel?
 
-    let cancelButton = Self.Button(title: Localization.commonCancel, isLoading: false)
+    let cancelButton = Self.Button(title: Localization.commonCancel, isEnabled: true, isLoading: false)
     var connectButton: Self.Button
 }
 
@@ -210,13 +210,11 @@ extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
 extension WalletConnectDAppConnectionRequestViewState {
     struct Button: Equatable {
         let title: String
+        var isEnabled: Bool
         var isLoading: Bool
 
-        static func connect(isLoading: Bool) -> WalletConnectDAppConnectionRequestViewState.Button {
-            WalletConnectDAppConnectionRequestViewState.Button(
-                title: Localization.wcCommonConnect,
-                isLoading: isLoading
-            )
+        static func connect(isEnabled: Bool, isLoading: Bool) -> WalletConnectDAppConnectionRequestViewState.Button {
+            WalletConnectDAppConnectionRequestViewState.Button(title: Localization.wcCommonConnect, isEnabled: isEnabled, isLoading: isLoading)
         }
     }
 }

@@ -199,7 +199,7 @@ extension WalletConnectDAppConnectionViewModel {
     }
 
     private func makeNetworksSelectorViewModel() -> WalletConnectNetworksSelectorViewModel {
-        WalletConnectNetworksSelectorViewModel(
+        let viewModel = WalletConnectNetworksSelectorViewModel(
             backAction: { [weak self] in
                 self?.openConnectionRequest()
             },
@@ -208,5 +208,17 @@ extension WalletConnectDAppConnectionViewModel {
                 self?.openConnectionRequest()
             }
         )
+
+        viewModel
+            .$state
+            .map { state in
+                state.doneButton.isEnabled
+            }
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        return viewModel
     }
 }
