@@ -78,8 +78,8 @@ class CommonSendAmountInteractor {
 
     private func validateAndUpdate(amount: SendAmount?) {
         do {
-            // Validation is performed only when an initial amount neither empty nor zero
-            if let crypto = amount?.crypto, crypto > 0 {
+            // Validation is performed only when an initial amount is not empty
+            if let crypto = amount?.crypto {
                 try validator.validate(amount: crypto)
             }
 
@@ -91,6 +91,8 @@ class CommonSendAmountInteractor {
             }
 
             update(amount: modifiedAmount, isValid: modifiedAmount != .none, error: .none)
+        } catch SendAmountValidatorError.zeroAmount {
+            update(amount: .none, isValid: false, error: .none)
         } catch {
             update(amount: .none, isValid: false, error: error)
         }
