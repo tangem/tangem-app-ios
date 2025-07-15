@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensView: View {
     // MARK: - Model
@@ -138,6 +139,7 @@ struct OrganizeTokensView: View {
                             .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
                 }
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
                 .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
                     visibleViewportFrame = newValue
@@ -373,6 +375,7 @@ struct OrganizeTokensView: View {
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(name: viewModel.name, section: indexPath.section, item: indexPath.item))
             .background(Colors.Background.primary)
             .cornerRadius(
                 parametersProvider.cornerRadius(forItemAt: indexPath),
