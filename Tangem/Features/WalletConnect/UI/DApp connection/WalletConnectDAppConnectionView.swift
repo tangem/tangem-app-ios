@@ -167,6 +167,7 @@ struct WalletConnectDAppConnectionView: View {
                 title: viewModel.state.cancelButton.title,
                 style: .secondary,
                 isLoading: viewModel.state.cancelButton.isLoading,
+                isDisabled: !viewModel.state.cancelButton.isEnabled,
                 action: {
                     viewModel.handle(viewEvent: .cancelButtonTapped)
                 }
@@ -175,6 +176,7 @@ struct WalletConnectDAppConnectionView: View {
             MainButton(
                 title: viewModel.state.connectButton.title,
                 isLoading: viewModel.state.connectButton.isLoading,
+                isDisabled: !viewModel.state.connectButton.isEnabled,
                 action: {
                     viewModel.handle(viewEvent: .connectButtonTapped)
                 }

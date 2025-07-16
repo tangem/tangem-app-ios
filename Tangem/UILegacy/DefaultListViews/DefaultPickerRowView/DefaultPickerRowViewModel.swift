@@ -13,11 +13,18 @@ struct DefaultPickerRowViewModel: Hashable, Identifiable {
 
     let title: String
     let options: [String]
+    let displayTitles: [String]?
     let selection: BindingValue<String>
 
-    init(title: String, options: [String], selection: BindingValue<String>) {
+    /// Titles to display in picker. Falls back to options if not provided.
+    var displayOptions: [String] {
+        displayTitles ?? options
+    }
+
+    init(title: String, options: [String], displayTitles: [String]? = nil, selection: BindingValue<String>) {
         self.title = title
         self.options = options
+        self.displayTitles = displayTitles
         self.selection = selection
     }
 }
