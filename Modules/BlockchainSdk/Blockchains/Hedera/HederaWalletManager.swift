@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import struct Hedera.AccountId
+import TangemFoundation
 
 final class HederaWalletManager: BaseManager {
     fileprivate typealias AssociatedTokens = Set<String>
