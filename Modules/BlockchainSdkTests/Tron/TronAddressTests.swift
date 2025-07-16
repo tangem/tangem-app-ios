@@ -8,9 +8,9 @@
 
 import Foundation
 import TangemSdk
-@testable import BlockchainSdk
 import WalletCore
 import Testing
+@testable import BlockchainSdk
 
 struct TronAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()

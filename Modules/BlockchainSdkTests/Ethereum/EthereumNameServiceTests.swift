@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
 import Testing
+import TangemSdk
+@testable import BlockchainSdk
 
 struct EthereumNameServiceTests {
     let processor = CommonENSProcessor()

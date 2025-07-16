@@ -9,9 +9,9 @@
 import Foundation
 import TangemSdk
 import CryptoKit
+import Testing
 import class WalletCore.PrivateKey
 @testable import BlockchainSdk
-import Testing
 
 struct Fact0rnAddressTests {
     @Test
