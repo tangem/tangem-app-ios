@@ -8,8 +8,9 @@
 
 import Foundation
 import WalletCore
-@testable import BlockchainSdk
 import Testing
+import TangemSdk
+@testable import BlockchainSdk
 
 struct CardanoTransactionTests {
     private let transactionBuilder: CardanoTransactionBuilder
