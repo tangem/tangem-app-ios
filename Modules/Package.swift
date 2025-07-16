@@ -43,8 +43,8 @@ let package = Package(
         .package(url: "https://github.com/jedisct1/swift-sodium.git", exact: "0.9.1"),
         // CombineExt
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.8.4"),
-        .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", exact: "0.26.0-tangem5"),
-        .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem4"),
+        .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
+        .package(url: "git@github.com:tangem-developments/IcpKit.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
         // Moya
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
         .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem14"),
