@@ -23,6 +23,7 @@ protocol SendNewAmountInteractor {
     func updateToMaxAmount() throws -> SendAmount
 
     func removeReceivedToken()
+    func saveChanges()
 }
 
 class CommonSendNewAmountInteractor {
@@ -101,7 +102,8 @@ class CommonSendNewAmountInteractor {
 
             if let modifiedCryptoAmount = modifiedAmount?.crypto, modifiedCryptoAmount != amount?.crypto {
                 // additional validation if amount has changed
-                try validator.validate(amount: modifiedCryptoAmount)
+                _cachedAmount.send(modifiedAmount)
+                return
             }
 
             update(amount: modifiedAmount, isValid: modifiedAmount != .none, error: .none)
@@ -116,7 +118,6 @@ class CommonSendNewAmountInteractor {
         let errorDescription = error.flatMap { getValidationErrorDescription(error: $0) }
         _error.send(errorDescription)
         _isValid.send(isValid)
-        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: amount)
     }
 
     private func getValidationErrorDescription(error: Error) -> String? {
@@ -266,5 +267,9 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
 
     func removeReceivedToken() {
         receiveTokenOutput?.userDidRequestClearSelection()
+    }
+
+    func saveChanges() {
+        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: _cachedAmount.value)
     }
 }
