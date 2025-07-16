@@ -99,8 +99,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultPickerRowViewModel(
-                title: "Express api type",
+                title: "Express API type",
                 options: ExpressAPIType.allCases.map { $0.rawValue },
+                displayTitles: ExpressAPIType.allCases.map { $0.title },
                 selection: BindingValue<String>(
                     root: featureStorage,
                     default: ExpressAPIType.production.rawValue,
