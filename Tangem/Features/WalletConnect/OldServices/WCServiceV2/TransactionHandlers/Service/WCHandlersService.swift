@@ -78,7 +78,7 @@ extension CommonWCHandlersService: WCHandlersService {
         }
 
         guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWallet.id })
+            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID })
         else {
             WCLogger.warning("Failed to find target user wallet")
             throw WalletConnectV2Error.missingActiveUserWalletModel
