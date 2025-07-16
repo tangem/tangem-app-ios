@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class OldCommonWalletConnectService {
+final class OldCommonWalletConnectService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var v2Service: OldWalletConnectV2Service
 
-    init() {
-        v2Service = OldWalletConnectFactory().createWCService()
+    init(v2Service: OldWalletConnectV2Service) {
+        self.v2Service = v2Service
     }
 }
 
