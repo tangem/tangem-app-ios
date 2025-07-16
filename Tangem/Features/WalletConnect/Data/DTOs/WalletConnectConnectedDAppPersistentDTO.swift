@@ -12,7 +12,6 @@ import enum BlockchainSdk.Blockchain
 struct WalletConnectConnectedDAppPersistentDTO: Codable {
     let sessionTopic: String
     let userWalletID: String
-    let userWalletName: String
     let dAppName: String
     let dAppDomainURL: URL
     let dAppIconURL: URL?
