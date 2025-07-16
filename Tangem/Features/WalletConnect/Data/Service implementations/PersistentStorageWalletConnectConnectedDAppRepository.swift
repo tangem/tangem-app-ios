@@ -72,7 +72,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         var removedDApps = [WalletConnectConnectedDApp]()
 
         for i in stride(from: filteredDApps.count - 1, through: .zero, by: -1) {
-            if filteredDApps[i].userWallet.id == userWalletID {
+            if filteredDApps[i].userWalletID == userWalletID {
                 removedDApps.append(filteredDApps.remove(at: i))
             }
         }
