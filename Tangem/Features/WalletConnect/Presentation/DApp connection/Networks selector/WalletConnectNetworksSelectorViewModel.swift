@@ -40,6 +40,8 @@ extension WalletConnectNetworksSelectorViewModel {
 
         case .optionalBlockchainSelectionChanged(let index, let isSelected):
             state.availableSection.blockchains[index].updateSelection(isSelected)
+            state.doneButton.isEnabled = state.requiredNetworksAreUnavailableSection == nil
+                && state.availableSection.blockchains.filter(\.isSelected).isNotEmpty
 
         case .doneButtonTapped:
             doneAction(state.retrieveSelectedBlockchains())
@@ -57,7 +59,7 @@ private extension WalletConnectNetworksSelectorViewState {
             notAddedSection: .init(blockchainsAvailabilityResult),
             doneButton: .init(
                 isEnabled: blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
-                    && !blockchainsAvailabilityResult.availableBlockchains.isEmpty
+                    && !blockchainsAvailabilityResult.availableBlockchains.filter(\.isSelected).isEmpty
             )
         )
     }
