@@ -31,7 +31,7 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
 
     func bind(input: SendDestinationInput) {
         inputSubscription = Publishers
-            .CombineLatest(input.destinationPublisher, input.additionalFieldPublisher)
+            .CombineLatest(input.destinationPublisher.compactMap { $0 }, input.additionalFieldPublisher)
             .withWeakCaptureOf(self)
             .map { viewModel, args in
                 viewModel.makeDestinationViewTypes(address: args.0.value, additionalField: args.1)
