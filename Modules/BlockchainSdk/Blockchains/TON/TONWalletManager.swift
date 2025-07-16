@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import WalletCore
+import TangemFoundation
 
 final class TONWalletManager: BaseManager, WalletManager {
     // MARK: - Properties
