@@ -11,6 +11,7 @@ import Combine
 import CryptoKit
 import TangemSdk
 import Testing
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct PolkadotTests {

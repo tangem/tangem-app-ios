@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
 import Testing
+import TangemFoundation
+@testable import BlockchainSdk
 
 struct MantleTransactionTests {
     private let blockchain = Blockchain.mantle(testnet: false)
