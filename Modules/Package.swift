@@ -266,6 +266,14 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "BlockchainSdkTests",
             dependencies: [
                 "BlockchainSdk",
+                "TangemFoundation",
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                "BigInt",
+                .product(name: "SolanaSwift", package: "Solana.Swift"),
+                .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
+                .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
+                .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
+                .product(name: "Hedera", package: "hedera-sdk-swift"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
