@@ -12,7 +12,11 @@ struct SolanaFeeParameters: FeeParameters {
     let computeUnitLimit: UInt32?
     let computeUnitPrice: UInt64?
 
-    init(computeUnitLimit: UInt32?, computeUnitPrice: UInt64?) {
+    /// for network request optimization purpose
+    let destinationAccountExists: Bool
+
+    init(destinationAccountExists: Bool, computeUnitLimit: UInt32?, computeUnitPrice: UInt64?) {
+        self.destinationAccountExists = destinationAccountExists
         self.computeUnitLimit = computeUnitLimit
         self.computeUnitPrice = computeUnitPrice
     }
