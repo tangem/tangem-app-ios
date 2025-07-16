@@ -23,7 +23,7 @@ struct TezosAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_whenTryToGeneratedFromEdKey_thenThrowsError() async throws {
+    func invalidCurveGeneration_whenTryToGeneratedFromEdKey_thenThrowsError() async throws {
         let service = TezosAddressService(curve: .secp256k1)
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
@@ -50,7 +50,7 @@ struct TezosAddressTests {
     }
 
     @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
-    func inavalidCurveGeneration_whenTryToGeneratedFromSecp256k1Key_thenThrowsError(curve: EllipticCurve) async throws {
+    func invalidCurveGeneration_whenTryToGeneratedFromSecp256k1Key_thenThrowsError(curve: EllipticCurve) async throws {
         let service = TezosAddressService(curve: curve)
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
