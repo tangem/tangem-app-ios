@@ -14,13 +14,12 @@ public class IncomingActionParser {
     // MARK: - Properties
 
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
-        DefaultIncomingLinkParser(isFeatureAvailable: FeatureProvider.isAvailable(.deeplink)),
-        NDEFURLParser(),
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
         OnrampIncomingActionURLParser(),
+        DefaultIncomingLinkParser(isFeatureAvailable: FeatureProvider.isAvailable(.deeplink)),
     ]
 
     private let urlValidator: IncomingURLValidator
