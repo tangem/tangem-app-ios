@@ -45,6 +45,10 @@ extension SendNewDestinationStep: SendStep {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }
 
+    func saveChangesIfNeeded() {
+        interactor.saveChanges()
+    }
+
     func initialAppear() {
         Analytics.log(.sendAddressScreenOpened)
     }
