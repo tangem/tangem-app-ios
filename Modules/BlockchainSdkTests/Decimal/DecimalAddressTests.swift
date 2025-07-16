@@ -42,7 +42,7 @@ struct DecimalAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         #expect(throws: (any Error).self) {
             try DecimalAddressService().makeAddress(from: Keys.AddressesKeys.edKey)
         }
