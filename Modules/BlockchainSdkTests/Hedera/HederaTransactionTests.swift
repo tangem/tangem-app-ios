@@ -8,11 +8,11 @@
 
 import Foundation
 import TangemSdk
+import Testing
 import enum WalletCore.Curve
 import class WalletCore.PrivateKey
 import struct Hedera.AccountId
 @testable import BlockchainSdk
-import Testing
 
 final class HederaTests {
     /// SAUCE testnet token https://hashscan.io/testnet/token/0.0.1183558
