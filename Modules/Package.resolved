@@ -402,8 +402,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "fe21f909c07ddc3759e71eb6be8d16eae2ccf845",
-        "version" : "3.22.2"
+        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
+        "revision" : "542f3d4b64882a1afc8cc3ad38025a07f5eac5fd"
       }
     },
     {
