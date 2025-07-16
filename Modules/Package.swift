@@ -158,6 +158,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "BlockchainSdk",
             dependencies: [
+                // [REDACTED_TODO_COMMENT]
                 // BSDK external deps:
                 "AnyCodable",
                 .product(name: "BinanceChain", package: "SwiftBinanceChain"),
@@ -176,7 +177,7 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "TangemWalletCoreBinariesWrapper", package: "wallet-core-binaries-ios"),
                 .product(name: "TonSwift", package: "ton-swift"),
                 // BSDK internal deps:
-                // Use `find . -iname "*.swift" -type f  -exec grep -rF "import Tangem" {} \; | cut -d ':' -f2 | sort | uniq` to find all internal dependencies
+                // Use `find ./Modules/BlockchainSdk -iname "*.swift" -type f -exec grep -rF "import Tangem" {} \; | cut -d ':' -f2 | sort | uniq` to find all internal dependencies
                 "TangemFoundation",
                 "TangemLocalization",
                 "TangemLogger",
@@ -266,6 +267,7 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "BlockchainSdkTests",
             dependencies: [
                 "BlockchainSdk",
+                // Use `find ./Modules/BlockchainSdkTests -iname "*.swift" -type f -exec grep -rF "import " {} \; | cut -d ':' -f2 | sort | uniq` to find all dependencies
                 "TangemFoundation",
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 "BigInt",
