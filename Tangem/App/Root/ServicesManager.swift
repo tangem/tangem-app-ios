@@ -35,6 +35,8 @@ class ServicesManager {
     }
 
     func initialize() {
+        handleUITestingArguments()
+
         TangemLoggerConfigurator().initialize()
 
         let initialLaunches = recordAppLaunch()
@@ -97,6 +99,19 @@ class ServicesManager {
         AppLogger.info(deviceInfoMessage)
 
         return initialLaunches
+    }
+
+    private func handleUITestingArguments() {
+        // Only process UI testing arguments when running in UI test mode
+        guard AppEnvironment.current.isUITest else { return }
+
+        let arguments = ProcessInfo.processInfo.arguments
+
+        if let skipToSIndex = arguments.firstIndex(of: "-uitest-skip-tos") {
+            AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
+        } else {
+            AppSettings.shared.termsOfServicesAccepted = []
+        }
     }
 }
 
