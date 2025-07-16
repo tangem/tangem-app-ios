@@ -10,8 +10,8 @@ import Foundation
 import TangemSdk
 import WalletCore
 import CryptoKit
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct AlgorandAddressTests {
     @Test

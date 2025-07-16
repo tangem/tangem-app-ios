@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 import WalletCore
+import TangemSdk
 @testable import BlockchainSdk
 
 final class NEARTests: XCTestCase {

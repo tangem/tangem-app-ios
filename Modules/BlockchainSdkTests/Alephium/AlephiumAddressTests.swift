@@ -7,9 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
 import TangemSdk
 import Testing
+@testable import BlockchainSdk
 
 struct AlephiumAddressTests {
     private let addressService: AlephiumAddressService

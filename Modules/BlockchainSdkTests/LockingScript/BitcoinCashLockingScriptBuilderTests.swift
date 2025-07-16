@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import TangemSdk
 @testable import BlockchainSdk
 
 class CashAddrLockingScriptBuilderTests {

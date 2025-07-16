@@ -8,8 +8,8 @@
 
 import Foundation
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct TONAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()

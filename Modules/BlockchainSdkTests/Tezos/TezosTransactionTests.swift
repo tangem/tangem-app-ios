@@ -7,11 +7,11 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
 import Testing
 import CryptoKit
 import TangemSdk
 import WalletCore
+@testable import BlockchainSdk
 
 struct TezosTests {
     @Test(arguments: [Configuration.ed25519_slip0010, .secp256k1])

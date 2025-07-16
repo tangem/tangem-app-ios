@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
 import Testing
+import TangemSdk
+@testable import BlockchainSdk
 
 struct RadiantAddressTests {
     /// Validate by https://github.com/RadiantBlockchain/radiantjs

@@ -10,8 +10,8 @@ import Foundation
 import Combine
 import CryptoKit
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct PolkadotTests {
     /// Taken from trust wallet, `SignerTests.cpp`
