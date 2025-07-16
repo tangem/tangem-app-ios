@@ -23,6 +23,7 @@ protocol SendStep {
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
     func canBeClosed(continueAction: @escaping () -> Void) -> Bool
+    func saveChangesIfNeeded()
 
     func initialAppear()
     func willAppear(previous step: any SendStep)
@@ -34,6 +35,7 @@ extension SendStep {
     var shouldShowBottomOverlay: Bool { true }
 
     func canBeClosed(continueAction: @escaping () -> Void) -> Bool { true }
+    func saveChangesIfNeeded() {}
 
     func initialAppear() {}
     func willAppear(previous step: any SendStep) {}
