@@ -11,14 +11,27 @@ import TangemAssets
 import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
-enum WalletConnectConnectedDAppDetailsViewState {
+enum WalletConnectConnectedDAppDetailsViewState: Equatable {
     case dAppDetails(DAppDetails)
     case verifiedDomain(WalletConnectDAppDomainVerificationViewModel)
+
+    static func == (lhs: WalletConnectConnectedDAppDetailsViewState, rhs: WalletConnectConnectedDAppDetailsViewState) -> Bool {
+        switch (lhs, rhs) {
+        case (.dAppDetails(let lhsDAppDetails), .dAppDetails(let rhsDAppDetails)):
+            return lhsDAppDetails == rhsDAppDetails
+
+        case (.verifiedDomain, .verifiedDomain):
+            return true
+
+        default:
+            return false
+        }
+    }
 }
 
 extension WalletConnectConnectedDAppDetailsViewState {
-    struct DAppDetails {
-        let navigationBar: NavigationBar
+    struct DAppDetails: Equatable {
+        var navigationBar: NavigationBar
         let dAppDescriptionSection: WalletConnectDAppDescriptionViewModel
         let walletSection: WalletSection?
         let dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
@@ -28,18 +41,18 @@ extension WalletConnectConnectedDAppDetailsViewState {
 }
 
 extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
-    struct NavigationBar {
+    struct NavigationBar: Equatable {
         let title = "Connected App"
-        let connectedTime: String?
+        var connectedTime: String
     }
 
-    struct WalletSection {
+    struct WalletSection: Equatable {
         let labelAsset = Assets.Glyphs.walletNew
         let labelText = Localization.wcCommonWallet
         let walletName: String
     }
 
-    struct ConnectedNetworksSection {
+    struct ConnectedNetworksSection: Equatable {
         let headerTitle = "Connected networks"
         let blockchains: [BlockchainRowItem]
 
@@ -49,12 +62,12 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
         }
     }
 
-    struct DisconnectButton {
+    struct DisconnectButton: Equatable {
         let title = Localization.commonDisconnect
         var isLoading: Bool
     }
 
-    struct BlockchainRowItem: Identifiable {
+    struct BlockchainRowItem: Identifiable, Equatable {
         let id: String
         let iconAsset: ImageType
         let name: String

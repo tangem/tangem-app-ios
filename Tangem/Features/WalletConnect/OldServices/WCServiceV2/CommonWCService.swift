@@ -14,12 +14,13 @@ import TangemUIUtils
 final class CommonWCService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.dAppSessionsExtender) private var dAppSessionsExtender: WalletConnectDAppSessionsExtender
+    private let dAppSessionsExtender: WalletConnectDAppSessionsExtender
 
     private let v2Service: WCServiceV2
 
-    init() {
-        v2Service = WCFactory().createWCService()
+    init(v2Service: WCServiceV2, dAppSessionsExtender: WalletConnectDAppSessionsExtender) {
+        self.v2Service = v2Service
+        self.dAppSessionsExtender = dAppSessionsExtender
     }
 }
 
@@ -30,7 +31,10 @@ extension CommonWCService: WCService {
 
     func initialize() {
         incomingActionManager.becomeFirstResponder(self)
-        dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
+
+        Task {
+            await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
+        }
     }
 
     func reset() {
@@ -54,10 +58,6 @@ extension CommonWCService: WCService {
 
     func disconnectSession(withTopic topic: String) async throws {
         try await v2Service.disconnectSession(withTopic: topic)
-    }
-
-    func extendSession(withTopic topic: String) async throws {
-        try await v2Service.extendSession(withTopic: topic)
     }
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
