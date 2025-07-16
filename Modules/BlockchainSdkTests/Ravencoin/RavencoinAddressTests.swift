@@ -29,7 +29,7 @@ struct RavencoinAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         let addressService = BitcoinLegacyAddressService(networkParams: RavencoinMainNetworkParams())
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
