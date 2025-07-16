@@ -208,11 +208,11 @@ final class TokenSectionsAdapter {
             let allWalletModels = sectionItems
                 .compactMap(\.walletModel)
 
-            // We don't sort section items by balance if some of them don't have balance information
-            let hasWalletModelsWithoutBalanceInfo = allWalletModels
-                .contains { $0.totalTokenBalanceProvider.balanceType.value == .none }
+            // We don't sort section items by balance if some of them are currently loading
+            let hasWalletModelsInLoadingState = allWalletModels
+                .contains { $0.totalTokenBalanceProvider.balanceType.isLoading }
 
-            if hasWalletModelsWithoutBalanceInfo {
+            if hasWalletModelsInLoadingState {
                 return sectionItems
             }
 
