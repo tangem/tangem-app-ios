@@ -46,6 +46,10 @@ extension SendNewAmountStep: SendStep {
         interactor.isValidPublisher.eraseToAnyPublisher()
     }
 
+    func saveChangesIfNeeded() {
+        interactor.saveChanges()
+    }
+
     func initialAppear() {
         if case .staking = flowKind {
             Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
