@@ -9,7 +9,6 @@
 enum WalletConnectConnectedDAppMapper {
     static func mapToDomain(_ connectedDAppDTO: WalletConnectConnectedDAppPersistentDTO) -> WalletConnectConnectedDApp {
         let session = WalletConnectDAppSession(topic: connectedDAppDTO.sessionTopic, expiryDate: connectedDAppDTO.expiryDate)
-        let userWallet = WalletConnectConnectedDApp.UserWallet(id: connectedDAppDTO.userWalletID, name: connectedDAppDTO.userWalletName)
         let dAppData = WalletConnectDAppData(
             name: connectedDAppDTO.dAppName,
             domain: connectedDAppDTO.dAppDomainURL,
@@ -18,7 +17,7 @@ enum WalletConnectConnectedDAppMapper {
 
         return WalletConnectConnectedDApp(
             session: session,
-            userWallet: userWallet,
+            userWalletID: connectedDAppDTO.userWalletID,
             dAppData: dAppData,
             verificationStatus: Self.mapVerificationStatus(toDomain: connectedDAppDTO.verificationStatus),
             blockchains: connectedDAppDTO.blockchains,
@@ -29,8 +28,7 @@ enum WalletConnectConnectedDAppMapper {
     static func mapFromDomain(_ connectedDApp: WalletConnectConnectedDApp) -> WalletConnectConnectedDAppPersistentDTO {
         WalletConnectConnectedDAppPersistentDTO(
             sessionTopic: connectedDApp.session.topic,
-            userWalletID: connectedDApp.userWallet.id,
-            userWalletName: connectedDApp.userWallet.name,
+            userWalletID: connectedDApp.userWalletID,
             dAppName: connectedDApp.dAppData.name,
             dAppDomainURL: connectedDApp.dAppData.domain,
             dAppIconURL: connectedDApp.dAppData.icon,
