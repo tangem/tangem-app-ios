@@ -11,12 +11,12 @@ import Foundation
 protocol RentExtemptionRestrictable {
     var minimalAmountForRentExemption: Amount { get }
 
-    func validateRentExtemption(amount: Amount, fee: Amount) throws
-    func validateDestinationForRentExtemption(amount: Amount, destination: DestinationType) async throws
+    func validateRentExemption(amount: Amount, fee: Amount) throws
+    func validateDestinationForRentExemption(amount: Amount, fee: Fee, destination: DestinationType) async throws
 }
 
 extension RentExtemptionRestrictable where Self: WalletProvider {
-    func validateRentExtemption(amount: Amount, fee: Amount) throws {
+    func validateRentExemption(amount: Amount, fee: Amount) throws {
         guard let balance = wallet.amounts[.coin] else {
             throw ValidationError.balanceNotFound
         }
