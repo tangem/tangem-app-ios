@@ -12,6 +12,7 @@ import CryptoKit
 import WalletCore
 import TangemSdk
 import Testing
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct XRPTransactionTests {
