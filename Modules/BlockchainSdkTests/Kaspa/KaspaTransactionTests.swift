@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Testing
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct KaspaTransactionTests {
