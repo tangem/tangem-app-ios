@@ -36,27 +36,18 @@ extension MainCoordinator {
                 return false
             }
 
-            // [REDACTED_TODO_COMMENT]
-            // A temporary crutch until a decision is made on how to handle a scenario where selected wallet does not match the wallet
-            // from a push
-            if let paramWalletId = navigationAction.params.userWalletId,
-               let selectedWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue,
-               paramWalletId != selectedWalletId {
-                return false
-            }
-
             switch navigationAction.destination {
             case .referral:
-                return routeReferralAction()
+                return routeReferralAction(userWalletId: navigationAction.params.userWalletId)
 
             case .token:
                 return routeTokenAction(params: navigationAction.params)
 
             case .buy:
-                return routeBuyAction()
+                return routeBuyAction(userWalletId: navigationAction.params.userWalletId)
 
             case .sell:
-                return routeSellAction()
+                return routeSellAction(userWalletId: navigationAction.params.userWalletId)
 
             case .staking:
                 return routeStakingAction(params: navigationAction.params)
@@ -71,7 +62,7 @@ extension MainCoordinator {
                 return routeLinkAction(params: navigationAction.params)
 
             case .swap:
-                return routeSwapAction()
+                return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
             }
         }
 
@@ -108,8 +99,10 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeSwapAction() -> Bool {
-            guard let userWalletModel = userWalletRepository.selectedModel else {
+        private func routeSwapAction(userWalletId: String?) -> Bool {
+            guard let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                  isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
+            else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
@@ -118,8 +111,10 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeSellAction() -> Bool {
-            guard let userWalletModel = userWalletRepository.selectedModel else {
+        private func routeSellAction(userWalletId: String?) -> Bool {
+            guard let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                  isFeatureSupported(feature: .multiCurrency, userWalletModel: userWalletModel)
+            else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
@@ -128,9 +123,9 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeBuyAction() -> Bool {
-            guard isFeatureSupported(feature: .multiCurrency),
-                  let userWalletModel = userWalletRepository.selectedModel
+        private func routeBuyAction(userWalletId: String?) -> Bool {
+            guard let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                  isFeatureSupported(feature: .multiCurrency, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -143,7 +138,7 @@ extension MainCoordinator {
         private func routeTokenAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
                 let coordinator,
-                let userWalletModel = userWalletRepository.selectedModel,
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
@@ -197,10 +192,10 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeReferralAction() -> Bool {
+        private func routeReferralAction(userWalletId: String?) -> Bool {
             guard let coordinator,
-                  isFeatureSupported(feature: .referralProgram),
-                  let userWalletModel = userWalletRepository.selectedModel
+                  let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                  isFeatureSupported(feature: .referralProgram, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -219,11 +214,12 @@ extension MainCoordinator {
         private func routeStakingAction(params: DeeplinkNavigationAction.Params) -> Bool {
             guard
                 let coordinator,
-                isFeatureSupported(feature: .staking),
-                let userWalletModel = userWalletRepository.selectedModel,
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                isFeatureSupported(feature: .staking, userWalletModel: userWalletModel),
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeAvailable,
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
@@ -245,26 +241,21 @@ extension MainCoordinator {
 // MARK: - Helpers
 
 extension MainCoordinator.MainNavigationActionHandler {
-    private func isFeatureSupported(feature: UserWalletFeature) -> Bool {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return false
-        }
-
-        let availibility = userWalletModel.config.getFeatureAvailability(feature)
-
-        switch availibility {
+    private func isFeatureSupported(feature: UserWalletFeature, userWalletModel: any UserWalletModel) -> Bool {
+        switch userWalletModel.config.getFeatureAvailability(feature) {
         case .available:
             return true
-        case .hidden, .disabled:
+        case .disabled, .hidden:
             return false
         }
     }
 
-    private func isMatch(_ model: any WalletModel, tokenId: String, networkId: String, derivationPath: String?) -> Bool {
-        let idMatch = model.tokenItem.id == tokenId
-        let networkMatch = model.tokenItem.blockchain.networkId == networkId
-        let derivationPathMatch = derivationPath.map { $0 == model.tokenItem.blockchainNetwork.derivationPath?.rawPath } ?? true
-        return idMatch && networkMatch && derivationPathMatch
+    private func findUserWalletModel(userWalletModelId: String?) -> (any UserWalletModel)? {
+        guard let userWalletModelId else {
+            return userWalletRepository.selectedModel
+        }
+
+        return userWalletRepository.models.first { $0.userWalletId.stringValue == userWalletModelId }
     }
 
     private func findWalletModel(
@@ -273,10 +264,21 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
-        userWalletModel
-            .walletModelsManager
-            .walletModels
-            .first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
+        let models = userWalletModel.walletModelsManager.walletModels
+
+        if let derivation, derivation.isNotEmpty {
+            return models.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
+        } else {
+            let matchingModels = models.filter { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: nil) }
+            return matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first
+        }
+    }
+
+    private func isMatch(_ model: any WalletModel, tokenId: String, networkId: String, derivationPath: String?) -> Bool {
+        let idMatch = model.tokenItem.id == tokenId
+        let networkMatch = model.tokenItem.blockchain.networkId == networkId
+        let derivationPathMatch = derivationPath.map { $0 == model.tokenItem.blockchainNetwork.derivationPath?.rawPath } ?? true
+        return idMatch && networkMatch && derivationPathMatch
     }
 }
 

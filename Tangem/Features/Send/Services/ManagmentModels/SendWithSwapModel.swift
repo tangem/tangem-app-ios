@@ -249,10 +249,11 @@ private extension SendWithSwapModel {
 // MARK: - SendDestinationInput
 
 extension SendWithSwapModel: SendDestinationInput {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> {
-        _destination
-            .compactMap { $0 }
-            .eraseToAnyPublisher()
+    var destination: SendAddress? { _destination.value }
+    var destinationAdditionalField: SendDestinationAdditionalField { _destinationAdditionalField.value }
+
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> {
+        _destination.eraseToAnyPublisher()
     }
 
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
@@ -430,10 +431,21 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .flatMap { model, token in
+            .flatMapLatest { model, token in
                 switch token {
-                case .same: model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
-                case .swap: model.swapManager.isReadyToSendPublisher
+                case .same:
+                    return model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+                case .swap:
+                    return model.swapManager.statePublisher.map { state in
+                        switch state {
+                        // We don't disable main button when rates in refreshing
+                        case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
+                            return true
+                        case .idle, .loading, .restriction:
+                            return false
+                        }
+                    }
+                    .eraseToAnyPublisher()
                 }
             }
             .eraseToAnyPublisher()
@@ -467,7 +479,16 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        _isSending.eraseToAnyPublisher()
+        let refreshRatesPublisher = swapManager.statePublisher.map { state in
+            switch state {
+            case .loading(.refreshRates): true
+            default: false
+            }
+        }
+
+        return Publishers
+            .Merge(_isSending, refreshRatesPublisher)
+            .eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
@@ -522,10 +543,11 @@ extension SendWithSwapModel: NotificationTapDelegate {
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
+        case .refresh:
+            swapManager.update()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
-             .refresh,
              .goToProvider,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,

@@ -89,11 +89,10 @@ class IncomingActionsTests: XCTestCase {
             type: "income_transaction",
             networkId: "ethereum",
             tokenId: "ethereum",
-            walletId: "0000000000000000000000000000000000000000000000000000000000000000",
-            derivationPath: "m/44'/0'/0'/0/0",
-            userWalletId: "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E"
+            userWalletId: "7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E",
+            derivationPath: "m/44'/0'/0'/0/0"
         )
 
-        XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&wallet_id=0000000000000000000000000000000000000000000000000000000000000000&type=income_transaction&derivation_path=m/44'/0'/0'/0/0&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E")
+        XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E&type=income_transaction&derivation_path=m/44'/0'/0'/0/0")
     }
 }
