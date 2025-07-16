@@ -71,7 +71,7 @@ struct XRPTransactionTests {
         )
         let publicKey = edPrivateKey.publicKey.rawRepresentation
 
-        let transaction = try makeTransaction(publickKey: publicKey, curve: curve)
+        let transaction = try makeTransaction(publicKey: publicKey, curve: curve)
         let builder = try XRPTransactionBuilder(walletPublicKey: publicKey, curve: curve)
         builder.account = ""
 
@@ -82,11 +82,11 @@ struct XRPTransactionTests {
         TransactionSizeTesterUtility().testTxSize(messageToSign)
     }
 
-    private func makeTransaction(publickKey: Data, curve: EllipticCurve) throws -> Transaction {
+    private func makeTransaction(publicKey: Data, curve: EllipticCurve) throws -> Transaction {
         let blockchain = Blockchain.xrp(curve: curve)
 
         let address = try XRPAddressService(curve: curve).makeAddress(
-            for: Wallet.PublicKey(seedKey: publickKey, derivationType: .none),
+            for: Wallet.PublicKey(seedKey: publicKey, derivationType: .none),
             with: .default
         )
 
