@@ -9,8 +9,8 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct ChiaTransactionTests {
     private let sizeUtility = TransactionSizeTesterUtility()
