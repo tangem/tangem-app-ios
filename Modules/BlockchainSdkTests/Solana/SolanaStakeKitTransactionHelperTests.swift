@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@testable import BlockchainSdk
+import TangemSdk
 import Testing
+@testable import BlockchainSdk
 
 struct SolanaStakeKitTransactionHelperTests {
     private let sizeTester: TransactionSizeTesterUtility

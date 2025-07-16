@@ -9,8 +9,9 @@
 import XCTest
 import Foundation
 import WalletCore
-@testable import BlockchainSdk
+import TangemSdk
 import Testing
+@testable import BlockchainSdk
 
 struct VeChainTransactionTests {
     private let blockchain: BlockchainSdk.Blockchain = .veChain(testnet: true)
