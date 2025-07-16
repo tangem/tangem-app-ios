@@ -92,7 +92,7 @@ struct BitcoinAddressTests {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() throws {
+    func invalidCurveGeneration_throwsError() throws {
         let service = BitcoinAddressService(networkParams: BitcoinNetworkParams())
         let testnetService = BitcoinAddressService(networkParams: BitcoinTestnetNetworkParams())
 
