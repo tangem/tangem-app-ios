@@ -46,6 +46,10 @@ struct DefaultIncomingLinkParser {
     }
 
     private func parseExternalLink(_ url: URL) -> IncomingAction {
+        if url.pathComponents.contains(IncomingActionConstants.ndefPath) {
+            return .start
+        }
+
         let navAction = DeeplinkNavigationAction(destination: .link, params: .init(url: url))
         return .navigation(navAction)
     }
