@@ -12,6 +12,7 @@ final class MainScreenUITests: BaseTestCase {
     let token = "Polygon"
 
     func testHideToken_TokenNotDispayedOnMain() {
+        id(880)
         launchApp(tangemApiType: .mock)
 
         let mainScreen = StoriesScreen(app)
