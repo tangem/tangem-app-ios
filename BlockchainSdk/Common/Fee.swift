@@ -11,7 +11,7 @@ import Foundation
 public protocol FeeParameters {}
 
 public struct Fee {
-    public let amount: Amount
+    public var amount: Amount
     public let parameters: FeeParameters?
 
     public init(_ fee: Amount, parameters: FeeParameters? = nil) {

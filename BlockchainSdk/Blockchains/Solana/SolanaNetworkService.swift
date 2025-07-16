@@ -65,7 +65,7 @@ class SolanaNetworkService {
                     fromPublicKey: publicKey
                 )
                 .map { feeValue in
-                    let feeAmount = Amount(with: amount, value: feeValue)
+                    let feeAmount = Amount(with: service.blockchain, type: .coin, value: feeValue)
                     return Fee(feeAmount, parameters: feeParameters)
                 }
             }
@@ -280,7 +280,6 @@ class SolanaNetworkService {
         let tokenInfoResponses: [SolanaTokenAccountInfoResponse] = tokenAccountsInfo.compactMap {
             guard
                 let info = $0.account.data.value?.parsed.info,
-                let token = tokens.first(where: { $0.contractAddress == info.mint }),
                 let integerAmount = Decimal(stringValue: info.tokenAmount.amount)
             else {
                 return nil
@@ -288,8 +287,10 @@ class SolanaNetworkService {
 
             let address = $0.pubkey
             let mint = info.mint
-            let amount = (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
 
+            // 1 for NFT
+            let token = tokens.first(where: { $0.contractAddress == info.mint })
+            let amount = token.map { (integerAmount / $0.decimalValue).rounded(scale: $0.decimalCount) } ?? integerAmount
             return SolanaTokenAccountInfoResponse(address: address, mint: mint, balance: amount, space: $0.account.space)
         }
 
@@ -348,6 +349,7 @@ class SolanaNetworkService {
         }
 
         return SolanaFeeParameters(
+            destinationAccountExists: accountExists,
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
         )
