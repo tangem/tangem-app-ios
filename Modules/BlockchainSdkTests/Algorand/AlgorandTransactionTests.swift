@@ -9,8 +9,8 @@
 import Foundation
 import TangemSdk
 import WalletCore
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct AlgorandTransactionTests {
     private let privateKeyData = Data(hexString: "F3903F329F8F52BCA0F92ACD127A3EC9A939028951D6EBAB72DD22C966EADFAB")
