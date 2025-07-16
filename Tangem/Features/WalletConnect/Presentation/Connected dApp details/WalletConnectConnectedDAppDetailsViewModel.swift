@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
@@ -14,27 +15,52 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
     private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
     private let closeAction: () -> Void
     private let onDisconnect: () -> Void
+    private let dateFormatter: RelativeDateTimeFormatter
 
     private var disconnectDAppTask: Task<Void, Never>?
+    private var timerCancellable: AnyCancellable?
 
     @Published private(set) var state: WalletConnectConnectedDAppDetailsViewState
 
     init(
-        state: WalletConnectConnectedDAppDetailsViewState,
         connectedDApp: WalletConnectConnectedDApp,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
+        userWalletRepository: some UserWalletRepository,
         closeAction: @escaping () -> Void,
         onDisconnect: @escaping () -> Void
     ) {
-        self.state = state
         self.connectedDApp = connectedDApp
         self.disconnectDAppUseCase = disconnectDAppUseCase
         self.closeAction = closeAction
         self.onDisconnect = onDisconnect
+
+        let dateFormatter = Self.makeDateFormatter()
+        self.dateFormatter = dateFormatter
+        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter, userWalletRepository: userWalletRepository)
+
+        subscribeToConnectedTimeUpdates()
     }
 
     deinit {
         disconnectDAppTask?.cancel()
+    }
+
+    private func subscribeToConnectedTimeUpdates() {
+        timerCancellable = Timer
+            .publish(every: .minute, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.updateConnectedTime()
+            }
+    }
+
+    private func updateConnectedTime() {
+        guard case .dAppDetails(var dAppDetails) = state else {
+            return
+        }
+
+        dAppDetails.navigationBar.connectedTime = Self.connectedTime(for: connectedDApp, using: dateFormatter)
+        state = .dAppDetails(dAppDetails)
     }
 }
 
@@ -45,6 +71,9 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         switch viewEvent {
         case .closeButtonTapped:
             closeAction()
+
+        case .dAppDetailsAppeared:
+            updateConnectedTime()
 
         case .verifiedDomainIconTapped:
             handleVerifiedDomainIconTapped()
@@ -84,5 +113,58 @@ extension WalletConnectConnectedDAppDetailsViewModel {
             closeAction()
             onDisconnect()
         }
+    }
+}
+
+// MARK: - Factory methods
+
+extension WalletConnectConnectedDAppDetailsViewModel {
+    private static func makeDateFormatter() -> RelativeDateTimeFormatter {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.dateTimeStyle = .numeric
+        return formatter
+    }
+
+    private static func makeInitialState(
+        for dApp: WalletConnectConnectedDApp,
+        using dateFormatter: RelativeDateTimeFormatter,
+        userWalletRepository: some UserWalletRepository
+    ) -> WalletConnectConnectedDAppDetailsViewState {
+        let imageProvider = NetworkImageProvider()
+        let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID })?.name ?? ""
+
+        return WalletConnectConnectedDAppDetailsViewState.dAppDetails(
+            WalletConnectConnectedDAppDetailsViewState.DAppDetails(
+                navigationBar: WalletConnectConnectedDAppDetailsViewState.DAppDetails.NavigationBar(
+                    connectedTime: Self.connectedTime(for: dApp, using: dateFormatter)
+                ),
+                dAppDescriptionSection: .content(
+                    WalletConnectDAppDescriptionViewModel.ContentState(
+                        dAppData: dApp.dAppData,
+                        verificationStatus: dApp.verificationStatus
+                    )
+                ),
+                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),
+                dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
+                connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
+                    blockchains: dApp.blockchains.map { blockchain in
+                        WalletConnectConnectedDAppDetailsViewState.DAppDetails.BlockchainRowItem(
+                            id: blockchain.networkId,
+                            iconAsset: imageProvider.provide(by: blockchain, filled: true),
+                            name: blockchain.displayName,
+                            currencySymbol: blockchain.currencySymbol
+                        )
+                    }
+                )
+            )
+        )
+    }
+
+    private static func connectedTime(for dApp: WalletConnectConnectedDApp, using dateFormatter: RelativeDateTimeFormatter) -> String {
+        let relativeDateString = dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
+        let delimiter = " • "
+        let timeString = dApp.connectionDate.formatted(.dateTime.hour().minute())
+
+        return relativeDateString + delimiter + timeString
     }
 }
