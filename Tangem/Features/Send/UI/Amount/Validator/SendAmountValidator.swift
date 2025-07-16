@@ -11,3 +11,13 @@ import Foundation
 protocol SendAmountValidator {
     func validate(amount: Decimal) throws
 }
+
+enum SendAmountValidatorError: LocalizedError {
+    case zeroAmount
+
+    var errorDescription: String? {
+        switch self {
+        case .zeroAmount: "Amount must be greater than zero"
+        }
+    }
+}
