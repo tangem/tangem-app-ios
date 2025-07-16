@@ -9,9 +9,9 @@
 import Foundation
 import BigInt
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
 import WalletCore
+@testable import BlockchainSdk
 
 struct EthereumTransactionTests {
     private let blockchain = Blockchain.ethereum(testnet: false)
