@@ -11,6 +11,7 @@ import Testing
 import CryptoKit
 import TangemSdk
 import WalletCore
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct TezosTests {

@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import Testing
 import stellarsdk
 import Combine
 import TangemSdk
+import TangemFoundation
 @testable import BlockchainSdk
-import Testing
 
 final class StellarTransactionTests {
     private let sizeTester = TransactionSizeTesterUtility()
