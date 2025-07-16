@@ -11,6 +11,7 @@ import BigInt
 import TangemSdk
 import Testing
 import WalletCore
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct EthereumTransactionTests {

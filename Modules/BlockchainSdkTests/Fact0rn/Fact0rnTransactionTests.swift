@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemSdk
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct Fact0rnTransactionTests {
