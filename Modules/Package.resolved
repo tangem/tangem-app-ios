@@ -1,5 +1,5 @@
 {
-  "originHash" : "ce0da3eb42ee57b1599b25c29124169ad694cc7e9eaa33c5d06e5d9de077ad8b",
+  "originHash" : "89ddf89e5a480ad868cc6e3cd92c229913075bfe8a37652acf8a9ad84d6ad129",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "c2fa6bf2f470db5bc31fc4b3e23c6b327ee7b6a8",
-        "version" : "0.26.0-tangem5"
+        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
+        "revision" : "9bb370fb98c271e1db8387bbe7df597ad62ee3f8"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
-        "revision" : "48d906f7a3eca66dd4cbc239f21fd829dfc9decf",
-        "version" : "0.1.2-tangem4"
+        "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
+        "revision" : "0e19de6d0cdbd1f8f464556d20d2feebfce9970c"
       }
     },
     {
