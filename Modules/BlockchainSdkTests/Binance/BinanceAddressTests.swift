@@ -40,7 +40,7 @@ struct BinanceAddressTests {
     }
 
     @Test(arguments: [true, false])
-    func inavalidCurveGeneration_throwsError(isTestNet: Bool) async throws {
+    func invalidCurveGeneration_throwsError(isTestNet: Bool) async throws {
         let service = BinanceAddressService(testnet: true)
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
