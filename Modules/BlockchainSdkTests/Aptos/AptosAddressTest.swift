@@ -46,7 +46,7 @@ struct AptosAddressTest {
     }
 
     @Test
-    func inavalidCurveGeneration_throwsError() async throws {
+    func invalidCurveGeneration_throwsError() async throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: .aptos(curve: .ed25519_slip0010, testnet: false))
         let addressService = addressServiceFactory.makeAddressService()
 
