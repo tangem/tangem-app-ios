@@ -19,14 +19,3 @@ protocol OldWalletConnectService {
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
 }
-
-private struct OldWalletConnectServicingKey: InjectionKey {
-    static var currentValue: OldWalletConnectService = OldCommonWalletConnectService()
-}
-
-extension InjectedValues {
-    var walletConnectService: OldWalletConnectService {
-        get { Self[OldWalletConnectServicingKey.self] }
-        set { Self[OldWalletConnectServicingKey.self] = newValue }
-    }
-}
