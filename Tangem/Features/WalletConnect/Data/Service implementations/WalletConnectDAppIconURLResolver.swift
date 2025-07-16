@@ -34,9 +34,7 @@ final class WalletConnectDAppIconURLResolver {
             }
         }
 
-        let resolvedResource: ResolvedResource? = await withTaskGroup(
-            of: ResolvedResource?.self
-        ) { [weak self] taskGroup in
+        let resolvedResource: ResolvedResource? = await withTaskGroup(of: ResolvedResource?.self) { [weak self] taskGroup in
             for url in urlsToProcess {
                 taskGroup.addTask {
                     await self?.process(resourceURL: url)
