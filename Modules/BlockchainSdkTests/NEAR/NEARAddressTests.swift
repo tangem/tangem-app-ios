@@ -11,7 +11,7 @@ import Testing
 @testable import BlockchainSdk
 
 struct NEARAddressTests {
-    @Test(arguments: [Blockchain.near(curve: .ed25519, testnet: false), .near(curve: .ed25519_slip0010, testnet: false)])
+    @Test(.serialized, arguments: [Blockchain.near(curve: .ed25519, testnet: false), .near(curve: .ed25519_slip0010, testnet: false)])
     func addressGeneration(blockchain: Blockchain) throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: blockchain)
         let addressService = addressServiceFactory.makeAddressService()
@@ -45,7 +45,7 @@ struct NEARAddressTests {
         #expect(expectedAddress == address.value)
     }
 
-    @Test(arguments: [Blockchain.near(curve: .ed25519, testnet: false), .near(curve: .ed25519_slip0010, testnet: false)])
+    @Test(.serialized, arguments: [Blockchain.near(curve: .ed25519, testnet: false), .near(curve: .ed25519_slip0010, testnet: false)])
     func addressValidation(blockchain: Blockchain) throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: blockchain)
         let addressService = addressServiceFactory.makeAddressService()

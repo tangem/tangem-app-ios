@@ -87,7 +87,7 @@ struct SmartContractMethodTests {
 
     // MARK: - ERC721 Tests
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         TransferERC721TokenMethodTestCase.baseCase,
         TransferERC721TokenMethodTestCase.largeTokenId,
         TransferERC721TokenMethodTestCase.zeroTokenId,
@@ -124,7 +124,7 @@ struct SmartContractMethodTests {
 
     // MARK: - ERC1155 Tests
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         TransferERC1155TokenMethodTestCase.baseCase,
         TransferERC1155TokenMethodTestCase.largeAmount,
         TransferERC1155TokenMethodTestCase.zeroAmount,

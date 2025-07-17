@@ -13,7 +13,7 @@ import TangemFoundation
 @testable import BlockchainSdk
 
 struct Fact0rnTransactionTests {
-    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.custom])
+    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.custom])
     func transaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let pubKey = Data(hexString: "03f605d4a94e07ae7ddc1dafea08ade5f6db0fb9f0d40c0409007b1e47e4ac3bed")
