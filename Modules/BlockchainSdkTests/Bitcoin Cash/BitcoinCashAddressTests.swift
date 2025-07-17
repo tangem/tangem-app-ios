@@ -88,7 +88,7 @@ struct BitcoinCashAddressTests {
         #expect(addr_comp_legacy.value == "myFUZbAJ3e2hpCNnWfMWz2RyTBNm7vdnSQ") // we ignore uncompressed addresses
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "bitcoincash:qruxj7zq6yzpdx8dld0e9hfvt7u47zrw9gfr5hy0vh",
         "qruxj7zq6yzpdx8dld0e9hfvt7u47zrw9gfr5hy0vh",
         "bitcoincash:prm3srpqu4kmx00370m4wt5qr3cp7sekmcksezufmd",

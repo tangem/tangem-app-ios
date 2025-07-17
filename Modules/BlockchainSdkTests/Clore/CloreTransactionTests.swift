@@ -15,7 +15,7 @@ import enum WalletCore.CoinType
 
 struct CloreTransactionTests {
     /// https://clore.cryptoscope.io/tx/?txid=98edcf88c6b6d480635dc33adf948c00e81bcea35fbec548edbc3a2e11f0a978
-    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.custom])
+    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.custom])
     func transaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let pubKey = Data(hexString: "03a08920b8940d992d58f2ac6f285a97f126634d709e31e28fb5892614e6494e5c")
