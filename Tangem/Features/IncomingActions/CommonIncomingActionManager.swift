@@ -72,6 +72,7 @@ public class CommonIncomingActionManager {
     }
 
     private func tryHandleDeeplinkUrlByTransactionPush(with userInfo: [AnyHashable: Any]) {
+        let filteredUserInfo = userInfo.filter { !($0.value is NSNull) }
         let paramsConstants = IncomingActionConstants.DeeplinkParams.self
         let typeConstants = IncomingActionConstants.DeeplinkType.self
 
@@ -82,19 +83,19 @@ public class CommonIncomingActionManager {
         ]
 
         guard
-            let networkId = userInfo[paramsConstants.networkId] as? String,
-            let tokenId = userInfo[paramsConstants.tokenId] as? String,
-            let userWalletId = userInfo[paramsConstants.userWalletId] as? String,
-            let type = userInfo[paramsConstants.type] as? String,
+            let networkId = filteredUserInfo[paramsConstants.networkId] as? String,
+            let tokenId = filteredUserInfo[paramsConstants.tokenId] as? String,
+            let userWalletId = filteredUserInfo[paramsConstants.userWalletId] as? String,
+            let type = filteredUserInfo[paramsConstants.type] as? String,
             validTypes.contains(type)
         else {
             return
         }
 
-        let derivationPath = userInfo[paramsConstants.derivationPath] as? String
+        let derivationPath = filteredUserInfo[paramsConstants.derivationPath] as? String
 
         let transactionPushURLHelper = TransactionPushActionURLHelper(
-            type: type, // See documentation.
+            type: type,
             networkId: networkId,
             tokenId: tokenId,
             userWalletId: userWalletId,
