@@ -391,6 +391,7 @@
 		30145CF92D75D7DF00C1DA5D /* AlephiumAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30145CF82D75D7DB00C1DA5D /* AlephiumAddressTests.swift */; };
 		30188F662D75CE5B00217353 /* TezosAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30188F652D75CE4F00217353 /* TezosAddressTests.swift */; };
 		30188F692D75CF9900217353 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30188F682D75CF9900217353 /* Keys.swift */; };
+		3021B68B2E213C62000DB6A4 /* BinanceAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3021B68A2E213C62000DB6A4 /* BinanceAddressTests.swift */; };
 		3025230D2E16B966000002EB /* PolkadotDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3025230C2E16B95E000002EB /* PolkadotDecodingTests.swift */; };
 		303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */; };
 		303D55712D78754000FA859D /* XRPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D55702D78753900FA859D /* XRPAddressTests.swift */; };
@@ -4259,7 +4260,7 @@
 		30145CF82D75D7DB00C1DA5D /* AlephiumAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAddressTests.swift; sourceTree = "<group>"; };
 		30188F652D75CE4F00217353 /* TezosAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosAddressTests.swift; sourceTree = "<group>"; };
 		30188F682D75CF9900217353 /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
-		30188F6E2D75D41900217353 /* BinanceAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAddressTests.swift; sourceTree = "<group>"; };
+		3021B68A2E213C62000DB6A4 /* BinanceAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAddressTests.swift; sourceTree = "<group>"; };
 		3025230C2E16B95E000002EB /* PolkadotDecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotDecodingTests.swift; sourceTree = "<group>"; };
 		303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VeChainAddressTests.swift; sourceTree = "<group>"; };
 		303D55702D78753900FA859D /* XRPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressTests.swift; sourceTree = "<group>"; };
@@ -8801,7 +8802,7 @@
 		30E038892D6DD78A00D9AD18 /* Binance */ = {
 			isa = PBXGroup;
 			children = (
-				30188F6E2D75D41900217353 /* BinanceAddressTests.swift */,
+				3021B68A2E213C62000DB6A4 /* BinanceAddressTests.swift */,
 				30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */,
 			);
 			path = Binance;
@@ -24232,6 +24233,7 @@
 				30C4701C2D761DDB003DFBFD /* Expect+.swift in Sources */,
 				300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */,
 				B62D436B2CBC79E400C2460E /* RadiantTransactionTests.swift in Sources */,
+				3021B68B2E213C62000DB6A4 /* BinanceAddressTests.swift in Sources */,
 				B62D433F2CBC79E400C2460E /* AddressServiceManagerUtility.swift in Sources */,
 				305B22302D789B86009BCC73 /* TerraAddressTests.swift in Sources */,
 				B62D43622CBC79E400C2460E /* BigUInt+Tests.swift in Sources */,
