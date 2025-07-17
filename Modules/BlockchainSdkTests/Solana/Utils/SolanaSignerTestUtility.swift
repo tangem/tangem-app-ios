@@ -56,7 +56,7 @@ enum SolanaSignerTestUtility {
         func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
             #expect(sizeTester.isValidForCos4_52AndAbove(hash))
             #expect(!sizeTester.isValidForCosBelow4_52(hash))
-            #expect(!sizeTester.isValidForiPhone7(hash))
+            #expect(!sizeTester.isValidForIPhone7(hash))
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()
         }
