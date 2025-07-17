@@ -71,16 +71,9 @@ struct PolkadotAccountData: ScaleCodec.Decodable {
     var feeFrozen: BigUInt
 
     init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
-        let bytes: Data = try decoder.decode(.fixed(16))
-        free = BigUInt(littleEndian: bytes)
-
-        let reserved: Data = try decoder.decode(.fixed(16))
-        reserved = BigUInt(littleEndian: bytes)
-
-        let miscFrozen: Data = try decoder.decode(.fixed(16))
-        miscFrozen = BigUInt(littleEndian: bytes)
-
-        let feeFrozen: Data = try decoder.decode(.fixed(16))
-        feeFrozen = BigUInt(littleEndian: bytes)
+        free = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
+        reserved = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
+        miscFrozen = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
+        feeFrozen = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
     }
 }
