@@ -37,7 +37,7 @@ struct FilecoinAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "f15ihq5ibzwki2b4ep2f46avlkrqzhpqgtga7pdrq",
         "f12fiakbhe2gwd5cnmrenekasyn6v5tnaxaqizq6a",
         "f1wbxhu3ypkuo6eyp6hjx6davuelxaxrvwb2kuwva",
@@ -47,7 +47,7 @@ struct FilecoinAddressTests {
         #expect(addressService.validate(addressHex))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "f0-1",
         "f018446744073709551616",
         "f4f77777777vnmsana",

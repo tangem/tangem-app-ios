@@ -59,7 +59,7 @@ struct AlgorandAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "ZW3ISEHZUHPO7OZGMKLKIIMKVICOUDRCERI454I3DB2BH52HGLSO67W754",
         "Q7AUUQCAO3O6CLPHMPTWN3VTCWLLWZJSI6QDO5XEC4ZZR5JZWXWZL5YWOM",
         "ZMORINNT75RZ67ZWV2EGZYW6MKZ2LOSSB5VTKJON6NSPO5MW6TVCMXMVTU",
@@ -71,7 +71,7 @@ struct AlgorandAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "ZW3ISEHZUHPO7OZGMKLKIIMKVICOUDRCERI454I3DB2BH52HGL",
         "EEQKMHD64P5FN25Y6W63ZHEPVCQZKM4PCMF6ZIIJW4IPFX4WJALA",
         "44bc93A8d3cEfA5a6721723a2f8d2e4F7d480BA0",

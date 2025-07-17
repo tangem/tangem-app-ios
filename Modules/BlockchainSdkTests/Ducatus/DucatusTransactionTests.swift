@@ -14,7 +14,7 @@ import TangemFoundation
 
 struct DucatusTransactionTests {
     /// https://insight.ducatus.io/#/DUC/mainnet/tx/bc7278a59187504a1b50d93b84315f6270c2db9dfd882937cde62f362db20e78
-    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.custom])
+    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.custom])
     func transaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let pubKey = Data(hexString: "02b4a38ad5f363f91b9285a8c28040d87eb70bb63fee172f62aad261021d44e051")
