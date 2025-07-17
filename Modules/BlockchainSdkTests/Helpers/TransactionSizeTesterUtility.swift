@@ -20,7 +20,7 @@ final class TransactionSizeTesterUtility {
             return
         }
 
-        #expect(isValidForiPhone7(data), "Testing tx size for iPhone 7 TX size = \(data.count)", sourceLocation: sourceLocation)
+        #expect(isValidForIPhone7(data), "Testing tx size for iPhone 7 TX size = \(data.count)", sourceLocation: sourceLocation)
         #expect(isValidForCosBelow4_52(data), "Testing tx size for COS below 4.52 TX size = \(data.count)", sourceLocation: sourceLocation)
         #expect(isValidForCos4_52AndAbove(data), "Testing tx size for COS 4.52 and above TX size = \(data.count)", sourceLocation: sourceLocation)
     }

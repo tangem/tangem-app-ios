@@ -34,7 +34,7 @@ struct SolanaStakeKitTransactionHelperTests {
         #expect(dataToSign.hex() == estimateDataToSign)
 
         #expect(sizeTester.isValidForCos4_52AndAbove(dataToSign))
-        #expect(!sizeTester.isValidForiPhone7(dataToSign))
+        #expect(!sizeTester.isValidForIPhone7(dataToSign))
         #expect(!sizeTester.isValidForCosBelow4_52(dataToSign))
 
         let dataToSend = try helper.prepareForSend(unsigned, signature: dummySignature)
