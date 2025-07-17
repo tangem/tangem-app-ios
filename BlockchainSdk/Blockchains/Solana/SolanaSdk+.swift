@@ -305,7 +305,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
