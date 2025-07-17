@@ -64,9 +64,23 @@ struct PolkadotAccountInfo: ScaleCodec.Decodable {
 
 struct PolkadotAccountData: ScaleCodec.Decodable {
     var free: BigUInt
+    // Fields below are yet unused, will be used when we will fix Polkadot
+    // mapping completely, taking all those fields int account
+    var reserved: BigUInt
+    var miscFrozen: BigUInt
+    var feeFrozen: BigUInt
 
     init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
-        let bytes: Data = try decoder.decode(.fixed(32))
+        let bytes: Data = try decoder.decode(.fixed(16))
         free = BigUInt(littleEndian: bytes)
+
+        let reserved: Data = try decoder.decode(.fixed(16))
+        reserved = BigUInt(littleEndian: bytes)
+
+        let miscFrozen: Data = try decoder.decode(.fixed(16))
+        miscFrozen = BigUInt(littleEndian: bytes)
+
+        let feeFrozen: Data = try decoder.decode(.fixed(16))
+        feeFrozen = BigUInt(littleEndian: bytes)
     }
 }
