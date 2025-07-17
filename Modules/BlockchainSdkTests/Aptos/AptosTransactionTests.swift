@@ -49,7 +49,7 @@ struct AptosTransactionTests {
     /**
      - https://github.com/trustwallet/wallet-core/blob/master/tests/chains/Aptos/CompilerTests.cpp
      */
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func correctCoinTransaction(curve: EllipticCurve) throws {
         // given
         let blockchain = Blockchain.aptos(curve: curve, testnet: true)
