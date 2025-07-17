@@ -3,10 +3,13 @@ import TangemSdk
 import Testing
 
 struct BinanceAddressTests {
+    private let blockchain = Blockchain.binance(testnet: false)
+
     @Test
     func defaultAddressGeneration() throws {
         // given
         let service = BinanceAddressService(testnet: false)
+        let addressesUtility = AddressServiceManagerUtility()
 
         // when
         let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
@@ -49,10 +52,10 @@ struct BinanceAddressTests {
     ])
     func addressValidation_validAddresses(addressHex: String) {
         let walletCoreAddressValidator: AddressValidator
-        walletCoreAddressValidator = WalletCoreAddressService(coin: .binance, publicKeyType: CoinType.binance.publicKeyType)
-        let addressValidator = AddressServiceFactory(blockchain: .binance(testnet: false)).makeAddressService()
+        walletCoreAddressValidator = WalletCoreAddressService(coin: .binance)
+        let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
-        #expect(!walletCoreAddressValidator.validate(addressHex))
-        #expect(!addressValidator.validate(addressHex))
+        #expect(walletCoreAddressValidator.validate(addressHex))
+        #expect(addressValidator.validate(addressHex))
     }
 }
