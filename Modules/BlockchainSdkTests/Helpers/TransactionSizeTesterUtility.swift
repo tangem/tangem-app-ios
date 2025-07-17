@@ -14,7 +14,10 @@ final class TransactionSizeTesterUtility {
     private let cos_4_52_MaxSize = 255
     private let cos_4_52_AndAboveMaxSize = 944
 
-    func testTxSize(_ data: Data?, sourceLocation: SourceLocation = #_sourceLocation) {
+    func testTxSize(
+        _ data: Data?,
+        sourceLocation: SourceLocation = .init(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+    ) {
         guard let data = data else {
             #expect(Bool(false), Comment(rawValue: "Transaction data for size test is nil"))
             return
@@ -25,7 +28,10 @@ final class TransactionSizeTesterUtility {
         #expect(isValidForCos4_52AndAbove(data), "Testing tx size for COS 4.52 and above TX size = \(data.count)", sourceLocation: sourceLocation)
     }
 
-    func testTxSizes(_ data: [Data], sourceLocation: SourceLocation = #_sourceLocation) {
+    func testTxSizes(
+        _ data: [Data],
+        sourceLocation: SourceLocation = .init(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+    ) {
         data.forEach {
             testTxSize($0, sourceLocation: sourceLocation)
         }
