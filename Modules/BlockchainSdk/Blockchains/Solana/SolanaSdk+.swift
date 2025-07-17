@@ -295,4 +295,35 @@ extension Action {
         }
         .eraseToAnyPublisher()
     }
+
+    func checkTokenAddressExists(
+        mintAddress: String,
+        tokenProgramId: PublicKey,
+        destinationAddress: String,
+        allowUnfundedRecipient: Bool
+    ) -> AnyPublisher<Bool, Error> {
+        Deferred {
+            Future { [weak self] promise in
+                guard let self = self else {
+                    promise(.failure(BlockchainSdkError.empty))
+                    return
+                }
+
+                findSPLTokenDestinationAddress(
+                    mintAddress: mintAddress,
+                    tokenProgramId: tokenProgramId,
+                    destinationAddress: destinationAddress,
+                    allowUnfundedRecipient: allowUnfundedRecipient
+                ) {
+                    switch $0 {
+                    case .failure(let error):
+                        promise(.failure(error))
+                    case .success(let response):
+                        promise(.success(!response.isUnregisteredAsocciatedToken))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
 }
