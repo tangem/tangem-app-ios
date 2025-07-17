@@ -1,0 +1,53 @@
+{
+  "configurations" : [
+    {
+      "id" : "C7657DFD-796D-484E-AAB0-20BDE13B5A24",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemHotSdkTests",
+        "name" : "TangemHotSdkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemNFTTests",
+        "name" : "TangemNFTTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BlockchainSdkTests",
+        "name" : "BlockchainSdkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemFoundationTests",
+        "name" : "TangemFoundationTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemLoggerTests",
+        "name" : "TangemLoggerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
