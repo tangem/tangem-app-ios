@@ -30,7 +30,7 @@ struct TezosAddressTests {
         }
     }
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func defaultAddressGeneration_edCurve(curve: EllipticCurve) throws {
         // given
         let service = TezosAddressService(curve: curve)
@@ -49,7 +49,7 @@ struct TezosAddressTests {
         }
     }
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func invalidCurveGeneration_whenTryToGeneratedFromSecp256k1Key_thenThrowsError(curve: EllipticCurve) async throws {
         let service = TezosAddressService(curve: curve)
         #expect(throws: (any Error).self) {
@@ -60,7 +60,7 @@ struct TezosAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "tz1d1qQL3mYVuiH4JPFvuikEpFwaDm85oabM",
     ])
     func addressValidation_validAddresses(addressHex: String) {
@@ -74,7 +74,7 @@ struct TezosAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "tz1eZwq8b5cvE2bPKokatLkVMzkxz24z3AAAA",
         "1tzeZwq8b5cvE2bPKokatLkVMzkxz24zAAAAA",
     ])

@@ -55,7 +55,7 @@ struct BSCAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0xf3d468DBb386aaD46E92FF222adDdf872C8CC064",
     ])
     func addressValidation_validAddresses(addressHex: String) {
