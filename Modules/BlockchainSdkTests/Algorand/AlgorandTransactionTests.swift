@@ -62,7 +62,7 @@ struct AlgorandTransactionTests {
         let sizeTester = TransactionSizeTesterUtility()
 
         // Validate hash size
-        #expect(!sizeTester.isValidForiPhone7(buildForSign))
+        #expect(!sizeTester.isValidForIPhone7(buildForSign))
         #expect(sizeTester.isValidForCosBelow4_52(buildForSign))
         #expect(sizeTester.isValidForCos4_52AndAbove(buildForSign))
 
