@@ -43,7 +43,7 @@ private extension HotBackupTypesViewModel {
         } else {
             badge = .noBackup
             action = { [weak routable] in
-                routable?.openHotBackupOnboardingSeedPhrase()
+                routable?.openHotBackupOnboardingSeedPhrase(userWalletModel: userWalletModel)
             }
         }
 

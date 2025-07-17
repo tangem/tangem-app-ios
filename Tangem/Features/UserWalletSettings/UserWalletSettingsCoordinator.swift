@@ -118,8 +118,8 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openHotBackupNeeded() {
-        let viewModel = HotBackupNeededViewModel(routable: self)
+    func openHotBackupNeeded(userWalletModel: UserWalletModel) {
+        let viewModel = HotBackupNeededViewModel(userWalletModel: userWalletModel, routable: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -155,8 +155,8 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - HotBackupOnboardingRoutable
 
-    func openHotBackupOnboarding() {
-        let backupInput = HotOnboardingInput(flow: .walletActivate)
+    func openHotBackupOnboarding(userWalletModel: UserWalletModel) {
+        let backupInput = HotOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 
@@ -171,18 +171,22 @@ extension UserWalletSettingsCoordinator:
     // MARK: - HotBackupTypesRoutable
 
     func openHotBackupRevealSeedPhrase(userWalletModel: UserWalletModel) {
-        let backupUtil = HotBackupUtil(userWalletModel: userWalletModel)
-        let handler = HotBackupUtil.SeedPhraseHandler(onReveal: { [weak self] needAccessCodeValidation in
-            self?.openHotOnboardingModal(
-                userWalletModel: userWalletModel,
-                needAccessCodeValidation: needAccessCodeValidation
-            )
-        })
-        backupUtil.revealSeedPhrase(handler: handler)
+        runTask(in: self) { coordinator in
+            let settingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
+            let state = await settingsUtil.calculateSeedPhraseState()
+
+            switch state {
+            case .onboarding(let needsValidation):
+                coordinator.openHotOnboardingModal(
+                    userWalletModel: userWalletModel,
+                    needAccessCodeValidation: needsValidation
+                )
+            }
+        }
     }
 
-    func openHotBackupOnboardingSeedPhrase() {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseBackup)
+    func openHotBackupOnboardingSeedPhrase(userWalletModel: UserWalletModel) {
+        let backupInput = HotOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 

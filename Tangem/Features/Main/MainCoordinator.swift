@@ -277,10 +277,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Analytics.log(.referralScreenOpened)
     }
 
-    func openHotFinishActivation() {
+    func openHotFinishActivation(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: HotFinishActivationNeededViewModel(routable: self)
+                sheet: HotFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
             )
         }
     }
@@ -654,9 +654,8 @@ extension MainCoordinator: HotFinishActivationNeededRoutable {
         }
     }
 
-    func openHotBackupOnboarding() {
-        // [REDACTED_TODO_COMMENT]
-        let backupInput = HotOnboardingInput(flow: .walletActivate)
+    func openHotBackupOnboarding(userWalletModel: UserWalletModel) {
+        let backupInput = HotOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 }

@@ -61,7 +61,7 @@ extension HotSettingsUtil {
         return settings
     }
 
-    func performAccessCodeAction() async -> AccessCodeActionResult {
+    func calculateAccessCodeState() async -> AccessCodeState {
         if isBackupNeeded {
             return .backupNeeded
         }
@@ -74,12 +74,27 @@ extension HotSettingsUtil {
             return .onboarding(needsValidation: true)
         }
 
-        do {
-            let _ = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-            return .onboarding(needsValidation: false)
-        } catch {
+        let isBiometricsSuccessful = await isBiometricsSuccessful()
+
+        return .onboarding(needsValidation: !isBiometricsSuccessful)
+    }
+
+    func calculateSeedPhraseState() async -> SeedPhraseState {
+        if isAccessCodeRequired {
             return .onboarding(needsValidation: true)
+        } else {
+            let isBiometricsSuccessful = await isBiometricsSuccessful()
+            return .onboarding(needsValidation: !isBiometricsSuccessful)
         }
+    }
+}
+
+// MARK: - Private methods
+
+private extension HotSettingsUtil {
+    func isBiometricsSuccessful() async -> Bool {
+        let context = try? await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+        return context != nil
     }
 }
 
@@ -91,8 +106,12 @@ extension HotSettingsUtil {
         case backup(hasBackup: Bool)
     }
 
-    enum AccessCodeActionResult {
+    enum AccessCodeState {
         case backupNeeded
+        case onboarding(needsValidation: Bool)
+    }
+
+    enum SeedPhraseState {
         case onboarding(needsValidation: Bool)
     }
 }
