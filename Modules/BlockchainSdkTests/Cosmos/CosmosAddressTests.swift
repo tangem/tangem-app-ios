@@ -32,7 +32,7 @@ struct CosmosAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
         "cosmospub1addwnpepqftjsmkr7d7nx4tmhw4qqze8w39vjq364xt8etn45xqarlu3l2wu2n7pgrq",
         "cosmosvaloper1sxx9mszve0gaedz5ld7qdkjkfv8z992ax69k08",
@@ -46,7 +46,7 @@ struct CosmosAddressTests {
         #expect(addressValidator.validate(addressHex))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "cosmoz1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
         "osmo1mky69cn8ektwy0845vec9upsdphktxt0en97f5",
         "cosmosvaloper1sxx9mszve0gaedz5ld7qdkjkfv8z992ax69k03",

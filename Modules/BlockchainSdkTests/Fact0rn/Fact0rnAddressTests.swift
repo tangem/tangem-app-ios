@@ -39,7 +39,7 @@ struct Fact0rnAddressTests {
         #expect(scriptHash == expectedScriptHash)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "fact1qsev9cuanvdqwuh3gnkjaqdtjkeqcw5smex9dyx",
         "fact1qpr0t2aaus7wkerkhpqw4kh6z65pf33zcawx9t0",
         "fact1qsufztqay97de6073cxjd256mu6n9ruylydpzxf",
@@ -50,7 +50,7 @@ struct Fact0rnAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "",
         "1q3n6x7kgsup6zlmpmndppx6ymtk6hxh4lnttt3y",
         "fact",

@@ -190,7 +190,7 @@ struct BitcoinAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "bc1q2ddhp55sq2l4xnqhpdv0xazg02v9dr7uu8c2p2",
         "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
         "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
@@ -209,7 +209,7 @@ struct BitcoinAddressTests {
         #expect(addressValidator.validate(addressHex))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "bc1q2ddhp55sq2l4xnqhpdv9xazg02v9dr7uu8c2p2",
         "MPmoY6RX3Y3HFjGEnFxyuLPCQdjvHwMEny",
         "abc",
