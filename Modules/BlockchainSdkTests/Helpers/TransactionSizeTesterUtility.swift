@@ -14,6 +14,10 @@ final class TransactionSizeTesterUtility {
     private let cos_4_52_MaxSize = 255
     private let cos_4_52_AndAboveMaxSize = 944
 
+    /// - Warning: Do not use the `#_sourceLocation` macro here to create a `SourceLocation` instance. At least in Swift 6.1 and Xcode 16.4,
+    /// it causes an obscure compilation error (`Command SwiftCompile failed with a nonzero exit code`, no actual error code available)
+    /// when this method is called from the `XCTest` test case.
+    /// It looks like a compatibility issue between the `XCTest` and `SwiftTesting` frameworks.
     func testTxSize(
         _ data: Data?,
         sourceLocation: SourceLocation = .init(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
@@ -28,6 +32,10 @@ final class TransactionSizeTesterUtility {
         #expect(isValidForCos4_52AndAbove(data), "Testing tx size for COS 4.52 and above TX size = \(data.count)", sourceLocation: sourceLocation)
     }
 
+    /// - Warning: Do not use the `#_sourceLocation` macro here to create a `SourceLocation` instance. At least in Swift 6.1 and Xcode 16.4,
+    /// it causes an obscure compilation error (`Command SwiftCompile failed with a nonzero exit code`, no actual error code available)
+    /// when this method is called from the `XCTest` test case.
+    /// It looks like a compatibility issue between the `XCTest` and `SwiftTesting` frameworks.
     func testTxSizes(
         _ data: [Data],
         sourceLocation: SourceLocation = .init(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
