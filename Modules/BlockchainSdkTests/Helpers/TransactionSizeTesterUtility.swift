@@ -37,7 +37,7 @@ final class TransactionSizeTesterUtility {
         }
     }
 
-    func isValidForiPhone7(_ data: Data) -> Bool {
+    func isValidForIPhone7(_ data: Data) -> Bool {
         testSize(data: data, maxSize: iPhone7MaxSize)
     }
 
