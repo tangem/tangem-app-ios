@@ -39,7 +39,7 @@ struct TronAddressTests {
         try #expect(addressesUtility.makeTrustWalletAddress(publicKey: publicKey, for: blockchain) == address.value)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
     ])
     func validAddresses(addressHex: String) {
@@ -49,7 +49,7 @@ struct TronAddressTests {
         #expect(addressValidator.validate(addressHex))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "abc",
         "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
         "175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W",

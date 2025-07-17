@@ -26,10 +26,12 @@ struct StellarAddressTests {
         #expect(try! addressService.makeAddress(from: walletPubkey).value == expectedAddress)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(
+        arguments: [
             Blockchain.stellar(curve: .ed25519, testnet: false),
-            Blockchain.stellar(curve: .ed25519_slip0010, testnet: false),
-    ])
+            .stellar(curve: .ed25519_slip0010, testnet: false),
+        ]
+    )
     func xmlEd25519AddressGeneration(blockchain: Blockchain) throws {
         let service = StellarAddressService()
 
@@ -68,7 +70,7 @@ struct StellarAddressTests {
         #expect(addrs.value == "GCP6LOZMY7MDYHNBBBC27WFDJMKB7WH5OJIAXFNRKR7BFON3RKWD3XYA")
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
         "GAE2SZV4VLGBAPRYRFV2VY7YYLYGYIP5I7OU7BSP6DJT7GAZ35OKFDYI",
         "GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ",
@@ -84,7 +86,7 @@ struct StellarAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "GDWFc",
         "GDWFHядыфлвФЫВЗФЫВЛ++EÈ",
     ])
