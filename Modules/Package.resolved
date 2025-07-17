@@ -403,7 +403,7 @@
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
         "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
-        "revision" : "542f3d4b64882a1afc8cc3ad38025a07f5eac5fd"
+        "revision" : "c8e2c5e28b0b014e2a449cb7eb98a508e7c8f20b"
       }
     },
     {
