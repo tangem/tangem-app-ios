@@ -38,7 +38,7 @@ struct DogecoinAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "DDWSSN4qy1ccJ1CYgaB6HGs4Euknqb476q",
         "D6H6nVsCmsodv7SLQd1KpfsmkUKmhXhP3g",
         "DCGx73ispbchmXfNczfp9TtWfKtzgzgp8N",
@@ -48,7 +48,7 @@ struct DogecoinAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "DCGx73ispbchmXfNczfp9TtWfKtzgzgp",
         "CCGx73ispbchmXfNczfp9TtWfKtzgzgp8N",
         "",
