@@ -14,7 +14,7 @@ import Testing
 struct TONAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
 
-    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func defaultAddressGeneration(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
         let addressService = WalletCoreAddressService(coin: .ton)
@@ -44,7 +44,7 @@ struct TONAddressTests {
         try #expect(addressesUtility.makeTrustWalletAddress(publicKey: walletPubkey1, for: blockchain) == expectedAddress1)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "UQBqoh0pqy6zIksGZFMLdqV5Q2R7rzlTO0Durz6OnUgKrdpr",
         "UQAoDMgtvyuYaUj-iHjrb_yZiXaAQWSm4pG2K7rWTBj9eL1z",
         "UQBm--PFwDv1yCeS-QTJ-L8oiUpqo9IT1BwgVptlSq3ts4DV",
@@ -56,7 +56,7 @@ struct TONAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "8a8627861a5dd96c9db3ce0807b122da5ed473934ce7568a5b4b1c361cbb28ae"
     ])
     func invalidAddresses(address: String) {

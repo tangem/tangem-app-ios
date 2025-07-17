@@ -18,7 +18,7 @@ struct AlgorandTransactionTests {
     /**
      https://algoexplorer.io/tx/GMS3DRWDCL3SC57BCKCTOBV2SBIZZMTHNYEUZEV6A6WWH4DOS6TQ
      */
-    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func correctCoinTransaction(curve: EllipticCurve) throws {
         let blockchain: BlockchainSdk.Blockchain = .algorand(curve: curve, testnet: false)
 
