@@ -14,7 +14,7 @@ import TangemFoundation
 
 final class LitecoinTransactionTests {
     /// https://blockchair.com/litecoin/transaction/e137c6b47d2553104897a2bb769c638a019c838f84d69d729b879f7568ab0fd5
-    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.litecoin), .custom])
+    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.litecoin), .custom])
     func legacyAndDefaultAddressTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = LitecoinNetworkParams()

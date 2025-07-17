@@ -39,7 +39,7 @@ struct SeiAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "sei142j9u5eaduzd7faumygud6ruhdwme98qagm0sj",
         "sei123mjxmap5j26x7ve8qes7gpm6uwah5lvxdpfs9",
         "sei1v4mx6hmrda5kucnpwdjsqqqqqqqqqqpqs3kax2",
@@ -48,7 +48,7 @@ struct SeiAddressTests {
         #expect(addressService.validate(addressHex))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "kei142j9u5eaduzd7faumygud6ruhdwme98qagm0sj",
         "sei",
         "sei1234",

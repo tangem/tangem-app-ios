@@ -42,7 +42,7 @@ struct DashAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "XwrhJMJKUpP21KShxqv6YcaTQZfiZXdREQ",
         "XdDGLNAAXF91Da58hYwHqQmFEWPGTh3L8p",
         "XuRzigQHyJfvw35e281h5HPBqJ8HZjF8M4",
@@ -52,7 +52,7 @@ struct DashAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "RJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
         "XuRzigQHyJfvw35e281h5HPBqJ8",
         "",
