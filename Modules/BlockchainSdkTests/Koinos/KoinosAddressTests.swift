@@ -13,7 +13,7 @@ import Testing
 struct KoinosAddressTests {
     private let addressService = KoinosAddressService(networkParams: BitcoinNetworkParams())
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         ("03B2D98CF41E82D9B99842A1D05860A1B06532015138F9067239706E06EE38E621", "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp"),
         ("03607ffd808bdeab4dca2605854b2ab58ed18caf9034b6f0ad38a7fab065b6a997", "18KSv997KjmdraZvdjfvdy6dr3nFejLrV4"),
         ("030eeba48e9e8afb81322ba5ae1c79f960e3bca42534e9c7581b8b11273e46afd6", "1EcwHZbYn8L6C46fFyDcNNqPHzHpWu91QU"),
@@ -26,7 +26,7 @@ struct KoinosAddressTests {
         #expect(address == expectedAddress)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp",
         "18KSv997KjmdraZvdjfvdy6dr3nFejLrV4",
         "1EcwHZbYn8L6C46fFyDcNNqPHzHpWu91QU",
@@ -37,7 +37,7 @@ struct KoinosAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8T",
         "18KSv997KjmdraZvdjfvdy6dr3nFejLrV",
         "1EcwHZbYn8L6C46fFyDcNNqPHzHpWu91Q",
@@ -48,7 +48,7 @@ struct KoinosAddressTests {
         #expect(!addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "9FE5BB2CC7D83C1DA10845AFD8A34B141FD8FD72500B95B1547E12B9BB8AAC3D",
         "EC55E8D3F6B9C28F37B4CFA1A87896FB10ADAD42F0FC42FA8827D58032EF0E2E",
         "7C40243D15B7343A42DB8B9D12A9B676FB28B5F5DA9B8B5CC153ED2A16222C66",
