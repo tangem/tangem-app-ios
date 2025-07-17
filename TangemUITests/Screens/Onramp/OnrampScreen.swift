@@ -161,6 +161,35 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         }
         return self
     }
+
+    // MARK: - Error View Methods
+
+    @discardableResult
+    func validateErrorViewExists() -> Self {
+        XCTContext.runActivity(named: "Validate error notification view exists") { _ in
+            let refreshButton = app.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            XCTAssertTrue(refreshButton.waitForExistence(timeout: .longUIUpdate), "Error notification view should exist (refresh button not found)")
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateErrorContent(title: String? = nil, message: String? = nil) -> Self {
+        XCTContext.runActivity(named: "Validate error notification content") { _ in
+            if let title = title {
+                let titleLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
+                XCTAssertTrue(titleLabel.waitForExistence(timeout: .longUIUpdate), "Error title should exist")
+                XCTAssertEqual(titleLabel.label, title, "Error title should be '\(title)' but was '\(titleLabel.label)'")
+            }
+
+            if let message = message {
+                let messageLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
+                XCTAssertTrue(messageLabel.waitForExistence(timeout: .longUIUpdate), "Error message should exist")
+                XCTAssertEqual(messageLabel.label, message, "Error message should be '\(message)' but was '\(messageLabel.label)'")
+            }
+        }
+        return self
+    }
 }
 
 enum OnrampScreenElement: String, UIElement {
