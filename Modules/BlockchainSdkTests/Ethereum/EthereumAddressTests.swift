@@ -17,7 +17,7 @@ import Testing
 struct EthereumAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func defaultAddressGeneration(blockchain: BlockchainSdk.Blockchain) throws {
         // given
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
@@ -41,7 +41,7 @@ struct EthereumAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func defaultAddressGeneration2(blockchain: BlockchainSdk.Blockchain) throws {
         let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
@@ -52,7 +52,7 @@ struct EthereumAddressTests {
         #expect(address == expectedAddress)
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func testnetAddressGeneration(blockchain: BlockchainSdk.Blockchain) throws {
         // given
         let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
@@ -72,7 +72,7 @@ struct EthereumAddressTests {
         #expect("0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d".lowercased() == "0x6eca00c52afc728cdbf42e817d712e175bb23c7d") // without checksum
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func ethChecksum(blockchain: BlockchainSdk.Blockchain) throws {
         let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         let chesksummed = EthereumAddressUtils.toChecksumAddress("0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359")
@@ -97,7 +97,7 @@ struct EthereumAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func validAddresses(blockchain: BlockchainSdk.Blockchain) {
         let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
@@ -120,7 +120,7 @@ struct EthereumAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func invalidAddresses(blockchain: BlockchainSdk.Blockchain) {
         let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
@@ -135,7 +135,7 @@ struct EthereumAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: Constants.defaultBlockchainArgs)
+    @Test(arguments: Constants.defaultBlockchainArgs)
     func ensAddressValidation(blockchain: BlockchainSdk.Blockchain) throws {
         let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 

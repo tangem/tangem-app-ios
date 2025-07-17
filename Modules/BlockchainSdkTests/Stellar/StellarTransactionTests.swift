@@ -24,7 +24,7 @@ final class StellarTransactionTests {
         bag = []
     }
 
-    @Test(.serialized, arguments: [Blockchain.stellar(curve: .ed25519, testnet: false), .stellar(curve: .ed25519_slip0010, testnet: false)])
+    @Test(arguments: [Blockchain.stellar(curve: .ed25519, testnet: false), .stellar(curve: .ed25519_slip0010, testnet: false)])
     func correctCoinTransaction(blockchain: Blockchain) async {
         let signature = Data(hex: "EA1908DD1B2B0937758E5EFFF18DB583E41DD47199F575C2D83B354E29BF439C850DC728B9D0B166F6F7ACD160041EE3332DAD04DD08904CB0D2292C1A9FB802")
 
@@ -75,7 +75,7 @@ final class StellarTransactionTests {
         }
     }
 
-    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func correctTokenTransacton(curve: EllipticCurve) async throws {
         // given
         let contractAddress = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"

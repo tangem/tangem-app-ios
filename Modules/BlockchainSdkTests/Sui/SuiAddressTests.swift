@@ -40,14 +40,14 @@ struct SuiAddressTests {
         #expect(address.value == expectedAddressValue)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "0x54e80d76d790c277f5a44f3ce92f53d26f5894892bf395dee6375988876be6b2", // 32 bytes address
     ])
     func validateShouldSucceedForCorrectAddress(address: String) {
         #expect(SuiAddressService().validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "",
         "0x00", // invalidAddressOfOneByte
         "0x000000000000000000000000000000000000000000000000000000000000000", // invalidAddressOf65Chars

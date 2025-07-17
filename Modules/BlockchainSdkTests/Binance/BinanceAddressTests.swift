@@ -39,7 +39,7 @@ struct BinanceAddressTests {
         #expect(addr_dec.value == "tbnb1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5ehnavcf") // [REDACTED_TODO_COMMENT]
     }
 
-    @Test(.serialized, arguments: [true, false])
+    @Test(arguments: [true, false])
     func invalidCurveGeneration_throwsError(isTestNet: Bool) async throws {
         let service = BinanceAddressService(testnet: true)
         #expect(throws: (any Error).self) {
@@ -47,7 +47,7 @@ struct BinanceAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "bnb1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eex5gcc",
     ])
     func addressValidation_validAddresses(addressHex: String) {
