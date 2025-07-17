@@ -215,6 +215,7 @@ struct BitcoinAddressTests {
         "abc",
         "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
         "175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W",
+        "1111111111111111111114oLvT3\\n", // Messed up address
     ])
     func addressValidation_invalidAddresses(addressHex: String) {
         let walletCoreAddressValidator: AddressValidator
