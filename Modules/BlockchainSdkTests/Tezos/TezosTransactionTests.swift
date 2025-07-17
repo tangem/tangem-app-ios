@@ -15,7 +15,7 @@ import TangemFoundation
 @testable import BlockchainSdk
 
 struct TezosTests {
-    @Test(.serialized, arguments: [Configuration.ed25519_slip0010, .secp256k1])
+    @Test(arguments: [Configuration.ed25519_slip0010, .secp256k1])
     func correctCoinTransaction(config: Configuration) throws {
         // given
         let transaction = try makeTransaction(publicKey: config.publicKey, curve: config.curve)
@@ -33,7 +33,7 @@ struct TezosTests {
         #expect(messageToSend == config.expectedSignedMessage)
     }
 
-    @Test(.serialized, arguments: [Configuration.ed25519_slip0010, .secp256k1])
+    @Test(arguments: [Configuration.ed25519_slip0010, .secp256k1])
     func transactionSize(config: Configuration) throws {
         // given
         let transaction = try makeTransaction(publicKey: config.publicKey, curve: config.curve)

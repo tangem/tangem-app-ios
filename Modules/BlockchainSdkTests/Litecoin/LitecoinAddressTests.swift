@@ -48,7 +48,7 @@ struct LitecoinAddressTests {
         #expect(address.value == expectedAddress)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "LMbRCidgQLz1kNA77gnUpLuiv2UL6Bc4Q2",
         "ltc1q5wmm9vrz55war9c0rgw26tv9un5fxnn7slyjpy",
         "MPmoY6RX3Y3HFjGEnFxyuLPCQdjvHwMEny",
@@ -59,7 +59,7 @@ struct LitecoinAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
     ])
     func addressInvalid(address: String) throws {

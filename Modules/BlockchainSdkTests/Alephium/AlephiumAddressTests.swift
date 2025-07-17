@@ -53,7 +53,7 @@ struct AlephiumAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "12ZGzgQEpgQCWQrD8eyNihFXBF7QPGbWzSnGQSSUES98E",
         "1HqAa1eHkqmXuSh7ECW6jF9ygZ2CMZYe1JthwcQ7NbgUe",
     ])
@@ -61,7 +61,7 @@ struct AlephiumAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "0x00",
         "0x0",
         "1HqAa1eHkqmXuSh7ECW6jF9ygZ2CMZYe1JthwcQ7NsKSmsak",
