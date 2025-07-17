@@ -79,7 +79,7 @@ struct EthereumTransactionTests {
         #expect(signedTransaction == expectedSignedTransaction)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         LegacyTokenTransferTestCase.Success.usdcToken_correctData,
         LegacyTokenTransferTestCase.Success.nftERC721Token_correctData,
         LegacyTokenTransferTestCase.Success.nftERC1155Token_correctData,
@@ -108,7 +108,7 @@ struct EthereumTransactionTests {
         #expect(signedTransaction.hex() == testCase.transactionData.expectedSignedTransaction.hex(), testCase.name)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         LegacyTokenTransferTestCase.Failure.nftUnknownStandardToken_throwsError,
     ])
     func legacyTokenTransfer_failure(testCase: LegacyTokenTransferTestCase.Failure) throws {
@@ -394,14 +394,12 @@ struct EthereumTransactionTests {
         )
     }
 
-    @Test(
-        arguments: [
+    @Test(.serialized, arguments: [
             // https://optimistic.etherscan.io/tx/0x89a6b62628d326902df50f543996e9403df9a5d2ae5be415f7cdaa1a98464fd4
             TokenTransferPayloadTestCase.Success.usdcToken_correctPayload,
             TokenTransferPayloadTestCase.Success.nftERC721Token_correctPayload,
             TokenTransferPayloadTestCase.Success.nftERC1155Token_correctPayload,
-        ]
-    )
+    ])
     func buildingTokenTransferTransactionPayload_success(testCase: TokenTransferPayloadTestCase.Success) throws {
         // given
         let privateKey = WalletCore.PrivateKey(data: privateKeyRaw)!
@@ -423,7 +421,7 @@ struct EthereumTransactionTests {
         #expect(payload.hex().addHexPrefix() == testCase.refPayload, testCase.name)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         TokenTransferPayloadTestCase.Failure.nftUnknownStandardToken_throwsError,
     ])
     func buildingTokenTransferTransactionPayload_failure(testCase: TokenTransferPayloadTestCase.Failure) throws {

@@ -36,7 +36,7 @@ struct XRPAddressTests {
         }
     }
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func xrpEdAddressGeneration(curve: EllipticCurve) throws {
         let service = XRPAddressService(curve: curve)
         let address = try service.makeAddress(from: Keys.AddressesKeys.edKey)
@@ -54,7 +54,7 @@ struct XRPAddressTests {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "rDpysuumkweqeC7XdNgYNtzL5GxbdsmrtF",
         "XVfvixWZQKkcenFRYApCjpTUyJ4BePTe3jJv7beatUZvQYh",
         "XVfvixWZQKkcenFRYApCjpTUyJ4BePTe3jJv7beatUZvQYh",

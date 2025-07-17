@@ -23,7 +23,7 @@ struct BitcoinTransactionTests {
     }
 
     /// https://www.blockchair.com/bitcoin/transaction/1df3c8aa649e1c1b3760685a0fc1ac7b3dd9be7e0ab35f7accf8195737e6caac
-    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
+    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
     func legacyAndDefaultAddressTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = BitcoinNetworkParams()
@@ -78,7 +78,7 @@ struct BitcoinTransactionTests {
 
     /// https://www.blockchair.com/bitcoin/transaction/b197d829e5eba01cab1800a813c9c94629c97fbfac4307f3f0fb51b1fbe2e5f3
     /// Twin cards
-    @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
+    @Test(.serialized, arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
     func p2msTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let networkParams = BitcoinNetworkParams()
