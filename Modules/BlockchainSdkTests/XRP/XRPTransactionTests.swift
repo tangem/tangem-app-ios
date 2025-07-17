@@ -63,7 +63,7 @@ struct XRPTransactionTests {
         #expect(xrpAddress2.tag == 4294967294)
     }
 
-    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func txSize(curve: EllipticCurve) throws {
         // given
         let edPrivateKey = try Curve25519.Signing.PrivateKey(

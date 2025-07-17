@@ -47,7 +47,7 @@ struct VeChainAddressTests {
         #expect(expectedAddress == address.value)
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "0x154D3D331CAAd4c8A14a3CbFd36Fd0640ADB76ad",
         "0xFF5ba88a17b2E16D23FF6647E9052E937AcB1406",
         "0x8E2b322FB0d0b7dC83783678c4d10ED64Af92dB4",
@@ -60,7 +60,7 @@ struct VeChainAddressTests {
         #expect(addressService.validate(address))
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "0x11e1B586dd370471D0B52046EE3D4309a6c29C6",
         "0xddde7ddd4111A54eFF5679CDE026913692e0B71cC",
         "c8177346deb2bab5390f472c338351e15e05063a",

@@ -16,7 +16,7 @@ import enum WalletCore.CoinType
 struct SolanaAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
 
-    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func defaultAddressGeneration(curve: EllipticCurve) throws {
         let key = Data(hexString: "0300000000000000000000000000000000000000000000000000000000000000")
         let blockchain = Blockchain.solana(curve: curve, testnet: false)
@@ -46,7 +46,7 @@ struct SolanaAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "7v91N7iZ9mNicL8WfG6cgSCKyRXydQjLh6UYBWwm6y1Q",
         "EN2sCsJ1WDV8UFqsiTXHcUPUxQ4juE71eCknHYYMifkd",
     ])

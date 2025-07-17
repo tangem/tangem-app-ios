@@ -12,7 +12,7 @@ import TangemSdk
 import Testing
 
 struct TerraAddressTests {
-    @Test(.serialized, arguments: [Blockchain.terraV1, .terraV2])
+    @Test(arguments: [Blockchain.terraV1, .terraV2])
     func defaultAddressGeneration(blockchain: Blockchain) throws {
         let addressService = WalletCoreAddressService(blockchain: blockchain)
         let expectedAddress = "terra1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eax3ymk"
@@ -27,7 +27,7 @@ struct TerraAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "terra1hdp298kaz0eezpgl6scsykxljrje3667d233ms",
         "terravaloper1pdx498r0hrc2fj36sjhs8vuhrz9hd2cw0yhqtk",
     ])
@@ -38,7 +38,7 @@ struct TerraAddressTests {
         }
     }
 
-    @Test(.serialized, arguments: [
+    @Test(arguments: [
         "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
     ])
     func addressValidation_invalidAddresses(address: String) throws {
