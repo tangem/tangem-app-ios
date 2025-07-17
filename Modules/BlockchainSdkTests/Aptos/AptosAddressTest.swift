@@ -58,7 +58,7 @@ struct AptosAddressTest {
         }
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0x77b6ecc77530f2b7cad89abcdd8dfece24a9cba20acc608cee424f30d3721ea1",
         "0x7d7e436f0b2aafde60774efb26ccc432cf881b677aca7faaf2a01879bd19fb8",
         "0x68c709c6614e29f401b6bfdd0b89578381ef0fb719515c03b73cf13e45550e06",
@@ -75,7 +75,7 @@ struct AptosAddressTest {
         #expect(addressService.validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0x7d7e436f0askdjaksldb2aafde60774efb26cccll432cf881b677aca7faaf2a01879bd19fb8",
         "me@0x1.com",
         "me@google.com",

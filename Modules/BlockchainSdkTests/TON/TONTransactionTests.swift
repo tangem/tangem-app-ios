@@ -37,7 +37,7 @@ struct TONTransactionTests {
     }
 
     /// https://tonscan.org/tx/77f72e4096f2ae315ff7b0906569f9aa450686b11a40e65c9adb8690587bffa4
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func correctCoinTransaction(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
         let walletManager = try makeWalletManager(blockchain: blockchain)
@@ -66,7 +66,7 @@ struct TONTransactionTests {
     }
 
     /// https://tonviewer.com/transaction/a274b0bd0f6a90c1296c8a7ee305488852e9335e47230dcee0d6495dcad71692
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(.serialized, arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func correctTokenTransaction(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
         let walletManager = try makeWalletManager(blockchain: blockchain)

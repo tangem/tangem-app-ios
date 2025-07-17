@@ -32,7 +32,7 @@ struct CasperAddressTests {
         try #expect(secp256k1AddressService.makeAddress(from: secp256k1WalletPublicKey, type: .default).value == secp256k1ExpectedAddress)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0198c07D7e72D89A681d7227a7Af8A6fd5F22fe0105c8741d55A95dF415454b82E",
     ])
     func addressValidation_validAddresses_ed25519(address: String) {
@@ -40,7 +40,7 @@ struct CasperAddressTests {
         #expect(ed25519AddressService.validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "02021f997DfbbFd32817C0E110EAeE26BCbD2BB70b4640C515D9721c9664312eaCd8",
     ])
     func addressValidation_validAddresses_secp256k1(address: String) {

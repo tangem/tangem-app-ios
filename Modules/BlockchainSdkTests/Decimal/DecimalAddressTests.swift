@@ -24,7 +24,7 @@ struct DecimalAddressTests {
         #expect(plainAddress.value == expectedAddress)
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0xc63763572D45171e4C25cA0818b44E5Dd7F5c15B",
         "d01ccmkx4edg5t3unp9egyp3dzwthtlts2m320gh9",
     ])
@@ -32,7 +32,7 @@ struct DecimalAddressTests {
         #expect(DecimalAddressService().validate(address))
     }
 
-    @Test(arguments: [
+    @Test(.serialized, arguments: [
         "0xc63763572D45171e4C25cA0818b4",
         "d01ccmkx4edg5t3unp9egyp3dzwtht",
         "",
