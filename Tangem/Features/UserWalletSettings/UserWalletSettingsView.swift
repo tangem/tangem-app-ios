@@ -22,6 +22,8 @@ struct UserWalletSettingsView: View {
         GroupedScrollView(alignment: .leading, spacing: 24) {
             nameSection
 
+            accessCodeSection
+
             backupSection
 
             commonSection
@@ -50,6 +52,18 @@ struct UserWalletSettingsView: View {
         )
         .defaultRoundedBackground()
         .onTapGesture(perform: viewModel.onTapNameField)
+    }
+
+    private var accessCodeSection: some View {
+        GroupedSection(
+            viewModel.hotAccessCodeViewModel,
+            content: {
+                DefaultRowView(viewModel: $0).appearance(.accentButton)
+            },
+            footer: {
+                DefaultFooterView(Localization.walletSettingsAccessCodeDescription)
+            }
+        )
     }
 
     private var backupSection: some View {
