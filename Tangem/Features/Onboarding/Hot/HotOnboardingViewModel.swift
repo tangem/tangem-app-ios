@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemSdk
+import TangemFoundation
 import TangemUIUtils
 import TangemLocalization
 
@@ -16,19 +17,22 @@ final class HotOnboardingViewModel: ObservableObject {
     @Published var currentStep: HotOnboardingStep
     @Published var alert: AlertBinder?
     @Published var shouldFireConfetti: Bool = false
-    @Published var canAcessCodeBack = false
+    @Published var canAccessCodeCreateBack = false
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     let progressBarHeight = OnboardingLayoutConstants.progressBarHeight
     let skipTitle = Localization.commonSkip
 
     lazy var createWalletViewModel = HotOnboardingCreateWalletViewModel(delegate: self)
-    lazy var importCompletedViewModel = HotOnboardingSuccessViewModel(type: .import, delegate: self)
+    lazy var importCompletedViewModel = HotOnboardingSuccessViewModel(type: .walletImported, delegate: self)
     lazy var seedPhraseIntroViewModel = HotOnboardingSeedPhraseIntroViewModel(delegate: self)
-    lazy var seedPhraseCompletedViewModel = HotOnboardingSuccessViewModel(type: .backup, delegate: self)
-    lazy var checkAccessCodeViewModel = HotOnboardingCheckAccessCodeViewModel(delegate: self)
-    lazy var accessCodeViewModel = HotOnboardingAccessCodeViewModel(delegate: self)
-    lazy var doneViewModel = HotOnboardingSuccessViewModel(type: .done, delegate: self)
+    lazy var seedPhraseRecoveryViewModel = HotOnboardingSeedPhraseRecoveryViewModel(delegate: self)
+    lazy var seedPhraseRevealViewModel = HotOnboardingSeedPhraseRevealViewModel(delegate: self)
+    lazy var seedPhaseBackupContinueViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupContinue, delegate: self)
+    lazy var seedPhaseBackupFinishViewModel = HotOnboardingSuccessViewModel(type: .seedPhaseBackupFinish, delegate: self)
+    lazy var accessCodeCreateViewModel = HotOnboardingAccessCodeViewModel(delegate: self)
+    lazy var accessCodeValidateViewModel = HotOnboardingCheckAccessCodeViewModel(delegate: self)
+    lazy var doneViewModel = HotOnboardingSuccessViewModel(type: .walletReady, delegate: self)
 
     lazy var importWalletViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
@@ -40,22 +44,20 @@ final class HotOnboardingViewModel: ObservableObject {
         delegate: self
     )
 
-    var seedPhraseRecoveryViewModel: HotOnboardingSeedPhraseRecoveryViewModel?
     var seedPhraseUserValidationViewModel: OnboardingSeedPhraseUserValidationViewModel?
 
     var navigationBarTitle: String {
         switch currentStep {
-        case .createWallet:
-            ""
-        case .importWallet:
+        case .createWallet, .accessCodeValidate:
+            String.empty
+        case .importSeedPhrase:
             Localization.walletImportSeedNavtitle
         case .importCompleted:
             Localization.walletImportSuccessNavtitle
-        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation, .seedPhraseCompleted:
+        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseValidate, .seedPhaseBackupContinue,
+             .seedPhaseBackupFinish, .seedPhraseReveal:
             Localization.commonBackup
-        case .checkAccessCode:
-            ""
-        case .accessCode:
+        case .accessCodeCreate:
             Localization.accessCodeNavtitle
         case .pushNotifications:
             Localization.onboardingTitleNotifications
@@ -65,63 +67,49 @@ final class HotOnboardingViewModel: ObservableObject {
     }
 
     var leadingButtonStyle: LeadingButtonStyle? {
+        let backAction = Action { [weak self] in
+            self?.goToPreviousStep()
+        }
+
+        let closeAction = Action { [weak self] in
+            self?.closeHotOnboarding()
+        }
+
         switch currentStep {
-        case .createWallet, .importWallet:
-            return .back
-        case .importCompleted:
-            return nil
-        case .seedPhraseIntro:
-            return .close
-        case .seedPhraseRecovery, .seedPhraseUserValidation:
-            return .back
-        case .seedPhraseCompleted:
-            return nil
-        case .checkAccessCode:
-            return .close
-        case .accessCode:
-            return canAcessCodeBack ? .back : nil
-        case .pushNotifications, .done:
+        case .createWallet, .importSeedPhrase:
+            return .back(closeAction)
+        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseValidate, .accessCodeValidate:
+            return isStepFirst(currentStep) ? .close(closeAction) : .back(backAction)
+        case .accessCodeCreate:
+            return accessCodeCreateStepLeadingButtonStyle()
+        case .seedPhraseReveal:
+            return .close(closeAction)
+        default:
             return nil
         }
     }
 
     var trailingButtonStyle: TrailingButtonStyle? {
         switch currentStep {
-        case .createWallet, .importWallet:
-            return nil
-        case .importCompleted:
-            return nil
-        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation, .seedPhraseCompleted:
-            return nil
-        case .checkAccessCode:
-            return nil
-        case .accessCode:
-            return .skip
-        case .pushNotifications, .done:
+        case .accessCodeCreate:
+            return accessCodeCreateStepTrailingButtonStyle()
+        default:
             return nil
         }
     }
 
     var isProgressBarEnabled: Bool {
-        switch currentStep {
-        case .createWallet:
+        switch input.flow {
+        case .walletCreate, .accessCodeCreate, .accessCodeChange, .seedPhraseBackup, .seedPhraseReveal:
             false
-        case .importWallet, .importCompleted:
-            true
-        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation, .seedPhraseCompleted:
-            true
-        case .checkAccessCode:
-            true
-        case .accessCode:
-            true
-        case .pushNotifications, .done:
+        case .walletImport, .walletActivate:
             true
         }
     }
 
-    var currentProgress: CGFloat {
+    var currentProgress: Double {
         let currentStepIndex = index(of: currentStep) ?? 0
-        return CGFloat(currentStepIndex + 1) / CGFloat(input.steps.count)
+        return Double(currentStepIndex + 1) / Double(steps.count)
     }
 
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -132,6 +120,7 @@ final class HotOnboardingViewModel: ObservableObject {
     }()
 
     private let input: HotOnboardingInput
+    private let steps: [HotOnboardingStep]
     private weak var coordinator: HotOnboardingRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -139,7 +128,11 @@ final class HotOnboardingViewModel: ObservableObject {
     init(input: HotOnboardingInput, coordinator: HotOnboardingRoutable) {
         self.input = input
         self.coordinator = coordinator
-        currentStep = input.steps.first ?? .createWallet
+
+        let steps = HotOnboardingStepsBuilder().buildSteps(flow: input.flow)
+        self.steps = steps
+        currentStep = steps.first ?? .createWallet
+
         bind()
     }
 }
@@ -147,52 +140,48 @@ final class HotOnboardingViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension HotOnboardingViewModel {
-    func backButtonAction() {
-        switch currentStep {
-        case .createWallet, .importWallet:
-            closeHotOnboarding()
-        case .importCompleted:
-            break
-        case .seedPhraseIntro, .seedPhraseCompleted:
-            break
-        case .seedPhraseRecovery:
-            goToStep(.seedPhraseIntro)
-        case .seedPhraseUserValidation:
-            goToStep(.seedPhraseRecovery)
-        case .checkAccessCode:
-            break
-        case .accessCode:
-            accessCodeViewModel.resetState()
-        case .pushNotifications, .done:
-            break
-        }
-    }
-
-    func onSkipTap() {
-        switch currentStep {
-        case .createWallet, .importWallet, .importCompleted:
-            break
-        case .seedPhraseIntro, .seedPhraseCompleted, .seedPhraseRecovery, .seedPhraseUserValidation:
-            break
-        case .checkAccessCode:
-            break
-        case .accessCode:
-            onAccessCodeSkip()
-        case .pushNotifications, .done:
-            break
-        }
-    }
-
-    func onCloseTap() {
-        closeHotOnboarding()
+    func onDismissalAttempt() {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
 // MARK: - Steps navigation
 
 private extension HotOnboardingViewModel {
+    func goToNextStep() {
+        guard
+            let index = index(of: currentStep),
+            index < steps.count - 1
+        else {
+            return
+        }
+
+        let step = steps[index + 1]
+        goToStep(step)
+    }
+
+    func goToPreviousStep() {
+        guard
+            let index = index(of: currentStep),
+            index > 0
+        else {
+            return
+        }
+
+        let step = steps[index - 1]
+        goToStep(step)
+    }
+
     func goToStep(_ step: HotOnboardingStep) {
         currentStep = step
+    }
+
+    func index(of step: HotOnboardingStep) -> Int? {
+        steps.firstIndex(of: step)
+    }
+
+    func isStepFirst(_ step: HotOnboardingStep) -> Bool {
+        steps.first == step
     }
 }
 
@@ -200,7 +189,7 @@ private extension HotOnboardingViewModel {
 
 private extension HotOnboardingViewModel {
     func bind() {
-        accessCodeViewModel.$state
+        accessCodeCreateViewModel.$state
             .map {
                 switch $0 {
                 case .accessCode:
@@ -209,36 +198,45 @@ private extension HotOnboardingViewModel {
                     true
                 }
             }
-            .assign(to: &$canAcessCodeBack)
+            .assign(to: &$canAccessCodeCreateBack)
     }
 
-    func index(of step: HotOnboardingStep) -> Int? {
-        input.steps.firstIndex(of: step)
-    }
-
-    func goToNextStep() {
-        guard
-            let index = index(of: currentStep),
-            index < input.steps.count - 1
-        else {
-            return
+    func accessCodeCreateStepLeadingButtonStyle() -> LeadingButtonStyle? {
+        let backAction = Action { [weak accessCodeCreateViewModel] in
+            accessCodeCreateViewModel?.resetState()
         }
 
-        let step = input.steps[index + 1]
-        goToStep(step)
+        let closeAction = Action { [weak self] in
+            self?.closeHotOnboarding()
+        }
+
+        if canAccessCodeCreateBack {
+            return .back(backAction)
+        } else {
+            switch input.flow {
+            case .accessCodeCreate, .accessCodeChange:
+                return .close(closeAction)
+            default:
+                return nil
+            }
+        }
     }
 
-    func getSeedPhraseWords() -> [String] {
-        // [REDACTED_TODO_COMMENT]
-        return [
-            "brother", "embrace", "piano", "income", "feature", "real",
-            "bicycle", "stairs", "glimpse", "fan", "salon", "elder",
-            // brother embrace piano income feature real bicycle stairs glimpse fan salon elder
-        ]
+    func accessCodeCreateStepTrailingButtonStyle() -> TrailingButtonStyle? {
+        let skipAction = Action { [weak self] in
+            self?.alert = self?.makeAccessCodeCreateSkipAlert()
+        }
+
+        switch input.flow {
+        case .walletImport, .walletActivate:
+            return .skip(skipAction)
+        default:
+            return nil
+        }
     }
 
-    func onAccessCodeSkip() {
-        alert = AlertBuilder.makeAlert(
+    func makeAccessCodeCreateSkipAlert() -> AlertBinder? {
+        AlertBuilder.makeAlert(
             title: Localization.accessCodeAlertSkipTitle,
             message: Localization.accessCodeAlertSkipDescription,
             with: .withPrimaryCancelButton(
@@ -277,12 +275,24 @@ extension HotOnboardingViewModel: SeedPhraseImportDelegate {
 
 extension HotOnboardingViewModel: HotOnboardingSeedPhraseIntroDelegate {
     func seedPhraseIntroContinue() {
-        let seedPhraseWords = getSeedPhraseWords()
-        seedPhraseRecoveryViewModel = HotOnboardingSeedPhraseRecoveryViewModel(
-            seedPhrase: .init(words: seedPhraseWords),
-            delegate: self
-        )
         goToNextStep()
+    }
+}
+
+// MARK: - HotOnboardingSeedPhraseRevealDelegate
+
+extension HotOnboardingViewModel: HotOnboardingSeedPhraseRevealDelegate {
+    func getSeedPhrase() -> [String] {
+        getSeedPhraseWords()
+    }
+
+    func getSeedPhraseWords() -> [String] {
+        // [REDACTED_TODO_COMMENT]
+        return [
+            "brother", "embrace", "piano", "income", "feature", "real",
+            "bicycle", "stairs", "glimpse", "fan", "salon", "elder",
+            // brother embrace piano income feature real bicycle stairs glimpse fan salon elder
+        ]
     }
 }
 
@@ -308,12 +318,12 @@ extension HotOnboardingViewModel: HotOnboardingSeedPhraseRecoveryDelegate {
 // MARK: - HotOnboardingCheckAccessCodeDelegate
 
 extension HotOnboardingViewModel: HotOnboardingCheckAccessCodeDelegate {
-    func checkAccessCode(_ accessCode: String) -> Bool {
+    func validateAccessCode(_ accessCode: String) -> Bool {
         // [REDACTED_TODO_COMMENT]
         accessCode == "111111"
     }
 
-    func checkSuccessful() {
+    func validateSuccessful() {
         goToNextStep()
     }
 }
@@ -321,6 +331,15 @@ extension HotOnboardingViewModel: HotOnboardingCheckAccessCodeDelegate {
 // MARK: - HotOnboardingAccessCodeDelegate
 
 extension HotOnboardingViewModel: HotOnboardingAccessCodeDelegate {
+    func isRequestBiometricsNeeded() -> Bool {
+        switch input.flow {
+        case .walletImport, .walletActivate, .accessCodeCreate:
+            true
+        default:
+            false
+        }
+    }
+
     func accessCodeComplete(accessCode: String) {
         // [REDACTED_TODO_COMMENT]
         goToNextStep()
@@ -344,18 +363,14 @@ extension HotOnboardingViewModel: HotOnboardingSuccessDelegate {
 
     func success() {
         switch currentStep {
-        case .createWallet, .importWallet:
-            break
         case .importCompleted:
             goToNextStep()
-        case .seedPhraseIntro, .seedPhraseRecovery, .seedPhraseUserValidation:
-            break
-        case .seedPhraseCompleted:
+        case .seedPhaseBackupContinue:
             goToNextStep()
-        case .checkAccessCode, .accessCode, .pushNotifications:
-            break
-        case .done:
+        case .seedPhaseBackupFinish, .done:
             closeHotOnboarding()
+        default:
+            break
         }
     }
 }
@@ -364,11 +379,15 @@ extension HotOnboardingViewModel: HotOnboardingSuccessDelegate {
 
 extension HotOnboardingViewModel {
     enum LeadingButtonStyle {
-        case back
-        case close
+        case back(Action)
+        case close(Action)
     }
 
     enum TrailingButtonStyle {
-        case skip
+        case skip(Action)
+    }
+
+    struct Action {
+        let closure: () -> Void
     }
 }

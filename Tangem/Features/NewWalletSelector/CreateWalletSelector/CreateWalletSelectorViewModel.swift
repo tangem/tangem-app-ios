@@ -10,7 +10,9 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-final class CreateWalletSelectorViewModel {
+final class CreateWalletSelectorViewModel: ObservableObject {
+    @Published var isScanAvailable = false
+
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     let supportButtonTitle = Localization.walletCreateNavInfoTitle
     let screenTitle = Localization.walletCreateTitle
@@ -36,6 +38,10 @@ final class CreateWalletSelectorViewModel {
 // MARK: - Internal methods
 
 extension CreateWalletSelectorViewModel {
+    func onAppear() {
+        scheduleScanAvailability()
+    }
+
     func onSupportTap() {
         coordinator?.openWhatToChoose()
     }
@@ -67,6 +73,13 @@ private extension CreateWalletSelectorViewModel {
                 }
             ),
         ]
+    }
+
+    func scheduleScanAvailability() {
+        guard !isScanAvailable else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.isScanAvailable = true
+        }
     }
 }
 

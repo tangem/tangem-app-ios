@@ -783,7 +783,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupport2No,
              .seedSupport2Yes,
              .unlock,
-             .openReferralProgram:
+             .openReferralProgram,
+             .openHotFinishActivation:
             return
         }
     }
