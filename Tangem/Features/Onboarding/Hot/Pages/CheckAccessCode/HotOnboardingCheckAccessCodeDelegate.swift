@@ -9,6 +9,6 @@
 import Foundation
 
 protocol HotOnboardingCheckAccessCodeDelegate: AnyObject {
-    func checkAccessCode(_ accessCode: String) -> Bool
-    func checkSuccessful()
+    func validateAccessCode(_ accessCode: String) -> Bool
+    func validateSuccessful()
 }
