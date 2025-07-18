@@ -34,7 +34,6 @@ struct SendDecimalNumberTextField: View {
     private var onFocusChanged: ((Bool) -> Void)?
     private var prefixSuffixOptions: PrefixSuffixOptions?
     private var minTextScale: CGFloat?
-//    private var accessibilityIdentifier: String?
 
     private var textToMeasure: String {
         var text = ""
@@ -143,7 +142,6 @@ struct SendDecimalNumberTextField: View {
         DecimalNumberTextField(viewModel: viewModel)
             .appearance(appearance)
             .placeholder(Constants.placeholder)
-//            .accessibilityIdentifier(accessibilityIdentifier)
             .focused($isInputActive)
             .if(showToolbar) {
                 $0.toolbar {
@@ -304,10 +302,6 @@ extension SendDecimalNumberTextField: Setupable {
     func minTextScale(_ minTextScale: CGFloat?) -> Self {
         map { $0.minTextScale = minTextScale }
     }
-
-//    func accessibilityIdentifier(_ accessibilityIdentifier: String?) -> Self {
-//        map { $0.accessibilityIdentifier = accessibilityIdentifier }
-//    }
 }
 
 extension SendDecimalNumberTextField {
