@@ -17,7 +17,6 @@ struct DecimalNumberTextField: View {
     // Setupable properties
     private var placeholder: String = "0"
     private var appearance: Appearance = .init()
-    private var accessibilityIdentifier: String?
 
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -48,9 +47,6 @@ struct DecimalNumberTextField: View {
             .tint(appearance.textColor)
             .labelsHidden()
             .keyboardType(.decimalPad)
-            .if(accessibilityIdentifier != nil) { view in
-                view.accessibilityIdentifier(accessibilityIdentifier!)
-            }
             .onChange(of: viewModel.textFieldText) { newValue in
                 updateValues(with: newValue)
             }
