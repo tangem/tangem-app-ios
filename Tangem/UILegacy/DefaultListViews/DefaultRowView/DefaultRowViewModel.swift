@@ -50,5 +50,6 @@ extension DefaultRowViewModel {
         case text(_ string: String, sensitive: Bool = false)
         case loader
         case icon(_ image: ImageType)
+        case badge(_ item: BadgeView.Item)
     }
 }
