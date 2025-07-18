@@ -102,6 +102,7 @@ private extension HotOnboardingAccessCodeViewModel {
     func bind() {
         $accessCode
             .dropFirst()
+            .debounce(for: .seconds(0.1), scheduler: RunLoop.main)
             .sink { [weak self] code in
                 self?.check(accessCode: code)
             }
@@ -119,11 +120,7 @@ private extension HotOnboardingAccessCodeViewModel {
         guard accessCode.count == codeLength else {
             return
         }
-
-        // Need small delay to have a time for user to see last `pin-digit`.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.state = .confirmAccessCode
-        }
+        state = .confirmAccessCode
     }
 
     func check(confirmAccessCode: String) {
@@ -134,12 +131,13 @@ private extension HotOnboardingAccessCodeViewModel {
             return
         }
 
-        requestBiometricsAccess()
+        if delegate?.isRequestBiometricsNeeded() == true {
+            requestBiometricsAccess(accessCode: accessCode)
+        }
     }
 
-    func requestBiometricsAccess() {
-        BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason) { [weak self] _ in
-            guard let self else { return }
+    func requestBiometricsAccess(accessCode: String) {
+        BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason) { [weak delegate] _ in
             delegate?.accessCodeComplete(accessCode: accessCode)
         }
     }
