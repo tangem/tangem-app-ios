@@ -13,18 +13,20 @@ enum HotOnboardingStep {
     case createWallet
 
     /// Import flow
-    case importWallet
+    case importSeedPhrase
     case importCompleted
 
     /// Seed phrase flow
     case seedPhraseIntro
     case seedPhraseRecovery
-    case seedPhraseUserValidation
-    case seedPhraseCompleted
+    case seedPhraseValidate
+    case seedPhraseReveal
+    case seedPhaseBackupContinue
+    case seedPhaseBackupFinish
 
     /// Access code flow
-    case checkAccessCode
-    case accessCode
+    case accessCodeCreate
+    case accessCodeValidate
 
     /// Others
     case pushNotifications
