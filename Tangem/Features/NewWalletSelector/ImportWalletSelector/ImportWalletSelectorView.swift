@@ -13,27 +13,43 @@ import TangemUI
 struct ImportWalletSelectorView: View {
     typealias ViewModel = ImportWalletSelectorViewModel
 
-    let viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel
+
+    @State private var screenMaxY: CGFloat = 0
+    @State private var scanButtonMinY: CGFloat = 0
+
+    private var buyButtonOffsetY: CGFloat {
+        viewModel.isBuyAvailable ? 0 : (screenMaxY - scanButtonMinY + UIApplication.safeAreaInsets.bottom)
+    }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            wallets
-                .padding(.top, 32)
-                .padding(.horizontal, 16)
-
-            scan(viewModel.buyItem)
-                .padding(.horizontal, 16)
-                .frame(maxHeight: .infinity, alignment: .bottom)
-        }
-        .navigationTitle(viewModel.navigationBarTitle)
-        .background(Colors.Background.primary.ignoresSafeArea(edges: .vertical))
-        .ignoresSafeArea(.keyboard)
+        content
+            .navigationTitle(viewModel.navigationBarTitle)
+            .background(Colors.Background.primary.ignoresSafeArea(edges: .vertical))
+            .ignoresSafeArea(.keyboard)
+            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
+            .onAppear(perform: viewModel.onAppear)
     }
 }
 
 // MARK: - Subviews
 
 private extension ImportWalletSelectorView {
+    var content: some View {
+        ZStack(alignment: .top) {
+            wallets
+                .padding(.top, 32)
+                .padding(.horizontal, 16)
+
+            buyButton(viewModel.buyItem)
+                .padding(.horizontal, 16)
+                .offset(y: buyButtonOffsetY)
+                .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $scanButtonMinY)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .animation(.default, value: viewModel.isBuyAvailable)
+        }
+    }
+
     var wallets: some View {
         VStack(spacing: 24) {
             Text(viewModel.screenTitle)
@@ -99,7 +115,7 @@ private extension ImportWalletSelectorView {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    func scan(_ item: ViewModel.BuyItem) -> some View {
+    func buyButton(_ item: ViewModel.BuyItem) -> some View {
         HStack(spacing: 0) {
             Text(item.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
