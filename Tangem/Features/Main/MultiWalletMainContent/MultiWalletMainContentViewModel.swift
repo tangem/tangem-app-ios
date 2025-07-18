@@ -137,7 +137,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func startBackupProcess() {
         if let input = userWalletModel.backupInput {
             Analytics.log(.mainNoticeBackupWalletTapped)
-            coordinator?.openOnboardingModal(with: input)
+            coordinator?.openOnboardingModal(with: .input(input))
         }
     }
 
@@ -461,6 +461,11 @@ extension MultiWalletMainContentViewModel {
 
         coordinator?.openReferral(input: input)
     }
+
+    private func openHotFinishActivation() {
+        // [REDACTED_TODO_COMMENT]
+        coordinator?.openHotFinishActivation()
+    }
 }
 
 // MARK: - Notification tap delegate
@@ -505,6 +510,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
+        case .openHotFinishActivation:
+            openHotFinishActivation()
         default:
             break
         }
