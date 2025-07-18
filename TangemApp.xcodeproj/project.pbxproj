@@ -879,6 +879,7 @@
 		B645D8932E1F2F9C00C21FBC /* Hedera in Frameworks */ = {isa = PBXBuildFile; productRef = B645D8922E1F2F9C00C21FBC /* Hedera */; };
 		B64781E22C22F74300B0E882 /* CustomTokenContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */; };
 		B64959832C414E8900B71164 /* RootViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64959822C414E8900B71164 /* RootViewControllerFactory.swift */; };
+		B64997702E2AC508001220D7 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B649976F2E2AC508001220D7 /* CryptoSwift */; };
 		B64E38692C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64E38682C810BA400B0CFA0 /* PercentFormatterNumberFormatterRepository.swift */; };
 		B65108B32CAC2A8100690C22 /* ShapeStyle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */; };
 		B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */; };
@@ -5209,6 +5210,7 @@
 			files = (
 				B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */,
 				B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */,
+				B64997702E2AC508001220D7 /* CryptoSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14687,6 +14689,7 @@
 			packageProductDependencies = (
 				B67E38C62CC7259B00D660EB /* TangemSdk */,
 				B63DFC4D2CD4EABB00720D9F /* TangemModules */,
+				B649976F2E2AC508001220D7 /* CryptoSwift */,
 			);
 			productName = "Tangem TapTests";
 			productReference = 5D3F77D824BF56DC00E8695B /* TangemTests.xctest */;
@@ -22779,6 +22782,11 @@
 		B645D8922E1F2F9C00C21FBC /* Hedera */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Hedera;
+		};
+		B649976F2E2AC508001220D7 /* CryptoSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */;
+			productName = CryptoSwift;
 		};
 		B66BBD8B2E18B4B200446329 /* BigInt */ = {
 			isa = XCSwiftPackageProductDependency;
