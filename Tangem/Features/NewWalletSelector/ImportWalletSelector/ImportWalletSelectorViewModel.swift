@@ -12,6 +12,8 @@ import TangemAssets
 import TangemLocalization
 
 final class ImportWalletSelectorViewModel: ObservableObject {
+    @Published var isBuyAvailable = false
+
     let navigationBarTitle = Localization.homeButtonAddExistingWallet
     let screenTitle = Localization.walletImportTitle
 
@@ -35,6 +37,10 @@ final class ImportWalletSelectorViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension ImportWalletSelectorViewModel {
+    func onAppear() {
+        scheduleBuyAvailability()
+    }
+
     func onBuyTap() {
         delegate?.openBuyCard()
     }
@@ -74,6 +80,13 @@ private extension ImportWalletSelectorViewModel {
                 action: {}
             ),
         ]
+    }
+
+    func scheduleBuyAvailability() {
+        guard !isBuyAvailable else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.isBuyAvailable = true
+        }
     }
 }
 

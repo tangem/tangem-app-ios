@@ -19,9 +19,9 @@ final class HotOnboardingSeedPhraseRecoveryViewModel {
     private let seedPhrase: SeedPhrase
     private weak var delegate: HotOnboardingSeedPhraseRecoveryDelegate?
 
-    init(seedPhrase: SeedPhrase, delegate: HotOnboardingSeedPhraseRecoveryDelegate) {
-        self.seedPhrase = seedPhrase
+    init(delegate: HotOnboardingSeedPhraseRecoveryDelegate) {
         self.delegate = delegate
+        seedPhrase = SeedPhrase(words: delegate.getSeedPhrase())
     }
 }
 
@@ -66,9 +66,9 @@ extension HotOnboardingSeedPhraseRecoveryViewModel {
     }
 }
 
-// MARK: - Input
+// MARK: - Types
 
-extension HotOnboardingSeedPhraseRecoveryViewModel {
+private extension HotOnboardingSeedPhraseRecoveryViewModel {
     struct SeedPhrase {
         let words: [String]
     }
