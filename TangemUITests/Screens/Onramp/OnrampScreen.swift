@@ -104,7 +104,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateCryptoAmount() -> Self {
         XCTContext.runActivity(named: "Validate crypto amount is updated and properly formatted") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .longUIUpdate), "Crypto amount label should exist")
+            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .quickNetworkRequest), "Crypto amount label should exist")
             let cryptoAmount = cryptoAmountLabel.label
 
             XCTAssertFalse(cryptoAmount.isEmpty, "Crypto amount should not be empty")
@@ -177,7 +177,7 @@ enum OnrampScreenElement: String, UIElement {
         case .title:
             return OnrampAccessibilityIdentifiers.title
         case .closeButton:
-            return OnrampAccessibilityIdentifiers.closeButton
+            return CommonUIAccessibilityIdentifiers.closeButton
         case .settingsButton:
             return OnrampAccessibilityIdentifiers.settingsButton
         case .providerToSLink:

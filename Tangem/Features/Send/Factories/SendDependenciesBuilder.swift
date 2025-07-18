@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemStaking
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 struct SendDependenciesBuilder {
@@ -692,7 +693,15 @@ struct SendDependenciesBuilder {
         )
 
         let factory = TangemExpressFactory()
-        let repository = factory.makeOnrampRepository(storage: CommonOnrampStorage())
+
+        // For UI tests, use UITestOnrampRepository with predefined values
+        let repository: OnrampRepository
+        if AppEnvironment.current.isUITest {
+            repository = UITestOnrampRepository()
+        } else {
+            repository = factory.makeOnrampRepository(storage: CommonOnrampStorage())
+        }
+
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
