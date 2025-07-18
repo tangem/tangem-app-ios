@@ -20,7 +20,7 @@ struct HotOnboardingSuccessView: View {
             Spacer()
             infoView(viewModel.infoItem)
             Spacer()
-            continueButton(viewModel.continueItem)
+            actionButton(viewModel.actionItem)
         }
         .onAppear(perform: viewModel.onAppear)
         .padding(.horizontal, 16)
@@ -46,7 +46,7 @@ extension HotOnboardingSuccessView {
         }
     }
 
-    func continueButton(_ item: ViewModel.ContinueItem) -> some View {
+    func actionButton(_ item: ViewModel.ActionItem) -> some View {
         MainButton(
             title: item.title,
             action: item.action
