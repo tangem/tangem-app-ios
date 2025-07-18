@@ -105,6 +105,35 @@ extension SolanaWalletManager: TransactionSender {
                 publicKey: publicKey
             )
         }
+        .withWeakCaptureOf(self)
+        .flatMap { walletManager, fee -> AnyPublisher<Fee, Error> in
+            guard let solanaFeeParameters = fee.parameters as? SolanaFeeParameters else {
+                return .anyFail(error: SolanaError.other("Failed to get SolanaFeeParameters"))
+            }
+
+            // account is already created, so we don't need to add rent exemption
+            if solanaFeeParameters.destinationAccountExists {
+                return .justWithError(output: fee)
+            }
+
+            // we don't add fee for coins, handled by transaction validator
+            guard case .token(let token) = amount.type else {
+                return .justWithError(output: fee)
+            }
+
+            // impossible case
+            guard let space = walletManager.ownerTokenAccountSpacesByMint[token.contractAddress] else {
+                return .justWithError(output: fee)
+            }
+
+            return walletManager.networkService.minimalBalanceForRentExemption(dataLength: space)
+                .map { accountCreationFee in
+                    var increasedFee = fee
+                    increasedFee.amount.value += accountCreationFee
+                    return increasedFee
+                }
+                .eraseToAnyPublisher()
+        }
         .map { [$0] }
         .eraseToAnyPublisher()
     }
@@ -202,51 +231,35 @@ extension SolanaWalletManager: RentExtemptionRestrictable {
         Amount(with: wallet.blockchain, value: mainAccountRentExemption)
     }
 
-    func validateDestinationForRentExtemption(amount: Amount, destination: DestinationType) async throws {
+    func validateDestinationForRentExemption(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        // this check is valid for coins only
+        guard amount.type == .coin else {
+            return
+        }
+
         // we assume that the destination for swap is created
-        guard case .address(let address) = destination else {
+        guard case .address = destination else {
             return
         }
 
-        switch amount.type.token?.metadata.kind {
-        case .fungible, .none:
-            let accountExists = try await networkService.checkAccountExists(accountId: address).async()
-            if accountExists {
-                return
-            }
-
-            let minAmountValue = try await getMinBalanceToSend(amount: amount)
-            if amount.value < minAmountValue {
-                let minAmount = Amount(with: wallet.blockchain, value: minAmountValue)
-                throw ValidationError.sendingAmountIsLessThanRentExemption(amount: minAmount)
-            }
-
-        case .nonFungible:
-            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
+        // unexpected case, should not happen
+        guard let solanaFeeParameters = fee.parameters as? SolanaFeeParameters else {
             return
         }
-    }
 
-    private func getMinBalanceToSend(amount: Amount) async throws -> Decimal {
-        switch amount.type {
-        case .coin:
-            // The size of the uncreated account for coin transfer is space independent
-            return try await networkService.minimalBalanceForRentExemption(dataLength: 0).async()
-
-        case .token(let token):
-            // The size of every token account for the same token will be the same
-            // Therefore, we take the sender's token account size
-            guard let space = ownerTokenAccountSpacesByMint[token.contractAddress] else {
-                // impossible case
-                return 0
-            }
-
-            return try await networkService.minimalBalanceForRentExemption(dataLength: space).async()
-
-        case .reserve, .feeResource:
-            // impossible case
-            return 0
+        if solanaFeeParameters.destinationAccountExists {
+            return
         }
+
+        // The size of the uncreated account for coin transfer is space independent
+        let minAmountValue = try await networkService.minimalBalanceForRentExemption(dataLength: 0).async()
+
+        if amount.value >= minAmountValue {
+            return
+        }
+
+        let minCoinAmount = Amount(with: wallet.blockchain, value: minAmountValue)
+        throw ValidationError.sendingAmountIsLessThanRentExemption(amount: minCoinAmount)
     }
 }
 

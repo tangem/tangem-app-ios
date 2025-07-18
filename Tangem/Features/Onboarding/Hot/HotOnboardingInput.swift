@@ -7,5 +7,5 @@
 //
 
 struct HotOnboardingInput {
-    let steps: [HotOnboardingStep]
+    let flow: HotOnboardingFlow
 }
