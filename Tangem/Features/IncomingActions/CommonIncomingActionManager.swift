@@ -72,7 +72,7 @@ public class CommonIncomingActionManager {
     }
 
     private func tryHandleDeeplinkUrlByTransactionPush(with userInfo: [AnyHashable: Any]) {
-        let filteredUserInfo = userInfo.filter { !($0.value is NSNull) }
+        let filteredUserInfo = userInfo.filter { !($0.value as? String == "null") }
         let paramsConstants = IncomingActionConstants.DeeplinkParams.self
         let typeConstants = IncomingActionConstants.DeeplinkType.self
 
