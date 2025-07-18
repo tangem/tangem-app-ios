@@ -42,7 +42,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .stage:
             return URL(string: "https://express-stage.tangem.com/v1/")!
         case .mock:
-            return URL(string: "https://wiremock.tests-d.com/")!
+            return URL(string: "https://wiremock.tests-d.com/v1/")!
         }
     }
 
