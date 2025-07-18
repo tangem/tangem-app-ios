@@ -12,7 +12,7 @@ import TangemLocalization
 
 final class HotOnboardingSuccessViewModel {
     lazy var infoItem = makeInfoItem()
-    lazy var continueItem = makeContinueItem()
+    lazy var actionItem = makeActionItem()
 
     private let type: SuccessType
     private weak var delegate: HotOnboardingSuccessDelegate?
@@ -27,7 +27,7 @@ final class HotOnboardingSuccessViewModel {
 
 extension HotOnboardingSuccessViewModel {
     func onAppear() {
-        if type == .done {
+        if type == .walletReady {
             delegate?.fireConfetti()
         }
     }
@@ -38,18 +38,20 @@ extension HotOnboardingSuccessViewModel {
 private extension HotOnboardingSuccessViewModel {
     func makeInfoItem() -> InfoItem {
         let title = switch type {
-        case .import:
+        case .walletImported:
             Localization.walletImportSuccessTitle
-        case .backup:
+        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
             Localization.backupCompleteTitle
-        case .done:
+        case .walletReady:
             Localization.onboardingDoneHeader
         }
 
         let description = switch type {
-        case .import, .backup:
+        case .walletImported, .seedPhaseBackupContinue:
             Localization.backupCompleteDescription
-        case .done:
+        case .seedPhaseBackupFinish:
+            Localization.backupCompleteSeedDescription
+        case .walletReady:
             Localization.onboardingDoneWallet
         }
 
@@ -60,15 +62,15 @@ private extension HotOnboardingSuccessViewModel {
         )
     }
 
-    func makeContinueItem() -> ContinueItem {
+    func makeActionItem() -> ActionItem {
         let title = switch type {
-        case .import, .backup:
+        case .walletImported, .seedPhaseBackupContinue:
             Localization.commonContinue
-        case .done:
+        case .walletReady, .seedPhaseBackupFinish:
             Localization.commonFinish
         }
 
-        return ContinueItem(
+        return ActionItem(
             title: title,
             action: { [weak delegate] in
                 delegate?.success()
@@ -81,9 +83,10 @@ private extension HotOnboardingSuccessViewModel {
 
 extension HotOnboardingSuccessViewModel {
     enum SuccessType {
-        case `import`
-        case backup
-        case done
+        case seedPhaseBackupContinue
+        case seedPhaseBackupFinish
+        case walletImported
+        case walletReady
     }
 
     struct InfoItem {
@@ -92,7 +95,7 @@ extension HotOnboardingSuccessViewModel {
         let description: String
     }
 
-    struct ContinueItem {
+    struct ActionItem {
         let title: String
         let action: () -> Void
     }
