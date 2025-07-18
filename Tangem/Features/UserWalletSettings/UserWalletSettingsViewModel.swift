@@ -23,10 +23,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private(set) var name: String
     @Published var accountsSection: [AccountsSectionType] = []
+    @Published var hotAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
-        [manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+        [hotBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -39,9 +40,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     // MARK: - Private
 
+    @Published private var hotBackupViewModel: DefaultRowViewModel?
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
+
+    private let hotSettingsUtil: HotSettingsUtil
 
     private var isNFTEnabled: Bool {
         get { nftAvailabilityProvider.isNFTEnabled(for: userWalletModel) }
@@ -52,11 +56,13 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
+
     init(
         userWalletModel: UserWalletModel,
         coordinator: UserWalletSettingsRoutable
     ) {
         name = userWalletModel.name
+        hotSettingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
@@ -85,6 +91,7 @@ private extension UserWalletSettingsViewModel {
     func setupView() {
         // setupAccountsSection()
         setupViewModels()
+        setupHotViewModels()
     }
 
     func setupAccountsSection() {
@@ -152,10 +159,49 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
+    func setupHotViewModels() {
+        hotSettingsUtil.walletSettings.forEach { setting in
+            switch setting {
+            case .accessCode:
+                hotAccessCodeViewModel = DefaultRowViewModel(
+                    title: Localization.walletSettingsAccessCodeTitle,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.hotAccessCodeAction)
+                )
+            case .backup(let hasBackup):
+                let detailsType: DefaultRowViewModel.DetailsType?
+                if hasBackup {
+                    detailsType = nil
+                } else {
+                    let badgeItem = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
+                    detailsType = .badge(badgeItem)
+                }
+
+                hotBackupViewModel = DefaultRowViewModel(
+                    title: Localization.commonBackup,
+                    detailsType: detailsType,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openHotBackupTypes)
+                )
+            }
+        }
+    }
+
+    func hotAccessCodeAction() {
+        runTask(in: self) { viewModel in
+            let result = await viewModel.hotSettingsUtil.performAccessCodeAction()
+
+            switch result {
+            case .backupNeeded:
+                viewModel.openHotBackupNeeded()
+            case .onboarding(let needsValidation):
+                viewModel.openHotAccessCodeOnboarding(needsValidation: needsValidation)
+            }
+        }
+    }
+
     func prepareBackup() {
         Analytics.log(.buttonCreateBackup)
         if let backupInput = userWalletModel.backupInput {
-            openOnboarding(with: backupInput)
+            openOnboarding(with: .input(backupInput))
         }
     }
 
@@ -212,8 +258,8 @@ private extension UserWalletSettingsViewModel {
 // MARK: - Navigation
 
 private extension UserWalletSettingsViewModel {
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboardingModal(with: input)
+    func openOnboarding(with options: OnboardingCoordinator.Options) {
+        coordinator?.openOnboardingModal(with: options)
     }
 
     func openManageTokens() {
@@ -257,6 +303,19 @@ private extension UserWalletSettingsViewModel {
         )
 
         coordinator?.openReferral(input: input)
+    }
+
+    func openHotBackupNeeded() {
+        coordinator?.openHotBackupNeeded()
+    }
+
+    func openHotAccessCodeOnboarding(needsValidation: Bool) {
+        let input = HotOnboardingInput(flow: .accessCodeChange(needAccessCodeValidation: needsValidation))
+        openOnboarding(with: .hotInput(input))
+    }
+
+    func openHotBackupTypes() {
+        coordinator?.openHotBackupTypes()
     }
 }
 
