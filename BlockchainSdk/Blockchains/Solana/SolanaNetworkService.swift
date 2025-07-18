@@ -51,7 +51,7 @@ final class SolanaNetworkService: MultiNetworkProvider {
     }
 
     func getFee(amount: Amount, destination: String, publicKey: PublicKey) -> AnyPublisher<Fee, Error> {
-        checkAccountExists(accountId: destination)
+        checkAccountExists(amount: amount, destination: destination)
             .withWeakCaptureOf(self)
             .flatMap { service, accountExists in
                 let feeParameters = SolanaNetworkService.mapFeeParameters(accountExists: accountExists)
@@ -66,29 +66,47 @@ final class SolanaNetworkService: MultiNetworkProvider {
                     fromPublicKey: publicKey
                 )
                 .map { feeValue in
-                    let feeAmount = Amount(with: amount, value: feeValue)
+                    let feeAmount = Amount(with: service.blockchain, type: .coin, value: feeValue)
                     return Fee(feeAmount, parameters: feeParameters)
                 }
             }
             .eraseToAnyPublisher()
     }
 
-    func checkAccountExists(accountId: String) -> AnyPublisher<Bool, Error> {
-        solanaSdk.api.getAccountInfo(account: accountId, decodedTo: AccountInfo.self)
-            .map { _ in return true }
-            .tryCatch { error -> AnyPublisher<Bool, Error> in
-                if let solanaError = error as? SolanaError {
-                    switch solanaError {
-                    case .nullValue:
-                        return .justWithError(output: false)
-                    default:
-                        break
+    func checkAccountExists(amount: Amount, destination: String) -> AnyPublisher<Bool, Error> {
+        switch amount.type {
+        case .coin, .feeResource, .reserve:
+            return solanaSdk.api.getAccountInfo(account: destination, decodedTo: AccountInfo.self)
+                .map { _ in return true }
+                .tryCatch { error -> AnyPublisher<Bool, Error> in
+                    if let solanaError = error as? SolanaError {
+                        switch solanaError {
+                        case .nullValue:
+                            return .justWithError(output: false)
+                        default:
+                            break
+                        }
                     }
-                }
 
-                throw error
+                    throw error
+                }
+                .eraseToAnyPublisher()
+        case .token(let token):
+            return Publishers.Zip(
+                checkIfSolanaAccount(destinationAddress: destination),
+                tokenProgramId(contractAddress: token.contractAddress)
+            )
+            .withWeakCaptureOf(self)
+            .flatMap { service, params in
+                service.solanaSdk.action.checkTokenAddressExists(
+                    mintAddress: token.contractAddress,
+                    tokenProgramId: params.1,
+                    destinationAddress: destination,
+                    allowUnfundedRecipient: params.0
+                )
             }
             .eraseToAnyPublisher()
+        }
     }
 
     func sendSol(
@@ -281,7 +299,6 @@ final class SolanaNetworkService: MultiNetworkProvider {
         let tokenInfoResponses: [SolanaTokenAccountInfoResponse] = tokenAccountsInfo.compactMap {
             guard
                 let info = $0.account.data.value?.parsed.info,
-                let token = tokens.first(where: { $0.contractAddress == info.mint }),
                 let integerAmount = Decimal(stringValue: info.tokenAmount.amount)
             else {
                 return nil
@@ -289,8 +306,10 @@ final class SolanaNetworkService: MultiNetworkProvider {
 
             let address = $0.pubkey
             let mint = info.mint
-            let amount = (integerAmount / token.decimalValue).rounded(scale: token.decimalCount)
 
+            // 1 for NFT
+            let token = tokens.first(where: { $0.contractAddress == info.mint })
+            let amount = token.map { (integerAmount / $0.decimalValue).rounded(scale: $0.decimalCount) } ?? integerAmount
             return SolanaTokenAccountInfoResponse(address: address, mint: mint, balance: amount, space: $0.account.space)
         }
 
@@ -349,6 +368,7 @@ final class SolanaNetworkService: MultiNetworkProvider {
         }
 
         return SolanaFeeParameters(
+            destinationAccountExists: accountExists,
             computeUnitLimit: computeUnitLimit,
             computeUnitPrice: computeUnitPrice,
         )
