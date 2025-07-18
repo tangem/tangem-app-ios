@@ -564,7 +564,8 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .unlock:
+             .unlock,
+             .openHotFinishActivation:
             assertionFailure("Notification tap not handled")
         }
     }
