@@ -50,7 +50,7 @@ private extension HotOnboardingCheckAccessCodeViewModel {
     func check(accessCode: String) {
         guard
             accessCode.count == codeLength,
-            let result = delegate?.checkAccessCode(accessCode)
+            let result = delegate?.validateAccessCode(accessCode)
         else {
             return
         }
@@ -58,7 +58,7 @@ private extension HotOnboardingCheckAccessCodeViewModel {
         isSuccessful = result
 
         if isSuccessful {
-            delegate?.checkSuccessful()
+            delegate?.validateSuccessful()
         }
     }
 }
