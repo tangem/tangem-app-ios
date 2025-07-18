@@ -224,10 +224,11 @@ private extension SendModel {
 // MARK: - SendDestinationInput
 
 extension SendModel: SendDestinationInput {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> {
-        _destination
-            .compactMap { $0 }
-            .eraseToAnyPublisher()
+    var destination: SendAddress? { _destination.value }
+    var destinationAdditionalField: SendDestinationAdditionalField { _destinationAdditionalField.value }
+
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> {
+        _destination.eraseToAnyPublisher()
     }
 
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
@@ -411,6 +412,7 @@ extension SendModel: NotificationTapDelegate {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
+             .openHotFinishActivation,
              .unlock:
             assertionFailure("Notification tap not handled")
         }
