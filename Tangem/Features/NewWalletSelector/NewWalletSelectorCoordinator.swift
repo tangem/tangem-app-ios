@@ -27,7 +27,6 @@ class NewWalletSelectorCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     required init(
@@ -58,8 +57,7 @@ class NewWalletSelectorCoordinator: CoordinatorObject {
 
 extension NewWalletSelectorCoordinator: CreateWalletSelectorRoutable {
     func openMobileWallet() {
-        let steps = HotOnboardingStepsBuilder().buildCreationSteps()
-        let input = HotOnboardingInput(steps: steps)
+        let input = HotOnboardingInput(flow: .walletCreate)
         let options = OnboardingCoordinator.Options.hotInput(input)
         openOnboarding(with: options)
     }
@@ -89,10 +87,7 @@ extension NewWalletSelectorCoordinator: CreateWalletSelectorDelegate {
 
 extension NewWalletSelectorCoordinator: ImportWalletSelectorRoutable {
     func openOnboarding() {
-        let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
-        let steps = HotOnboardingStepsBuilder().buildImportSteps(isPushNotificationsAvailable: availabilityProvider.isAvailable)
-        let input = HotOnboardingInput(steps: steps)
+        let input = HotOnboardingInput(flow: .walletImport)
         let options = OnboardingCoordinator.Options.hotInput(input)
         openOnboarding(with: options)
     }
