@@ -61,9 +61,6 @@ class ServicesManager {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
-        // [REDACTED_TODO_COMMENT]
-        AppLogger.info("test1: \(try? HederaTokenContractAddressConverter().convertFromEVMToHedera("0xa09ecfa5c699953bc69ae47b38f1f6acec37ac67"))")
-        AppLogger.info("test2: \(try? HederaTokenContractAddressConverter().convertFromHederaToEVM("0.0.123456"))")
     }
 
     private func configureFirebase() {
