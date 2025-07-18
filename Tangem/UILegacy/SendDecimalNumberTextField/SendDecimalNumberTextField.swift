@@ -34,6 +34,7 @@ struct SendDecimalNumberTextField: View {
     private var onFocusChanged: ((Bool) -> Void)?
     private var prefixSuffixOptions: PrefixSuffixOptions?
     private var minTextScale: CGFloat?
+//    private var accessibilityIdentifier: String?
 
     private var textToMeasure: String {
         var text = ""
@@ -303,6 +304,10 @@ extension SendDecimalNumberTextField: Setupable {
     func minTextScale(_ minTextScale: CGFloat?) -> Self {
         map { $0.minTextScale = minTextScale }
     }
+
+//    func accessibilityIdentifier(_ accessibilityIdentifier: String?) -> Self {
+//        map { $0.accessibilityIdentifier = accessibilityIdentifier }
+//    }
 }
 
 extension SendDecimalNumberTextField {

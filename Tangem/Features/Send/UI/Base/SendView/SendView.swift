@@ -87,7 +87,7 @@ struct SendView: View {
         case .closeButton:
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.closeButton)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
         case .backButton:
             CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
         }
