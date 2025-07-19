@@ -550,7 +550,6 @@
 		7982B0252DE70E1900C41EA5 /* Screen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0142DE70E1900C41EA5 /* Screen.swift */; };
 		7982B0262DE70E1900C41EA5 /* ScreenBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0162DE70E1900C41EA5 /* ScreenBase.swift */; };
 		7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0172DE70E1900C41EA5 /* ScreenBase+Extension.swift */; };
-		7982B02A2DE70E1900C41EA5 /* ScanMockWalletUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B01E2DE70E1900C41EA5 /* ScanMockWalletUITests.swift */; };
 		7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B02D2DE7259500C41EA5 /* MainScreen.swift */; };
 		7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7985089E2DE99FE800388668 /* ToSScreen.swift */; };
 		798508AE2DF1AF9100388668 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = 798508AD2DF1AF9100388668 /* TangemModules */; };
@@ -4445,7 +4444,6 @@
 		7982B0162DE70E1900C41EA5 /* ScreenBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenBase.swift; sourceTree = "<group>"; };
 		7982B0172DE70E1900C41EA5 /* ScreenBase+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScreenBase+Extension.swift"; sourceTree = "<group>"; };
 		7982B01B2DE70E1900C41EA5 /* StoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesScreen.swift; sourceTree = "<group>"; };
-		7982B01E2DE70E1900C41EA5 /* ScanMockWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMockWalletUITests.swift; sourceTree = "<group>"; };
 		7982B02D2DE7259500C41EA5 /* MainScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreen.swift; sourceTree = "<group>"; };
 		7985089E2DE99FE800388668 /* ToSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSScreen.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
@@ -9313,7 +9311,6 @@
 			isa = PBXGroup;
 			children = (
 				D88A53DB2E1D6E7B006F4F85 /* Smoke */,
-				7982B01E2DE70E1900C41EA5 /* ScanMockWalletUITests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -23133,7 +23130,6 @@
 				7982B0252DE70E1900C41EA5 /* Screen.swift in Sources */,
 				7982B0262DE70E1900C41EA5 /* ScreenBase.swift in Sources */,
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
-				7982B02A2DE70E1900C41EA5 /* ScanMockWalletUITests.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
