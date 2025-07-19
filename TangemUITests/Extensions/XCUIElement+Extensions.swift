@@ -26,21 +26,49 @@ extension XCUIElement {
             }
         }
 
+        // Дополнительная проверка перед tap для CI стабильности
+        guard isHittable else {
+            XCTFail("Element '\(self)' became unhittable just before tap")
+            return false
+        }
+
         tap()
         return true
     }
 
     @discardableResult
     func waitForState(state: NSPredicateFormat, for timeout: TimeInterval = .quickUIUpdate) -> Bool {
-        let testCase = XCTestCase()
         let predicate = NSPredicate(format: state.rawValue)
-        _ = testCase.expectation(for: predicate, evaluatedWith: self)
-        testCase.waitForExpectations(timeout: timeout) { error in
-            if error != nil {
-                XCTFail("Timed out after waiting for \(timeout) seconds for \(predicate) state of '\(self)'")
+        let expectation = XCTestExpectation(description: "Wait for \(predicate) state of '\(self)'")
+
+        // Используем polling подход для лучшей стабильности на CI
+        let startTime = Date()
+        let pollingInterval: TimeInterval = 0.1
+
+        Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { timer in
+            if predicate.evaluate(with: self) {
+                expectation.fulfill()
+                timer.invalidate()
+            } else if Date().timeIntervalSince(startTime) >= timeout {
+                timer.invalidate()
             }
         }
-        return true
+
+        let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
+
+        switch result {
+        case .completed:
+            return true
+        case .timedOut:
+            XCTFail("Timed out after waiting for \(timeout) seconds for \(predicate) state of '\(self)'")
+            return false
+        case .incorrectOrder, .invertedFulfillment, .interrupted:
+            XCTFail("Failed to wait for \(predicate) state of '\(self)': \(result)")
+            return false
+        @unknown default:
+            XCTFail("Unknown wait result for \(predicate) state of '\(self)': \(result)")
+            return false
+        }
     }
 }
 
