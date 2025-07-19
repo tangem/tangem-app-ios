@@ -26,20 +26,28 @@ extension XCUIElement {
             }
         }
 
+        // Дополнительная проверка перед tap для CI стабильности
+        guard isHittable else {
+            XCTFail("Element '\(self)' became unhittable just before tap")
+            return false
+        }
+
         tap()
         return true
     }
 
     @discardableResult
     func waitForState(state: NSPredicateFormat, for timeout: TimeInterval = .quickUIUpdate) -> Bool {
-        let testCase = XCTestCase()
         let predicate = NSPredicate(format: state.rawValue)
-        _ = testCase.expectation(for: predicate, evaluatedWith: self)
-        testCase.waitForExpectations(timeout: timeout) { error in
-            if error != nil {
-                XCTFail("Timed out after waiting for \(timeout) seconds for \(predicate) state of '\(self)'")
-            }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+
+        let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
+
+        if result != .completed {
+            XCTFail("Failed waiting for \(predicate) state of '\(self)' with result: \(result)")
+            return false
         }
+
         return true
     }
 }
