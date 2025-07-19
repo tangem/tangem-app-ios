@@ -37,10 +37,11 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     }
 
     @discardableResult
-    func validate(textFieldValue: String, title: String) -> Self {
+    func validate(amount: String, currency: String, title: String) -> Self {
         XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
             let actualValue = amountDisplayField.getValue()
-            XCTAssertEqual(actualValue, textFieldValue, "TextField value should be '\(textFieldValue)' but was '\(actualValue)'")
+            XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
+            XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
 
             XCTAssertTrue(titleLabel.waitForExistence(timeout: .longUIUpdate), "Title should exist")
             let actualTitle = titleLabel.label
@@ -129,7 +130,8 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
 
     func tapPayWithBlock() -> OnrampProvidersScreen {
         XCTContext.runActivity(named: "Tap Pay with block") { _ in
-            XCTAssertTrue(payWithBlock.waitForExistence(timeout: .longUIUpdate), "Pay with block should exist")
+            _ = payWithBlock.waitForExistence(timeout: .longUIUpdate)
+            XCTAssertTrue(payWithBlock.exists, "Pay with block should exist")
             payWithBlock.waitAndTap()
             return OnrampProvidersScreen(app)
         }

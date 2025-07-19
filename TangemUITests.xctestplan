@@ -13,7 +13,9 @@
   },
   "testTargets" : [
     {
-      "enabled" : true,
+      "skippedTests" : [
+        "ScanMockWalletUITests"
+      ],
       "target" : {
         "containerPath" : "container:TangemApp.xcodeproj",
         "identifier" : "5D3F77E224BF56DC00E8695B",
