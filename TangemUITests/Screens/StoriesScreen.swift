@@ -1,3 +1,4 @@
+
 //
 //  StoriesScreen.swift
 //  TangemApp
@@ -15,9 +16,35 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
-            scanButton.waitAndTap()
+            // Wait for scan button with extended timeout since it's the first screen
+            guard scanButton.waitForExistence(timeout: .criticalUIOperation) else {
+                XCTFail("Initial scan button not found")
+                return MainScreen(app)
+            }
+
+            // Ensure the button is hittable before tapping
+            guard scanButton.waitForState(state: .hittable, for: .criticalUIOperation) else {
+                XCTFail("Scan button exists but not hittable. Frame: \(scanButton.frame)")
+                return MainScreen(app)
+            }
+
+            // Tap the scan button
+            scanButton.tap()
+
+            // Wait for mock wallet button and tap it
             let walletButton = app.buttons[name.rawValue]
-            walletButton.waitAndTap()
+            guard walletButton.waitForExistence(timeout: .criticalUIOperation) else {
+                let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
+                XCTFail("Mock wallet button '\(name.rawValue)' not found. Available buttons: \(availableButtons)")
+                return MainScreen(app)
+            }
+
+            guard walletButton.waitForState(state: .hittable, for: .criticalUIOperation) else {
+                XCTFail("Mock wallet button '\(name.rawValue)' exists but not hittable. Frame: \(walletButton.frame)")
+                return MainScreen(app)
+            }
+
+            walletButton.tap()
 
             return MainScreen(app)
         }
