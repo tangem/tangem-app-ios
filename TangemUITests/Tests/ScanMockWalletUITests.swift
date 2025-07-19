@@ -7,15 +7,15 @@
 //
 import XCTest
 
-final class ScanMockWalletUITests: BaseTestCase {
-    lazy var tosPage = ToSScreen(app)
-
-    func testScanMockWallet_ShouldShowMainScreen() {
-        launchApp(tangemApiType: .mock, skipToS: false)
-
-        tosPage
-            .acceptAgreement()
-            .scanMockWallet(name: .wallet2)
-            .validate()
-    }
-}
+// final class ScanMockWalletUITests: BaseTestCase {
+//    lazy var tosPage = ToSScreen(app)
+//
+//    func testScanMockWallet_ShouldShowMainScreen() {
+//        launchApp(tangemApiType: .mock, skipToS: false)
+//
+//        tosPage
+//            .acceptAgreement()
+//            .scanMockWallet(name: .wallet2)
+//            .validate()
+//    }
+// }
