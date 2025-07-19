@@ -40,21 +40,30 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func validateProviderIconsAndNames() -> Self {
         XCTContext.runActivity(named: "Validate provider icons and names exist") { _ in
-            let providerNames = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderName_'"))
+            // Wait for any provider name to appear first
+            let providerNamesQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderName_'"))
+            let firstProviderName = providerNamesQuery.firstMatch
+            XCTAssertTrue(firstProviderName.waitForExistence(timeout: .longUIUpdate), "First provider name should exist")
+
+            // Now get all provider names after waiting
+            let providerNames = providerNamesQuery.allElementsBoundByIndex
             let nameCount = providerNames.count
 
             XCTAssertGreaterThan(nameCount, 0, "At least one provider name should exist")
 
-            for index in 0 ..< nameCount {
-                let nameElement = providerNames.element(boundBy: index)
-                XCTAssertTrue(nameElement.exists, "Provider name at index \(index) should exist")
-                XCTAssertFalse(nameElement.label.isEmpty, "Provider name should not be empty at index \(index)")
+            for nameElement in providerNames {
+                // Wait for each name element and verify it's not empty
+                XCTAssertTrue(nameElement.waitForExistence(timeout: .longUIUpdate), "Provider name element should exist")
+
+                // Wait a bit to ensure the label is populated
+                let nameNotEmpty = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "label.length > 0"), object: nameElement)], timeout: .longUIUpdate)
+                XCTAssertEqual(nameNotEmpty, .completed, "Provider name should not be empty: \(nameElement.identifier)")
 
                 let nameIdentifier = nameElement.identifier
                 if let providerNameKey = nameIdentifier.components(separatedBy: "onrampProviderName_").last {
                     let iconIdentifier = "onrampProviderIcon_\(providerNameKey)"
                     let icon = app.images[iconIdentifier]
-                    XCTAssertTrue(icon.exists, "Provider icon should exist for provider: \(providerNameKey)")
+                    XCTAssertTrue(icon.waitForExistence(timeout: .longUIUpdate), "Provider icon should exist for provider: \(providerNameKey)")
                 }
             }
         }
