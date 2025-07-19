@@ -15,16 +15,16 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
     @discardableResult
     func validate() -> Self {
         XCTContext.runActivity(named: "Validate Onramp payment methods screen") { _ in
-            XCTAssertTrue(app.navigationBars.staticTexts["Pay with"].waitForExistence(timeout: .longUIUpdate), "Payment methods screen title should be 'Pay with'")
+            XCTAssertTrue(app.navigationBars.staticTexts["Pay with"].waitForExistence(timeout: .robustUIUpdate), "Payment methods screen title should be 'Pay with'")
 
             var listFound = false
 
             let paymentMethodCards = app.buttons.matching(identifier: OnrampAccessibilityIdentifiers.paymentMethodsList)
-            listFound = paymentMethodCards.firstMatch.waitForExistence(timeout: .longUIUpdate)
+            listFound = paymentMethodCards.firstMatch.waitForExistence(timeout: .robustUIUpdate)
 
             if !listFound {
                 let scrollView = app.scrollViews.firstMatch
-                listFound = scrollView.waitForExistence(timeout: .longUIUpdate)
+                listFound = scrollView.waitForExistence(timeout: .robustUIUpdate)
             }
 
             XCTAssertTrue(listFound, "Payment methods list should exist")
@@ -37,7 +37,7 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
         XCTContext.runActivity(named: "Validate payment method icons and names exist") { _ in
             let paymentMethodCards = app.buttons.matching(identifier: OnrampAccessibilityIdentifiers.paymentMethodsList)
 
-            XCTAssertTrue(paymentMethodCards.firstMatch.waitForExistence(timeout: .longUIUpdate), "At least one payment method card should exist")
+            XCTAssertTrue(paymentMethodCards.firstMatch.waitForExistence(timeout: .robustUIUpdate), "At least one payment method card should exist")
 
             let cardCount = paymentMethodCards.count
             XCTAssertGreaterThan(cardCount, 0, "At least one payment method should exist")
@@ -75,7 +75,7 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
             XCTAssertLessThan(index, paymentMethodCards.count, "Index \(index) should be less than available payment methods count: \(paymentMethodCards.count)")
 
             let selectedCard = paymentMethodCards.element(boundBy: index)
-            XCTAssertTrue(selectedCard.waitForExistence(timeout: .longUIUpdate), "Payment method card at index \(index) should exist")
+            XCTAssertTrue(selectedCard.waitForExistence(timeout: .robustUIUpdate), "Payment method card at index \(index) should exist")
 
             let paymentMethodName = selectedCard.label.lowercased()
 
