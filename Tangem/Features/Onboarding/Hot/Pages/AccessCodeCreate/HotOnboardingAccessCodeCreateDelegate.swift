@@ -10,5 +10,7 @@ import Foundation
 
 protocol HotOnboardingAccessCodeCreateDelegate: AnyObject {
     func isRequestBiometricsNeeded() -> Bool
+    func isAccessCodeCanSkipped() -> Bool
     func accessCodeComplete(accessCode: String)
+    func accessCodeSkipped()
 }

@@ -11,36 +11,13 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 struct HotSettingsUtil {
+    private let statusUtil: HotStatusUtil
+
     private let userWalletModel: UserWalletModel
-
-    private var isAccessCodeFeatureAvailable: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isBackupFeatureAvailable: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isBackupNeeded: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private var isAccessCodeCreated: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isAccessCodeRequired: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
 
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
+        statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
     }
 }
 
@@ -50,27 +27,27 @@ extension HotSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
 
-        if isAccessCodeFeatureAvailable {
+        if statusUtil.isAccessCodeFeatureAvailable {
             settings.append(.accessCode)
         }
 
-        if isBackupFeatureAvailable {
-            settings.append(.backup(hasBackup: !isBackupNeeded))
+        if statusUtil.isBackupFeatureAvailable {
+            settings.append(.backup(hasBackup: !statusUtil.isBackupNeeded))
         }
 
         return settings
     }
 
     func calculateAccessCodeState() async -> AccessCodeState {
-        if isBackupNeeded {
+        if statusUtil.isBackupNeeded {
             return .backupNeeded
         }
 
-        if !isAccessCodeCreated {
+        if !statusUtil.isAccessCodeCreated {
             return .onboarding(needsValidation: false)
         }
 
-        if isAccessCodeRequired {
+        if statusUtil.isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         }
 
@@ -80,7 +57,7 @@ extension HotSettingsUtil {
     }
 
     func calculateSeedPhraseState() async -> SeedPhraseState {
-        if isAccessCodeRequired {
+        if statusUtil.isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         } else {
             let isBiometricsSuccessful = await isBiometricsSuccessful()

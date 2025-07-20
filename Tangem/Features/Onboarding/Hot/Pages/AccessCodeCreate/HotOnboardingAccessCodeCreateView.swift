@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct HotOnboardingAccessCodeCreateView: View {
     typealias ViewModel = HotOnboardingAccessCodeCreateViewModel
@@ -17,6 +18,23 @@ struct HotOnboardingAccessCodeCreateView: View {
     var body: some View {
         content
             .animation(.default, value: viewModel.state)
+            // Вынести общий код в отдельное место!
+            .ifLet(viewModel.leadingBavBarItem) { view, item in
+                switch item {
+                case .back(let action):
+                    view.flowNavBar(leadingItem: { Button("back!!", action: action.closure) })
+                case .skip(let action):
+                    view.flowNavBar(leadingItem: { Button("skip!", action: action.closure) })
+                }
+            }
+            .ifLet(viewModel.trailingBavBarItem) { view, item in
+                switch item {
+                case .back(let action):
+                    view.flowNavBar(trailingItem: { Button("back!!", action: action.closure) })
+                case .skip(let action):
+                    view.flowNavBar(trailingItem: { Button("skip!", action: action.closure) })
+                }
+            }
     }
 }
 

@@ -12,7 +12,5 @@ protocol HotOnboardingFlowRoutable: AnyObject {
     func openMain(userWalletModel: UserWalletModel)
     func openAccesCodeSkipAlert(onAllow: @escaping () -> Void)
     func openConfetti()
-    func goNextStep()
-    func goPreviousStep()
     func closeOnboarding()
 }
