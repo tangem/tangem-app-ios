@@ -301,6 +301,7 @@ private extension OnrampModel {
 
             // Clear repo
             onrampRepository.updatePreference(country: nil, currency: nil)
+
             await runOnMain {
                 router?.openOnrampCountryBottomSheet(country: country)
             }
