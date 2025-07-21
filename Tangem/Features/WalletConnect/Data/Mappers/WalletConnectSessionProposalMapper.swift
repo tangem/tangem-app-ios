@@ -82,6 +82,21 @@ enum WalletConnectDAppSessionProposalMapper {
         }
     }
 
+    static func mapVerificationContext(from reownVerifyContext: VerifyContext?) -> WalletConnectDAppSessionProposal.VerificationContext? {
+        guard let reownVerifyContext else { return nil }
+
+        let validationStatus: WalletConnectDAppSessionProposal.VerificationContext.ValidationStatus? = switch reownVerifyContext.validation {
+        case .unknown: nil
+        case .valid: .valid
+        case .invalid, .scam: .invalid
+        }
+
+        return WalletConnectDAppSessionProposal.VerificationContext(
+            origin: reownVerifyContext.origin.flatMap(URL.init),
+            validationStatus: validationStatus
+        )
+    }
+
     // MARK: - Private methods
 
     private static func mapDomainBlockchains(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]) -> Set<BlockchainSdk.Blockchain> {
