@@ -13,25 +13,10 @@ enum BlockaidSiteScanMapper {
             return .verified
 
         case .hit:
-            let attackTypes = responseDTO.attackTypes.keys.map(Self.mapAttackType)
-            return .malicious(attackTypes)
+            return .malicious
 
         case .miss:
             return .unknownDomain
-        }
-    }
-
-    private static func mapAttackType(_ dtoAttackType: BlockaidDTO.SiteScan.Response.AttackType) -> WalletConnectDAppVerificationStatus.AttackType {
-        switch dtoAttackType {
-        case .signatureFarming: .signatureFarming
-        case .approvalFarming: .approvalFarming
-        case .setApprovalForAll: .setApprovalForAll
-        case .transferFarming: .transferFarming
-        case .rawEtherTransfer: .rawEtherTransfer
-        case .seaportFarming: .seaportFarming
-        case .blurFarming: .blurFarming
-        case .permitFarming: .permitFarming
-        case .other: .other
         }
     }
 }

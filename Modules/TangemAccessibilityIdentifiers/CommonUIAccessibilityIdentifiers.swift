@@ -11,6 +11,7 @@ import Foundation
 public enum CommonUIAccessibilityIdentifiers {
     public static let decimalNumberTextField = "commonUIDecimalNumberTextField"
     public static let grabber = "commonUIGrabber"
+    public static let closeButton = "commonUICloseButton"
 
     // Notification view components
     public static let notificationTitle = "commonUINotificationTitle"

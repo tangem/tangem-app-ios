@@ -115,11 +115,13 @@ final class SendViewModel: ObservableObject {
     func userDidTapActionButton() {
         switch mainButtonType {
         case .next:
+            step.saveChangesIfNeeded()
             stepsManager.performNext()
             if flowActionType == .stake {
                 Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
             }
         case .continue:
+            step.saveChangesIfNeeded()
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
             performApprove()
@@ -192,12 +194,11 @@ final class SendViewModel: ObservableObject {
             ])
         }
 
-        // We perform the continue action
-        // When user'd like to return back step
-        // For destination, amount, fee do not close modal and open the summary
         switch mainButtonType {
         case .continue:
-            stepsManager.performContinue()
+            // When `mainButtonType == .continue` means we're in the `edit` mode
+            // We perform the back action with no save changes in new UI
+            stepsManager.performBack()
         case _ where shouldShowDismissAlert:
             alert = alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)

@@ -66,7 +66,6 @@ struct PolkadotAccountData: ScaleCodec.Decodable {
     var free: BigUInt
 
     init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
-        let bytes: Data = try decoder.decode(.fixed(32))
-        free = BigUInt(littleEndian: bytes)
+        free = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
     }
 }

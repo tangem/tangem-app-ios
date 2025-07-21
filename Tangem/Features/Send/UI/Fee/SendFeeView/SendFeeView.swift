@@ -20,57 +20,70 @@ struct SendFeeView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
-            GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
-                let isSelected = viewModel.selectedFeeOption == feeRowViewModel.option
-                FeeRowView(viewModel: feeRowViewModel)
-                    .optionGeometryEffect(
-                        .init(
-                            id: namespace.names.feeOption(feeOption: feeRowViewModel.option),
-                            namespace: namespace.id
+            Group {
+                GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
+                    let isSelected = viewModel.selectedFeeOption == feeRowViewModel.option
+                    FeeRowView(viewModel: feeRowViewModel)
+                        .optionGeometryEffect(
+                            .init(
+                                id: namespace.names.feeOption(feeOption: feeRowViewModel.option),
+                                namespace: namespace.id
+                            )
                         )
-                    )
-                    .amountGeometryEffect(
-                        .init(
-                            id: namespace.names.feeAmount(feeOption: feeRowViewModel.option),
-                            namespace: namespace.id
+                        .amountGeometryEffect(
+                            .init(
+                                id: namespace.names.feeAmount(feeOption: feeRowViewModel.option),
+                                namespace: namespace.id
+                            )
                         )
-                    )
-                    .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { value in
-                        if isSelected {
-                            transitionService.selectedFeeContentOffset = value
+                        .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { value in
+                            if isSelected {
+                                transitionService.selectedFeeContentOffset = value
+                            }
                         }
-                    }
-                    .if(isSelected) {
-                        $0.overlay(alignment: .topLeading) {
-                            DefaultHeaderView(Localization.commonNetworkFeeTitle)
-                                .matchedGeometryEffect(id: namespace.names.feeTitle, in: namespace.id)
-                                .hidden()
+                        .if(isSelected) {
+                            $0.overlay(alignment: .topLeading) {
+                                DefaultHeaderView(Localization.commonNetworkFeeTitle)
+                                    .matchedGeometryEffect(id: namespace.names.feeTitle, in: namespace.id)
+                                    .hidden()
+                            }
                         }
+                        .visible(viewModel.auxiliaryViewsVisible)
+                } footer: {
+                    if viewModel.auxiliaryViewsVisible {
+                        feeSelectorFooter
+                            .transition(transitionService.feeAuxiliaryViewTransition)
                     }
-                    .visible(viewModel.auxiliaryViewsVisible)
-            } footer: {
-                if viewModel.auxiliaryViewsVisible {
-                    feeSelectorFooter
+                }
+                .settings(\.backgroundColor, Colors.Background.action)
+                .settings(\.backgroundGeometryEffect, .init(id: namespace.names.feeContainer, namespace: namespace.id))
+                .separatorStyle(viewModel.auxiliaryViewsVisible ? .minimum : .none)
+
+                if viewModel.auxiliaryViewsVisible,
+                   let input = viewModel.networkFeeUnreachableNotificationViewInput {
+                    NotificationView(input: input)
                         .transition(transitionService.feeAuxiliaryViewTransition)
                 }
-            }
-            .settings(\.backgroundColor, Colors.Background.action)
-            .settings(\.backgroundGeometryEffect, .init(id: namespace.names.feeContainer, namespace: namespace.id))
-            .separatorStyle(viewModel.auxiliaryViewsVisible ? .minimum : .none)
 
-            if viewModel.auxiliaryViewsVisible,
-               let input = viewModel.networkFeeUnreachableNotificationViewInput {
-                NotificationView(input: input)
-                    .transition(transitionService.feeAuxiliaryViewTransition)
-            }
-
-            if viewModel.auxiliaryViewsVisible, !viewModel.customFeeModels.isEmpty {
-                ForEach(viewModel.customFeeModels) { customFeeModel in
-                    SendCustomFeeInputField(viewModel: customFeeModel)
-                        .onFocusChanged(customFeeModel.onFocusChanged)
+                if viewModel.auxiliaryViewsVisible, !viewModel.customFeeModels.isEmpty {
+                    ForEach(viewModel.customFeeModels) { customFeeModel in
+                        SendCustomFeeInputField(viewModel: customFeeModel)
+                            .onFocusChanged(customFeeModel.onFocusChanged)
+                    }
+                    .transition(transitionService.customFeeTransition)
                 }
-                .transition(transitionService.customFeeTransition)
             }
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .preference(
+                            key: MaxYPreferenceKey.self,
+                            // It needs to be global because it communicates its maxY to parent which doesnt know anything
+                            // about local coordinateSpace
+                            value: proxy.frame(in: .global).maxY
+                        )
+                }
+            )
         }
         .coordinateSpace(name: coordinateSpaceName)
         .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.auxiliaryViewsVisible)
@@ -140,3 +153,11 @@ extension SendFeeView {
      }
  }
  */
+
+struct MaxYPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
