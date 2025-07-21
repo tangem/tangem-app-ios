@@ -40,6 +40,7 @@ class StakingModel {
     private let stakingTransactionDispatcher: TransactionDispatcher
     private let transactionDispatcher: TransactionDispatcher
     private let allowanceService: AllowanceService
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -53,6 +54,7 @@ class StakingModel {
         stakingTransactionDispatcher: TransactionDispatcher,
         transactionDispatcher: TransactionDispatcher,
         allowanceService: AllowanceService,
+        analyticsLogger: StakingSendAnalyticsLogger,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) {
@@ -63,6 +65,7 @@ class StakingModel {
         self.stakingTransactionDispatcher = stakingTransactionDispatcher
         self.transactionDispatcher = transactionDispatcher
         self.allowanceService = allowanceService
+        self.analyticsLogger = analyticsLogger
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
     }
@@ -253,20 +256,13 @@ private extension StakingModel {
             throw StakingModelError.validatorNotFound
         }
 
-        Analytics.log(
-            event: .stakingButtonStake,
-            params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
-
         do {
             let action = StakingAction(
                 amount: readyToStake.amount,
                 validatorType: .validator(validator),
                 type: .stake
             )
+
             let transactionInfo = try await stakingManager.transaction(action: action)
             let transactionsFee = transactionInfo.transactions.reduce(Decimal.zero) { $0 + $1.fee }
             if readyToStake.isFeeIncluded,
@@ -290,7 +286,7 @@ private extension StakingModel {
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
+        analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -304,10 +300,7 @@ private extension StakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 }
@@ -562,43 +555,6 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case approveDataNotFound
 
     var errorDescription: String? { rawValue }
-}
-
-// MARK: Analytics
-
-private extension StakingModel {
-    func logTransactionAnalytics(signerType: String) {
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: selectedFee.option.rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(
-                event: .stakingSelectedCurrency,
-                params: [
-                    .commonType: Analytics.ParameterValue.token.rawValue,
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-
-        case .alternative:
-            Analytics.log(
-                event: .stakingSelectedCurrency,
-                params: [
-                    .commonType: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
-    }
 }
 
 // MARK: - CustomStringConvertible
