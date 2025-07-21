@@ -82,14 +82,14 @@ class CommonSendDestinationInteractor {
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            analyticsLogger.log(isAddressValid: true, source: source)
+            analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
             output?.destinationDidChanged(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _isValidatingDestination.send(false)
             _destinationError.send(error)
-            analyticsLogger.log(isAddressValid: false, source: source)
+            analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
             output?.destinationDidChanged(.none)
         }
     }

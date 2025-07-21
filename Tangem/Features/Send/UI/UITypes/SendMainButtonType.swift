@@ -58,26 +58,6 @@ enum SendFlowActionType: Hashable {
         case .onramp: Localization.commonBuy
         }
     }
-
-    var stakingAnalyticsAction: Analytics.ParameterValue? {
-        switch self {
-        case .stake: .stakeActionStake
-        case .unstake: .stakeActionUnstake
-        case .claimRewards: .stakeActionClaimRewards
-        case .restakeRewards: .stakeActionRestakeRewards
-        case .withdraw, .claimUnstaked: .stakeActionWithdraw
-        case .restake: .stakeActionRestake
-        case .unlockLocked: .stakeActionUnlockLocked
-        case .stakeLocked: .stakeActionStakeLocked
-        case .vote: .stakeActionVote
-        case .revoke: .stakeActionRevoke
-        case .voteLocked: .stakeActionVoteLocked
-        case .revote: .stakeActionRevote
-        case .rebond: .stakeActionRebond
-        case .migrate: .stakeActionMigrate
-        default: nil
-        }
-    }
 }
 
 extension SendMainButtonType {
