@@ -25,7 +25,7 @@ struct TransactionPushActionURLHelper: IncomingActionURLHelper {
             URLQueryItem(name: IncomingActionConstants.DeeplinkParams.userWalletId, value: userWalletId),
             URLQueryItem(name: IncomingActionConstants.DeeplinkParams.type, value: type),
         ]
-
+        
         if let derivationPath, derivationPath.isNotEmpty {
             components.queryItems?.append(URLQueryItem(name: IncomingActionConstants.DeeplinkParams.derivationPath, value: derivationPath))
         }
