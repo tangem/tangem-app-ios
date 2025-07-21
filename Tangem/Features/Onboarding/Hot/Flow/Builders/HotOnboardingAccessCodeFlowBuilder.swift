@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
@@ -31,10 +32,15 @@ final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
         if needAccessCodeValidation {
             let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
             let validateAccessCodeStep = HotOnboardingValidateAccessCodeStep(manager: manager)
+                .configureNavBar(leadingAction: navBarCloseAction)
             flow.append(validateAccessCodeStep)
         }
 
         let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
+            .configureNavBar(
+                title: Localization.accessCodeNavtitle,
+                leadingAction: navBarCloseAction
+            )
         flow.append(createAccessCodeStep)
 
         let doneStep = HotOnboardingSuccessStep(
@@ -42,6 +48,7 @@ final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
             onAppear: {},
             onComplete: weakify(self, forFunction: HotOnboardingAccessCodeFlowBuilder.closeOnboarding)
         )
+        doneStep.configureNavBar(title: Localization.commonDone)
         flow.append(doneStep)
     }
 }
@@ -55,6 +62,16 @@ private extension HotOnboardingAccessCodeFlowBuilder {
 
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Private methods
+
+private extension HotOnboardingAccessCodeFlowBuilder {
+    var navBarCloseAction: HotOnboardingFlowNavBarAction {
+        HotOnboardingFlowNavBarAction.close(handler: { [weak self] in
+            self?.closeOnboarding()
+        })
     }
 }
 
@@ -73,7 +90,7 @@ extension HotOnboardingAccessCodeFlowBuilder: CommonHotAccessCodeManagerDelegate
 // MARK: - HotOnboardingAccessCodeCreateRoutable
 
 extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeCreateRoutable {
-    func openAccesCodeSkipAlert(onAllow: @escaping () -> Void) {}
+    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {}
 }
 
 // MARK: - HotOnboardingAccessCodeDelegate

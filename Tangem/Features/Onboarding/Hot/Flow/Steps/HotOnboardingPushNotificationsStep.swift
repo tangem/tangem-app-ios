@@ -8,9 +8,7 @@
 
 import SwiftUI
 
-struct HotOnboardingPushNotificationsStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingPushNotificationsStep: HotOnboardingFlowStep {
     private let viewModel: PushNotificationsPermissionRequestViewModel
 
     init(
@@ -23,7 +21,7 @@ struct HotOnboardingPushNotificationsStep: HotOnboardingFlowStep {
         )
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         PushNotificationsPermissionRequestView(
             viewModel: viewModel,
             topInset: 0,

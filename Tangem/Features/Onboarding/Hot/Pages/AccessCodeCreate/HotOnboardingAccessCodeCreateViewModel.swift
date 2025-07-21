@@ -20,11 +20,11 @@ final class HotOnboardingAccessCodeCreateViewModel: ObservableObject {
 
     let codeLength: Int = 6
 
-    var leadingBavBarItem: NavBarItem? {
+    var leadingBavBarItem: HotOnboardingFlowNavBarAction? {
         makeLeadingNavBarItem()
     }
 
-    var trailingBavBarItem: NavBarItem? {
+    var trailingBavBarItem: HotOnboardingFlowNavBarAction? {
         makeTrailingNavBarItem()
     }
 
@@ -93,6 +93,7 @@ final class HotOnboardingAccessCodeCreateViewModel: ObservableObject {
         coordinator: HotOnboardingAccessCodeCreateRoutable,
         delegate: HotOnboardingAccessCodeCreateDelegate
     ) {
+        self.coordinator = coordinator
         self.delegate = delegate
         bind()
     }
@@ -154,35 +155,34 @@ private extension HotOnboardingAccessCodeCreateViewModel {
 // MARK: - NavBar
 
 private extension HotOnboardingAccessCodeCreateViewModel {
-    func makeLeadingNavBarItem() -> NavBarItem? {
-        let item: NavBarItem?
+    func makeLeadingNavBarItem() -> HotOnboardingFlowNavBarAction? {
+        let item: HotOnboardingFlowNavBarAction?
 
         switch state {
         case .accessCode:
             item = nil
         case .confirmAccessCode:
             let backHandler = weakify(self, forFunction: HotOnboardingAccessCodeCreateViewModel.onBackTap)
-            item = .back(NavBarAction(closure: backHandler))
+            item = .back(handler: backHandler)
         }
 
         return item
     }
 
-    func makeTrailingNavBarItem() -> NavBarItem? {
+    func makeTrailingNavBarItem() -> HotOnboardingFlowNavBarAction? {
         guard delegate?.isAccessCodeCanSkipped() == true else {
             return nil
         }
 
         let skipHandler: () -> Void = { [weak self] in
             self?.coordinator?.openAccesCodeSkipAlert(
-                onAllow: {
+                onSkip: {
                     self?.delegate?.accessCodeSkipped()
                 }
             )
         }
 
-        let skipAction = NavBarAction(closure: skipHandler)
-        return .skip(skipAction)
+        return .skip(handler: skipHandler)
     }
 
     func onBackTap() {
@@ -196,15 +196,6 @@ extension HotOnboardingAccessCodeCreateViewModel {
     enum State {
         case accessCode
         case confirmAccessCode
-    }
-
-    enum NavBarItem {
-        case back(NavBarAction)
-        case skip(NavBarAction)
-    }
-
-    struct NavBarAction {
-        let closure: () -> Void
     }
 
     struct InfoItem {

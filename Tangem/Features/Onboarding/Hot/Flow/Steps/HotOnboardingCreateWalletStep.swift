@@ -8,16 +8,14 @@
 
 import SwiftUI
 
-struct HotOnboardingCreateWalletStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingCreateWalletStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingCreateWalletViewModel
 
     init(delegate: HotOnboardingCreateWalletDelegate) {
         viewModel = HotOnboardingCreateWalletViewModel(delegate: delegate)
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         HotOnboardingCreateWalletView(viewModel: viewModel)
     }
 }

@@ -8,9 +8,7 @@
 
 import SwiftUI
 
-struct HotOnboardingImportWalletStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingImportWalletStep: HotOnboardingFlowStep {
     private let viewModel: OnboardingSeedPhraseImportViewModel
 
     init(delegate: SeedPhraseImportDelegate) {
@@ -20,7 +18,7 @@ struct HotOnboardingImportWalletStep: HotOnboardingFlowStep {
         )
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         OnboardingSeedPhraseImportView(viewModel: viewModel)
     }
 }

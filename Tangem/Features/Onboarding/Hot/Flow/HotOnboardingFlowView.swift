@@ -15,18 +15,19 @@ struct HotOnboardingFlowView: View {
     @State private var navBarTitle: String = .empty
     @State private var navBarLeadingItem: HotOnboardingFlowNavBarItem?
     @State private var navBarTrailingItem: HotOnboardingFlowNavBarItem?
-    @State private var progressBarValue: Double?
+    @State private var progressBarItem: HotOnboardingFlowProgressBarItem?
 
     private let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     private let progressBarHeight = OnboardingLayoutConstants.progressBarHeight
+    private let progressBarPadding = OnboardingLayoutConstants.progressBarPadding
 
     var body: some View {
         content
-            .animation(.default) // connect with value
+            .animation(.default, value: builder.currentStepId)
             .onPreferenceChange(HotOnboardingFlowNavBarTitleKey.self) { navBarTitle = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarLeadingItemKey.self) { navBarLeadingItem = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarTrailingItemKey.self) { navBarTrailingItem = $0 }
-            .onPreferenceChange(HotOnboardingFlowflowProgressBarValueKey.self) { progressBarValue = $0 }
+            .onPreferenceChange(HotOnboardingFlowflowProgressBarValueKey.self) { progressBarItem = $0 }
     }
 }
 
@@ -35,21 +36,20 @@ struct HotOnboardingFlowView: View {
 private extension HotOnboardingFlowView {
     var content: some View {
         VStack(spacing: 0) {
-            bar
-
+            flowBar
             builder.content
                 .frame(maxHeight: .infinity, alignment: .top)
                 .transition(.opacity)
         }
     }
 
-    var bar: some View {
+    var flowBar: some View {
         VStack(spacing: 4) {
             navBar
 
             if builder.hasProgressBar {
                 progressBar
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, progressBarPadding)
             }
         }
     }
@@ -87,7 +87,7 @@ private extension HotOnboardingFlowView {
     var progressBar: some View {
         ProgressBar(
             height: progressBarHeight,
-            currentProgress: progressBarValue ?? 0
+            currentProgress: progressBarItem?.value ?? 0
         )
     }
 }

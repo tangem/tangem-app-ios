@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
@@ -20,15 +21,29 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
 
     override func setupFlow() {
         let seedPhraseIntroStep = HotOnboardingSeedPhraseIntroStep(delegate: self)
+            .configureNavBar(
+                title: Localization.commonBackup,
+                leadingAction: .close(handler: { [weak self] in
+                    self?.closeOnboarding()
+                })
+            )
         flow.append(seedPhraseIntroStep)
 
         let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(delegate: self)
+            .configureNavBar(
+                title: Localization.commonBackup,
+                leadingAction: navBarBackAction
+            )
         flow.append(seedPhraseRecoveryStep)
 
         let seedPhraseWords = getSeedPhraseWords()
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
             seedPhraseWords: seedPhraseWords,
             onCreateWallet: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.openNext)
+        )
+        seedPhraseValidationStep.configureNavBar(
+            title: Localization.commonBackup,
+            leadingAction: navBarBackAction
         )
         flow.append(seedPhraseValidationStep)
 
@@ -37,6 +52,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             onAppear: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.closeOnboarding)
         )
+        doneStep.configureNavBar(title: Localization.commonBackup)
         flow.append(doneStep)
     }
 }

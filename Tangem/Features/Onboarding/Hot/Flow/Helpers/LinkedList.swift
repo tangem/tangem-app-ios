@@ -14,8 +14,7 @@ class LinkedList<Element> {
     private(set) var head: Node?
     private(set) var tail: Node?
 
-    @discardableResult
-    func append(_ element: Element) -> Node {
+    func append(_ element: Element) {
         let node = Node(element: element)
 
         if let tail {
@@ -26,20 +25,28 @@ class LinkedList<Element> {
         }
 
         tail = node
-
-        return node
     }
 }
 
 extension LinkedList {
-    func position(node: Node) -> Position? {
+    func forEach(_ body: (Element) -> Void) {
+        var current = head
+        while let node = current {
+            body(node.element)
+            current = node.next
+        }
+    }
+}
+
+extension LinkedList where Element: AnyObject {
+    func position(element: Element) -> Position? {
         var current = head
         var index = 0
         var total = 0
         var nodeIndex: Int?
 
         while let currentNode = current {
-            if currentNode === node {
+            if currentNode.element === element {
                 nodeIndex = index
             }
 

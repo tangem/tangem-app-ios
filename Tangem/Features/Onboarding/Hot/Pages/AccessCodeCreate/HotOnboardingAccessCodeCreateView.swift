@@ -17,24 +17,13 @@ struct HotOnboardingAccessCodeCreateView: View {
 
     var body: some View {
         content
-            .animation(.default, value: viewModel.state)
-            // Вынести общий код в отдельное место!
             .ifLet(viewModel.leadingBavBarItem) { view, item in
-                switch item {
-                case .back(let action):
-                    view.flowNavBar(leadingItem: { Button("back!!", action: action.closure) })
-                case .skip(let action):
-                    view.flowNavBar(leadingItem: { Button("skip!", action: action.closure) })
-                }
+                view.flowNavBar(leadingItem: item.view)
             }
             .ifLet(viewModel.trailingBavBarItem) { view, item in
-                switch item {
-                case .back(let action):
-                    view.flowNavBar(trailingItem: { Button("back!!", action: action.closure) })
-                case .skip(let action):
-                    view.flowNavBar(trailingItem: { Button("skip!", action: action.closure) })
-                }
+                view.flowNavBar(trailingItem: item.view)
             }
+            .animation(.default, value: viewModel.state)
     }
 }
 

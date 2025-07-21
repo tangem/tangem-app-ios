@@ -9,6 +9,5 @@
 import Foundation
 
 protocol HotOnboardingAccessCodeCreateRoutable: AnyObject {
-    /// подумать как переместить в `HotOnboardingAccessCodeCreateView`
-    func openAccesCodeSkipAlert(onAllow: @escaping () -> Void)
+    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void)
 }

@@ -8,21 +8,16 @@
 
 import SwiftUI
 
-protocol HotOnboardingFlowStep:
+class HotOnboardingFlowStep:
     HotOnboardingFlowStepTransformable,
-    HotOnboardingFlowStepNavigationConfigurable,
-    HotOnboardingFlowStepProgressSetupable {
-    associatedtype Content: View
+    HotOnboardingFlowStepNavBarConfigurable,
+    HotOnboardingFlowStepProgressBarConfigurable {
+    var transformations: [TransformationModifier<AnyView>] = []
 
-    @ViewBuilder
-    func build() -> Content
+    func build() -> any View {
+        EmptyView()
+    }
 
-    @ViewBuilder
-    func buildWithTransformations() -> any View
-}
-
-extension HotOnboardingFlowStep {
-    @ViewBuilder
     func buildWithTransformations() -> any View {
         transformations.reduce(AnyView(build())) { view, transformation in
             AnyView(view.modifier(transformation))

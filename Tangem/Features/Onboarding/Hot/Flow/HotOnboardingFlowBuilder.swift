@@ -10,10 +10,14 @@ import SwiftUI
 import Combine
 
 class HotOnboardingFlowBuilder: ObservableObject {
-    typealias Step = any HotOnboardingFlowStep
+    typealias Step = HotOnboardingFlowStep
     typealias Node = LinkedListNode<Step>
 
-    var hasProgressBar: Bool { false }
+    var currentStepId: AnyHashable {
+        currentNode?.id
+    }
+
+    var hasProgressBar = false
 
     @ViewBuilder
     var content: some View {
@@ -50,7 +54,7 @@ private extension HotOnboardingFlowBuilder {
     }
 }
 
-// MARK: - Navigation
+// MARK: - NavBar
 
 extension HotOnboardingFlowBuilder {
     func back() {
@@ -76,15 +80,31 @@ extension HotOnboardingFlowBuilder {
     }
 }
 
-// MARK: - Progress
+// MARK: - ProgressBar
 
 extension HotOnboardingFlowBuilder {
-    func progressValue(node: Node) -> Double {
-        if let postion = flow.position(node: node) {
-            return Double(postion.index / postion.total)
-        } else {
-            return 0
+    func setupProgress() {
+        hasProgressBar = true
+
+        flow.forEach { step in
+            let progressValue: Double
+            if let position = flow.position(element: step) {
+                progressValue = Double(position.index + 1) / Double(position.total)
+            } else {
+                progressValue = 0
+            }
+            step.configureProgressBar(value: progressValue)
         }
+    }
+}
+
+// MARK: - Helpers
+
+extension HotOnboardingFlowBuilder {
+    var navBarBackAction: HotOnboardingFlowNavBarAction {
+        HotOnboardingFlowNavBarAction.back(handler: { [weak self] in
+            self?.back()
+        })
     }
 }
 

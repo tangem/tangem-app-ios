@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class HotOnboardingRevealSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
@@ -28,10 +29,15 @@ final class HotOnboardingRevealSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
         if needAccessCodeValidation {
             let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
             let validateAccessCodeStep = HotOnboardingValidateAccessCodeStep(manager: manager)
+                .configureNavBar(leadingAction: navBarCloseAction)
             flow.append(validateAccessCodeStep)
         }
 
         let seedPhraseRevealStep = HotOnboardingSeedPhraseRevealStep(delegate: self)
+            .configureNavBar(
+                title: Localization.commonBackup,
+                leadingAction: navBarCloseAction
+            )
         flow.append(seedPhraseRevealStep)
     }
 }
@@ -51,6 +57,12 @@ private extension HotOnboardingRevealSeedPhraseFlowBuilder {
 // MARK: - Private methods
 
 private extension HotOnboardingRevealSeedPhraseFlowBuilder {
+    var navBarCloseAction: HotOnboardingFlowNavBarAction {
+        HotOnboardingFlowNavBarAction.close(handler: { [weak self] in
+            self?.closeOnboarding()
+        })
+    }
+
     func getSeedPhraseWords() -> [String] {
         // [REDACTED_TODO_COMMENT]
         return [

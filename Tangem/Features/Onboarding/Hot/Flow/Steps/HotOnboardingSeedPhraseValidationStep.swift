@@ -8,9 +8,7 @@
 
 import SwiftUI
 
-struct HotOnboardingSeedPhraseValidationStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingSeedPhraseValidationStep: HotOnboardingFlowStep {
     private let viewModel: OnboardingSeedPhraseUserValidationViewModel
 
     init(seedPhraseWords: [String], onCreateWallet: @escaping () -> Void) {
@@ -22,7 +20,7 @@ struct HotOnboardingSeedPhraseValidationStep: HotOnboardingFlowStep {
         ))
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         OnboardingSeedPhraseUserValidationView(viewModel: viewModel)
     }
 }

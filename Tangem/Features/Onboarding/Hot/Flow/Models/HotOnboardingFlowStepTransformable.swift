@@ -9,26 +9,28 @@
 import SwiftUI
 import TangemUI
 
-protocol HotOnboardingFlowStepTransformable {
+protocol HotOnboardingFlowStepTransformable: AnyObject {
     var transformations: [TransformationModifier<AnyView>] { get set }
 }
 
-// MARK: - NavigationConfigurable
+// MARK: - NavBar configurable
 
-protocol HotOnboardingFlowStepNavigationConfigurable: HotOnboardingFlowStepTransformable {
-    mutating func configureNavigation(
+protocol HotOnboardingFlowStepNavBarConfigurable: HotOnboardingFlowStepTransformable {
+    @discardableResult
+    func configureNavBar(
         title: String?,
         leadingAction: HotOnboardingFlowNavBarAction?,
         trailingAction: HotOnboardingFlowNavBarAction?
-    )
+    ) -> Self
 }
 
-extension HotOnboardingFlowStepNavigationConfigurable {
-    mutating func configureNavigation(
+extension HotOnboardingFlowStepNavBarConfigurable {
+    @discardableResult
+    func configureNavBar(
         title: String? = nil,
         leadingAction: HotOnboardingFlowNavBarAction? = nil,
         trailingAction: HotOnboardingFlowNavBarAction? = nil
-    ) {
+    ) -> Self {
         if let title {
             transformations.append(TransformationModifier<AnyView> { view in
                 AnyView(view.flowNavBar(title: title))
@@ -37,44 +39,33 @@ extension HotOnboardingFlowStepNavigationConfigurable {
 
         if let leadingAction {
             transformations.append(TransformationModifier<AnyView> { view in
-                AnyView(view.flowNavBar(leadingItem: { Self.actionView(leadingAction) }))
+                AnyView(view.flowNavBar(leadingItem: leadingAction.view))
             })
         }
 
         if let trailingAction {
             transformations.append(TransformationModifier<AnyView> { view in
-                AnyView(view.flowNavBar(trailingItem: { Self.actionView(trailingAction) }))
+                AnyView(view.flowNavBar(trailingItem: trailingAction.view))
             })
         }
-    }
 
-    @ViewBuilder
-    private static func actionView(_ action: HotOnboardingFlowNavBarAction) -> some View {
-        switch action {
-        case .back(let handler):
-            BackButton(
-                height: OnboardingLayoutConstants.navbarSize.height,
-                isVisible: true,
-                isEnabled: true,
-                action: handler
-            )
-        case .close(let handler):
-            CloseButton(dismiss: handler)
-                .padding(.leading, 16)
-        }
+        return self
     }
 }
 
-// MARK: - ProgressSetupable
+// MARK: - ProgressBar configurable
 
-protocol HotOnboardingFlowStepProgressSetupable: HotOnboardingFlowStepTransformable {
-    mutating func setupProgress(_ value: @escaping () -> Double?)
+protocol HotOnboardingFlowStepProgressBarConfigurable: HotOnboardingFlowStepTransformable {
+    @discardableResult
+    func configureProgressBar(value: Double) -> Self
 }
 
-extension HotOnboardingFlowStepProgressSetupable {
-    mutating func setupProgress(_ value: @escaping () -> Double?) {
+extension HotOnboardingFlowStepProgressBarConfigurable {
+    @discardableResult
+    func configureProgressBar(value: Double) -> Self {
         transformations.append(TransformationModifier<AnyView> { view in
-            AnyView(view.flowProgressBar(value: value()))
+            AnyView(view.flowProgressBar(value: value))
         })
+        return self
     }
 }

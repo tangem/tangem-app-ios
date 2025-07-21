@@ -8,16 +8,14 @@
 
 import SwiftUI
 
-struct HotOnboardingValidateAccessCodeStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingValidateAccessCodeStep: HotOnboardingFlowStep {
     private let viewModel: HotAccessCodeViewModel
 
     init(manager: CommonHotAccessCodeManager) {
         viewModel = HotAccessCodeViewModel(manager: manager)
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         HotAccessCodeView(viewModel: viewModel)
     }
 }

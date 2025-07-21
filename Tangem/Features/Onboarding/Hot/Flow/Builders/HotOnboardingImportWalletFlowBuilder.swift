@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import struct TangemSdk.Mnemonic
 
 final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
@@ -23,6 +24,12 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
 
     override func setupFlow() {
         let importWalletStep = HotOnboardingImportWalletStep(delegate: self)
+            .configureNavBar(
+                title: Localization.walletImportTitle,
+                leadingAction: .back(handler: { [weak self] in
+                    self?.closeOnboarding()
+                })
+            )
         flow.append(importWalletStep)
 
         let importCompletedStep = HotOnboardingSuccessStep(
@@ -30,9 +37,11 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
             onAppear: {},
             onComplete: weakify(self, forFunction: HotOnboardingImportWalletFlowBuilder.openNext)
         )
+        importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         flow.append(importCompletedStep)
 
         let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
+            .configureNavBar(title: Localization.accessCodeNavtitle)
         flow.append(createAccessCodeStep)
 
         let factory = PushNotificationsHelpersFactory()
@@ -44,6 +53,7 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
                 permissionManager: permissionManager,
                 delegate: self
             )
+            pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
             flow.append(pushNotificationsStep)
         }
 
@@ -52,7 +62,10 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
             onAppear: weakify(self, forFunction: HotOnboardingImportWalletFlowBuilder.openConfetti),
             onComplete: weakify(self, forFunction: HotOnboardingImportWalletFlowBuilder.openMain)
         )
+        doneStep.configureNavBar(title: Localization.commonDone)
         flow.append(doneStep)
+
+        setupProgress()
     }
 }
 
@@ -121,8 +134,8 @@ extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeCreateDel
 // MARK: - HotOnboardingAccessCodeCreateRoutable
 
 extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeCreateRoutable {
-    func openAccesCodeSkipAlert(onAllow: @escaping () -> Void) {
-        coordinator?.openAccesCodeSkipAlert(onAllow: onAllow)
+    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {
+        coordinator?.openAccesCodeSkipAlert(onSkip: onSkip)
     }
 }
 

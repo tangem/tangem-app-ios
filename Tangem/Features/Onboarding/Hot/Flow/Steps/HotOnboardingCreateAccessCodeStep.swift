@@ -8,9 +8,7 @@
 
 import SwiftUI
 
-struct HotOnboardingCreateAccessCodeStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingCreateAccessCodeStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingAccessCodeCreateViewModel
 
     init(
@@ -20,7 +18,7 @@ struct HotOnboardingCreateAccessCodeStep: HotOnboardingFlowStep {
         viewModel = HotOnboardingAccessCodeCreateViewModel(coordinator: coordinator, delegate: delegate)
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         HotOnboardingAccessCodeCreateView(viewModel: viewModel)
     }
 }

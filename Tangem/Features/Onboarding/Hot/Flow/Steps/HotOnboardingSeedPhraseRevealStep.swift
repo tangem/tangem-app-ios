@@ -8,16 +8,14 @@
 
 import SwiftUI
 
-struct HotOnboardingSeedPhraseRevealStep: HotOnboardingFlowStep {
-    var transformations: [TransformationModifier<AnyView>] = []
-
+final class HotOnboardingSeedPhraseRevealStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingSeedPhraseRevealViewModel
 
     init(delegate: HotOnboardingSeedPhraseRevealDelegate) {
         viewModel = HotOnboardingSeedPhraseRevealViewModel(delegate: delegate)
     }
 
-    func build() -> some View {
+    override func build() -> any View {
         HotOnboardingSeedPhraseRevealView(viewModel: viewModel)
     }
 }

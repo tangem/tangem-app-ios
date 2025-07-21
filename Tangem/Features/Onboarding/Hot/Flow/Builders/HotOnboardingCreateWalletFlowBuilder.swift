@@ -18,6 +18,11 @@ final class HotOnboardingCreateWalletFlowBuilder: HotOnboardingFlowBuilder {
 
     override func setupFlow() {
         let createWalletStep = HotOnboardingCreateWalletStep(delegate: self)
+            .configureNavBar(
+                leadingAction: .back(handler: { [weak self] in
+                    self?.closeOnboarding()
+                })
+            )
         flow.append(createWalletStep)
     }
 }

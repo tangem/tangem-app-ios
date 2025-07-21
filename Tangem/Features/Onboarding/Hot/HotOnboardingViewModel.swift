@@ -8,9 +8,11 @@
 
 import Combine
 import TangemLocalization
+import TangemUIUtils
 
 final class HotOnboardingViewModel: ObservableObject {
     @Published var shouldFireConfetti: Bool = false
+    @Published var alert: AlertBinder?
 
     lazy var flowBuilder = makeFlowBuilder()
 
@@ -68,6 +70,21 @@ private extension HotOnboardingViewModel {
     }
 }
 
+// MARK: - Private methods
+
+private extension HotOnboardingViewModel {
+    func makeAccessCodeCreateSkipAlert(onSkip: @escaping () -> Void) -> AlertBinder? {
+        AlertBuilder.makeAlert(
+            title: Localization.accessCodeAlertSkipTitle,
+            message: Localization.accessCodeAlertSkipDescription,
+            with: .withPrimaryCancelButton(
+                secondaryTitle: Localization.accessCodeAlertSkipOk,
+                secondaryAction: onSkip
+            )
+        )
+    }
+}
+
 // MARK: - HotOnboardingFlowRoutable
 
 extension HotOnboardingViewModel: HotOnboardingFlowRoutable {
@@ -75,8 +92,8 @@ extension HotOnboardingViewModel: HotOnboardingFlowRoutable {
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }
 
-    func openAccesCodeSkipAlert(onAllow: @escaping () -> Void) {
-        // !!!
+    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {
+        alert = makeAccessCodeCreateSkipAlert(onSkip: onSkip)
     }
 
     func openConfetti() {

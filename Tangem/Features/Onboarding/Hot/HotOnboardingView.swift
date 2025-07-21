@@ -20,5 +20,6 @@ struct HotOnboardingView: View {
 
             HotOnboardingFlowView(builder: viewModel.flowBuilder)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
