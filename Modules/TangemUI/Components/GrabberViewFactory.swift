@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct GrabberViewFactory {
     public init() {}
@@ -25,6 +26,7 @@ public struct GrabberViewFactory {
         let grabberViewContainer = UIView()
         grabberViewContainer.translatesAutoresizingMaskIntoConstraints = false
         grabberViewContainer.isUserInteractionEnabled = false
+        grabberViewContainer.accessibilityIdentifier = CommonUIAccessibilityIdentifiers.grabber
         grabberViewContainer.addSubview(grabberView)
 
         NSLayoutConstraint.activate([
@@ -46,6 +48,7 @@ public struct GrabberViewFactory {
             .frame(size: Constants.grabberSize)
             .padding(.vertical, Constants.topInset)
             .infinityFrame(axis: .horizontal)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.grabber)
     }
 }
 
