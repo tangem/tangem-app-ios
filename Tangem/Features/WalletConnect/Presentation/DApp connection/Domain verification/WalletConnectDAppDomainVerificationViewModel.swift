@@ -135,12 +135,8 @@ private extension WalletConnectDAppDomainVerificationViewState {
         case .unknownDomain:
             return Localization.wcAlertDomainIssuesDescription
 
-        case .malicious(let attacks):
-            guard let firstAttack = attacks.first else {
-                return Localization.wcAlertDomainIssuesDescription
-            }
-
-            return Self.body(for: firstAttack)
+        case .malicious:
+            return Localization.wcAlertDomainIssuesDescription
         }
     }
 
@@ -150,71 +146,8 @@ private extension WalletConnectDAppDomainVerificationViewState {
             return nil
         case .unknownDomain:
             return Localization.wcAlertAuditUnknownDomain
-        case .malicious(let attacks):
-            guard let firstAttack = attacks.first else {
-                return Localization.wcAlertAuditUnknownDomain
-            }
-
-            return Self.badge(for: firstAttack)
-        }
-    }
-
-    private static func badge(for attackType: WalletConnectDAppVerificationStatus.AttackType) -> String {
-        switch attackType {
-        case .signatureFarming:
-            "Signature farming"
-
-        case .approvalFarming, .setApprovalForAll:
-            "Approval farming"
-
-        case .transferFarming:
-            "Transfer farming"
-
-        case .rawEtherTransfer:
-            "Raw Ether transfer"
-
-        case .seaportFarming:
-            "Seaport farming"
-
-        case .blurFarming:
-            "Blur farming"
-
-        case .permitFarming:
-            "Permit farming"
-
-        case .other:
-            Localization.wcAlertAuditUnknownDomain
-        }
-    }
-
-    private static func body(for attackType: WalletConnectDAppVerificationStatus.AttackType) -> String {
-        switch attackType {
-        case .signatureFarming:
-            "Is a raw signed transaction"
-
-        case .approvalFarming:
-            "Approves ERC20 tokens"
-
-        case .setApprovalForAll:
-            "Approves all tokens of the account"
-
-        case .transferFarming:
-            "Transfers tokens"
-
-        case .rawEtherTransfer:
-            "Transfers native currency"
-
-        case .seaportFarming:
-            "Authorizes transfer of assets via OpenSea marketplace"
-
-        case .blurFarming:
-            "Authorizes transfer of assets via Blur marketplace"
-
-        case .permitFarming:
-            "Authorizes access or permissions"
-
-        case .other:
-            Localization.wcAlertDomainIssuesDescription
+        case .malicious:
+            return Localization.wcAlertAuditMaliciousDomain
         }
     }
 }
