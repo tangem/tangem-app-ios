@@ -30,6 +30,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private let tokenItem: TokenItem
     private let expressProviderFormatter: ExpressProviderFormatter
     private let priceChangeFormatter: PriceChangeFormatter
+    private let analyticsLogger: SendSwapProvidersAnalyticsLogger
 
     private var providers: [ExpressAvailableProvider] = []
     private var providersSubscription: AnyCancellable?
@@ -40,7 +41,8 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         receiveTokenInput: SendReceiveTokenInput,
         tokenItem: TokenItem,
         expressProviderFormatter: ExpressProviderFormatter,
-        priceChangeFormatter: PriceChangeFormatter
+        priceChangeFormatter: PriceChangeFormatter,
+        analyticsLogger: SendSwapProvidersAnalyticsLogger
     ) {
         self.input = input
         self.output = output
@@ -48,6 +50,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         self.tokenItem = tokenItem
         self.expressProviderFormatter = expressProviderFormatter
         self.priceChangeFormatter = priceChangeFormatter
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -178,7 +181,7 @@ private extension SendSwapProvidersSelectorViewModel {
     func userDidTap(provider: ExpressAvailableProvider) {
         // Cancel subscription that view do not jump
         providersSubscription?.cancel()
-        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
+        analyticsLogger.logSendSwapProvidersChosen(provider: provider.provider)
         output?.userDidSelect(provider: provider)
         Task { @MainActor in dismiss() }
     }
