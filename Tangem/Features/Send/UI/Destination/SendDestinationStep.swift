@@ -15,18 +15,18 @@ class SendDestinationStep {
     private let viewModel: SendDestinationViewModel
     private let interactor: SendDestinationInteractor
     private let sendFeeProvider: SendFeeProvider
-    private let tokenItem: TokenItem
+    private let analyticsLogger: SendDestinationAnalyticsLogger
 
     init(
         viewModel: SendDestinationViewModel,
         interactor: any SendDestinationInteractor,
         sendFeeProvider: any SendFeeProvider,
-        tokenItem: TokenItem
+        analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.sendFeeProvider = sendFeeProvider
-        self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(stepRouter: SendDestinationStepRoutable) {
@@ -55,13 +55,11 @@ extension SendDestinationStep: SendStep {
     }
 
     func initialAppear() {
-        Analytics.log(.sendAddressScreenOpened)
+        analyticsLogger.logDestinationStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
-        if step.type.isSummary {
-            Analytics.log(.sendScreenReopened, params: [.source: .address])
-        }
+        step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
     }
 
     func willDisappear(next step: SendStep) {

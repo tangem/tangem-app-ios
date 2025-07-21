@@ -43,9 +43,8 @@ class SendModel {
     private let transactionSigner: TransactionSigner
     private let transactionCreator: TransactionCreator
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendAnalyticsLogger
 
-    private let flowKind: PredefinedValues.FlowKind
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -57,7 +56,7 @@ class SendModel {
         transactionCreator: TransactionCreator,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
+        analyticsLogger: SendAnalyticsLogger,
         predefinedValues: PredefinedValues
     ) {
         self.tokenItem = tokenItem
@@ -66,9 +65,8 @@ class SendModel {
         self.transactionSigner = transactionSigner
         self.transactionCreator = transactionCreator
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
 
-        flowKind = predefinedValues.flowKind
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
@@ -180,7 +178,12 @@ private extension SendModel {
 
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
+        analyticsLogger.logTransactionSent(
+            amount: _amount.value,
+            additionalField: _destinationAdditionalField.value,
+            fee: _selectedFee.value,
+            signerType: result.signerType
+        )
         addTokenFromTransactionIfNeeded(transaction)
     }
 
@@ -195,11 +198,7 @@ private extension SendModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .sendErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-                .blockchain: tokenItem.blockchain.displayName,
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 
@@ -462,72 +461,12 @@ extension SendModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - Analytics
-
-private extension SendModel {
-    func logTransactionAnalytics(signerType: String) {
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-        let source = flowKind.analyticsValue(for: tokenItem)
-
-        Analytics.log(event: .transactionSent, params: [
-            .source: source.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: feeType.rawValue,
-            .memo: additionalFieldAnalyticsParameter().rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-
-        case .alternative:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
-        }
-    }
-
-    func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
-        // If the blockchain doesn't support additional field -- return null
-        // Otherwise return full / empty
-        switch _destinationAdditionalField.value {
-        case .notSupported: .null
-        case .empty: .empty
-        case .filled: .full
-        }
-    }
-}
-
 // MARK: - Models
 
 extension SendModel {
     struct PredefinedValues {
-        let flowKind: FlowKind
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
-
-        enum FlowKind {
-            case send
-            case sell
-            case staking
-
-            func analyticsValue(for tokenItem: TokenItem) -> Analytics.ParameterValue {
-                switch (self, tokenItem.token?.metadata.kind) {
-                case (.send, .nonFungible):
-                    return .nft
-                case (.send, .fungible),
-                     (.send, .none):
-                    return .send
-                case (.sell, _):
-                    return .sell
-                case (.staking, _):
-                    return .transactionSourceStaking
-                }
-            }
-        }
     }
 }
