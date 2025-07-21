@@ -135,7 +135,6 @@ struct SendDecimalNumberTextField: View {
             .hidden(true) // Native `.hidden()` may affect layout
             .allowsHitTesting(false)
             .readGeometry(\.size, bindTo: $viewModel.measuredTextSize)
-            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.decimalNumberTextField)
     }
 
     @ViewBuilder
