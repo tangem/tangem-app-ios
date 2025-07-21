@@ -14,8 +14,6 @@ import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 /// Same as `DecimalNumberTextField` with  support
-/// - `InitialFocusBehavior`
-/// - `ToolbarType`
 /// - `Suffix`
 /// - Different `Alignment`
 struct SendDecimalNumberTextField: View {
@@ -25,10 +23,7 @@ struct SendDecimalNumberTextField: View {
     /// Internal state
     @FocusState private var isInputActive: Bool
 
-    // Setupable
-    private var initialFocusBehavior: InitialFocusBehavior = .noFocus
-    private var leadingToolbarType: LeadingToolbarType?
-    private var trailingToolbarType: TrailingToolbarType? = .hideKeyboard
+    /// Setupable
     private var appearance: DecimalNumberTextField.Appearance = .init()
     private var alignment: Alignment = .leading
     private var onFocusChanged: ((Bool) -> Void)?
@@ -58,10 +53,6 @@ struct SendDecimalNumberTextField: View {
         case .some:
             return appearance.textColor
         }
-    }
-
-    private var showToolbar: Bool {
-        leadingToolbarType != nil || trailingToolbarType != nil
     }
 
     init(viewModel: DecimalNumberTextField.ViewModel) {
@@ -143,62 +134,9 @@ struct SendDecimalNumberTextField: View {
             .appearance(appearance)
             .placeholder(Constants.placeholder)
             .focused($isInputActive)
-            .if(showToolbar) {
-                $0.toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        leadingToolbarView
-
-                        Spacer()
-
-                        trailingToolbarView
-                    }
-                }
-            }
-            .onAppear {
-                switch initialFocusBehavior {
-                case .noFocus:
-                    break
-                case .immediateFocus:
-                    isInputActive = true
-                }
-            }
             .onChange(of: isInputActive) { isInputActive in
                 onFocusChanged?(isInputActive)
             }
-    }
-
-    @ViewBuilder
-    private var leadingToolbarView: some View {
-        switch leadingToolbarType {
-        case .none:
-            EmptyView()
-        case .maxAmount(let action):
-            Button(action: action) {
-                Text(Localization.sendMaxAmountLabel)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var trailingToolbarView: some View {
-        switch trailingToolbarType {
-        case .none:
-            EmptyView()
-        case .hideKeyboard:
-            Button {
-                isInputActive = false
-                // HACK
-                // Sometimes this toolbar can be showed on the sheet page
-                // Which was presented by view which uses this `TextField`
-                // Then we call `endEditing` to be sure that the keyboard will be closed
-                UIApplication.shared.endEditing()
-            } label: {
-                Assets.hideKeyboard.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.primary1)
-            }
-        }
     }
 
     @ViewBuilder
@@ -269,14 +207,6 @@ struct SendDecimalNumberTextField: View {
 // MARK: - Setupable
 
 extension SendDecimalNumberTextField: Setupable {
-    func leadingToolbarType(_ toolbarType: LeadingToolbarType?) -> Self {
-        map { $0.leadingToolbarType = toolbarType }
-    }
-
-    func trailingToolbarType(_ toolbarType: TrailingToolbarType?) -> Self {
-        map { $0.trailingToolbarType = toolbarType }
-    }
-
     func prefixSuffixOptions(_ prefixSuffixOptions: PrefixSuffixOptions?) -> Self {
         map { $0.prefixSuffixOptions = prefixSuffixOptions }
     }
@@ -289,10 +219,6 @@ extension SendDecimalNumberTextField: Setupable {
         map { $0.alignment = alignment }
     }
 
-    func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
-        map { $0.initialFocusBehavior = initialFocusBehavior }
-    }
-
     func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
         map { $0.onFocusChanged = action }
     }
@@ -301,21 +227,6 @@ extension SendDecimalNumberTextField: Setupable {
     /// - minTextScale: The desired `minimumScaleFactor` for custom font scaling. If nil, no font scaling applies.
     func minTextScale(_ minTextScale: CGFloat?) -> Self {
         map { $0.minTextScale = minTextScale }
-    }
-}
-
-extension SendDecimalNumberTextField {
-    enum LeadingToolbarType {
-        case maxAmount(action: () -> Void)
-    }
-
-    enum TrailingToolbarType {
-        case hideKeyboard
-    }
-
-    enum InitialFocusBehavior {
-        case noFocus
-        case immediateFocus
     }
 }
 
