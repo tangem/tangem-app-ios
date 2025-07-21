@@ -23,17 +23,21 @@ enum WalletConnectBlockchainMapper {
     }
 
     static func mapFromDomain(_ domainBlockchain: BlockchainSdk.Blockchain) -> ReownWalletKit.Blockchain? {
+        mapFromDomain(domainBlockchain, preferredCAIPReference: nil)
+    }
+
+    static func mapFromDomain(_ domainBlockchain: BlockchainSdk.Blockchain, preferredCAIPReference: String?) -> ReownWalletKit.Blockchain? {
         if case .solana = domainBlockchain, let solanaReownReferences = domainBlockchain.wcChainID, !solanaReownReferences.isEmpty {
             return ReownWalletKit.Blockchain(
                 namespace: WCUtils.WCSupportedNamespaces.solana.rawValue,
-                reference: solanaReownReferences[0]
+                reference: preferredCAIPReference ?? solanaReownReferences[0]
             )
         }
 
         if domainBlockchain.isEvm, let chainId = domainBlockchain.chainId {
             return ReownWalletKit.Blockchain(
                 namespace: WCUtils.WCSupportedNamespaces.eip155.rawValue,
-                reference: String(chainId)
+                reference: preferredCAIPReference ?? String(chainId)
             )
         }
 
