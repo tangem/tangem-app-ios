@@ -63,6 +63,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     private let balanceFormatted: String
     private let fiatCurrencyCode: String
     private let interactor: SendNewAmountInteractor
+    private let analyticsLogger: SendAnalyticsLogger
     private let actionType: SendFlowActionType
     private let sendAmountFormatter: SendAmountFormatter
 
@@ -71,7 +72,8 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     init(
         sourceTokenInput: SendSourceTokenInput,
         settings: Settings,
-        interactor: SendNewAmountInteractor
+        interactor: SendNewAmountInteractor,
+        analyticsLogger: SendAnalyticsLogger
     ) {
         walletHeaderText = sourceTokenInput.sourceToken.wallet
         tokenItem = sourceTokenInput.sourceToken.tokenItem
@@ -97,6 +99,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -104,13 +107,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     func onAppear() {}
 
     func userDidTapMaxAmount() {
-        switch actionType {
-        case .send:
-            Analytics.log(.sendMaxAmountTapped)
-        case .stake:
-            Analytics.log(event: .stakingButtonMax, params: [.token: tokenItem.currencySymbol])
-        default: break
-        }
+        analyticsLogger.logTapMaxAmount()
 
         let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.success()

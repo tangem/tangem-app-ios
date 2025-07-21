@@ -16,7 +16,7 @@ class SendFeeStep {
     private let viewModel: SendFeeViewModel
     private let feeProvider: SendFeeProvider
     private let notificationManager: NotificationManager
-    private let feeTokenItem: TokenItem
+    private let analyticsLogger: SendFeeAnalyticsLogger
 
     /// We have to use this `SendViewAlertPresenter`
     /// Because .alert(item:) doesn't work in the nested views
@@ -26,12 +26,12 @@ class SendFeeStep {
         viewModel: SendFeeViewModel,
         feeProvider: SendFeeProvider,
         notificationManager: NotificationManager,
-        feeTokenItem: TokenItem
+        analyticsLogger: SendFeeAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.feeProvider = feeProvider
         self.notificationManager = notificationManager
-        self.feeTokenItem = feeTokenItem
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(alertPresenter: SendViewAlertPresenter) {
@@ -55,16 +55,12 @@ extension SendFeeStep: SendStep {
         .just(output: true)
     }
 
-    // [REDACTED_TODO_COMMENT]
     func canBeClosed(continueAction: @escaping () -> Void) -> Bool {
         let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
         for event in events {
             switch event {
             case .customFeeTooLow:
-                Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
-                    .token: feeTokenItem.currencySymbol,
-                ])
-
+                analyticsLogger.logSendNoticeTransactionDelaysArePossible()
                 alertPresenter?.showAlert(
                     makeCustomFeeTooLowAlert(continueAction: continueAction)
                 )
@@ -84,8 +80,14 @@ extension SendFeeStep: SendStep {
         return true
     }
 
+    func initialAppear() {
+        analyticsLogger.logFeeStepOpened()
+    }
+
     func willAppear(previous step: any SendStep) {
         feeProvider.updateFees()
+
+        step.type.isSummary ? analyticsLogger.logFeeStepReopened() : analyticsLogger.logFeeStepOpened()
     }
 }
 

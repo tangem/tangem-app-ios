@@ -22,17 +22,11 @@ struct StakingFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, router: SendRoutable) -> SendViewModel {
-        let flowKind: SendModel.PredefinedValues.FlowKind = .staking
-
-        let stakingModel = builder.makeStakingModel(stakingManager: manager)
+        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: .stake)
+        let stakingModel = builder.makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: stakingModel, input: stakingModel)
         notificationManager.setupManager(with: stakingModel)
-
-        let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
-            actionType: .stake,
-            stakingValidatorsInput: stakingModel
-        )
 
         let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: stakingModel)
         sendFeeCompactViewModel.bind(input: stakingModel)
@@ -44,14 +38,15 @@ struct StakingFlowBaseBuilder {
             sendQRCodeService: .none,
             sendAmountValidator: builder.makeStakingSendAmountValidator(stakingManager: manager),
             amountModifier: builder.makeStakingAmountModifier(actionType: .stake),
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
             io: (input: stakingModel, output: stakingModel),
             manager: manager,
             actionType: .stake,
-            sendFeeProvider: stakingModel
+            sendFeeProvider: stakingModel,
+            analyticsLogger: analyticsLogger
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
@@ -65,12 +60,12 @@ struct StakingFlowBaseBuilder {
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: validators.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: stakingModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             onrampAmountCompactViewModel: .none,
@@ -97,6 +92,7 @@ struct StakingFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: stakingModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,
