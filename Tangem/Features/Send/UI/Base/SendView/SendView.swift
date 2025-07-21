@@ -20,6 +20,9 @@ struct SendView: View {
     @Namespace private var namespace
     @FocusState private var focused: Bool
 
+    @State private var bottomContainerMinY: CGFloat = 0
+    @State private var contentMaxYBiggerThanContainerMinY: Bool = true
+
     private let backButtonStyle: MainButton.Style = .secondary
     private let backButtonSize: MainButton.Size = .default
     private let backgroundColor = Colors.Background.tertiary
@@ -41,6 +44,9 @@ struct SendView: View {
                 bottomOverlay
             }
             .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
+        }
+        .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
+            contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
         }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
@@ -87,7 +93,7 @@ struct SendView: View {
         case .closeButton:
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.closeButton)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
         case .backButton:
             CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
         }
@@ -279,17 +285,23 @@ struct SendView: View {
         .padding(.top, 8)
         .padding(.bottom, 14)
         .padding(.horizontal, 16)
+        .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
+            bottomContainerMinY = frame.minY
+        }
     }
 
-    @ViewBuilder
     private var bottomOverlay: some View {
-        if viewModel.shouldShowBottomOverlay {
-            LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-                .frame(maxHeight: bottomGradientHeight)
-                .padding(.horizontal, 16)
-                .allowsHitTesting(false)
-        }
+        LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
+            .ignoresSafeArea()
+            .frame(maxHeight: bottomGradientHeight)
+            .padding(.horizontal, 16)
+            .allowsHitTesting(false)
+            .opacity(shouldShowBottomOverlay ? 1 : 0)
+            .animation(.default, value: shouldShowBottomOverlay)
+    }
+
+    private var shouldShowBottomOverlay: Bool {
+        contentMaxYBiggerThanContainerMinY && viewModel.shouldShowBottomOverlay
     }
 }
 
