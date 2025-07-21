@@ -181,3 +181,11 @@ public extension CircleButton {
         }
     }
 }
+
+// MARK: - Types
+
+public extension CircleButton {
+    static func close(action: @escaping () -> Void) -> CircleButton {
+        CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
+    }
+}
