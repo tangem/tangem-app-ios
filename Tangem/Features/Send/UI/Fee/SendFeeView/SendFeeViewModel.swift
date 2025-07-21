@@ -38,7 +38,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
     private let tokenItem: TokenItem
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendFeeAnalyticsLogger
 
     private var bag: Set<AnyCancellable> = []
 
@@ -52,7 +52,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         interactor: SendFeeInteractor,
         notificationManager: NotificationManager,
         router: SendFeeRoutable,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+        analyticsLogger: SendFeeAnalyticsLogger
     ) {
         feeTokenItem = settings.feeTokenItem
         tokenItem = settings.tokenItem
@@ -60,7 +60,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.router = router
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -157,26 +157,10 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     }
 
     private func userDidSelected(fee: SendFee) {
-        if fee.option == .custom {
-            Analytics.log(.sendCustomFeeClicked)
-        }
+        analyticsLogger.logSendFeeSelected(fee.option)
 
         selectedFeeOption = fee.option
-
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: interactor.selectedFee?.option)
-        let event: Analytics.Event = switch tokenKind {
-        case .fungible, .none:
-            .sendFeeSelected
-        case .nonFungible:
-            .nftFeeSelected
-        }
-
-        Analytics.log(event: event, params: [.feeType: feeType.rawValue])
         interactor.update(selectedFee: fee)
-    }
-
-    private var tokenKind: TokenMetadata.Kind? {
-        tokenItem.token?.metadata.kind
     }
 }
 
@@ -188,32 +172,11 @@ extension SendFeeViewModel: SendStepViewAnimatable {
         case .appearing(.summary(_)):
             // Will be shown with animation
             auxiliaryViewsVisible = false
-
-            switch tokenKind {
-            case .nonFungible:
-                logNFTFeeScreenOpening()
-            case .fungible, .none:
-                Analytics.log(.sendScreenReopened, params: [.source: .fee])
-            }
-
-        case .appearing:
-            switch tokenKind {
-            case .nonFungible:
-                logNFTFeeScreenOpening()
-            case .fungible, .none:
-                Analytics.log(.sendFeeScreenOpened)
-            }
-
         case .disappearing(.summary(_)):
             auxiliaryViewsVisible = false
-
         default:
             break
         }
-    }
-
-    private func logNFTFeeScreenOpening() {
-        Analytics.log(.nftCommissionScreenOpened)
     }
 }
 
