@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemLocalization
 
 struct ExpressView: View {
     @ObservedObject private var viewModel: ExpressViewModel
@@ -17,6 +18,8 @@ struct ExpressView: View {
     @State private var viewGeometryInfo: GeometryInfo = .zero
     @State private var contentSize: CGSize = .zero
     @State private var bottomViewSize: CGSize = .zero
+
+    @FocusState private var isFocused: Bool
 
     private var spacer: CGFloat {
         var height = viewGeometryInfo.frame.height
@@ -51,6 +54,22 @@ struct ExpressView: View {
             }
             .scrollDismissesKeyboardCompat(.interactively)
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                if !viewModel.isMaxAmountButtonHidden {
+                    Button(action: viewModel.userDidTapMaxAmount) {
+                        Text(Localization.sendMaxAmountLabel)
+                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    }
+                }
+
+                Spacer()
+
+                HideKeyboardButton(focused: $isFocused)
+            }
+        }
+        .onAppear { isFocused = true }
+        .focused($isFocused)
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -66,7 +85,6 @@ struct ExpressView: View {
             VStack(spacing: 14) {
                 GroupedSection(viewModel.sendCurrencyViewModel) {
                     SendCurrencyView(viewModel: $0)
-                        .maxAmountAction(viewModel.isMaxAmountButtonHidden ? nil : viewModel.userDidTapMaxAmount)
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
                 .innerContentPadding(12)
