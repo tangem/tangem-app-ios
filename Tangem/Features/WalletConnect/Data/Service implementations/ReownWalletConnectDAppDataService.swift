@@ -26,7 +26,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         for uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
     ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
-        let reownSessionProposal = try await openSession(uri: uri, source: source)
+        let (reownSessionProposal, reownVerifyContext) = try await openSession(uri: uri, source: source)
 
         try Self.validateDomainIsSupported(from: reownSessionProposal)
 
@@ -62,6 +62,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             id: reownSessionProposal.id,
             requiredBlockchains: requiredBlockchains,
             optionalBlockchains: optionalBlockchains,
+            initialVerificationContext: WalletConnectDAppSessionProposalMapper.mapVerificationContext(from: reownVerifyContext),
             dAppConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet
                 throws(WalletConnectDAppProposalApprovalError) in
 
@@ -92,7 +93,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     private func openSession(
         uri: WalletConnectRequestURI,
         source: Analytics.WalletConnectSessionSource
-    ) async throws(WalletConnectDAppProposalLoadingError) -> Session.Proposal {
+    ) async throws(WalletConnectDAppProposalLoadingError) -> (Session.Proposal, VerifyContext?) {
         do {
             return try await walletConnectService.openSession(with: uri, source: source)
         } catch is CancellationError {
