@@ -39,11 +39,10 @@ class SendWithSwapModel {
 
     private let transactionSigner: TransactionSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
     private let swapManager: SwapManager
 
-    private let flowKind: PredefinedValues.FlowKind
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -52,18 +51,17 @@ class SendWithSwapModel {
         userToken: SendSourceToken,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
+        analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
         self.swapManager = swapManager
 
-        flowKind = predefinedValues.flowKind
         _sendingToken = .init(userToken)
         _receivedToken = .init(.same(userToken))
         _destination = .init(predefinedValues.destination)
@@ -205,8 +203,14 @@ private extension SendWithSwapModel {
 
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
         addTokenFromTransactionIfNeeded(transaction)
+
+        analyticsLogger.logTransactionSent(
+            amount: _amount.value,
+            additionalField: _destinationAdditionalField.value,
+            fee: _selectedFee.value,
+            signerType: result.signerType
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -220,11 +224,7 @@ private extension SendWithSwapModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .sendErrorTransactionRejected, params: [
-                .token: sourceToken.tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-                .blockchain: sourceToken.tokenItem.blockchain.displayName,
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 
@@ -611,45 +611,6 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
-    }
-}
-
-// MARK: - Analytics
-
-private extension SendWithSwapModel {
-    func logTransactionAnalytics(signerType: String) {
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-        let source = flowKind.analyticsValue(for: sourceToken.tokenItem)
-
-        Analytics.log(event: .transactionSent, params: [
-            .source: source.rawValue,
-            .token: sourceToken.tokenItem.currencySymbol,
-            .blockchain: sourceToken.tokenItem.blockchain.displayName,
-            .feeType: feeType.rawValue,
-            .memo: additionalFieldAnalyticsParameter().rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-
-        case .alternative:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
-        }
-    }
-
-    func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
-        // If the blockchain doesn't support additional field -- return null
-        // Otherwise return full / empty
-        switch _destinationAdditionalField.value {
-        case .notSupported: .null
-        case .empty: .empty
-        case .filled: .full
-        }
     }
 }
 
