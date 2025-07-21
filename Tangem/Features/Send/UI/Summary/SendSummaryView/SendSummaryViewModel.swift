@@ -64,8 +64,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     private let amountEditableType: EditableType
     private let interactor: SendSummaryInteractor
     private let notificationManager: NotificationManager
+    private let analyticsLogger: SendSummaryAnalyticsLogger
     private let actionType: SendFlowActionType
-    private let flowKind: SendModel.PredefinedValues.FlowKind
     weak var router: SendSummaryStepsRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -74,11 +74,11 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         settings: Settings,
         interactor: SendSummaryInteractor,
         notificationManager: NotificationManager,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
         destinationEditableType = settings.destinationEditableType
         amountEditableType = settings.amountEditableType
@@ -87,11 +87,11 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
-        self.flowKind = flowKind
 
         bind()
     }
@@ -102,30 +102,6 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         validatorVisible = true
         feeVisible = true
         transactionDescriptionIsVisible = true
-
-        switch flowKind {
-        case .send:
-            switch tokenItem.token?.metadata.kind {
-            case .fungible, .none:
-                Analytics.log(.sendConfirmScreenOpened)
-            case .nonFungible:
-                Analytics.log(
-                    event: .nftConfirmScreenOpened,
-                    params: [.blockchain: tokenItem.blockchain.displayName]
-                )
-            }
-
-        case .sell, .staking:
-            Analytics.log(
-                event: .stakingConfirmationScreenOpened,
-                params: [
-                    .validator: stakingValidatorsCompactViewModel?.selectedValidator?.address ?? "",
-                    .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
-                    .token: tokenItem.currencySymbol,
-                    .blockchain: tokenItem.blockchain.displayName,
-                ]
-            )
-        }
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
@@ -165,14 +141,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
         didTapSummary()
 
-        Analytics.log(
-            event: .stakingButtonValidator,
-            params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
-
+        analyticsLogger.logUserDidTapOnValidator()
         router?.summaryStepRequestEditValidators()
     }
 
