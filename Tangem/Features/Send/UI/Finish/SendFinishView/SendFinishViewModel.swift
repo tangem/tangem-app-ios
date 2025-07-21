@@ -47,7 +47,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        sendFinishAnalyticsLogger.onAppear()
+        sendFinishAnalyticsLogger.logFinishStepOpened()
 
         withAnimation(SendTransitionService.Constants.defaultAnimation) {
             showHeader = true

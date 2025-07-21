@@ -46,7 +46,6 @@ class SendNewDestinationInteractorDependenciesProvider {
         addressResolver = makeAddressResolver()
         transactionHistoryProvider = makeSendDestinationTransactionHistoryProvider()
         parametersBuilder = makeTransactionParamsBuilder()
-        analyticsLogger = makeAnalyticsLogger()
     }
 }
 
@@ -90,7 +89,7 @@ private extension SendNewDestinationInteractorDependenciesProvider {
     }
 
     private func makeAnalyticsLogger() -> SendDestinationAnalyticsLogger {
-        SendDestinationAnalyticsLogger(tokenItem: receivedTokenType.tokenItem)
+        sendingWalletData.analyticsLogger
     }
 }
 
@@ -99,5 +98,6 @@ extension SendNewDestinationInteractorDependenciesProvider {
         let walletAddresses: [String]
         let suggestedWallets: [SendSuggestedDestinationWallet]
         let destinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider
+        let analyticsLogger: SendDestinationAnalyticsLogger
     }
 }
