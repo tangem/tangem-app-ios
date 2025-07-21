@@ -17,6 +17,7 @@ class StakingTransactionDispatcher {
     private let transactionSigner: TangemSigner
     private let pendingHashesSender: StakingPendingHashesSender
     private let stakingTransactionMapper: StakingTransactionMapper
+    private let analyticsLogger: StakingAnalyticsLogger
     private let transactionStatusProvider: StakeKitTransactionStatusProvider
 
     private var stuck: DispatchProgressStuck? = .none
@@ -26,12 +27,14 @@ class StakingTransactionDispatcher {
         transactionSigner: TangemSigner,
         pendingHashesSender: StakingPendingHashesSender,
         stakingTransactionMapper: StakingTransactionMapper,
+        analyticsLogger: StakingAnalyticsLogger,
         transactionStatusProvider: some StakeKitTransactionStatusProvider
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.pendingHashesSender = pendingHashesSender
         self.stakingTransactionMapper = stakingTransactionMapper
+        self.analyticsLogger = analyticsLogger
         self.transactionStatusProvider = transactionStatusProvider
     }
 }
@@ -118,7 +121,7 @@ private extension StakingTransactionDispatcher {
         do {
             try await pendingHashesSender.sendHash(hash)
         } catch {
-            CommonStakingAnalyticsLogger().logError(
+            analyticsLogger.logError(
                 error,
                 currencySymbol: walletModel.tokenItem.currencySymbol
             )
