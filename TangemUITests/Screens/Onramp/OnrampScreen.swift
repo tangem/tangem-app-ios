@@ -206,7 +206,7 @@ enum OnrampScreenElement: String, UIElement {
         case .title:
             return OnrampAccessibilityIdentifiers.title
         case .closeButton:
-            return OnrampAccessibilityIdentifiers.closeButton
+            return CommonUIAccessibilityIdentifiers.closeButton
         case .settingsButton:
             return OnrampAccessibilityIdentifiers.settingsButton
         case .providerToSLink:
