@@ -41,7 +41,10 @@ extension CommonWCService: WCService {
         incomingActionManager.resignFirstResponder(self)
     }
 
-    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
+    func openSession(
+        with uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> (Session.Proposal, VerifyContext?) {
         switch uri {
         case .v2(let v2URI):
             try await v2Service.openSession(with: v2URI, source: source)
