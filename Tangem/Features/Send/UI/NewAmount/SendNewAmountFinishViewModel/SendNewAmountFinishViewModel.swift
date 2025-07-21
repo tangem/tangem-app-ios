@@ -24,10 +24,8 @@ class SendNewAmountFinishViewModel: ObservableObject, Identifiable {
     @Published private var receiveSmallAmountViewModel: SendNewAmountFinishSmallAmountViewModel?
     @Published private var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
 
-    private let flow: SendModel.PredefinedValues.FlowKind
-    private var bag: Set<AnyCancellable> = []
-
     private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
+    private var bag: Set<AnyCancellable> = []
 
     init(
         sourceTokenInput: SendSourceTokenInput,
@@ -35,10 +33,7 @@ class SendNewAmountFinishViewModel: ObservableObject, Identifiable {
         receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
         swapProvidersInput: SendSwapProvidersInput,
-        flow: SendModel.PredefinedValues.FlowKind,
     ) {
-        self.flow = flow
-
         walletName = sourceTokenInput.sourceToken.wallet
         tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
         amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
