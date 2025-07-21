@@ -265,7 +265,6 @@ extension MainCoordinator.MainNavigationActionHandler {
         derivation: String?
     ) -> (any WalletModel)? {
         let models = userWalletModel.walletModelsManager.walletModels
-
         if let derivation, derivation.isNotEmpty {
             return models.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
         } else {
