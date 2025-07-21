@@ -9,7 +9,7 @@
 enum WalletConnectDAppVerificationStatus: Equatable {
     case verified
     case unknownDomain
-    case malicious([AttackType])
+    case malicious
 
     var isVerified: Bool {
         switch self {
@@ -18,19 +18,5 @@ enum WalletConnectDAppVerificationStatus: Equatable {
         case .unknownDomain, .malicious:
             false
         }
-    }
-}
-
-extension WalletConnectDAppVerificationStatus {
-    enum AttackType: Equatable {
-        case signatureFarming
-        case approvalFarming
-        case setApprovalForAll
-        case transferFarming
-        case rawEtherTransfer
-        case seaportFarming
-        case blurFarming
-        case permitFarming
-        case other
     }
 }
