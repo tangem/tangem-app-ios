@@ -22,22 +22,25 @@ final class OnrampPaymentMethodsViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let interactor: OnrampPaymentMethodsInteractor
+    private let analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger
     private weak var coordinator: OnrampPaymentMethodsRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         interactor: OnrampPaymentMethodsInteractor,
+        analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger,
         coordinator: OnrampPaymentMethodsRoutable
     ) {
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         bind()
     }
 
     func onAppear() {
-        Analytics.log(.onrampPaymentMethodScreenOpened)
+        analyticsLogger.logOnrampPaymentMethodScreenOpened()
     }
 }
 
@@ -66,10 +69,7 @@ private extension OnrampPaymentMethodsViewModel {
                 name: method.name,
                 iconURL: method.image,
                 action: { [weak self] in
-                    Analytics.log(event: .onrampMethodChosen, params: [
-                        .paymentMethod: method.name,
-                    ])
-
+                    self?.analyticsLogger.logOnrampPaymentMethodChosen(paymentMethod: method)
                     self?.interactor.update(selectedPaymentMethod: method)
                     self?.updateView(paymentMethods: methods, selectedPaymentMethod: method)
                     self?.coordinator?.closeOnrampPaymentMethodsView()
