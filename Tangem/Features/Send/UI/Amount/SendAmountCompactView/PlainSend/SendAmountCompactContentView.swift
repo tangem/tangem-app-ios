@@ -27,7 +27,6 @@ struct SendAmountCompactContentView: View {
             VStack(alignment: .center, spacing: 6) {
                 ZStack {
                     SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
-                        .initialFocusBehavior(.noFocus)
                         .alignment(.center)
                         .prefixSuffixOptions(viewModel.amountFieldOptions)
                         .minTextScale(SendAmountStep.Constants.amountMinTextScale)
