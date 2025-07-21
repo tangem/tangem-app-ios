@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct OnrampPaymentMethodRowView: SelectableSectionRow {
     var isSelected: Bool
@@ -19,11 +20,13 @@ struct OnrampPaymentMethodRowView: SelectableSectionRow {
             content
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodCard(id: data.id))
     }
 
     private var content: some View {
         HStack(spacing: 12) {
             OnrampPaymentMethodIconView(url: data.iconURL)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodIcon(id: data.id))
 
             titleView
 
@@ -44,6 +47,7 @@ struct OnrampPaymentMethodRowView: SelectableSectionRow {
                 color: isSelected ? Colors.Text.primary1 : Colors.Text.secondary
             )
             .lineLimit(1)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodName(id: data.id))
     }
 }
 
