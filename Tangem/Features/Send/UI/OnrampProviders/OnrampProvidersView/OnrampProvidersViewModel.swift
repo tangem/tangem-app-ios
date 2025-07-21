@@ -24,6 +24,7 @@ final class OnrampProvidersViewModel: ObservableObject {
 
     private let tokenItem: TokenItem
     private let interactor: OnrampProvidersInteractor
+    private let analyticsLogger: SendOnrampProvidersAnalyticsLogger
     private weak var coordinator: OnrampProvidersRoutable?
 
     private let priceChangeFormatter = PriceChangeFormatter()
@@ -34,17 +35,19 @@ final class OnrampProvidersViewModel: ObservableObject {
     init(
         tokenItem: TokenItem,
         interactor: OnrampProvidersInteractor,
+        analyticsLogger: SendOnrampProvidersAnalyticsLogger,
         coordinator: OnrampProvidersRoutable
     ) {
         self.tokenItem = tokenItem
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         bind()
     }
 
     func onAppear() {
-        Analytics.log(.onrampProvidersScreenOpened)
+        analyticsLogger.logOnrampProvidersScreenOpened()
     }
 
     func closeView() {
@@ -108,11 +111,7 @@ private extension OnrampProvidersViewModel {
     }
 
     func userDidSelect(provider: OnrampProvider) {
-        Analytics.log(event: .onrampProviderChosen, params: [
-            .provider: provider.provider.name,
-            .token: tokenItem.currencySymbol,
-        ])
-
+        analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
         interactor.update(selectedProvider: provider)
         coordinator?.closeOnrampProviders()
     }

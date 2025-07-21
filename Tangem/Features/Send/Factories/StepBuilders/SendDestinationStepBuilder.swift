@@ -20,14 +20,16 @@ struct SendDestinationStepBuilder {
         io: IO,
         sendFeeProvider: any SendFeeProvider,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: SendDestinationAnalyticsLogger,
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let addressTextViewHeightModel = AddressTextViewHeightModel()
-        let interactor = makeSendDestinationInteractor(io: io)
+        let interactor = makeSendDestinationInteractor(io: io, analyticsLogger: analyticsLogger)
 
         let viewModel = makeSendDestinationViewModel(
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             addressTextViewHeightModel: addressTextViewHeightModel,
             router: router
         )
@@ -36,7 +38,7 @@ struct SendDestinationStepBuilder {
             viewModel: viewModel,
             interactor: interactor,
             sendFeeProvider: sendFeeProvider,
-            tokenItem: walletModel.tokenItem
+            analyticsLogger: analyticsLogger
         )
 
         let compact = makeSendDestinationCompactViewModel(
@@ -59,6 +61,7 @@ private extension SendDestinationStepBuilder {
     func makeSendDestinationViewModel(
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: any SendDestinationAnalyticsLogger,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         router: SendDestinationRoutable
     ) -> SendDestinationViewModel {
@@ -76,6 +79,7 @@ private extension SendDestinationStepBuilder {
             settings: settings,
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             addressTextViewHeightModel: addressTextViewHeightModel,
             router: router
         )
@@ -83,7 +87,7 @@ private extension SendDestinationStepBuilder {
         return viewModel
     }
 
-    func makeSendDestinationInteractor(io: IO) -> SendDestinationInteractor {
+    func makeSendDestinationInteractor(io: IO, analyticsLogger: SendDestinationAnalyticsLogger) -> SendDestinationInteractor {
         CommonSendDestinationInteractor(
             input: io.input,
             output: io.output,
@@ -92,7 +96,7 @@ private extension SendDestinationStepBuilder {
             addressResolver: builder.makeAddressResolver(),
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
             parametersBuilder: builder.makeSendTransactionParametersBuilder(),
-            analyticsLogger: builder.makeDestinationAnalyticsLogger()
+            analyticsLogger: analyticsLogger
         )
     }
 }
