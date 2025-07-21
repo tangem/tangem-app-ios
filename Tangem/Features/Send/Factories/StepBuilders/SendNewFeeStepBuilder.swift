@@ -26,13 +26,14 @@ struct SendNewFeeStepBuilder {
     func makeSendFee(
         io: IO,
         feeProvider: SendFeeProvider,
+        analyticsLogger: any FeeSelectorContentViewModelAnalytics,
         customFeeService: (any CustomFeeService)?
     ) -> ReturnValue {
         let interactor = makeSendFeeInteractor(io: io, feeProvider: feeProvider, customFeeService: customFeeService)
         let feeSelector = FeeSelectorContentViewModel(
             input: interactor,
             output: interactor,
-            analytics: builder.makeFeeSelectorContentViewModelAnalytics(flowKind: .send),
+            analytics: analyticsLogger,
             customFieldsBuilder: builder.makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService),
             feeTokenItem: feeTokenItem
         )
