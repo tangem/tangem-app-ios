@@ -12,9 +12,8 @@ struct TransactionPushActionURLHelper: IncomingActionURLHelper {
     let type: String
     let networkId: String
     let tokenId: String
-    let walletId: String
+    let userWalletId: String
     let derivationPath: String?
-    let userWalletId: String?
 
     func buildURL(scheme: IncomingActionScheme) -> URL {
         var components = URLComponents()
@@ -23,16 +22,13 @@ struct TransactionPushActionURLHelper: IncomingActionURLHelper {
         components.queryItems = [
             URLQueryItem(name: IncomingActionConstants.DeeplinkParams.networkId, value: networkId),
             URLQueryItem(name: IncomingActionConstants.DeeplinkParams.tokenId, value: tokenId),
-            URLQueryItem(name: IncomingActionConstants.DeeplinkParams.walletId, value: walletId),
+            URLQueryItem(name: IncomingActionConstants.DeeplinkParams.userWalletId, value: userWalletId),
             URLQueryItem(name: IncomingActionConstants.DeeplinkParams.type, value: type),
         ]
-
-        [
-            derivationPath.map { URLQueryItem(name: IncomingActionConstants.DeeplinkParams.derivationPath, value: $0) },
-            userWalletId.map { URLQueryItem(name: IncomingActionConstants.DeeplinkParams.userWalletId, value: $0) },
-        ]
-        .compactMap { $0 }
-        .forEach { components.queryItems?.append($0) }
+        
+        if let derivationPath, derivationPath.isNotEmpty {
+            components.queryItems?.append(URLQueryItem(name: IncomingActionConstants.DeeplinkParams.derivationPath, value: derivationPath))
+        }
 
         guard let url = components.url else {
             assertionFailure("Failed to build URL with given components.")
