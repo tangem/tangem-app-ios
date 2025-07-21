@@ -26,8 +26,12 @@ enum WalletConnectAccountsMapper {
         )
     }
 
-    static func map(from blockchain: BlockchainSdk.Blockchain, userWalletModel: some UserWalletModel) -> [ReownWalletKit.Account] {
-        guard let reownBlockchain = WalletConnectBlockchainMapper.mapFromDomain(blockchain) else {
+    static func map(
+        from blockchain: BlockchainSdk.Blockchain,
+        userWalletModel: some UserWalletModel,
+        preferredCAIPReference: String?
+    ) -> [ReownWalletKit.Account] {
+        guard let reownBlockchain = WalletConnectBlockchainMapper.mapFromDomain(blockchain, preferredCAIPReference: preferredCAIPReference) else {
             return []
         }
 
