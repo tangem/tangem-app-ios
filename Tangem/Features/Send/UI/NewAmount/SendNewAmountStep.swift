@@ -14,16 +14,16 @@ import SwiftUI
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendNewAmountInteractor
-    private let flowKind: SendModel.PredefinedValues.FlowKind
+    private let analyticsLogger: SendAnalyticsLogger
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendNewAmountInteractor,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        analyticsLogger: SendAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.flowKind = flowKind
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(router: SendNewAmountRoutable) {
@@ -51,32 +51,11 @@ extension SendNewAmountStep: SendStep {
     }
 
     func initialAppear() {
-        if case .staking = flowKind {
-            Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
-        }
+        analyticsLogger.logAmountStepOpened()
     }
 
-    // [REDACTED_TODO_COMMENT]
     func willAppear(previous step: any SendStep) {
-        switch (flowKind, step.type.isSummary) {
-        case (.staking, false):
-            // Event has been sent in `initialAppear()`
-            break
-        case (.staking, true):
-            let tokenCurrencySymbol = viewModel.tokenCurrencySymbol
-
-            Analytics.log(
-                event: .stakingScreenReopened,
-                params: [
-                    .source: Analytics.ParameterValue.amount.rawValue,
-                    .token: tokenCurrencySymbol,
-                ]
-            )
-        case (_, true):
-            Analytics.log(.sendScreenReopened, params: [.source: .amount])
-        case (_, false):
-            Analytics.log(.sendAmountScreenOpened)
-        }
+        step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
     }
 }
 
