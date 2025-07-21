@@ -15,18 +15,18 @@ class SendAmountStep {
     private let viewModel: SendAmountViewModel
     private let interactor: SendAmountInteractor
     private let sendFeeProvider: SendFeeProvider
-    private let flowKind: SendModel.PredefinedValues.FlowKind
+    private let analyticsLogger: SendAmountAnalyticsLogger
 
     init(
         viewModel: SendAmountViewModel,
         interactor: SendAmountInteractor,
         sendFeeProvider: any SendFeeProvider,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        analyticsLogger: SendAmountAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
         self.sendFeeProvider = sendFeeProvider
-        self.flowKind = flowKind
+        self.analyticsLogger = analyticsLogger
     }
 }
 
@@ -47,31 +47,11 @@ extension SendAmountStep: SendStep {
     }
 
     func initialAppear() {
-        if case .staking = flowKind {
-            Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
-        }
+        analyticsLogger.logAmountStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
-        switch (flowKind, step.type.isSummary) {
-        case (.staking, false):
-            // Workaround initalAppear
-            break
-        case (.staking, true):
-            let tokenCurrencySymbol = viewModel.tokenCurrencySymbol
-
-            Analytics.log(
-                event: .stakingScreenReopened,
-                params: [
-                    .source: Analytics.ParameterValue.amount.rawValue,
-                    .token: tokenCurrencySymbol,
-                ]
-            )
-        case (_, true):
-            Analytics.log(.sendScreenReopened, params: [.source: .amount])
-        case (_, false):
-            Analytics.log(.sendAmountScreenOpened)
-        }
+        step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
     }
 
     func willDisappear(next step: SendStep) {
