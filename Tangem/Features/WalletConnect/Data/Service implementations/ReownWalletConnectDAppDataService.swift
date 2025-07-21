@@ -49,6 +49,8 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             )
         }
 
+        let specificSolanaCAIPReference = Self.parseSpecificSolanaCAIPReference(from: reownSessionProposal)
+
         let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(from: reownSessionProposal)
         let dAppIconURL = await dAppIconURLResolver.resolveURL(from: reownSessionProposal.proposer.icons)
 
@@ -66,15 +68,29 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             dAppConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet
                 throws(WalletConnectDAppProposalApprovalError) in
 
+                func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
+                    domainBlockchain.networkId == Self.solanaDomainNetworkID
+                        ? specificSolanaCAIPReference
+                        : nil
+                }
+
                 let reownSessionNamespaces: [String: SessionNamespace]
 
                 do {
                     reownSessionNamespaces = try AutoNamespaces.build(
                         sessionProposal: reownSessionProposal,
-                        chains: selectedBlockchains.compactMap(WalletConnectBlockchainMapper.mapFromDomain),
+                        chains: selectedBlockchains.compactMap {
+                            WalletConnectBlockchainMapper.mapFromDomain($0, preferredCAIPReference: caipReference(for: $0))
+                        },
                         methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
                         events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: selectedBlockchains.flatMap { WalletConnectAccountsMapper.map(from: $0, userWalletModel: selectedUserWallet) }
+                        accounts: selectedBlockchains.flatMap {
+                            WalletConnectAccountsMapper.map(
+                                from: $0,
+                                userWalletModel: selectedUserWallet,
+                                preferredCAIPReference: caipReference(for: $0)
+                            )
+                        }
                     )
                 } catch {
                     throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
@@ -118,11 +134,40 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             throw WalletConnectDAppProposalLoadingError.uriAlreadyUsed
         }
     }
+
+    /// Parses specific Solana blockchain CAIP-2 reference (if any).
+    /// - Parameter reownSessionProposal: DApp session proposal that may have Solana blockchains.
+    /// - Returns: Solana CAIP-2 reference if it was one and only one occurrence. For all other cases returns `nil`.
+    private static func parseSpecificSolanaCAIPReference(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> String? {
+        let required = Self.extractSolanaBlockchains(from: reownSessionProposal.requiredNamespaces)
+        let optional = Self.extractSolanaBlockchains(from: reownSessionProposal.optionalNamespaces)
+        let solanaBlockchains = Set(required + optional)
+
+        let hasSpecificSolanaCAIPReference = solanaBlockchains.count == 1
+
+        guard hasSpecificSolanaCAIPReference else {
+            return nil
+        }
+
+        return solanaBlockchains.first?.reference
+    }
+
+    private static func extractSolanaBlockchains(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]?) -> [ReownWalletKit.Blockchain] {
+        guard let reownNamespaces else { return [] }
+
+        return reownNamespaces.values
+            .compactMap(\.chains)
+            .flatMap { $0 }
+            .filter { $0.namespace == Self.solanaCAIPNamespace }
+    }
 }
 
 // MARK: - Validation
 
 extension ReownWalletConnectDAppDataService {
+    private static let solanaDomainNetworkID = BlockchainSdk.Blockchain.solana(curve: .ed25519, testnet: false).networkId
+    private static let solanaCAIPNamespace = "solana"
+
     private static let unsupportedDAppHosts = [
         "dydx.trade",
         "pro.apex.exchange",
