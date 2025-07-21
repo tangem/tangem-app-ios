@@ -61,6 +61,7 @@ private extension WCServiceV2 {
                 Task {
                     await self?.sessionProposalContinuationStorage.resume(
                         proposal: sessionProposal,
+                        context: verifyContext,
                         for: sessionProposal.pairingTopic
                     )
                 }
@@ -170,7 +171,10 @@ extension WCServiceV2 {
 // MARK: - Refac
 
 extension WCServiceV2 {
-    func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
+    func openSession(
+        with uri: WalletConnectV2URI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> (Session.Proposal, VerifyContext?) {
         WCLogger.info(LoggerStrings.tryingToPairClient(uri))
         Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
 
@@ -214,14 +218,16 @@ extension WCServiceV2 {
 
 extension WCServiceV2 {
     private actor SessionProposalContinuationsStorage {
-        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<Session.Proposal, any Error>?]()
+        typealias ProposalWithContext = (Session.Proposal, VerifyContext?)
 
-        func store(continuation: CheckedContinuation<Session.Proposal, any Error>, for topic: String) {
+        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
+
+        func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
             pairingTopicToSessionProposalContinuation[topic] = continuation
         }
 
-        func resume(proposal: Session.Proposal, for topic: String) {
-            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: proposal)
+        func resume(proposal: Session.Proposal, context: VerifyContext?, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: (proposal: proposal, context: context))
             pairingTopicToSessionProposalContinuation[topic] = nil
         }
 
