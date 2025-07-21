@@ -63,6 +63,7 @@ class ServicesManager {
         ukGeoDefiner.initialize()
     }
 
+    /// - Warning: DO NOT enable in debug mode.
     private func configureFirebase() {
         guard !AppEnvironment.current.isDebug else {
             return
