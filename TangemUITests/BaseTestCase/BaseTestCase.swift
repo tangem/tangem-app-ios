@@ -64,3 +64,9 @@ class BaseTestCase: XCTestCase {
         app.launch()
     }
 }
+
+extension XCUIApplication {
+    func hideKeyboard() {
+        toolbars.firstMatch.buttons["hideKeyboard"].waitAndTap()
+    }
+}
