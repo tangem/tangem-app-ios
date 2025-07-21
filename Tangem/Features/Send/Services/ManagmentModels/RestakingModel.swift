@@ -37,6 +37,7 @@ class RestakingModel {
     private let transactionDispatcher: TransactionDispatcher
     private let transactionValidator: TransactionValidator
     private let sendAmountValidator: SendAmountValidator
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
@@ -49,6 +50,7 @@ class RestakingModel {
         transactionDispatcher: TransactionDispatcher,
         transactionValidator: TransactionValidator,
         sendAmountValidator: SendAmountValidator,
+        analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
@@ -57,6 +59,7 @@ class RestakingModel {
         self.transactionDispatcher = transactionDispatcher
         self.transactionValidator = transactionValidator
         self.sendAmountValidator = sendAmountValidator
+        self.analyticsLogger = analyticsLogger
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.action = action
@@ -188,16 +191,6 @@ private extension RestakingModel {
 
 private extension RestakingModel {
     private func send() async throws -> TransactionDispatcherResult {
-        if let analyticsEvent = action.type.analyticsEvent {
-            Analytics.log(
-                event: analyticsEvent,
-                params: [
-                    .validator: action.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
-
         guard let validator = _selectedValidator.value.value else {
             throw StakingModelError.validatorNotFound
         }
@@ -225,13 +218,7 @@ private extension RestakingModel {
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: selectedFee.option.rawValue,
-            .walletForm: result.signerType,
-        ])
+        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -245,10 +232,7 @@ private extension RestakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 }
