@@ -32,7 +32,7 @@ struct SendNewAmountStepBuilder {
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        analyticsLogger: any SendAnalyticsLogger
     ) -> ReturnValue {
         let interactor = CommonSendNewAmountInteractor(
             sourceTokenInput: sourceIO.input,
@@ -50,13 +50,14 @@ struct SendNewAmountStepBuilder {
         let viewModel = SendNewAmountViewModel(
             sourceTokenInput: sourceIO.input,
             settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
-            interactor: interactor
+            interactor: interactor,
+            analyticsLogger: analyticsLogger
         )
 
         let step = SendNewAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let compact = SendNewAmountCompactViewModel(
@@ -64,8 +65,7 @@ struct SendNewAmountStepBuilder {
             sourceTokenAmountInput: sourceAmountIO.input,
             receiveTokenInput: receiveIO.input,
             receiveTokenAmountInput: receiveAmountIO.input,
-            swapProvidersInput: swapProvidersInput,
-            flow: flowKind,
+            swapProvidersInput: swapProvidersInput
         )
 
         let amountUpdater = SendExternalAmountUpdater(viewModel: viewModel, interactor: interactor)
@@ -75,7 +75,6 @@ struct SendNewAmountStepBuilder {
             receiveTokenInput: receiveIO.input,
             receiveTokenAmountInput: receiveAmountIO.input,
             swapProvidersInput: swapProvidersInput,
-            flow: flowKind,
         )
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
