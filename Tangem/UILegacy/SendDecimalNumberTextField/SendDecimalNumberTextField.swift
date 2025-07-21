@@ -142,7 +142,6 @@ struct SendDecimalNumberTextField: View {
         DecimalNumberTextField(viewModel: viewModel)
             .appearance(appearance)
             .placeholder(Constants.placeholder)
-//            .accessibilityIdentifier(accessibilityIdentifier)
             .focused($isInputActive)
             .if(showToolbar) {
                 $0.toolbar {
