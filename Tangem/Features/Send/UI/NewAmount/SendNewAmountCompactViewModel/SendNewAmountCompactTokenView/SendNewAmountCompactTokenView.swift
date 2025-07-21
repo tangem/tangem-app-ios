@@ -50,7 +50,6 @@ struct SendNewAmountCompactTokenView: View {
     private var amountView: some View {
         VStack(alignment: .leading, spacing: 2) {
             SendDecimalNumberTextField(viewModel: viewModel.amountTextFieldViewModel)
-                .initialFocusBehavior(.noFocus)
                 .alignment(.leading)
                 .prefixSuffixOptions(viewModel.amountFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
