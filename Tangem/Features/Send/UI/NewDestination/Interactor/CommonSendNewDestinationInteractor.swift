@@ -101,13 +101,13 @@ class CommonSendNewDestinationInteractor {
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            dependenciesBuilder.analyticsLogger.log(isAddressValid: true, source: source)
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
             _cachedDestination.send(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
-            dependenciesBuilder.analyticsLogger.log(isAddressValid: false, source: source)
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
             _cachedDestination.send(.none)
         }
     }
