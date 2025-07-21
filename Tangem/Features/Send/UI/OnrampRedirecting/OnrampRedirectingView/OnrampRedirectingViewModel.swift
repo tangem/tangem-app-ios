@@ -48,10 +48,6 @@ final class OnrampRedirectingViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
-    func onAppear() {
-        logOpening()
-    }
-
     func loadRedirectData() async {
         let theme: OnrampRedirectSettings.Theme = switch colorScheme {
         case .light: .light
@@ -72,25 +68,5 @@ final class OnrampRedirectingViewModel: ObservableObject {
 
     func update(colorScheme: ColorScheme) {
         self.colorScheme = colorScheme
-    }
-}
-
-// MARK: - Private
-
-private extension OnrampRedirectingViewModel {
-    func logOpening() {
-        guard let provider = interactor.onrampProvider,
-              let request = try? provider.makeOnrampQuotesRequestItem() else {
-            return
-        }
-
-        Analytics.log(
-            event: .onrampButtonBuy,
-            params: [
-                .provider: provider.provider.name,
-                .currency: request.pairItem.fiatCurrency.identity.code,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
     }
 }

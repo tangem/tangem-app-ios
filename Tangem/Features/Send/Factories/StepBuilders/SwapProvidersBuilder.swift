@@ -13,14 +13,15 @@ struct SendSwapProvidersBuilder {
     let tokenItem: TokenItem
     let builder: SendDependenciesBuilder
 
-    func makeSwapProviders(io: IO, receiveTokenInput: SendReceiveTokenInput) -> ReturnValue {
+    func makeSwapProviders(io: IO, receiveTokenInput: SendReceiveTokenInput, analyticsLogger: any SendSwapProvidersAnalyticsLogger) -> ReturnValue {
         let providersSelector = SendSwapProvidersSelectorViewModel(
             input: io.input,
             output: io.output,
             receiveTokenInput: receiveTokenInput,
             tokenItem: tokenItem,
             expressProviderFormatter: builder.makeExpressProviderFormatter(),
-            priceChangeFormatter: builder.makePriceChangeFormatter()
+            priceChangeFormatter: builder.makePriceChangeFormatter(),
+            analyticsLogger: analyticsLogger
         )
 
         return providersSelector
