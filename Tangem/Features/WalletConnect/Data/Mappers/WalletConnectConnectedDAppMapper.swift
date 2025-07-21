@@ -49,8 +49,8 @@ enum WalletConnectConnectedDAppMapper {
             return .verified
         case .unknownDomain:
             return .unknownDomain
-        case .malicious(let attackDTOs):
-            return .malicious(attackDTOs.map(Self.mapAttackType(toDomain:)))
+        case .malicious:
+            return .malicious
         }
     }
 
@@ -62,40 +62,8 @@ enum WalletConnectConnectedDAppMapper {
             return .verified
         case .unknownDomain:
             return .unknownDomain
-        case .malicious(let attacks):
-            return .malicious(attacks.map(Self.mapAttackType(fromDomain:)))
-        }
-    }
-
-    private static func mapAttackType(
-        fromDomain attackType: WalletConnectDAppVerificationStatus.AttackType
-    ) -> WalletConnectConnectedDAppPersistentDTO.AttackType {
-        switch attackType {
-        case .signatureFarming: .signatureFarming
-        case .approvalFarming: .approvalFarming
-        case .setApprovalForAll: .setApprovalForAll
-        case .transferFarming: .transferFarming
-        case .rawEtherTransfer: .rawEtherTransfer
-        case .seaportFarming: .seaportFarming
-        case .blurFarming: .blurFarming
-        case .permitFarming: .permitFarming
-        case .other: .other
-        }
-    }
-
-    private static func mapAttackType(
-        toDomain attackTypeDTO: WalletConnectConnectedDAppPersistentDTO.AttackType
-    ) -> WalletConnectDAppVerificationStatus.AttackType {
-        switch attackTypeDTO {
-        case .signatureFarming: .signatureFarming
-        case .approvalFarming: .approvalFarming
-        case .setApprovalForAll: .setApprovalForAll
-        case .transferFarming: .transferFarming
-        case .rawEtherTransfer: .rawEtherTransfer
-        case .seaportFarming: .seaportFarming
-        case .blurFarming: .blurFarming
-        case .permitFarming: .permitFarming
-        case .other: .other
+        case .malicious:
+            return .malicious
         }
     }
 }
