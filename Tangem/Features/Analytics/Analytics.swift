@@ -63,19 +63,6 @@ class Analytics {
         }
     }
 
-    static func logDestinationAddress(event: Analytics.Event, isAddressValid: Bool, source: DestinationAddressSource) {
-        let validationResult: Analytics.ParameterValue = isAddressValid ? .success : .fail
-        guard let parameterValue = source.parameterValue else { return }
-
-        Analytics.log(
-            event,
-            params: [
-                .source: parameterValue,
-                .validation: validationResult,
-            ]
-        )
-    }
-
     static func logPromotionEvent(_ event: Event, programName: String, newClient: Bool? = nil) {
         var params = [
             ParameterKey.programName: programName,
