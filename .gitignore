@@ -71,9 +71,11 @@ fastlane/report.xml
 fastlane/uitest-artifacts/
 
 # Generated
-BlockchainSdk/Resources/Generated/**.swift
 Modules/TangemAssets/Generated/**.swift
 Modules/TangemLocalization/Generated/**.swift
 
 # Rubygems
 vendor/bundle
+
+# Public releases
+vendor/ios_dependencies
