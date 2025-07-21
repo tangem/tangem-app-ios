@@ -26,7 +26,6 @@ struct SendNewAmountFinishLargeAmountView: View {
 
             VStack(alignment: .center, spacing: 4) {
                 SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
-                    .initialFocusBehavior(.noFocus)
                     .alignment(.center)
                     .prefixSuffixOptions(viewModel.amountFieldOptions)
                     .minTextScale(SendAmountStep.Constants.amountMinTextScale)
