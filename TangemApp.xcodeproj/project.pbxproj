@@ -1054,6 +1054,7 @@
 		B6D1139C2D91756800B2F17C /* CommonNFTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113972D91756800B2F17C /* CommonNFTManager.swift */; };
 		B6D274E82C38318900FEFCDC /* OnboardingLayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */; };
 		B6D274EB2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */; };
+		B6D3F8C12E2F09450079A8B3 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6D3F8C02E2F09450079A8B3 /* TangemModules */; };
 		B6D8F6BA2E18B06C003EFAF6 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6D8F6B92E18B06C003EFAF6 /* CryptoSwift */; };
 		B6D8F6BC2E18B24D003EFAF6 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6D8F6BB2E18B24D003EFAF6 /* CryptoSwift */; };
 		B6DA215E2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DA215D2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift */; };
@@ -5280,6 +5281,7 @@
 			files = (
 				B62C8DB12E2081FB00A94882 /* TangemWalletCoreBinariesWrapper in Frameworks */,
 				B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */,
+				B6D3F8C12E2F09450079A8B3 /* TangemModules in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14880,6 +14882,7 @@
 			packageProductDependencies = (
 				B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */,
 				B67E38C22CC71B5F00D660EB /* TangemSdk */,
+				B6D3F8C02E2F09450079A8B3 /* TangemModules */,
 			);
 			productName = BlockchainSdkExample;
 			productReference = B62D43782CBC7EC700C2460E /* BlockchainSdkExample.app */;
@@ -22972,6 +22975,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */;
 			productName = DGCharts;
+		};
+		B6D3F8C02E2F09450079A8B3 /* TangemModules */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = TangemModules;
 		};
 		B6D8F6B92E18B06C003EFAF6 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
