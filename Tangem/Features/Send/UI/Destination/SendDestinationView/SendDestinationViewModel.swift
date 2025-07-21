@@ -34,6 +34,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private let settings: Settings
     private let interactor: SendDestinationInteractor
     private let sendQRCodeService: SendQRCodeService
+    private let analyticsLogger: SendDestinationAnalyticsLogger
     private let addressTextViewHeightModel: AddressTextViewHeightModel
     private weak var router: SendDestinationRoutable?
 
@@ -50,12 +51,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         settings: Settings,
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: SendDestinationAnalyticsLogger,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         router: SendDestinationRoutable
     ) {
         self.settings = settings
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
+        self.analyticsLogger = analyticsLogger
         self.addressTextViewHeightModel = addressTextViewHeightModel
         self.router = router
 
@@ -74,6 +77,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         let binding = Binding<String>(get: { "" }, set: { [weak self] value in
             self?.sendQRCodeService.qrCodeDidScanned(value: value)
         })
+        analyticsLogger.logQRScannerOpened()
         router?.openQRScanner(with: binding, networkName: settings.networkName)
     }
 
