@@ -14,21 +14,21 @@ import Testing
 @testable import BlockchainSdk
 
 struct BitcoinAddressTests {
-    private let addressesUtility = AddressServiceManagerUtility()
-    private let blockchain = Blockchain.bitcoin(testnet: false)
+    private let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+    private let testnetAddressService = AddressServiceFactory(blockchain: .bitcoin(testnet: true)).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {
         // given
+        let addressesUtility = AddressServiceManagerUtility()
         let blockchain = Blockchain.bitcoin(testnet: false)
-        let service = BitcoinAddressService(networkParams: BitcoinNetworkParams())
 
         // when
-        let bech32_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
-        let bech32_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
+        let bech32_dec = try addressService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
+        let bech32_comp = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
 
-        let leg_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .legacy)
-        let leg_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .legacy)
+        let leg_dec = try addressService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .legacy)
+        let leg_comp = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .legacy)
 
         // then
         #expect(bech32_dec.value == bech32_comp.value)
@@ -53,7 +53,6 @@ struct BitcoinAddressTests {
         let expectedLegacyAddress = "1KWFv7SBZGMsneK2ZJ3D4aKcCzbvEyUbAA"
         let expectedSegwitAddress = "bc1qxzdqcmh6pknevm2ugtw94y50dwhsu3l0p5tg63"
 
-        let addressService = BitcoinAddressService(networkParams: BitcoinNetworkParams())
         let legacy = try addressService.makeAddress(from: walletPublicKey, type: .legacy)
         #expect(legacy.value == expectedLegacyAddress)
 
@@ -65,21 +64,17 @@ struct BitcoinAddressTests {
     func legacyAddressGeneration() throws {
         let btcAddress = "1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs"
         let publicKey = Data(hex: "0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352")
-        let service = BitcoinLegacyAddressService(networkParams: BitcoinNetworkParams())
-        #expect(try service.makeAddress(from: publicKey).value == btcAddress)
+        #expect(try addressService.makeAddress(from: publicKey, type: .legacy).value == btcAddress)
     }
 
     @Test
     func testnetAddressGeneration() throws {
-        // given
-        let service = BitcoinAddressService(networkParams: BitcoinTestnetNetworkParams())
-
         // when
-        let bech32_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
-        let bech32_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
+        let bech32_dec = try testnetAddressService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
+        let bech32_comp = try testnetAddressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
 
-        let leg_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .legacy)
-        let leg_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .legacy)
+        let leg_dec = try testnetAddressService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .legacy)
+        let leg_comp = try testnetAddressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .legacy)
 
         // then
         #expect(bech32_dec.value == bech32_comp.value)
@@ -93,31 +88,29 @@ struct BitcoinAddressTests {
 
     @Test
     func inavalidCurveGeneration_throwsError() throws {
-        let service = BitcoinAddressService(networkParams: BitcoinNetworkParams())
-        let testnetService = BitcoinAddressService(networkParams: BitcoinTestnetNetworkParams())
-
         #expect(throws: (any Error).self) {
-            try service.makeAddress(from: Keys.AddressesKeys.edKey)
+            try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
 
         #expect(throws: (any Error).self) {
-            try testnetService.makeAddress(from: Keys.AddressesKeys.edKey)
+            try testnetAddressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
     }
 
     @Test
     func multisigAddressGeneration() throws {
+        let addressService = addressService as! BitcoinScriptAddressesProvider
+
         // given
         let walletPublicKey1 = Data(hex: "04752A727E14BBA5BD73B6714D72500F61FFD11026AD1196D2E1C54577CBEEAC3D11FC68A64700F8D533F4E311964EA8FB3AA26C588295F2133868D69C3E628693")
         let walletPublicKey2 = Data(hex: "04E3F3BE3CE3D8284DB3BA073AD0291040093D83C11A277B905D5555C9EC41073E103F4D9D299EDEA8285C51C3356A8681A545618C174251B984DF841F49D2376F")
         let numberOfAddresses = 2
         let expectedLegacyAddress = "358vzrRZUDZ8DM5Zbz9oLqGr8voPYQqe56"
         let expectedSegwitAddress = "bc1qw9czf0m0eu0v5uhdqj9l4w9su3ca0pegzxxk947hrehma343qwusy4nf8c"
-        let service = BitcoinAddressService(networkParams: BitcoinNetworkParams())
 
         // when
-        let addresses = try service.makeAddresses(publicKey: .init(seedKey: walletPublicKey1, derivationType: .none), pairPublicKey: walletPublicKey2)
-        let reversedPubkeysAddresses = try service.makeAddresses(publicKey: .init(seedKey: walletPublicKey2, derivationType: .none), pairPublicKey: walletPublicKey1)
+        let addresses = try addressService.makeAddresses(publicKey: .init(seedKey: walletPublicKey1, derivationType: .none), pairPublicKey: walletPublicKey2)
+        let reversedPubkeysAddresses = try addressService.makeAddresses(publicKey: .init(seedKey: walletPublicKey2, derivationType: .none), pairPublicKey: walletPublicKey1)
 
         var legacy: BlockchainSdk.Address?
         var segwit: BlockchainSdk.Address?
@@ -143,25 +136,26 @@ struct BitcoinAddressTests {
 
     @Test
     func btcTwinAddressGeneration() throws {
+        let addressService = addressService as! BitcoinScriptAddressesProvider
+
         // given
         let secpPairDecompressedKey = Data(hexString: "042A5741873B88C383A7CFF4AA23792754B5D20248F1A24DF1DAC35641B3F97D8936D318D49FE06E3437E31568B338B340F4E6DF5184E1EC5840F2B7F4596902AE")
         let secpPairCompressedKey = Data(hexString: "022A5741873B88C383A7CFF4AA23792754B5D20248F1A24DF1DAC35641B3F97D89")
-        let service = BitcoinAddressService(networkParams: BitcoinNetworkParams())
 
         // when
-        let addr_dec = try service.makeAddresses(
+        let addr_dec = try addressService.makeAddresses(
             publicKey: .init(seedKey: Keys.AddressesKeys.secpDecompressedKey, derivationType: .none),
             pairPublicKey: secpPairDecompressedKey
         )
-        let addr_dec1 = try service.makeAddresses(
+        let addr_dec1 = try addressService.makeAddresses(
             publicKey: .init(seedKey: Keys.AddressesKeys.secpDecompressedKey, derivationType: .none),
             pairPublicKey: secpPairCompressedKey
         )
-        let addr_comp = try service.makeAddresses(
+        let addr_comp = try addressService.makeAddresses(
             publicKey: .init(seedKey: Keys.AddressesKeys.secpCompressedKey, derivationType: .none),
             pairPublicKey: secpPairCompressedKey
         )
-        let addr_comp1 = try service.makeAddresses(
+        let addr_comp1 = try addressService.makeAddresses(
             publicKey: .init(seedKey: Keys.AddressesKeys.secpCompressedKey, derivationType: .none),
             pairPublicKey: secpPairDecompressedKey
         )
@@ -203,10 +197,8 @@ struct BitcoinAddressTests {
     ])
     func addressValidation_validAddresses(addressHex: String) {
         let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .bitcoin, publicKeyType: CoinType.bitcoin.publicKeyType)
-        let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-
         #expect(walletCoreAddressValidator.validate(addressHex))
-        #expect(addressValidator.validate(addressHex))
+        #expect(addressService.validate(addressHex))
     }
 
     @Test(arguments: [
@@ -215,13 +207,13 @@ struct BitcoinAddressTests {
         "abc",
         "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
         "175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W",
+        "1111111111111111111114oLvT3\\n", // Messed up address
     ])
     func addressValidation_invalidAddresses(addressHex: String) {
         let walletCoreAddressValidator: AddressValidator
         walletCoreAddressValidator = WalletCoreAddressService(coin: .bitcoin, publicKeyType: CoinType.bitcoin.publicKeyType)
-        let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         #expect(!walletCoreAddressValidator.validate(addressHex))
-        #expect(!addressValidator.validate(addressHex))
+        #expect(!addressService.validate(addressHex))
     }
 }

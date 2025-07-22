@@ -49,6 +49,7 @@ class SendAmountViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let interactor: SendAmountInteractor
     private let sendQRCodeService: SendQRCodeService?
+    private let analyticsLogger: SendAmountAnalyticsLogger
     private let prefixSuffixOptionsFactory: SendDecimalNumberTextField.PrefixSuffixOptionsFactory
     private let actionType: SendFlowActionType
 
@@ -57,6 +58,7 @@ class SendAmountViewModel: ObservableObject {
     init(
         initial: SendAmountViewModel.Settings,
         interactor: SendAmountInteractor,
+        analyticsLogger: SendAmountAnalyticsLogger,
         sendQRCodeService: SendQRCodeService?
     ) {
         tokenItem = initial.tokenItem
@@ -72,6 +74,7 @@ class SendAmountViewModel: ObservableObject {
 
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -81,13 +84,8 @@ class SendAmountViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        switch actionType {
-        case .send:
-            Analytics.log(.sendMaxAmountTapped)
-        case .stake:
-            Analytics.log(event: .stakingButtonMax, params: [.token: tokenItem.currencySymbol])
-        default: break
-        }
+        analyticsLogger.logTapMaxAmount()
+
         let amount = interactor.updateToMaxAmount()
         decimalNumberTextFieldViewModel.update(value: amount.main)
         alternativeAmount = amount.formatAlternative(currencySymbol: tokenItem.currencySymbol, decimalCount: tokenItem.decimalCount)

@@ -293,7 +293,7 @@ private extension EthereumTransactionBuilder {
     }
 }
 
-enum EthereumTransactionBuilderError: LocalizedError {
+enum EthereumTransactionBuilderError: LocalizedError, Equatable {
     case feeParametersNotFound
     case transactionParamsNotFound
     case invalidSignatureCount

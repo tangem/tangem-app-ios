@@ -149,6 +149,7 @@ public protocol AssetRequirementsManager {
     func fulfillRequirements(for asset: Asset, signer: any TransactionSigner) -> AnyPublisher<Void, Error>
     /// - Note: The default implementation of this method does nothing.
     func discardRequirements(for asset: Asset)
+    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool
 }
 
 extension AssetRequirementsManager {
