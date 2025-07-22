@@ -28,12 +28,13 @@ struct HotOnboardingView: View {
                 }
 
                 pageContent
-                    .padding(.top, 32)
                     .frame(maxHeight: .infinity, alignment: .top)
+                    .transition(.opacity)
             }
         }
         .animation(.default, value: viewModel.currentStep)
         .background(Colors.Background.primary)
+        .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarHidden(true)
     }
 }
@@ -48,25 +49,45 @@ private extension HotOnboardingView {
                 backgroundColor: .clear,
                 height: viewModel.navigationBarHeight
             ),
-            leftButtons: navBarLeadingButtons
+            leftButtons: navBarLeadingButtons,
+            rightButtons: navBarTrailingButtons
         )
     }
 
     @ViewBuilder
     func navBarLeadingButtons() -> some View {
         switch viewModel.leadingButtonStyle {
-        case .back:
+        case .back(let action):
             BackButton(
                 height: viewModel.navigationBarHeight,
                 isVisible: true,
                 isEnabled: true,
-                action: viewModel.backButtonAction
+                action: action.closure
             )
-        case .close:
-            CloseButton(dismiss: viewModel.onCloseTap)
+        case .close(let action):
+            CloseButton(dismiss: action.closure)
                 .padding(.leading, 16)
         case .none:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    func navBarTrailingButtons() -> some View {
+        switch viewModel.trailingButtonStyle {
+        case .skip(let action):
+            skipButton(action: action.closure)
+                .padding(.trailing, 16)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    func skipButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(viewModel.skipTitle)
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .frame(height: viewModel.navigationBarHeight)
         }
     }
 }
@@ -90,20 +111,38 @@ private extension HotOnboardingView {
             switch viewModel.currentStep {
             case .createWallet:
                 HotOnboardingCreateWalletView(viewModel: viewModel.createWalletViewModel)
-            case .importWallet:
-                HotOnboardingImportWalletView(viewModel: viewModel.importWalletViewModel)
+            case .importSeedPhrase:
+                OnboardingSeedPhraseImportView(viewModel: viewModel.importWalletViewModel)
+                    .padding(.top, 32)
+            case .importCompleted:
+                HotOnboardingSuccessView(viewModel: viewModel.importCompletedViewModel)
             case .seedPhraseIntro:
                 HotOnboardingSeedPhraseIntroView(viewModel: viewModel.seedPhraseIntroViewModel)
             case .seedPhraseRecovery:
-                viewModel.seedPhraseRecoveryViewModel.map {
-                    HotOnboardingSeedPhraseRecoveryView(viewModel: $0)
-                }
-            case .seedPhraseUserValidation:
+                HotOnboardingSeedPhraseRecoveryView(viewModel: viewModel.seedPhraseRecoveryViewModel)
+            case .seedPhraseValidate:
                 viewModel.seedPhraseUserValidationViewModel.map {
                     OnboardingSeedPhraseUserValidationView(viewModel: $0)
+                        .padding(.top, 32)
                 }
-            case .seedPhraseCompleted:
-                HotOnboardingSeedPhraseCompletedView(viewModel: viewModel.seedPhraseCompletedViewModel)
+            case .seedPhaseBackupContinue:
+                HotOnboardingSuccessView(viewModel: viewModel.seedPhaseBackupContinueViewModel)
+            case .seedPhaseBackupFinish:
+                HotOnboardingSuccessView(viewModel: viewModel.seedPhaseBackupFinishViewModel)
+            case .accessCodeValidate:
+                HotOnboardingCheckAccessCodeView(viewModel: viewModel.accessCodeValidateViewModel)
+            case .accessCodeCreate:
+                HotOnboardingAccessCodeView(viewModel: viewModel.accessCodeCreateViewModel)
+            case .seedPhraseReveal:
+                HotOnboardingSeedPhraseRevealView(viewModel: viewModel.seedPhraseRevealViewModel)
+            case .pushNotifications:
+                PushNotificationsPermissionRequestView(
+                    viewModel: viewModel.pushNotificationsViewModel,
+                    topInset: 0,
+                    buttonsAxis: .vertical
+                )
+            case .done:
+                HotOnboardingSuccessView(viewModel: viewModel.doneViewModel)
             }
         }
     }
