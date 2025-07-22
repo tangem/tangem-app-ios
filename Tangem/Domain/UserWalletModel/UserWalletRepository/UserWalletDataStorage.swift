@@ -194,14 +194,14 @@ class UserWalletDataStorage {
     }
 }
 
-extension SensitiveDataUtil {
+extension UserWalletDataStorage {
     enum UnlockMethod {
         case biometrics(LAContext)
         case userWallet(userWalletId: UserWalletId, key: UserWalletEncryptionKey)
     }
 }
 
-private extension SensitiveDataUtil {
+private extension UserWalletDataStorage {
     enum Constants {
         static let publicDataEncryptionKeyStorageKey = "user_wallet_public_data_encryption_key"
     }
