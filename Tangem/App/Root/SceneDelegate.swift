@@ -36,9 +36,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             handleActivities(connectionOptions.userActivities)
         }
 
-        servicesManager.initialize()
-        startApp(scene: scene, appCoordinatorOptions: .default)
-        appOverlaysManager.setup(with: scene)
+        runTask(in: self) { delegate in
+            await delegate.servicesManager.initialize()
+
+            runOnMain {
+                delegate.startApp(scene: scene, appCoordinatorOptions: .default)
+                delegate.appOverlaysManager.setup(with: scene)
+            }
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

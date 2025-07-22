@@ -30,7 +30,7 @@ protocol FeeSelectorContentViewModelOutput: AnyObject {
 }
 
 protocol FeeSelectorContentViewModelAnalytics {
-    func didSelectFeeOption(_ feeOption: FeeOption)
+    func logSendFeeSelected(_ feeOption: FeeOption)
 }
 
 protocol FeeSelectorCustomFeeFieldsBuilder {
