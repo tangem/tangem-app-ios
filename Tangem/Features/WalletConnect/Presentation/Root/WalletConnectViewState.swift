@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.URL
+import Foundation
 import TangemAssets
 import enum TangemLocalization.Localization
 
@@ -15,12 +15,13 @@ struct WalletConnectViewState: Equatable {
     let navigationBar: NavigationBar
     var contentState: ContentState
     var dialog: ModalDialog?
-    let newConnectionButtonTitle = Localization.wcNewConnection
+    var newConnectionButton: NewConnectionButton
 
     static let initial = WalletConnectViewState(
         navigationBar: NavigationBar(),
-        contentState: .empty(WalletConnectViewState.ContentState.EmptyContentState()),
-        dialog: nil
+        contentState: .loading,
+        dialog: nil,
+        newConnectionButton: NewConnectionButton(isLoading: true)
     )
 }
 
@@ -33,7 +34,40 @@ extension WalletConnectViewState {
 
     enum ContentState: Equatable {
         case empty(EmptyContentState)
-        case withConnectedDApps([WalletWithConnectedDApps])
+        case loading(LoadingContentState)
+        case content([WalletWithConnectedDApps])
+
+        var isEmpty: Bool {
+            switch self {
+            case .empty: true
+            case .loading: false
+            case .content: false
+            }
+        }
+
+        var isLoading: Bool {
+            switch self {
+            case .empty: false
+            case .loading: true
+            case .content: false
+            }
+        }
+
+        var isContent: Bool {
+            switch self {
+            case .empty: false
+            case .loading: false
+            case .content: true
+            }
+        }
+
+        static let empty = ContentState.empty(.init())
+        static let loading = ContentState.loading(LoadingContentState(dAppStubsCount: 5))
+    }
+
+    struct NewConnectionButton: Equatable {
+        let title = Localization.wcNewConnection
+        var isLoading: Bool
     }
 
     enum ModalDialog: Equatable {
@@ -75,6 +109,10 @@ extension WalletConnectViewState.ContentState {
         let title = "No sessions"
         let subtitle = "Connect your wallet to a different dApps"
         let asset = Assets.walletConnect
+    }
+
+    struct LoadingContentState: Equatable {
+        let dAppStubsCount: Int
     }
 
     struct WalletWithConnectedDApps: Identifiable, Equatable {
