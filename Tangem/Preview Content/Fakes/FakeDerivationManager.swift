@@ -28,7 +28,7 @@ class FakeDerivationManager: DerivationManager {
         }
     }
 
-    func deriveKeys(cardInteractor: KeysDeriving, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             completion(.success(()))
             self._pendingDerivationsCount.send(0)
