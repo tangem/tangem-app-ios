@@ -17,8 +17,8 @@ struct RavencoinTransactionTests {
     func transaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
         // given
         let pubKey = Data(hexString: "02677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bb")
-        let addressService = BitcoinLegacyAddressService(networkParams: RavencoinMainNetworkParams())
-        let address = try addressService.makeAddress(from: pubKey, type: .default)
+        let addressService = AddressServiceFactory(blockchain: .ravencoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: pubKey)
         let unspentOutputManager: UnspentOutputManager = .ravencoin(address: address, isTestnet: false)
         unspentOutputManager.update(outputs: [
             .init(blockId: 3793801, txId: "f303c9828af090314f6ab2dc953c21d93e18aaa7c6f3db6e99437d7658412a59", index: 1, amount: 186367788),
