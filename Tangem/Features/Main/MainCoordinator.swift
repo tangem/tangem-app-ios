@@ -119,10 +119,6 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Private Implementation
 
     private func bind() {
-        guard pushNotificationsViewModelSubscription == nil else {
-            return
-        }
-
         deeplinkDestinationSubscription = deeplinkDestination
             .compactMap { $0 }
             .receiveOnMain()
@@ -130,15 +126,17 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                 self?.deeplinkPresenter.present(deepLink: deepLink)
             }
 
-        pushNotificationsViewModelSubscription = $pushNotificationsViewModel
-            .pairwise()
-            .filter { previous, current in
-                // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
-                previous != nil && current == nil
-            }
-            .sink { previous, _ in
-                previous?.didDismissSheet()
-            }
+        if pushNotificationsViewModelSubscription == nil {
+            pushNotificationsViewModelSubscription = $pushNotificationsViewModel
+                .pairwise()
+                .filter { previous, current in
+                    // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
+                    previous != nil && current == nil
+                }
+                .sink { previous, _ in
+                    previous?.didDismissSheet()
+                }
+        }
     }
 
     private func setupUI() {
@@ -172,6 +170,10 @@ extension MainCoordinator {
 extension MainCoordinator: MainRoutable {
     func beginHandlingIncomingActions() {
         navigationActionHandler.becomeIncomingActionsResponder()
+    }
+
+    func resignHandlingIncomingActions() {
+        navigationActionHandler.resignIncomingActionsResponder()
     }
 
     func openDeepLink(_ deepLink: DeepLinkDestination) {

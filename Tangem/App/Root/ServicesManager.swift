@@ -42,7 +42,7 @@ class ServicesManager {
         let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
-            userWalletRepository.initialClean()
+            KeychainCleaner.cleanAllData()
         }
 
         AppLogger.info("Start services initializing")
@@ -105,7 +105,7 @@ class ServicesManager {
 
         let arguments = ProcessInfo.processInfo.arguments
 
-        if let skipToSIndex = arguments.firstIndex(of: "-uitest-skip-tos") {
+        if let _ = arguments.firstIndex(of: "-uitest-skip-tos") {
             AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
         } else {
             AppSettings.shared.termsOfServicesAccepted = []
@@ -117,8 +117,8 @@ class ServicesManager {
 class KeychainSensitiveServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    func initialize() {
-        userWalletRepository.initialize()
+    func initialize() async {
+        await userWalletRepository.initialize()
     }
 }
 

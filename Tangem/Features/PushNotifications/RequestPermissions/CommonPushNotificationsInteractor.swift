@@ -35,7 +35,7 @@ final class CommonPushNotificationsInteractor {
             return
         }
 
-        hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+        hasSavedWalletsFromPreviousVersion = userWalletRepository.models.isNotEmpty
     }
 
     private func registerIfPossible() {
