@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampProviderRowView: SelectableSectionRow {
     var isSelected: Bool
@@ -30,6 +31,7 @@ struct OnrampProviderRowView: SelectableSectionRow {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(data.isTappable)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCard(name: data.name))
     }
 
     private var content: some View {
@@ -67,6 +69,7 @@ struct OnrampProviderRowView: SelectableSectionRow {
         HStack(spacing: .zero) {
             Text(data.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerName(name: data.name))
 
             Spacer()
 
@@ -84,18 +87,21 @@ struct OnrampProviderRowView: SelectableSectionRow {
         )
         .opacity(data.isTappable ? 1 : 0.4)
         .saturation(data.isTappable ? 1 : 0)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerIcon(name: data.name))
     }
 
     private var topLineView: some View {
         HStack(spacing: 12) {
             Text(data.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerName(name: data.name))
 
             Spacer()
 
             if let formattedAmount = data.formattedAmount {
                 Text(formattedAmount)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: data.name))
             }
         }
     }
@@ -115,6 +121,7 @@ struct OnrampProviderRowView: SelectableSectionRow {
             if let formattedAmount = data.formattedAmount {
                 Text(formattedAmount)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: data.name))
             }
 
             badgeView

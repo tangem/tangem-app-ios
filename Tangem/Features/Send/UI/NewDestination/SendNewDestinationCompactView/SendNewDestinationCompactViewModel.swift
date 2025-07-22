@@ -31,7 +31,7 @@ class SendNewDestinationCompactViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, args in
-                viewModel.updateView(address: args.0.value, additionalField: args.1)
+                viewModel.updateView(address: args.0?.value ?? "", additionalField: args.1)
             }
     }
 

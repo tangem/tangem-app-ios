@@ -167,6 +167,7 @@ struct WalletConnectDAppConnectionView: View {
                 title: viewModel.state.cancelButton.title,
                 style: .secondary,
                 isLoading: viewModel.state.cancelButton.isLoading,
+                isDisabled: !viewModel.state.cancelButton.isEnabled,
                 action: {
                     viewModel.handle(viewEvent: .cancelButtonTapped)
                 }
@@ -175,12 +176,14 @@ struct WalletConnectDAppConnectionView: View {
             MainButton(
                 title: viewModel.state.connectButton.title,
                 isLoading: viewModel.state.connectButton.isLoading,
+                isDisabled: !viewModel.state.connectButton.isEnabled,
                 action: {
                     viewModel.handle(viewEvent: .connectButtonTapped)
                 }
             )
         }
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func domainVerificationFooter(_ viewModel: WalletConnectDAppDomainVerificationViewModel) -> some View {
@@ -197,6 +200,7 @@ struct WalletConnectDAppConnectionView: View {
             }
         }
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func networksSelectorFooter(_ viewModel: WalletConnectNetworksSelectorViewModel) -> some View {
@@ -208,6 +212,7 @@ struct WalletConnectDAppConnectionView: View {
             action: { viewModel.handle(viewEvent: .doneButtonTapped) }
         )
         .padding(16)
+        .transformEffect(.identity)
     }
 
     private func errorFooter(_ viewModel: WalletConnectErrorViewModel) -> some View {
@@ -218,6 +223,7 @@ struct WalletConnectDAppConnectionView: View {
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
+        .transformEffect(.identity)
     }
 
     private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {

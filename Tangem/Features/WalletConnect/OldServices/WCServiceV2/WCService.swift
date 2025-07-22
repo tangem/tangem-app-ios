@@ -15,11 +15,14 @@ protocol WCService {
     func initialize()
     func reset()
 
-    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal
+    func openSession(
+        with uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> (Session.Proposal, VerifyContext?)
+
     func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session
     func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
     func disconnectSession(withTopic topic: String) async throws
-    func extendSession(withTopic topic: String) async throws
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
 }
