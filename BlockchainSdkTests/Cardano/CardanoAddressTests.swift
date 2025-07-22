@@ -14,11 +14,10 @@ import class WalletCore.PrivateKey
 import Testing
 
 struct CardanoAddressTests {
+    let service = AddressServiceFactory(blockchain: .cardano(extended: false)).makeAddressService()
+
     @Test
     func byronAddressGeneration() throws {
-        // given
-        let service = CardanoAddressService()
-
         // when
         let addrs = try service.makeAddress(from: Keys.AddressesKeys.edKey, type: .legacy)
 
@@ -35,9 +34,6 @@ struct CardanoAddressTests {
 
     @Test
     func shelleyAddressGeneration() throws {
-        // given
-        let service = CardanoAddressService()
-
         // when
         let addrs_shelley = try service.makeAddress(from: Keys.AddressesKeys.edKey, type: .default) // default is shelley
         let addrs_byron = try service.makeAddress(from: Keys.AddressesKeys.edKey, type: .legacy) // legacy is byron

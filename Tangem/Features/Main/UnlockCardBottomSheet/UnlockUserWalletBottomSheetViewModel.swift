@@ -11,10 +11,9 @@ import Combine
 import SwiftUI
 import TangemUIUtils
 import TangemLocalization
+import TangemFoundation
 
 protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
-    func unlockedWithBiometry()
-    func userWalletUnlocked(_ userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openScanCardManual()
 }
@@ -38,14 +37,19 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     func unlockWithBiometry() {
         Analytics.log(.buttonUnlockAllWithBiometrics)
 
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            switch result {
-            case .error(let error), .partial(_, let error):
-                self?.error = error.alertBinder
-            case .success:
-                self?.delegate?.unlockedWithBiometry()
-            default:
-                break
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await UserWalletBiometricsUnlocker().unlock()
+                try viewModel.userWalletRepository.unlock(
+                    userWalletId: viewModel.userWalletModel.userWalletId,
+                    method: .biometrics(context)
+                )
+            } catch where error.isCancellationError {
+                return
+            } catch {
+                await runOnMain {
+                    viewModel.error = error.alertBinder
+                }
             }
         }
     }
@@ -53,28 +57,55 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     func unlockWithCard() {
         Analytics.beginLoggingCardScan(source: .mainUnlock)
         isScannerBusy = true
-        userWalletRepository.unlock(with: .card(userWalletId: userWalletModel.userWalletId, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.isScannerBusy = false
-                switch result {
-                case .success(let unlockedModel):
-                    self?.delegate?.userWalletUnlocked(unlockedModel)
-                case .error(let error), .partial(_, let error):
-                    if error.isCancellationError {
-                        return
-                    }
 
-                    Analytics.logScanError(error, source: .main)
-                    Analytics.logVisaCardScanErrorIfNeeded(error, source: .main)
-                    self?.error = error.alertBinder
-                case .troubleshooting:
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
+
+            switch result {
+            case .error(let error) where error.isCancellationError:
+                await runOnMain {
+                    viewModel.isScannerBusy = false
+                }
+
+            case .error(let error):
+                Analytics.logScanError(error, source: .main)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .main)
+
+                await runOnMain {
+                    viewModel.isScannerBusy = false
+                    viewModel.error = error.alertBinder
+                }
+
+            case .scanTroubleshooting:
+                await runOnMain {
+                    viewModel.isScannerBusy = false
                     Analytics.log(.cantScanTheCard, params: [.source: .main])
+                    viewModel.openTroubleshooting()
+                }
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self?.openTroubleshooting()
+            case .success(let cardInfo):
+                do {
+                    try viewModel.userWalletRepository.unlock(
+                        userWalletId: viewModel.userWalletModel.userWalletId,
+                        method: .card(cardInfo)
+                    )
+
+                    await runOnMain {
+                        viewModel.isScannerBusy = false
                     }
-                default:
-                    break
+
+                } catch {
+                    await runOnMain {
+                        viewModel.isScannerBusy = false
+                        viewModel.error = error.alertBinder
+                    }
+                }
+
+            default:
+                await runOnMain {
+                    viewModel.isScannerBusy = false
                 }
             }
         }
@@ -92,7 +123,9 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
             ]
         )
 
-        actionSheet = ActionSheetBinder(sheet: sheet)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.actionSheet = ActionSheetBinder(sheet: sheet)
+        }
     }
 
     func openScanCardManual() {

@@ -155,7 +155,7 @@ extension AlgorandWalletManager {
             .flatMap { walletManager, transactionData -> AnyPublisher<String, Error> in
                 return walletManager.networkService
                     .sendTransaction(data: transactionData)
-                    .mapSendError(tx: transactionData.hex())
+                    .mapAndEraseSendTxError(tx: transactionData.hex())
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -165,17 +165,17 @@ extension AlgorandWalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
-    private func makeNoAccountError(using accountModel: AlgorandAccountModel) -> WalletError {
+    private func makeNoAccountError(using accountModel: AlgorandAccountModel) -> BlockchainSdkError {
         let networkName = wallet.blockchain.displayName
         let reserveValue = accountModel.reserveValue
         let reserveValueString = reserveValue.decimalNumber.stringValue
         let currencySymbol = wallet.blockchain.currencySymbol
         let errorMessage = Localization.noAccountGeneric(networkName, reserveValueString, currencySymbol)
 
-        return WalletError.noAccount(message: errorMessage, amountToCreate: reserveValue)
+        return BlockchainSdkError.noAccount(message: errorMessage, amountToCreate: reserveValue)
     }
 }

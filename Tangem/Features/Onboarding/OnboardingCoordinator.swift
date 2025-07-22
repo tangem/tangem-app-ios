@@ -51,7 +51,7 @@ class OnboardingCoordinator: CoordinatorObject {
             process(input: onboardingInputput)
         case .hotInput(let hotOnboardingInput):
             let model = HotOnboardingViewModel(input: hotOnboardingInput, coordinator: self)
-            onDismissalAttempt = model.backButtonAction
+            onDismissalAttempt = model.onDismissalAttempt
             viewState = .hot(model)
         }
 

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct ScrollableButtonsView: View {
     /// Use this properties to expand scroll view beyond parent view
@@ -39,6 +40,8 @@ struct ScrollableButtonsView: View {
                     .unreadNotificationBadge(button.shouldShowBadge, badgeColor: Colors.Icon.accent)
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.actionButtonsList)
             .padding(.horizontal, itemsHorizontalOffset)
             .padding(.vertical, itemsVerticalOffset)
         }

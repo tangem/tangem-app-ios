@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemLocalization
 
 struct FixedSizeButtonWithLeadingIcon: View {
     var body: some View {
@@ -211,6 +212,14 @@ private struct ButtonWithLeadingIconContentView: View {
                     TapGesture()
                         .onEnded(executeMainAction)
                 )
+                .accessibilityAction(named: Text(Localization.accessibilityActionLongPress)) {
+                    longPressAction()
+                }
+                .accessibilityAction {
+                    executeMainAction()
+                }
+                .accessibilityHint(Text(Localization.accessibilityHintAccessMoreActions))
+
         case .none:
             Button(action: executeMainAction) {
                 buttonContent

@@ -242,13 +242,14 @@ private extension DetailsViewModel {
             .store(in: &bag)
 
         userWalletRepository.eventProvider
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 switch event {
-                case .scan:
-                    break
-                default:
+                case .inserted, .deleted:
                     viewModel.setupUserWalletViewModels()
+                default:
+                    break
                 }
             }
             .store(in: &bag)
@@ -332,31 +333,74 @@ private extension DetailsViewModel {
         Analytics.beginLoggingCardScan(source: .settings)
         isScanning = true
 
-        userWalletRepository.addOrScan(scanner: CardScannerFactory().makeDefaultScanner()) { [weak self] result in
-            guard let self else {
-                return
-            }
-
-            isScanning = false
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
 
             switch result {
-            case .none:
-                break
-            case .troubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .settings])
-                openTroubleshooting()
-            case .onboarding(let input):
-                coordinator?.openOnboardingModal(with: input)
-            case .error(let error):
-                if error.isCancellationError {
-                    return
+            case .error(let error) where error.isCancellationError:
+                await runOnMain {
+                    viewModel.isScanning = false
                 }
 
+            case .error(let error):
                 Analytics.logScanError(error, source: .settings)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
-                alert = error.alertBinder
-            case .success, .partial:
-                coordinator?.dismiss()
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.alert = error.alertBinder
+                }
+
+            case .onboarding(let input):
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.openOnboarding(with: input)
+                }
+
+            case .scanTroubleshooting:
+                Analytics.log(.cantScanTheCard, params: [.source: .settings])
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.openTroubleshooting()
+                }
+
+            case .success(let cardInfo):
+                do {
+                    guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) else {
+                        await runOnMain {
+                            viewModel.coordinator?.dismiss()
+                        }
+                        return
+                    }
+
+                    if await AppSettings.shared.saveUserWallets {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+                    } else {
+                        let currentUserWalletId = viewModel.userWalletRepository.selectedModel?.userWalletId
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        if let currentUserWalletId {
+                            viewModel.userWalletRepository.delete(userWalletId: currentUserWalletId)
+                        }
+                    }
+
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.coordinator?.dismiss()
+                    }
+
+                } catch {
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.alert = error.alertBinder
+                    }
+                }
             }
         }
     }

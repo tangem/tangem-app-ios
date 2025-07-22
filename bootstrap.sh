@@ -49,11 +49,11 @@ else
 fi
 
 if [ "${CI}" = true ] ; then
-    MINTFILE="./Utilites/Mintfile@ci"
-    BREWFILE="./Utilites/Brewfile@ci"
+    MINTFILE="./Utilities/Mintfile@ci"
+    BREWFILE="./Utilities/Brewfile@ci"
 else
-    MINTFILE="./Utilites/Mintfile@local"
-    BREWFILE="./Utilites/Brewfile@local"
+    MINTFILE="./Utilities/Mintfile@local"
+    BREWFILE="./Utilities/Brewfile@local"
 fi
 
 echo "🔄 Installing required Homebrew dependencies"
