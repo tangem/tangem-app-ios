@@ -25,11 +25,48 @@ class StellarTransactionBuilder {
         self.isTestnet = isTestnet
     }
 
-    func buildForSign(targetAccountResponse: StellarTargetAccountResponse, transaction: Transaction) -> AnyPublisher<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {
-        guard let destinationKeyPair = try? KeyPair(accountId: transaction.destinationAddress),
-              let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress) else {
-            return Fail(error: BlockchainSdkError.failedToBuildTx)
+    /// Builds and serializes a `ChangeTrustOperation` for a given token, amount, and limit.
+    /// This operation can be used to create, update, or remove a trustline to a specific asset.
+    /// - Parameters:
+    ///   - sourceAddress: The address initiating the operation (usually the user's wallet address).
+    ///   - transactionAmount: The amount representing the asset for which the trustline is being set.
+    ///   - fee: The network fee to include in the transaction.
+    ///   - limit: The trustline limit — use `.max` to create, `.custom` for a specific value, or `.remove` to revoke trust.
+    /// - Returns: A publisher that emits the transaction hash and serialized XDR, or fails with an appropriate error if the operation cannot be built.
+    func buildChangeTrustOperationForSign(
+        transaction: Transaction,
+        limit: ChangeTrustOperation.ChangeTrustLimit
+    ) -> AnyPublisher<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {
+        guard
+            let assetId = transaction.contractAddress,
+            let assetCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId),
+            let contractKeyPair = try? KeyPair(accountId: assetCodeAndIssuer.issuer),
+            let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress),
+            let asset = createNonNativeAsset(code: assetCodeAndIssuer.assetCode, issuer: contractKeyPair),
+            let changeTrustAsset = asset.toChangeTrustAsset(),
+            let limit = limit.value
+        else {
+            return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
+        }
+
+        do {
+            let operation = ChangeTrustOperation(sourceAccountId: transaction.sourceAddress, asset: changeTrustAsset, limit: limit)
+            return Just(try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: .none))
+                .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
+        } catch {
+            return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
+        }
+    }
+
+    func buildForSign(
+        targetAccountResponse: StellarTargetAccountResponse,
+        transaction: Transaction,
+    ) -> AnyPublisher<(hash: Data, transaction: stellarsdk.TransactionXDR), Error> {
+        guard let destinationKeyPair = try? KeyPair(accountId: transaction.destinationAddress),
+              let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress)
+        else {
+            return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
         }
 
         let memo = (transaction.params as? StellarTransactionParams)?.memo ?? Memo.text("")
@@ -55,8 +92,11 @@ class StellarTransactionBuilder {
                 result = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
 
             } else if transaction.amount.type.isToken {
-                guard let contractAddress = transaction.contractAddress, let keyPair = try? KeyPair(accountId: contractAddress),
-                      let asset = createNonNativeAsset(code: transaction.amount.currencySymbol, issuer: keyPair) else {
+                guard let assetId = transaction.contractAddress,
+                      let assetCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId),
+                      let keyPair = try? KeyPair(accountId: assetCodeAndIssuer.issuer),
+                      let asset = createNonNativeAsset(code: assetCodeAndIssuer.assetCode, issuer: keyPair)
+                else {
                     throw BlockchainSdkError.failedToBuildTx
                 }
 
@@ -68,23 +108,18 @@ class StellarTransactionBuilder {
                     throw StellarError.assetNoTrustline
                 }
 
-                if transaction.amount.value > 0 {
-                    let operation = try PaymentOperation(
-                        sourceAccountId: transaction.sourceAddress,
-                        destinationAccountId: transaction.destinationAddress,
-                        asset: asset,
-                        amount: transaction.amount.value
-                    )
-
-                    result = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
-                } else {
-                    guard let changeTrustAsset = asset.toChangeTrustAsset() else {
-                        throw BlockchainSdkError.failedToBuildTx
-                    }
-
-                    let operation = ChangeTrustOperation(sourceAccountId: transaction.sourceAddress, asset: changeTrustAsset, limit: Decimal(string: "900000000000.0000000"))
-                    result = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
+                guard transaction.amount.value > 0 else {
+                    throw BlockchainSdkError.failedToBuildTx
                 }
+
+                let operation = try PaymentOperation(
+                    sourceAccountId: transaction.sourceAddress,
+                    destinationAccountId: transaction.destinationAddress,
+                    asset: asset,
+                    amount: transaction.amount.value
+                )
+
+                result = try serializeOperation(operation, sourceKeyPair: sourceKeyPair, memo: memo)
 
             } else {
                 throw BlockchainSdkError.failedToBuildTx

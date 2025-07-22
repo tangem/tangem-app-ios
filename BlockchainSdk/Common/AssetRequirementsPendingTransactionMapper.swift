@@ -1,5 +1,5 @@
 //
-//  HederaPendingTransactionRecordMapper.swift
+//  AssetRequirementsPendingTransactionMapper.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct HederaPendingTransactionRecordMapper {
+struct AssetRequirementsPendingTransactionMapper {
     let blockchain: Blockchain
 
     /// - Note: Just a shim for `PendingTransactionRecordMapper.mapToPendingTransactionRecord(transaction:hash:date:isIncoming:)`.
