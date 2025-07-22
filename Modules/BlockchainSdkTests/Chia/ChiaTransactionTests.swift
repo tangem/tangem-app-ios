@@ -20,7 +20,7 @@ struct ChiaTransactionTests {
     }()
 
     private let blockchain = Blockchain.chia(testnet: false)
-    private let addressService = ChiaAddressService(isTestnet: false)
+    private let addressService = AddressServiceFactory(blockchain: .chia(testnet: false)).makeAddressService()
 
     @Test
     func conditionSpend() throws {
