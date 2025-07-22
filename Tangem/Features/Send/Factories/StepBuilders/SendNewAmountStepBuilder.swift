@@ -16,7 +16,12 @@ struct SendNewAmountStepBuilder {
     typealias SourceAmountIO = (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
     typealias ReceiveAmountIO = (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)
 
-    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
+    typealias ReturnValue = (
+        step: SendNewAmountStep,
+        amountUpdater: SendExternalAmountUpdater,
+        compact: SendNewAmountCompactViewModel,
+        finish: SendNewAmountFinishViewModel
+    )
 
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -28,7 +33,6 @@ struct SendNewAmountStepBuilder {
         receiveIO: ReceiveIO,
         receiveAmountIO: ReceiveAmountIO,
         swapProvidersInput: SendSwapProvidersInput,
-        actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
@@ -49,7 +53,7 @@ struct SendNewAmountStepBuilder {
 
         let viewModel = SendNewAmountViewModel(
             sourceTokenInput: sourceIO.input,
-            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
+            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType()),
             interactor: interactor,
             analyticsLogger: analyticsLogger
         )
