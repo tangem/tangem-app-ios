@@ -24,7 +24,7 @@ struct CosmosTransactionTests {
         let publicKeyData = privateKey.getPublicKeySecp256k1(compressed: true).data
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
-        let address = try WalletCoreAddressService(blockchain: blockchain).makeAddress(for: publicKey, with: .default)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
@@ -66,7 +66,7 @@ struct CosmosTransactionTests {
         let publicKeyData = privateKey.getPublicKeySecp256k1(compressed: true).data
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
-        let address = try WalletCoreAddressService(blockchain: blockchain).makeAddress(for: publicKey, with: .default)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
@@ -109,7 +109,7 @@ struct CosmosTransactionTests {
         let publicKeyData = privateKey.getPublicKeySecp256k1(compressed: true).data
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
-        let address = try WalletCoreAddressService(blockchain: blockchain).makeAddress(for: publicKey, with: .default)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)
@@ -152,7 +152,7 @@ struct CosmosTransactionTests {
         let publicKeyData = privateKey.getPublicKeySecp256k1(compressed: true).data
 
         let publicKey: BlockchainSdk.Wallet.PublicKey = .init(seedKey: publicKeyData, derivationType: .none)
-        let address = try WalletCoreAddressService(blockchain: blockchain).makeAddress(for: publicKey, with: .default)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(for: publicKey, with: .default)
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         let txBuilder = try CosmosTransactionBuilder(publicKey: wallet.publicKey.blockchainKey, cosmosChain: cosmosChain)

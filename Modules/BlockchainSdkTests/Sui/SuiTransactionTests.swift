@@ -261,6 +261,8 @@ extension SuiTransactionTests {
     }
 
     private static func makeWalletAddress(publicKey: Wallet.PublicKey) throws -> String {
-        try SuiAddressService().makeAddress(for: publicKey, with: .default).value
+        try AddressServiceFactory(blockchain: .sui(curve: .ed25519_slip0010, testnet: false))
+            .makeAddressService()
+            .makeAddress(for: publicKey, with: .default).value
     }
 }
