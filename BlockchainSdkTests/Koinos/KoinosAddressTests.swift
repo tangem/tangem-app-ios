@@ -10,7 +10,7 @@ import Testing
 @testable import BlockchainSdk
 
 struct KoinosAddressTests {
-    private let addressService = KoinosAddressService(networkParams: BitcoinNetworkParams())
+    private let addressService = AddressServiceFactory(blockchain: .koinos(testnet: false)).makeAddressService()
 
     @Test(arguments: [
         ("03B2D98CF41E82D9B99842A1D05860A1B06532015138F9067239706E06EE38E621", "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp"),
