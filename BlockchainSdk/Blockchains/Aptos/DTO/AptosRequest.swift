@@ -33,4 +33,10 @@ extension AptosRequest {
         let publicKey: String
         let signature: String
     }
+
+    struct View: Encodable {
+        let function: String
+        let type_arguments: [String]
+        let arguments: [String]
+    }
 }
