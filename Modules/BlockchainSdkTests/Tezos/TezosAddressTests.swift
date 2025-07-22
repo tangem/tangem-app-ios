@@ -5,12 +5,12 @@ import Testing
 import WalletCore
 
 struct TezosAddressTests {
-    private let curves: [EllipticCurve] = [.ed25519, .ed25519_slip0010]
+    private static let curves: [EllipticCurve] = [.ed25519, .ed25519_slip0010]
 
     @Test
     func defaultAddressGeneration_secp256k1Curve() throws {
         // given
-        let service = TezosAddressService(curve: .secp256k1)
+        let service = makeAddressService(curve: .secp256k1)
 
         // when
         let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
@@ -24,16 +24,16 @@ struct TezosAddressTests {
 
     @Test
     func invalidCurveGeneration_whenTryToGeneratedFromEdKey_thenThrowsError() async throws {
-        let service = TezosAddressService(curve: .secp256k1)
+        let service = makeAddressService(curve: .secp256k1)
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
         }
     }
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: curves)
     func defaultAddressGeneration_edCurve(curve: EllipticCurve) throws {
         // given
-        let service = TezosAddressService(curve: curve)
+        let service = makeAddressService(curve: curve)
 
         // when
         let address = try service.makeAddress(from: Keys.AddressesKeys.edKey)
@@ -49,9 +49,9 @@ struct TezosAddressTests {
         }
     }
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: curves)
     func invalidCurveGeneration_whenTryToGeneratedFromSecp256k1Key_thenThrowsError(curve: EllipticCurve) async throws {
-        let service = TezosAddressService(curve: curve)
+        let service = makeAddressService(curve: curve)
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
         }
@@ -64,12 +64,8 @@ struct TezosAddressTests {
         "tz1d1qQL3mYVuiH4JPFvuikEpFwaDm85oabM",
     ])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .tezos, publicKeyType: CoinType.tezos.publicKeyType)
-
-        curves.forEach {
-            let addressValidator = AddressServiceFactory(blockchain: .tezos(curve: $0)).makeAddressService()
-
-            #expect(walletCoreAddressValidator.validate(addressHex))
+        Self.curves.forEach {
+            let addressValidator = makeAddressService(curve: $0)
             #expect(addressValidator.validate(addressHex))
         }
     }
@@ -79,13 +75,13 @@ struct TezosAddressTests {
         "1tzeZwq8b5cvE2bPKokatLkVMzkxz24zAAAAA",
     ])
     func addressValidation_invalidAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .tezos, publicKeyType: CoinType.tezos.publicKeyType)
-
-        curves.forEach {
-            let addressValidator = AddressServiceFactory(blockchain: .tezos(curve: $0)).makeAddressService()
-
-            #expect(!walletCoreAddressValidator.validate(addressHex))
+        Self.curves.forEach {
+            let addressValidator = makeAddressService(curve: $0)
             #expect(!addressValidator.validate(addressHex))
         }
+    }
+
+    private func makeAddressService(curve: EllipticCurve) -> AddressService {
+        AddressServiceFactory(blockchain: .tezos(curve: curve)).makeAddressService()
     }
 }

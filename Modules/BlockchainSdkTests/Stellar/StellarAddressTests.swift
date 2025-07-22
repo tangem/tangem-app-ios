@@ -18,11 +18,9 @@ struct StellarAddressTests {
 
     @Test
     func addressGeneration() {
-        let addressService = StellarAddressService()
-
+        let addressService = AddressServiceFactory(blockchain: .stellar(curve: .ed25519, testnet: false)).makeAddressService()
         let walletPubkey = Data(hex: "EC5387D8B38BD9EF80BDBC78D0D7E1C53F08E269436C99D5B3C2DF4B2CE73012")
         let expectedAddress = "GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ"
-
         #expect(try! addressService.makeAddress(from: walletPubkey).value == expectedAddress)
     }
 
@@ -33,7 +31,7 @@ struct StellarAddressTests {
         ]
     )
     func xmlEd25519AddressGeneration(blockchain: Blockchain) throws {
-        let service = StellarAddressService()
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let addrs = try service.makeAddress(from: Keys.AddressesKeys.edKey)
 
@@ -55,8 +53,7 @@ struct StellarAddressTests {
 
     @Test
     func testnetXmlAddressGeneration() throws {
-        let service = StellarAddressService()
-
+        let service = AddressServiceFactory(blockchain: .stellar(curve: .ed25519, testnet: false)).makeAddressService()
         let addrs = try service.makeAddress(from: Keys.AddressesKeys.edKey)
 
         #expect(throws: (any Error).self) {
@@ -76,12 +73,8 @@ struct StellarAddressTests {
         "GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ",
     ])
     func validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .stellar, publicKeyType: CoinType.stellar.publicKeyType)
-
         [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
             let addressValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
-
-            #expect(walletCoreAddressValidator.validate(addressHex))
             #expect(addressValidator.validate(addressHex))
         }
     }
@@ -91,13 +84,45 @@ struct StellarAddressTests {
         "GDWFHядыфлвФЫВЗФЫВЛ++EÈ",
     ])
     func invalidAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .stellar, publicKeyType: CoinType.stellar.publicKeyType)
-
         [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
             let addressValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
-
-            #expect(!walletCoreAddressValidator.validate(addressHex))
             #expect(!addressValidator.validate(addressHex))
+        }
+    }
+
+    @Test(arguments: [
+        "USDCC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-1",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-1",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "POL-GAE2SZV4VLGBAPRYRFV2VY7YYLYGYIP5I7OU7BSP6DJT7GAZ35OKFDYI",
+        "AA-GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ",
+        "A-GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ"
+    ])
+    func validCustomTokenAddresses(addressHex: String) {
+        [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
+            let customTokenValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
+            #expect(customTokenValidator.validateCustomTokenAddress(addressHex))
+        }
+    }
+
+    @Test(arguments: [
+        "usdc-GDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHD", // lowercase asset code
+        "USDC-GDWFHядыфлвФЫВЗФЫВЛ++EÈ", // invalid issuer characters
+        "USDC-", // missing issuer
+        "-GDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFH", // missing asset code
+        "USDC:G123", // valid colon but invalid issuer
+        "GDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDU", // issuer only
+        "USDCGDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDU", // no separator
+        "USDC-GDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDUFSDFASF", // Too long
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-2",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-2"
+    ])
+    func invalidCustomTokenAddresses(addressHex: String) {
+        [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
+            let customTokenValidator: AddressValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
+            #expect(!customTokenValidator.validateCustomTokenAddress(addressHex))
         }
     }
 }
