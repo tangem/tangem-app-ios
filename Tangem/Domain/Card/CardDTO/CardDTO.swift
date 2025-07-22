@@ -169,18 +169,6 @@ extension CardDTO {
     }
 }
 
-extension CardDTO.Wallet {
-    var walletPublicInfo: WalletPublicInfo {
-        WalletPublicInfo(
-            publicKey: publicKey,
-            chainCode: chainCode,
-            curve: curve,
-            isImported: isImported,
-            derivedKeys: derivedKeys
-        )
-    }
-}
-
 extension CardDTO.Wallet: PublicKeyProvider {}
 
 extension CardDTO {
