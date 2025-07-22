@@ -16,10 +16,10 @@ struct CommonWalletImageProviderFactory {}
 
 extension CommonWalletImageProviderFactory: WalletImageProviderFactory {
     func imageProvider(for walletInfo: WalletInfo) -> any WalletImageProviding {
-        switch walletInfo.type {
-        case .card(let cardInfo):
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
             CardImageProvider(card: cardInfo.card)
-        case .hot:
+        case .mobileWallet:
             HotWalletImageProvider()
         }
     }
