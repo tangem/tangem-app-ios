@@ -23,5 +23,6 @@ protocol MainRoutable: AnyObject & WCTransactionRoutable & MainDeepLinkRoutable 
 
 protocol MainDeepLinkRoutable {
     func beginHandlingIncomingActions()
+    func resignHandlingIncomingActions()
     func openDeepLink(_ deepLink: MainCoordinator.DeepLinkDestination)
 }
