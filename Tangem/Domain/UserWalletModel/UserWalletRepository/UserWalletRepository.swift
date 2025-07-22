@@ -8,29 +8,25 @@
 
 import Foundation
 import Combine
+import LocalAuthentication
 
-protocol UserWalletRepository: Initializable {
-    var hasSavedWallets: Bool { get }
+protocol UserWalletRepository {
     var isLocked: Bool { get }
     var models: [UserWalletModel] { get }
     var selectedModel: UserWalletModel? { get }
-    var selectedUserWalletId: UserWalletId? { get }
-    var selectedIndexUserWalletModel: Int? { get }
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> { get }
-    var userWalletModelsReadyPublisher: AnyPublisher<Bool, Never> { get }
 
+    func initialize() async
     func lock()
-    func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void)
-    func setSelectedUserWalletId(_ userWalletId: UserWalletId, reason: UserWalletRepositorySelectionChangeReason)
-    func updateSelection()
-    func add(_ userWalletModel: UserWalletModel)
-    func delete(_ userWalletId: UserWalletId)
-    func save()
-    func clearNonSelectedUserWallets()
-    func initializeServices(for userWalletModel: UserWalletModel)
-    func initialClean()
-    func setSaving(_ enabled: Bool)
-    func addOrScan(scanner: CardScanner, completion: @escaping (UserWalletRepositoryResult?) -> Void)
+    func unlock(with method: UserWalletRepositoryUnlockMethod) throws -> UserWalletModel
+    func unlock(userWalletId: UserWalletId, method: UserWalletRepositoryUnlockMethod) throws
+    func select(userWalletId: UserWalletId)
+    func updateAssociatedCard(userWalletId: UserWalletId, cardId: String)
+    func add(userWalletModel: UserWalletModel) throws
+    func delete(userWalletId: UserWalletId)
+    func onSaveUserWalletsChanged(enabled: Bool)
+    func savePublicData()
+    func save(userWalletModel: UserWalletModel)
 }
 
 private struct UserWalletRepositoryKey: InjectionKey {
@@ -44,47 +40,22 @@ extension InjectedValues {
     }
 }
 
-enum UserWalletRepositoryResult {
-    case success(UserWalletModel)
-    case onboarding(OnboardingInput)
-    case troubleshooting
-    case error(Error)
-    case partial(UserWalletModel, Error)
-
-    var isSuccess: Bool {
-        switch self {
-        case .success:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 enum UserWalletRepositoryEvent {
     case locked
-    case biometryUnlocked
-    case scan(isScanning: Bool)
+    case unlockedBiometrics
     case inserted(userWalletId: UserWalletId)
-    case updated(userWalletId: UserWalletId)
+    case unlocked(userWalletId: UserWalletId)
     case deleted(userWalletIds: [UserWalletId])
-    case selected(userWalletId: UserWalletId, reason: UserWalletRepositorySelectionChangeReason)
-    case replaced(userWalletId: UserWalletId)
-}
-
-enum UserWalletRepositorySelectionChangeReason {
-    case userSelected
-    case inserted
-    case deleted
+    case selected(userWalletId: UserWalletId)
 }
 
 enum UserWalletRepositoryUnlockMethod {
-    case biometry
-    case card(userWalletId: UserWalletId?, scanner: CardScanner)
+    case biometrics(LAContext)
+    case card(CardInfo)
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .biometry:
+        case .biometrics:
             return Analytics.ParameterValue.signInTypeBiometrics
         case .card:
             return Analytics.ParameterValue.card
