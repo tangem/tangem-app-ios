@@ -133,13 +133,13 @@ final class HederaWalletManager: BaseManager {
     }
 
     private func updateWalletWithPendingTransferTransaction(_ transaction: Transaction, sendResult: TransactionSendResult) {
-        let mapper = HederaPendingTransactionRecordMapper(blockchain: wallet.blockchain)
+        let mapper = AssetRequirementsPendingTransactionMapper(blockchain: wallet.blockchain)
         let pendingTransaction = mapper.mapToTransferRecord(transaction: transaction, hash: sendResult.hash)
         wallet.addPendingTransaction(pendingTransaction)
     }
 
     private func updateWalletWithPendingTokenAssociationTransaction(_ token: Token, sendResult: TransactionSendResult) {
-        let mapper = HederaPendingTransactionRecordMapper(blockchain: wallet.blockchain)
+        let mapper = AssetRequirementsPendingTransactionMapper(blockchain: wallet.blockchain)
         let pendingTransaction = mapper.mapToTokenAssociationRecord(token: token, hash: sendResult.hash, accountId: wallet.address)
         wallet.addPendingTransaction(pendingTransaction)
     }
@@ -557,6 +557,10 @@ extension HederaWalletManager: WalletManager {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension HederaWalletManager: AssetRequirementsManager {
+    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
+        wallet.hasFeeCurrency(amountType: asset)
+    }
+
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
         guard assetRequiresAssociation(asset) else {
             return nil

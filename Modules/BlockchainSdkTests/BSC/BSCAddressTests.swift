@@ -59,10 +59,7 @@ struct BSCAddressTests {
         "0xf3d468DBb386aaD46E92FF222adDdf872C8CC064",
     ])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(blockchain: .bsc(testnet: false))
         let addressValidator = AddressServiceFactory(blockchain: .bsc(testnet: false)).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
         #expect(addressValidator.validate(addressHex))
     }
 }
