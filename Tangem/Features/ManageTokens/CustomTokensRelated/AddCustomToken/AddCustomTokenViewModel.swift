@@ -304,7 +304,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
         let validator = ContractAddressValidatorFactory(blockchain: blockchain).makeValidator()
 
-        guard validator.validate(contractAddress) else {
+        guard validator.validateCustomTokenAddress(contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
 
