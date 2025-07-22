@@ -39,7 +39,8 @@ class StakingModel {
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let stakingTransactionDispatcher: TransactionDispatcher
     private let transactionDispatcher: TransactionDispatcher
-    private let allowanceProvider: AllowanceProvider
+    private let allowanceService: AllowanceService
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -52,7 +53,8 @@ class StakingModel {
         feeIncludedCalculator: FeeIncludedCalculator,
         stakingTransactionDispatcher: TransactionDispatcher,
         transactionDispatcher: TransactionDispatcher,
-        allowanceProvider: AllowanceProvider,
+        allowanceService: AllowanceService,
+        analyticsLogger: StakingSendAnalyticsLogger,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
     ) {
@@ -62,7 +64,8 @@ class StakingModel {
         self.feeIncludedCalculator = feeIncludedCalculator
         self.stakingTransactionDispatcher = stakingTransactionDispatcher
         self.transactionDispatcher = transactionDispatcher
-        self.allowanceProvider = allowanceProvider
+        self.allowanceService = allowanceService
+        self.analyticsLogger = analyticsLogger
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
     }
@@ -148,11 +151,11 @@ private extension StakingModel {
     }
 
     func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy) async throws -> AllowanceState? {
-        guard allowanceProvider.isSupportAllowance, let spender = stakingManager.allowanceAddress else {
+        guard allowanceService.isSupportAllowance, let spender = stakingManager.allowanceAddress else {
             return nil
         }
 
-        return try await allowanceProvider
+        return try await allowanceService
             .allowanceState(amount: amount, spender: spender, approvePolicy: approvePolicy)
     }
 
@@ -253,20 +256,13 @@ private extension StakingModel {
             throw StakingModelError.validatorNotFound
         }
 
-        Analytics.log(
-            event: .stakingButtonStake,
-            params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
-
         do {
             let action = StakingAction(
                 amount: readyToStake.amount,
                 validatorType: .validator(validator),
                 type: .stake
             )
+
             let transactionInfo = try await stakingManager.transaction(action: action)
             let transactionsFee = transactionInfo.transactions.reduce(Decimal.zero) { $0 + $1.fee }
             if readyToStake.isFeeIncluded,
@@ -284,13 +280,13 @@ private extension StakingModel {
             proceed(error: error)
             throw error
         } catch {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error)
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
     }
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
+        analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -304,10 +300,7 @@ private extension StakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 }
@@ -503,7 +496,7 @@ extension StakingModel: ApproveViewModelInput {
         )
 
         _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
-        allowanceProvider.didSendApproveTransaction(for: approveData.spender)
+        allowanceService.didSendApproveTransaction(for: approveData.spender)
         updateState()
 
         // Setup timer for autoupdate
@@ -562,43 +555,6 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case approveDataNotFound
 
     var errorDescription: String? { rawValue }
-}
-
-// MARK: Analytics
-
-private extension StakingModel {
-    func logTransactionAnalytics(signerType: String) {
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: selectedFee.option.rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(
-                event: .stakingSelectedCurrency,
-                params: [
-                    .commonType: Analytics.ParameterValue.token.rawValue,
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-
-        case .alternative:
-            Analytics.log(
-                event: .stakingSelectedCurrency,
-                params: [
-                    .commonType: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
-    }
 }
 
 // MARK: - CustomStringConvertible

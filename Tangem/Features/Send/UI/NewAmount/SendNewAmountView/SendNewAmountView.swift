@@ -23,7 +23,6 @@ struct SendNewAmountView: View {
     var body: some View {
         GroupedScrollView(spacing: scrollViewSpacing) {
             content
-
             receiveTokenView
         }
         .transition(transitionService.transitionToNewAmountStep())
@@ -47,7 +46,7 @@ struct SendNewAmountView: View {
 
             Separator(color: Colors.Stroke.primary)
 
-            TokenWithAmountView(data: viewModel.tokenWithAmountViewData)
+            SendNewAmountTokenView(data: viewModel.tokenWithAmountViewData)
                 .padding(.vertical, 14)
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
@@ -79,7 +78,7 @@ struct SendNewAmountView: View {
         case .selected(let receivedTokenViewModel):
             ZStack(alignment: .top) {
                 GroupedSection(receivedTokenViewModel) {
-                    TokenWithAmountView(data: $0)
+                    SendNewAmountTokenView(data: $0)
                 }
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(14)
@@ -100,11 +99,9 @@ struct SendNewAmountView: View {
         case .crypto:
             SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
                 .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
-                .initialFocusBehavior(.noFocus)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
-                .trailingToolbarType(.none)
                 .focused($focused, equals: .crypto)
                 .frame(height: 42)
                 .transition(
@@ -116,11 +113,9 @@ struct SendNewAmountView: View {
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
-                .initialFocusBehavior(.noFocus)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
-                .trailingToolbarType(.none)
                 .focused($focused, equals: .fiat)
                 .frame(height: 42)
                 .transition(

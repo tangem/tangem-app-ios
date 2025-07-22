@@ -6,16 +6,12 @@
 
 import Foundation
 
-enum XRPAmountError: Error {
-    case invalidAmount
-}
-
 struct XRPAmount {
     private(set) var drops: Int!
 
     init(drops: Int) throws {
         if drops < 0 || drops > UInt64(100000000000000000) {
-            throw XRPAmountError.invalidAmount
+            throw XRPError.invalidAmount
         }
         self.drops = drops
     }
@@ -24,7 +20,7 @@ struct XRPAmount {
         // removed commas
         let stripped = text.replacingOccurrences(of: ",", with: "")
         if !stripped.replacingOccurrences(of: ".", with: "").isNumber {
-            throw XRPAmountError.invalidAmount
+            throw XRPError.invalidAmount
         }
         // get parts
         var xrp = stripped
@@ -39,7 +35,7 @@ struct XRPAmount {
         // combine parts
         let _drops = Int(xrp + drops)!
         if _drops < 0 || _drops > UInt64(100000000000000000) {
-            throw XRPAmountError.invalidAmount
+            throw XRPError.invalidAmount
         }
         self.drops = _drops
     }
