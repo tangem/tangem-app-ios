@@ -9,10 +9,13 @@
 import Combine
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 final class ImportWalletSelectorViewModel: ObservableObject {
-    let navigationBarTitle = "Add existing wallet"
-    let screenTitle = "Import wallet"
+    @Published var isBuyAvailable = false
+
+    let navigationBarTitle = Localization.homeButtonAddExistingWallet
+    let screenTitle = Localization.walletImportTitle
 
     var walletItems: [WalletItem] = []
     let buyItem: BuyItem
@@ -24,8 +27,8 @@ final class ImportWalletSelectorViewModel: ObservableObject {
         self.coordinator = coordinator
         self.delegate = delegate
         buyItem = BuyItem(
-            title: "Want to purchase a Tangem Wallet?",
-            buttonTitle: "Buy Now"
+            title: Localization.walletImportBuyQuestion,
+            buttonTitle: Localization.walletImportBuyTitle
         )
         walletItems = makeWalletItems()
     }
@@ -34,6 +37,10 @@ final class ImportWalletSelectorViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension ImportWalletSelectorViewModel {
+    func onAppear() {
+        scheduleBuyAvailability()
+    }
+
     func onBuyTap() {
         delegate?.openBuyCard()
     }
@@ -45,34 +52,41 @@ private extension ImportWalletSelectorViewModel {
     func makeWalletItems() -> [WalletItem] {
         [
             WalletItem(
-                title: "Import a recovery phrase",
+                title: Localization.walletImportSeedTitle,
                 titleIcon: nil,
                 infoTag: nil,
-                description: "Your your seed phrase to recover your wallet",
+                description: Localization.walletImportSeedDescription,
                 isEnabled: true,
                 action: { [weak coordinator] in
                     coordinator?.openOnboarding()
                 }
             ),
             WalletItem(
-                title: "Scan a Tangem Wallet",
+                title: Localization.walletImportScanTitle,
                 titleIcon: Assets.tangemIcon,
                 infoTag: nil,
-                description: "Physical cards that securely store your crypto offline.",
+                description: Localization.walletImportScanDescription,
                 isEnabled: true,
                 action: { [weak delegate] in
                     delegate?.scanCard()
                 }
             ),
             WalletItem(
-                title: "Import from iCloud ",
+                title: Localization.walletImportIcloudTitle,
                 titleIcon: nil,
-                infoTag: InfoTag(text: "Coming Soon", style: .secondary),
-                description: "Recover an existing wallet stored in your iCloud backup",
+                infoTag: InfoTag(text: Localization.commonComingSoon, style: .secondary),
+                description: Localization.walletImportIcloudDescription,
                 isEnabled: false,
                 action: {}
             ),
         ]
+    }
+
+    func scheduleBuyAvailability() {
+        guard !isBuyAvailable else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.isBuyAvailable = true
+        }
     }
 }
 
