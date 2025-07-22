@@ -48,7 +48,7 @@ class CommonWalletManagersRepository {
         .store(in: &bag)
     }
 
-    private func update(with entries: [StorageEntry], _ keys: [WalletPublicInfo], apiList: APIList) {
+    private func update(with entries: [StorageEntry], _ keys: [KeyInfo], apiList: APIList) {
         var managers = walletManagers.value ?? [:]
         var hasUpdates = false
 
@@ -96,7 +96,7 @@ class CommonWalletManagersRepository {
         }
     }
 
-    private func makeWalletManager(for entry: StorageEntry, _ keys: [WalletPublicInfo], apiList: APIList) -> WalletManager? {
+    private func makeWalletManager(for entry: StorageEntry, _ keys: [KeyInfo], apiList: APIList) -> WalletManager? {
         do {
             return try walletManagerFactory.makeWalletManager(for: entry, keys: keys, apiList: apiList)
         } catch AnyWalletManagerFactoryError.noDerivation {

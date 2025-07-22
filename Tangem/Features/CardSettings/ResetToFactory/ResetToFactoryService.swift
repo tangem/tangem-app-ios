@@ -30,7 +30,7 @@ class ResetToFactoryService {
 
     func resetDidDinish() {
         logAnalytics()
-        userWalletRepository.delete(userWalletId)
+        userWalletRepository.delete(userWalletId: userWalletId)
     }
 
     private func logAnalytics() {

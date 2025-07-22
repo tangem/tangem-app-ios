@@ -23,7 +23,7 @@ struct SendAmountStepBuilder {
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        analyticsLogger: SendAmountAnalyticsLogger,
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
             io: io,
@@ -36,14 +36,15 @@ struct SendAmountStepBuilder {
             io: io,
             interactor: interactor,
             actionType: actionType,
-            sendQRCodeService: sendQRCodeService
+            sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger
         )
 
         let step = SendAmountStep(
             viewModel: viewModel,
             interactor: interactor,
             sendFeeProvider: sendFeeProvider,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let compact = makeSendAmountCompactViewModel(input: io.input)
@@ -68,7 +69,8 @@ private extension SendAmountStepBuilder {
         io: IO,
         interactor: SendAmountInteractor,
         actionType: SendFlowActionType,
-        sendQRCodeService: SendQRCodeService?
+        sendQRCodeService: SendQRCodeService?,
+        analyticsLogger: SendAmountAnalyticsLogger,
     ) -> SendAmountViewModel {
         let initial = SendAmountViewModel.Settings(
             walletHeaderText: builder.walletHeaderText(for: actionType),
@@ -82,6 +84,7 @@ private extension SendAmountStepBuilder {
         return SendAmountViewModel(
             initial: initial,
             interactor: interactor,
+            analyticsLogger: analyticsLogger,
             sendQRCodeService: sendQRCodeService
         )
     }

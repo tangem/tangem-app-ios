@@ -14,7 +14,7 @@ class StartupProcessor {
 
     var shouldOpenBiometry: Bool {
         AppSettings.shared.saveUserWallets
-            && userWalletRepository.hasSavedWallets
+            && userWalletRepository.models.isNotEmpty
             && BiometricsUtil.isAvailable
     }
 

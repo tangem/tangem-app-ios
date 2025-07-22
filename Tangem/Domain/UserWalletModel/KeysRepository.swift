@@ -10,32 +10,95 @@ import Foundation
 import Combine
 
 protocol KeysRepository: AnyObject, KeysProvider {
-    func update(keys: [WalletPublicInfo])
+    func update(derivations: DerivationResult)
 }
 
 protocol KeysProvider {
-    var keys: [WalletPublicInfo] { get }
-    var keysPublisher: AnyPublisher<[WalletPublicInfo], Never> { get }
+    var keys: [KeyInfo] { get }
+    var keysPublisher: AnyPublisher<[KeyInfo], Never> { get }
 }
 
 class CommonKeysRepository {
-    private var _keys: CurrentValueSubject<[WalletPublicInfo], Never>
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    private let userWalletDataStorage = UserWalletDataStorage()
 
-    init(with keys: [WalletPublicInfo]) {
+    private var _keys: CurrentValueSubject<WalletKeys, Never>
+    private let userWalletId: UserWalletId
+    private let encryptionKey: UserWalletEncryptionKey
+
+    init(
+        userWalletId: UserWalletId,
+        encryptionKey: UserWalletEncryptionKey,
+        keys: WalletKeys
+    ) {
+        self.userWalletId = userWalletId
+        self.encryptionKey = encryptionKey
         _keys = .init(keys)
+    }
+
+    private func saveSensitiveData(sensitiveInfo: StoredUserWallet.SensitiveInfo) {
+        userWalletDataStorage.savePrivateData(
+            sensitiveInfo: sensitiveInfo,
+            userWalletId: userWalletId,
+            encryptionKey: encryptionKey
+        )
     }
 }
 
 extension CommonKeysRepository: KeysRepository {
-    var keys: [WalletPublicInfo] {
-        _keys.value
+    var keys: [KeyInfo] {
+        _keys.value.asKeyInfo
     }
 
-    var keysPublisher: AnyPublisher<[WalletPublicInfo], Never> {
-        _keys.eraseToAnyPublisher()
+    var keysPublisher: AnyPublisher<[KeyInfo], Never> {
+        _keys
+            .map { $0.asKeyInfo }
+            .eraseToAnyPublisher()
     }
 
-    func update(keys: [WalletPublicInfo]) {
-        _keys.value = keys
+    func update(derivations: DerivationResult) {
+        var existingKeys = _keys.value
+
+        switch existingKeys {
+        case .cardWallet(let keys):
+            var mutableKeys = keys
+
+            for masterKey in derivations {
+                for derivedKey in masterKey.value.keys {
+                    mutableKeys[masterKey.key]?.derivedKeys[derivedKey.key] = derivedKey.value
+                }
+            }
+
+            existingKeys = .cardWallet(keys: mutableKeys)
+            saveSensitiveData(sensitiveInfo: .cardWallet(keys: mutableKeys))
+
+        case .mobileWallet(let keys):
+            var mutableKeys = keys
+
+            for masterKey in derivations {
+                for derivedKey in masterKey.value.keys {
+                    mutableKeys[masterKey.key]?.derivedKeys[derivedKey.key] = derivedKey.value
+                }
+            }
+
+            existingKeys = .mobileWallet(keys: mutableKeys)
+            saveSensitiveData(sensitiveInfo: .mobileWallet(keys: mutableKeys))
+        }
+
+        _keys.value = existingKeys
+    }
+}
+
+enum WalletKeys {
+    case cardWallet(keys: [CardDTO.Wallet])
+    case mobileWallet(keys: [KeyInfo])
+
+    var asKeyInfo: [KeyInfo] {
+        switch self {
+        case .cardWallet(let keys):
+            return keys.map { $0.keyInfo }
+        case .mobileWallet(let keys):
+            return keys
+        }
     }
 }
