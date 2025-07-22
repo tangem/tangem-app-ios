@@ -1,15 +1,22 @@
 @testable import BlockchainSdk
 import TangemSdk
 import Testing
+import enum WalletCore.CoinType
 
 struct BinanceAddressTests {
-    private let blockchain = Blockchain.binance(testnet: false)
+    private let addressesUtility = AddressServiceManagerUtility()
+    private let service: AddressService
+    private let testnetService: AddressService
+
+    init() {
+        service = AddressServiceFactory(blockchain: .binance(testnet: false)).makeAddressService()
+        testnetService = AddressServiceFactory(blockchain: .binance(testnet: true)).makeAddressService()
+    }
 
     @Test
     func defaultAddressGeneration() throws {
         // given
-        let service = BinanceAddressService(testnet: false)
-        let addressesUtility = AddressServiceManagerUtility()
+        let blockchain = Blockchain.binance(testnet: false)
 
         // when
         let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
@@ -25,12 +32,9 @@ struct BinanceAddressTests {
 
     @Test
     func testnetAddressGeneration() throws {
-        // given
-        let service = BinanceAddressService(testnet: true)
-
         // when
-        let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
-        let addr_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
+        let addr_dec = try testnetService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
+        let addr_comp = try testnetService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
 
         // then
         #expect(addr_dec.value == addr_comp.value)
@@ -41,21 +45,20 @@ struct BinanceAddressTests {
 
     @Test(arguments: [true, false])
     func inavalidCurveGeneration_throwsError(isTestNet: Bool) async throws {
-        let service = BinanceAddressService(testnet: true)
         #expect(throws: (any Error).self) {
-            try service.makeAddress(from: Keys.AddressesKeys.edKey)
+            try testnetService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
     }
 
-    @Test(arguments: [
-        "bnb1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eex5gcc",
-    ])
+    @Test(arguments: ["bnb1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eex5gcc"])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator
-        walletCoreAddressValidator = WalletCoreAddressService(coin: .binance)
-        let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
+        let addressValidator = service
         #expect(addressValidator.validate(addressHex))
+    }
+
+    @Test(arguments: ["bnb1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eex5gcz"])
+    func addressValidation_invalidAddresses(addressHex: String) {
+        let addressValidator = service
+        #expect(!addressValidator.validate(addressHex))
     }
 }
