@@ -12,8 +12,6 @@ import Combine
 import BlockchainSdk
 
 class CommonDerivationManager {
-    weak var delegate: DerivationManagerDelegate?
-
     private let keysRepository: KeysRepository
     private let userTokenListManager: UserTokenListManager
 
@@ -35,7 +33,7 @@ class CommonDerivationManager {
             .store(in: &bag)
     }
 
-    private func process(_ entries: [StorageEntry], _ keys: [WalletPublicInfo]) {
+    private func process(_ entries: [StorageEntry], _ keys: [KeyInfo]) {
         var derivations: [Data: [DerivationPath]] = [:]
 
         entries.forEach { entry in
@@ -78,29 +76,20 @@ extension CommonDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func deriveKeys(cardInteractor: KeysDeriving, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void) {
         guard !pendingDerivations.value.isEmpty else {
             completion(.success(()))
             return
         }
 
-        cardInteractor.deriveKeys(derivations: pendingDerivations.value) { [weak self] result in
+        interactor.deriveKeys(derivations: pendingDerivations.value) { [weak self] result in
             guard let self else { return }
 
             switch result {
             case .success(let response):
-                var keys = keysRepository.keys
-                for updatedWallet in response {
-                    for derivedKey in updatedWallet.value.keys {
-                        keys[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
-                    }
-                }
+                keysRepository.update(derivations: response)
 
-                // [REDACTED_TODO_COMMENT]
-                keysRepository.update(keys: keys)
-                delegate?.onDerived(response)
-
-                // delay to get more time to updaеe ui and hide generate addresses shit under thе hood
+                // delay to get more time to update ui and hide generate addresses sheet under thе hood
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     completion(.success(()))
                 }
@@ -108,7 +97,7 @@ extension CommonDerivationManager: DerivationManager {
                 completion(.failure(error))
             }
 
-            withExtendedLifetime(cardInteractor) {}
+            withExtendedLifetime(interactor) {}
         }
     }
 }

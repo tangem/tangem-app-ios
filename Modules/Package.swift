@@ -146,14 +146,22 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemHotSdk",
-            path: "TangemHotSdk/Sources",
+            path: "TangemHotSdk/Sources/swift",
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .target(name: "TrezorCrypto"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        // TrezorCrypto library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
+        .tangemTarget(
+            name: "TrezorCrypto",
+            path: "TangemHotSdk/Sources/TrezorCrypto",
+            sources: ["crypto"],
+            publicHeadersPath: "include",
         ),
         .tangemTarget(
             name: "BlockchainSdk",
@@ -261,6 +269,7 @@ var unitTestsModules: [PackageDescription.Target] {
             dependencies: [
                 "TangemFoundation",
                 "TangemHotSdk",
+                "TrezorCrypto",
             ]
         ),
         .tangemTestTarget(

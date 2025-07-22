@@ -11,7 +11,7 @@ import Foundation
 import Testing
 
 struct FilecoinAddressTests {
-    private let addressService = WalletCoreAddressService(blockchain: .filecoin)
+    private let addressService = AddressServiceFactory(blockchain: .filecoin).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {

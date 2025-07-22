@@ -14,12 +14,12 @@ import class WalletCore.PrivateKey
 @testable import BlockchainSdk
 
 struct Fact0rnAddressTests {
+    private let addressService = AddressServiceFactory(blockchain: .fact0rn).makeAddressService()
+
     @Test
     func defaultAddressGeneration() throws {
         let walletPublicKey = Data(hexString: "03B6D7E1FB0977A5881A3B1F64F9778B4F56CB2B9EFD6E0D03E60051EAFEBF5831")
         let expectedAddress = "fact1qg2qvzvrgukkp5gct2n8dvuxz99ddxwecmx9sey"
-
-        let addressService = Fact0rnAddressService()
         let address = try addressService.makeAddress(from: walletPublicKey)
 
         #expect(address.value == expectedAddress)
@@ -46,7 +46,6 @@ struct Fact0rnAddressTests {
         "fact1qg2qvzvrgukkp5gct2n8dvuxz99ddxwecmx9sey",
     ])
     func validAddresses(address: String) {
-        let addressService = Fact0rnAddressService()
         #expect(addressService.validate(address))
     }
 
@@ -56,7 +55,6 @@ struct Fact0rnAddressTests {
         "fact",
     ])
     func invalidAddresses(address: String) {
-        let addressService = Fact0rnAddressService()
         #expect(!addressService.validate(address))
     }
 }
