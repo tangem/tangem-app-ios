@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 
@@ -17,6 +18,7 @@ class ImportWalletSelectorCoordinator: CoordinatorObject {
 
     @Published private(set) var importViewModel: ImportWalletSelectorViewModel?
     @Published var mailViewModel: MailViewModel?
+    @Published var isScanning: Bool = false
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
 
@@ -62,10 +64,17 @@ extension ImportWalletSelectorCoordinator: ImportWalletSelectorRoutable {
 
 extension ImportWalletSelectorCoordinator: ImportWalletSelectorDelegate {
     func scanCard() {
+        isScanning = true
         Analytics.beginLoggingCardScan(source: .welcome)
 
-        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            self?.unlockDidFinish(with: result)
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+
+            let result = await userWalletCardScanner.scanCard()
+            await runOnMain {
+                viewModel.unlockDidFinish(with: result)
+            }
         }
     }
 }
@@ -133,29 +142,36 @@ private extension ImportWalletSelectorCoordinator {
 // MARK: - Private methods
 
 private extension ImportWalletSelectorCoordinator {
-    func unlockDidFinish(with result: UserWalletRepositoryResult?) {
-        if result?.isSuccess != true {
-            incomingActionManager.discardIncomingAction()
-        }
+    func unlockDidFinish(with result: UserWalletCardScanner.Result) {
+        isScanning = false
 
         switch result {
-        case .troubleshooting:
+        case .scanTroubleshooting:
             Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+            incomingActionManager.discardIncomingAction()
             openTroubleshooting()
-        case .onboarding(let input):
-            openOnboarding(with: .input(input))
-        case .error(let error):
-            if error.isCancellationError {
-                return
-            }
 
+        case .onboarding(let input):
+            incomingActionManager.discardIncomingAction()
+            openOnboarding(with: .input(input))
+
+        case .error(let error) where error.isCancellationError:
+            incomingActionManager.discardIncomingAction()
+
+        case .error(let error):
             Analytics.logScanError(error, source: .introduction)
             Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+            incomingActionManager.discardIncomingAction()
             self.error = error.alertBinder
-        case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
-            openMain(with: model)
-        case .none:
-            return
+
+        case .success(let cardInfo):
+            do {
+                let userWalletModel = try userWalletRepository.unlock(with: .card(cardInfo))
+                openMain(with: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                self.error = error.alertBinder
+            }
         }
     }
 

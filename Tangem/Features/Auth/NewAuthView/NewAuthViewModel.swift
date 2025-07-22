@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemAssets
@@ -18,6 +19,7 @@ final class NewAuthViewModel: ObservableObject {
     @Published var state: State?
     @Published var error: AlertBinder?
     @Published var actionSheet: ActionSheetBinder?
+    @Published var isScanning: Bool = false
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -148,47 +150,70 @@ private extension NewAuthViewModel {
     }
 
     func unlockWithBiometry() {
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleUnlock(result: result)
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await UserWalletBiometricsUnlocker().unlock()
+                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+
+                await runOnMain {
+                    viewModel.openMain(with: userWalletModel)
+                }
+            } catch {
+                viewModel.incomingActionManager.discardIncomingAction()
             }
         }
     }
 
-    func onUnlockWithCardTap() {
+    func unlockWithCard(userWalletId: UserWalletId) {
+        isScanning = true
         Analytics.beginLoggingCardScan(source: .auth)
-        unlockWithCard()
-    }
 
-    func unlockWithCard() {
-        // [REDACTED_TODO_COMMENT]
-        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleUnlock(result: result)
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+
+            let result = await userWalletCardScanner.scanCard()
+            await runOnMain {
+                viewModel.handleUnlockWithCard(result: result, userWalletId: userWalletId)
             }
         }
     }
 
-    func handleUnlock(result: UserWalletRepositoryResult?) {
-        if result?.isSuccess != true {
-            incomingActionManager.discardIncomingAction()
-        }
-
-        guard let result else { return }
+    func handleUnlockWithCard(result: UserWalletCardScanner.Result, userWalletId: UserWalletId) {
+        isScanning = false
 
         switch result {
-        case .success(let model), .partial(let model, _):
-            openMain(with: model)
-        case .error(let error):
-            handleUnlock(resultError: error)
-        case .troubleshooting:
-            openTroubleshooting()
+        case .scanTroubleshooting:
+            Analytics.log(.cantScanTheCard, params: [.source: .signIn])
+            incomingActionManager.discardIncomingAction()
+            openTroubleshooting(userWalletId: userWalletId)
+
         case .onboarding(let input):
+            incomingActionManager.discardIncomingAction()
             openOnboarding(with: input)
+
+        case .error(let error) where error.isCancellationError:
+            incomingActionManager.discardIncomingAction()
+
+        case .error(let error):
+            handleUnlockWithCard(resultError: error)
+
+        case .success(let cardInfo):
+            do {
+                let userWalletModel = try userWalletRepository.unlock(with: .card(cardInfo))
+                openMain(with: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                self.error = error.alertBinder
+            }
         }
     }
 
-    func handleUnlock(resultError: Error) {
+    func handleUnlockWithCard(resultError: Error) {
+        Analytics.logScanError(resultError, source: .signIn)
+        Analytics.logVisaCardScanErrorIfNeeded(resultError, source: .signIn)
+        incomingActionManager.discardIncomingAction()
+
         switch state {
         case .locked:
             state = makeUnlockedState()
@@ -202,9 +227,9 @@ private extension NewAuthViewModel {
         }
     }
 
-    func unlockWithCardTryAgain() {
+    func unlockWithCardTryAgain(userWalletId: UserWalletId) {
         Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .signIn])
-        unlockWithCard()
+        unlockWithCard(userWalletId: userWalletId)
     }
 }
 
@@ -259,14 +284,16 @@ private extension NewAuthViewModel {
         coordinator?.openOnboarding(with: input)
     }
 
-    func openTroubleshooting() {
+    func openTroubleshooting(userWalletId: UserWalletId) {
         let sheet = ActionSheet(
             title: Text(Localization.alertTroubleshootingScanCardTitle),
             message: Text(Localization.alertTroubleshootingScanCardMessage),
             buttons: [
                 .default(
                     Text(Localization.alertButtonTryAgain),
-                    action: weakify(self, forFunction: NewAuthViewModel.unlockWithCardTryAgain)
+                    action: { [weak self] in
+                        self?.unlockWithCardTryAgain(userWalletId: userWalletId)
+                    }
                 ),
                 .default(
                     Text(Localization.commonReadMore),

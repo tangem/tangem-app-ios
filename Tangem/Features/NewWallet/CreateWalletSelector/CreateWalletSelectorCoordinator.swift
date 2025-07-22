@@ -74,60 +74,10 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorDelegate {
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
             let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+
             let result = await userWalletCardScanner.scanCard()
-
-            switch result {
-            case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                }
-
-            case .error(let error):
-                Analytics.logScanError(error, source: .introduction)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.error = error.alertBinder
-                }
-
-            case .onboarding(let input):
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openOnboarding(with: .input(input))
-                }
-
-            case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openTroubleshooting()
-                }
-
-            case .success(let cardInfo):
-                do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
-
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.openMain(with: userWalletModel)
-                    }
-
-                } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.error = error.alertBinder
-                    }
-                }
+            await runOnMain {
+                viewModel.unlockDidFinish(with: result)
             }
         }
     }
@@ -196,29 +146,36 @@ private extension CreateWalletSelectorCoordinator {
 // MARK: - Private methods
 
 private extension CreateWalletSelectorCoordinator {
-    func unlockDidFinish(with result: UserWalletRepositoryResult?) {
-        if result?.isSuccess != true {
-            incomingActionManager.discardIncomingAction()
-        }
+    func unlockDidFinish(with result: UserWalletCardScanner.Result) {
+        isScanning = false
 
         switch result {
-        case .troubleshooting:
+        case .scanTroubleshooting:
             Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+            incomingActionManager.discardIncomingAction()
             openTroubleshooting()
-        case .onboarding(let input):
-            openOnboarding(with: .input(input))
-        case .error(let error):
-            if error.isCancellationError {
-                return
-            }
 
+        case .onboarding(let input):
+            incomingActionManager.discardIncomingAction()
+            openOnboarding(with: .input(input))
+
+        case .error(let error) where error.isCancellationError:
+            incomingActionManager.discardIncomingAction()
+
+        case .error(let error):
             Analytics.logScanError(error, source: .introduction)
             Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+            incomingActionManager.discardIncomingAction()
             self.error = error.alertBinder
-        case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
-            openMain(with: model)
-        case .none:
-            return
+
+        case .success(let cardInfo):
+            do {
+                let userWalletModel = try userWalletRepository.unlock(with: .card(cardInfo))
+                openMain(with: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                self.error = error.alertBinder
+            }
         }
     }
 

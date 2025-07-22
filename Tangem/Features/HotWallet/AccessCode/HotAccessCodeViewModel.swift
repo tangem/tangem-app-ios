@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemFoundation
 import TangemAssets
 import TangemLocalization
 import class TangemSdk.BiometricsUtil
@@ -96,26 +97,17 @@ private extension HotAccessCodeViewModel {
     }
 
     func unlockWithBiometry(item: BiometryUnlockModeItem) {
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleUnlock(result: result)
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await UserWalletBiometricsUnlocker().unlock()
+                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+
+                await runOnMain {
+                    viewModel.openMain(with: userWalletModel)
+                }
+            } catch {
+                viewModel.incomingActionManager.discardIncomingAction()
             }
-        }
-    }
-
-    func handleUnlock(result: UserWalletRepositoryResult?) {
-        if result?.isSuccess != true {
-            incomingActionManager.discardIncomingAction()
-        }
-
-        guard let result else { return }
-
-        switch result {
-        case .success(let model), .partial(let model, _):
-            openMain(with: model)
-        case .error, .troubleshooting, .onboarding:
-            // [REDACTED_TODO_COMMENT]
-            break
         }
     }
 }
