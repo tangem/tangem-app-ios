@@ -469,7 +469,6 @@
 		30D24FF92DA3FA42003B90B5 /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */; };
 		30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */; };
-		5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383125E7A9820049B8F0 /* Wallet+.swift */; };
 		5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
 		5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D12D21225B60AA3006060A1 /* SearchBar.swift */; };
 		5D15102E264BD49600961000 /* issuers.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D15102D264BD49600961000 /* issuers.json */; };
@@ -1432,7 +1431,7 @@
 		B62D40EE2CBC79DA00C2460E /* HederaAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D362CBC79D900C2460E /* HederaAPIResolver.swift */; };
 		B62D40EF2CBC79DA00C2460E /* HederaCreatedAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D372CBC79D900C2460E /* HederaCreatedAccount.swift */; };
 		B62D40F02CBC79DA00C2460E /* HederaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D382CBC79D900C2460E /* HederaExternalLinkProvider.swift */; };
-		B62D40F12CBC79DA00C2460E /* HederaPendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D392CBC79D900C2460E /* HederaPendingTransactionRecordMapper.swift */; };
+		B62D40F12CBC79DA00C2460E /* AssetRequirementsPendingTransactionMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */; };
 		B62D40F22CBC79DA00C2460E /* HederaTokenContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D3A2CBC79D900C2460E /* HederaTokenContractAddressConverter.swift */; };
 		B62D40F32CBC79DA00C2460E /* HederaTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D3B2CBC79D900C2460E /* HederaTransactionBuilder.swift */; };
 		B62D40F42CBC79DA00C2460E /* HederaTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D3C2CBC79D900C2460E /* HederaTransactionParams.swift */; };
@@ -2958,6 +2957,7 @@
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
+		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
 		EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */; };
@@ -4355,7 +4355,6 @@
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
-		5D09383125E7A9820049B8F0 /* Wallet+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet+.swift"; sourceTree = "<group>"; };
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
 		5D12D21225B60AA3006060A1 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		5D15102D264BD49600961000 /* issuers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = issuers.json; path = "tangem-app-config/issuers.json"; sourceTree = SOURCE_ROOT; };
@@ -5315,7 +5314,7 @@
 		B62D3D362CBC79D900C2460E /* HederaAPIResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaAPIResolver.swift; sourceTree = "<group>"; };
 		B62D3D372CBC79D900C2460E /* HederaCreatedAccount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaCreatedAccount.swift; sourceTree = "<group>"; };
 		B62D3D382CBC79D900C2460E /* HederaExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaExternalLinkProvider.swift; sourceTree = "<group>"; };
-		B62D3D392CBC79D900C2460E /* HederaPendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaPendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetRequirementsPendingTransactionMapper.swift; sourceTree = "<group>"; };
 		B62D3D3A2CBC79D900C2460E /* HederaTokenContractAddressConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaTokenContractAddressConverter.swift; sourceTree = "<group>"; };
 		B62D3D3B2CBC79D900C2460E /* HederaTransactionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaTransactionBuilder.swift; sourceTree = "<group>"; };
 		B62D3D3C2CBC79D900C2460E /* HederaTransactionParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HederaTransactionParams.swift; sourceTree = "<group>"; };
@@ -6815,6 +6814,7 @@
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
+		EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAssetIdParser.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
 		EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
@@ -9172,7 +9172,6 @@
 				5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */,
 				B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */,
 				B61837092A8398BE00F07C17 /* Transaction+.swift */,
-				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
 				5D6784D825EBA1D800149995 /* TokenItems+Array.swift */,
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
@@ -12172,7 +12171,6 @@
 				B62D3D362CBC79D900C2460E /* HederaAPIResolver.swift */,
 				B62D3D372CBC79D900C2460E /* HederaCreatedAccount.swift */,
 				B62D3D382CBC79D900C2460E /* HederaExternalLinkProvider.swift */,
-				B62D3D392CBC79D900C2460E /* HederaPendingTransactionRecordMapper.swift */,
 				B62D3D3A2CBC79D900C2460E /* HederaTokenContractAddressConverter.swift */,
 				B62D3D3B2CBC79D900C2460E /* HederaTransactionBuilder.swift */,
 				B62D3D3C2CBC79D900C2460E /* HederaTransactionParams.swift */,
@@ -12597,6 +12595,7 @@
 				B62D3E052CBC79D900C2460E /* StellarTransactionParams.swift */,
 				B62D3E062CBC79D900C2460E /* StellarWalletAssembly.swift */,
 				B62D3E072CBC79D900C2460E /* StellarWalletManager.swift */,
+				EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */,
 			);
 			path = Stellar;
 			sourceTree = "<group>";
@@ -13364,6 +13363,7 @@
 				B62D3F632CBC79D900C2460E /* PendingTransaction.swift */,
 				B62D3F642CBC79D900C2460E /* PendingTransactionRecord.swift */,
 				B62D3F652CBC79D900C2460E /* PendingTransactionRecordMapper.swift */,
+				B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */,
 				B62D3F662CBC79D900C2460E /* SignatureInfo.swift */,
 				0A22617A2D9586CE004DC848 /* SignData.swift */,
 				B62D3F672CBC79D900C2460E /* SS58.swift */,
@@ -22022,7 +22022,6 @@
 				EF41A3CA2D38006D00FA7020 /* TokenBalancesRepositoryMock.swift in Sources */,
 				B07A13862C416C0700A429C3 /* MarketsTokenDetailsLinkModels.swift in Sources */,
 				B06C086B2A73FD4100D982BC /* MainUserWalletPageBuilderFactory.swift in Sources */,
-				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				DC2911B82C6258E200DF53CC /* TransactionDispatcherResultMapper.swift in Sources */,
 				DA559C402B0261F400F59584 /* SendDestinationView.swift in Sources */,
 				5D4B8BC327EDD601002CE87C /* WalletInfo.swift in Sources */,
@@ -23976,6 +23975,7 @@
 				B62D40A92CBC79DA00C2460E /* CyberExternalLinkProvider.swift in Sources */,
 				B62D40F32CBC79DA00C2460E /* HederaTransactionBuilder.swift in Sources */,
 				B62D42302CBC79DB00C2460E /* BlockchairNetworkProvider.swift in Sources */,
+				EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */,
 				B62D412F2CBC79DA00C2460E /* NEARProtocolConfig.swift in Sources */,
 				B62D3FF22CBC79DA00C2460E /* OP_SHA1.swift in Sources */,
 				B62D42262CBC79DB00C2460E /* NowNodesBlockBookConfig.swift in Sources */,
@@ -24183,7 +24183,7 @@
 				B62D40B12CBC79DA00C2460E /* KavaExternalLinkProvider.swift in Sources */,
 				B62D415C2CBC79DA00C2460E /* BittensorWalletAssembly.swift in Sources */,
 				B62D3F9B2CBC79DA00C2460E /* AlgorandRequest+Transaction.swift in Sources */,
-				B62D40F12CBC79DA00C2460E /* HederaPendingTransactionRecordMapper.swift in Sources */,
+				B62D40F12CBC79DA00C2460E /* AssetRequirementsPendingTransactionMapper.swift in Sources */,
 				B62D42852CBC79DB00C2460E /* PolygonTransactionHistoryResult.swift in Sources */,
 				B62D40C42CBC79DA00C2460E /* SmartContractRequest.swift in Sources */,
 				B62D41C82CBC79DB00C2460E /* balance_contract.pb.swift in Sources */,
