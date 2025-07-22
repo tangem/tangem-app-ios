@@ -15,16 +15,20 @@ struct FeeSelectorCustomFeeRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(viewModel.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            HStack(spacing: 4) {
+                Text(viewModel.title)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                if #available(iOS 16.4, *), let tooltip = viewModel.tooltip {
+                    InfoButtonView(size: .small, tooltipText: tooltip)
+                }
+            }
 
             HStack(spacing: 4) {
                 SendDecimalNumberTextField(viewModel: viewModel.textFieldViewModel)
                     .alignment(.leading)
                     .appearance(.init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1))
                     .prefixSuffixOptions(.suffix(text: viewModel.suffix, hasSpace: true))
-                    .initialFocusBehavior(.noFocus)
-                    .trailingToolbarType(.none)
                     .onFocusChanged(viewModel.onFocusChanged)
                     .disabled(!viewModel.isEditable)
 
