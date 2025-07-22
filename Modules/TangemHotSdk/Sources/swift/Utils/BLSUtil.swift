@@ -12,11 +12,11 @@ import TangemSdk
 enum BLSUtil {
     static func publicKey(
         entropy: Data,
-        passphrase: String? = nil,
+        passphrase: String = "",
     ) throws -> ExtendedPublicKey {
         let factory = try AnyMasterKeyFactory(
             mnemonic: Mnemonic(entropyData: entropy),
-            passphrase: passphrase ?? ""
+            passphrase: passphrase
         )
         return try factory
             .makeMasterKey(for: .bls12381_G2_AUG)
