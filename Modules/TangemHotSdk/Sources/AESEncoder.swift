@@ -106,7 +106,7 @@ enum AESEncoder {
 
         let nonce = try AES.GCM.Nonce(data: iv)
         let key = SymmetricKey(data: rawEncryptionKey)
-        let aad = associatedData ?? Data()
+        let aad = associatedData
 
         let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: cipherText, tag: tag)
         return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
