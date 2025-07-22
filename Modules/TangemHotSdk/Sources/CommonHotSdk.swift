@@ -16,55 +16,46 @@ public final class CommonHotSdk: HotSdk {
         privateInfoStorage = PrivateInfoStorage(secureStorage: secureStorage, biometricsStorage: biometricsStorage)
     }
 
-    public func importWallet(entropy: Data, passphrase: String?, auth: HotAuth?) throws -> HotWalletID {
-        let authType: HotWalletID.AuthType? = {
-            switch auth {
-            case .password: return .password
-            case .biometrics: return .biometrics
-            case .none: return nil
-            }
-        }()
-
-        let newWalletID = HotWalletID(authType: authType)
-
-        guard let walletInfo = HotWalletAuthInfo(walletID: newWalletID, auth: auth) else {
-            fatalError()
-        }
+    public func importWallet(entropy: Data, passphrase: String, auth: Authentication) throws -> HotWalletID {
+        let walletID = HotWalletID()
 
         try privateInfoStorage.store(
-            walletAuthInfo: walletInfo,
-            privateInfo: PrivateInfo(entropy: entropy, passphrase: passphrase)
+            privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
+            for: walletID,
+            auth: auth
         )
-        return newWalletID
+        return walletID
     }
 
-    public func generateWallet(auth: HotAuth?) throws -> HotWalletID {
+    public func generateWallet(auth: Authentication) throws -> HotWalletID {
         let entropy = try CryptoUtils.generateRandomBytes(count: 32) // 256 bits of entropy
 
-        return try importWallet(entropy: entropy, passphrase: nil, auth: auth)
+        return try importWallet(entropy: entropy, passphrase: "", auth: auth)
     }
 
-    public func exportMnemonic(walletAuthInfo: HotWalletAuthInfo) async throws -> PrivateInfo {
-        let container = try privateInfoStorage.getContainer(walletAuthInfo: walletAuthInfo)
-
-        return try await container.call { privateInfo in
-            PrivateInfo(
-                entropy: privateInfo.entropy,
-                passphrase: privateInfo.passphrase
-            )
+    public func exportMnemonic(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> PrivateInfo {
+        let privateInfo = try privateInfoStorage.getPrivateInfoData(for: walletID, auth: auth)
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw HotWalletError.failedToExportMnemonic
         }
+        
+        return privateInfo
     }
 
-    public func exportBackup(walletAuthInfo: HotWalletAuthInfo) async throws -> Data {
+    public func exportBackup(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> Data {
         // Placeholder for backup export logic
         return Data()
     }
 
-    public func delete(id: HotWalletID) async throws {
-        try await privateInfoStorage.delete(hotWalletID: id)
+    public func delete(id: HotWalletID) throws {
+        try privateInfoStorage.delete(hotWalletID: id)
     }
-
-    public func changeAuth(walletAuthInfo: HotWalletAuthInfo, auth: HotAuth) async throws {
-        try await privateInfoStorage.changeStore(walletAuthInfo: walletAuthInfo, newHotAuth: auth)
+    
+    public func updateAuthentication(
+        _ newAuth: Authentication?,
+        oldAuth: AuthenticationUnlockData?,
+        for walletID: HotWalletID
+    ) throws {
+        try privateInfoStorage.updateStore(walletID: walletID, oldAuth: oldAuth, newAuth: newAuth)
     }
 }
