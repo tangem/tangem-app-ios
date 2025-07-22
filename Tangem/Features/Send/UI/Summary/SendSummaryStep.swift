@@ -13,17 +13,20 @@ import SwiftUI
 class SendSummaryStep {
     private let viewModel: SendSummaryViewModel
     private let input: SendSummaryInput
+    private let analyticsLogger: SendSummaryAnalyticsLogger
     private let _title: String?
     private let _subtitle: String?
 
     init(
         viewModel: SendSummaryViewModel,
         input: SendSummaryInput,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         title: String?,
         subtitle: String?
     ) {
         self.viewModel = viewModel
         self.input = input
+        self.analyticsLogger = analyticsLogger
         _title = title
         _subtitle = subtitle
     }
@@ -49,5 +52,9 @@ extension SendSummaryStep: SendStep {
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         input.isReadyToSendPublisher.eraseToAnyPublisher()
+    }
+
+    func willAppear(previous step: any SendStep) {
+        analyticsLogger.logSummaryStepOpened()
     }
 }
