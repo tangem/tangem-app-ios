@@ -16,7 +16,7 @@ protocol AppLockController {
     func sceneDidEnterBackground()
     func sceneWillEnterForeground()
 
-    func unlockApp(completion: @escaping (UnlockResult) -> Void)
+    func unlockApp() async -> UnlockResult
 }
 
 enum UnlockResult {

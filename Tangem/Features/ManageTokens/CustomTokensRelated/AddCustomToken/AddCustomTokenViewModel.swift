@@ -101,7 +101,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                     logSuccess(tokenItem: tokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
-                    if error.isUserCancelled {
+                    if error.isCancellationError {
                         return
                     }
 
