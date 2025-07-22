@@ -2960,6 +2960,7 @@
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
+		EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
@@ -6816,6 +6817,7 @@
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
+		EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
@@ -17405,6 +17407,7 @@
 		EAF4F5982DF729DF0045996D /* Clore */ = {
 			isa = PBXGroup;
 			children = (
+				EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */,
 			);
 			path = Clore;
 			sourceTree = "<group>";
@@ -24351,6 +24354,7 @@
 				30145CF92D75D7DF00C1DA5D /* AlephiumAddressTests.swift in Sources */,
 				EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */,
 				B62D435D2CBC79E400C2460E /* KoinosMethodResponseDecodingTests.swift in Sources */,
+				EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */,
 				EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */,
 				EFAF7E432D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift in Sources */,
 				30C470162D7612D5003DFBFD /* CardanoAddressTests.swift in Sources */,
