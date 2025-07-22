@@ -74,8 +74,8 @@ class AppCoordinator: CoordinatorObject {
              .auth where options == .locked:
             setupLock()
 
-            DispatchQueue.main.async {
-                self.tryUnlockWithBiometry()
+            runTask(in: self) { coordinator in
+                await coordinator.tryUnlockWithBiometry()
             }
         case .welcome:
             setupWelcome()
@@ -86,10 +86,10 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 
-    private func tryUnlockWithBiometry() {
-        appLockController.unlockApp { [weak self] result in
-            guard let self else { return }
+    private func tryUnlockWithBiometry() async {
+        let result = await appLockController.unlockApp()
 
+        await runOnMain {
             switch result {
             case .openAuth:
                 setupAuth(unlockOnAppear: false)
@@ -229,14 +229,10 @@ class AppCoordinator: CoordinatorObject {
         case .locked:
             floatingSheetPresenter.removeAllSheets()
             floatingSheetPresenter.pauseSheetsDisplaying()
-
-        case .scan(let isScanning):
-            isScanning
-                ? floatingSheetPresenter.pauseSheetsDisplaying()
-                : floatingSheetPresenter.resumeSheetsDisplaying()
-
-        case .biometryUnlocked, .inserted, .updated, .deleted, .selected, .replaced:
+        case .unlockedBiometrics, .unlocked:
             floatingSheetPresenter.resumeSheetsDisplaying()
+        default:
+            break
         }
     }
 }
