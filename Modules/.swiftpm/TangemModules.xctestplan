@@ -1,0 +1,45 @@
+{
+  "configurations" : [
+    {
+      "id" : "061FBF77-59C0-4B92-9070-05BE3E429028",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemFoundationTests",
+        "name" : "TangemFoundationTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemNFTTests",
+        "name" : "TangemNFTTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemHotSdkTests",
+        "name" : "TangemHotSdkTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TangemLoggerTests",
+        "name" : "TangemLoggerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
