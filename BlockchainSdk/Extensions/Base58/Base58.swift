@@ -69,9 +69,9 @@ public struct Base58 {
 
     public static func decode(_ base58: String) -> Data {
         // remove leading and trailing whitespaces
-        let string = base58.trimmingCharacters(in: .whitespaces)
+        let string = base58.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard !string.isEmpty else { return Data() }
+        guard string.isNotEmpty else { return Data() }
 
         var zerosCount = 0
         var length = 0
@@ -92,7 +92,12 @@ public struct Base58 {
             var carry = base58Index.utf16Offset(in: base58Alphabet)
             var i = 0
             for j in 0 ... base58.count where carry != 0 || i < length {
-                carry += 58 * Int(base58[base58.count - j - 1])
+                guard let currentByte = base58[safe: base58.count - j - 1] else {
+                    return Data()
+                }
+                carry += 58 * Int(currentByte)
+
+                // This is fine because of guard above
                 base58[base58.count - j - 1] = UInt8(carry % 256)
                 carry /= 256
                 i += 1
