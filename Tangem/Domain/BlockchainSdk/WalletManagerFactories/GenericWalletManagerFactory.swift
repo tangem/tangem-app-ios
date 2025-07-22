@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 struct GenericWalletManagerFactory: AnyWalletManagerFactory {
-    func makeWalletManager(for token: StorageEntry, keys: [WalletPublicInfo], apiList: APIList) throws -> WalletManager {
+    func makeWalletManager(for token: StorageEntry, keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
         switch token.blockchainNetwork.blockchain {
         case .chia:
             return try SimpleWalletManagerFactory().makeWalletManager(for: token, keys: keys, apiList: apiList)
