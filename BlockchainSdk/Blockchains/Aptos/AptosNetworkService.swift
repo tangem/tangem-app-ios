@@ -38,7 +38,7 @@ class AptosNetworkService: MultiNetworkProvider {
                 let accountJson = resources.first(where: { $0.type == Constants.accountKeyPrefix })
 
                 if accountJson == nil, balanceValue == .zero {
-                    throw WalletError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
+                    throw BlockchainSdkError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
                 }
 
                 let sequenceNumber = Decimal(stringValue: accountJson?.data.sequenceNumber ?? "") ?? 0
@@ -130,7 +130,7 @@ class AptosNetworkService: MultiNetworkProvider {
                         let balanceResponse = response.first,
                         let balanceValue = Decimal(stringValue: balanceResponse)
                     else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return balanceValue
