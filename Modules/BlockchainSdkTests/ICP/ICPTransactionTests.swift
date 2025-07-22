@@ -36,7 +36,7 @@ struct ICPTransactionTests {
         let amountValue = Amount(with: .internetComputer, value: amounValueDecimal)
         let feeValue = Amount(with: .internetComputer, value: .init(stringValue: "0.0001")!)
 
-        let addressService = WalletCoreAddressService(blockchain: .internetComputer)
+        let addressService = AddressServiceFactory(blockchain: .internetComputer).makeAddressService()
         let sourceAddress = try addressService.makeAddress(
             for: Wallet.PublicKey(seedKey: publicKey.data, derivationType: nil),
             with: .default

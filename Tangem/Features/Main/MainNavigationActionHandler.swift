@@ -26,6 +26,10 @@ extension MainCoordinator {
             incomingActionManager.becomeFirstResponder(self)
         }
 
+        func resignIncomingActionsResponder() {
+            incomingActionManager.resignFirstResponder(self)
+        }
+
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {

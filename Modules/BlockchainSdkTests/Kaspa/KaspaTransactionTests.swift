@@ -19,7 +19,7 @@ struct KaspaTransactionTests {
     @Test
     func coinTransaction() async throws {
         // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
+        let address = try AddressServiceFactory(blockchain: .kaspa(testnet: false)).makeAddressService().makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
@@ -118,7 +118,7 @@ struct KaspaTransactionTests {
     @Test
     func krc20TokenTransaction() async throws {
         // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
+        let address = try AddressServiceFactory(blockchain: .kaspa(testnet: false)).makeAddressService().makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 1, txId: "113471470e4ad43324aad78880b092e153adee6cfc1236fbf17f715daa2071be", index: 1, amount: 39732557),

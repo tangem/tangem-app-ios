@@ -12,12 +12,13 @@ import Testing
 @testable import BlockchainSdk
 
 struct TONAddressTests {
+    private static let curves = [EllipticCurve.ed25519, .ed25519_slip0010]
     private let addressesUtility = AddressServiceManagerUtility()
 
-    @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
+    @Test(arguments: curves)
     func defaultAddressGeneration(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
-        let addressService = WalletCoreAddressService(coin: .ton)
+        let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let walletPubkey1 = Data(hex: "e7287a82bdcd3a5c2d0ee2150ccbc80d6a00991411fb44cd4d13cef46618aadb")
         let expectedAddress1 = "UQBqoh0pqy6zIksGZFMLdqV5Q2R7rzlTO0Durz6OnUgKrdpr"
@@ -52,15 +53,21 @@ struct TONAddressTests {
         "0:66fbe3c5c03bf5c82792f904c9f8bf28894a6aa3d213d41c20569b654aadedb3",
     ])
     func validAddresses(address: String) {
-        let addressService = WalletCoreAddressService(coin: .ton)
-        #expect(addressService.validate(address))
+        Self.curves.forEach {
+            let blockchain = Blockchain.ton(curve: $0, testnet: false)
+            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+            #expect(addressService.validate(address))
+        }
     }
 
     @Test(arguments: [
         "8a8627861a5dd96c9db3ce0807b122da5ed473934ce7568a5b4b1c361cbb28ae"
     ])
     func invalidAddresses(address: String) {
-        let addressService = WalletCoreAddressService(coin: .ton)
-        #expect(!addressService.validate(address))
+        Self.curves.forEach {
+            let blockchain = Blockchain.ton(curve: $0, testnet: false)
+            let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+            #expect(!addressService.validate(address))
+        }
     }
 }
