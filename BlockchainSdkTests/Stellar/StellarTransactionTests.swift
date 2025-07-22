@@ -15,7 +15,7 @@ import Testing
 final class StellarTransactionTests {
     private let sizeTester = TransactionSizeTesterUtility()
     private let walletPubkey = Data(hex: "9FE5BB2CC7D83C1DA10845AFD8A34B141FD8FD72500B95B1547E12B9BB8AAC3D")
-    private lazy var addressService = StellarAddressService()
+    private lazy var addressService = AddressServiceFactory(blockchain: .stellar(curve: .ed25519, testnet: false)).makeAddressService()
     private var bag = Set<AnyCancellable>()
 
     init() {
