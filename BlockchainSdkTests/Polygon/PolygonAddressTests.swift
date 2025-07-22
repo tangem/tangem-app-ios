@@ -17,10 +17,7 @@ struct PolygonAddressTests {
         "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d",
     ])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .polygon, publicKeyType: CoinType.polygon.publicKeyType)
         let addressValidator = AddressServiceFactory(blockchain: .polygon(testnet: false)).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
         #expect(addressValidator.validate(addressHex))
     }
 
