@@ -10,12 +10,17 @@ import Foundation
 import TangemSdk
 
 public protocol HotSdk {
-    func importWallet(entropy: Data, passphrase: String?, auth: HotAuth?) throws -> HotWalletID
-    func generateWallet(auth: HotAuth?) throws -> HotWalletID
+    func importWallet(entropy: Data, passphrase: String, auth: Authentication) throws -> HotWalletID
+    func generateWallet(auth: Authentication) throws -> HotWalletID
 
-    func exportMnemonic(walletAuthInfo: HotWalletAuthInfo) async throws -> PrivateInfo
-    func exportBackup(walletAuthInfo: HotWalletAuthInfo) async throws -> Data
+    func exportMnemonic(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> PrivateInfo
+    func exportBackup(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> Data
 
-    func delete(id: HotWalletID) async throws
-    func changeAuth(walletAuthInfo: HotWalletAuthInfo, auth: HotAuth) async throws
+    func delete(id: HotWalletID) throws
+    
+    func updateAuthentication(
+        _ newAuth: Authentication?,
+        oldAuth: AuthenticationUnlockData?,
+        for walletID: HotWalletID
+    ) throws
 }

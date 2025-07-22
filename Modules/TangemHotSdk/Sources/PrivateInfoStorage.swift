@@ -12,108 +12,107 @@ import TangemSdk
 final class PrivateInfoStorage {
     private let secureStorage: SecureStorage
     private let biometricsStorage: BiometricsStorage
+    private let secureEnclaveService: SecureEnclaveService
 
     init(
         secureStorage: SecureStorage = SecureStorage(),
-        biometricsStorage: BiometricsStorage = BiometricsStorage()
+        biometricsStorage: BiometricsStorage = BiometricsStorage(),
+        secureEnclaveService: SecureEnclaveService = SecureEnclaveService(config: .default)
     ) {
         self.secureStorage = secureStorage
         self.biometricsStorage = biometricsStorage
+        self.secureEnclaveService = secureEnclaveService
     }
-
-    func store(walletAuthInfo: HotWalletAuthInfo, privateInfo: PrivateInfo) throws {
-        var aesKey = try CryptoUtils.generateRandomBytes(count: Constants.aesKeySize)
+    
+    func store(
+        privateInfoData: Data,
+        for walletID: HotWalletID,
+        auth: Authentication?,
+        encryptionKey: Data? = nil
+    ) throws {
+        var aesKey = try encryptionKey ?? CryptoUtils.generateRandomBytes(count: Constants.aesKeySize)
 
         defer { secureErase(data: &aesKey) }
-
+        
+        // store encrypted entropy
         let encrypted = try AESEncoder.encryptAES(
             rawEncryptionKey: aesKey,
-            rawData: privateInfo.encode()
+            rawData: privateInfoData
         )
-
-        switch walletAuthInfo.auth {
-        case .none:
-            try secureStorage.store(aesKey, forKey: walletAuthInfo.walletID.storageEncryptionKey)
-        case .password(let value):
-            let aesEncrypted = try AESEncoder.encryptWithPassword(
-                password: value,
+        
+        try secureStorage.store(encrypted, forKey: walletID.storageKey)
+        
+        // store encryption key
+        let encryptedAesKey: Data
+        if let passcode = auth?.passcode {
+            encryptedAesKey = try AESEncoder.encryptWithPassword(
+                password: passcode,
                 content: aesKey
             )
-            try secureStorage.store(aesEncrypted, forKey: walletAuthInfo.walletID.storageEncryptionKey)
-        case .biometrics:
-            try biometricsStorage.store(aesKey, forKey: walletAuthInfo.walletID.storageEncryptionKey)
+        } else {
+            encryptedAesKey = aesKey
         }
-
-        try secureStorage.store(encrypted, forKey: walletAuthInfo.walletID.storageKey)
-
-        try secureStorage.store(
-            authTypeData(for: walletAuthInfo.auth),
-            forKey: walletAuthInfo.walletID.storageEncryptionTypeKey
+        
+        let keyToStore = try secureEnclaveService.encryptData(
+            encryptedAesKey,
+            keyTag: walletID.storageEncryptionKey
+        )
+        
+        try secureStorage.store(keyToStore, forKey: walletID.storageEncryptionKey)
+        
+        if auth?.biometrics == true {
+            try biometricsStorage.store(keyToStore, forKey: walletID.storageEncryptionKey)
+        }
+    }
+    
+    func getPrivateInfoData(for walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> Data {
+        guard let encryptedData = try secureStorage.get(walletID.storageKey) else {
+            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+        }
+        
+        var encryptionKey = try encryptionKey(for: walletID, auth: auth)
+        
+        defer { secureErase(data: &encryptionKey) }
+        
+        return try AESEncoder.decryptAES(
+            rawEncryptionKey: encryptionKey,
+            encryptedData: encryptedData
         )
     }
-
-    func changeStore(walletAuthInfo: HotWalletAuthInfo, newHotAuth: HotAuth?) async throws {
-        guard walletAuthInfo.auth != newHotAuth else { return }
-
-        guard let currentType = try secureStorage.get(walletAuthInfo.walletID.storageEncryptionTypeKey) else {
-            throw PrivateInfoStorageError.noEncryptionType(walletID: walletAuthInfo.walletID)
-        }
-        guard currentType == authTypeData(for: walletAuthInfo.auth) else {
-            throw PrivateInfoStorageError.invalidEncryptionType(walletID: walletAuthInfo.walletID)
-        }
-
-        let storageEncryptionKey = walletAuthInfo.walletID.storageEncryptionKey
-
-        var aesKey: Data
-        switch walletAuthInfo.auth {
+    
+    private func encryptionKey(for walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> Data {
+        let encryptionKey = walletID.storageEncryptionKey
+        
+        switch auth {
         case .none:
-            guard let key = try secureStorage.get(storageEncryptionKey) else {
-                throw PrivateInfoStorageError.noEncryptionKey(walletID: walletAuthInfo.walletID)
+            guard let key = try secureStorage.get(encryptionKey) else {
+                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
             }
-            aesKey = key
-        case .password(let value):
-            guard let aesKeyEncrypted = try secureStorage.get(storageEncryptionKey) else {
-                throw PrivateInfoStorageError.noEncryptionKey(walletID: walletAuthInfo.walletID)
+            return try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
+        case .passcode(let value):
+            guard let key = try secureStorage.get(encryptionKey) else {
+                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
             }
-            aesKey = try AESEncoder.decryptWithPassword(
+            let decryptedKey = try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
+            
+            return try AESEncoder.decryptWithPassword(
                 password: value,
-                encryptedData: aesKeyEncrypted
+                encryptedData: decryptedKey
             )
-        case .biometrics:
-            guard let key = try biometricsStorage.get(storageEncryptionKey) else {
-                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletAuthInfo.walletID)
+        case .biometrics(let context):
+            guard let key = try biometricsStorage.get(encryptionKey, context: context) else {
+                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
             }
-            aesKey = key
+            return try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
         }
-
-        defer { secureErase(data: &aesKey) }
-
-        guard aesKey.count == Constants.aesKeySize else {
-            throw PrivateInfoStorageError.invalidAesKeySize(walletID: walletAuthInfo.walletID, size: aesKey.count)
-        }
-        switch newHotAuth {
-        case .none:
-            try secureStorage.store(
-                aesKey,
-                forKey: walletAuthInfo.walletID.storageEncryptionKey
-            )
-        case .password(let value):
-            let aesEncrypted = try AESEncoder.encryptWithPassword(
-                password: value,
-                content: aesKey
-            )
-            try secureStorage.store(aesEncrypted, forKey: storageEncryptionKey)
-        case .biometrics:
-            if walletAuthInfo.auth == .none {
-                try secureStorage.delete(walletAuthInfo.walletID.storageEncryptionKey)
-            }
-            try biometricsStorage.store(aesKey, forKey: storageEncryptionKey)
-        }
-
-        let authType = authTypeData(for: newHotAuth)
-        try secureStorage.store(authType, forKey: walletAuthInfo.walletID.storageEncryptionTypeKey)
     }
-
+    
+    func updateStore(walletID: HotWalletID, oldAuth: AuthenticationUnlockData?, newAuth: Authentication?) throws {
+        let privateInfoData = try getPrivateInfoData(for: walletID, auth: oldAuth)
+        
+        try store(privateInfoData: privateInfoData, for: walletID, auth: newAuth)
+    }
+    
     func delete(hotWalletID: HotWalletID) throws {
         let storageKey = Constants.privateInfoPrefix + hotWalletID.value
         try biometricsStorage.delete(storageKey)
@@ -121,61 +120,10 @@ final class PrivateInfoStorage {
         try secureStorage.delete(hotWalletID.storageEncryptionKey)
         try secureStorage.delete(Constants.encryptionTypePrefix + hotWalletID.value)
     }
-
-    func getContainer(walletAuthInfo: HotWalletAuthInfo) throws -> PrivateInfoContainer {
-        guard let encryptionType = try secureStorage.get(walletAuthInfo.walletID.storageEncryptionTypeKey) else {
-            throw PrivateInfoStorageError.noEncryptionType(walletID: walletAuthInfo.walletID)
-        }
-
-        guard encryptionType == authTypeData(for: walletAuthInfo.auth) else {
-            throw PrivateInfoStorageError.invalidEncryptionType(walletID: walletAuthInfo.walletID)
-        }
-
-        return PrivateInfoContainer(
-            getPrivateInfo: { [weak self] in
-                guard let self else {
-                    throw PrivateInfoStorageError.unknown
-                }
-
-                guard let encryptedData = try secureStorage.get(walletAuthInfo.walletID.storageKey) else {
-                    throw PrivateInfoStorageError.noPrivateInfo(walletID: walletAuthInfo.walletID)
-                }
-                var aesKey: Data
-
-                switch walletAuthInfo.auth {
-                case .none:
-                    guard let key = try secureStorage.get(walletAuthInfo.walletID.storageEncryptionKey) else {
-                        throw PrivateInfoStorageError.noEncryptionKey(walletID: walletAuthInfo.walletID)
-                    }
-                    aesKey = key
-                case .password(let value):
-                    guard let aesKeyEncrypted = try secureStorage.get(
-                        walletAuthInfo.walletID.storageEncryptionKey
-                    ) else {
-                        throw PrivateInfoStorageError.noEncryptionKey(walletID: walletAuthInfo.walletID)
-                    }
-                    aesKey = try AESEncoder.decryptWithPassword(
-                        password: value,
-                        encryptedData: aesKeyEncrypted
-                    )
-                case .biometrics:
-                    guard let key = try biometricsStorage.get(walletAuthInfo.walletID.storageEncryptionKey) else {
-                        throw PrivateInfoStorageError.noPrivateInfo(walletID: walletAuthInfo.walletID)
-                    }
-                    aesKey = key
-                }
-                defer { secureErase(data: &aesKey) }
-
-                return try AESEncoder.decryptAES(
-                    rawEncryptionKey: aesKey,
-                    encryptedData: encryptedData
-                )
-            })
-    }
 }
 
 func secureErase(data: inout Data) {
-    data.withUnsafeMutableBytes { bytes in
+    _ = data.withUnsafeMutableBytes { bytes in
         memset_s(bytes.baseAddress, bytes.count, 0, bytes.count)
     }
 }
@@ -186,25 +134,11 @@ private extension HotWalletID {
     var storageEncryptionTypeKey: String { PrivateInfoStorage.Constants.encryptionTypePrefix + value }
 }
 
-private extension PrivateInfoStorage {
-    func authTypeData(for authType: HotAuth?) -> Data {
-        let string = switch authType {
-        case .biometrics: "biometrics"
-        case .password: "password"
-        case .none: "no_auth"
-        }
-
-        return string.data(using: .utf8)!
-    }
-}
-
 /// Define errors for better error handling
 enum PrivateInfoStorageError: Error {
     case noEncryptionType(walletID: HotWalletID)
     case invalidEncryptionType(walletID: HotWalletID)
-    case noEncryptionKey(walletID: HotWalletID)
     case noPrivateInfo(walletID: HotWalletID)
-    case invalidAesKeySize(walletID: HotWalletID, size: Int)
     case unknown
 }
 
