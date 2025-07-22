@@ -3623,6 +3623,7 @@
 		EFD678312E27BF250065AD50 /* CommonSendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678302E27BF250065AD50 /* CommonSendAnalyticsLogger.swift */; };
 		EFD678332E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678322E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift */; };
 		EFD678352E27D0120065AD50 /* CommonOnrampSendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678342E27D0120065AD50 /* CommonOnrampSendAnalyticsLogger.swift */; };
+		EFD678572E2E2D180065AD50 /* InfoButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678562E2E2D180065AD50 /* InfoButtonView.swift */; };
 		EFD68F212CC2986D00693C97 /* OnrampStepBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD68F202CC2985E00693C97 /* OnrampStepBuilder.swift */; };
 		EFD68F242CC298DA00693C97 /* OnrampInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD68F232CC298D100693C97 /* OnrampInputOutput.swift */; };
 		EFD68F262CC2990900693C97 /* OnrampStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD68F252CC2990800693C97 /* OnrampStep.swift */; };
@@ -7488,6 +7489,7 @@
 		EFD678302E27BF250065AD50 /* CommonSendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EFD678322E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingSendAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EFD678342E27D0120065AD50 /* CommonOnrampSendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampSendAnalyticsLogger.swift; sourceTree = "<group>"; };
+		EFD678562E2E2D180065AD50 /* InfoButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoButtonView.swift; sourceTree = "<group>"; };
 		EFD68F202CC2985E00693C97 /* OnrampStepBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampStepBuilder.swift; sourceTree = "<group>"; };
 		EFD68F232CC298D100693C97 /* OnrampInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampInputOutput.swift; sourceTree = "<group>"; };
 		EFD68F252CC2990800693C97 /* OnrampStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampStep.swift; sourceTree = "<group>"; };
@@ -18190,6 +18192,7 @@
 		EF4C04552DEF2A740059D7AA /* FeeSelector */ = {
 			isa = PBXGroup;
 			children = (
+				EFD678562E2E2D180065AD50 /* InfoButtonView.swift */,
 				EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */,
 				EF4C044D2DEF2A740059D7AA /* FeeSelectorContentRowView */,
 				EF4C04502DEF2A740059D7AA /* FeeSelectorContentView */,
@@ -20998,6 +21001,7 @@
 				DAB19D4B2B2C72A100DD08C4 /* AddCustomTokenCoordinatorView.swift in Sources */,
 				EFD1438A2CC552DD00B5BA57 /* CommonOnrampBaseDataBuilder.swift in Sources */,
 				EFC84B2F2C37FF1E00546882 /* SendDestinationRoutable.swift in Sources */,
+				EFD678572E2E2D180065AD50 /* InfoButtonView.swift in Sources */,
 				0FEA236D2DF1AEDA000EDB4D /* NewWalletSelectorInput.swift in Sources */,
 				DC0A5844282BFDFC0031BECC /* UserWalletRepository.swift in Sources */,
 				B66E5BDE2C1BC47C00778B13 /* ValidationErrorContext.swift in Sources */,
