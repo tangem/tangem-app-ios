@@ -20,18 +20,14 @@ struct UnstakingFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, action: UnstakingModel.Action, router: SendRoutable) -> SendViewModel {
-        let flowKind = SendModel.PredefinedValues.FlowKind.staking
-
-        let unstakingModel = builder.makeUnstakingModel(stakingManager: manager, action: action)
+        let actionType = builder.sendFlowActionType(actionType: action.displayType)
         let notificationManager = builder.makeStakingNotificationManager()
+        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: actionType)
+        let unstakingModel = builder.makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger, action: action)
+
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
         notificationManager.setupManager(with: unstakingModel)
-
-        let actionType = builder.sendFlowActionType(actionType: action.displayType)
-        let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
-            actionType: actionType,
-            stakingValidatorsInput: unstakingModel
-        )
+        analyticsLogger.setup(stakingValidatorsInput: unstakingModel)
 
         let io = (input: unstakingModel, output: unstakingModel)
 
@@ -45,7 +41,7 @@ struct UnstakingFlowBaseBuilder {
                 stakedAmount: action.amount
             ),
             amountModifier: builder.makeStakingAmountModifier(actionType: actionType),
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         amount.interactor.externalUpdate(amount: action.amount)
@@ -66,12 +62,12 @@ struct UnstakingFlowBaseBuilder {
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: unstakingModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             onrampAmountCompactViewModel: .none,
@@ -102,6 +98,7 @@ struct UnstakingFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: unstakingModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,
