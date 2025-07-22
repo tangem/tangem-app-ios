@@ -500,7 +500,7 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 }
 
-// MARK: - Fee
+// MARK: - WalletModelFeeProvider
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {

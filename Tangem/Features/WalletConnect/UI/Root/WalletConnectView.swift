@@ -67,8 +67,13 @@ struct WalletConnectView: View {
         )
         .background {
             if !viewModel.state.contentState.isEmpty {
-                ListFooterOverlayShadowView()
-                    .transition(.opacity)
+                ListFooterOverlayShadowView(
+                    colors: [
+                        Colors.Background.secondary.opacity(0.0),
+                        Colors.Background.secondary.opacity(0.95),
+                    ]
+                )
+                .transition(.opacity)
             }
         }
         .padding(.horizontal, viewModel.state.contentState.isEmpty ? 80 : 16)
@@ -83,7 +88,7 @@ struct WalletConnectView: View {
         case .empty(let emptyContentState):
             emptyStateView(emptyContentState)
                 .padding(.top, -geometryProxy.safeAreaInsets.top)
-                .frame(height: geometryProxy.size.height)
+                .frame(height: geometryProxy.size.height - geometryProxy.safeAreaInsets.top)
                 .transition(.slideToTopWithFade)
 
         case .loading(let loadingContentState):
