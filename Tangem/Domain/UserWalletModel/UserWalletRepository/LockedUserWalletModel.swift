@@ -12,8 +12,11 @@ import TangemAssets
 import TangemSdk
 import TangemNFT
 import BlockchainSdk
+import TangemVisa
 
 class LockedUserWalletModel: UserWalletModel {
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
@@ -26,7 +29,9 @@ class LockedUserWalletModel: UserWalletModel {
 
     var cardsCount: Int { config.cardsCount }
 
-    var hasBackupCards: Bool { userWallet.cardInfo?.card.backupStatus?.isActive ?? false }
+    var hasBackupCards: Bool {
+        userWallet.walletInfo.hasBackupCards
+    }
 
     var hasImportedWallets: Bool { false }
 
@@ -46,12 +51,7 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        if case .card(let card) = userWallet.walletInfo {
-            return .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
-        } else {
-            // unimplemented
-            return .init(cardId: "", cardPublicKey: Data())
-        }
+        userWallet.walletInfo.tangemApiAuthData
     }
 
     var totalBalance: TotalBalanceState {
@@ -63,12 +63,7 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var analyticsContextData: AnalyticsContextData {
-        AnalyticsContextData(
-            card: userWallet.cardInfo?.card,
-            productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain,
-            userWalletId: userWalletId
-        )
+        userWallet.walletInfo.analyticsContextData
     }
 
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
@@ -87,17 +82,16 @@ class LockedUserWalletModel: UserWalletModel {
         return nil
     }
 
-    var totalSignedHashes: Int {
-        0
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
     }
 
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
     var keysDerivingInteractor: any KeysDeriving {
-        if let cardInfo = userWallet.cardInfo {
-            return KeysDerivingCardInteractor(with: cardInfo)
-        } else {
-            fatalError("Unimplemented")
-        }
+        fatalError("Should not be called for locked wallets")
     }
 
     var name: String { userWallet.name }
@@ -108,12 +102,9 @@ class LockedUserWalletModel: UserWalletModel {
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
-
-        let walletInfo = userWallet.info
-
-        config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
+        config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
-        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
+        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
     func updateWalletName(_ name: String) {
@@ -127,7 +118,26 @@ class LockedUserWalletModel: UserWalletModel {
 
     func onBackupUpdate(type: BackupUpdateType) {}
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {
+        switch userWallet.walletInfo {
+        case .cardWallet(let cardInfo):
+            try? visaRefreshTokenRepository.deleteToken(cardId: cardInfo.card.cardId)
+
+            if AppSettings.shared.saveAccessCodes {
+                do {
+                    let accessCodeRepository = AccessCodeRepository()
+                    try accessCodeRepository.deleteAccessCode(for: Array(cardInfo.associatedCardIds))
+                } catch {
+                    Analytics.error(error: error)
+                    AppLogger.error(error: error)
+                }
+            }
+        case .mobileWallet(let mobileWalletInfo):
+            return
+        }
+    }
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -146,7 +156,7 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
 
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
-        guard let cardInfo = userWallet.cardInfo else {
+        guard case .cardWallet(let cardInfo) = userWallet.walletInfo else {
             return nil
         }
 
@@ -164,7 +174,11 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
 }
 
 extension LockedUserWalletModel: UserWalletSerializable {
-    func serialize() -> StoredUserWallet {
-        userWallet
+    func serializePublic() -> StoredUserWallet {
+        return userWallet
+    }
+
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo {
+        fatalError("Should not be called for locked wallets")
     }
 }
