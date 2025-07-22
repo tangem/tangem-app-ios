@@ -124,6 +124,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupport2No,
              .seedSupport2Yes,
              .openReferralProgram,
+             .addTokenTrustline,
              .openHotFinishActivation:
             super.didTapNotification(with: id, action: action)
         }
