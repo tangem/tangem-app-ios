@@ -57,7 +57,12 @@ extension AccountService {
                     return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: false)
                 }
 
-                let balance = resp.balances.filter { $0.assetCode == token.symbol && $0.assetIssuer == token.contractAddress }
+                let currencyCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress)
+
+                let balance = resp.balances.filter {
+                    $0.assetCode == currencyCodeAndIssuer?.assetCode && $0.assetIssuer == currencyCodeAndIssuer?.issuer
+                }
+
                 return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: !balance.isEmpty)
             }
             .tryCatch { error -> AnyPublisher<StellarTargetAccountResponse, Error> in
@@ -265,6 +270,27 @@ extension HorizonRequestError {
 
         struct Extras: Decodable {
             let resultCodes: String
+        }
+    }
+}
+
+extension ChangeTrustOperation {
+    enum ChangeTrustLimit {
+        case max
+        /// Sets a custom trustline limit using a decimal string.
+        case custom(amount: String)
+        /// Removes the trustline by setting the limit to 0.
+        case remove
+
+        var value: Decimal? {
+            switch self {
+            case .max:
+                return Decimal(stringValue: "900000000000")
+            case .custom(let amount):
+                return Decimal(stringValue: amount)
+            case .remove:
+                return .zero
+            }
         }
     }
 }
