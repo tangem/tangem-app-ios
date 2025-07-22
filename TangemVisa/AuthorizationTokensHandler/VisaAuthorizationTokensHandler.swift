@@ -23,18 +23,10 @@ public protocol VisaRefreshTokenSaver: AnyObject {
 public protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
     func save(refreshToken: String, cardId: String) throws
     func deleteToken(cardId: String) throws
-    /// - Parameters:
-    ///  - cardIdTokenToKeep: this token will be saved after clearing secure and biometrics storages, but it will only persist in memory, not in storages
-    func clear(cardIdTokenToKeep: String?)
+    func clearPersistent()
     func fetch(using context: LAContext)
     func getToken(forCardId cardId: String) -> String?
     func lock()
-}
-
-public extension VisaRefreshTokenRepository {
-    func clear() {
-        clear(cardIdTokenToKeep: nil)
-    }
 }
 
 public extension VisaRefreshTokenRepository {
