@@ -40,7 +40,6 @@ struct NewSendFlowBaseBuilder {
             receiveIO: (input: sendModel, output: sendModel),
             receiveAmountIO: (input: sendModel, output: sendModel),
             swapProvidersInput: sendModel,
-            actionType: .send,
             sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
