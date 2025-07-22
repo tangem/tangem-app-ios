@@ -31,6 +31,7 @@
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
 		0A3C78772D8956F20031170E /* HederaTokenCustomFeesInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78762D8956F20031170E /* HederaTokenCustomFeesInfo.swift */; };
 		0A3E3E402DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E3E3F2DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift */; };
+		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
 		0A4799D12D930DE900C2D425 /* HederaFeeParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */; };
 		0A4C217F2DF1AFF200B8B1BD /* HotUserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */; };
 		0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */; };
@@ -7676,6 +7677,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */,
 				B62D438A2CBC7F1500C2460E /* BlockchainSdk.framework in Frameworks */,
 				B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */,
 				B62D43C22CBC823A00C2460E /* TangemWalletCoreBinariesWrapper in Frameworks */,
@@ -20489,6 +20491,7 @@
 				B62D43C12CBC823A00C2460E /* TangemWalletCoreBinariesWrapper */,
 				B655F57B2CBC872E002391AF /* TweetNacl */,
 				B67E38C22CC71B5F00D660EB /* TangemSdk */,
+				0A40A87F2E2FCB28006411E5 /* Lottie */,
 			);
 			productName = BlockchainSdkExample;
 			productReference = B62D43782CBC7EC700C2460E /* BlockchainSdkExample.app */;
@@ -30722,6 +30725,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0A40A87F2E2FCB28006411E5 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
+		};
 		0ABC61142C410AFD00065EBA /* TweetNacl */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */;
