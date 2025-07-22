@@ -18,11 +18,12 @@ import TangemNetworkUtils
 
 @MainActor
 enum WalletConnectModuleFactory {
-    @Injected(\.walletConnectKingfisherImageCache) private static var kingfisherCache: ImageCache
     @Injected(\.wcService) private static var walletConnectService: any WCService
+    @Injected(\.dAppSessionsExtender) private static var dAppsSessionExtender: WalletConnectDAppSessionsExtender
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
     @Injected(\.connectedDAppRepository) private static var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
+    @Injected(\.dAppIconURLResolver) private static var dAppIconURLResolver: WalletConnectDAppIconURLResolver
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
 
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
@@ -32,13 +33,6 @@ enum WalletConnectModuleFactory {
 
     private static let disconnectDAppService = ReownWalletConnectDisconnectDAppService(walletConnectService: Self.walletConnectService)
 
-    private static let dAppIconURLResolver = WalletConnectDAppIconURLResolver(
-        remoteURLResourceResolver: RemoteURLResourceResolver(
-            session: URLSession(configuration: .walletConnectIconsContentTypeResolveConfiguration)
-        ),
-        kingfisherCache: Self.kingfisherCache
-    )
-
     private static let dAppDataService = ReownWalletConnectDAppDataService(
         walletConnectService: Self.walletConnectService,
         dAppIconURLResolver: Self.dAppIconURLResolver
@@ -47,12 +41,6 @@ enum WalletConnectModuleFactory {
     private static let dAppProposalApprovalService = ReownWalletConnectDAppProposalApprovalService(
         walletConnectService: Self.walletConnectService
     )
-
-    private static let dateFormatter: RelativeDateTimeFormatter = {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.dateTimeStyle = .numeric
-        return formatter
-    }()
 
     private static let errorCodeFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -80,7 +68,9 @@ enum WalletConnectModuleFactory {
         return WalletConnectViewModel(
             establishDAppConnectionUseCase: establishDAppConnectionUseCase,
             getConnectedDAppsUseCase: getConnectedDAppsUseCase,
+            dAppsSessionExtender: dAppsSessionExtender,
             disconnectDAppUseCase: disconnectDAppUseCase,
+            userWalletRepository: userWalletRepository,
             coordinator: coordinator
         )
     }
@@ -147,45 +137,21 @@ enum WalletConnectModuleFactory {
     }
 
     static func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectConnectedDApp) -> WalletConnectConnectedDAppDetailsViewModel {
-        let imageProvider = NetworkImageProvider()
-
-        let state = WalletConnectConnectedDAppDetailsViewState.dAppDetails(
-            WalletConnectConnectedDAppDetailsViewState.DAppDetails(
-                navigationBar: WalletConnectConnectedDAppDetailsViewState.DAppDetails.NavigationBar(
-                    connectedTime: Self.connectedTime(from: dApp)
-                ),
-                dAppDescriptionSection: .content(
-                    WalletConnectDAppDescriptionViewModel.ContentState(
-                        dAppData: dApp.dAppData,
-                        verificationStatus: dApp.verificationStatus
-                    )
-                ),
-                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: dApp.userWallet.name),
-                dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
-                connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
-                    blockchains: dApp.blockchains.map { blockchain in
-                        WalletConnectConnectedDAppDetailsViewState.DAppDetails.BlockchainRowItem(
-                            id: blockchain.networkId,
-                            iconAsset: imageProvider.provide(by: blockchain, filled: true),
-                            name: blockchain.displayName,
-                            currencySymbol: blockchain.currencySymbol
-                        )
-                    }
-                )
-            )
-        )
-
         let disconnectDAppUseCase = WalletConnectDisconnectDAppUseCase(
             disconnectDAppService: disconnectDAppService,
             connectedDAppRepository: connectedDAppRepository
         )
 
         return WalletConnectConnectedDAppDetailsViewModel(
-            state: state,
             connectedDApp: dApp,
             disconnectDAppUseCase: disconnectDAppUseCase,
+            userWalletRepository: userWalletRepository,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
+            },
+            onDisconnect: {
+                makeSuccessToast(with: "dApp disconnected")
+                    .present(layout: .top(padding: 20), type: .temporary())
             }
         )
     }
@@ -195,14 +161,6 @@ enum WalletConnectModuleFactory {
     }
 
     // MARK: - Formatters
-
-    private static func connectedTime(from dApp: WalletConnectConnectedDApp) -> String? {
-        let relativeDateString = dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
-        let delimiter = " • "
-        let timeString = dApp.connectionDate.formatted(.dateTime.hour().minute())
-
-        return relativeDateString + delimiter + timeString
-    }
 
     private static func formattedErrorCode(from walletConnectError: some UniversalError) -> String {
         errorCodeFormatter.string(from: NSNumber(value: walletConnectError.errorCode)) ?? "\(walletConnectError.errorCode)"

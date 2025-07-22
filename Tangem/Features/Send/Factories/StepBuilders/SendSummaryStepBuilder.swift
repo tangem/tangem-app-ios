@@ -26,7 +26,7 @@ struct SendSummaryStepBuilder {
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        analyticsLogger: any SendSummaryAnalyticsLogger
     ) -> ReturnValue {
         let interactor = makeSendSummaryInteractor(
             io: io,
@@ -37,18 +37,19 @@ struct SendSummaryStepBuilder {
             interactor: interactor,
             actionType: actionType,
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             destinationEditableType: destinationEditableType,
             amountEditableType: amountEditableType,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
-            flowKind: flowKind
+            sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
         let step = SendSummaryStep(
             viewModel: viewModel,
             input: io.input,
+            analyticsLogger: analyticsLogger,
             title: builder.summaryTitle(action: actionType),
             subtitle: builder.summarySubtitle(action: actionType)
         )
@@ -64,13 +65,13 @@ private extension SendSummaryStepBuilder {
         interactor: SendSummaryInteractor,
         actionType: SendFlowActionType,
         notificationManager: NotificationManager,
+        analyticsLogger: any SendSummaryAnalyticsLogger,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) -> SendSummaryViewModel {
         let settings = SendSummaryViewModel.Settings(
             tokenItem: walletModel.tokenItem,
@@ -83,11 +84,11 @@ private extension SendSummaryStepBuilder {
             settings: settings,
             interactor: interactor,
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
-            flowKind: flowKind
         )
     }
 
