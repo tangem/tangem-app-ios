@@ -17,7 +17,7 @@ struct XRPAddressTests {
     @Test
     func xrpSecpAddressGeneration() throws {
         let blockchain = Blockchain.xrp(curve: .secp256k1)
-        let service = XRPAddressService(curve: .secp256k1)
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
         let addr_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
@@ -38,7 +38,8 @@ struct XRPAddressTests {
 
     @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func xrpEdAddressGeneration(curve: EllipticCurve) throws {
-        let service = XRPAddressService(curve: curve)
+        let blockchain = Blockchain.xrp(curve: curve)
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         let address = try service.makeAddress(from: Keys.AddressesKeys.edKey)
 
         #expect(service.validate(address.value))
@@ -65,12 +66,8 @@ struct XRPAddressTests {
         "rU893viamSnsfP3zjzM2KPxjqZjXSXK6VF",
     ])
     func validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .xrp, publicKeyType: CoinType.xrp.publicKeyType)
-
         [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
             let addressValidator = AddressServiceFactory(blockchain: .xrp(curve: $0)).makeAddressService()
-
-            #expect(walletCoreAddressValidator.validate(addressHex))
             #expect(addressValidator.validate(addressHex))
         }
     }
