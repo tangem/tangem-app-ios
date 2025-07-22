@@ -66,7 +66,7 @@ struct SeiTransactionTests {
 
 private extension SeiTransactionTests {
     func makeSeiTransaction(txBuilder: CosmosTransactionBuilder) throws -> Transaction {
-        let address = try WalletCoreAddressService(blockchain: blockchain).makeAddress(from: publicKey.data)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: publicKey.data)
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         txBuilder.setAccountNumber(1037)

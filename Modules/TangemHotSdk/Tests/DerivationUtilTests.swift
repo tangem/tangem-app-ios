@@ -14,7 +14,6 @@ import Foundation
 let entropy = Data(hexString: "E269A10D56F58A93611FB45EB11959C2")
 
 struct DerivationUtilTests {
-    @available(*, unavailable)
     @Test
     func secp256k1DerivationPaths() throws {
         let bitcoinResult = try DerivationUtil.deriveKeys(
@@ -36,7 +35,6 @@ struct DerivationUtilTests {
         #expect(ethereumResult.chainCode.hexString == "01A5E27742465E0C7D2A7E3F7485717950095B1761DF8AD96944EED0140022E4")
     }
 
-    @available(*, unavailable)
     @Test
     func edCardanoDerivationPath() throws {
         let result = try DerivationUtil.deriveKeys(
@@ -50,7 +48,6 @@ struct DerivationUtilTests {
         #expect(result.publicKey.hexString == expected)
     }
 
-    @available(*, unavailable)
     @Test
     func edDerivationPath() throws {
         let result = try DerivationUtil.deriveKeys(

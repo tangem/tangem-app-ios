@@ -22,7 +22,7 @@ struct TONTransactionTests {
         let walletPubKey = privateKey.publicKey.rawRepresentation
 
         // UQASC4I5D3v_uqZdyBj6r9BwLE4JnIaQJUKhO6IlZbIwPj4G
-        let address = try WalletCoreAddressService(coin: .ton).makeAddress(
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(
             for: .init(seedKey: walletPubKey, derivationType: .none),
             with: .default
         )

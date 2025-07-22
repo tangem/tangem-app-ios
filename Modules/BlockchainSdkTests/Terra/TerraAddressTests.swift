@@ -14,7 +14,7 @@ import Testing
 struct TerraAddressTests {
     @Test(arguments: [Blockchain.terraV1, .terraV2])
     func defaultAddressGeneration(blockchain: Blockchain) throws {
-        let addressService = WalletCoreAddressService(blockchain: blockchain)
+        let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         let expectedAddress = "terra1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5eax3ymk"
 
         let addressFromCompressedKey = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey).value
@@ -33,7 +33,7 @@ struct TerraAddressTests {
     ])
     func addressValidation_validAddresses(address: String) throws {
         [Blockchain.terraV1, .terraV2].forEach {
-            let addressService = WalletCoreAddressService(blockchain: $0)
+            let addressService = AddressServiceFactory(blockchain: $0).makeAddressService()
             #expect(addressService.validate(address))
         }
     }
@@ -43,7 +43,7 @@ struct TerraAddressTests {
     ])
     func addressValidation_invalidAddresses(address: String) throws {
         [Blockchain.terraV1, .terraV2].forEach {
-            let addressService = WalletCoreAddressService(blockchain: $0)
+            let addressService = AddressServiceFactory(blockchain: $0).makeAddressService()
             #expect(!addressService.validate(address))
         }
     }
