@@ -27,6 +27,7 @@ protocol VisaOnboardingRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
 class VisaOnboardingViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     @Published var shouldFireConfetti = false
     @Published var currentProgress: CGFloat = 0
@@ -202,8 +203,13 @@ class VisaOnboardingViewModel: ObservableObject {
         let cardInfo = CardInfo(
             card: card,
             walletData: .visa(activationStatus),
+            associatedCardIds: [card.cardId],
         )
-        let userWalletModel = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo)
+
+        let userWalletModel = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        )
 
         self.userWalletModel = userWalletModel
     }
@@ -302,7 +308,7 @@ private extension VisaOnboardingViewModel {
             return
         }
 
-        userWalletRepository.add(userWalletModel)
+        try? userWalletRepository.add(userWalletModel: userWalletModel)
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }
 }
@@ -415,7 +421,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func showContactSupportAlert(for error: Error) async {
         let alert = AlertBuilder.makeAlert(
             title: Localization.commonError,
-            message: error.universalErrorMessage,
+            message: error.localizedDescription,
             primaryButton: .default(
                 Text(Localization.detailsRowTitleContactToSupport),
                 action: { [weak self] in
@@ -441,7 +447,11 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     }
 
     func closeOnboarding() {
-        userWalletRepository.updateSelection()
+        globalServicesContext.resetServices()
+        if let userWalletModel {
+            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
+        }
+
         coordinator?.closeOnboarding()
     }
 }
@@ -604,8 +614,7 @@ extension VisaOnboardingViewModel {
         let inputFactory = OnboardingInputFactory(
             userWalletModel: visaUserWalletModelMock,
             sdkFactory: cardMockConfig,
-            onboardingStepsBuilderFactory: cardMockConfig,
-            pushNotificationsInteractor: PushNotificationsInteractorMock()
+            onboardingStepsBuilderFactory: cardMockConfig
         )
         guard let cardInput = inputFactory.makeOnboardingInput(cardInfo: cardMock.cardInfo) else {
             fatalError("Failed to generate card input for visa onboarding")

@@ -153,10 +153,10 @@ class CommonWalletModel {
             }
 
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
-        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+        case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            return .failed(error: error.detailedLocalizedDescription)
+            return .failed(error: error.toUniversalError().localizedDescription)
         case .loading:
             return .loading
         case .initial:
@@ -500,7 +500,7 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 }
 
-// MARK: - Fee
+// MARK: - WalletModelFeeProvider
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {

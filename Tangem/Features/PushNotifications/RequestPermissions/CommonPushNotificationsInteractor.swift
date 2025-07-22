@@ -35,7 +35,7 @@ final class CommonPushNotificationsInteractor {
             return
         }
 
-        hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+        hasSavedWalletsFromPreviousVersion = userWalletRepository.models.isNotEmpty
     }
 
     private func registerIfPossible() {
@@ -75,6 +75,10 @@ final class CommonPushNotificationsInteractor {
 
 extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
+        guard !AppEnvironment.current.isUITest else {
+            return false
+        }
+
         guard
             canRequestAuthorization
         else {

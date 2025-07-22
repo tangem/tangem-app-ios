@@ -153,7 +153,7 @@ private extension CasperTransactionBuilder {
         case .secp256k1:
             Data(hexString: CasperConstants.prefixSECP256K1) + signature
         default:
-            throw CasperTransactionBuilderError.unsupportedCurve
+            throw CasperError.unsupportedCurve
         }
     }
 }
@@ -166,11 +166,4 @@ private extension CasperTransactionBuilder {
         static let defaultTTL = "1800000ms"
         static let defaultGASPrice: UInt64 = 1
     }
-}
-
-// MARK: - Errors
-
-private enum CasperTransactionBuilderError: Error {
-    case undefinedDeployHash
-    case unsupportedCurve
 }

@@ -13,7 +13,6 @@ import SolanaSwift
 import TangemFoundation
 
 class SolanaWalletManager: BaseManager, WalletManager {
-    var solanaSdk: Solana!
     var networkService: SolanaNetworkService!
 
     var currentHost: String { networkService.host }
@@ -70,13 +69,13 @@ extension SolanaWalletManager: TransactionSender {
         case .token(let token):
             sendPublisher = sendSplToken(transaction, token: token, signer: signer)
         case .reserve, .feeResource:
-            return .sendTxFail(error: WalletError.empty)
+            return .sendTxFail(error: BlockchainSdkError.empty)
         }
 
         return sendPublisher
             .tryMap { [weak self] hash in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let mapper = PendingTransactionRecordMapper()
@@ -85,7 +84,7 @@ extension SolanaWalletManager: TransactionSender {
 
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -141,7 +140,7 @@ extension SolanaWalletManager: TransactionSender {
 
     private func sendSol(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionID, Error> {
         guard let solanaFeeParameters = transaction.fee.parameters as? SolanaFeeParameters else {
-            return .anyFail(error: WalletError.failedToSendTx)
+            return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
         let signer = SolanaTransactionSigner(transactionSigner: signer, walletPublicKey: wallet.publicKey)
@@ -160,7 +159,7 @@ extension SolanaWalletManager: TransactionSender {
 
     private func sendSplToken(_ transaction: Transaction, token: Token, signer: TransactionSigner) -> AnyPublisher<TransactionID, Error> {
         guard let solanaFeeParameters = transaction.fee.parameters as? SolanaFeeParameters else {
-            return .anyFail(error: WalletError.failedToSendTx)
+            return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
         let decimalAmount = transaction.amount.value * token.decimalValue
@@ -171,7 +170,7 @@ extension SolanaWalletManager: TransactionSender {
         return tokenProgramIdPublisher
             .flatMap { [weak self] tokenProgramId -> AnyPublisher<TransactionID, Error> in
                 guard let self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
 
                 guard
@@ -217,7 +216,7 @@ extension SolanaWalletManager: RentProvider {
         networkService.accountRentFeePerEpoch()
             .tryMap { [weak self] fee in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let blockchain = wallet.blockchain

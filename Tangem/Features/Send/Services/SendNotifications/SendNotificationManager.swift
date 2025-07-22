@@ -110,7 +110,7 @@ private extension CommonSendNotificationManager {
             }
 
             let hasActivationError = errors.contains { error in
-                if case WalletError.accountNotActivated = error {
+                if case BlockchainSdkError.accountNotActivated = error {
                     return true
                 }
                 return false

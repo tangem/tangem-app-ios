@@ -74,7 +74,7 @@ extension EthereumTransactionHistoryProvider: TransactionHistoryProvider {
         return blockBookProvider.addressData(address: request.address, parameters: parameters)
             .tryMap { [weak self] response -> TransactionHistory.Response in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let records = try mapper.mapToTransactionRecords(

@@ -230,6 +230,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
         guard
             !state.connectButton.isLoading,
+            state.connectButton.isEnabled,
             let loadedDAppProposal,
             let blockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
         else {
@@ -249,9 +250,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
         guard loadedDAppProposal.verificationStatus.isVerified else {
             coordinator?.openDomainVerificationWarning(
                 loadedDAppProposal.verificationStatus,
-                cancelAction: { [weak self] in
-                    self?.rejectDAppProposal()
-                },
                 connectAnywayAction: { [weak self] in
                     await self?.connectDApp(with: loadedDAppProposal, selectedBlockchains: selectedBlockchains)
                 }
@@ -295,7 +293,7 @@ extension WalletConnectDAppConnectionRequestViewState {
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(state: .loading),
             networksWarningSection: nil,
-            connectButton: .connect(isLoading: false)
+            connectButton: .connect(isEnabled: true, isLoading: true)
         )
     }
 
@@ -306,7 +304,10 @@ extension WalletConnectDAppConnectionRequestViewState {
         walletSelectionIsAvailable: Bool,
         blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult
     ) -> WalletConnectDAppConnectionRequestViewState {
-        WalletConnectDAppConnectionRequestViewState(
+        let connectButtonIsEnabled = blockchainsAvailabilityResult.unavailableRequiredBlockchains.isEmpty
+            && blockchainsAvailabilityResult.retrieveSelectedBlockchains().isNotEmpty
+
+        return WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
                 WalletConnectDAppDescriptionViewModel.ContentState(
                     dAppData: proposal.dApp,
@@ -322,7 +323,7 @@ extension WalletConnectDAppConnectionRequestViewState {
             walletSection: WalletSection(selectedUserWalletName: selectedUserWalletName, selectionIsAvailable: walletSelectionIsAvailable),
             networksSection: NetworksSection(blockchainsAvailabilityResult: blockchainsAvailabilityResult),
             networksWarningSection: WalletConnectWarningNotificationViewModel(blockchainsAvailabilityResult),
-            connectButton: .connect(isLoading: false)
+            connectButton: .connect(isEnabled: connectButtonIsEnabled, isLoading: false)
         )
     }
 }

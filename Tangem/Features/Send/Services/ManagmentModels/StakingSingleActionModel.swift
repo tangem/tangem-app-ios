@@ -35,6 +35,7 @@ class StakingSingleActionModel {
     private let stakingManager: StakingManager
     private let transactionDispatcher: TransactionDispatcher
     private let transactionValidator: TransactionValidator
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
@@ -44,6 +45,7 @@ class StakingSingleActionModel {
         stakingManager: StakingManager,
         transactionDispatcher: TransactionDispatcher,
         transactionValidator: TransactionValidator,
+        analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
@@ -51,12 +53,12 @@ class StakingSingleActionModel {
         self.stakingManager = stakingManager
         self.transactionDispatcher = transactionDispatcher
         self.transactionValidator = transactionValidator
+        self.analyticsLogger = analyticsLogger
         self.action = action
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
 
         updateState()
-        logOpenScreen()
     }
 }
 
@@ -109,7 +111,7 @@ private extension StakingSingleActionModel {
 
     func validate(amount: Decimal, fee: Decimal) -> StakingSingleActionModel.State? {
         do {
-            try transactionValidator.validate(fee: makeFee(value: fee).amount)
+            try transactionValidator.validate(amount: makeAmount(value: .zero), fee: makeFee(value: fee))
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
@@ -146,16 +148,6 @@ private extension StakingSingleActionModel {
 
 private extension StakingSingleActionModel {
     private func send() async throws -> TransactionDispatcherResult {
-        if let analyticsEvent = action.type.analyticsEvent {
-            Analytics.log(
-                event: analyticsEvent,
-                params: [
-                    .validator: action.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
-
         do {
             let transaction = try await stakingManager.transaction(action: action)
             let result = try await transactionDispatcher.send(transaction: .staking(transaction))
@@ -167,18 +159,13 @@ private extension StakingSingleActionModel {
             proceed(error: error)
             throw error
         } catch {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error)
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
     }
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: selectedFee.option.rawValue,
-        ])
+        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -192,10 +179,7 @@ private extension StakingSingleActionModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 }
@@ -363,34 +347,4 @@ extension StakingSingleActionModel: StakingBaseDataBuilderInput {
 extension StakingSingleActionModel {
     typealias Action = StakingAction
     typealias State = UnstakingModel.State
-}
-
-// MARK: Analytics
-
-private extension StakingSingleActionModel {
-    func logOpenScreen() {
-        switch action.type {
-        case .pending(.claimRewards), .pending(.restakeRewards):
-            Analytics.log(
-                event: .stakingRewardScreenOpened,
-                params: [
-                    .validator: action.validatorInfo?.address ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        default:
-            break
-        }
-    }
-}
-
-private extension StakingAction.PendingActionType {
-    var analyticsEvent: Analytics.Event? {
-        switch self {
-        case .withdraw: .stakingButtonWithdraw
-        case .claimRewards: .stakingButtonClaim
-        case .restakeRewards: .stakingButtonRestake
-        default: nil
-        }
-    }
 }

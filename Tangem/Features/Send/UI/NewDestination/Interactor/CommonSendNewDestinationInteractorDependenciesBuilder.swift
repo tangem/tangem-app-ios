@@ -46,7 +46,6 @@ class SendNewDestinationInteractorDependenciesProvider {
         addressResolver = makeAddressResolver()
         transactionHistoryProvider = makeSendDestinationTransactionHistoryProvider()
         parametersBuilder = makeTransactionParamsBuilder()
-        analyticsLogger = makeAnalyticsLogger()
     }
 }
 
@@ -71,19 +70,15 @@ private extension SendNewDestinationInteractorDependenciesProvider {
     }
 
     private func makeAddressResolver() -> AddressResolver? {
-        switch receivedTokenType {
-        case .same: sendingWalletData.addressResolver
-        case .swap: nil
-        }
+        AddressResolverFactoryProvider()
+            .factory
+            .makeAddressResolver(for: receivedTokenType.tokenItem.blockchain)
     }
 
     private func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
         switch receivedTokenType {
         case .same:
-            return CommonSendDestinationTransactionHistoryProvider(
-                transactionHistoryUpdater: sendingWalletData.transactionHistoryUpdater,
-                transactionHistoryMapper: sendingWalletData.transactionHistoryMapper
-            )
+            return sendingWalletData.destinationTransactionHistoryProvider
         case .swap:
             return EmptySendDestinationTransactionHistoryProvider()
         }
@@ -94,7 +89,7 @@ private extension SendNewDestinationInteractorDependenciesProvider {
     }
 
     private func makeAnalyticsLogger() -> SendDestinationAnalyticsLogger {
-        SendDestinationAnalyticsLogger(tokenItem: receivedTokenType.tokenItem)
+        sendingWalletData.analyticsLogger
     }
 }
 
@@ -102,8 +97,7 @@ extension SendNewDestinationInteractorDependenciesProvider {
     struct SendingWalletData {
         let walletAddresses: [String]
         let suggestedWallets: [SendSuggestedDestinationWallet]
-        let transactionHistoryUpdater: WalletModelHistoryUpdater
-        let transactionHistoryMapper: TransactionHistoryMapper
-        let addressResolver: AddressResolver?
+        let destinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider
+        let analyticsLogger: SendDestinationAnalyticsLogger
     }
 }
