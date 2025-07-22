@@ -26,7 +26,7 @@ class FilecoinNetworkService: MultiNetworkProvider {
                 .getActorInfo(address: address)
                 .tryMap { response in
                     guard let balance = Decimal(stringValue: response.balance) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return FilecoinAccountInfo(
@@ -37,7 +37,7 @@ class FilecoinNetworkService: MultiNetworkProvider {
                 .tryCatch { error -> AnyPublisher<FilecoinAccountInfo, Error> in
                     if let error = error as? JSONRPC.APIError, error.code == 1 {
                         return .anyFail(
-                            error: WalletError.noAccount(
+                            error: BlockchainSdkError.noAccount(
                                 message: Localization.noAccountSendToCreate,
                                 amountToCreate: 0
                             )

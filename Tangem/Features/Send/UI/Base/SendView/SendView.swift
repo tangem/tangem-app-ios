@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
@@ -18,6 +19,9 @@ struct SendView: View {
 
     @Namespace private var namespace
     @FocusState private var focused: Bool
+
+    @State private var bottomContainerMinY: CGFloat = 0
+    @State private var contentMaxYBiggerThanContainerMinY: Bool = true
 
     private let backButtonStyle: MainButton.Style = .secondary
     private let backButtonSize: MainButton.Size = .default
@@ -40,6 +44,16 @@ struct SendView: View {
                 bottomOverlay
             }
             .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
+        }
+        .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
+            contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+
+                HideKeyboardButton(focused: $focused)
+            }
         }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
@@ -86,6 +100,7 @@ struct SendView: View {
         case .closeButton:
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
         case .backButton:
             CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
         }
@@ -112,6 +127,7 @@ struct SendView: View {
             Button(action: action) {
                 NavbarDotsImage()
             }
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)
         }
     }
 
@@ -125,6 +141,7 @@ struct SendView: View {
                 Text(title)
                     .multilineTextAlignment(.center)
                     .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.title)
 
                 if let subtitle = viewModel.subtitle {
                     Text(subtitle)
@@ -275,17 +292,23 @@ struct SendView: View {
         .padding(.top, 8)
         .padding(.bottom, 14)
         .padding(.horizontal, 16)
+        .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
+            bottomContainerMinY = frame.minY
+        }
     }
 
-    @ViewBuilder
     private var bottomOverlay: some View {
-        if viewModel.shouldShowBottomOverlay {
-            LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-                .frame(maxHeight: bottomGradientHeight)
-                .padding(.horizontal, 16)
-                .allowsHitTesting(false)
-        }
+        LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
+            .ignoresSafeArea()
+            .frame(maxHeight: bottomGradientHeight)
+            .padding(.horizontal, 16)
+            .allowsHitTesting(false)
+            .opacity(shouldShowBottomOverlay ? 1 : 0)
+            .animation(.default, value: shouldShowBottomOverlay)
+    }
+
+    private var shouldShowBottomOverlay: Bool {
+        contentMaxYBiggerThanContainerMinY && viewModel.shouldShowBottomOverlay
     }
 }
 

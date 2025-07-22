@@ -27,7 +27,7 @@ class URLSessionWebSocketTaskWrapper {
     private var sessionWebSocketTask: URLSessionWebSocketTask {
         get throws {
             guard let _sessionWebSocketTask else {
-                throw WebSocketTaskError.webSocketNotFound
+                throw WebSocketConnectionError.webSocketNotFoundTask
             }
 
             return _sessionWebSocketTask
@@ -114,12 +114,6 @@ extension URLSessionWebSocketTaskWrapper: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
-}
-
-// MARK: - Error
-
-enum WebSocketTaskError: Error {
-    case webSocketNotFound
 }
 
 // MARK: - Auxiliary types

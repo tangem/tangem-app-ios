@@ -12,7 +12,7 @@ import BigInt
 struct TronUtils {
     func parseBalance(response constantResult: [String], decimals: Int) throws -> Decimal {
         guard let hexValue = constantResult.first else {
-            throw WalletError.failedToParseNetworkResponse()
+            throw BlockchainSdkError.failedToParseNetworkResponse()
         }
 
         // Need use 32 byte for obtain right value
@@ -28,7 +28,7 @@ struct TronUtils {
         )
 
         guard let decimalValue = Decimal(stringValue: formatted) else {
-            throw WalletError.failedToParseNetworkResponse()
+            throw BlockchainSdkError.failedToParseNetworkResponse()
         }
 
         return decimalValue
@@ -36,7 +36,7 @@ struct TronUtils {
 
     func convertAddressToBytes(_ base58String: String) throws -> Data {
         guard let bytes = base58String.base58CheckDecodedBytes else {
-            throw TronUtilsError.failedToDecodeAddress
+            throw TronError.failedToDecodeAddress
         }
 
         return Data(bytes)
@@ -44,7 +44,7 @@ struct TronUtils {
 
     func convertAddressToBytesPadded(_ base58String: String) throws -> Data {
         guard let bytes = base58String.base58CheckDecodedBytes else {
-            throw TronUtilsError.failedToDecodeAddress
+            throw TronError.failedToDecodeAddress
         }
 
         return Data(bytes).leadingZeroPadding(toLength: 32)
@@ -52,13 +52,9 @@ struct TronUtils {
 
     func convertAmountPadded(_ amount: Amount) throws -> Data {
         guard let amountData = amount.encoded?.leadingZeroPadding(toLength: 32) else {
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
 
         return amountData
     }
-}
-
-enum TronUtilsError: Error {
-    case failedToDecodeAddress
 }

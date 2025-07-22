@@ -23,6 +23,7 @@ struct NFTSendAmountStepBuilder {
         actionType: SendFlowActionType,
         sendQRCodeService: SendQRCodeService?,
         sendAmountValidator: SendAmountValidator,
+        analyticsLogger: any SendAmountAnalyticsLogger,
         amountModifier: SendAmountModifier
     ) -> ReturnValue {
         let interactor = makeSendAmountInteractor(
@@ -51,28 +52,6 @@ struct NFTSendAmountStepBuilder {
 // MARK: - Private
 
 private extension NFTSendAmountStepBuilder {
-    func makeSendAmountViewModel(
-        io: IO,
-        interactor: SendAmountInteractor,
-        actionType: SendFlowActionType,
-        sendQRCodeService: SendQRCodeService?
-    ) -> SendAmountViewModel {
-        let initial = SendAmountViewModel.Settings(
-            walletHeaderText: builder.walletHeaderText(for: actionType),
-            tokenItem: walletModel.tokenItem,
-            tokenIconInfo: builder.makeTokenIconInfo(),
-            balanceFormatted: builder.formattedBalance(for: io.input.amount, actionType: actionType),
-            currencyPickerData: builder.makeCurrencyPickerData(),
-            actionType: actionType
-        )
-
-        return SendAmountViewModel(
-            initial: initial,
-            interactor: interactor,
-            sendQRCodeService: sendQRCodeService
-        )
-    }
-
     private func makeSendAmountInteractor(
         io: IO,
         sendAmountValidator: SendAmountValidator,
