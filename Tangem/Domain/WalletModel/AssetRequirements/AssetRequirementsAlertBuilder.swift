@@ -19,11 +19,15 @@ struct AssetRequirementsAlertBuilder {
         hasFeeCurrency: Bool
     ) -> AlertBinder? {
         switch requirementsCondition {
+        case .requiresTrustline(blockchain: .stellar, _, _) where !hasFeeCurrency:
+            return AlertBinder(title: "", message: Localization.warningStellarTokenTrustlineNotEnoughXlm(feeTokenItem.currencySymbol))
+
         case .paidTransactionWithFee(blockchain: .hedera, _, feeAmount: .none) where !hasFeeCurrency:
             return AlertBinder(
                 title: "",
                 message: Localization.warningHederaTokenAssociationNotEnoughHbarMessage(feeTokenItem.currencySymbol)
             )
+
         case .paidTransactionWithFee(blockchain: .hedera, _, .some(let feeAmount)) where !hasFeeCurrency:
             assert(
                 feeAmount.type == feeTokenItem.amountType,
@@ -33,8 +37,8 @@ struct AssetRequirementsAlertBuilder {
                 title: "",
                 message: Localization.warningHederaTokenAssociationNotEnoughHbarMessage(feeTokenItem.currencySymbol)
             )
-        case .paidTransactionWithFee,
-             .none:
+
+        case .paidTransactionWithFee, .requiresTrustline, .none:
             break
         }
 
