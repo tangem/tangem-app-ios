@@ -15,12 +15,11 @@ import Testing
 
 struct BitcoinCashAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
-    public let blockchain = Blockchain.bitcoinCash
+    private let service = AddressServiceFactory(blockchain: .bitcoinCash).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {
         let blockchain = Blockchain.bitcoinCash
-        let service = BitcoinCashAddressService(networkParams: BitcoinCashNetworkParams())
         let addr_dec_default = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
         let addr_comp_default = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
 
@@ -40,8 +39,6 @@ struct BitcoinCashAddressTests {
 
     @Test
     func defaultAddressGeneration_Legacy() throws {
-        let service = BitcoinCashAddressService(networkParams: BitcoinCashNetworkParams())
-
         let addr_dec_legacy = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .legacy)
         let addr_comp_legacy = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .legacy)
 
@@ -56,7 +53,6 @@ struct BitcoinCashAddressTests {
 
     @Test
     func invalidCurveGeneration_throwsError() throws {
-        let service = BitcoinCashAddressService(networkParams: BitcoinCashNetworkParams())
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
         }
@@ -95,10 +91,6 @@ struct BitcoinCashAddressTests {
         "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
     ])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .bitcoinCash, publicKeyType: CoinType.bitcoinCash.publicKeyType)
-        let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
-        #expect(addressValidator.validate(addressHex))
+        #expect(service.validate(addressHex))
     }
 }

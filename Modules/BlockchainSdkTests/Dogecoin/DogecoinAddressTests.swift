@@ -13,11 +13,11 @@ import Testing
 
 struct DogecoinAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
+    let service = AddressServiceFactory(blockchain: .dogecoin).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {
         let blockchain = Blockchain.dogecoin
-        let service = BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
 
         let addr_dec = try service.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey)
         let addr_comp = try service.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
@@ -32,7 +32,6 @@ struct DogecoinAddressTests {
 
     @Test
     func invalidCurveGeneration_throwsError() async throws {
-        let service = BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
         #expect(throws: (any Error).self) {
             try service.makeAddress(from: Keys.AddressesKeys.edKey)
         }
@@ -44,8 +43,7 @@ struct DogecoinAddressTests {
         "DCGx73ispbchmXfNczfp9TtWfKtzgzgp8N",
     ])
     func addressValidation_validAddresses(address: String) throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
-        #expect(addressService.validate(address))
+        #expect(service.validate(address))
     }
 
     @Test(arguments: [
@@ -54,7 +52,6 @@ struct DogecoinAddressTests {
         "",
     ])
     func addressValidation_invalidAddresses(address: String) throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
-        #expect(!addressService.validate(address))
+        #expect(!service.validate(address))
     }
 }

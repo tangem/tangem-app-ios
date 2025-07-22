@@ -175,7 +175,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
                 self.isSaving = false
 
                 if case .failure(let error) = result {
-                    if !error.isUserCancelled {
+                    if !error.isCancellationError {
                         self.alert = error.alertBinder
                     }
 

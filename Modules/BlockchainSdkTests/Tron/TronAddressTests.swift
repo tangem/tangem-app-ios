@@ -15,13 +15,12 @@ import Testing
 struct TronAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
     private let blockchain = Blockchain.tron(testnet: false)
-    private let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .tron, publicKeyType: CoinType.tron.publicKeyType)
 
     @Test
     func defaultAddressGeneration() throws {
         // From https://developers.tron.network/docs/account
         let blockchain = Blockchain.tron(testnet: false)
-        let service = TronAddressService()
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let publicKey = Data(hexString: "0404B604296010A55D40000B798EE8454ECCC1F8900E70B1ADF47C9887625D8BAE3866351A6FA0B5370623268410D33D345F63344121455849C9C28F9389ED9731")
         let address = try service.makeAddress(from: publicKey)
@@ -44,8 +43,6 @@ struct TronAddressTests {
     ])
     func validAddresses(addressHex: String) {
         let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
         #expect(addressValidator.validate(addressHex))
     }
 
@@ -57,8 +54,6 @@ struct TronAddressTests {
     ])
     func invalidAddresses(addressHex: String) {
         let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()
-
-        #expect(!walletCoreAddressValidator.validate(addressHex))
         #expect(!addressValidator.validate(addressHex))
     }
 }

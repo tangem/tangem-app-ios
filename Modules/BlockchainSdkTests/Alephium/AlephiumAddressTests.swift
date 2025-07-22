@@ -12,16 +12,15 @@ import Testing
 @testable import BlockchainSdk
 
 struct AlephiumAddressTests {
-    private let addressService: AlephiumAddressService
+    private let addressService: AddressService
 
     init() {
-        addressService = AlephiumAddressService()
+        addressService = AddressServiceFactory(blockchain: .alephium(testnet: false)).makeAddressService()
     }
 
     @Test
     func defaultAddressGeneration() throws {
         // given
-        let addressService = AlephiumAddressService()
         let publicKeyData = Data(hexString: "0x025ad4a937b43f426d1bc2de5a5061c82c5218b2d0f52c132b3ddd0d6c07c4efca")
         let expectedAddress = "1HqAa1eHkqmXuSh7ECW6jF9ygZ2CMZYe1JthwcQ7NbgUe"
 
