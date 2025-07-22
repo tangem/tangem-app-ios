@@ -11,22 +11,6 @@ import Combine
 import TangemSdk
 import TangemLocalization
 
-enum XRPError: Int, Error, LocalizedError {
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
-
-    case failedLoadUnconfirmed
-    case failedLoadReserve
-    case failedLoadInfo
-    case missingReserve
-    case distinctTagsFound
-
-    // WARNING: Make sure to preserve the error codes when removing or inserting errors
-
-    var errorDescription: String? {
-        Localization.genericErrorCode("xrp_error \(rawValue)")
-    }
-}
-
 class XRPWalletManager: BaseManager, WalletManager {
     var txBuilder: XRPTransactionBuilder!
     var networkService: XRPNetworkService!
@@ -52,7 +36,6 @@ class XRPWalletManager: BaseManager, WalletManager {
         wallet.add(coinValue: (response.balance - response.reserve) / Decimal(1000000))
 
         txBuilder.account = wallet.address
-        txBuilder.sequence = response.sequence
         if response.balance != response.unconfirmedBalance {
             if wallet.pendingTransactions.isEmpty {
                 wallet.addDummyPendingTransaction()
@@ -77,52 +60,56 @@ extension XRPWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let addressDecoded = decodeAddress(address: transaction.destinationAddress)
 
-        return networkService
-            .checkAccountCreated(account: addressDecoded)
-            .tryMap { [weak self] isAccountCreated -> (XRPTransaction, Data) in
-                guard let self = self else { throw WalletError.empty }
+        return Publishers.Zip(
+            networkService.checkAccountCreated(account: addressDecoded),
+            networkService.getSequence(account: addressDecoded)
+        )
+        .tryMap { [weak self] isAccountCreated, sequence -> (XRPTransaction, Data) in
+            guard let self = self else { throw BlockchainSdkError.empty }
 
-                guard let walletReserve = wallet.amounts[.reserve],
-                      let buldResponse = try txBuilder.buildForSign(transaction: transaction) else {
-                    throw XRPError.missingReserve
+            let transaction = enrichTransaction(transaction, withSequence: sequence)
+
+            guard let walletReserve = wallet.amounts[.reserve],
+                  let buldResponse = try txBuilder.buildForSign(transaction: transaction) else {
+                throw XRPError.missingReserve
+            }
+
+            if !isAccountCreated, transaction.amount.value < walletReserve.value {
+                throw BlockchainSdkError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
+            }
+
+            return buldResponse
+        }
+        .flatMap { [weak self] buildResponse -> AnyPublisher<(XRPTransaction, Data), Error> in
+            guard let self = self else { return .emptyFail }
+
+            return signer.sign(
+                hash: buildResponse.1,
+                walletPublicKey: wallet.publicKey
+            ).map {
+                return (buildResponse.0, $0)
+            }.eraseToAnyPublisher()
+        }
+        .tryMap { [weak self] response -> (String) in
+            guard let self = self else { throw BlockchainSdkError.empty }
+
+            return try txBuilder.buildForSend(transaction: response.0, signature: response.1)
+        }
+        .flatMap { [weak self] rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
+            self?.networkService.send(blob: rawTransactionHash)
+                .tryMap { [weak self] hash in
+                    guard let self = self else { throw BlockchainSdkError.empty }
+
+                    let mapper = PendingTransactionRecordMapper()
+                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                    wallet.addPendingTransaction(record)
+                    return TransactionSendResult(hash: hash)
                 }
-
-                if !isAccountCreated, transaction.amount.value < walletReserve.value {
-                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
-                }
-
-                return buldResponse
-            }
-            .flatMap { [weak self] buildResponse -> AnyPublisher<(XRPTransaction, Data), Error> in
-                guard let self = self else { return .emptyFail }
-
-                return signer.sign(
-                    hash: buildResponse.1,
-                    walletPublicKey: wallet.publicKey
-                ).map {
-                    return (buildResponse.0, $0)
-                }.eraseToAnyPublisher()
-            }
-            .tryMap { [weak self] response -> (String) in
-                guard let self = self else { throw WalletError.empty }
-
-                return try txBuilder.buildForSend(transaction: response.0, signature: response.1)
-            }
-            .flatMap { [weak self] rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
-                self?.networkService.send(blob: rawTransactionHash)
-                    .tryMap { [weak self] hash in
-                        guard let self = self else { throw WalletError.empty }
-
-                        let mapper = PendingTransactionRecordMapper()
-                        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                        wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: hash)
-                    }
-                    .mapSendError(tx: rawTransactionHash)
-                    .eraseToAnyPublisher() ?? .emptyFail
-            }
-            .eraseSendError()
-            .eraseToAnyPublisher()
+                .mapAndEraseSendTxError(tx: rawTransactionHash)
+                .eraseToAnyPublisher() ?? .emptyFail
+        }
+        .mapSendTxError()
+        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -142,6 +129,16 @@ extension XRPWalletManager: TransactionSender {
                 return [minFee, normalFee, maxFee].map { Fee($0) }
             }
             .eraseToAnyPublisher()
+    }
+
+    private func enrichTransaction(_ transaction: Transaction, withSequence sequence: Int) -> Transaction {
+        var mutableTransaction = transaction
+        var xrpParams = (mutableTransaction.params as? XRPTransactionParams)
+
+        xrpParams?.sequence = sequence
+        mutableTransaction.params = xrpParams
+
+        return mutableTransaction
     }
 }
 

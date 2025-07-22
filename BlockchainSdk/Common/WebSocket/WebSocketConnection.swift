@@ -182,5 +182,6 @@ extension WebSocketConnection.Ping {
 
 enum WebSocketConnectionError: Error {
     case webSocketNotFound
+    case webSocketNotFoundTask
     case invalidResponse
 }

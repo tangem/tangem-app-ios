@@ -42,7 +42,7 @@ final class ICPTransactionBuilder {
             tangemPublicKey: publicKey,
             publicKeyType: CoinType.internetComputer.publicKeyType
         ) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return try ICPSigningInput(
@@ -63,7 +63,7 @@ final class ICPTransactionBuilder {
         guard signedHashes.count == 2,
               let callSignature = signedHashes.first,
               let readStateSignature = signedHashes.last else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
         return try ICPSigningOutput(
             data: input.requestData,
