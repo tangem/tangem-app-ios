@@ -42,7 +42,7 @@ class TONNetworkService: MultiNetworkProvider {
         )
         .tryMap { walletInfo, tokensInfo in
             guard let decimalBalance = Decimal(string: walletInfo.balance) else {
-                throw WalletError.failedToParseNetworkResponse()
+                throw BlockchainSdkError.failedToParseNetworkResponse()
             }
 
             return TONWalletInfo(
@@ -61,7 +61,7 @@ class TONNetworkService: MultiNetworkProvider {
                 .getFee(address: address, body: message)
                 .tryMap { [weak self] fee in
                     guard let self = self else {
-                        throw WalletError.empty
+                        throw BlockchainSdkError.empty
                     }
 
                     // Make rounded digits by correct for max amount Fee
@@ -152,7 +152,7 @@ class TONNetworkService: MultiNetworkProvider {
                         let bigAmount = (try? reader.readBigNumber()) ?? 0
 
                         guard let decimalAmount = bigAmount.decimal else {
-                            throw WalletError.failedToParseNetworkResponse(nil)
+                            throw BlockchainSdkError.failedToParseNetworkResponse(nil)
                         }
 
                         return TONWalletInfo.TokenInfo(

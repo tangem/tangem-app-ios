@@ -12,7 +12,7 @@ import TangemSdk
 typealias DerivationResult = DeriveMultipleWalletPublicKeysTask.Response
 
 protocol KeysDeriving: AnyObject {
-    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void)
+    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void)
 }
 
 extension KeysDeriving {

@@ -130,7 +130,7 @@ class CommonUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
-    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         guard let derivationManager,
               let interactor = keysDerivingProvider?.keysDerivingInteractor else {
             completion(.success(()))
@@ -139,7 +139,7 @@ extension CommonUserTokensManager: UserTokensManager {
 
         // Delay to update derivations in derivationManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+            derivationManager.deriveKeys(interactor: interactor, completion: completion)
         }
     }
 
@@ -218,13 +218,13 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
             try addInternal(tokenItems, shouldUpload: true)
         } catch {
-            completion(.failure(error.toTangemSdkError()))
+            completion(.failure(error))
             return
         }
 
@@ -280,14 +280,14 @@ extension CommonUserTokensManager: UserTokensManager {
         removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
         do {
             try update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
         } catch {
-            completion(.failure(error.toTangemSdkError()))
+            completion(.failure(error))
             return
         }
 
@@ -405,7 +405,7 @@ extension CommonUserTokensManager: UserTokensReordering {
 }
 
 extension CommonUserTokensManager {
-    enum Error: Swift.Error, LocalizedError {
+    enum Error: LocalizedError {
         case addressNotFound
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
@@ -417,7 +417,7 @@ extension CommonUserTokensManager {
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .addressNotFound:
-                return nil
+                return Localization.genericErrorCode(errorCode)
             }
         }
     }

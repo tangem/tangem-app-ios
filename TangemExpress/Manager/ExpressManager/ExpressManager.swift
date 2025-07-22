@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 public protocol ExpressManager: Actor {
     func getPair() -> ExpressManagerSwappingPair?
@@ -15,7 +16,7 @@ public protocol ExpressManager: Actor {
 
     func update(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState
     func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState
-    func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
     func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerState
 
     func getAllProviders() -> [ExpressAvailableProvider]

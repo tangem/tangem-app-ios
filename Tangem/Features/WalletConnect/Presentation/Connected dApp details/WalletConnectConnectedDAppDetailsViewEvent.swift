@@ -8,6 +8,7 @@
 
 enum WalletConnectConnectedDAppDetailsViewEvent {
     case closeButtonTapped
+    case dAppDetailsAppeared
     case verifiedDomainIconTapped
     case disconnectButtonTapped
 }
