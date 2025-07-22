@@ -48,6 +48,15 @@ struct AptosNetworkProvider: HostProvider {
         return requestPublisher(for: target)
     }
 
+    func getAccountView(payload: Encodable) -> AnyPublisher<[String], Error> {
+        let target = AptosProviderTarget(
+            node: node,
+            targetType: .view(payload: payload)
+        )
+
+        return requestPublisher(for: target)
+    }
+
     func getGasUnitPrice() -> AnyPublisher<AptosResponse.Fee, Error> {
         let target = AptosProviderTarget(
             node: node,
