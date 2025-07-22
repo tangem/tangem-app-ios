@@ -53,7 +53,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
             root.selectedFeeOption = option
 
             if isSelected {
-                root.analytics.didSelectFeeOption(option)
+                root.analytics.logSendFeeSelected(option)
             }
         }
     }

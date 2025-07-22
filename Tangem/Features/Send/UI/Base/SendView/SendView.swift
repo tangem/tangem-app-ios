@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
@@ -46,6 +47,13 @@ struct SendView: View {
         }
         .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
             contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+
+                HideKeyboardButton(focused: $focused)
+            }
         }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
@@ -92,6 +100,7 @@ struct SendView: View {
         case .closeButton:
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
         case .backButton:
             CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
         }
@@ -118,6 +127,7 @@ struct SendView: View {
             Button(action: action) {
                 NavbarDotsImage()
             }
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)
         }
     }
 
@@ -131,6 +141,7 @@ struct SendView: View {
                 Text(title)
                     .multilineTextAlignment(.center)
                     .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.title)
 
                 if let subtitle = viewModel.subtitle {
                     Text(subtitle)
