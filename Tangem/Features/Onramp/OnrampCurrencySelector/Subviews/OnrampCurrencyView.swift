@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampCurrencyView: View {
     let data: OnrampCurrencyViewData
@@ -17,6 +18,7 @@ struct OnrampCurrencyView: View {
         Button(action: data.action) {
             labelView
         }
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencyItem(code: data.code))
     }
 
     private var labelView: some View {
