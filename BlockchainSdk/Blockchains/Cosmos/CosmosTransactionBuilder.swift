@@ -51,7 +51,7 @@ class CosmosTransactionBuilder {
         let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         if output.error != .ok {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return output.dataHash
@@ -75,11 +75,11 @@ class CosmosTransactionBuilder {
         let output = try CosmosSigningOutput(serializedData: transactionData)
 
         if output.error != .ok {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         guard let outputData = output.serialized.data(using: .utf8) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return outputData
@@ -93,7 +93,7 @@ class CosmosTransactionBuilder {
         memo: String?
     ) throws -> Data {
         guard let accountNumber, let sequenceNumber else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let fee = CosmosFee.with { fee in
@@ -139,16 +139,16 @@ class CosmosTransactionBuilder {
             case .token(let token):
                 decimalValue = token.decimalValue
             case .feeResource:
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let message: CosmosMessage
         if let token = transaction.amount.type.token, cosmosChain.allowCW20Tokens {
             guard let amountBytes = transaction.amount.encoded else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             let tokenMessage = CosmosMessage.WasmExecuteContractTransfer.with {
@@ -179,7 +179,7 @@ class CosmosTransactionBuilder {
         }
 
         guard let fee, let parameters = fee.parameters as? CosmosFeeParameters else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let feeAmountInSmallestDenomination = (fee.amount.value * decimalValue).uint64Value
@@ -204,12 +204,12 @@ class CosmosTransactionBuilder {
         case .token(let token):
             guard let tokenDenomination = cosmosChain.tokenDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol)
             else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             return tokenDenomination
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 
@@ -220,12 +220,12 @@ class CosmosTransactionBuilder {
         case .token(let token):
             guard let tokenDenomination = cosmosChain.tokenFeeDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol)
             else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             return tokenDenomination
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 }

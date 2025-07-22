@@ -30,10 +30,6 @@ struct StoriesBottomButtons: View {
         isHotWalletEnabled ? .secondary : .primary
     }
 
-    private var scanCardButtonTitle: String {
-        isHotWalletEnabled ? "Scan Tangem" : Localization.homeButtonScan
-    }
-
     var body: some View {
         if isHotWalletEnabled {
             VStack(spacing: 8) {
@@ -55,7 +51,7 @@ struct StoriesBottomButtons: View {
 private extension StoriesBottomButtons {
     var createWalletButton: some View {
         MainButton(
-            title: "Create New Wallet",
+            title: Localization.homeButtonCreateNewWallet,
             style: createColorStyle,
             isDisabled: isScanning,
             action: createWallet
@@ -64,7 +60,7 @@ private extension StoriesBottomButtons {
 
     var importWalletButton: some View {
         MainButton(
-            title: "Add Existing Wallet",
+            title: Localization.homeButtonAddExistingWallet,
             style: importColorStyle,
             isDisabled: isScanning,
             action: importWallet
@@ -73,7 +69,7 @@ private extension StoriesBottomButtons {
 
     var scanCardButton: some View {
         MainButton(
-            title: scanCardButtonTitle,
+            title: Localization.homeButtonScan,
             icon: .trailing(Assets.tangemIcon),
             style: scanColorStyle,
             isLoading: isScanning,
