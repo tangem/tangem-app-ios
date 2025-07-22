@@ -23,7 +23,6 @@ struct SendNewAmountView: View {
     var body: some View {
         GroupedScrollView(spacing: scrollViewSpacing) {
             content
-
             receiveTokenView
         }
         .transition(transitionService.transitionToNewAmountStep())
