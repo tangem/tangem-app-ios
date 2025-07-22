@@ -9,7 +9,7 @@
 import Foundation
 
 final class WCFeeSelectorAnalytics: FeeSelectorContentViewModelAnalytics {
-    func didSelectFeeOption(_ feeOption: FeeOption) {
+    func logSendFeeSelected(_ feeOption: FeeOption) {
         if feeOption == .custom {
             Analytics.log(.sendCustomFeeClicked)
         }

@@ -763,7 +763,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            userWalletModel?.addAssociatedCard(updatedCard.cardId)
+                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
                             pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == backupService.primaryCard?.cardId {
                                 userWalletModel?.onBackupUpdate(type: .primaryCardBackuped(card: updatedCard))
