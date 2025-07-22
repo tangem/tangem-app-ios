@@ -16,7 +16,7 @@ struct SuiAddress {
         let payload = curveID.uint8.data + data
 
         guard let hashed = payload.hashBlake2b(outputLength: 32) else {
-            throw WalletCoreAddressService.TWError.makeAddressFailed
+            throw BlockchainSdkError.twMakeAddressFailed
         }
 
         let string = hashed.hex().addHexPrefix()

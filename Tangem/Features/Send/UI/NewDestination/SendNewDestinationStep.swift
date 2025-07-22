@@ -14,15 +14,18 @@ import SwiftUI
 class SendNewDestinationStep {
     private let viewModel: SendNewDestinationViewModel
     private let interactor: SendNewDestinationInteractor
+    private let analyticsLogger: SendDestinationAnalyticsLogger
 
     private var isEditMode: Bool = false
 
     init(
         viewModel: SendNewDestinationViewModel,
-        interactor: any SendNewDestinationInteractor
+        interactor: any SendNewDestinationInteractor,
+        analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(stepRouter: SendDestinationStepRoutable) {
@@ -45,15 +48,16 @@ extension SendNewDestinationStep: SendStep {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }
 
+    func saveChangesIfNeeded() {
+        interactor.saveChanges()
+    }
+
     func initialAppear() {
-        Analytics.log(.sendAddressScreenOpened)
+        analyticsLogger.logDestinationStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
         isEditMode = step.type.isSummary
-
-        if step.type.isSummary {
-            Analytics.log(.sendScreenReopened, params: [.source: .address])
-        }
+        step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
     }
 }
