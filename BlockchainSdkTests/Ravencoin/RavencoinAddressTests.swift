@@ -14,7 +14,7 @@ import enum WalletCore.CoinType
 struct RavencoinAddressTests {
     @Test
     func defaultAddressGeneration() throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: RavencoinMainNetworkParams())
+        let addressService = AddressServiceFactory(blockchain: .ravencoin(testnet: false)).makeAddressService()
 
         let compAddress = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey)
         let expectedCompAddress = "RT1iM3xbqSQ276GNGGNGFdYrMTEeq4hXRH"
@@ -30,7 +30,7 @@ struct RavencoinAddressTests {
 
     @Test
     func inavalidCurveGeneration_throwsError() throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: RavencoinMainNetworkParams())
+        let addressService = AddressServiceFactory(blockchain: .ravencoin(testnet: false)).makeAddressService()
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
@@ -41,10 +41,7 @@ struct RavencoinAddressTests {
         "RRjP4a6i7e1oX1mZq1rdQpNMHEyDdSQVNi",
     ])
     func addressValidation_validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .ravencoin, publicKeyType: CoinType.ravencoin.publicKeyType)
         let addressValidator = AddressServiceFactory(blockchain: .ravencoin(testnet: false)).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
         #expect(addressValidator.validate(addressHex))
     }
 
@@ -52,11 +49,7 @@ struct RavencoinAddressTests {
         "QT1iM3xbqSQ276GNGGNGFdYrMTEeq4hXRH",
     ])
     func addressValidation_invalidAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator
-        walletCoreAddressValidator = WalletCoreAddressService(coin: .ravencoin, publicKeyType: CoinType.ravencoin.publicKeyType)
         let addressValidator = AddressServiceFactory(blockchain: .ravencoin(testnet: false)).makeAddressService()
-
-        #expect(!walletCoreAddressValidator.validate(addressHex))
         #expect(!addressValidator.validate(addressHex))
     }
 }
