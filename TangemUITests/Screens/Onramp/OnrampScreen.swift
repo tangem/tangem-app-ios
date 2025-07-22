@@ -104,7 +104,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateCryptoAmount() -> Self {
         XCTContext.runActivity(named: "Validate crypto amount is updated and properly formatted") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .quickNetworkRequest), "Crypto amount label should exist")
+            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .longUIUpdate), "Crypto amount label should exist")
             let cryptoAmount = cryptoAmountLabel.label
 
             XCTAssertFalse(cryptoAmount.isEmpty, "Crypto amount should not be empty")
@@ -158,6 +158,35 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
 
             let actualValue = amountDisplayField.getValue()
             XCTAssertTrue(actualValue.contains(expectedCurrency), "Amount field should contain '\(expectedCurrency)' currency but was '\(actualValue)'")
+        }
+        return self
+    }
+
+    // MARK: - Error View Methods
+
+    @discardableResult
+    func validateErrorViewExists() -> Self {
+        XCTContext.runActivity(named: "Validate error notification view exists") { _ in
+            let refreshButton = app.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
+            XCTAssertTrue(refreshButton.waitForExistence(timeout: .longUIUpdate), "Error notification view should exist (refresh button not found)")
+        }
+        return self
+    }
+
+    @discardableResult
+    func validateErrorContent(title: String? = nil, message: String? = nil) -> Self {
+        XCTContext.runActivity(named: "Validate error notification content") { _ in
+            if let title = title {
+                let titleLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
+                XCTAssertTrue(titleLabel.waitForExistence(timeout: .longUIUpdate), "Error title should exist")
+                XCTAssertEqual(titleLabel.label, title, "Error title should be '\(title)' but was '\(titleLabel.label)'")
+            }
+
+            if let message = message {
+                let messageLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
+                XCTAssertTrue(messageLabel.waitForExistence(timeout: .longUIUpdate), "Error message should exist")
+                XCTAssertEqual(messageLabel.label, message, "Error message should be '\(message)' but was '\(messageLabel.label)'")
+            }
         }
         return self
     }
