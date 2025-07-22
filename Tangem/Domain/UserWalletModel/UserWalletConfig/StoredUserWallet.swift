@@ -15,128 +15,59 @@ struct StoredUserWallet: Identifiable, Encodable {
     var id = UUID()
     let userWalletId: Data
     var name: String
-    var walletInfo: StoredWalletInfo
-    var associatedCardIds: Set<String>
-    let walletData: DefaultWalletData
-
-    func resettingWallets() -> Self {
-        StoredUserWallet(
-            id: id,
-            userWalletId: userWalletId,
-            name: name,
-            walletInfo: walletInfo.resettingWallets(),
-            associatedCardIds: associatedCardIds,
-            walletData: walletData
-        )
-    }
-
-    func updatingWallets(_ wallets: [CardDTO.Wallet]) -> Self {
-        guard case .card(var cardDTO) = walletInfo else {
-            Log.warning("Attempt to update hot wallet from CardDTO.Wallet")
-            return self
-        }
-        cardDTO.wallets = wallets
-        return StoredUserWallet(
-            id: id,
-            userWalletId: userWalletId,
-            name: name,
-            walletInfo: .card(cardDTO),
-            associatedCardIds: associatedCardIds,
-            walletData: walletData
-        )
-    }
-
-    func updatingWallets(_ wallets: [HotWallet]) -> Self {
-        guard case .hotWallet(var hotWalletInfo) = walletInfo else {
-            Log.warning("Attempt to update card wallet from HotWallet")
-            return self
-        }
-        hotWalletInfo.wallets = wallets
-        return StoredUserWallet(
-            id: id,
-            userWalletId: userWalletId,
-            name: name,
-            walletInfo: .hotWallet(hotWalletInfo),
-            associatedCardIds: associatedCardIds,
-            walletData: walletData
-        )
-    }
-}
-
-enum StoredWalletInfo: Codable {
-    case card(CardDTO)
-    case hotWallet(HotWalletInfo)
-
-    var isLocked: Bool {
-        switch self {
-        case .card(let cardDTO):
-            return cardDTO.wallets.isEmpty
-        case .hotWallet(let hotWallet):
-            return hotWallet.wallets.isEmpty
-        }
-    }
-
-    func resettingWallets() -> Self {
-        switch self {
-        case .card(let cardDTO):
-            var card = cardDTO
-            card.wallets = []
-            return .card(card)
-        case .hotWallet(let hotWalletInfo):
-            var hotWallet = hotWalletInfo
-            hotWallet.wallets = []
-            return .hotWallet(hotWallet)
-        }
-    }
-
-    var wallets: [WalletPublicInfo] {
-        switch self {
-        case .card(let card):
-            card.wallets.map(\.walletPublicInfo)
-        case .hotWallet(let hotWallet):
-            hotWallet.wallets.map(\.walletPublicInfo)
-        }
-    }
+    var walletInfo: WalletInfo
 }
 
 extension StoredUserWallet {
-    struct SensitiveInformation<T: Codable>: Codable {
+    enum SensitiveInfo {
+        case cardWallet(keys: [CardDTO.Wallet])
+        case mobileWallet(keys: [KeyInfo])
+
+        var asWalletKeys: WalletKeys {
+            switch self {
+            case .cardWallet(let keys):
+                return .cardWallet(keys: keys)
+            case .mobileWallet(let keys):
+                return .mobileWallet(keys: keys)
+            }
+        }
+
+        func serialize(encoder: JSONEncoder) throws -> Data {
+            switch self {
+            case .cardWallet(let keys):
+                let serialized = StoredUserWallet.SensitiveInfo.StoredDTO(wallets: keys)
+                let encoded = try encoder.encode(serialized)
+                return encoded
+            case .mobileWallet(let keys):
+                let serialized = StoredUserWallet.SensitiveInfo.StoredDTO(wallets: keys)
+                let encoded = try encoder.encode(serialized)
+                return encoded
+            }
+        }
+
+        static func deserialize(from decodable: Data, decoder: JSONDecoder) -> Self? {
+            if let cardWalletData = try? decoder.decode(
+                StoredUserWallet.SensitiveInfo.StoredDTO<CardDTO.Wallet>.self,
+                from: decodable
+            ) {
+                return .cardWallet(keys: cardWalletData.wallets)
+            }
+
+            if let mobileWalletData = try? decoder.decode(
+                StoredUserWallet.SensitiveInfo.StoredDTO<KeyInfo>.self,
+                from: decodable
+            ) {
+                return .mobileWallet(keys: mobileWalletData.wallets)
+            }
+
+            return nil
+        }
+    }
+}
+
+extension StoredUserWallet.SensitiveInfo {
+    struct StoredDTO<T: Codable>: Codable {
         let wallets: [T]
-    }
-}
-
-extension StoredUserWallet {
-    var isLocked: Bool {
-        walletInfo.isLocked
-    }
-
-    var cardInfo: CardInfo? {
-        switch walletInfo {
-        case .card(let card):
-            CardInfo(
-                card: card,
-                walletData: walletData,
-                primaryCard: nil
-            )
-        case .hotWallet: nil
-        }
-    }
-
-    var info: WalletInfo {
-        let walletInfoType: WalletInfoType
-        switch walletInfo {
-        case .card(let card):
-            walletInfoType = .card(
-                CardInfo(
-                    card: card,
-                    walletData: walletData,
-                    primaryCard: nil
-                ))
-        case .hotWallet(let hotWallet):
-            walletInfoType = .hot(hotWallet)
-        }
-
-        return WalletInfo(name: name, type: walletInfoType)
     }
 }
 
@@ -149,7 +80,7 @@ extension StoredUserWallet: Decodable {
         case walletData
         case card
         case cardDTOv4
-        case walletInfo
+        case hotWalletInfo
     }
 
     init(from decoder: Decoder) throws {
@@ -157,15 +88,32 @@ extension StoredUserWallet: Decodable {
         id = try container.decode(UUID.self, forKey: .id)
         userWalletId = try container.decode(Data.self, forKey: .userWalletId)
         name = try container.decode(String.self, forKey: .name)
-        associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
-        walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
 
-        if let hotWallet = try? container.decode(HotWalletInfo.self, forKey: .walletInfo) {
-            walletInfo = .hotWallet(hotWallet)
+        if let hotWallet = try? container.decode(HotWalletInfo.self, forKey: .hotWalletInfo) {
+            walletInfo = .mobileWallet(hotWallet)
         } else if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
-            walletInfo = .card(.init(cardDTOv4: cardDTOv4))
+            let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
+            let walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
+
+            let cardDTO = CardDTO(cardDTOv4: cardDTOv4)
+            let cardInfo = CardInfo(
+                card: cardDTO,
+                walletData: walletData,
+                associatedCardIds: associatedCardIds
+            )
+            walletInfo = WalletInfo.cardWallet(cardInfo)
         } else {
-            walletInfo = .card(try container.decode(CardDTO.self, forKey: .card))
+            let cardDTO = try container.decode(CardDTO.self, forKey: .card)
+            let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
+            let walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
+
+            let cardInfo = CardInfo(
+                card: cardDTO,
+                walletData: walletData,
+                associatedCardIds: associatedCardIds
+            )
+
+            walletInfo = WalletInfo.cardWallet(cardInfo)
         }
     }
 
@@ -174,20 +122,14 @@ extension StoredUserWallet: Decodable {
         try container.encode(id, forKey: .id)
         try container.encode(userWalletId, forKey: .userWalletId)
         try container.encode(name, forKey: .name)
-        try container.encode(associatedCardIds, forKey: .associatedCardIds)
-        try container.encode(walletData, forKey: .walletData)
 
         switch walletInfo {
-        case .card(let card):
-            try container.encode(card, forKey: .card)
-        case .hotWallet(let hotWallet):
-            try container.encode(hotWallet, forKey: .walletInfo)
+        case .cardWallet(let cardInfo):
+            try container.encode(cardInfo.walletData, forKey: .walletData)
+            try container.encode(cardInfo.associatedCardIds, forKey: .associatedCardIds)
+            try container.encode(cardInfo.card, forKey: .card)
+        case .mobileWallet(let hotWalletInfo):
+            try container.encode(hotWalletInfo, forKey: .hotWalletInfo)
         }
     }
 }
-
-protocol NameableWallet {
-    var name: String { get set }
-}
-
-extension StoredUserWallet: NameableWallet {}
