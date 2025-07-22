@@ -50,7 +50,7 @@ class ChiaNetworkService: MultiNetworkProvider {
                         response.success,
                         response.status == ChiaSendTransactionResponse.Constants.successStatus
                     else {
-                        throw WalletError.failedToSendTx
+                        throw BlockchainSdkError.failedToSendTx
                     }
 
                     return ""
