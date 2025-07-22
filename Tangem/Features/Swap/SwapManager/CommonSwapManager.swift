@@ -9,12 +9,21 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 class CommonSwapManager {
+    // Dependencies
+
     private let interactor: ExpressInteractor
+
+    // Private
+    private var refreshDataTask: Task<Void, Error>?
+    private var bag: Set<AnyCancellable> = []
 
     init(interactor: ExpressInteractor) {
         self.interactor = interactor
+
+        bind()
     }
 }
 
@@ -76,8 +85,58 @@ extension CommonSwapManager: SwapManager {
     func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
     }
+
+    func update() {
+        interactor.refresh(type: .full)
+    }
+
+    func updateFees() {
+        interactor.refresh(type: .fee)
+    }
+
+    func send() async throws -> TransactionDispatcherResult {
+        try await interactor.sendTransaction().dispatcherResult
+    }
 }
 
 // MARK: - Private
 
-private extension CommonSwapManager {}
+private extension CommonSwapManager {
+    func bind() {
+        // Timer
+        statePublisher
+            .withWeakCaptureOf(self)
+            .sink { $0.updateTimer(state: $1) }
+            .store(in: &bag)
+    }
+
+    func updateTimer(state: SwapManagerState) {
+        switch state {
+        case .restriction(.hasPendingApproveTransaction, _),
+             .permissionRequired,
+             .previewCEX,
+             .readyToSwap:
+            restartTimer()
+        case .idle, .loading, .restriction:
+            stopTimer()
+        }
+    }
+
+    func stopTimer() {
+        AppLogger.info("Stop timer")
+        refreshDataTask?.cancel()
+    }
+
+    func restartTimer() {
+        AppLogger.info("Start timer")
+
+        refreshDataTask?.cancel()
+        refreshDataTask = runTask(in: self) {
+            try await Task.sleep(seconds: 10)
+            try Task.checkCancellation()
+
+            AppLogger.info("Timer call autoupdate")
+            $0.interactor.refresh(type: .refreshRates)
+        }
+    }
+}

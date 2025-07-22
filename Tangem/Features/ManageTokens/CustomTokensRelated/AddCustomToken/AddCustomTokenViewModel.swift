@@ -101,7 +101,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                     logSuccess(tokenItem: tokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
-                    if error.isUserCancelled {
+                    if error.isCancellationError {
                         return
                     }
 
@@ -304,7 +304,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
         let validator = ContractAddressValidatorFactory(blockchain: blockchain).makeValidator()
 
-        guard validator.validate(contractAddress) else {
+        guard validator.validateCustomTokenAddress(contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
 

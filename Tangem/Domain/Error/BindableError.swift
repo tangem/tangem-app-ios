@@ -18,6 +18,42 @@ protocol BindableError {
     func alertBinder(okAction: @escaping () -> Void) -> AlertBinder
 }
 
+// MARK: - Error + BindableError
+
+extension Error {
+    var alertBinder: AlertBinder {
+        toBindable().binder
+    }
+
+    func alertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        toBindable().alertBinder(okAction: okAction)
+    }
+
+    private func toBindable() -> BindableError {
+        self as? BindableError ?? BindableErrorWrapper(self)
+    }
+}
+
+private struct BindableErrorWrapper: BindableError {
+    var binder: AlertBinder {
+        alertBinder(okAction: {})
+    }
+
+    private let error: Error
+
+    init(_ error: Error) {
+        self.error = error
+    }
+
+    func alertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        return AlertBinder(alert: Alert(
+            title: Text(Localization.commonError),
+            message: Text(error.localizedDescription),
+            dismissButton: Alert.Button.default(Text(Localization.commonOk), action: okAction)
+        ))
+    }
+}
+
 // MARK: - TangemSdkError + BindableError
 
 extension TangemSdkError: BindableError {
@@ -60,6 +96,8 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case duplicateWalletAdded
     case biometricsChanged
     case cardWithWrongUserWalletIdScanned
+    case cantSelectWallet
+    case cantUnlockWithCard
 
     var errorDescription: String? {
         rawValue
@@ -73,6 +111,10 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
             return .init(title: Localization.commonAttention, message: Localization.keyInvalidatedWarningDescription)
         case .cardWithWrongUserWalletIdScanned:
             return .init(title: Localization.commonWarning, message: Localization.errorWrongWalletTapped)
+        case .cantSelectWallet:
+            return .init(title: "", message: Localization.genericErrorCode("cantSelectWallet"))
+        case .cantUnlockWithCard:
+            return .init(title: "", message: Localization.genericErrorCode("cantUnlockWithCard"))
         }
     }
 }
