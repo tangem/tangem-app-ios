@@ -62,7 +62,7 @@ class ManageTokensAdapter {
         bind()
     }
 
-    func saveChanges(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func saveChanges(completion: @escaping (Result<Void, Error>) -> Void) {
         userTokensManager.update(
             itemsToRemove: pendingRemove,
             itemsToAdd: pendingAdd

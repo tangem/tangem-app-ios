@@ -48,7 +48,7 @@ enum CardMock: String, CaseIterable {
     }
 
     var cardInfo: CardInfo {
-        .init(card: CardDTO(card: card), walletData: walletData)
+        .init(card: CardDTO(card: card), walletData: walletData, associatedCardIds: [])
     }
 
     var card: Card {

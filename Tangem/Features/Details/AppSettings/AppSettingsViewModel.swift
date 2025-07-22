@@ -124,7 +124,7 @@ private extension AppSettingsViewModel {
                 updateView()
                 completion(false)
             } else {
-                userWalletRepository.setSaving(true)
+                userWalletRepository.onSaveUserWalletsChanged(enabled: true)
                 completion(true)
             }
         }
@@ -271,7 +271,7 @@ private extension AppSettingsViewModel {
         // If saved wallets is turn off we should delete access codes too
         if !saveWallets {
             setSaveAccessCodes(false)
-            userWalletRepository.setSaving(false)
+            userWalletRepository.onSaveUserWalletsChanged(enabled: false)
         }
     }
 
