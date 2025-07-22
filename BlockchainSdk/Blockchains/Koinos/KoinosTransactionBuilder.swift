@@ -27,11 +27,11 @@ class KoinosTransactionBuilder {
         let amount = transaction.amount.value
 
         guard let params = transaction.params as? KoinosTransactionParams else {
-            throw KoinosTransactionBuilderError.unableToParseParams
+            throw KoinosError.unableToParseParams
         }
 
         guard let koinContractId else {
-            throw KoinosTransactionBuilderError.contractIDIsMissing
+            throw KoinosError.contractIDIsMissing
         }
 
         let satoshi = pow(10, Blockchain.koinos(testnet: false).decimalCount)
@@ -63,7 +63,7 @@ class KoinosTransactionBuilder {
         .serializedData()
 
         guard let chainID = chainID.base64URLDecodedData() else {
-            throw KoinosTransactionBuilderError.unableToDecodeChainID
+            throw KoinosError.unableToDecodeChainID
         }
 
         let header = Koinos_Protocol_transaction_header.with {
@@ -122,10 +122,4 @@ class KoinosTransactionBuilder {
             ]
         )
     }
-}
-
-enum KoinosTransactionBuilderError: Error {
-    case unableToParseParams
-    case unableToDecodeChainID
-    case contractIDIsMissing
 }

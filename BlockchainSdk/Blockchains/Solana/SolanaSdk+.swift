@@ -18,7 +18,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -39,7 +39,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -63,7 +63,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -87,7 +87,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -113,7 +113,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -135,7 +135,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -160,7 +160,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -194,7 +194,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -229,7 +229,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -268,7 +268,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -305,7 +305,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -325,11 +325,5 @@ extension Action {
             }
         }
         .eraseToAnyPublisher()
-    }
-}
-
-extension NetworkingRouter: HostProvider {
-    var host: String {
-        endpoint.url.hostOrUnknown
     }
 }

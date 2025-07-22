@@ -18,18 +18,16 @@ protocol SendNewAmountCompactRoutable: AnyObject {
 }
 
 class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
-    @Published private(set) var sendAmountCompactViewModel: SendTokenAmountCompactViewModel
+    @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactTokenViewModel
 
-    @Published private(set) var sendReceiveTokenCompactViewModel: SendTokenAmountCompactViewModel?
+    @Published private(set) var sendReceiveTokenCompactViewModel: SendNewAmountCompactTokenViewModel?
     @Published private(set) var sendSwapProviderCompactViewData: SendSwapProviderCompactViewData?
 
     var amountsSeparator: SendNewAmountCompactViewSeparator.SeparatorStyle {
-        separatorStyle()
+        .title(Localization.sendWithSwapTitle)
     }
 
     weak var router: SendNewAmountCompactRoutable?
-
-    private let flow: SendModel.PredefinedValues.FlowKind
 
     private var receiveTokenSubscription: AnyCancellable?
     private var expressProviderSubscription: AnyCancellable?
@@ -39,11 +37,8 @@ class SendNewAmountCompactViewModel: ObservableObject, Identifiable {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
-        swapProvidersInput: SendSwapProvidersInput,
-        flow: SendModel.PredefinedValues.FlowKind,
+        swapProvidersInput: SendSwapProvidersInput
     ) {
-        self.flow = flow
-
         sendAmountCompactViewModel = .init(sourceToken: sourceTokenInput.sourceToken)
         sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
         sendAmountCompactViewModel.bind(
@@ -87,12 +82,6 @@ private extension SendNewAmountCompactViewModel {
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { $0.updateView(receiveToken: $1.0, availableProvider: $1.1) }
-    }
-
-    private func separatorStyle() -> SendNewAmountCompactViewSeparator.SeparatorStyle {
-        switch flow {
-        case .send, .sell, .staking: .title(Localization.sendWithSwapTitle)
-        }
     }
 
     private func updateView(receiveTokenAmountInput: SendReceiveTokenAmountInput, receiveToken: SendReceiveTokenType) {

@@ -54,27 +54,27 @@ final class ChiaWalletManager: BaseManager, WalletManager {
         Just(())
             .receive(on: DispatchQueue.global())
             .tryMap { [weak self] () -> [Data] in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
                 return try txBuilder.buildForSign(transaction: transaction)
             }
             .flatMap { [weak self] hashesForSign -> AnyPublisher<[Data], Error> in
-                guard let self = self else { return .anyFail(error: WalletError.empty) }
+                guard let self = self else { return .anyFail(error: BlockchainSdkError.empty) }
                 return signer.sign(hashes: hashesForSign, walletPublicKey: wallet.publicKey).eraseToAnyPublisher()
             }
             .tryMap { [weak self] signatures -> ChiaSpendBundle in
-                guard let self else { throw WalletError.empty }
+                guard let self else { throw BlockchainSdkError.empty }
                 return try txBuilder.buildToSend(signatures: signatures)
             }
             .flatMap { [weak self] spendBundle -> AnyPublisher<String, Error> in
                 guard let self = self else {
-                    return Fail(error: WalletError.failedToBuildTx).eraseToAnyPublisher()
+                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
                 }
 
                 let encodedTransactionData = try? JSONEncoder().encode(spendBundle)
 
                 return networkService
                     .send(spendBundle: spendBundle)
-                    .mapSendError(tx: encodedTransactionData?.hex())
+                    .mapAndEraseSendTxError(tx: encodedTransactionData?.hex())
                     .eraseToAnyPublisher()
             }
             .map { [weak self] hash in
@@ -83,7 +83,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
                 self?.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -92,14 +92,14 @@ final class ChiaWalletManager: BaseManager, WalletManager {
             .receive(on: DispatchQueue.global())
             .tryMap { [weak self] _ in
                 guard let self = self else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 return txBuilder.getTransactionCost(amount: amount)
             }
             .flatMap { [weak self] costs -> AnyPublisher<[Fee], Error> in
                 guard let self = self else {
-                    return Fail(error: WalletError.failedToBuildTx).eraseToAnyPublisher()
+                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
                 }
 
                 return networkService.getFee(with: costs)

@@ -13,14 +13,23 @@ import TangemAssets
 struct CreateWalletSelectorView: View {
     typealias ViewModel = CreateWalletSelectorViewModel
 
-    let viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel
+
+    @State private var screenMaxY: CGFloat = 0
+    @State private var scanButtonMinY: CGFloat = 0
+
+    private var scanButtonOffsetY: CGFloat {
+        viewModel.isScanAvailable ? 0 : (screenMaxY - scanButtonMinY + UIApplication.safeAreaInsets.bottom)
+    }
 
     var body: some View {
         content
             .padding(.top, 32)
             .padding(.horizontal, 16)
             .padding(.bottom, 14)
+            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
             .navigationBarItems(trailing: navigationBarTrailingItem)
+            .onAppear(perform: viewModel.onAppear)
             .background(Colors.Background.primary)
     }
 }
@@ -33,6 +42,7 @@ private extension CreateWalletSelectorView {
             Text(viewModel.screenTitle)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 8) {
                 ForEach(Array(viewModel.walletItems.enumerated()), id: \.offset) { _, item in
@@ -42,7 +52,10 @@ private extension CreateWalletSelectorView {
 
             Spacer()
 
-            scan(viewModel.scanItem)
+            scanButton(viewModel.scanItem)
+                .offset(y: scanButtonOffsetY)
+                .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $scanButtonMinY)
+                .animation(.default, value: viewModel.isScanAvailable)
         }
     }
 }
@@ -74,6 +87,7 @@ private extension CreateWalletSelectorView {
                 Text(item.description)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 18)
@@ -83,10 +97,12 @@ private extension CreateWalletSelectorView {
         }
     }
 
-    func scan(_ item: ViewModel.ScanItem) -> some View {
+    func scanButton(_ item: ViewModel.ScanItem) -> some View {
         HStack(spacing: 0) {
             Text(item.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 22)
 

@@ -444,13 +444,11 @@ struct StakeKitMapper {
     }
 }
 
-public enum StakeKitMapperError: Error {
+public enum StakeKitMapperError: Error, LocalizedError {
     case notImplement
     case noData(String)
     case tronTransactionMappingFailed
-}
 
-extension StakeKitMapperError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notImplement: "Not implemented"
