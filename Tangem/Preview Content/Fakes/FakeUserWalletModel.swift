@@ -16,7 +16,14 @@ import TangemNFT
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
+    }
+
     var name: String { "" }
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
@@ -30,10 +37,9 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
+    var cardsCount: Int
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
-    var cardsCount: Int
-    var totalSignedHashes: Int { 1 }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: "", cardPublicKey: Data())
@@ -125,7 +131,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     }
 
     func onBackupUpdate(type: BackupUpdateType) {}
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+    func cleanup() {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
