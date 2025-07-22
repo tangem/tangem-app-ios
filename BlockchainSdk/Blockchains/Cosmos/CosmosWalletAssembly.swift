@@ -23,7 +23,7 @@ struct CosmosWalletAssembly: WalletManagerAssembly {
         case .sei(let isTestnet):
             cosmosChain = .sei(testnet: isTestnet)
         default:
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         let resolver = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
