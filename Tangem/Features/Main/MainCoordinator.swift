@@ -119,10 +119,6 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Private Implementation
 
     private func bind() {
-        guard pushNotificationsViewModelSubscription == nil else {
-            return
-        }
-
         deeplinkDestinationSubscription = deeplinkDestination
             .compactMap { $0 }
             .receiveOnMain()
@@ -130,15 +126,17 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                 self?.deeplinkPresenter.present(deepLink: deepLink)
             }
 
-        pushNotificationsViewModelSubscription = $pushNotificationsViewModel
-            .pairwise()
-            .filter { previous, current in
-                // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
-                previous != nil && current == nil
-            }
-            .sink { previous, _ in
-                previous?.didDismissSheet()
-            }
+        if pushNotificationsViewModelSubscription == nil {
+            pushNotificationsViewModelSubscription = $pushNotificationsViewModel
+                .pairwise()
+                .filter { previous, current in
+                    // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
+                    previous != nil && current == nil
+                }
+                .sink { previous, _ in
+                    previous?.didDismissSheet()
+                }
+        }
     }
 
     private func setupUI() {
@@ -174,6 +172,10 @@ extension MainCoordinator: MainRoutable {
         navigationActionHandler.becomeIncomingActionsResponder()
     }
 
+    func resignHandlingIncomingActions() {
+        navigationActionHandler.resignIncomingActionsResponder()
+    }
+
     func openDeepLink(_ deepLink: DeepLinkDestination) {
         if case .externalLink(let url) = deepLink {
             safariManager.openURL(url)
@@ -199,13 +201,12 @@ extension MainCoordinator: MainRoutable {
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
-    func openOnboardingModal(with input: OnboardingInput) {
+    func openOnboardingModal(with options: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.modalOnboardingCoordinator = nil
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options.input(input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -276,6 +277,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
+    }
+
+    func openHotFinishActivation() {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: HotFinishActivationNeededViewModel(routable: self)
+            )
+        }
     }
 }
 
@@ -635,5 +644,21 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
+    }
+}
+
+// MARK: - HotFinishActivationNeededRoutable
+
+extension MainCoordinator: HotFinishActivationNeededRoutable {
+    func dismissHotFinishActivationNeeded() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openHotBackupOnboarding() {
+        // [REDACTED_TODO_COMMENT]
+        let backupInput = HotOnboardingInput(flow: .walletActivate)
+        openOnboardingModal(with: .hotInput(backupInput))
     }
 }

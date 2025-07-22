@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -35,6 +36,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
+                        .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
                         .transition(.notificationTransition)
                 }
 
@@ -108,7 +110,11 @@ struct TokenDetailsView: View {
                 .opacity(scrollOffsetHandler.state)
             }
 
-            ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                navbarTrailingButton
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
+            }
         })
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -123,6 +129,7 @@ struct TokenDetailsView: View {
 
                 if viewModel.canHideToken {
                     Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
+                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
                 }
             } label: {
                 NavbarDotsImage()

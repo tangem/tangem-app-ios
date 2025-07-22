@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemExpress
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampSettingsView: View {
     @ObservedObject var viewModel: OnrampSettingsViewModel
@@ -20,6 +21,7 @@ struct OnrampSettingsView: View {
             Button(action: viewModel.onTapResidence) {
                 rowView
             }
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.residenceButton)
 
             Text(Localization.onrampSettingsResidenceDescription)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)

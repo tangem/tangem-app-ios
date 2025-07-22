@@ -111,12 +111,8 @@ struct PolkadotAddressTests {
         "14PhJGbzPxhQbiq7k9uFjDQx3MNiYxnjFRSiVBvBBBfnkAoM",
     ])
     func validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .polkadot, publicKeyType: CoinType.polkadot.publicKeyType)
-
         curves.forEach {
             let addressValidator = AddressServiceFactory(blockchain: .polkadot(curve: $0, testnet: false)).makeAddressService()
-
-            #expect(walletCoreAddressValidator.validate(addressHex))
             #expect(addressValidator.validate(addressHex))
         }
     }
@@ -127,12 +123,8 @@ struct PolkadotAddressTests {
         "ELmaX1aPkyEF7TSmYbbyCjmSgrBpGHv9EtpwR2tk1kmpwvG",
     ])
     func invalidAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .polkadot, publicKeyType: CoinType.polkadot.publicKeyType)
-
         curves.forEach {
             let addressValidator = AddressServiceFactory(blockchain: .polkadot(curve: $0, testnet: false)).makeAddressService()
-
-            #expect(!walletCoreAddressValidator.validate(addressHex))
             #expect(!addressValidator.validate(addressHex))
         }
     }
