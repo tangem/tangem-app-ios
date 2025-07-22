@@ -69,6 +69,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
+            return .string(Localization.warningTokenTrustlineTitle)
         case .staking:
             return .string(Localization.tokenDetailsStakingBlockTitle)
         case .manaLevel:
@@ -117,6 +119,8 @@ extension TokenNotificationEvent: NotificationEvent {
                 revealTransaction.formattedValue,
                 revealTransaction.currencySymbol
             )
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+            return Localization.warningTokenTrustlineSubtitle(trustlineInfo.reserveCurrencySymbol, trustlineInfo.reserveAmount)
         case .staking:
             return Localization.stakingNotificationEarnRewardsText
         case .manaLevel(let currentMana, let maxMana):
@@ -141,6 +145,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTransaction,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking:
             return .primary
         }
@@ -162,6 +167,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Tokens.hederaFill.image))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+            return .init(iconType: .image(trustlineInfo.icon.image))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
         }
@@ -181,7 +188,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .notEnoughFeeForTransaction,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
+             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
             return .warning
         }
     }
@@ -198,6 +206,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
              .maticMigration:
@@ -229,6 +238,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.addHederaTokenAssociation)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(.retryKaspaTokenTransaction)
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
+            return .init(.addTokenTrustline, withLoader: true)
         case .staking:
             return .init(.stake)
         }
@@ -270,11 +281,25 @@ extension TokenNotificationEvent {
             }
         }
 
+        struct MissingTrustlineInfo: Hashable {
+            let reserveCurrencySymbol: String
+            let reserveAmount: String
+            let icon: ImageType
+
+            static func == (lhs: Self, rhs: Self) -> Bool {
+                return lhs.reserveCurrencySymbol == rhs.reserveCurrencySymbol && lhs.reserveAmount == rhs.reserveAmount
+            }
+
+            func hash(into hasher: inout Hasher) {
+                hasher.combine(reserveCurrencySymbol)
+                hasher.combine(reserveAmount)
+            }
+        }
+
         /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
         case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
         case incompleteKaspaTokenTransaction(revealTransaction: KaspaTokenRevealTransaction)
-        @available(*, unavailable, message: "Token trust lines support not implemented yet")
-        case missingTokenTrustline
+        case missingTokenTrustline(MissingTrustlineInfo)
     }
 }
 
@@ -292,6 +317,7 @@ extension TokenNotificationEvent {
         case .bnbBeaconChainRetirement: return nil
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation): return nil
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction): return .tokenNoticeRevealTransaction
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline): return nil
         case .staking: return nil
         case .manaLevel: return nil
         case .maticMigration: return nil
@@ -311,6 +337,7 @@ extension TokenNotificationEvent {
              .existentialDepositWarning,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
              .maticMigration,
