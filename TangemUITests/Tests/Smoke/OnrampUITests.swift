@@ -117,4 +117,25 @@ final class OnrampUITests: BaseTestCase {
             .validateSelectedPaymentMethod(selectedPaymentMethodId)
             .validateScreenTitle()
     }
+
+    func testGoOnramp_paymentMethodsErrorShowed() {
+        id(3478)
+        let errorScenario = ScenarioConfig(
+            name: "payment_methods",
+            initialState: "Error"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            scenarios: [errorScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(token)
+            .tapActionButton(.buy)
+            .enterAmount(amountToEnter)
+            .validateErrorViewExists()
+    }
 }
