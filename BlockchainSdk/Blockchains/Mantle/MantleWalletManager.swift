@@ -66,7 +66,7 @@ private extension MantleWalletManager {
                 gasPrice: parameters.gasPrice
             )
         default:
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
 
         let blockchain = wallet.blockchain

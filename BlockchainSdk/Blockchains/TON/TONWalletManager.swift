@@ -56,7 +56,7 @@ final class TONWalletManager: BaseManager, WalletManager {
             .receive(on: DispatchQueue.global())
             .tryMap { [weak self] jettonWalletAddress -> (TONTransactionInput, Data) in
                 guard let self else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
 
                 let params = transaction.params as? TONTransactionParams
@@ -93,12 +93,12 @@ final class TONWalletManager: BaseManager, WalletManager {
             }
             .flatMap { [weak self] message -> AnyPublisher<String, Error> in
                 guard let self else {
-                    return Fail(error: WalletError.failedToBuildTx).eraseToAnyPublisher()
+                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
                 }
 
                 return networkService
                     .send(message: message)
-                    .mapSendError(tx: message)
+                    .mapAndEraseSendTxError(tx: message)
                     .eraseToAnyPublisher()
             }
             .map { [weak self] base64String in
@@ -108,7 +108,7 @@ final class TONWalletManager: BaseManager, WalletManager {
                 self?.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hex)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
@@ -122,7 +122,7 @@ extension TONWalletManager: TransactionFeeProvider {
         getJettonWalletAddressIfNeeded(transactionType: amount.type)
             .tryMap { [weak self] jettonWalletAddress -> String in
                 guard let self else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
 
                 let buildInput = TONTransactionInput(
@@ -142,7 +142,7 @@ extension TONWalletManager: TransactionFeeProvider {
             }
             .flatMap { [weak self] message -> AnyPublisher<[Fee], Error> in
                 guard let self else {
-                    return Fail(error: WalletError.failedToBuildTx).eraseToAnyPublisher()
+                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
                 }
 
                 return networkService.getFee(address: wallet.address, message: message)

@@ -1,5 +1,5 @@
 {
-  "originHash" : "3801e602cca2a80c5af4544426a67a4fe7428a3e88e6bfc5d91213ebb3274020",
+  "originHash" : "ba85be015672145414c7bf769105dce35e5f745c767450ea1caf378da282eca6",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "7deda23bbdca612076c5c315003d8638a08ed0f1",
-        "version" : "8.3.2"
+        "revision" : "010a06c4387cea2d13606222b6c08e0454e6dd2d",
+        "version" : "8.3.3"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "fe21f909c07ddc3759e71eb6be8d16eae2ccf845",
-        "version" : "3.22.2"
+        "revision" : "90b59e4c04ab497b164700873c8f5a2e217433cd",
+        "version" : "3.22.3"
       }
     },
     {

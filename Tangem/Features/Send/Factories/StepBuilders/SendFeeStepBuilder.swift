@@ -18,15 +18,21 @@ struct SendFeeStepBuilder {
     func makeFeeSendStep(
         io: IO,
         notificationManager: NotificationManager,
+        analyticsLogger: any SendFeeAnalyticsLogger,
         sendFeeProvider: SendFeeProvider,
         customFeeService: CustomFeeService?,
         router: SendFeeRoutable
     ) -> ReturnValue {
-        let interactor = makeSendFeeInteractor(io: io, customFeeService: customFeeService, sendFeeProvider: sendFeeProvider)
+        let interactor = makeSendFeeInteractor(
+            io: io,
+            customFeeService: customFeeService,
+            sendFeeProvider: sendFeeProvider
+        )
 
         let viewModel = makeSendFeeViewModel(
             sendFeeInteractor: interactor,
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             router: router
         )
 
@@ -34,7 +40,7 @@ struct SendFeeStepBuilder {
             viewModel: viewModel,
             feeProvider: sendFeeProvider,
             notificationManager: notificationManager,
-            feeTokenItem: walletModel.feeTokenItem
+            analyticsLogger: analyticsLogger
         )
 
         let compact = makeSendFeeCompactViewModel(input: io.input)
@@ -57,6 +63,7 @@ private extension SendFeeStepBuilder {
     func makeSendFeeViewModel(
         sendFeeInteractor: SendFeeInteractor,
         notificationManager: NotificationManager,
+        analyticsLogger: any SendFeeAnalyticsLogger,
         router: SendFeeRoutable
     ) -> SendFeeViewModel {
         let settings = SendFeeViewModel.Settings(
@@ -69,7 +76,7 @@ private extension SendFeeStepBuilder {
             interactor: sendFeeInteractor,
             notificationManager: notificationManager,
             router: router,
-            feeAnalyticsParameterBuilder: builder.makeFeeAnalyticsParameterBuilder()
+            analyticsLogger: analyticsLogger
         )
     }
 

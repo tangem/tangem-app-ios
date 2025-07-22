@@ -315,7 +315,7 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func loadKYCAuthToken() async throws -> VisaKYCAccessTokenResponse {
+    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
         VisaKYCAccessTokenResponse(token: "", locale: "")
     }
 }
