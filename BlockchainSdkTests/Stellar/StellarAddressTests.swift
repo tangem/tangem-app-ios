@@ -88,4 +88,40 @@ struct StellarAddressTests {
             #expect(!addressValidator.validate(addressHex))
         }
     }
+
+    @Test(arguments: [
+        "USDCC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-1",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-1",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ",
+        "POL-GAE2SZV4VLGBAPRYRFV2VY7YYLYGYIP5I7OU7BSP6DJT7GAZ35OKFDYI",
+        "AA-GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ",
+        "A-GDWFHB6YWOF5T34AXW6HRUGX4HCT6CHCNFBWZGOVWPBN6SZM44YBFUDZ"
+    ])
+    func validCustomTokenAddresses(addressHex: String) {
+        [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
+            let customTokenValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
+            #expect(customTokenValidator.validateCustomTokenAddress(addressHex))
+        }
+    }
+
+    @Test(arguments: [
+        "usdc-GDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHD", // lowercase asset code
+        "USDC-GDWFHядыфлвФЫВЗФЫВЛ++EÈ", // invalid issuer characters
+        "USDC-", // missing issuer
+        "-GDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFHDWFH", // missing asset code
+        "USDC:G123", // valid colon but invalid issuer
+        "GDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDU", // issuer only
+        "USDCGDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDU", // no separator
+        "USDC-GDUKMGUGDZQK6YH7ZB7UZUQ3Z5VYK3Z4NSY4CIKMFQJZCEBOUJ4CHGDUFSDFASF", // Too long
+        "USDC-GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-2",
+        "USDC:GAB6EDWGWSRZUYUYCWXAFQFBHE5ZEJPDXCIMVZC3LH2C7IU35FTI2NOQ-2"
+    ])
+    func invalidCustomTokenAddresses(addressHex: String) {
+        [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
+            let customTokenValidator: AddressValidator = AddressServiceFactory(blockchain: .stellar(curve: $0, testnet: false)).makeAddressService()
+            #expect(!customTokenValidator.validateCustomTokenAddress(addressHex))
+        }
+    }
 }
