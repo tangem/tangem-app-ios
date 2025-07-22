@@ -14,11 +14,11 @@ import class WalletCore.PrivateKey
 import Testing
 
 struct ChiaAddressTests {
+    let addressService = AddressServiceFactory(blockchain: .chia(testnet: true)).makeAddressService()
+
     @Test
     func addressValidation() throws {
         // given
-        let blockchain = Blockchain.chia(testnet: true)
-        let addressService = ChiaAddressService(isTestnet: blockchain.isTestnet)
         let expectedAddress = "txch14gxuvfmw2xdxqnws5agt3ma483wktd2lrzwvpj3f6jvdgkmf5gtq8g3aw3"
 
         // when
@@ -44,8 +44,6 @@ struct ChiaAddressTests {
         "txch1lhfzlt7tz8whecqnnrha4kcxgfk9ct77j0aq0a844766fpjfv2rsp9wgas",
     ])
     func addressValidation_validAddresses(address: String) {
-        let blockchain = Blockchain.chia(testnet: true)
-        let addressService = ChiaAddressService(isTestnet: blockchain.isTestnet)
         #expect(addressService.validate(address))
     }
 
@@ -55,8 +53,6 @@ struct ChiaAddressTests {
         "xch1lhfzlt7tz8whecqnnrha4kcxgfk9ct77j0aq0a844766fpjfv2rsp9wgas"
     ])
     func addressValidation_invalidAddresses(address: String) {
-        let blockchain = Blockchain.chia(testnet: true)
-        let addressService = ChiaAddressService(isTestnet: blockchain.isTestnet)
         #expect(!addressService.validate(address))
     }
 }
