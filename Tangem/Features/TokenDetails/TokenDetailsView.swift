@@ -36,6 +36,7 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
+                        .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
                         .transition(.notificationTransition)
                 }
 
