@@ -11,6 +11,12 @@ import TangemSdk
 enum HotWalletError: Error, Equatable {
     case derivationIsNotSupported
     case invalidStakingKey
+    case invalidEntropySize
+    case invalidCurve(_ curve: EllipticCurve)
+    case failedToCreateMnemonic
+    case failedToDeriveKey
+    case failedToCreateSeed
+    case failedToSignHash
 
     case tangemSdk(TangemSdkError)
 
