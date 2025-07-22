@@ -15,33 +15,6 @@ final class UserWalletNameIndexationHelper {
         self.existingNames = Set(existingNames).filter { NameComponents(from: $0) != nil }
     }
 
-    static func migratedWallets<T: NameableWallet>(_ wallets: [T]) -> [T]? {
-        var didChangeNames = false
-
-        var wallets = wallets.map { wallet in
-            var wallet = wallet
-            let trimmedName = wallet.name.trimmed()
-            if trimmedName != wallet.name {
-                didChangeNames = true
-                wallet.name = trimmedName
-            }
-            return wallet
-        }
-
-        let helper = UserWalletNameIndexationHelper(existingNames: wallets.map(\.name))
-        for (index, wallet) in wallets.enumerated() {
-            let suggestedName = helper.suggestedName(for: wallet.name)
-            if wallet.name != suggestedName {
-                var wallet = wallet
-                wallet.name = suggestedName
-                wallets[index] = wallet
-                didChangeNames = true
-            }
-        }
-
-        return didChangeNames ? wallets : nil
-    }
-
     static func suggestedName(_ rawName: String, names: [String]) -> String {
         if NameComponents(from: rawName) != nil {
             return rawName

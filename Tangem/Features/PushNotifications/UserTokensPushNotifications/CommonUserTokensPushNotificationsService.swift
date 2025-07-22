@@ -110,10 +110,10 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
         switch event {
-        case .locked, .selected, .scan:
-            return
-        case .inserted, .updated, .deleted, .biometryUnlocked, .replaced:
+        case .inserted, .unlocked, .deleted:
             updateState()
+        default:
+            return
         }
     }
 
