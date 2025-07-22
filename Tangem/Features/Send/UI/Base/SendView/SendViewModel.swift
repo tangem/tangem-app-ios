@@ -55,6 +55,7 @@ final class SendViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let alertBuilder: SendAlertBuilder
     private let dataBuilder: SendGenericBaseDataBuilder
+    private let analyticsLogger: SendBaseViewAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let source: SendCoordinator.Source
@@ -72,6 +73,7 @@ final class SendViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         alertBuilder: SendAlertBuilder,
         dataBuilder: SendGenericBaseDataBuilder,
+        analyticsLogger: SendBaseViewAnalyticsLogger,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         source: SendCoordinator.Source,
@@ -81,6 +83,7 @@ final class SendViewModel: ObservableObject {
         self.stepsManager = stepsManager
         self.userWalletModel = userWalletModel
         self.alertBuilder = alertBuilder
+        self.analyticsLogger = analyticsLogger
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.dataBuilder = dataBuilder
@@ -99,27 +102,20 @@ final class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
-        switch flowActionType {
-        case .onramp:
-            Analytics.log(event: .onrampBuyScreenOpened, params: [
-                .source: source.analytics.rawValue,
-                .token: tokenItem.currencySymbol,
-            ])
-        default:
-            break
-        }
+        analyticsLogger.logSendBaseViewOpened()
     }
 
     func onDisappear() {}
 
     func userDidTapActionButton() {
+        analyticsLogger.logMainActionButton(type: mainButtonType, flow: flowActionType)
+
         switch mainButtonType {
         case .next:
+            step.saveChangesIfNeeded()
             stepsManager.performNext()
-            if flowActionType == .stake {
-                Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
-            }
         case .continue:
+            step.saveChangesIfNeeded()
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
             performApprove()
@@ -162,42 +158,13 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
-        switch flowActionType {
-        case .send:
-            Analytics.log(.sendButtonClose, params: [
-                .source: step.type.analyticsSourceParameterValue,
-                .fromSummary: .affirmativeOrNegative(for: step.type.isSummary),
-                .valid: .affirmativeOrNegative(for: actionIsAvailable),
-            ])
-        case .onramp:
-            Analytics.log(.onrampButtonClose)
-        case .approve,
-             .stake,
-             .unstake,
-             .claimRewards,
-             .restakeRewards,
-             .withdraw, .claimUnstaked,
-             .restake,
-             .unlockLocked,
-             .stakeLocked,
-             .vote,
-             .revoke,
-             .voteLocked,
-             .revote,
-             .rebond,
-             .migrate:
-            Analytics.log(event: .stakingButtonCancel, params: [
-                .source: step.type.analyticsSourceParameterValue.rawValue,
-                .token: tokenItem.currencySymbol,
-            ])
-        }
+        analyticsLogger.logCloseButton(stepType: step.type, isAvailableToAction: actionIsAvailable)
 
-        // We perform the continue action
-        // When user'd like to return back step
-        // For destination, amount, fee do not close modal and open the summary
         switch mainButtonType {
         case .continue:
-            stepsManager.performContinue()
+            // When `mainButtonType == .continue` means we're in the `edit` mode
+            // We perform the back action with no save changes in new UI
+            stepsManager.performBack()
         case _ where shouldShowDismissAlert:
             alert = alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)
@@ -208,28 +175,12 @@ final class SendViewModel: ObservableObject {
     }
 
     func share(url: URL) {
-        if flowActionType == .send {
-            Analytics.log(.sendButtonShare)
-        } else {
-            Analytics.log(
-                event: .stakingButtonShare,
-                params: [
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
+        analyticsLogger.logShareButton()
         coordinator?.openShareSheet(url: url)
     }
 
     func explore(url: URL) {
-        if flowActionType == .send {
-            Analytics.log(.sendButtonExplore)
-        } else {
-            Analytics.log(
-                event: .stakingButtonExplore,
-                params: [.token: tokenItem.currencySymbol]
-            )
-        }
+        analyticsLogger.logExploreButton()
         coordinator?.openExplorer(url: url)
     }
 }
@@ -323,8 +274,8 @@ private extension SendViewModel {
         }
     }
 
-    func openMail(error: Error) {
-        Analytics.log(.requestSupport, params: [.source: .send])
+    func openMail(error: UniversalError) {
+        analyticsLogger.logRequestSupport()
 
         do {
             let (emailDataCollector, recipient) = try dataBuilder.stakingBuilder().makeMailData(stakingRequestError: error)
@@ -335,7 +286,7 @@ private extension SendViewModel {
     }
 
     func openMail(transaction: SendTransactionType, error: SendTxError) {
-        Analytics.log(.requestSupport, params: [.source: .send])
+        analyticsLogger.logRequestSupport()
 
         do {
             switch transaction {

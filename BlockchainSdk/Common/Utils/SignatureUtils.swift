@@ -20,7 +20,7 @@ enum SignatureUtils {
     //   - hash: The `Data` object representing the hash of the message or transaction.
     // - Returns: A `Data` object containing the unmarshalled signature, which includes the `r` and `s` values
     //   concatenated with the adjusted recovery ID.
-    // - Throws: `WalletError.failedToBuildTx` if the unmarshalling process fails due to an invalid recovery ID.
+    // - Throws: `BlockchainSdkError.failedToBuildTx` if the unmarshalling process fails due to an invalid recovery ID.
     //
     // - Important: For certain blockchains, especially those using the Secp256k1 curve, signature unmarshalling
     //   is required to correctly reconstruct the signature from the original data. This process involves verifying
@@ -33,13 +33,13 @@ enum SignatureUtils {
         let unmarshalledSignature = try signature.unmarshal(with: publicKey, hash: hash)
 
         guard unmarshalledSignature.v.count == Constants.recoveryIdLength else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let recoveryId = unmarshalledSignature.v[0] - Constants.recoveryIdDiff
 
         guard recoveryId >= Constants.recoveryIdLowerBound, recoveryId <= Constants.recoveryIdUpperBound else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return unmarshalledSignature.r + unmarshalledSignature.s + Data(recoveryId)

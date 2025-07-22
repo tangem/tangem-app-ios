@@ -103,6 +103,23 @@ public struct ExpressAPICredential {
 
 public enum ExpressAPIType: String, Hashable, CaseIterable {
     case develop
+    case develop2
     case production
     case stage
+    case mock
+
+    public var title: String {
+        switch self {
+        case .develop:
+            return "dev"
+        case .develop2:
+            return "dev2"
+        case .production:
+            return "prod"
+        case .stage:
+            return "stage"
+        case .mock:
+            return "mock"
+        }
+    }
 }

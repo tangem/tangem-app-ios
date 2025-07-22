@@ -110,4 +110,6 @@ extension XRPTarget: TargetTypeLogConvertible {
             "reserve"
         }
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

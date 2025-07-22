@@ -16,13 +16,16 @@ import TangemLogger
 final class WalletConnectViewModel: ObservableObject {
     private let establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
     private let getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase
+    private let dAppsSessionExtender: WalletConnectDAppSessionsExtender
     private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
+    private let userWalletRepository: any UserWalletRepository
 
     private weak var coordinator: (any WalletConnectRoutable)?
 
     private let logger: Logger
 
-    private var connectedDAppsTask: Task<Void, Never>?
+    private var initialLoadingTask: Task<Void, Never>?
+    private var connectedDAppsUpdateHandleTask: Task<Void, Never>?
     private var disconnectAllDAppsTask: Task<Void, Never>?
 
     @Published private(set) var state: WalletConnectViewState
@@ -31,27 +34,51 @@ final class WalletConnectViewModel: ObservableObject {
         state: WalletConnectViewState = .initial,
         establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase,
         getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase,
+        dAppsSessionExtender: WalletConnectDAppSessionsExtender,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
+        userWalletRepository: some UserWalletRepository,
         coordinator: some WalletConnectRoutable
     ) {
         self.state = state
         self.establishDAppConnectionUseCase = establishDAppConnectionUseCase
         self.getConnectedDAppsUseCase = getConnectedDAppsUseCase
+        self.dAppsSessionExtender = dAppsSessionExtender
         self.disconnectDAppUseCase = disconnectDAppUseCase
+        self.userWalletRepository = userWalletRepository
         self.coordinator = coordinator
 
         logger = WCLogger
-
-        bindConnectedDApps()
     }
 
     deinit {
-        connectedDAppsTask?.cancel()
+        initialLoadingTask?.cancel()
+        connectedDAppsUpdateHandleTask?.cancel()
         disconnectAllDAppsTask?.cancel()
     }
 
-    private func bindConnectedDApps() {
-        connectedDAppsTask = Task { [weak self, getConnectedDAppsUseCase] in
+    func fetchConnectedDApps() {
+        initialLoadingTask?.cancel()
+
+        initialLoadingTask = Task { [dAppsSessionExtender, getConnectedDAppsUseCase, weak self] in
+            await dAppsSessionExtender.extendConnectedDAppSessionsIfNeeded()
+
+            guard !Task.isCancelled else { return }
+
+            let connectedDApps: [WalletConnectConnectedDApp]
+
+            do throws(WalletConnectDAppPersistenceError) {
+                connectedDApps = try await getConnectedDAppsUseCase.callAsFunction()
+            } catch {
+                connectedDApps = []
+            }
+
+            self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
+            self?.subscribeToConnectedDAppsUpdates()
+        }
+    }
+
+    private func subscribeToConnectedDAppsUpdates() {
+        connectedDAppsUpdateHandleTask = Task { [weak self, getConnectedDAppsUseCase] in
             for await connectedDApps in await getConnectedDAppsUseCase() {
                 self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
             }
@@ -59,10 +86,12 @@ final class WalletConnectViewModel: ObservableObject {
     }
 
     private func disconnectAllConnectedDApps() {
-        guard case .withConnectedDApps(let walletsWithDApps) = state.contentState else { return }
-        let allConnectedDApps = walletsWithDApps.flatMap(\.dApps)
+        guard case .content(let walletsWithDApps) = state.contentState else { return }
 
+        connectedDAppsUpdateHandleTask?.cancel()
         disconnectAllDAppsTask?.cancel()
+
+        let allConnectedDApps = walletsWithDApps.flatMap(\.dApps)
 
         disconnectAllDAppsTask = Task { [weak self] in
             await withTaskGroup(of: Void.self) { group in
@@ -73,8 +102,16 @@ final class WalletConnectViewModel: ObservableObject {
                 }
             }
 
-            self?.state.contentState = .empty(.init())
+            self?.showDisconnectAllDAppsToast()
+            self?.state.contentState = .empty
+            self?.subscribeToConnectedDAppsUpdates()
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func showDisconnectAllDAppsToast() {
+        WalletConnectModuleFactory.makeSuccessToast(with: "Disconnected all dApps")
+            .present(layout: .top(padding: 20), type: .temporary())
     }
 }
 
@@ -83,9 +120,6 @@ final class WalletConnectViewModel: ObservableObject {
 extension WalletConnectViewModel {
     func handle(viewEvent: WalletConnectViewEvent) {
         switch viewEvent {
-        case .viewDidAppear:
-            handleViewDidAppear()
-
         case .newConnectionButtonTapped:
             handleNewConnectionButtonTapped()
 
@@ -103,11 +137,9 @@ extension WalletConnectViewModel {
         }
     }
 
-    private func handleViewDidAppear() {
-        // [REDACTED_TODO_COMMENT]
-    }
-
     private func handleNewConnectionButtonTapped() {
+        guard !state.newConnectionButton.isLoading else { return }
+
         do {
             let newDAppConnectionResult = try establishDAppConnectionUseCase()
 
@@ -176,29 +208,61 @@ extension WalletConnectViewModel {
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
         guard !connectedDApps.isEmpty else {
             state.contentState = .empty(.init())
+            state.newConnectionButton.isLoading = false
             return
         }
 
-        let userWalletToConnectedDApps = connectedDApps.grouped(by: \.userWallet)
-
-        let walletsWithDApps: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = userWalletToConnectedDApps
-            .compactMap { userWallet, dApps in
-                return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
-                    walletId: userWallet.id,
-                    walletName: userWallet.name,
-                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
-                )
-            }
+        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps)
 
         guard !walletsWithDApps.isEmpty else {
             state.contentState = .empty(.init())
+            state.newConnectionButton.isLoading = false
             return
         }
 
-        state.contentState = .withConnectedDApps(walletsWithDApps)
+        state.contentState = .content(walletsWithDApps)
+        state.newConnectionButton.isLoading = false
     }
 
     private func handleCloseDialogButtonTapped() {
         state.dialog = nil
+    }
+}
+
+// MARK: - Factory methods and state mapping
+
+extension WalletConnectViewModel {
+    private func makeWalletsWithConnectedDApps(
+        from connectedDApps: [WalletConnectConnectedDApp]
+    ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
+        var userWalletIDToConnectedDApps = [String: [WalletConnectConnectedDApp]]()
+        var orderedUserWalletIDs = [String]()
+
+        for dApp in connectedDApps {
+            let connectedDApps: [WalletConnectConnectedDApp]
+
+            if var addedDApps = userWalletIDToConnectedDApps[dApp.userWalletID] {
+                addedDApps.append(dApp)
+                connectedDApps = addedDApps
+            } else {
+                orderedUserWalletIDs.append(dApp.userWalletID)
+                connectedDApps = [dApp]
+            }
+
+            userWalletIDToConnectedDApps[dApp.userWalletID] = connectedDApps
+        }
+
+        return orderedUserWalletIDs
+            .compactMap { userWalletID in
+                guard let dApps = userWalletIDToConnectedDApps[userWalletID] else { return nil }
+
+                let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID })?.name ?? ""
+
+                return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
+                    walletId: userWalletID,
+                    walletName: walletName,
+                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
+                )
+            }
     }
 }

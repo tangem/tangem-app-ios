@@ -250,6 +250,10 @@ final class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            try await KYCService.start(getToken: customerCardInfoProvider.loadKYCAccessToken)
+
             await reloadHistoryAsync()
             let builder = await VisaPaymentAccountInteractorBuilder(
                 isTestnet: blockchain.isTestnet,
@@ -553,8 +557,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
 
-    var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
-
     var name: String { userWalletModel.name }
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
@@ -597,19 +599,28 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.updateWalletName(name)
     }
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {}
 }
 
 extension VisaUserWalletModel: UserWalletSerializable {
-    func serialize() -> StoredUserWallet {
+    func serializePublic() -> StoredUserWallet {
         let name = name.isEmpty ? config.defaultName : name
 
-        return StoredUserWallet(
+        var mutableCardInfo = cardInfo
+        mutableCardInfo.card.wallets = []
+
+        let newStoredUserWallet = StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
-            walletInfo: .card(cardInfo.card),
-            associatedCardIds: [],
-            walletData: cardInfo.walletData
+            walletInfo: .cardWallet(mutableCardInfo)
         )
+
+        return newStoredUserWallet
+    }
+
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo {
+        return .cardWallet(keys: cardInfo.card.wallets)
     }
 }
