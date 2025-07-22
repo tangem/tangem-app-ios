@@ -84,7 +84,7 @@ struct XRPTransactionTests {
     private func makeTransaction(publickKey: Data, curve: EllipticCurve) throws -> Transaction {
         let blockchain = Blockchain.xrp(curve: curve)
 
-        let address = try XRPAddressService(curve: curve).makeAddress(
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(
             for: Wallet.PublicKey(seedKey: publickKey, derivationType: .none),
             with: .default
         )
