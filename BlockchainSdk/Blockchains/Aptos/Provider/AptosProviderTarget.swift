@@ -40,6 +40,8 @@ struct AptosProviderTarget: TargetType {
 
     var path: String {
         switch targetType {
+        case .view:
+            return "v1/view"
         case .accounts(let address):
             return "v1/accounts/\(address)"
         case .accountsResources(let address):
@@ -57,7 +59,7 @@ struct AptosProviderTarget: TargetType {
         switch targetType {
         case .accounts, .accountsResources, .estimateGasPrice:
             return .get
-        case .simulateTransaction, .submitTransaction:
+        case .view, .simulateTransaction, .submitTransaction:
             return .post
         }
     }
@@ -66,6 +68,8 @@ struct AptosProviderTarget: TargetType {
         switch targetType {
         case .accounts, .accountsResources, .estimateGasPrice:
             return .requestPlain
+        case .view(let payload):
+            return .requestJSONEncodable(payload)
         case .simulateTransaction(let data):
             return .requestCompositeData(
                 bodyData: data,
@@ -96,6 +100,9 @@ struct AptosProviderTarget: TargetType {
 
 extension AptosProviderTarget {
     enum TargetType {
+        /// Return account view with all type storages
+        case view(payload: Encodable)
+
         /**
          Return the authentication key and the sequence number for an account address. Optionally, a ledger version can be specified. If the ledger version is not specified in the request, the latest ledger version is used.
          */
