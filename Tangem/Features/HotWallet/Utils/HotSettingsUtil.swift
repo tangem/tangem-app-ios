@@ -57,6 +57,10 @@ extension HotSettingsUtil {
     }
 
     func calculateSeedPhraseState() async -> SeedPhraseState {
+        guard statusUtil.isAccessCodeCreated else {
+            return .onboarding(needsValidation: false)
+        }
+
         if statusUtil.isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         } else {
