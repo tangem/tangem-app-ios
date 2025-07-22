@@ -11,6 +11,7 @@ import TangemSdk
 enum HotWalletError: Error, Equatable {
     case derivationIsNotSupported
     case invalidStakingKey
+    case failedToExportMnemonic
 
     case tangemSdk(TangemSdkError)
 
