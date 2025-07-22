@@ -61,7 +61,7 @@ class ManageTokensViewModel: ObservableObject {
                 adapter.resetAdapter()
                 showPortfolioUpdatedToast()
             case .failure(let failure):
-                if failure.isUserCancelled {
+                if failure.isCancellationError {
                     return
                 }
 
