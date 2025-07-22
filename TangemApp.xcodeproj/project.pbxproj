@@ -7589,6 +7589,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D856AA172E257F4700E3D975 /* Onramp */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Onramp; sourceTree = "<group>"; };
+		D8796D972E2948820034ADAB /* WireMock */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = WireMock; sourceTree = "<group>"; };
 		D88A53DB2E1D6E7B006F4F85 /* Smoke */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Smoke; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -9277,6 +9278,7 @@
 		7982B0132DE70E1900C41EA5 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				D8796D972E2948820034ADAB /* WireMock */,
 				7982B0122DE70E1900C41EA5 /* NSPredicateFormat.swift */,
 			);
 			path = Helpers;
@@ -20408,6 +20410,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				D856AA172E257F4700E3D975 /* Onramp */,
+				D8796D972E2948820034ADAB /* WireMock */,
 				D88A53DB2E1D6E7B006F4F85 /* Smoke */,
 			);
 			name = TangemUITests;
