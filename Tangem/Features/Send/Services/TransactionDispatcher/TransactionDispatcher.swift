@@ -8,7 +8,8 @@
 
 import Foundation
 import Combine
-import struct BlockchainSdk.SendTxError
+import BlockchainSdk
+import TangemFoundation
 
 protocol TransactionDispatcher {
     func send(transaction: SendTransactionType) async throws -> TransactionDispatcherResult
@@ -21,13 +22,13 @@ struct TransactionDispatcherResult: Hashable {
 }
 
 extension TransactionDispatcherResult {
-    enum Error: Swift.Error, LocalizedError {
+    enum Error {
         case informationRelevanceServiceError
         case informationRelevanceServiceFeeWasIncreased
 
         case transactionNotFound
         case userCancelled
-        case loadTransactionInfo(error: Swift.Error)
+        case loadTransactionInfo(error: UniversalError)
         case sendTxError(transaction: SendTransactionType, error: SendTxError)
 
         case demoAlert
