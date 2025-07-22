@@ -35,7 +35,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case openLink(promotionLink: URL, buttonTitle: String)
     case swap
     case addHederaTokenAssociation
-    @available(*, unavailable, message: "Token trust lines support not implemented yet")
     case addTokenTrustline
     case retryKaspaTokenTransaction
     case stake
@@ -53,6 +52,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupport2No
     case unlock
     case openReferralProgram
+    case openHotFinishActivation
 
     var id: Int { hashValue }
 
@@ -110,6 +110,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.visaUnlockNotificationButton
         case .openReferralProgram:
             return Localization.referralButtonParticipate
+        case .addTokenTrustline:
+            return Localization.warningTokenTrustlineButtonTitle
+        case .openHotFinishActivation:
+            return Localization.hwActivationNeedFinish
         }
     }
 
@@ -142,7 +146,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram:
+             .openReferralProgram,
+             .addTokenTrustline,
+             .openHotFinishActivation:
             return nil
         }
     }
@@ -175,7 +181,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupportYes,
              .seedSupport2Yes,
              .seedSupport2No,
-             .openReferralProgram:
+             .openReferralProgram,
+             .addTokenTrustline,
+             .openHotFinishActivation:
             return .secondary
         }
     }
