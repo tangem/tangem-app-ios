@@ -39,9 +39,12 @@ struct CustomTokenContractAddressConverter {
             let converter = SuiContractAddressConverter()
             let normalizeContractAddress = converter.convertIfNeeded(contractAddress: originalAddress)
             return normalizeContractAddress
+        case .stellar:
+            let converter = StellarAssetIdParser()
+            let normalizedConractAddrss = converter.normalizeAssetId(originalAddress)
+            return normalizedConractAddrss
         case .bitcoin,
              .litecoin,
-             .stellar,
              .ethereum,
              .ethereumPoW,
              .disChain,
