@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemVisa
 
 struct VisaAppUtilities {
-    func makeAddress(using list: [WalletPublicInfo]) -> Address? {
+    func makeAddress(using list: [KeyInfo]) -> Address? {
         // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
         // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
         let utils = VisaUtilities(isTestnet: false)
