@@ -95,7 +95,8 @@ struct PolkadotTests {
         )
 
         let amount = Amount(with: blockchain, value: 12345 / blockchain.decimalValue)
-        let destination = try #require(try PolkadotAddressService(network: network).makeAddress(from: toAddress)).value
+
+        let destination = try #require(try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress)).value
         let meta = PolkadotBlockchainMeta(
             specVersion: 17,
             transactionVersion: 3,
@@ -279,7 +280,7 @@ struct PolkadotTests {
         )
 
         let amount = Amount(with: blockchain, value: 12345 / blockchain.decimalValue)
-        let destination = try #require(PolkadotAddressService(network: network).makeAddress(from: toAddress).value)
+        let destination = try #require(AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress).value)
         let meta = PolkadotBlockchainMeta(
             specVersion: 17,
             transactionVersion: 3,
