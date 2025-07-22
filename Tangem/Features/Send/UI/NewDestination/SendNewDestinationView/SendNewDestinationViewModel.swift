@@ -215,6 +215,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .sink {
                 $0.0.allFieldsIsValidSubscription?.cancel()
+                $0.0.interactor.saveChanges()
                 $0.0.stepRouter?.destinationStepFulfilled()
             }
     }
