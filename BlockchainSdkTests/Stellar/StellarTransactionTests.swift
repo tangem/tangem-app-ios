@@ -18,8 +18,63 @@ final class StellarTransactionTests {
     private lazy var addressService = AddressServiceFactory(blockchain: .stellar(curve: .ed25519, testnet: false)).makeAddressService()
     private var bag = Set<AnyCancellable>()
 
-    init() {
-        bag = []
+    @Test(arguments: [Blockchain.stellar(curve: .ed25519, testnet: false), .stellar(curve: .ed25519_slip0010, testnet: false)])
+    func testOpenTrustlineTransaction(blockchain: Blockchain) async throws {
+        // given
+        let feeValue = Decimal(string: "0.000100")!
+        let fee = Fee(.init(with: blockchain, value: feeValue))
+        let addressPubKey = Data(hex: "1560DFC78D683E626B986191855CAA94A33B93D95F68E1D699647AFBF61D684B")
+        let address = try addressService.makeAddress(from: addressPubKey)
+
+        let txBuilder = StellarTransactionBuilder(walletPublicKey: addressPubKey, isTestnet: false)
+        txBuilder.sequence = 247738386557698095
+        txBuilder.specificTxTime = 1614848128.2697558
+
+        let token = Token(
+            name: "EURC",
+            symbol: "EURC",
+            contractAddress: "EURC-GAQRF3UGHBT6JYQZ7YSUYCIYWAF4T2SAA5237Q5LIQYJOHHFAWDXZ7NM",
+            decimalCount: 7
+        )
+
+        let transaction = Transaction(
+            amount: .zeroToken(token: token),
+            fee: fee,
+            sourceAddress: address.value,
+            destinationAddress: address.value,
+            changeAddress: "",
+            contractAddress: token.contractAddress
+        )
+
+        let signature = Data(
+            hex: "05a3c43a7bb71f13434eff96d8ec483f53afb0ff434fb75e6ec749cc10b9f0bafae79c7d70919c171be5c8daf03278bc8aaa9670dabcff971c2215eeb7faaf00"
+        )
+
+        let expectedHash = Data(hex: "8965ffecb1cbbf9c9236156e802802322c8b5cb2f3c01a058521c86e3964c1e3")
+        let expectedSignedTx = "AAAAAgAAAAAVYN/HjWg+YmuYYZGFXKqUozuT2V9o4daZZHr79h1oSwAAAGQDcCTAAAAAMAAAAAEAAAAAYECf6gAAAABgQKEWAAAAAAAAAAEAAAABAAAAABVg38eNaD5ia5hhkYVcqpSjO5PZX2jh1plkevv2HWhLAAAABgAAAAFFVVJDAAAAACES7oY4Z+TiGf4lTAkYsAvJ6kAHdb/Dq0QwlxzlBYd8fOZsUOKEAAAAAAAAAAAAAfYdaEsAAABABaPEOnu3HxNDTv+W2OxIP1OvsP9DT7debsdJzBC58Lr655x9cJGcFxvlyNrwMni8iqqWcNq8/5ccIhXut/qvAA=="
+
+        // when
+        let result = try await txBuilder
+            .buildChangeTrustOperationForSign(transaction: transaction, limit: .max)
+            .mapToResult()
+            .async()
+
+        // then
+        switch result {
+        case .success(let (hash, txData)):
+            #expect(hash == expectedHash, "Hash mismatch")
+            sizeTester.testTxSize(hash)
+
+            guard let signedTx = txBuilder.buildForSend(signature: signature, transaction: txData) else {
+                #expect(Bool(false), "Failed to build transaction for send")
+                return
+            }
+
+            #expect(signedTx == expectedSignedTx, "Signed transaction mismatch")
+
+        case .failure(let failure):
+            #expect(Bool(false), "Failed to build operation: \(failure.localizedDescription)")
+        }
     }
 
     @Test(arguments: [Blockchain.stellar(curve: .ed25519, testnet: false), .stellar(curve: .ed25519_slip0010, testnet: false)])
@@ -95,7 +150,7 @@ final class StellarTransactionTests {
             sourceAddress: walletAddress.value,
             destinationAddress: "GBPMXXLHHPCOO4YOWGS4BWSVMLELZ355DVQ6JCGZX3H4HO3LH2SUETUW",
             changeAddress: walletAddress.value,
-            contractAddress: contractAddress,
+            contractAddress: "USDC-\(contractAddress)",
             params: StellarTransactionParams(memo: try StellarMemo(text: "123456"))
         )
         let targetAccountResponse = StellarTargetAccountResponse(accountCreated: true, trustlineCreated: true)
@@ -131,5 +186,13 @@ final class StellarTransactionTests {
         txBuilder.sequence = 139655650517975046
         txBuilder.specificTxTime = 1614848128.2697558
         return txBuilder
+    }
+}
+
+private extension Publisher {
+    func mapToResult() -> AnyPublisher<Result<Output, Failure>, Never> {
+        map(Result.success)
+            .catch { Just(.failure($0)) }
+            .eraseToAnyPublisher()
     }
 }
