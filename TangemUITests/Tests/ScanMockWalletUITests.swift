@@ -11,7 +11,7 @@ final class ScanMockWalletUITests: BaseTestCase {
     lazy var tosPage = ToSScreen(app)
 
     func testScanMockWallet_ShouldShowMainScreen() {
-        launchApp(resetToS: true)
+        launchApp(tangemApiType: .mock, skipToS: false)
 
         tosPage
             .acceptAgreement()

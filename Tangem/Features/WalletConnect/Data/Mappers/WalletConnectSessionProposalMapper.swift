@@ -32,28 +32,15 @@ enum WalletConnectDAppSessionProposalMapper {
     }
 
     static func mapUnsupportedRequiredBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
-        let unsupportedBlockchainNames: [String] = reownSessionProposal.requiredNamespaces.reduce([]) { partialResult, reownSessionNamespace in
-            guard let reownBlockchains = reownSessionNamespace.value.chains else { return partialResult }
+        mapUnsupportedBlockchainNames(from: reownSessionProposal.requiredNamespaces)
+    }
 
-            let unsupportedBlockchainNames = reownBlockchains.compactMap { reownBlockchain in
-                let domainBlockchain = WalletConnectBlockchainMapper.mapToDomain(reownBlockchain)
-
-                switch WCUtils.WCSupportedNamespaces(rawValue: reownSessionNamespace.key.lowercased()) {
-                case .some where domainBlockchain == nil:
-                    return reownBlockchain.absoluteString
-
-                case .some where domainBlockchain != nil:
-                    return nil
-
-                default:
-                    return domainBlockchain?.displayName ?? reownSessionNamespace.key.capitalizingFirstLetter()
-                }
-            }
-
-            return partialResult + unsupportedBlockchainNames
+    static func mapUnsupportedOptionalBlockchainNames(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> Set<String> {
+        guard let optionalNamespaces = reownSessionProposal.optionalNamespaces else {
+            return []
         }
 
-        return Set(unsupportedBlockchainNames)
+        return mapUnsupportedBlockchainNames(from: optionalNamespaces)
     }
 
     static func mapAllMethods(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> [String] {
@@ -95,6 +82,21 @@ enum WalletConnectDAppSessionProposalMapper {
         }
     }
 
+    static func mapVerificationContext(from reownVerifyContext: VerifyContext?) -> WalletConnectDAppSessionProposal.VerificationContext? {
+        guard let reownVerifyContext else { return nil }
+
+        let validationStatus: WalletConnectDAppSessionProposal.VerificationContext.ValidationStatus? = switch reownVerifyContext.validation {
+        case .unknown: nil
+        case .valid: .valid
+        case .invalid, .scam: .invalid
+        }
+
+        return WalletConnectDAppSessionProposal.VerificationContext(
+            origin: reownVerifyContext.origin.flatMap(URL.init),
+            validationStatus: validationStatus
+        )
+    }
+
     // MARK: - Private methods
 
     private static func mapDomainBlockchains(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]) -> Set<BlockchainSdk.Blockchain> {
@@ -107,5 +109,30 @@ enum WalletConnectDAppSessionProposalMapper {
                 // DApp may have 2 different ReownWalletKit.Blockchain objects, both representing BlockchainSdk.Blockchain.solana.
                 result.formUnion(blockchains)
             }
+    }
+
+    private static func mapUnsupportedBlockchainNames(from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]) -> Set<String> {
+        let unsupportedBlockchainNames: [String] = reownNamespaces.reduce([]) { partialResult, reownSessionNamespace in
+            guard let reownBlockchains = reownSessionNamespace.value.chains else { return partialResult }
+
+            let unsupportedBlockchainNames = reownBlockchains.compactMap { reownBlockchain in
+                let domainBlockchain = WalletConnectBlockchainMapper.mapToDomain(reownBlockchain)
+
+                switch WCUtils.WCSupportedNamespaces(rawValue: reownSessionNamespace.key.lowercased()) {
+                case .some where domainBlockchain == nil:
+                    return reownBlockchain.absoluteString
+
+                case .some where domainBlockchain != nil:
+                    return nil
+
+                default:
+                    return domainBlockchain?.displayName ?? reownSessionNamespace.key.capitalizingFirstLetter()
+                }
+            }
+
+            return partialResult + unsupportedBlockchainNames
+        }
+
+        return Set(unsupportedBlockchainNames)
     }
 }
