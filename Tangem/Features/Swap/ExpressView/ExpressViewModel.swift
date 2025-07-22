@@ -784,6 +784,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupport2Yes,
              .unlock,
              .openReferralProgram,
+             .addTokenTrustline,
              .openHotFinishActivation:
             return
         }
