@@ -10,6 +10,8 @@
 "access_code_create_description" = "Lege einen %@ -stelligen Zugangscode fest, um Deine Wallet zu entsperren.";
 "access_code_create_title" = "Zugangscode erstellen";
 "access_code_navtitle" = "Zugangscode";
+"accessibility_action_long_press" = "Long press";
+"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
 "action_buttons_buy_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum kaufen im Portfolio hinzu.";
 "action_buttons_buy_navigation_bar_title" = "Kaufen";
 "action_buttons_sell_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum verkaufen im Portfolio hinzu.";
@@ -413,6 +415,7 @@
 "hw_activation_need_description" = "Um die Einrichtung abzuschließen, sicher Deine Wallet und sicher den App-Zugriff mit einem Access Code.";
 "hw_activation_need_finish" = "Jetzt beenden";
 "hw_activation_need_title" = "Wallet-Aktivierung abschließen";
+"hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Stelle eine vorhandene Wallet wieder her, die in Deinem iCloud-Backup gespeichert ist";
 "hw_backup_icloud_title" = "iCloud-Sicherung";
 "hw_backup_need_action" = "Gehe zum Backup";
@@ -891,6 +894,7 @@
 "send_validation_destination_tag_required_title" = "Ziel-Tag erforderlich";
 "send_with_swap_confirm_title" = "Tauschen und senden";
 "send_with_swap_notification_text" = "Sende uns ein Token, und wir konvertieren es unterwegs. Dein Empfänger erhält genau das, was er braucht – nahtlos.";
+"send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Wird an den Empfänger gesendet";
 "send_with_swap_recipient_amount_title" = "Zu erhaltender Betrag";
 "send_with_swap_title" = "Senden mit Swap";

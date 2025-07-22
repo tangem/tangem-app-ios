@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemLocalization
+import TangemFoundation
 import TangemUIUtils
 
 class CreateWalletSelectorCoordinator: CoordinatorObject {
@@ -17,6 +18,7 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
 
     @Published private(set) var createViewModel: CreateWalletSelectorViewModel?
     @Published var mailViewModel: MailViewModel?
+    @Published var isScanning: Bool = false
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
 
@@ -66,10 +68,67 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
 
 extension CreateWalletSelectorCoordinator: CreateWalletSelectorDelegate {
     func scanCard() {
+        isScanning = true
         Analytics.beginLoggingCardScan(source: .welcome)
 
-        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            self?.unlockDidFinish(with: result)
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
+
+            switch result {
+            case .error(let error) where error.isCancellationError:
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                }
+
+            case .error(let error):
+                Analytics.logScanError(error, source: .introduction)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.error = error.alertBinder
+                }
+
+            case .onboarding(let input):
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.openOnboarding(with: .input(input))
+                }
+
+            case .scanTroubleshooting:
+                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanning = false
+                    viewModel.openTroubleshooting()
+                }
+
+            case .success(let cardInfo):
+                do {
+                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.openMain(with: userWalletModel)
+                    }
+
+                } catch {
+                    viewModel.incomingActionManager.discardIncomingAction()
+
+                    await runOnMain {
+                        viewModel.isScanning = false
+                        viewModel.error = error.alertBinder
+                    }
+                }
+            }
         }
     }
 }

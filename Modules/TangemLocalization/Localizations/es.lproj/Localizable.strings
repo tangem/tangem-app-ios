@@ -10,6 +10,8 @@
 "access_code_create_description" = "Set a %@-digit Access Code to unlock your wallet.";
 "access_code_create_title" = "Create Access Code";
 "access_code_navtitle" = "Access code";
+"accessibility_action_long_press" = "Long press";
+"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
 "action_buttons_buy_empty_search_message" = "¿No encuentra el token en su billetera? Consulte la sección de Mercados para encontrarlo y añadirlo a la compra";
 "action_buttons_buy_navigation_bar_title" = "Comprar";
 "action_buttons_sell_empty_search_message" = "¿No encuentra el token en su billetera? Consulte los mercados para encontrarlo y añadirlo a la venta";
@@ -413,6 +415,7 @@
 "hw_activation_need_description" = "To complete setup, back up your wallet and secure app access with a Access Code.";
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
+"hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
@@ -423,7 +426,7 @@
 "hw_backup_seed_title" = "Recovery phrase";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
-"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_description" = "Mantente al día con las últimas funciones y noticias";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
 "hw_mobile_wallet" = "Mobile Wallet";
@@ -891,6 +894,7 @@
 "send_validation_destination_tag_required_title" = "Etiqueta de destino obligatoria";
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_notification_text" = "Envía cualquier token y lo convertiremos en el camino. Su destinatario obtiene exactamente lo que necesita, sin problemas.";
+"send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Se enviará un destinatario";
 "send_with_swap_recipient_amount_title" = "Cantidad a recibir";
 "send_with_swap_title" = "Enviar con swap";
