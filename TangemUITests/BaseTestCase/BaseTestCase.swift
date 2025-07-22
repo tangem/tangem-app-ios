@@ -11,6 +11,11 @@ import XCTest
 class BaseTestCase: XCTestCase {
     let app = XCUIApplication()
 
+    // MARK: - WireMock Support
+
+    lazy var wireMockClient = WireMockClient()
+    private var activeScenarios: [String: String] = [:]
+
     override func setUp() {
         super.setUp()
 
@@ -21,6 +26,12 @@ class BaseTestCase: XCTestCase {
         app.launchArguments.removeAll()
         app.launchEnvironment.removeAll()
         app.terminate()
+
+        // Reset WireMock scenarios after each test
+        if !activeScenarios.isEmpty {
+            wireMockClient.resetAllScenariosSync()
+            activeScenarios.removeAll()
+        }
 
         super.tearDown()
 
@@ -43,7 +54,8 @@ class BaseTestCase: XCTestCase {
     func launchApp(
         tangemApiType: TangemAPI? = nil,
         expressApiType: ExpressAPI? = nil,
-        skipToS: Bool = true
+        skipToS: Bool = true,
+        scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
@@ -61,6 +73,62 @@ class BaseTestCase: XCTestCase {
 
         app.launchArguments = arguments
         app.launchEnvironment = ["UITEST": "1"]
+
+        // Setup WireMock scenarios before launching the app
+        setupWireMockScenarios(scenarios)
+
         app.launch()
+    }
+
+    // MARK: - WireMock Scenario Management
+
+    /// Setup WireMock scenarios before app launch
+    private func setupWireMockScenarios(_ scenarios: [ScenarioConfig]) {
+        guard !scenarios.isEmpty else { return }
+
+        XCTContext.runActivity(named: "Setup WireMock scenarios") { _ in
+            // First reset all scenarios
+            wireMockClient.resetAllScenariosSync()
+
+            // Set initial states for specified scenarios
+            for scenario in scenarios {
+                if scenario.initialState != "Started" {
+                    wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
+                }
+                activeScenarios[scenario.name] = scenario.initialState
+            }
+        }
+    }
+
+    /// Change scenario state during test
+    func setScenarioState(_ scenarioName: String, state: String) {
+        XCTContext.runActivity(named: "Set scenario '\(scenarioName)' to state '\(state)'") { _ in
+            wireMockClient.setScenarioStateSync(scenarioName, state: state)
+            activeScenarios[scenarioName] = state
+        }
+    }
+
+    /// Reset scenario to "Started" state
+    func resetScenario(_ scenarioName: String) {
+        XCTContext.runActivity(named: "Reset scenario '\(scenarioName)'") { _ in
+            wireMockClient.resetScenarioSync(scenarioName)
+            activeScenarios[scenarioName] = "Started"
+        }
+    }
+
+    /// Reset all active scenarios
+    func resetAllScenarios() {
+        XCTContext.runActivity(named: "Reset all WireMock scenarios") { _ in
+            wireMockClient.resetAllScenariosSync()
+            for key in activeScenarios.keys {
+                activeScenarios[key] = "Started"
+            }
+        }
+    }
+}
+
+extension XCUIApplication {
+    func hideKeyboard() {
+        toolbars.firstMatch.buttons["hideKeyboard"].waitAndTap()
     }
 }

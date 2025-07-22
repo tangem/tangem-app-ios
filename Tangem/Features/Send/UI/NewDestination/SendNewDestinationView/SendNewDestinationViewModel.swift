@@ -25,6 +25,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private let interactor: SendNewDestinationInteractor
     private let sendQRCodeService: SendQRCodeService
+    private let analyticsLogger: SendDestinationAnalyticsLogger
     private weak var router: SendDestinationRoutable?
 
     private var allFieldsIsValidSubscription: AnyCancellable?
@@ -37,10 +38,12 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
     init(
         interactor: SendNewDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: SendDestinationAnalyticsLogger,
         router: SendDestinationRoutable
     ) {
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         destinationAddressViewModel = SendNewDestinationAddressViewModel(
@@ -212,6 +215,7 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .sink {
                 $0.0.allFieldsIsValidSubscription?.cancel()
+                $0.0.interactor.saveChanges()
                 $0.0.stepRouter?.destinationStepFulfilled()
             }
     }
@@ -225,6 +229,7 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
             self?.sendQRCodeService.qrCodeDidScanned(value: value)
         })
 
+        analyticsLogger.logQRScannerOpened()
         router?.openQRScanner(with: binding, networkName: networkName)
     }
 }
