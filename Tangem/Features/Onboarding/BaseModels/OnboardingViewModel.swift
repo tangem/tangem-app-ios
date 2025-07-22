@@ -17,6 +17,7 @@ import struct TangemUIUtils.AlertBinder
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
     var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
@@ -204,9 +205,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        guard let userWallet = CommonUserWalletModelFactory().makeCommonUserWalletModel(cardInfo: cardInfo) else { return }
+        guard let userWallet = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        ) else {
+            return
+        }
 
-        userWalletRepository.initializeServices(for: userWallet)
+        globalServicesContext.initializeServices(userWalletModel: userWallet)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId)
 
@@ -218,7 +224,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        userWalletRepository.add(userWalletModel)
+        try? userWalletRepository.add(userWalletModel: userWalletModel)
     }
 
     func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
@@ -391,7 +397,12 @@ extension OnboardingViewModel {
 
     func closeOnboarding() {
         // reset services before exit
-        userWalletRepository.updateSelection()
+
+        globalServicesContext.resetServices()
+        if let userWalletModel {
+            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
+        }
+
         coordinator?.closeOnboarding()
     }
 

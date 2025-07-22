@@ -222,7 +222,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didConfirmWalletDeletion() {
-        userWalletRepository.delete(userWalletModel.userWalletId)
+        userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
         coordinator?.dismiss()
     }
 

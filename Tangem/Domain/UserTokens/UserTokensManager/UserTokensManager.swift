@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdk
 import BlockchainSdk
 
 protocol UserTokensSyncService {
@@ -19,21 +18,21 @@ protocol UserTokensSyncService {
 protocol UserTokensManager: UserTokensReordering {
     var derivationManager: DerivationManager? { get }
 
-    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
 
     func contains(_ tokenItem: TokenItem) -> Bool
     func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
     /// Update storage with derivation
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void)
     /// Update storage without derivation
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws
 
     /// Check condition for adding token
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws
-    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void)
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void)
 
     /// Add token and retrieve it's address
     func add(_ tokenItem: TokenItem) async throws -> String
@@ -55,7 +54,7 @@ extension UserTokensManager {
         }
     }
 
-    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void) {
         add([tokenItem], completion: completion)
     }
 }
