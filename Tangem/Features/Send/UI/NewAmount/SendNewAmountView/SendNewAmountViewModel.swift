@@ -64,7 +64,6 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     private let fiatCurrencyCode: String
     private let interactor: SendNewAmountInteractor
     private let analyticsLogger: SendAnalyticsLogger
-    private let actionType: SendFlowActionType
     private let sendAmountFormatter: SendAmountFormatter
 
     private var bag: Set<AnyCancellable> = []
@@ -86,7 +85,6 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         fiatIconURL = sourceTokenInput.sourceToken.fiatItem.iconURL
         fiatCurrencyCode = sourceTokenInput.sourceToken.fiatItem.currencyCode
         possibleToChangeAmountType = settings.possibleToChangeAmountType
-        actionType = settings.actionType
 
         cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
         fiatTextFieldViewModel = .init(maximumFractionDigits: SendAmountStep.Constants.fiatMaximumFractionDigits)
@@ -254,7 +252,6 @@ extension SendNewAmountViewModel: SendStepViewAnimatable {
 extension SendNewAmountViewModel {
     struct Settings {
         let possibleToChangeAmountType: Bool
-        let actionType: SendFlowActionType
     }
 
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
