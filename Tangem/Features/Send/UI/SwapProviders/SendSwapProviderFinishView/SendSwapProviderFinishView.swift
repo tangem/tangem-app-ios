@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
-import TangemLocalization
 
 struct SendSwapProviderFinishView: View {
     @ObservedObject var viewModel: SendSwapProviderFinishViewModel
@@ -27,6 +26,8 @@ struct SendSwapProviderFinishView: View {
 
                 subtitleView
             }
+
+            Spacer()
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 16, horizontalPadding: 14)
