@@ -96,6 +96,8 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case duplicateWalletAdded
     case biometricsChanged
     case cardWithWrongUserWalletIdScanned
+    case cantSelectWallet
+    case cantUnlockWithCard
 
     var errorDescription: String? {
         rawValue
@@ -109,6 +111,10 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
             return .init(title: Localization.commonAttention, message: Localization.keyInvalidatedWarningDescription)
         case .cardWithWrongUserWalletIdScanned:
             return .init(title: Localization.commonWarning, message: Localization.errorWrongWalletTapped)
+        case .cantSelectWallet:
+            return .init(title: "", message: Localization.genericErrorCode("cantSelectWallet"))
+        case .cantUnlockWithCard:
+            return .init(title: "", message: Localization.genericErrorCode("cantUnlockWithCard"))
         }
     }
 }
