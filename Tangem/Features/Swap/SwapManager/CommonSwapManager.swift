@@ -73,12 +73,6 @@ extension CommonSwapManager: SwapManager {
             SwapManagerDestinationWallet(tokenItem: $0, address: address)
         }
 
-        guard let destinationWallet else {
-            // Clear destination
-            // [REDACTED_TODO_COMMENT]
-            return
-        }
-
         interactor.update(destination: destinationWallet)
     }
 
