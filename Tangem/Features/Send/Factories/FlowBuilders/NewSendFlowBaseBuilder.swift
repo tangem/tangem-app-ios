@@ -21,13 +21,11 @@ struct NewSendFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
-        let flowKind = SendModel.PredefinedValues.FlowKind.send
-
         let sendQRCodeService = builder.makeSendQRCodeService()
         let swapManager: SwapManager = builder.makeSwapManager()
-        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
         let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
-        let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
@@ -46,25 +44,28 @@ struct NewSendFlowBaseBuilder {
             sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
             receiveTokenInput: sendModel,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             router: router
         )
 
         let fee = sendFeeStepBuilder.makeSendFee(
             io: (input: sendModel, output: sendModel),
             feeProvider: sendFeeProvider,
+            analyticsLogger: analyticsLogger,
             customFeeService: customFeeService
         )
 
         let providers = swapProvidersBuilder.makeSwapProviders(
             io: (input: sendModel, output: sendModel),
-            receiveTokenInput: sendModel
+            receiveTokenInput: sendModel,
+            analyticsLogger: analyticsLogger
         )
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
@@ -83,7 +84,7 @@ struct NewSendFlowBaseBuilder {
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
             sendFeeCompactViewModel: fee.finish,
@@ -133,6 +134,7 @@ struct NewSendFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,

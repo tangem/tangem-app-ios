@@ -39,20 +39,17 @@ extension CommonAppLockController: AppLockController {
         }
     }
 
-    func unlockApp(completion: @escaping (UnlockResult) -> Void) {
+    func unlockApp() async -> UnlockResult {
         guard startupProcessor.shouldOpenBiometry else {
-            completion(.openWelcome)
-            return
+            return .openWelcome
         }
 
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            switch result {
-            case .success(let model), .partial(let model, _):
-                self?.minimizedAppTimer.stop()
-                completion(.openMain(model))
-            default:
-                completion(.openAuth)
-            }
+        guard let context = try? await UserWalletBiometricsUnlocker().unlock(),
+              let userWalletModel = try? userWalletRepository.unlock(with: .biometrics(context)) else {
+            return .openAuth
         }
+
+        minimizedAppTimer.stop()
+        return .openMain(userWalletModel)
     }
 }
