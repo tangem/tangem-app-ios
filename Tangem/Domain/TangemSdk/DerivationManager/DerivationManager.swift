@@ -14,10 +14,5 @@ protocol DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> { get }
     var pendingDerivationsCount: AnyPublisher<Int, Never> { get }
 
-    func deriveKeys(cardInteractor: KeysDeriving, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
-}
-
-// [REDACTED_TODO_COMMENT]
-protocol DerivationManagerDelegate: AnyObject {
-    func onDerived(_ response: DerivationResult)
+    func deriveKeys(interactor: KeysDeriving, completion: @escaping (Result<Void, Error>) -> Void)
 }
