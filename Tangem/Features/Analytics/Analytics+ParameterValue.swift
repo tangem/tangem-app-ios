@@ -21,6 +21,7 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case loading = "Loading"
         case available = "Available"
         case unavailable = "Unavailable"
         case mainToken = "Main Token"
