@@ -10,6 +10,8 @@ import Combine
 import TangemFoundation
 
 protocol SendReceiveTokenInput: AnyObject {
+    var isReceiveTokenSelectionAvailable: Bool { get }
+
     var receiveToken: SendReceiveTokenType { get }
     var receiveTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
 }
