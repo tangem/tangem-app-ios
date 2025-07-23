@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import LocalAuthentication
 
 final class PrivateInfoStorage {
     private let secureStorage: SecureStorage
@@ -60,7 +61,7 @@ final class PrivateInfoStorage {
         
         try secureStorage.store(keyToStore, forKey: walletID.storageEncryptionKey)
         
-        if auth?.biometrics == true {
+        if auth?.biometrics != nil {
             try biometricsStorage.store(keyToStore, forKey: walletID.storageEncryptionKey)
         }
     }
@@ -83,32 +84,53 @@ final class PrivateInfoStorage {
     private func encryptionKey(for walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> Data {
         let encryptionKey = walletID.storageEncryptionKey
         
+        let savedKeyData: Data?
+        
         switch auth {
-        case .none:
-            guard let key = try secureStorage.get(encryptionKey) else {
-                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
-            }
-            return try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
-        case .passcode(let value):
-            guard let key = try secureStorage.get(encryptionKey) else {
-                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
-            }
-            let decryptedKey = try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
-            
-            return try AESEncoder.decryptWithPassword(
-                password: value,
-                encryptedData: decryptedKey
-            )
+        case .none, .passcode:
+            savedKeyData = try secureStorage.get(walletID.storageEncryptionKey)
         case .biometrics(let context):
-            guard let key = try biometricsStorage.get(encryptionKey, context: context) else {
-                throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
-            }
-            return try secureEnclaveService.decryptData(key, keyTag: walletID.storageEncryptionKey)
+            savedKeyData = try biometricsStorage.get(walletID.storageEncryptionKey, context: context)
         }
+        
+        guard let savedKeyData else {
+            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+        }
+        
+        let encryptedAesKey = try secureEnclaveService.decryptData(savedKeyData, keyTag: walletID.storageEncryptionKey)
+        
+        if case .passcode(let passcode) = auth {
+            return try AESEncoder.decryptWithPassword(
+                password: passcode,
+                encryptedData: encryptedAesKey
+            )
+        }
+        
+        return encryptedAesKey
     }
     
-    func updateStore(walletID: HotWalletID, oldAuth: AuthenticationUnlockData?, newAuth: Authentication?) throws {
+    func updatePasscode(_ newPasscode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
         let privateInfoData = try getPrivateInfoData(for: walletID, auth: oldAuth)
+        
+        let encryptionKey = try encryptionKey(for: walletID, auth: oldAuth)
+        
+        try store(
+            privateInfoData: privateInfoData,
+            for: walletID,
+            auth: Authentication(passcode: newPasscode, biometrics: false),
+            encryptionKey: encryptionKey
+        )
+    }
+    
+    public func enableBiometrics(for walletID: HotWalletID, passcode: String) throws {
+        let privateInfoData = try getPrivateInfoData(
+            for: walletID,
+            auth: .passcode(passcode)
+        )
+        
+        let encryptionKey = try encryptionKey(for: walletID, auth: .passcode(passcode))
+        
+        let newAuth = Authentication(passcode: passcode, biometrics: true)
         
         try store(privateInfoData: privateInfoData, for: walletID, auth: newAuth)
     }
