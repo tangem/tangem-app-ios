@@ -22,17 +22,12 @@ struct SendNewFinishView: View {
                 header(transactionTime: transactionTime)
             }
 
-            if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
-                SendTokenAmountCompactView(viewModel: sendAmountCompactViewModel)
-                    .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+            if let sendAmountFinishViewModel = viewModel.sendAmountFinishViewModel {
+                SendNewAmountFinishView(viewModel: sendAmountFinishViewModel)
             }
 
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
                 SendNewDestinationCompactView(viewModel: sendDestinationCompactViewModel)
-            }
-
-            if let sendSwapProviderFinishViewModel = viewModel.sendSwapProviderFinishViewModel {
-                SendSwapProviderFinishView(viewModel: sendSwapProviderFinishViewModel)
             }
 
             if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
@@ -43,7 +38,6 @@ struct SendNewFinishView: View {
                 )
             }
         }
-        .allowsHitTesting(false)
         .onAppear(perform: viewModel.onAppear)
         .transition(transitionService.newFinishViewTransition())
     }
