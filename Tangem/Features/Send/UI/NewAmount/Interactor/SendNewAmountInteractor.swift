@@ -23,13 +23,11 @@ protocol SendNewAmountInteractor {
     func updateToMaxAmount() throws -> SendAmount
 
     func removeReceivedToken()
-    func saveChanges()
 }
 
 class CommonSendNewAmountInteractor {
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var sourceTokenAmountInput: SendSourceTokenAmountInput?
-    private weak var sourceTokenAmountOutput: SendSourceTokenAmountOutput?
 
     private weak var receiveTokenInput: SendReceiveTokenInput?
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
@@ -38,6 +36,7 @@ class CommonSendNewAmountInteractor {
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
     private let notificationService: SendAmountNotificationService?
+    private var saver: SendNewAmountInteractorSaver
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -49,24 +48,24 @@ class CommonSendNewAmountInteractor {
     init(
         sourceTokenInput: any SendSourceTokenInput,
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
-        sourceTokenAmountOutput: any SendSourceTokenAmountOutput,
         receiveTokenInput: any SendReceiveTokenInput,
         receiveTokenOutput: any SendReceiveTokenOutput,
         receiveTokenAmountInput: any SendReceiveTokenAmountInput,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
-        type: SendAmountCalculationType
+        saver: any SendNewAmountInteractorSaver,
+        type: SendAmountCalculationType = .crypto
     ) {
         self.sourceTokenInput = sourceTokenInput
         self.sourceTokenAmountInput = sourceTokenAmountInput
-        self.sourceTokenAmountOutput = sourceTokenAmountOutput
         self.receiveTokenInput = receiveTokenInput
         self.receiveTokenOutput = receiveTokenOutput
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.validator = validator
         self.amountModifier = amountModifier
         self.notificationService = notificationService
+        self.saver = saver
         self.type = type
 
         _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.amount)
@@ -102,7 +101,7 @@ class CommonSendNewAmountInteractor {
 
             if let modifiedCryptoAmount = modifiedAmount?.crypto, modifiedCryptoAmount != amount?.crypto {
                 // additional validation if amount has changed
-                _cachedAmount.send(modifiedAmount)
+                try validator.validate(amount: modifiedCryptoAmount)
                 return
             }
 
@@ -118,6 +117,7 @@ class CommonSendNewAmountInteractor {
         let errorDescription = error.flatMap { getValidationErrorDescription(error: $0) }
         _error.send(errorDescription)
         _isValid.send(isValid)
+        saver.update(amount: amount)
     }
 
     private func getValidationErrorDescription(error: Error) -> String? {
@@ -267,9 +267,5 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
 
     func removeReceivedToken() {
         receiveTokenOutput?.userDidRequestClearSelection()
-    }
-
-    func saveChanges() {
-        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: _cachedAmount.value)
     }
 }
