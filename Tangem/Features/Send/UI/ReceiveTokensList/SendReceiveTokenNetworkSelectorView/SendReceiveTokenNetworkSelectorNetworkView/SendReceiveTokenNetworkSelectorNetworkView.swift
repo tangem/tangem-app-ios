@@ -20,15 +20,14 @@ struct SendReceiveTokenNetworkSelectorNetworkView: View {
 
                 HStack(alignment: .center, spacing: 4) {
                     Text(viewModel.name)
-                        .style(Fonts.Bold.subheadline, color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.disabled)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     Text(viewModel.symbol)
-                        .style(Fonts.Regular.caption1, color: viewModel.isAvailable ? Colors.Text.tertiary : Colors.Text.disabled)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
 
                 Spacer()
             }
         }
-        .disabled(!viewModel.isAvailable)
     }
 }

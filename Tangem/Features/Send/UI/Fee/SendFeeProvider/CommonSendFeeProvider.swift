@@ -14,7 +14,6 @@ class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
     private let feeLoader: SendFeeLoader
-    private let swapManager: SwapManager?
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
@@ -24,10 +23,9 @@ class CommonSendFeeProvider {
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
-    init(input: any SendFeeProviderInput, feeLoader: SendFeeLoader, swapManager: SwapManager?) {
+    init(input: any SendFeeProviderInput, feeLoader: SendFeeLoader) {
         self.input = input
         self.feeLoader = feeLoader
-        self.swapManager = swapManager
 
         bind(input: input)
     }

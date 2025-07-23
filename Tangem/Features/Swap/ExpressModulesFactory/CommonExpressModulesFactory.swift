@@ -75,7 +75,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         let tokenItem = expressInteractor.getSender().tokenItem

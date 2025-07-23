@@ -55,6 +55,9 @@ struct WalletConnectConnectedDAppDetailsView: View {
                 .padding(.top, Layout.contentTopPadding)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
+                .onAppear {
+                    viewModel.handle(viewEvent: .dAppDetailsAppeared)
+                }
                 .transition(.content)
 
             case .verifiedDomain(let viewModel):

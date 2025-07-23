@@ -13,6 +13,7 @@ struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let title: String
     let providerIcon: URL?
     let providerType: String
+    let isTappable: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
 }

@@ -24,6 +24,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
     // MARK: - Dependencies
 
     private let blockaidService: BlockaidAPIService
+    private let decoder = JSONDecoder()
 
     init(blockaidService: BlockaidAPIService) {
         self.blockaidService = blockaidService
@@ -52,7 +53,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
 
         case .sendTransaction, .signTransaction:
             state = await handleEthTransactionSimulation(
-                method: method.rawValue,
+                method: method,
                 address: address,
                 blockchain: blockchain,
                 data: requestData,
@@ -61,7 +62,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
 
         case .solanaSignTransaction, .solanaSignAllTransactions:
             state = await handleSolanaTransactionSimulation(
-                method: method.rawValue,
+                method: method,
                 address: address,
                 blockchain: blockchain,
                 data: requestData,
@@ -107,7 +108,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
     }
 
     private func handleEthTransactionSimulation(
-        method: String,
+        method: WalletConnectMethod,
         address: String,
         blockchain: Blockchain,
         data: Data,
@@ -128,7 +129,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             let response = try await blockaidService.scanEvm(
                 address: transaction.from,
                 blockchain: blockchain,
-                method: method,
+                method: method.rawValue,
                 params: [.init(transactionParams)],
                 domain: domain
             )
@@ -143,17 +144,19 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
     }
 
     private func handleSolanaTransactionSimulation(
-        method: String,
+        method: WalletConnectMethod,
         address: String,
         blockchain: Blockchain,
         data: Data,
         domain: URL
     ) async -> TransactionSimulationState {
         do {
+            let transactions = try decoder.decode([String].self, from: data)
+
             let response = try await blockaidService.scanSolana(
-                address: address,
-                method: method,
-                transactions: [data.base58EncodedString],
+                address: address.base58DecodedData.base64EncodedString(),
+                method: method.trimmedPrefixValue, // Remove "solana_" prefix
+                transactions: transactions,
                 domain: domain
             )
 

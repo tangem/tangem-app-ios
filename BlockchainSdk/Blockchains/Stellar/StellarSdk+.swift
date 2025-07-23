@@ -14,7 +14,7 @@ extension AccountService {
     func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
         Future<Bool, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -34,7 +34,7 @@ extension AccountService {
     func getAccountDetails(accountId: String) -> AnyPublisher<AccountResponse, Error> {
         let future = Future<AccountResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -57,7 +57,12 @@ extension AccountService {
                     return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: false)
                 }
 
-                let balance = resp.balances.filter { $0.assetCode == token.symbol && $0.assetIssuer == token.contractAddress }
+                let currencyCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress)
+
+                let balance = resp.balances.filter {
+                    $0.assetCode == currencyCodeAndIssuer?.assetCode && $0.assetIssuer == currencyCodeAndIssuer?.issuer
+                }
+
                 return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: !balance.isEmpty)
             }
             .tryCatch { error -> AnyPublisher<StellarTargetAccountResponse, Error> in
@@ -78,7 +83,7 @@ extension FeeStatsService {
     func getFeeStats() -> AnyPublisher<FeeStatsResponse, Error> {
         Future<FeeStatsResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -99,7 +104,7 @@ extension LedgersService {
     func getLatestLedger() -> AnyPublisher<LedgerResponse, Error> {
         let future = Future<LedgerResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -124,7 +129,7 @@ extension TransactionsService {
     func postTransaction(transactionEnvelope: String) -> AnyPublisher<SubmitTransactionResponse, Error> {
         let future = Future<SubmitTransactionResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -167,7 +172,7 @@ extension OperationsService {
         func pageRequest(accountId: String, recordsLimit: Int = 200) -> AnyPublisher<PageResponse<OperationResponse>, Error> {
             Future<PageResponse<OperationResponse>, Error> { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -265,6 +270,27 @@ extension HorizonRequestError {
 
         struct Extras: Decodable {
             let resultCodes: String
+        }
+    }
+}
+
+extension ChangeTrustOperation {
+    enum ChangeTrustLimit {
+        case max
+        /// Sets a custom trustline limit using a decimal string.
+        case custom(amount: String)
+        /// Removes the trustline by setting the limit to 0.
+        case remove
+
+        var value: Decimal? {
+            switch self {
+            case .max:
+                return Decimal(stringValue: "900000000000")
+            case .custom(let amount):
+                return Decimal(stringValue: amount)
+            case .remove:
+                return .zero
+            }
         }
     }
 }

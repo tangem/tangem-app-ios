@@ -61,6 +61,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
+
         cardScanner.scanCard { [weak self] result in
             self?.isLoading = false
 
@@ -87,7 +88,7 @@ extension ScanCardSettingsViewModel {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         // We just allow to reset cards without keys via any wallet
-        let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0) } ?? UserWalletId(value: Data())
+        let userWalletId = UserWalletId(config: config) ?? UserWalletId(value: Data())
 
         let input = CardSettingsViewModel.Input(
             userWalletId: userWalletId,

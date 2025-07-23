@@ -9,14 +9,21 @@
 import Foundation
 import Combine
 import TangemAssets
-import TangemSdk
 import TangemNFT
 import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
+
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
+    }
+
     var name: String { "" }
     var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
@@ -89,8 +96,6 @@ class UserWalletModelMock: UserWalletModel {
         return nil
     }
 
-    var totalSignedHashes: Int { 0 }
-
     func updateWalletName(_ name: String) {}
 
     func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
@@ -101,5 +106,7 @@ class UserWalletModelMock: UserWalletModel {
 
     func onBackupUpdate(type: BackupUpdateType) {}
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {}
 }
