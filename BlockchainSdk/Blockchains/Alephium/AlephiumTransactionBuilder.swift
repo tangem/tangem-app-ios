@@ -134,6 +134,33 @@ final class AlephiumTransactionBuilder {
                 networkId: networkId
             )
 
+        let maxInputCount = ALPH.Constants.maxTxInputNum
+
+        if unsignedTransaction.inputs.count > maxInputCount {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         return unsignedTransaction
+    }
+
+    /// Returns the maximum number of unspents to spend, capped at maxInputCount.
+    func getMaxUnspentsToSpendCount() -> Int {
+        let count = unspents.count
+        return min(count, ALPH.Constants.maxTxInputNum)
+    }
+
+    /// Returns the array of unspents to spend, sorted descending by amount, up to maxInputCount.
+    func getMaxUnspentsToSpend() -> [ALPH.AssetOutputInfo] {
+        unspents
+            .sorted { $0.output.amount.v > $1.output.amount.v }
+            .prefix(getMaxUnspentsToSpendCount())
+            .map { $0 }
+    }
+
+    /// Returns the total amount of the max unspents to spend as Decimal.
+    func getMaxUnspentsToSpendAmount() -> Decimal {
+        getMaxUnspentsToSpend()
+            .compactMap { $0.output.amount.v.decimal }
+            .reduce(0, +)
     }
 }
