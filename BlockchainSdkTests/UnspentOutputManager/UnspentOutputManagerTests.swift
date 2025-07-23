@@ -14,7 +14,9 @@ class UnspentOutputManagerTests {
     @Test
     func spendingSomeAmount() async throws {
         // given
-        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
         let outputs = [
             UnspentOutput(blockId: 1, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
@@ -53,7 +55,9 @@ class UnspentOutputManagerTests {
     @Test
     func spendingFullAmountFeeCalculation() async throws {
         // given
-        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
         let outputs = [
             UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
@@ -77,7 +81,9 @@ class UnspentOutputManagerTests {
     @Test
     func spendingFullAmountWithReducedAmountOnFee() async throws {
         // given
-        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
         let outputs = [
             UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
