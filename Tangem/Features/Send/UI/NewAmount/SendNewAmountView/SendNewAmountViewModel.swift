@@ -205,6 +205,11 @@ extension SendNewAmountViewModel {
             return
         }
 
+        guard interactor.isReceiveTokenSelectionAvailable else {
+            receivedTokenViewType = .none
+            return
+        }
+
         switch receiveToken {
         case .same:
             receivedTokenViewType = .selectButton
