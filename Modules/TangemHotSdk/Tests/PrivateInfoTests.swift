@@ -6,8 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 import Testing
-@testable import TangemHotSdk
 import Foundation
+@testable import TangemHotSdk
 
 struct PrivateInfoTests {
     @Test

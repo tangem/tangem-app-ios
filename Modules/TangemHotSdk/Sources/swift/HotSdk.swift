@@ -35,6 +35,9 @@ public protocol HotSdk {
     /// - Parameters:
     /// - `walletID`: The identifier of the wallet for which biometrics are being enabled.
     /// - `passcode`: The passcode to unlock encrypted data before enabling biometrics.
+    /// - `context`: The `LAContext` used for biometric authentication.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the passcode is incorrect.
-    func enableBiometrics(for walletID: HotWalletID, passcode: String) throws
+    func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws
+    
+    func deriveKeys(walletID: HotWalletID) throws -> HotWallet
 }
