@@ -34,7 +34,7 @@ final class NEARNetworkService: MultiNetworkProvider {
                 .getGasPrice()
                 .tryMap { result in
                     guard let gasPrice = Decimal(string: result.gasPrice) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return gasPrice
@@ -103,7 +103,7 @@ final class NEARNetworkService: MultiNetworkProvider {
                 .getInfo(accountId: accountId)
                 .tryMap { result in
                     guard let rawAmount = Decimal(string: result.amount) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     let value = rawAmount / blockchain.decimalValue

@@ -52,7 +52,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
         }
         .tryMap { [weak self] responses -> CardanoAddressResponse in
             guard let self else {
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
 
             let unspentOutputs = responses.flatMap {
