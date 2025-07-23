@@ -20,10 +20,9 @@ public final class CommonHotSdk: HotSdk {
     public func importWallet(entropy: Data, passphrase: String) throws -> HotWalletID {
         let walletID = HotWalletID()
 
-        try privateInfoStorage.store(
+        try privateInfoStorage.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
-            for: walletID,
-            auth: nil
+            walletID: walletID
         )
         return walletID
     }
@@ -57,7 +56,35 @@ public final class CommonHotSdk: HotSdk {
         try privateInfoStorage.updatePasscode(newPasscode, oldAuth: oldAuth, for: walletID)
     }
     
-    public func enableBiometrics(for walletID: HotWalletID, passcode: String) throws {
-        try privateInfoStorage.enableBiometrics(for: walletID, passcode: passcode)
+    public func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws {
+        try privateInfoStorage.enableBiometrics(for: walletID, passcode: passcode, context: context)
+    }
+    
+    public func deriveKeys(walletID: HotWalletID) throws -> HotWallet {
+        let privateInfo = try privateInfoStorage.getPrivateInfoData(for: walletID, auth: nil)
+        
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw HotWalletError.failedToDeriveKey
+        }
+        
+        let keyInfos = try EllipticCurve.allCases.map { curve in
+            let publicKey = try DerivationUtil.deriveKeys(
+                entropy: privateInfo.entropy,
+                passphrase: privateInfo.passphrase,
+                derivationPath: "",
+                curve: curve
+            )
+            
+            return HotWalletKeyInfo(
+                publicKey: publicKey.publicKey,
+                chainCode: publicKey.chainCode,
+                curve: curve
+            )
+        }
+        
+        return HotWallet(
+            id: walletID,
+            wallets: keyInfos,
+        )
     }
 }
