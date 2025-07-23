@@ -14,6 +14,7 @@ import SwiftUI
 class SendNewDestinationStep {
     private let viewModel: SendNewDestinationViewModel
     private let interactor: SendNewDestinationInteractor
+    private let interactorSaver: SendNewDestinationInteractorSaver
     private let analyticsLogger: SendDestinationAnalyticsLogger
 
     private var isEditMode: Bool = false
@@ -21,10 +22,12 @@ class SendNewDestinationStep {
     init(
         viewModel: SendNewDestinationViewModel,
         interactor: any SendNewDestinationInteractor,
+        interactorSaver: SendNewDestinationInteractorSaver,
         analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.interactorSaver = interactorSaver
         self.analyticsLogger = analyticsLogger
     }
 
@@ -49,15 +52,18 @@ extension SendNewDestinationStep: SendStep {
     }
 
     func saveChangesIfNeeded() {
-        interactor.saveChanges()
+        interactorSaver.save()
     }
 
     func initialAppear() {
         analyticsLogger.logDestinationStepOpened()
+        interactorSaver.autosave(enabled: true)
     }
 
     func willAppear(previous step: any SendStep) {
         isEditMode = step.type.isSummary
-        step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
+
+        isEditMode ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
+        interactorSaver.autosave(enabled: !isEditMode)
     }
 }
