@@ -16,10 +16,6 @@ public enum DerivationUtil {
         derivationPath: String,
         masterKey: Data
     ) throws -> ExtendedPublicKey {
-        guard entropy.count == Constants.entropySize else {
-            throw HotWalletError.invalidEntropySize
-        }
-
         guard let curve = curve(for: masterKey, entropy: entropy, passphrase: passphrase) else {
             throw HotWalletError.tangemSdk(.unsupportedCurve)
         }
@@ -30,10 +26,10 @@ public enum DerivationUtil {
     static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
-        derivationPath: String,
+        derivationPath: String?,
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
-        let derivationPath = try DerivationPath(rawPath: derivationPath)
+        let derivationPath = derivationPath.flatMap { try? DerivationPath(rawPath: $0) }
 
         switch curve {
         case .ed25519:
@@ -72,13 +68,13 @@ private extension DerivationUtil {
     }
 
     static func masterKey(from curve: EllipticCurve, entropy: Data, passphrase: String) throws -> Data {
-        fatalError("Implement masterKey derivation for \(curve)")
+        try publicKeyDefault(entropy: entropy, passphrase: passphrase, derivationPath: nil, curve: curve).publicKey
     }
 
     static func publicKeyDefault(
         entropy: Data,
         passphrase: String,
-        derivationPath: DerivationPath,
+        derivationPath: DerivationPath?,
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
         var node = try HDNodeUtil.makeHDNode(
@@ -147,7 +143,7 @@ private extension DerivationUtil {
     static func publicKeyCardano(
         entropy: Data,
         passphrase: String,
-        derivationPath: DerivationPath,
+        derivationPath: DerivationPath?,
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
         guard case .ed25519 = curve else {
@@ -160,6 +156,10 @@ private extension DerivationUtil {
             derivationPath: derivationPath,
             curve: curve
         )
+        
+        guard derivationPath != nil else {
+            return spendingKey
+        }
 
         let stakingKey = try publicKeyDefault(
             entropy: entropy,
@@ -178,7 +178,6 @@ private extension DerivationUtil {
 
 extension DerivationUtil {
     enum Constants {
-        static let entropySize = 32
         static let secp256k1PublicKeySize = 33
         static let edPublicKeySize = 32
     }
