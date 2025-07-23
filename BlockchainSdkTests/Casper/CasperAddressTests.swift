@@ -14,14 +14,14 @@ import class WalletCore.PrivateKey
 import Testing
 
 struct CasperAddressTests {
+    let ed25519AddressService = AddressServiceFactory(blockchain: .casper(curve: .ed25519, testnet: false)).makeAddressService()
+    let secp256k1AddressService = AddressServiceFactory(blockchain: .casper(curve: .secp256k1, testnet: false)).makeAddressService()
+
     @Test
     func defaultAddressGeneration() throws {
         // given
         let ed25519WalletPublicKey = Data(hexString: "98C07D7E72D89A681D7227A7AF8A6FD5F22FE0105C8741D55A95DF415454B82E")
         let ed25519ExpectedAddress = "0198c07D7e72D89A681d7227a7Af8A6fd5F22fe0105c8741d55A95dF415454b82E"
-
-        let ed25519AddressService = CasperAddressService(curve: .ed25519)
-        let secp256k1AddressService = CasperAddressService(curve: .secp256k1)
 
         // when
         let secp256k1WalletPublicKey = Data(hexString: "021F997DFBBFD32817C0E110EAEE26BCBD2BB70B4640C515D9721C9664312EACD8")
@@ -36,7 +36,6 @@ struct CasperAddressTests {
         "0198c07D7e72D89A681d7227a7Af8A6fd5F22fe0105c8741d55A95dF415454b82E",
     ])
     func addressValidation_validAddresses_ed25519(address: String) {
-        let ed25519AddressService = CasperAddressService(curve: .ed25519)
         #expect(ed25519AddressService.validate(address))
     }
 
@@ -44,7 +43,6 @@ struct CasperAddressTests {
         "02021f997DfbbFd32817C0E110EAeE26BCbD2BB70b4640C515D9721c9664312eaCd8",
     ])
     func addressValidation_validAddresses_secp256k1(address: String) {
-        let secp256k1AddressService = CasperAddressService(curve: .secp256k1)
         #expect(secp256k1AddressService.validate(address))
     }
 }
