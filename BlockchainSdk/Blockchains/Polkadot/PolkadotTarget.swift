@@ -87,4 +87,6 @@ extension PolkadotTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         rpcMethod
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

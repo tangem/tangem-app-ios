@@ -12,8 +12,7 @@ import Foundation
 
 let edHexToSign = "BFF1F484E7CD3B3AEB4843ACCFDF5FDAEEFA6F2073FE0B366C092CAA0212040265BCB0D64087DFFAAD8A0848AE90477B229EA81B51CAE3C705FAC19EEF2A8D72"
 
-struct WCSignUtilTests {
-    @available(*, unavailable)
+struct SignUtilTests {
     @Test
     func signProducesCorrectEdCardanoSignatures() throws {
         let signaturesDefaultDerivation = try SignUtil.sign(
@@ -41,7 +40,6 @@ struct WCSignUtilTests {
         #expect(signaturesStakingDerivation.first == .some(expected2))
     }
 
-    @available(*, unavailable)
     @Test
     func signProducesCorrectEdSignatures() throws {
         let signatures = try SignUtil.sign(
@@ -57,7 +55,6 @@ struct WCSignUtilTests {
         #expect(signatures.first == .some(expected))
     }
 
-    @available(*, unavailable)
     @Test
     func signProducesCorrectSecp256k1Signatures() throws {
         let hash = Data(hexString: "BFF1F484E7CD3B3AEB4843ACCFDF5FDAEEFA6F2073FE0B366C092CAA02120402")

@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemExpress
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampCurrencySelectorView: View {
     @ObservedObject var viewModel: OnrampCurrencySelectorViewModel
@@ -93,11 +94,13 @@ private extension OnrampCurrencySelectorView {
 
                 case .sectioned(let popular, let other):
                     sectionViewTitle(Localization.onrampCurrencyPopular)
+                        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorPopularSection)
                     ForEach(popular) { data in
                         OnrampCurrencyView(data: data)
                     }
 
                     sectionViewTitle(Localization.onrampCurrencyOther)
+                        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorOtherSection)
                     ForEach(other) { data in
                         OnrampCurrencyView(data: data)
                     }

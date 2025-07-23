@@ -35,7 +35,7 @@ extension WalletConnectDAppProposalLoadingError {
     struct UnsupportedDomainError {
         let proposalID: String
         let dAppName: String
-        let dAppRawDomain: String
+        let dAppRawURL: String
     }
 
     struct UnsupportedBlockchainsError {
