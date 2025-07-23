@@ -16,7 +16,7 @@ final class LitecoinTransactionTests {
         // given
         let networkParams = LitecoinNetworkParams()
         let pubKey = Data(hexString: "0252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa")
-        let addressService = BitcoinAddressService(networkParams: networkParams)
+        let addressService = AddressServiceFactory(blockchain: .litecoin).makeAddressService()
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
