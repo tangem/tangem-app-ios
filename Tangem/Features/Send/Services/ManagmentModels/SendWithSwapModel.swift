@@ -312,6 +312,10 @@ extension SendWithSwapModel: SendSourceTokenAmountOutput {
 // MARK: - SendReceiveTokenInput
 
 extension SendWithSwapModel: SendReceiveTokenInput {
+    var isReceiveTokenSelectionAvailable: Bool {
+        swapManager.isSwapAvailable
+    }
+
     var receiveToken: SendReceiveTokenType {
         _receivedToken.value
     }

@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol SendNewAmountInteractor {
+    var isReceiveTokenSelectionAvailable: Bool { get }
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
@@ -175,6 +176,10 @@ class CommonSendNewAmountInteractor {
 // MARK: - SendNewAmountInteractor
 
 extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
+    var isReceiveTokenSelectionAvailable: Bool {
+        receiveTokenInput?.isReceiveTokenSelectionAvailable ?? false
+    }
+
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
         let info = amountModifier?.modifyingMessagePublisher ?? .just(output: nil)
         let notification = notificationService?.notificationMessagePublisher ?? .just(output: nil)
