@@ -12,7 +12,6 @@ import enum BlockchainSdk.Blockchain
 struct WalletConnectConnectedDAppPersistentDTO: Codable {
     let sessionTopic: String
     let userWalletID: String
-    let userWalletName: String
     let dAppName: String
     let dAppDomainURL: URL
     let dAppIconURL: URL?
@@ -26,18 +25,6 @@ extension WalletConnectConnectedDAppPersistentDTO {
     enum VerificationStatus: Codable {
         case verified
         case unknownDomain
-        case malicious([AttackType])
-    }
-
-    enum AttackType: String, Codable {
-        case signatureFarming
-        case approvalFarming
-        case setApprovalForAll
-        case transferFarming
-        case rawEtherTransfer
-        case seaportFarming
-        case blurFarming
-        case permitFarming
-        case other
+        case malicious
     }
 }

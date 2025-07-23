@@ -185,7 +185,7 @@ extension ALPH {
             }
 
             if sum < amount {
-                return .failure(WalletError.failedToBuildTx)
+                return .failure(BlockchainSdkError.failedToBuildTx)
             }
 
             return .success((Array(sortedUtxos.prefix(index + 1)), Array(sortedUtxos.dropFirst(index + 1))))

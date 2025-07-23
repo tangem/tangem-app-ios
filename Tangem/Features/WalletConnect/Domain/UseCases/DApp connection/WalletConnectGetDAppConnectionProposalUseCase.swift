@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import struct Foundation.URL
-
 final class WalletConnectGetDAppConnectionProposalUseCase {
     private let dAppDataService: any WalletConnectDAppDataService
     private let dAppProposalApprovalService: any WalletConnectDAppProposalApprovalService
@@ -37,14 +35,7 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
             throw WalletConnectDAppProposalLoadingError.cancelledByUser
         }
 
-        let verificationStatus: WalletConnectDAppVerificationStatus
-
-        do {
-            verificationStatus = try await verificationService.verify(dAppDomain: dAppData.domain)
-        } catch {
-            // [REDACTED_TODO_COMMENT]
-            verificationStatus = .unknownDomain
-        }
+        let verificationStatus = await getVerificationStatus(from: dAppData, proposal: sessionProposal)
 
         return WalletConnectDAppConnectionProposal(dApp: dAppData, verificationStatus: verificationStatus, sessionProposal: sessionProposal)
     }
@@ -78,6 +69,27 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
 
         } catch {
             throw error
+        }
+    }
+
+    private func getVerificationStatus(
+        from dAppData: WalletConnectDAppData,
+        proposal: WalletConnectDAppSessionProposal
+    ) async -> WalletConnectDAppVerificationStatus {
+        switch proposal.initialVerificationContext?.validationStatus {
+        case .valid, nil:
+            break
+
+        case .invalid:
+            // [REDACTED_TODO_COMMENT]
+            return .malicious
+        }
+
+        do {
+            return try await verificationService.verify(dAppDomain: dAppData.domain)
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            return .unknownDomain
         }
     }
 }

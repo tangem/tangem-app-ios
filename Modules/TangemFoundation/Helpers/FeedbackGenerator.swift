@@ -13,6 +13,10 @@ public enum FeedbackGenerator {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
+    public static func selectionChanged() {
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+
     public static func error() {
         UINotificationFeedbackGenerator().notificationOccurred(.error)
     }

@@ -16,7 +16,7 @@ struct SendNewAmountStepBuilder {
     typealias SourceAmountIO = (input: SendSourceTokenAmountInput, output: SendSourceTokenAmountOutput)
     typealias ReceiveAmountIO = (input: SendReceiveTokenAmountInput, output: SendReceiveTokenAmountOutput)
 
-    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendTokenAmountCompactViewModel)
+    typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
 
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -31,7 +31,8 @@ struct SendNewAmountStepBuilder {
         actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
-        flowKind: SendModel.PredefinedValues.FlowKind
+        notificationService: SendAmountNotificationService?,
+        analyticsLogger: any SendAnalyticsLogger
     ) -> ReturnValue {
         let interactor = CommonSendNewAmountInteractor(
             sourceTokenInput: sourceIO.input,
@@ -42,19 +43,21 @@ struct SendNewAmountStepBuilder {
             receiveTokenAmountInput: receiveAmountIO.input,
             validator: sendAmountValidator,
             amountModifier: amountModifier,
+            notificationService: notificationService,
             type: .crypto
         )
 
         let viewModel = SendNewAmountViewModel(
             sourceTokenInput: sourceIO.input,
             settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
-            interactor: interactor
+            interactor: interactor,
+            analyticsLogger: analyticsLogger
         )
 
         let step = SendNewAmountStep(
             viewModel: viewModel,
             interactor: interactor,
-            flowKind: flowKind
+            analyticsLogger: analyticsLogger
         )
 
         let compact = SendNewAmountCompactViewModel(
@@ -62,23 +65,18 @@ struct SendNewAmountStepBuilder {
             sourceTokenAmountInput: sourceAmountIO.input,
             receiveTokenInput: receiveIO.input,
             receiveTokenAmountInput: receiveAmountIO.input,
-            swapProvidersInput: swapProvidersInput,
-            flow: flowKind,
+            swapProvidersInput: swapProvidersInput
         )
 
         let amountUpdater = SendExternalAmountUpdater(viewModel: viewModel, interactor: interactor)
-        let finish = makeSendAmountCompactViewModel(tokenInput: sourceIO.input, amountInput: sourceAmountIO.input)
+        let finish = SendNewAmountFinishViewModel(
+            sourceTokenInput: sourceIO.input,
+            sourceTokenAmountInput: sourceAmountIO.input,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenAmountInput: receiveAmountIO.input,
+            swapProvidersInput: swapProvidersInput,
+        )
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
-    }
-
-    func makeSendAmountCompactViewModel(
-        tokenInput: SendSourceTokenInput,
-        amountInput: SendSourceTokenAmountInput
-    ) -> SendTokenAmountCompactViewModel {
-        let viewModel = SendTokenAmountCompactViewModel(sourceToken: tokenInput.sourceToken)
-        viewModel.bind(amountPublisher: amountInput.sourceAmountPublisher)
-
-        return viewModel
     }
 }

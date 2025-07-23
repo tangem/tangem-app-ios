@@ -91,4 +91,6 @@ extension CasperTarget: TargetTypeLogConvertible {
             return "putDeploy"
         }
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

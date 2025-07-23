@@ -28,7 +28,6 @@ struct SendSwapProvidersSelectorView: View {
             // Should start when title starts (14 + 36 + 12)
             .separatorPadding(.init(leading: 62, trailing: 14))
             .padding(.horizontal, 14)
-            .animation(.none, value: viewModel.selectedProvider?.provider.id)
 
             ExpressMoreProvidersSoonView()
                 .padding(.all, 16)
