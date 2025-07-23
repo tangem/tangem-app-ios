@@ -20,6 +20,15 @@ struct CustomFeeServiceFactory {
 
         if case .bitcoin = blockchain,
            let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
+            if FeatureProvider.isAvailable(.newSendUI) {
+                return NewCustomBitcoinFeeService(
+                    input: input,
+                    tokenItem: walletModel.tokenItem,
+                    feeTokenItem: walletModel.feeTokenItem,
+                    bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
+                )
+            }
+
             return CustomBitcoinFeeService(
                 input: input,
                 tokenItem: walletModel.tokenItem,
@@ -29,10 +38,18 @@ struct CustomFeeServiceFactory {
         }
 
         if case .kaspa = blockchain {
+            if FeatureProvider.isAvailable(.newSendUI) {
+                return NewCustomKaspaFeeService(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+            }
+
             return CustomKaspaFeeService(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         }
 
         if blockchain.isEvm {
+            if FeatureProvider.isAvailable(.newSendUI) {
+                return NewCustomEvmFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+            }
+
             return CustomEvmFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
         }
 

@@ -39,7 +39,8 @@ struct AppScanTaskResponse {
         let cardInfo = CardInfo(
             card: CardDTO(card: card),
             walletData: walletData,
-            primaryCard: primaryCard
+            primaryCard: primaryCard,
+            associatedCardIds: []
         )
 
         return cardInfo
@@ -272,8 +273,8 @@ final class AppScanTask: CardSessionRunnable {
         let config = config(for: card)
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
-        if let seed = config.userWalletIdSeed {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+        if let userWalletId = UserWalletId(config: config) {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
 
             // Force add blockchains for demo cards
             if let persistentBlockchains = config.persistentBlockchains {
@@ -322,8 +323,8 @@ final class AppScanTask: CardSessionRunnable {
         let card = CardDTO(card: plainCard)
         let config = config(for: card)
 
-        if let seed = config.userWalletIdSeed {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+        if let userWalletId = UserWalletId(config: config) {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
             if card.isAccessCodeSet, !tokenItemsRepository.containsFile {
                 session.pause()
                 session.viewDelegate.setState(.empty)
@@ -366,7 +367,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {
-        let cardInfo = CardInfo(card: card, walletData: walletData)
+        let cardInfo = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
         return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
     }
 }
