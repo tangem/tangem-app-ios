@@ -54,7 +54,7 @@ extension BlockchairNetworkProvider: UTXONetworkProvider {
         .withWeakCaptureOf(self)
         .tryMap { provider, response -> [UnspentOutput] in
             guard let addressResponse = response.data[address] else {
-                throw WalletError.failedToParseNetworkResponse()
+                throw BlockchainSdkError.failedToParseNetworkResponse()
             }
 
             return provider.mapToUnspentOutputs(outputs: addressResponse.utxo)
@@ -69,7 +69,7 @@ extension BlockchairNetworkProvider: UTXONetworkProvider {
                 // We have to find key ignore case type
                 let transaction = response.data.first(where: { $0.key.caseInsensitiveEquals(to: hash) })?.value
                 guard let transaction else {
-                    throw WalletError.failedToParseNetworkResponse()
+                    throw BlockchainSdkError.failedToParseNetworkResponse()
                 }
 
                 return try provider.mapToTransactionRecord(transaction: transaction, address: address)
