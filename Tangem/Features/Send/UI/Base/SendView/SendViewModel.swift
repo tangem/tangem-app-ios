@@ -112,7 +112,6 @@ final class SendViewModel: ObservableObject {
 
         switch mainButtonType {
         case .next:
-            step.saveChangesIfNeeded()
             stepsManager.performNext()
         case .continue:
             step.saveChangesIfNeeded()
