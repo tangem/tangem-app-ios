@@ -1,0 +1,4 @@
+module TrezorCrypto {
+    header "trezor-crypto.h"
+    export *
+}
