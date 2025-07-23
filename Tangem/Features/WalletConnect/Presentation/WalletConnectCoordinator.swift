@@ -40,6 +40,7 @@ final class WalletConnectCoordinator: CoordinatorObject {
         Task { @MainActor in
             if FeatureProvider.isAvailable(.walletConnectUI) {
                 viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(coordinator: self)
+                viewModel?.fetchConnectedDApps()
             } else {
                 legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
             }
