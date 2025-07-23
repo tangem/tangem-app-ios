@@ -9,7 +9,7 @@
 import Foundation
 import TangemVisa
 
-class OnboardingCoordinator: CoordinatorObject {
+final class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
