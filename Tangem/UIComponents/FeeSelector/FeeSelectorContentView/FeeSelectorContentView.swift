@@ -23,17 +23,22 @@ struct FeeSelectorContentView: View {
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
 
-            SelectableSection(viewModel.feesRowData) { data in
-                FeeSelectorContentRowView(viewModel: data, isSelected: viewModel.isSelected(data.feeOption).asBinding)
+            ScrollView {
+                SelectableSection(viewModel.feesRowData) { data in
+                    FeeSelectorContentRowView(viewModel: data, isSelected: viewModel.isSelected(data.feeOption).asBinding)
+                }
+                // Should start when title starts (14 + 36 + 12)
+                .separatorPadding(.init(leading: 62, trailing: 14))
+                .padding(.horizontal, 14)
             }
-            // Should start when title starts (14 + 36 + 12)
-            .separatorPadding(.init(leading: 62, trailing: 14))
-            .padding(.horizontal, 14)
-            .animation(.none, value: viewModel.selectedFeeOption)
+            .scrollBounceBehaviorBackport(.basedOnSize)
 
             MainButton(title: Localization.commonDone, action: viewModel.done)
                 .padding(.vertical, 16)
                 .padding(.horizontal, 16)
+        }
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetFrameUpdateAnimation = .easeInOut
         }
     }
 }

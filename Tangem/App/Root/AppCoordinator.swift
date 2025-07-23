@@ -74,8 +74,8 @@ class AppCoordinator: CoordinatorObject {
              .auth where options == .locked:
             setupLock()
 
-            DispatchQueue.main.async {
-                self.tryUnlockWithBiometry()
+            runTask(in: self) { coordinator in
+                await coordinator.tryUnlockWithBiometry()
             }
         case .welcome:
             setupWelcome()
@@ -86,10 +86,10 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 
-    private func tryUnlockWithBiometry() {
-        appLockController.unlockApp { [weak self] result in
-            guard let self else { return }
+    private func tryUnlockWithBiometry() async {
+        let result = await appLockController.unlockApp()
 
+        await runOnMain {
             switch result {
             case .openAuth:
                 setupAuth(unlockOnAppear: false)
@@ -191,13 +191,34 @@ class AppCoordinator: CoordinatorObject {
             }
             .store(in: &bag)
 
+        let applicationIsActivePublisher = NotificationCenter.default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .map { _ in true }
+
+        let applicationIsInactivePublisher = NotificationCenter.default
+            .publisher(for: UIApplication.willResignActiveNotification)
+            .map { _ in false }
+
+        let applicationLifecyclePublisher = Publishers.Merge(applicationIsActivePublisher, applicationIsInactivePublisher)
+            .removeDuplicates()
+            .prepend(true)
+
         $viewState
             .dropFirst()
-            .combineLatest(userWalletRepository.eventProvider, AppSettings.shared.$marketsTooltipWasShown)
+            .combineLatest(
+                userWalletRepository.eventProvider,
+                AppSettings.shared.$marketsTooltipWasShown,
+                applicationLifecyclePublisher
+            )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown in
+            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown, appIsActive in
                 MainActor.assumeIsolated {
-                    self?.updateFloatingSheetPresenterState(viewState, walletRepositoryEvent, marketsTooltipWasShown)
+                    self?.updateFloatingSheetPresenterState(
+                        viewState: viewState,
+                        userWalletRepositoryEvent: walletRepositoryEvent,
+                        marketsTooltipWasShown: marketsTooltipWasShown,
+                        appIsActive: appIsActive
+                    )
                 }
             }
             .store(in: &bag)
@@ -211,11 +232,12 @@ class AppCoordinator: CoordinatorObject {
 
     @MainActor
     private func updateFloatingSheetPresenterState(
-        _ viewState: ViewState?,
-        _ userWalletRepositoryEvent: UserWalletRepositoryEvent,
-        _ marketsTooltipWasShown: Bool
+        viewState: ViewState?,
+        userWalletRepositoryEvent: UserWalletRepositoryEvent,
+        marketsTooltipWasShown: Bool,
+        appIsActive: Bool
     ) {
-        guard marketsTooltipWasShown else {
+        guard appIsActive, marketsTooltipWasShown else {
             floatingSheetPresenter.pauseSheetsDisplaying()
             return
         }
@@ -230,12 +252,7 @@ class AppCoordinator: CoordinatorObject {
             floatingSheetPresenter.removeAllSheets()
             floatingSheetPresenter.pauseSheetsDisplaying()
 
-        case .scan(let isScanning):
-            isScanning
-                ? floatingSheetPresenter.pauseSheetsDisplaying()
-                : floatingSheetPresenter.resumeSheetsDisplaying()
-
-        case .biometryUnlocked, .inserted, .updated, .deleted, .selected, .replaced:
+        case .unlockedBiometrics, .inserted, .unlocked, .deleted, .selected:
             floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }

@@ -39,11 +39,10 @@ class SendWithSwapModel {
 
     private let transactionSigner: TransactionSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
     private let swapManager: SwapManager
 
-    private let flowKind: PredefinedValues.FlowKind
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -52,18 +51,17 @@ class SendWithSwapModel {
         userToken: SendSourceToken,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
+        analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
         self.swapManager = swapManager
 
-        flowKind = predefinedValues.flowKind
         _sendingToken = .init(userToken)
         _receivedToken = .init(.same(userToken))
         _destination = .init(predefinedValues.destination)
@@ -85,21 +83,19 @@ private extension SendWithSwapModel {
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
-            .asyncMap { manager, args async -> Result<BSDKTransaction, Error> in
-                do {
-                    let transaction = try await manager.makeTransaction(
-                        amountValue: args.0,
-                        destination: args.1,
-                        fee: args.2
-                    )
-                    return .success(transaction)
-                } catch {
-                    return .failure(error)
-                }
+            .setFailureType(to: Error.self)
+            .asyncTryMap { manager, args -> BSDKTransaction in
+                let (amount, destination, fee) = args
+
+                return try await manager.makeTransaction(
+                    amountValue: amount,
+                    destination: destination,
+                    fee: fee
+                )
             }
-            .sink { [weak self] result in
-                self?._transaction.send(result)
-            }
+            .mapToResult()
+            .withWeakCaptureOf(self)
+            .sink { $0._transaction.send($1) }
             .store(in: &bag)
 
         Publishers
@@ -178,6 +174,15 @@ private extension SendWithSwapModel {
     }
 
     private func send() async throws -> TransactionDispatcherResult {
+        switch receiveToken {
+        case .same:
+            return try await simpleSend()
+        case .swap:
+            return try await swapManager.send()
+        }
+    }
+
+    private func simpleSend() async throws -> TransactionDispatcherResult {
         guard let transaction = _transaction.value?.value else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
@@ -198,8 +203,14 @@ private extension SendWithSwapModel {
 
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
         addTokenFromTransactionIfNeeded(transaction)
+
+        analyticsLogger.logTransactionSent(
+            amount: _amount.value,
+            additionalField: _destinationAdditionalField.value,
+            fee: _selectedFee.value,
+            signerType: result.signerType
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -213,11 +224,7 @@ private extension SendWithSwapModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .sendErrorTransactionRejected, params: [
-                .token: sourceToken.tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-                .blockchain: sourceToken.tokenItem.blockchain.displayName,
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 
@@ -242,10 +249,11 @@ private extension SendWithSwapModel {
 // MARK: - SendDestinationInput
 
 extension SendWithSwapModel: SendDestinationInput {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> {
-        _destination
-            .compactMap { $0 }
-            .eraseToAnyPublisher()
+    var destination: SendAddress? { _destination.value }
+    var destinationAdditionalField: SendDestinationAdditionalField { _destinationAdditionalField.value }
+
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> {
+        _destination.eraseToAnyPublisher()
     }
 
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
@@ -421,7 +429,26 @@ extension SendWithSwapModel: SendFeeOutput {
 
 extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, token in
+                switch token {
+                case .same:
+                    return model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+                case .swap:
+                    return model.swapManager.statePublisher.map { state in
+                        switch state {
+                        // We don't disable main button when rates in refreshing
+                        case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
+                            return true
+                        case .idle, .loading, .restriction:
+                            return false
+                        }
+                    }
+                    .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
@@ -452,7 +479,16 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        _isSending.eraseToAnyPublisher()
+        let refreshRatesPublisher = swapManager.statePublisher.map { state in
+            switch state {
+            case .loading(.refreshRates): true
+            default: false
+            }
+        }
+
+        return Publishers
+            .Merge(_isSending, refreshRatesPublisher)
+            .eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
@@ -507,10 +543,11 @@ extension SendWithSwapModel: NotificationTapDelegate {
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
+        case .refresh:
+            swapManager.update()
         case .generateAddresses,
              .backupCard,
              .buyCrypto,
-             .refresh,
              .goToProvider,
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
@@ -527,7 +564,9 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .unlock:
+             .unlock,
+             .addTokenTrustline,
+             .openHotFinishActivation:
             assertionFailure("Notification tap not handled")
         }
     }
@@ -573,45 +612,6 @@ extension SendWithSwapModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
-    }
-}
-
-// MARK: - Analytics
-
-private extension SendWithSwapModel {
-    func logTransactionAnalytics(signerType: String) {
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-        let source = flowKind.analyticsValue(for: sourceToken.tokenItem)
-
-        Analytics.log(event: .transactionSent, params: [
-            .source: source.rawValue,
-            .token: sourceToken.tokenItem.currencySymbol,
-            .blockchain: sourceToken.tokenItem.blockchain.displayName,
-            .feeType: feeType.rawValue,
-            .memo: additionalFieldAnalyticsParameter().rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-
-        case .alternative:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
-        }
-    }
-
-    func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
-        // If the blockchain doesn't support additional field -- return null
-        // Otherwise return full / empty
-        switch _destinationAdditionalField.value {
-        case .notSupported: .null
-        case .empty: .empty
-        case .filled: .full
-        }
     }
 }
 

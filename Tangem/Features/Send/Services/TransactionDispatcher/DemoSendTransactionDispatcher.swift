@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 class DemoSendTransactionDispatcher {
     private let walletModel: any WalletModel
@@ -36,10 +37,10 @@ extension DemoSendTransactionDispatcher: TransactionDispatcher {
         do {
             _ = try await transactionSigner
                 .sign(hash: hash, walletPublicKey: walletModel.publicKey)
-                .mapSendError(tx: hash.hexString)
+                .mapAndEraseSendTxError(tx: hash.hexString)
                 .async()
         } catch {
-            throw TransactionDispatcherResultMapper().mapError(error, transaction: transaction)
+            throw TransactionDispatcherResultMapper().mapError(error.toUniversalError(), transaction: transaction)
         }
 
         throw TransactionDispatcherResult.Error.demoAlert
