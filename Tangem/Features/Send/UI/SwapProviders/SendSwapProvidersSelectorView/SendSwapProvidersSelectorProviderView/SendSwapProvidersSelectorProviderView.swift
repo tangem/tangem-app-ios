@@ -34,6 +34,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
         }
+        .disabled(!data.isTappable)
     }
 
     private var titleView: some View {

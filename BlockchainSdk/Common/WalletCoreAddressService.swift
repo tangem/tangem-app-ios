@@ -41,7 +41,7 @@ extension WalletCoreAddressService: AddressProvider {
         switch addressType {
         case .default:
             guard let walletCorePublicKey = PublicKey(tangemPublicKey: publicKey.blockchainKey, publicKeyType: publicKeyType) else {
-                throw TWError.makeAddressFailed
+                throw BlockchainSdkError.twMakeAddressFailed
             }
 
             let address = AnyAddress(publicKey: walletCorePublicKey, coin: coin).description
@@ -68,16 +68,10 @@ extension WalletCoreAddressService: AddressValidator {
 private extension WalletCoreAddressService {
     func makeByronAddress(publicKey: Wallet.PublicKey) throws -> String {
         guard let publicKey = PublicKey(data: publicKey.blockchainKey, type: .ed25519Cardano) else {
-            throw TWError.makeAddressFailed
+            throw BlockchainSdkError.twMakeAddressFailed
         }
 
         let byronAddress = Cardano.getByronAddress(publicKey: publicKey)
         return byronAddress
-    }
-}
-
-extension WalletCoreAddressService {
-    enum TWError: Error {
-        case makeAddressFailed
     }
 }
