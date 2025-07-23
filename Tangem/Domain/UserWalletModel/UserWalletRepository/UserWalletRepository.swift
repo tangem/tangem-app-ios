@@ -52,6 +52,7 @@ enum UserWalletRepositoryEvent {
 enum UserWalletRepositoryUnlockMethod {
     case biometrics(LAContext)
     case card(CardInfo)
+    case mobileWallet(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
@@ -59,6 +60,8 @@ enum UserWalletRepositoryUnlockMethod {
             return Analytics.ParameterValue.signInTypeBiometrics
         case .card:
             return Analytics.ParameterValue.card
+        case .mobileWallet:
+            return Analytics.ParameterValue.accessCode
         }
     }
 }
