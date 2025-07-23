@@ -104,17 +104,17 @@ extension ALPH {
                 )
 
             case _ where tokensRemainder.isEmpty:
-                return .failure(TxError.runtime(
+                return .failure(AlephiumError.runtime(
                     "Not enough ALPH for ALPH change output, expected \(dustUtxoAmount), got \(alphRemainder)"
                 ))
 
             case _ where alphRemainder < tokenDustAmount:
-                return .failure(TxError.runtime(
+                return .failure(AlephiumError.runtime(
                     "Not enough ALPH for token change output, expected \(tokenDustAmount), got \(alphRemainder)"
                 ))
 
             default:
-                return .failure(TxError.runtime(
+                return .failure(AlephiumError.runtime(
                     "Not enough ALPH for ALPH and token change output, expected \(totalDustAmount), got \(alphRemainder)"
                 ))
             }
@@ -128,7 +128,7 @@ extension ALPH {
             var inputSum = U256.zero
             for sum in inputs {
                 guard let newSum = inputSum.add(sum) else {
-                    return .failure(TxError.runtime("Input amount overflow"))
+                    return .failure(AlephiumError.runtime("Input amount overflow"))
                 }
                 inputSum = newSum
             }
@@ -137,20 +137,20 @@ extension ALPH {
 
             for sum in outputs {
                 guard let newAmount = outputAmount.add(sum) else {
-                    return .failure(TxError.runtime("Output amount overflow"))
+                    return .failure(AlephiumError.runtime("Output amount overflow"))
                 }
                 outputAmount = newAmount
             }
 
             guard let remainder0 = inputSum.sub(outputAmount) else {
-                return .failure(TxError.runtime("Not enough balance"))
+                return .failure(AlephiumError.runtime("Not enough balance"))
             }
 
             guard let remainder = remainder0.sub(gasFee) else {
                 let sumDecimal = outputAmount.v + gasFee.v
                 let requiredDecimal = outputAmount.v
                 let message = "Not enough balance: got \(sumDecimal), required \(requiredDecimal)"
-                return .failure(TxError.runtime(message))
+                return .failure(AlephiumError.runtime(message))
             }
 
             return .success(remainder)
@@ -209,7 +209,7 @@ extension ALPH {
             outputs: [(TokenId, U256)]
         ) -> Result<Void, Error> {
             let newTokens = Set(outputs.map { $0.0 }).subtracting(inputs.map { $0.0 })
-            return newTokens.isEmpty ? .success(()) : .failure(TxError.runtime("New tokens found in outputs: \(newTokens)"))
+            return newTokens.isEmpty ? .success(()) : .failure(AlephiumError.runtime("New tokens found in outputs: \(newTokens)"))
         }
     }
 }

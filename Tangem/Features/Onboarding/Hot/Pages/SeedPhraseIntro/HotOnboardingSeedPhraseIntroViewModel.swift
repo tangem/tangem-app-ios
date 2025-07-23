@@ -8,14 +8,17 @@
 
 import Foundation
 import TangemAssets
+import TangemLocalization
 
 final class HotOnboardingSeedPhraseIntroViewModel {
-    let continueButtonTitle = "Continue"
+    let continueButtonTitle = Localization.commonContinue
 
     lazy var commonItem: CommonItem = makeCommonItem()
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
     private weak var delegate: HotOnboardingSeedPhraseIntroDelegate?
+
+    private let wordsCount: Int = 12
 
     init(delegate: HotOnboardingSeedPhraseIntroDelegate) {
         self.delegate = delegate
@@ -33,21 +36,21 @@ extension HotOnboardingSeedPhraseIntroViewModel {
 private extension HotOnboardingSeedPhraseIntroViewModel {
     func makeCommonItem() -> CommonItem {
         CommonItem(
-            title: "Recovery phrase",
-            subtitle: "Your Secret Recovery Phrase is a fixed set of 12 random words used to access and recover your wallet."
+            title: Localization.backupInfoTitle,
+            subtitle: Localization.backupInfoDescription("\(wordsCount)")
         )
     }
 
     func makeInfoItems() -> [InfoItem] {
         [
             InfoItem(
-                title: "No Recovery Possible",
-                description: "Save these 12 words in a secure location, such as a password manager, and never share them with anyone.",
+                title: Localization.backupInfoSaveTitle,
+                description: Localization.backupInfoSaveDescription("\(wordsCount)"),
                 icon: Assets.lock24
             ),
             InfoItem(
-                title: "Keep It Safe",
-                description: "These words can’t be recovered if lost. Make sure to keep it somewhere secure.",
+                title: Localization.backupInfoKeepTitle,
+                description: Localization.backupInfoKeepDescription,
                 icon: Assets.cog24
             ),
         ]

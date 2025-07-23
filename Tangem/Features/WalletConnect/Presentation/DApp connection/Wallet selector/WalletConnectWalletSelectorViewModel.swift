@@ -167,7 +167,7 @@ private extension WalletConnectWalletSelectorViewState {
                     domainModel: userWallet,
                     imageState: .loading,
                     description: .init(
-                        tokensCount: "\(userWallet.userTokenListManager.userTokens.count) tokens",
+                        tokensCount: "\(userWallet.userTokenListManager.userTokensList.entries.count) tokens",
                         balanceState: .loading(cached: nil)
                     ),
                     isSelected: userWallet.userWalletId == selectedWallet.userWalletId
