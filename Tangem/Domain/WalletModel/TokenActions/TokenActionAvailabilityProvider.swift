@@ -41,6 +41,10 @@ struct TokenActionAvailabilityProvider {
         switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
+
+        case .requiresTrustline:
+            return false
+
         case .paidTransactionWithFee, .none:
             return true
         }
@@ -396,6 +400,14 @@ extension TokenActionAvailabilityProvider {
         case .paidTransactionWithFee(let blockchain, _, _):
             switch blockchain {
             case .hedera:
+                return .assetRequirement(blockchain: blockchain)
+            default:
+                break
+            }
+
+        case .requiresTrustline(let blockchain, _, _):
+            switch blockchain {
+            case .stellar:
                 return .assetRequirement(blockchain: blockchain)
             default:
                 break

@@ -11,10 +11,13 @@ import TangemHotSdk
 import TangemSdk
 
 class KeysDerivingHotWalletInteractor {
-    let entropy = Data()
-    let passphrase: String? = nil
+    let entropy: Data
+    let passphrase: String
 
-    init() {}
+    init(entropy: Data, passphrase: String) {
+        self.entropy = entropy
+        self.passphrase = passphrase
+    }
 }
 
 // MARK: - KeysDeriving
@@ -22,9 +25,9 @@ class KeysDerivingHotWalletInteractor {
 extension KeysDerivingHotWalletInteractor: KeysDeriving {
     func deriveKeys(
         derivations: [Data: [DerivationPath]],
-        completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void
+        completion: @escaping (Result<DerivationResult, Error>) -> Void
     ) {
-        let result: Result<DerivationResult, TangemSdkError> = Result {
+        let result: Result<DerivationResult, Error> = Result {
             try derivations.reduce(into: [:]) { result, derivation in
                 let derivedKeys = try deriveKeys(
                     derivationPaths: derivation.value,
@@ -32,8 +35,6 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
                 )
                 result[derivation.key] = derivedKeys
             }
-        }.mapError {
-            TangemSdkError.underlying(error: $0)
         }
 
         completion(result)

@@ -19,8 +19,6 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
             let walletButton = app.buttons[name.rawValue]
             walletButton.waitAndTap()
 
-            PushPermissionRequestScreen(app).handlePermissionRequest()
-
             return MainScreen(app)
         }
     }

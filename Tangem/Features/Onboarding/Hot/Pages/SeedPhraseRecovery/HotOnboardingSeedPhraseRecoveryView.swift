@@ -46,6 +46,7 @@ struct HotOnboardingSeedPhraseRecoveryView: View {
                 )
             }
         }
+        .padding(.top, 32)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }

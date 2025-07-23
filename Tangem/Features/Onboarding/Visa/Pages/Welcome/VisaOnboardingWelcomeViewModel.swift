@@ -82,7 +82,7 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
                         .errorCode: "\(error.universalErrorCode)",
                         .source: Analytics.ParameterValue.onboarding.rawValue,
                     ])
-                    await viewModel.delegate?.showAlertAsync(error.universalErrorAlertBinder)
+                    await viewModel.delegate?.showAlertAsync(error.alertBinder)
                 }
             }
             await runOnMain {

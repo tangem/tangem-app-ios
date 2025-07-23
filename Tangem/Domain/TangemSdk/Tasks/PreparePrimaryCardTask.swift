@@ -41,7 +41,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
 
         if card.settings.isHDWalletAllowed {
             let config = UserWalletConfigFactory().makeConfig(
-                cardInfo: CardInfo(card: CardDTO(card: card), walletData: .none)
+                cardInfo: CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
             )
             let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 

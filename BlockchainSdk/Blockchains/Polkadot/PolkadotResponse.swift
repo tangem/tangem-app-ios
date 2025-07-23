@@ -41,7 +41,7 @@ struct PolkadotQueriedInfo: ScaleCodec.Decodable {
             let bytes: Data = try decoder.decode(.fixed(16))
             partialFee = BigUInt(littleEndian: bytes)
         default:
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
     }
 }
