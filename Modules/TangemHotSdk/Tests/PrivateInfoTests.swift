@@ -27,13 +27,13 @@ struct PrivateInfoTests {
     @Test
     func testEncodeDecodeWithoutPassphrase() throws {
         let entropy = Data([0x0A, 0x0B, 0x0C])
-        let privateInfo = PrivateInfo(entropy: entropy, passphrase: nil)
+        let privateInfo = PrivateInfo(entropy: entropy, passphrase: "")
 
         let encoded = privateInfo.encode()
         let decoded = try #require(PrivateInfo(data: encoded))
 
         #expect(decoded.entropy == entropy)
-        #expect(decoded.passphrase == nil)
+        #expect(decoded.passphrase == "")
     }
 
     @Test
