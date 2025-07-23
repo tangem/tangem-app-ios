@@ -61,6 +61,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
+
         cardScanner.scanCard { [weak self] result in
             self?.isLoading = false
 
