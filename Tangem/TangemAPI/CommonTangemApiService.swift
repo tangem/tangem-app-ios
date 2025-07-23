@@ -21,6 +21,7 @@ class CommonTangemApiService {
         DeviceInfoPlugin(),
         TangemNetworkLoggerPlugin(logOptions: .verbose),
         TangemNetworkAnalyticsPlugin(),
+        TangemApiAuthorizationPlugin(),
     ])
 
     private var authData: TangemApiTarget.AuthData?
