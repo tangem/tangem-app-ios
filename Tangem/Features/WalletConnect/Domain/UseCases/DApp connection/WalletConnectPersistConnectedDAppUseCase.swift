@@ -22,11 +22,9 @@ final class WalletConnectPersistConnectedDAppUseCase {
         blockchains: [Blockchain],
         userWallet: some UserWalletModel
     ) async throws(WalletConnectDAppPersistenceError) {
-        let userWallet = WalletConnectConnectedDApp.UserWallet(id: userWallet.userWalletId.stringValue, name: userWallet.name)
-
         let connectedDApp = WalletConnectConnectedDApp(
             session: dAppSession,
-            userWallet: userWallet,
+            userWalletID: userWallet.userWalletId.stringValue,
             dAppData: connectionProposal.dApp,
             verificationStatus: connectionProposal.verificationStatus,
             blockchains: blockchains,

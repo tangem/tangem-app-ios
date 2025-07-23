@@ -38,7 +38,7 @@ struct HotOnboardingCreateWalletView: View {
                 action: viewModel.onCreateTap
             )
         }
-        .padding(.top, 32)
+        .padding(.top, 64)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }

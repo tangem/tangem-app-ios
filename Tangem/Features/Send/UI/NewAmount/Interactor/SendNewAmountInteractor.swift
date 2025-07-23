@@ -23,6 +23,7 @@ protocol SendNewAmountInteractor {
     func updateToMaxAmount() throws -> SendAmount
 
     func removeReceivedToken()
+    func saveChanges()
 }
 
 class CommonSendNewAmountInteractor {
@@ -36,6 +37,7 @@ class CommonSendNewAmountInteractor {
 
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
+    private let notificationService: SendAmountNotificationService?
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -53,6 +55,7 @@ class CommonSendNewAmountInteractor {
         receiveTokenAmountInput: any SendReceiveTokenAmountInput,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
+        notificationService: SendAmountNotificationService?,
         type: SendAmountCalculationType
     ) {
         self.sourceTokenInput = sourceTokenInput
@@ -63,6 +66,7 @@ class CommonSendNewAmountInteractor {
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.validator = validator
         self.amountModifier = amountModifier
+        self.notificationService = notificationService
         self.type = type
 
         _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.amount)
@@ -98,7 +102,8 @@ class CommonSendNewAmountInteractor {
 
             if let modifiedCryptoAmount = modifiedAmount?.crypto, modifiedCryptoAmount != amount?.crypto {
                 // additional validation if amount has changed
-                try validator.validate(amount: modifiedCryptoAmount)
+                _cachedAmount.send(modifiedAmount)
+                return
             }
 
             update(amount: modifiedAmount, isValid: modifiedAmount != .none, error: .none)
@@ -113,7 +118,6 @@ class CommonSendNewAmountInteractor {
         let errorDescription = error.flatMap { getValidationErrorDescription(error: $0) }
         _error.send(errorDescription)
         _isValid.send(isValid)
-        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: amount)
     }
 
     private func getValidationErrorDescription(error: Error) -> String? {
@@ -173,16 +177,26 @@ class CommonSendNewAmountInteractor {
 extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
         let info = amountModifier?.modifyingMessagePublisher ?? .just(output: nil)
+        let notification = notificationService?.notificationMessagePublisher ?? .just(output: nil)
 
-        return Publishers.Merge(
+        return Publishers.Merge3(
             info.removeDuplicates().map { $0.map { .info($0) } },
-            _error.removeDuplicates().map { $0.map { .error($0) } }
+            notification.removeDuplicates().map { $0.map { .error($0) } },
+            _error.removeDuplicates().map { $0.map { .error($0) } },
         )
         .eraseToAnyPublisher()
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        _isValid.eraseToAnyPublisher()
+        let emptyNotifications = notificationService?
+            .notificationMessagePublisher
+            .map { $0 == nil }
+            .eraseToAnyPublisher()
+
+        return _isValid
+            .combineLatest(emptyNotifications ?? .just(output: true))
+            .map { $0 && $1 }
+            .eraseToAnyPublisher()
     }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
@@ -253,5 +267,9 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
 
     func removeReceivedToken() {
         receiveTokenOutput?.userDidRequestClearSelection()
+    }
+
+    func saveChanges() {
+        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: _cachedAmount.value)
     }
 }
