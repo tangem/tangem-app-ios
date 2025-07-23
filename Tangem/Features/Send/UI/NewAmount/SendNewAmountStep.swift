@@ -9,20 +9,22 @@
 import Foundation
 import TangemLocalization
 import Combine
-import SwiftUI
 
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendNewAmountInteractor
+    private let interactorSaver: SendNewAmountInteractorSaver
     private let analyticsLogger: SendAnalyticsLogger
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendNewAmountInteractor,
+        interactorSaver: SendNewAmountInteractorSaver,
         analyticsLogger: SendAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.interactorSaver = interactorSaver
         self.analyticsLogger = analyticsLogger
     }
 
@@ -47,7 +49,7 @@ extension SendNewAmountStep: SendStep {
     }
 
     func saveChangesIfNeeded() {
-        interactor.saveChanges()
+        interactorSaver.save()
     }
 
     func initialAppear() {
@@ -55,7 +57,10 @@ extension SendNewAmountStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
-        step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
+        let isEditMode = step.type.isSummary
+
+        isEditMode ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
+        interactorSaver.autosave(enabled: !isEditMode)
     }
 }
 
