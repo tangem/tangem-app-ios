@@ -37,6 +37,7 @@ class UnstakingModel {
     private let stakingManager: StakingManager
     private let transactionDispatcher: TransactionDispatcher
     private let transactionValidator: TransactionValidator
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
@@ -46,6 +47,7 @@ class UnstakingModel {
         stakingManager: StakingManager,
         transactionDispatcher: TransactionDispatcher,
         transactionValidator: TransactionValidator,
+        analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem
@@ -53,6 +55,7 @@ class UnstakingModel {
         self.stakingManager = stakingManager
         self.transactionDispatcher = transactionDispatcher
         self.transactionValidator = transactionValidator
+        self.analyticsLogger = analyticsLogger
         initialAction = action
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
@@ -62,8 +65,6 @@ class UnstakingModel {
         }
 
         _amount = CurrentValueSubject(SendAmount(type: .typical(crypto: action.amount, fiat: fiat)))
-
-        logOpenScreen()
     }
 }
 
@@ -125,7 +126,7 @@ private extension UnstakingModel {
 
     func validate(amount: Decimal, fee: Decimal) -> UnstakingModel.State? {
         do {
-            try transactionValidator.validate(fee: makeFee(value: fee).amount)
+            try transactionValidator.validate(amount: makeAmount(value: .zero), fee: makeFee(value: fee))
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
@@ -162,16 +163,6 @@ private extension UnstakingModel {
 
 private extension UnstakingModel {
     private func send() async throws -> TransactionDispatcherResult {
-        if let analyticsEvent = initialAction.type.analyticsEvent {
-            Analytics.log(
-                event: analyticsEvent,
-                params: [
-                    .validator: initialAction.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
-
         guard amount?.crypto != nil else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
@@ -187,19 +178,13 @@ private extension UnstakingModel {
             proceed(error: error)
             throw error
         } catch {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error)
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
     }
 
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: selectedFee.option.rawValue,
-            .walletForm: result.signerType,
-        ])
+        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -213,10 +198,7 @@ private extension UnstakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            Analytics.log(event: .stakingErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-                .errorCode: "\(error.universalErrorCode)",
-            ])
+            analyticsLogger.logTransactionRejected(error: error)
         }
     }
 }
@@ -387,46 +369,6 @@ extension UnstakingModel {
         case ready(fee: Decimal, stakesCount: Int?)
         case validationError(ValidationError, fee: Decimal)
         case networkError(Error)
-    }
-}
-
-// MARK: Analytics
-
-private extension UnstakingModel {
-    func logOpenScreen() {
-        switch initialAction.type {
-        case .pending(.claimRewards), .pending(.restakeRewards):
-            Analytics.log(
-                event: .stakingRewardScreenOpened,
-                params: [
-                    .validator: initialAction.validatorInfo?.address ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        default:
-            break
-        }
-    }
-}
-
-private extension StakingAction.PendingActionType {
-    var analyticsEvent: Analytics.Event? {
-        switch self {
-        case .withdraw: .stakingButtonWithdraw
-        case .claimRewards: .stakingButtonClaim
-        case .restakeRewards: .stakingButtonRestake
-        default: nil
-        }
-    }
-}
-
-extension UnstakingModel.Action.ActionType {
-    var analyticsEvent: Analytics.Event? {
-        switch self {
-        case .stake: .stakingButtonStake
-        case .unstake: .stakingButtonUnstake
-        case .pending(let pending): pending.analyticsEvent
-        }
     }
 }
 
