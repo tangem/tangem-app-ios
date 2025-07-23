@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemSdk
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
@@ -22,7 +21,7 @@ class FakeUserTokensManager: UserTokensManager {
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
     }
 
@@ -30,8 +29,8 @@ class FakeUserTokensManager: UserTokensManager {
         ""
     }
 
-    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        derivationManager?.deriveKeys(cardInteractor: KeysDerivingMock(), completion: { result in
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
+        derivationManager?.deriveKeys(interactor: KeysDerivingMock(), completion: { result in
             completion(result)
         })
     }
@@ -48,7 +47,7 @@ class FakeUserTokensManager: UserTokensManager {
         userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
     }
 

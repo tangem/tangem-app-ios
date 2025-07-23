@@ -42,6 +42,7 @@ class OnrampModel {
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
+    private let analyticsLogger: OnrampSendAnalyticsLogger
 
     private var task: Task<Void, Never>?
     private var timerCancellable: AnyCancellable?
@@ -53,13 +54,15 @@ class OnrampModel {
         walletModel: any WalletModel,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
-        onrampRepository: OnrampRepository
+        onrampRepository: OnrampRepository,
+        analyticsLogger: OnrampSendAnalyticsLogger
     ) {
         self.userWalletId = userWalletId
         self.walletModel = walletModel
         self.onrampManager = onrampManager
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
+        self.analyticsLogger = analyticsLogger
 
         _currency = .init(
             onrampRepository.preferenceCurrency.map { .success($0) } ?? .loading
@@ -100,23 +103,7 @@ private extension OnrampModel {
             .compactMap { $0?.value }
             .withWeakCaptureOf(self)
             .sink { model, provider in
-                switch provider.state {
-                case .restriction(.tooSmallAmount):
-                    Analytics.log(.onrampErrorMinAmount)
-                case .restriction(.tooBigAmount):
-                    Analytics.log(.onrampErrorMaxAmount)
-                case .loaded:
-                    Analytics.log(
-                        event: .onrampProviderCalculated,
-                        params: [
-                            .token: model.walletModel.tokenItem.currencySymbol,
-                            .provider: provider.provider.name,
-                            .paymentMethod: provider.paymentMethod.name,
-                        ]
-                    )
-                default:
-                    break
-                }
+                model.analyticsLogger.logOnrampSelectedProvider(provider: provider)
             }
             .store(in: &bag)
 
@@ -301,6 +288,7 @@ private extension OnrampModel {
 
             // Clear repo
             onrampRepository.updatePreference(country: nil, currency: nil)
+
             await runOnMain {
                 router?.openOnrampCountryBottomSheet(country: country)
             }

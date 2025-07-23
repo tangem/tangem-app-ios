@@ -59,15 +59,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultToggleRowViewModel(
-                title: "[Tangem] Use develop API",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.useDevApi },
-                    set: { $0.useDevApi = $1 }
-                )
-            ),
-            DefaultToggleRowViewModel(
                 title: "Enable Performance Monitor",
                 isOn: BindingValue<Bool>(
                     root: featureStorage,
@@ -98,8 +89,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         pickerViewModels = [
             DefaultPickerRowViewModel(
-                title: "Express api type",
+                title: "Tangem API type",
+                options: TangemAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: TangemAPIType.prod.rawValue,
+                    get: { $0.tangemAPIType.rawValue },
+                    set: { $0.tangemAPIType = TangemAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "Express API type",
                 options: ExpressAPIType.allCases.map { $0.rawValue },
+                displayTitles: ExpressAPIType.allCases.map { $0.title },
                 selection: BindingValue<String>(
                     root: featureStorage,
                     default: ExpressAPIType.production.rawValue,
