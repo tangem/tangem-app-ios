@@ -126,6 +126,10 @@ struct TokenActionAvailabilityAlertBuilder {
             switch blockchain {
             case .hedera:
                 return .init(title: "", message: Localization.warningReceiveBlockedHederaTokenAssociationRequiredMessage)
+
+            case .stellar, .xrp:
+                return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
+
             default:
                 return nil
             }

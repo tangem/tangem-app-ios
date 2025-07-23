@@ -11,10 +11,13 @@ import TangemHotSdk
 import TangemSdk
 
 class KeysDerivingHotWalletInteractor {
-    let entropy = Data()
-    let passphrase: String? = nil
+    let entropy: Data
+    let passphrase: String
 
-    init() {}
+    init(entropy: Data, passphrase: String) {
+        self.entropy = entropy
+        self.passphrase = passphrase
+    }
 }
 
 // MARK: - KeysDeriving
