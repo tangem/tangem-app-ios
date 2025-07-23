@@ -14,6 +14,8 @@ import TangemFoundation
 class CommonSwapManager {
     // Dependencies
 
+    @Injected(\.expressAvailabilityProvider)
+    private var expressAvailabilityProvider: ExpressAvailabilityProvider
     private let interactor: ExpressInteractor
 
     // Private
@@ -30,6 +32,10 @@ class CommonSwapManager {
 // MARK: - SwapManager
 
 extension CommonSwapManager: SwapManager {
+    var isSwapAvailable: Bool {
+        expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+    }
+
     var swappingPair: SwapManagerSwappingPair {
         interactor.getSwappingPair()
     }
