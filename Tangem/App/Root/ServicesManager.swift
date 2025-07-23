@@ -35,11 +35,14 @@ class ServicesManager {
     }
 
     func initialize() {
+        handleUITestingArguments()
+
         TangemLoggerConfigurator().initialize()
+
         let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
-            userWalletRepository.initialClean()
+            KeychainCleaner.cleanAllData()
         }
 
         AppLogger.info("Start services initializing")
@@ -60,7 +63,12 @@ class ServicesManager {
         ukGeoDefiner.initialize()
     }
 
+    /// - Warning: DO NOT enable in debug mode.
     private func configureFirebase() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
 
         guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
@@ -90,14 +98,27 @@ class ServicesManager {
 
         return initialLaunches
     }
+
+    private func handleUITestingArguments() {
+        // Only process UI testing arguments when running in UI test mode
+        guard AppEnvironment.current.isUITest else { return }
+
+        let arguments = ProcessInfo.processInfo.arguments
+
+        if let _ = arguments.firstIndex(of: "-uitest-skip-tos") {
+            AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
+        } else {
+            AppSettings.shared.termsOfServicesAccepted = []
+        }
+    }
 }
 
 /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
 class KeychainSensitiveServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    func initialize() {
-        userWalletRepository.initialize()
+    func initialize() async {
+        await userWalletRepository.initialize()
     }
 }
 
