@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensHeaderView: View {
     @ObservedObject var viewModel: OrganizeTokensHeaderViewModel
@@ -21,12 +22,14 @@ struct OrganizeTokensHeaderView: View {
                     isToggled: viewModel.isSortByBalanceEnabled,
                     action: viewModel.toggleSortState
                 )
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton)
 
                 FlexySizeButtonWithLeadingIcon(
                     title: viewModel.groupingButtonTitle,
                     icon: Assets.OrganizeTokens.makeGroupIcon.image,
                     action: viewModel.toggleGroupState
                 )
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.groupButton)
             }
             .background(
                 Colors.Background

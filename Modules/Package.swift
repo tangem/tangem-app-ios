@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.22.2")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.22.3")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -117,14 +117,22 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemHotSdk",
-            path: "TangemHotSdk/Sources",
+            path: "TangemHotSdk/Sources/swift",
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .target(name: "TrezorCrypto"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        // TrezorCrypto library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
+        .tangemTarget(
+            name: "TrezorCrypto",
+            path: "TangemHotSdk/Sources/TrezorCrypto",
+            sources: ["crypto"],
+            publicHeadersPath: "include",
         ),
     ]
 }
@@ -196,6 +204,7 @@ var unitTestsModules: [PackageDescription.Target] {
             dependencies: [
                 "TangemFoundation",
                 "TangemHotSdk",
+                "TrezorCrypto",
             ]
         ),
     ]
