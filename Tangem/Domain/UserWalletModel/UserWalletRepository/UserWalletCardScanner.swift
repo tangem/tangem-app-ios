@@ -13,7 +13,6 @@ class UserWalletCardScanner {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     private let scanner: CardScanner
 
@@ -22,14 +21,10 @@ class UserWalletCardScanner {
     }
 
     func scanCard() async -> UserWalletCardScanner.Result {
-        await floatingSheetPresenter.pauseSheetsDisplaying()
-
         do {
             let response = try await scanner.scanCardPublisher().async()
-            await floatingSheetPresenter.resumeSheetsDisplaying()
             return handleSuccess(response: response)
         } catch {
-            await floatingSheetPresenter.resumeSheetsDisplaying()
             return handleFailure(error: error)
         }
     }
