@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 protocol SendStep {
     var title: String? { get }
