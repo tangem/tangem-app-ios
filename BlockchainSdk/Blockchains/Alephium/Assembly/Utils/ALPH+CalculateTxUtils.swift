@@ -147,7 +147,10 @@ extension ALPH {
             }
 
             guard let remainder = remainder0.sub(gasFee) else {
-                return .failure(AlephiumError.runtime("Not enough balance for gas fee"))
+                let sumDecimal = outputAmount.v + gasFee.v
+                let requiredDecimal = outputAmount.v
+                let message = "Not enough balance: got \(sumDecimal), required \(requiredDecimal)"
+                return .failure(AlephiumError.runtime(message))
             }
 
             return .success(remainder)
