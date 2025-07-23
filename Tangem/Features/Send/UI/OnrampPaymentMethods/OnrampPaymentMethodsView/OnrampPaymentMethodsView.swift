@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OnrampPaymentMethodsView: View {
     @ObservedObject var viewModel: OnrampPaymentMethodsViewModel
@@ -24,6 +25,7 @@ struct OnrampPaymentMethodsView: View {
                 )
             }
             .separatorPadding(.init(leading: 62, trailing: SelectionOverlay.Constants.secondStrokeLineWidth))
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodsList)
         }
         .background(Colors.Background.primary)
         .navigationTitle(Text(Localization.onrampPayWith))
