@@ -77,35 +77,63 @@ class WelcomeViewModel: ObservableObject {
         isScanningCard.send(true)
         Analytics.beginLoggingCardScan(source: .welcome)
 
-        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            self?.isScanningCard.send(false)
-
-            if result?.isSuccess != true {
-                self?.incomingActionManager.discardIncomingAction()
-            }
-
-            guard
-                let self, let result
-            else {
-                return
-            }
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
 
             switch result {
-            case .troubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-                openTroubleshooting()
-            case .onboarding(let input):
-                openOnboarding(with: input)
-            case .error(let error):
-                if error.isCancellationError {
-                    return
+            case .error(let error) where error.isCancellationError:
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard.send(false)
                 }
 
+            case .error(let error):
                 Analytics.logScanError(error, source: .introduction)
                 Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
-                self.error = error.alertBinder
-            case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
-                openMain(with: model)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard.send(false)
+                    viewModel.error = error.alertBinder
+                }
+
+            case .onboarding(let input):
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard.send(false)
+                    viewModel.openOnboarding(with: input)
+                }
+
+            case .scanTroubleshooting:
+                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard.send(false)
+                    viewModel.openTroubleshooting()
+                }
+
+            case .success(let cardInfo):
+                do {
+                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+
+                    await runOnMain {
+                        viewModel.isScanningCard.send(false)
+                        viewModel.openMain(with: userWalletModel)
+                    }
+
+                } catch {
+                    viewModel.incomingActionManager.discardIncomingAction()
+
+                    await runOnMain {
+                        viewModel.isScanningCard.send(false)
+                        viewModel.error = error.alertBinder
+                    }
+                }
             }
         }
     }

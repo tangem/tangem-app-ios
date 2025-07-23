@@ -10,6 +10,8 @@
 "access_code_create_description" = "Set a %@-digit Access Code to unlock your wallet.";
 "access_code_create_title" = "Create Access Code";
 "access_code_navtitle" = "Access code";
+"accessibility_action_long_press" = "Long press";
+"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -65,6 +67,9 @@
 "app_settings_title" = "Налаштування застосунку";
 "app_settings_warning_subtitle" = "Перейдіть до налаштувань, щоб увімкнути біометричну автентифікацію в додатку Tangem";
 "app_settings_warning_title" = "Увімкнути біометричну автентифікацію";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -410,6 +415,7 @@
 "hw_activation_need_description" = "To complete setup, back up your wallet and secure app access with a Access Code.";
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
+"hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
@@ -420,9 +426,10 @@
 "hw_backup_seed_title" = "Recovery phrase";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
-"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_description" = "Будьте в курсі нових можливостей і новин";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "Ця інформація була створена за допомогою ШІ.\nНатисніть тут, якщо знайшли помилку.";
 "initial_message_change_access_code_body" = "Щоб змінити код доступу, прикладіть картку або кільце, як показано вище, і не прибирайте її до закінчення операції";
 "initial_message_change_passcode_body" = "Щоб змінити пароль, прикладіть картку, як показано вище, і не прибирайте її до закінчення операції";
@@ -728,9 +735,9 @@
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
 "push_notifications_more_info" = "Більше";
-"push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
-"push_notifications_permission_alert_negative_button" = "Enable Later";
-"push_notifications_permission_alert_positive_button" = "Settings";
+"push_notifications_permission_alert_description" = "Ви можете ввімкнути сповіщення у налаштуваннях";
+"push_notifications_permission_alert_negative_button" = "Увімкнути пізніше";
+"push_notifications_permission_alert_positive_button" = "Налаштування";
 "push_notifications_permission_alert_title" = "Увімкнути сповіщення";
 "push_transactions_notifications_description" = "Отримуйте сповіщення про вхідні транзакції в підтримуваних мережах.";
 "push_transactions_notifications_title" = "Transaction Notifications";
@@ -887,6 +894,7 @@
 "send_validation_destination_tag_required_title" = "Тег призначення обов'язковий";
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Will be sent a recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
 "send_with_swap_title" = "Send with swap";
@@ -1369,7 +1377,7 @@
 "warning_some_networks_unreachable_message" = "Проведіть пальцем вниз для оновлення або спробуйте пізніше.";
 "warning_some_networks_unreachable_title" = "Деякі мережі недоступні";
 "warning_some_token_balances_not_updated" = "Деякі баланси токенів не вдалося оновити";
-"warning_stellar_token_trustline_not_enough_xlm" = "Not enough %@. Top up your XLM account to associate this token";
+"warning_stellar_token_trustline_not_enough_xlm" = "Not enough %@. Top up your XLM account to open trustline.";
 "warning_system_deprecation_title" = "Потрібне оновлення системи";
 "warning_system_deprecation_with_date_message" = "Підтримка вашої версії операційної системи буде припинена %@. Щоб отримувати майбутні оновлення програми, ви повинні оновити її до останньої версії.";
 "warning_system_update_message" = "Tangem рекомендує встановити останнє оновлення iOS для стабільної та безпечної роботи";
@@ -1427,7 +1435,7 @@
 "wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Estimated wallet changes";
 "wc_malicious_transaction" = "Malicious transaction";
-"wc_missing_required_network_description" = "Add the %@ network to your profile for this wallet";
+"wc_missing_required_network_description" = "Add the %@ network to your portfolio for this wallet";
 "wc_missing_required_network_title" = "The wallet has no required networks";
 "wc_new_connection" = "New connection";
 "wc_no_sessions_desc" = "Connect your wallet to a different dApps";
