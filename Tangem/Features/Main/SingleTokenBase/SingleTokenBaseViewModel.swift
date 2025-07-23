@@ -23,6 +23,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
+    @Published var isFulfillingAssetRequirements = false
     @Published var actionButtons: [FixedSizeButtonWithIconInfo] = []
     @Published var tokenNotificationInputs: [NotificationViewInput] = []
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -190,7 +191,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCrypto()
-        case .addHederaTokenAssociation:
+        case .addHederaTokenAssociation, .addTokenTrustline:
             fulfillAssetRequirements(with: .buttonAddTokenTrustline)
         case .retryKaspaTokenTransaction:
             fulfillAssetRequirements(with: .tokenButtonRevealTryAgain)
@@ -226,15 +227,22 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             )
         }
 
+        isFulfillingAssetRequirements = true
         let alertBuilder = AssetRequirementsAlertBuilder()
         let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
 
+        // If the user doesn't meet the requirements to proceed (e.g. insufficient base coin or token),
+        // show an alert explaining the issue.
         if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
             for: requirementsCondition,
             feeTokenItem: walletModel.feeTokenItem,
-            hasFeeCurrency: walletModel.hasFeeCurrency(amountType: walletModel.tokenItem.amountType)
+            hasFeeCurrency: walletModel.assetRequirementsManager?.hasSufficientFeeBalance(
+                for: requirementsCondition,
+                on: walletModel.tokenItem.amountType
+            ) ?? false
         ) {
             sendAnalytics(isSuccessful: false)
+            isFulfillingAssetRequirements = false
             alert = fulfillAssetRequirementsAlert
 
             return
@@ -251,6 +259,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                 let alertBuilder = AssetRequirementsAlertBuilder()
                 let networkName = viewModel.blockchain.displayName
 
+                viewModel.isFulfillingAssetRequirements = false
                 return alertBuilder.fulfillmentAssetRequirementsFailedAlert(error: error, networkName: networkName)
             }
             .assign(to: \.alert, on: self, ownership: .weak)

@@ -43,7 +43,7 @@ class MarketsWalletDataProvider {
             let multiCurrencyWallets = userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
             let selectedUserWalletModel = multiCurrencyWallets
                 .first { userWalletModel in
-                    userWalletModel.userWalletId == userWalletRepository.selectedUserWalletId
+                    userWalletModel.userWalletId == userWalletRepository.selectedModel?.userWalletId
                 } ?? multiCurrencyWallets.first
 
             _selectedUserWalletModel.send(selectedUserWalletModel)
@@ -57,19 +57,22 @@ class MarketsWalletDataProvider {
 
     private func bind() {
         userWalletRepository.eventProvider
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink(receiveValue: { dataProvider, event in
                 switch event {
+                case .unlockedBiometrics:
+                    break
                 case .locked:
                     dataProvider.clearUserWalletModels()
-                case .inserted, .updated, .biometryUnlocked, .scan:
+                case .inserted, .unlocked:
                     dataProvider.setupUserWalletModels()
                 case .deleted(let userWalletIds):
                     if let selectedUserWalletModel = dataProvider.selectedUserWalletModel, userWalletIds.contains(where: { $0 == selectedUserWalletModel.userWalletId }) {
                         dataProvider._selectedUserWalletModel.send(nil)
                     }
                     dataProvider.setupUserWalletModels()
-                case .selected(let userWalletId, _):
+                case .selected(let userWalletId):
                     if let selectedUserWalletModel = dataProvider.selectedUserWalletModel, selectedUserWalletModel.userWalletId == userWalletId {
                         return
                     }
@@ -82,9 +85,6 @@ class MarketsWalletDataProvider {
                     }
 
                     dataProvider._selectedUserWalletModel.send(selectedUserWalletModel)
-                case .replaced:
-                    dataProvider._selectedUserWalletModel.send(nil)
-                    dataProvider.setupUserWalletModels()
                 }
             })
             .store(in: &bag)
