@@ -17,8 +17,7 @@ import enum WalletCore.CoinType
 struct CosmosAddressTests {
     @Test
     func defaultAddressGeneration() throws {
-        let addressService = WalletCoreAddressService(coin: .cosmos)
-
+        let addressService = AddressServiceFactory(blockchain: .cosmos(testnet: false)).makeAddressService()
         let expectedAddress = "cosmos1c2zwqqucrqvvtyxfn78ajm8w2sgyjf5emztyek"
 
         let secpCompressedAddress = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey).value
@@ -39,10 +38,7 @@ struct CosmosAddressTests {
         "cosmosvalconspub1zcjduepqjnnwe2jsywv0kfc97pz04zkm7tc9k2437cde2my3y5js9t7cw9mstfg3sa",
     ])
     func validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .cosmos, publicKeyType: CoinType.cosmos.publicKeyType)
         let addressValidator = AddressServiceFactory(blockchain: .cosmos(testnet: false)).makeAddressService()
-
-        #expect(walletCoreAddressValidator.validate(addressHex))
         #expect(addressValidator.validate(addressHex))
     }
 
@@ -53,11 +49,7 @@ struct CosmosAddressTests {
         "cosmosvalconspub1zcjduepqjnnwe2jsywv0kfc97pz04zkm7tc9k2437cde2my3y5js9t7cw9mstfg3sb",
     ])
     func invalidAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator
-        walletCoreAddressValidator = WalletCoreAddressService(coin: .cosmos, publicKeyType: CoinType.cosmos.publicKeyType)
         let addressValidator = AddressServiceFactory(blockchain: .cosmos(testnet: false)).makeAddressService()
-
-        #expect(!walletCoreAddressValidator.validate(addressHex))
         #expect(!addressValidator.validate(addressHex))
     }
 }
