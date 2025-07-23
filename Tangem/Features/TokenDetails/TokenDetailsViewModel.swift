@@ -90,7 +90,26 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: walletModel.tokenItem.currencySymbol])
+        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
+        case .empty:
+            .empty
+        case .loading:
+            .loading
+        case .failure:
+            .error
+        case .loaded(let amount) where amount == .zero:
+            .empty
+        case .loaded:
+            .full
+        }
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
+            .balance: balanceState.rawValue,
+        ]
+
+        Analytics.log(event: .detailsScreenOpened, params: params)
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -124,6 +143,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupport2No,
              .seedSupport2Yes,
              .openReferralProgram,
+             .addTokenTrustline,
              .openHotFinishActivation:
             super.didTapNotification(with: id, action: action)
         }
