@@ -13,19 +13,20 @@ import TangemFoundation
 import TangemSdk
 
 @available(iOS 13.0, *)
-class SolanaNetworkService {
-    var host: String {
-        hostProvider.host
+final class SolanaNetworkService: MultiNetworkProvider {
+    let providers: [RPCEndpoint]
+    var currentProviderIndex: Int = 0
+    var blockchainName: String {
+        blockchain.displayName
     }
 
     private let solanaSdk: Solana
     private let blockchain: Blockchain
-    private let hostProvider: HostProvider
 
-    init(solanaSdk: Solana, blockchain: Blockchain, hostProvider: HostProvider) {
+    init(providers: [RPCEndpoint], solanaSdk: Solana, blockchain: Blockchain) {
+        self.providers = providers
         self.solanaSdk = solanaSdk
         self.blockchain = blockchain
-        self.hostProvider = hostProvider
     }
 
     func getInfo(accountId: String, tokens: [Token]) -> AnyPublisher<SolanaAccountInfoResponse, Error> {
@@ -36,7 +37,7 @@ class SolanaNetworkService {
         )
         .tryMap { [weak self] mainAccount, splTokenAccounts, token2022Accounts in
             guard let self = self else {
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
 
             let tokenAccounts = splTokenAccounts + token2022Accounts
@@ -161,7 +162,7 @@ class SolanaNetworkService {
         solanaSdk.api.getFees(commitment: nil)
             .tryMap { [weak self] fee in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 guard let lamportsPerSignature = fee.feeCalculator?.lamportsPerSignature else {
@@ -198,7 +199,7 @@ class SolanaNetworkService {
         solanaSdk.api.getMinimumBalanceForRentExemption(dataLength: dataLength)
             .tryMap { [weak self] balanceInLamports in
                 guard let self = self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return Decimal(balanceInLamports) / blockchain.decimalValue
