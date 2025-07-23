@@ -151,8 +151,6 @@ extension SendCoordinator: SendDestinationRoutable {
             return
         }
 
-        Analytics.log(.sendButtonQRCode)
-
         let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
             self?.qrScanViewCoordinator = nil
         }

@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemStaking
 import TangemFoundation
+import TangemAssets
 
 final class SingleTokenNotificationManager {
     weak var interactionDelegate: SingleTokenNotificationManagerInteractionDelegate?
@@ -242,6 +243,15 @@ final class SingleTokenNotificationManager {
         }
 
         switch assetRequirementsManager.requirementsCondition(for: asset) {
+        case .requiresTrustline(let blockchain, let fee, let isProcessing):
+            let configuration = makeUnfulfilledRequirementsConfiguration(
+                blockchain: blockchain,
+                transactionAmount: nil,
+                feeAmount: fee
+            )
+
+            return isProcessing ? [] : [.hasUnfulfilledRequirements(configuration: configuration)]
+
         case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount):
             let configuration = makeUnfulfilledRequirementsConfiguration(
                 blockchain: blockchain,
@@ -249,6 +259,7 @@ final class SingleTokenNotificationManager {
                 feeAmount: feeAmount
             )
             return [.hasUnfulfilledRequirements(configuration: configuration)]
+
         case .none:
             return []
         }
@@ -260,6 +271,16 @@ final class SingleTokenNotificationManager {
         feeAmount: Amount?
     ) -> TokenNotificationEvent.UnfulfilledRequirementsConfiguration {
         switch blockchain {
+        case .stellar where feeAmount?.value != nil:
+            let formattedReserve = BalanceFormatter().formatDecimal(feeAmount?.value, formattingOptions: .defaultCryptoFeeFormattingOptions)
+            return .missingTokenTrustline(
+                .init(
+                    reserveCurrencySymbol: blockchain.currencySymbol,
+                    reserveAmount: formattedReserve,
+                    icon: Tokens.stellarFill
+                )
+            )
+
         case .hedera:
             guard let feeAmount else {
                 return .missingHederaTokenAssociation(associationFee: nil)
@@ -273,6 +294,7 @@ final class SingleTokenNotificationManager {
                     currencySymbol: configurationData.currencySymbol
                 )
             )
+
         case .kaspa:
             guard let transactionAmount else {
                 preconditionFailure("Tx amount is required for making unfulfilled requirements configuration for blockchain '\(blockchain.displayName)'")
@@ -290,6 +312,7 @@ final class SingleTokenNotificationManager {
                     walletModel?.assetRequirementsManager?.discardRequirements(for: asset)
                 }
             )
+
         default:
             preconditionFailure("Unsupported blockchain '\(blockchain.displayName)', can't create unfulfilled requirements configuration")
         }

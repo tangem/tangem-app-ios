@@ -81,9 +81,3 @@ extension SendAmount {
         }
     }
 }
-
-extension SendAmount {
-    enum Errors: Error {
-        case quoteNotFound
-    }
-}

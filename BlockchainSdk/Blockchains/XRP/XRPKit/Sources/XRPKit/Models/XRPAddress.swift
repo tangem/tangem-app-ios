@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum XRPAddressError: Error {
-    case invalidAddress
-    case checksumFails
-}
-
 struct XRPAddress {
     var rAddress: String
     var tag: UInt32?
@@ -22,7 +17,7 @@ struct XRPAddress {
 
     init(rAddress: String, tag: UInt32? = nil, isTest: Bool = false) throws {
         if !XRPSeedWallet.validate(address: rAddress) {
-            throw XRPAddressError.invalidAddress
+            throw XRPError.invalidAddress
         }
         self.rAddress = rAddress
         self.tag = tag
@@ -31,7 +26,7 @@ struct XRPAddress {
 
     init(xAddress: String) throws {
         guard let data = XRPBase58.getData(from: xAddress) else {
-            throw XRPAddressError.invalidAddress
+            throw XRPError.invalidAddress
         }
         let check = data.suffix(4).bytes
         let prefix = data.prefix(2).bytes
@@ -57,10 +52,10 @@ struct XRPAddress {
                 try self.init(rAddress: address, tag: tag)
                 isTest = true
             } else {
-                throw XRPAddressError.invalidAddress
+                throw XRPError.invalidAddress
             }
         } else {
-            throw XRPAddressError.checksumFails
+            throw XRPError.checksumFails
         }
     }
 

@@ -13,9 +13,11 @@ import TangemVisa
 
 struct UserWalletConfigFactory {
     func makeConfig(walletInfo: WalletInfo) -> UserWalletConfig {
-        switch walletInfo.type {
-        case .card(let cardInfo): makeConfig(cardInfo: cardInfo)
-        case .hot(let hotWalletInfo): makeConfig(hotWalletInfo: hotWalletInfo)
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            makeConfig(cardInfo: cardInfo)
+        case .mobileWallet(let hotWalletInfo):
+            makeConfig(hotWalletInfo: hotWalletInfo)
         }
     }
 
