@@ -69,7 +69,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         )
         .withWeakCaptureOf(self)
         .tryMap { manager, gasPrice in
-            let gasAmount = try manager.calculateGasAmount()
+            let gasAmount = try manager.calculateGasAmount(amount: amount)
             let feeDecimalValue = (gasPrice * Decimal(gasAmount)) / manager.wallet.blockchain.decimalValue
 
             let feeAmount = Amount(with: manager.wallet.blockchain, value: feeDecimalValue)
@@ -138,14 +138,22 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func calculateGasAmount() throws -> Int {
-        let unspents = transactionBuilder.unspents
+    private func calculateGasAmount(amount: Amount) throws -> Int {
+        let unspents = transactionBuilder.getMaxUnspentsToSpend()
 
-        guard !unspents.isEmpty else {
+        guard !unspents.isEmpty, let transactionAmount = amount.bigUIntValue else {
             throw BlockchainSdkError.failedToGetFee
         }
 
-        let inputGas = ALPH.Constants.inputBaseGas * unspents.count
+        let inputs = try ALPH.SelectUtils().getMinimumRequiredUTXOsToSend(
+            unspentOutputs: unspents,
+            transactionAmount: transactionAmount,
+            transactionFeeAmount: .zero,
+            dustValue: ALPH.Constants.dustAmountValue,
+            unspentToAmount: { $0.output.amount.v.decimal ?? .zero }
+        ).get()
+
+        let inputGas = ALPH.Constants.inputBaseGas * inputs.count
         let outputGas = ALPH.Constants.outputBaseGas * 2
         let txGas = inputGas + outputGas + ALPH.Constants.baseGas + ALPH.Constants.p2pkUnlockGas
         let gasAmount = max(ALPH.Constants.minimalGas, txGas)
@@ -159,5 +167,21 @@ class AlephiumWalletManager: BaseManager, WalletManager {
 extension AlephiumWalletManager: DustRestrictable {
     var dustValue: Amount {
         Amount(with: wallet.blockchain, type: .coin, value: ALPH.Constants.dustAmountValue)
+    }
+}
+
+// MARK: - MaximumAmountRestrictable
+
+extension AlephiumWalletManager: MaximumAmountRestrictable {
+    func validateMaximumAmount(amount: Amount, fee: Amount) throws {
+        let maxUnspentsToSpendAmount = transactionBuilder.getMaxUnspentsToSpendAmount()
+
+        let amountAvailableToSend = Amount(with: amount, value: maxUnspentsToSpendAmount) - fee
+
+        throw ValidationError.maximumUTXO(
+            blockchainName: wallet.blockchain.displayName,
+            newAmount: amountAvailableToSend,
+            maxUtxo: transactionBuilder.getMaxUnspentsToSpendCount()
+        )
     }
 }
