@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Authentication.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import LocalAuthentication
 
-public struct Authentication {
+struct Authentication {
     let passcode: String
     let biometrics: Bool
 }
