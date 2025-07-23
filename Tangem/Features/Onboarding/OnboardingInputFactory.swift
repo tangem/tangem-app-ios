@@ -10,21 +10,20 @@ import Foundation
 import TangemSdk
 
 class OnboardingInputFactory {
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+
     private let userWalletModel: UserWalletModel?
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
-    private let pushNotificationsInteractor: PushNotificationsInteractor
 
     init(
         userWalletModel: UserWalletModel?,
         sdkFactory: TangemSdkFactory & BackupServiceFactory,
-        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
-        pushNotificationsInteractor: PushNotificationsInteractor
+        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
     ) {
         self.userWalletModel = userWalletModel
         self.sdkFactory = sdkFactory
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
-        self.pushNotificationsInteractor = pushNotificationsInteractor
     }
 
     func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
