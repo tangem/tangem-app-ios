@@ -15,7 +15,6 @@ protocol SendNewDestinationInteractor {
     var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 
-    var hasError: Bool { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
     var destinationValid: AnyPublisher<Bool, Never> { get }
@@ -26,6 +25,8 @@ protocol SendNewDestinationInteractor {
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
     func preloadTransactionsHistoryIfNeeded()
+
+    func saveChanges()
 }
 
 class CommonSendNewDestinationInteractor {
@@ -47,6 +48,10 @@ class CommonSendNewDestinationInteractor {
     private let _suggestedWallets: CurrentValueSubject<[SendSuggestedDestinationWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendSuggestedDestinationTransactionRecord], Never> = .init([])
 
+    private let _cachedDestination: CurrentValueSubject<SendAddress?, Never>
+    private let _cachedAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
+
+    private var updatingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -59,6 +64,9 @@ class CommonSendNewDestinationInteractor {
         self.output = output
         self.receiveTokenInput = receiveTokenInput
         self.dependenciesBuilder = dependenciesBuilder
+
+        _cachedDestination = .init(input.destination)
+        _cachedAdditionalField = .init(input.destinationAdditionalField)
 
         bind()
     }
@@ -86,21 +94,21 @@ class CommonSendNewDestinationInteractor {
         case .success(.none), .success(.empty):
             _destinationValid.send(false)
             _destinationError.send(.none)
-            output?.destinationDidChanged(.none)
+            _cachedDestination.send(.none)
 
         case .success(.some(let address)):
             assert(!address.isEmpty, "Had to fall in case above")
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            dependenciesBuilder.analyticsLogger.log(isAddressValid: true, source: source)
-            output?.destinationDidChanged(.init(value: address, source: source))
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
+            _cachedDestination.send(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
-            dependenciesBuilder.analyticsLogger.log(isAddressValid: false, source: source)
-            output?.destinationDidChanged(.none)
+            dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
+            _cachedDestination.send(.none)
         }
     }
 
@@ -129,10 +137,10 @@ class CommonSendNewDestinationInteractor {
             return address
         }
 
+        defer { _isValidatingDestination.send(false) }
+
         _isValidatingDestination.send(true)
         let resolved = try await addressResolver.resolve(address)
-        _isValidatingDestination.send(false)
-
         return resolved
     }
 }
@@ -199,14 +207,16 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
             return
         }
 
-        runTask(in: self) { interactor in
+        updatingTask?.cancel()
+        updatingTask = runTask(in: self) {
             do {
                 try validator.validate(destination: address)
-                let resolved = try await interactor.resolveIfPossible(address: address)
-
-                interactor.update(destination: .success(resolved), source: source)
+                let resolved = try await $0.resolveIfPossible(address: address)
+                $0.update(destination: .success(resolved), source: source)
+            } catch is CancellationError {
+                // Do nothing
             } catch {
-                interactor.update(destination: .failure(error), source: source)
+                $0.update(destination: .failure(error), source: source)
             }
         }
     }
@@ -214,7 +224,7 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
     func update(additionalField value: String) {
         guard let type = dependenciesBuilder.additionalFieldType else {
             assertionFailure("This method don't have to be called if additionalFieldType is nil")
-            output?.destinationAdditionalParametersDidChanged(.notSupported)
+            _cachedAdditionalField.send(.notSupported)
             _additionalFieldValid.send(true)
             return
         }
@@ -228,18 +238,23 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
 
         do {
             let type = try proceed(additionalField: value)
-            output?.destinationAdditionalParametersDidChanged(type)
+            _cachedAdditionalField.send(type)
             _destinationAdditionalFieldError.send(nil)
             _additionalFieldValid.send(true)
         } catch {
             _destinationAdditionalFieldError.send(error)
-            output?.destinationAdditionalParametersDidChanged(.empty(type: type))
+            _cachedAdditionalField.send(.empty(type: type))
             _additionalFieldValid.send(false)
         }
     }
 
     func preloadTransactionsHistoryIfNeeded() {
         dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
+    }
+
+    func saveChanges() {
+        output?.destinationDidChanged(_cachedDestination.value)
+        output?.destinationAdditionalParametersDidChanged(_cachedAdditionalField.value)
     }
 }
 
