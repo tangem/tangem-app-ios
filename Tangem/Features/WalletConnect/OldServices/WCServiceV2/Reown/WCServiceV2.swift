@@ -12,10 +12,15 @@ import BlockchainSdk
 import TangemFoundation
 
 final class WCServiceV2 {
-    // MARK: - Dependencies
-
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
-    @Injected(\.keysManager) private var keysManager: KeysManager
+
+    private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
+
+    private let transactionRequestSubject = PassthroughSubject<WCHandleTransactionData, WalletConnectV2Error>()
+    private var bag = Set<AnyCancellable>()
+
+    private let walletKitClient: ReownWalletKit.WalletKitClient
+    private let wcHandlersService: WCHandlersService
 
     // MARK: - Public properties
 
@@ -23,47 +28,13 @@ final class WCServiceV2 {
         transactionRequestSubject.eraseToAnyPublisher()
     }
 
-    // MARK: - Private properties
-
-    private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
-
-    private let transactionRequestSubject = PassthroughSubject<WCHandleTransactionData, WalletConnectV2Error>()
-    private var bag = Set<AnyCancellable>()
-
-    private let factory = WalletConnectV2DefaultSocketFactory()
-    private let wcHandlersService: WCHandlersService
-
-    init(wcHandlersService: WCHandlersService) {
+    init(walletKitClient: WalletKitClient, wcHandlersService: WCHandlersService) {
+        self.walletKitClient = walletKitClient
         self.wcHandlersService = wcHandlersService
 
         guard FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
-        Networking.configure(
-            groupIdentifier: AppEnvironment.current.suiteName,
-            projectId: keysManager.walletConnectProjectId,
-            socketFactory: factory,
-            socketConnectionType: .automatic
-        )
-
-        do {
-            try configureWalletKit()
-        } catch {
-            WCLogger.error(LoggerStrings.walletConnectRedirectFailure, error: error)
-        }
-
         bind()
-    }
-
-    private func configureWalletKit() throws {
-        let metadata = try AppMetadata(
-            name: AppMetadata.tangemAppName,
-            description: AppMetadata.tangemAppDescription,
-            url: AppMetadata.tangemURL,
-            icons: AppMetadata.tangemIconURLs,
-            redirect: AppMetadata.makeTangemAppRedirect()
-        )
-
-        WalletKit.configure(metadata: metadata, crypto: WalletConnectCryptoProvider())
     }
 }
 
@@ -76,7 +47,8 @@ private extension WCServiceV2 {
     }
 
     func subscribeToWCPublishers() {
-        WalletKit.instance.sessionProposalPublisher
+        walletKitClient
+            .sessionProposalPublisher
             .sink { [weak self] sessionProposal, verifyContext in
                 WCLogger.info(LoggerStrings.sessionProposal(sessionProposal, verifyContext))
                 Analytics.debugLog(
@@ -89,13 +61,15 @@ private extension WCServiceV2 {
                 Task {
                     await self?.sessionProposalContinuationStorage.resume(
                         proposal: sessionProposal,
+                        context: verifyContext,
                         for: sessionProposal.pairingTopic
                     )
                 }
             }
             .store(in: &bag)
 
-        WalletKit.instance.sessionDeletePublisher
+        walletKitClient
+            .sessionDeletePublisher
             .asyncMap { [weak self] topic, reason in
                 WCLogger.info(LoggerStrings.receiveDeleteMessage(topic, reason))
 
@@ -123,9 +97,10 @@ private extension WCServiceV2 {
     }
 
     func setupMessagesSubscriptions() {
-        WalletKit.instance.sessionRequestPublisher
+        walletKitClient
+            .sessionRequestPublisher
             .receiveOnMain()
-            .sink { [weak self] request, context in
+            .sink { [weak self, walletKitClient] request, context in
                 guard let self else { return }
 
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
@@ -143,11 +118,11 @@ private extension WCServiceV2 {
                             .init(
                                 from: transactionDTO,
                                 validatedRequest: validatedRequest,
-                                respond: WalletKit.instance.respond
+                                respond: walletKitClient.respond
                             )
                         )
                     } catch {
-                        try? await WalletKit.instance.respond(
+                        try? await walletKitClient.respond(
                             topic: request.topic,
                             requestId: request.id,
                             response: .error(.init(code: 0, message: error.localizedDescription))
@@ -163,7 +138,7 @@ private extension WCServiceV2 {
 
 extension WCServiceV2 {
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
-        runTask { [weak self] in
+        runTask { [weak self, walletKitClient] in
             guard let self else { return }
 
             let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletID: userWalletId)) ?? []
@@ -172,7 +147,7 @@ extension WCServiceV2 {
                 for dApp in deletedDApps {
                     taskGroup.addTask {
                         do {
-                            try await WalletKit.instance.disconnect(topic: dApp.session.topic)
+                            try await walletKitClient.disconnect(topic: dApp.session.topic)
                         } catch {
                             WCLogger.error(LoggerStrings.failedDisconnectSessions(userWalletId), error: error)
                         }
@@ -184,23 +159,22 @@ extension WCServiceV2 {
 
     func disconnectSession(withTopic topic: String) async throws {
         do {
-            try await WalletKit.instance.disconnect(topic: topic)
+            try await walletKitClient.disconnect(topic: topic)
             WCLogger.info(LoggerStrings.successDisconnectDelete(topic))
         } catch {
             WCLogger.error(LoggerStrings.failedDisconnectDelete(topic), error: error)
             throw error
         }
     }
-
-    func extendSession(withTopic topic: String) async throws {
-        try await WalletKit.instance.extend(topic: topic)
-    }
 }
 
 // MARK: - Refac
 
 extension WCServiceV2 {
-    func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
+    func openSession(
+        with uri: WalletConnectV2URI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> (Session.Proposal, VerifyContext?) {
         WCLogger.info(LoggerStrings.tryingToPairClient(uri))
         Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
 
@@ -210,7 +184,7 @@ extension WCServiceV2 {
 
                 do {
                     try Task.checkCancellation()
-                    try await WalletKit.instance.pair(uri: uri)
+                    try await self?.walletKitClient.pair(uri: uri)
                     WCLogger.info(LoggerStrings.establishedPair(uri))
                 } catch {
                     await self?.sessionProposalContinuationStorage.resumeThrowing(error: error, for: uri.topic)
@@ -224,14 +198,14 @@ extension WCServiceV2 {
 
     func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session {
         WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-        let session = try await WalletKit.instance.approve(proposalId: proposalID, namespaces: namespaces)
+        let session = try await walletKitClient.approve(proposalId: proposalID, namespaces: namespaces)
         WCLogger.info(LoggerStrings.sessionEstablished(session))
         return session
     }
 
     func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
         do {
-            try await WalletKit.instance.rejectSession(proposalId: proposalID, reason: reason)
+            try await walletKitClient.rejectSession(proposalId: proposalID, reason: reason)
             WCLogger.info(LoggerStrings.userRejectWC)
         } catch {
             WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
@@ -244,14 +218,16 @@ extension WCServiceV2 {
 
 extension WCServiceV2 {
     private actor SessionProposalContinuationsStorage {
-        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<Session.Proposal, any Error>?]()
+        typealias ProposalWithContext = (Session.Proposal, VerifyContext?)
 
-        func store(continuation: CheckedContinuation<Session.Proposal, any Error>, for topic: String) {
+        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
+
+        func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
             pairingTopicToSessionProposalContinuation[topic] = continuation
         }
 
-        func resume(proposal: Session.Proposal, for topic: String) {
-            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: proposal)
+        func resume(proposal: Session.Proposal, context: VerifyContext?, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: (proposal: proposal, context: context))
             pairingTopicToSessionProposalContinuation[topic] = nil
         }
 
@@ -259,26 +235,5 @@ extension WCServiceV2 {
             pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: error)
             pairingTopicToSessionProposalContinuation[topic] = nil
         }
-    }
-}
-
-// MARK: - Constants
-
-private extension AppMetadata {
-    static let tangemAppName: String = "Tangem iOS"
-
-    static let tangemAppDescription: String = "Tangem is a card-shaped self-custodial cold hardware wallet"
-
-    static let tangemURL: String = "https://tangem.com"
-
-    static let tangemIconURLs = [
-        "https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png",
-    ]
-
-    static func makeTangemAppRedirect() throws -> AppMetadata.Redirect {
-        try AppMetadata.Redirect(
-            native: IncomingActionConstants.universalLinkScheme,
-            universal: IncomingActionConstants.tangemDomain
-        )
     }
 }

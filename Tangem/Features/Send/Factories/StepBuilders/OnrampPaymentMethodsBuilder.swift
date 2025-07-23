@@ -14,14 +14,16 @@ struct OnrampPaymentMethodsBuilder {
     typealias ReturnValue = OnrampPaymentMethodsViewModel
 
     private let io: IO
+    private let analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger
 
-    init(io: IO) {
+    init(io: IO, analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger) {
         self.io = io
+        self.analyticsLogger = analyticsLogger
     }
 
     func makeOnrampPaymentMethodsViewModel(coordinator: any OnrampPaymentMethodsRoutable) -> ReturnValue {
         let interactor = CommonOnrampPaymentMethodsInteractor(input: io.input, output: io.output)
-        let viewModel = OnrampPaymentMethodsViewModel(interactor: interactor, coordinator: coordinator)
+        let viewModel = OnrampPaymentMethodsViewModel(interactor: interactor, analyticsLogger: analyticsLogger, coordinator: coordinator)
 
         return viewModel
     }
