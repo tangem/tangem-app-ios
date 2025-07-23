@@ -59,7 +59,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
      */
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
         guard let amountBigIntValue = BigUInt(decimal: ALPH.Constants.dustAmountValue * wallet.blockchain.decimalValue) else {
-            return .anyFail(error: WalletError.failedToGetFee)
+            return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
         return networkService.getFee(
@@ -84,7 +84,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         Result { try transactionBuilder.buildForSign(transaction: transaction) }
             .publisher
-            .mapError { SendTxError(error: $0) }
+            .mapSendTxError()
             .withWeakCaptureOf(self)
             .flatMap { manager, hashForSign -> AnyPublisher<TransactionSendResult, SendTxError> in
                 return signer
@@ -108,7 +108,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         walletManager.wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: transactionHash)
                     }
-                    .eraseSendError()
+                    .mapSendTxError()
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
@@ -142,7 +142,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         let unspents = transactionBuilder.getMaxUnspentsToSpend()
 
         guard !unspents.isEmpty, let transactionAmount = amount.bigUIntValue else {
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
 
         let inputs = try ALPH.SelectUtils().getMinimumRequiredUTXOsToSend(

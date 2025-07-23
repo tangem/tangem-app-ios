@@ -8,10 +8,11 @@
 
 import Foundation
 import TangemAssets
+import TangemLocalization
 
 final class HotOnboardingCreateWalletViewModel {
-    let title = "Create Mobile Wallet"
-    let createButtonTitle = "Create wallet"
+    let title = Localization.hwCreateTitle
+    let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
@@ -37,13 +38,13 @@ private extension HotOnboardingCreateWalletViewModel {
         [
             InfoItem(
                 icon: Assets.cog24,
-                title: "Keys are stored in the app",
-                subtitle: "Get notified of incoming transactions"
+                title: Localization.hwCreateKeysTitle,
+                subtitle: Localization.hwCreateKeysDescription
             ),
             InfoItem(
                 icon: Assets.lock24,
-                title: "Seed phrase backup",
-                subtitle: "Stay up to date with the latest features and news"
+                title: Localization.hwCreateSeedTitle,
+                subtitle: Localization.hwCreateSeedDescription
             ),
         ]
     }

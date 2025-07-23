@@ -12,7 +12,6 @@ import TangemSdk
 /// XRP transactions decoder https://fluxw42.github.io/ripple-tx-decoder/
 class XRPTransactionBuilder {
     var account: String?
-    var sequence: Int?
     let walletPublicKey: Data
     let curve: EllipticCurve
 
@@ -63,7 +62,11 @@ class XRPTransactionBuilder {
     }
 
     private func buildTransaction(from transaction: Transaction) throws -> XRPTransaction? {
-        guard let account = account, let sequence = sequence else {
+        guard let sequence = (transaction.params as? XRPTransactionParams)?.sequence else {
+            return nil
+        }
+
+        guard let account else {
             return nil
         }
 

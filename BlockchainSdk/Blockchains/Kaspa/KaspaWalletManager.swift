@@ -108,7 +108,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                     return sendKaspaTokenTransaction(transaction, token: token, signer: signer)
                 }
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
         case .coin:
             return sendKaspaCoinTransaction(transaction, signer: signer)
@@ -140,7 +140,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             return manager
                 .networkService
                 .send(transaction: KaspaDTO.Send.Request(transaction: tx))
-                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
         }
         .withWeakCaptureOf(self)
         .handleEvents(receiveOutput: { manager, response in
@@ -151,7 +151,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         .map { _, response in
             return TransactionSendResult(hash: response.transactionId)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 
@@ -196,7 +196,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
             return manager.networkService
                 .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
-                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
                 .mapToValue((revealTx, result))
         }
         .withWeakCaptureOf(self)
@@ -222,14 +222,14 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 })
                 .wire { [weak manager] () -> AnyPublisher<Void, Error> in
                     guard let manager else {
-                        return .anyFail(error: WalletError.empty)
+                        return .anyFail(error: BlockchainSdkError.empty)
                     }
 
                     // Both failed and successful reveal txs should trigger the update of the UTXOs state in tx builder,
                     // therefore `wire` operator is used here
                     return manager.updateUnspentOutputs()
                 }
-                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
         }
         .withWeakCaptureOf(self)
         .handleEvents(receiveOutput: { manager, response in
@@ -240,7 +240,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             await manager.removeIncompleteTokenTransaction(for: token)
             return TransactionSendResult(hash: response.transactionId)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 
@@ -267,7 +267,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return tokenTransaction
             }
-            .eraseSendError()
+            .mapSendTxError()
             .withWeakCaptureOf(self)
             .flatMap { manager, tokenTransaction in
                 return manager.send(tokenTransaction, signer: signer)
@@ -287,7 +287,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
               // Here, we use fee, which is obtained from previously saved data and the hardcoded dust value
               let feeParams = transaction.fee.parameters as? KaspaKRC20.TokenTransactionFeeParams
         else {
-            return .sendTxFail(error: WalletError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
         }
 
         do {
@@ -327,14 +327,14 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                     })
                     .wire { [weak manager] () -> AnyPublisher<Void, Error> in
                         guard let manager else {
-                            return .anyFail(error: WalletError.empty)
+                            return .anyFail(error: BlockchainSdkError.empty)
                         }
 
                         // Both failed and successful reveal txs should trigger the update of the UTXOs state in tx builder,
                         // therefore `wire` operator is used here
                         return manager.updateUnspentOutputs()
                     }
-                    .mapSendError(tx: encodedRawTransactionData?.hex())
+                    .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hex())
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { manager, response in
@@ -345,7 +345,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 await manager.removeIncompleteTokenTransaction(for: token)
                 return TransactionSendResult(hash: response.transactionId)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -654,6 +654,10 @@ extension KaspaWalletManager: MaximumAmountRestrictable {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension KaspaWalletManager: AssetRequirementsManager {
+    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
+        wallet.hasFeeCurrency(amountType: asset)
+    }
+
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
         guard
             let token = asset.token,

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct NotificationView: View {
     let settings: Settings
@@ -54,6 +55,7 @@ struct NotificationView: View {
                     Assets.cross.image
                         .foregroundColor(settings.event.colorScheme.dismissButtonColor)
                 }
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationDismissButton)
             }
             .padding(.top, -4)
             .padding(.trailing, -6)
@@ -94,6 +96,7 @@ struct NotificationView: View {
                             }
                         )
                         .setIsLoading(to: buttonInfo.isWithLoader && isLoading)
+                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationButton)
                     }
                 }
             }
@@ -110,9 +113,11 @@ struct NotificationView: View {
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .attributed(let attributedString):
                     Text(attributedString)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .none:
                     EmptyView()
                 }
@@ -124,6 +129,7 @@ struct NotificationView: View {
                         .style(Fonts.Regular.footnote, color: settings.event.colorScheme.messageColor)
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
                 }
             }
         }
@@ -149,6 +155,7 @@ struct NotificationView: View {
             }
         }
         .frame(size: settings.event.icon.size)
+        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationIcon)
     }
 }
 
