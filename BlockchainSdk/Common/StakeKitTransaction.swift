@@ -52,11 +52,6 @@ public struct StakeKitTransactionSendResult: Hashable {
     public let result: TransactionSendResult
 }
 
-public struct StakeKitTransactionSendError: Error {
-    public let transaction: StakeKitTransaction
-    public let error: Error
-}
-
 public struct StakeKitTransactionParams: Hashable, TransactionParams {
     let validator: String?
     let solanaBlockhashDate: Date
