@@ -97,15 +97,15 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
 
     func openDomainVerificationWarning(
         _ verificationStatus: WalletConnectDAppVerificationStatus,
-        cancelAction: @escaping () async -> Void,
         connectAnywayAction: @escaping () async -> Void
     ) {
+        let openConnectionRequestAction: () -> Void = { [weak self] in
+            self?.openConnectionRequest()
+        }
+
         let viewModel = WalletConnectDAppDomainVerificationViewModel(
             warningVerificationStatus: verificationStatus,
-            closeAction: { [weak self] in
-                self?.dismiss()
-            },
-            cancelAction: cancelAction,
+            closeAction: openConnectionRequestAction,
             connectAnywayAction: connectAnywayAction
         )
 
@@ -199,7 +199,7 @@ extension WalletConnectDAppConnectionViewModel {
     }
 
     private func makeNetworksSelectorViewModel() -> WalletConnectNetworksSelectorViewModel {
-        WalletConnectNetworksSelectorViewModel(
+        let viewModel = WalletConnectNetworksSelectorViewModel(
             backAction: { [weak self] in
                 self?.openConnectionRequest()
             },
@@ -208,5 +208,17 @@ extension WalletConnectDAppConnectionViewModel {
                 self?.openConnectionRequest()
             }
         )
+
+        viewModel
+            .$state
+            .map { state in
+                state.doneButton.isEnabled
+            }
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        return viewModel
     }
 }
