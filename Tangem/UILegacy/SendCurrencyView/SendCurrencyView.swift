@@ -17,7 +17,6 @@ struct SendCurrencyView: View {
     @State private var isShaking: Bool = false
 
     private var didTapChangeCurrency: (() -> Void)?
-    private var maxAmountAction: (() -> Void)?
 
     init(viewModel: SendCurrencyViewModel) {
         self.viewModel = viewModel
@@ -26,9 +25,8 @@ struct SendCurrencyView: View {
     var body: some View {
         ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                .leadingToolbarType(maxAmountAction.map { .maxAmount(action: $0) })
-                .initialFocusBehavior(.immediateFocus)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
+                .alignment(.leading)
                 .offset(x: isShaking ? 10 : 0)
                 .simultaneousGesture(TapGesture().onEnded {
                     viewModel.textFieldDidTapped()
@@ -51,10 +49,6 @@ struct SendCurrencyView: View {
 // MARK: - Setupable
 
 extension SendCurrencyView: Setupable {
-    func maxAmountAction(_ action: (() -> Void)?) -> Self {
-        map { $0.maxAmountAction = action }
-    }
-
     func didTapChangeCurrency(_ block: @escaping () -> Void) -> Self {
         map { $0.didTapChangeCurrency = block }
     }
