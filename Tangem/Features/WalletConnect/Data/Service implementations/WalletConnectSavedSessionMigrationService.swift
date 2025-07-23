@@ -13,17 +13,20 @@ final class WalletConnectSavedSessionMigrationService {
     private let sessionsStorage: any WalletConnectSessionsStorage
     private let userWalletRepository: any UserWalletRepository
     private let dAppVerificationService: any WalletConnectDAppVerificationService
+    private let dAppIconURLResolver: WalletConnectDAppIconURLResolver
     private let appSettings: AppSettings
 
     init(
         sessionsStorage: any WalletConnectSessionsStorage,
         userWalletRepository: any UserWalletRepository,
         dAppVerificationService: any WalletConnectDAppVerificationService,
+        dAppIconURLResolver: WalletConnectDAppIconURLResolver,
         appSettings: AppSettings
     ) {
         self.sessionsStorage = sessionsStorage
         self.userWalletRepository = userWalletRepository
         self.dAppVerificationService = dAppVerificationService
+        self.dAppIconURLResolver = dAppIconURLResolver
         self.appSettings = appSettings
     }
 
@@ -69,22 +72,20 @@ final class WalletConnectSavedSessionMigrationService {
             throw Error.invalidDAppDomain
         }
 
-        let verificationStatus = (try? await dAppVerificationService.verify(dAppDomain: dAppDomain)) ?? .unknownDomain
+        async let verificationStatus = (try? await dAppVerificationService.verify(dAppDomain: dAppDomain)) ?? .unknownDomain
+        async let dAppIcon = await dAppIconURLResolver.resolveURL(from: legacySession.sessionInfo.dAppInfo.iconLinks)
 
-        let userWallet = WalletConnectConnectedDApp.UserWallet(id: userWalletModel.userWalletId.stringValue, name: userWalletModel.name)
-
-        // [REDACTED_TODO_COMMENT]
         let dAppData = WalletConnectDAppData(
             name: legacySession.sessionInfo.dAppInfo.name,
             domain: dAppDomain,
-            icon: URL(string: legacySession.sessionInfo.dAppInfo.iconLinks.first ?? "")
+            icon: await dAppIcon
         )
 
         return WalletConnectConnectedDApp(
             session: WalletConnectDAppSession(topic: legacySession.topic, expiryDate: Date()),
-            userWallet: userWallet,
+            userWalletID: userWalletModel.userWalletId.stringValue,
             dAppData: dAppData,
-            verificationStatus: verificationStatus,
+            verificationStatus: await verificationStatus,
             blockchains: Set(legacySession.connectedBlockchains).sorted(by: \.displayName),
             connectionDate: Date()
         )
@@ -92,7 +93,7 @@ final class WalletConnectSavedSessionMigrationService {
 }
 
 extension WalletConnectSavedSessionMigrationService {
-    private enum Error: Swift.Error {
+    enum Error: Swift.Error {
         case userWalletNotFound
         case invalidDAppDomain
     }

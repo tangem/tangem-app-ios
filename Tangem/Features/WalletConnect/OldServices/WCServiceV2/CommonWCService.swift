@@ -14,12 +14,13 @@ import TangemUIUtils
 final class CommonWCService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.dAppSessionsExtender) private var dAppSessionsExtender: WalletConnectDAppSessionsExtender
+    private let dAppSessionsExtender: WalletConnectDAppSessionsExtender
 
     private let v2Service: WCServiceV2
 
-    init() {
-        v2Service = WCFactory().createWCService()
+    init(v2Service: WCServiceV2, dAppSessionsExtender: WalletConnectDAppSessionsExtender) {
+        self.v2Service = v2Service
+        self.dAppSessionsExtender = dAppSessionsExtender
     }
 }
 
@@ -30,14 +31,20 @@ extension CommonWCService: WCService {
 
     func initialize() {
         incomingActionManager.becomeFirstResponder(self)
-        dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
+
+        Task {
+            await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
+        }
     }
 
     func reset() {
         incomingActionManager.resignFirstResponder(self)
     }
 
-    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) async throws -> Session.Proposal {
+    func openSession(
+        with uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws -> (Session.Proposal, VerifyContext?) {
         switch uri {
         case .v2(let v2URI):
             try await v2Service.openSession(with: v2URI, source: source)
@@ -54,10 +61,6 @@ extension CommonWCService: WCService {
 
     func disconnectSession(withTopic topic: String) async throws {
         try await v2Service.disconnectSession(withTopic: topic)
-    }
-
-    func extendSession(withTopic topic: String) async throws {
-        try await v2Service.extendSession(withTopic: topic)
     }
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {

@@ -15,32 +15,29 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
     @Published var transactionSentTime: String?
 
-    @Published private(set) var sendAmountCompactViewModel: SendTokenAmountCompactViewModel?
+    @Published private(set) var sendAmountFinishViewModel: SendNewAmountFinishViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
-    @Published private(set) var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
     private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
 
     init(
         input: SendFinishInput,
-        sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
-        sendAmountCompactViewModel: SendTokenAmountCompactViewModel?,
+        sendAmountFinishViewModel: SendNewAmountFinishViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
-        sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
     ) {
-        self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
-        self.sendAmountCompactViewModel = sendAmountCompactViewModel
+        self.sendAmountFinishViewModel = sendAmountFinishViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
-        self.sendSwapProviderFinishViewModel = sendSwapProviderFinishViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
+        self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
 
         bind(input: input)
     }
 
     func onAppear() {
-        sendFinishAnalyticsLogger.onAppear()
+        sendFinishAnalyticsLogger.logFinishStepOpened()
 
         withAnimation(SendTransitionService.Constants.newAnimation) {
             showHeader = true
