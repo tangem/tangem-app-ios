@@ -24,6 +24,7 @@ protocol KeysManager {
     var stakeKitKey: String { get }
     var moralisAPIKey: String { get }
     var blockaidAPIKey: String { get }
+    var tangemApiKey: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
