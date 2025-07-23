@@ -14,7 +14,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
         let blockchain = wallet.blockchain
 
         guard let chainId = blockchain.chainId else {
-            throw EthereumWalletAssemblyError.chainIdNotFound
+            throw ETHError.chainIdNotFound
         }
 
         // If you get an `invalidSourceAddress` error thrown here for a newly added EVM blockchain, double-check
@@ -27,7 +27,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             break
         default:
             if wallet.addresses.count > 1 {
-                throw EthereumWalletAssemblyError.invalidSourceAddress
+                throw ETHError.invalidSourceAddress
             }
         }
 
@@ -52,9 +52,4 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             allowsFeeSelection: blockchain.allowsFeeSelection
         )
     }
-}
-
-enum EthereumWalletAssemblyError: Error {
-    case chainIdNotFound
-    case invalidSourceAddress
 }

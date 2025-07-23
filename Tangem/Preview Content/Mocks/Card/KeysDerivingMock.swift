@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 class KeysDerivingMock: KeysDeriving {
-    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void) {
+    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             completion(.success([:]))
         }

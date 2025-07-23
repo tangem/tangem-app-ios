@@ -29,8 +29,6 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
 
             customFeeFields
         }
-        .animation(.none, value: isSelected)
-        .animation(.default, value: shouldShowCustomFeeFields)
     }
 
     private var mainContent: some View {

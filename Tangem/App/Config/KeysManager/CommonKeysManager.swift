@@ -98,6 +98,10 @@ extension CommonKeysManager: KeysManager {
     var blockaidAPIKey: String {
         keys.blockaidApiKey
     }
+
+    var tangemApiKey: String {
+        keys.tangemApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -135,5 +139,6 @@ extension CommonKeysManager {
         let alephiumTangemApiKey: String
         let moralisApiKey: String
         let blockaidApiKey: String
+        let tangemApiKey: String
     }
 }
