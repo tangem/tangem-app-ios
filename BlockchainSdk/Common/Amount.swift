@@ -193,6 +193,10 @@ public extension Amount {
         .init(with: blockchain, type: .coin, value: 0)
     }
 
+    static func zeroToken(token: Token) -> Amount {
+        Amount(with: token, value: .zero)
+    }
+
     static func maxCoin(for blockchain: Blockchain) -> Amount {
         .init(with: blockchain, type: .coin, value: Decimal.greatestFiniteMagnitude)
     }
