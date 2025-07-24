@@ -11,10 +11,10 @@ import TangemHotSdk
 import TangemSdk
 
 class KeysDerivingHotWalletInteractor {
-    let hotWallet: HotWallet
+    let hotWallet: HotWallet?
 
     init(hotWallet: HotWallet?) { // [REDACTED_TODO_COMMENT]
-        self.hotWallet = hotWallet!
+        self.hotWallet = hotWallet
     }
 }
 
@@ -25,6 +25,10 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
         derivations: [Data: [DerivationPath]],
         completion: @escaping (Result<DerivationResult, Error>) -> Void
     ) {
+        guard let hotWallet else { // [REDACTED_TODO_COMMENT]
+            completion(.failure(TangemSdkError.unknownError))
+            return
+        }
         let sdk = CommonHotSdk(
             secureStorage: SecureStorage(),
             biometricsStorage: BiometricsStorage(),
