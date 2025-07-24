@@ -9,6 +9,6 @@
 import Foundation
 
 public struct HotWallet {
-    let id: HotWalletID
-    let wallets: [HotWalletKeyInfo]
+    public let id: HotWalletID
+    public let wallets: [HotWalletKeyInfo]
 }
