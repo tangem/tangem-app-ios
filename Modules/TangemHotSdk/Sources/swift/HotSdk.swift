@@ -21,7 +21,7 @@ public protocol HotSdk {
 
     /// Deletes a hot wallet.
     func delete(id: HotWalletID) throws
-    
+
     /// Updates the passcode for a hot wallet.
     ///  - Parameters:
     /// - `newPasscode`: The new passcode to set for the wallet.
@@ -30,7 +30,7 @@ public protocol HotSdk {
     ///  - Throws: An error if the passcode update fails, such as if
     /// the old authentication data is incorrect or if the wallet is missing
     func updatePasscode(_ newPasscode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws
-    
+
     /// Enables biometrics for a hot wallet.
     /// - Parameters:
     /// - `walletID`: The identifier of the wallet for which biometrics are being enabled.
@@ -38,6 +38,11 @@ public protocol HotSdk {
     /// - `context`: The `LAContext` used for biometric authentication.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the passcode is incorrect.
     func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws
-    
-    func deriveKeys(walletID: HotWalletID) throws -> HotWallet
+
+    func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet
+    func deriveKeys(
+        wallet: HotWallet,
+        auth: AuthenticationUnlockData?,
+        derivationPaths: [Data: [DerivationPath]]
+    ) throws -> HotWallet
 }

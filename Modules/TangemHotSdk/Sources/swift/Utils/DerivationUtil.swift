@@ -13,7 +13,7 @@ public enum DerivationUtil {
     public static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
-        derivationPath: String,
+        derivationPath: DerivationPath?,
         masterKey: Data
     ) throws -> ExtendedPublicKey {
         guard let curve = curve(for: masterKey, entropy: entropy, passphrase: passphrase) else {
@@ -26,11 +26,9 @@ public enum DerivationUtil {
     static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
-        derivationPath: String?,
+        derivationPath: DerivationPath?,
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
-        let derivationPath = derivationPath.flatMap { try? DerivationPath(rawPath: $0) }
-
         switch curve {
         case .ed25519:
             return try publicKeyCardano(
@@ -156,7 +154,7 @@ private extension DerivationUtil {
             derivationPath: derivationPath,
             curve: curve
         )
-        
+
         guard derivationPath != nil else {
             return spendingKey
         }
