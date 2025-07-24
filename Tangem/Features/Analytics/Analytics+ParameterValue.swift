@@ -38,6 +38,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case mobileWallet = "MobileWallet"
         case visa = "Visa"
 
         case main = "Main"
