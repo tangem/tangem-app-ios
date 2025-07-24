@@ -156,7 +156,7 @@ private extension DerivationUtil {
             derivationPath: derivationPath,
             curve: curve
         )
-        
+
         guard derivationPath != nil else {
             return spendingKey
         }
