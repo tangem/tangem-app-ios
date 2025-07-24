@@ -44,13 +44,9 @@ class BaseTestCase: XCTestCase {
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
-        if let tangemApiType {
-            arguments.append(contentsOf: ["-tangem_api_type", tangemApiType.rawValue])
-        }
+        arguments.append(contentsOf: ["-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue])
 
-        if let expressApiType {
-            arguments.append(contentsOf: ["-api_express", expressApiType.rawValue])
-        }
+        arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
