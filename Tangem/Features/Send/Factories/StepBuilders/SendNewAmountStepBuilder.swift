@@ -34,16 +34,21 @@ struct SendNewAmountStepBuilder {
         notificationService: SendAmountNotificationService?,
         analyticsLogger: any SendAnalyticsLogger
     ) -> ReturnValue {
+        let interactorSaver = CommonSendNewAmountInteractorSaver(
+            sourceTokenAmountInput: sourceAmountIO.input,
+            sourceTokenAmountOutput: sourceAmountIO.output
+        )
+
         let interactor = CommonSendNewAmountInteractor(
             sourceTokenInput: sourceIO.input,
             sourceTokenAmountInput: sourceAmountIO.input,
-            sourceTokenAmountOutput: sourceAmountIO.output,
             receiveTokenInput: receiveIO.input,
             receiveTokenOutput: receiveIO.output,
             receiveTokenAmountInput: receiveAmountIO.input,
             validator: sendAmountValidator,
             amountModifier: amountModifier,
             notificationService: notificationService,
+            saver: interactorSaver,
             type: .crypto
         )
 
@@ -57,6 +62,7 @@ struct SendNewAmountStepBuilder {
         let step = SendNewAmountStep(
             viewModel: viewModel,
             interactor: interactor,
+            interactorSaver: interactorSaver,
             analyticsLogger: analyticsLogger
         )
 
