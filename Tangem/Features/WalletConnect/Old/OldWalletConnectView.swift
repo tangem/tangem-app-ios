@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct OldWalletConnectView: View {
     @ObservedObject var viewModel: OldWalletConnectViewModel
@@ -23,7 +24,7 @@ struct OldWalletConnectView: View {
             action: viewModel.openSession
         )
         .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
-        .animation(nil)
+        .disableAnimations()
     }
 
     var body: some View {
