@@ -11,6 +11,7 @@ import Testing
 import Combine
 import enum SolanaSwift.SolanaError
 @testable import BlockchainSdk
+@testable import TangemSdk
 
 private let raisedError = SolanaError.nullValue
 
@@ -31,7 +32,7 @@ enum SolanaSignerTestUtility {
         }
 
         public func sign(
-            dataToSign: [BlockchainSdk.SignData],
+            dataToSign: [SignData],
             seedKey: Data
         ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
             dataToSign.forEach { data in
@@ -62,7 +63,7 @@ enum SolanaSignerTestUtility {
         }
 
         public func sign(
-            dataToSign: [BlockchainSdk.SignData],
+            dataToSign: [SignData],
             seedKey: Data
         ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
             dataToSign.forEach { data in
