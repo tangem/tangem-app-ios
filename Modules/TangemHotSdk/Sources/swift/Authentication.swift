@@ -10,11 +10,11 @@ import Foundation
 import LocalAuthentication
 
 struct Authentication {
-    let passcode: String
+    let accessCode: String
     let biometrics: Bool
 }
 
 public enum AuthenticationUnlockData {
-    case passcode(_ passcode: String)
+    case accessCode(_ accessCode: String)
     case biometrics(context: LAContext)
 }
