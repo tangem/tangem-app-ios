@@ -181,7 +181,7 @@ private extension PrivateInfoStorage {
 
         try biometricsStorage.store(keyToStore, forKey: Constants.sharedBiometricsEncryptionKey)
 
-        return keyToStore
+        return aesKey
     }
 }
 
