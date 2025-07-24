@@ -9,25 +9,31 @@
 import Foundation
 import TangemLocalization
 import Combine
-import SwiftUI
 
 class SendNewAmountStep {
     private let viewModel: SendNewAmountViewModel
     private let interactor: SendNewAmountInteractor
+    private let interactorSaver: SendNewAmountInteractorSaver
     private let analyticsLogger: SendAnalyticsLogger
 
     init(
         viewModel: SendNewAmountViewModel,
         interactor: SendNewAmountInteractor,
+        interactorSaver: SendNewAmountInteractorSaver,
         analyticsLogger: SendAnalyticsLogger,
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.interactorSaver = interactorSaver
         self.analyticsLogger = analyticsLogger
     }
 
     func set(router: SendNewAmountRoutable) {
         viewModel.router = router
+    }
+
+    func cancelChanges() {
+        interactorSaver.cancelChanges()
     }
 }
 
@@ -46,16 +52,13 @@ extension SendNewAmountStep: SendStep {
         interactor.isValidPublisher.eraseToAnyPublisher()
     }
 
-    func saveChangesIfNeeded() {
-        interactor.saveChanges()
-    }
-
     func initialAppear() {
         analyticsLogger.logAmountStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
         step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
+        interactorSaver.captureValue()
     }
 }
 
