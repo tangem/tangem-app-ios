@@ -31,13 +31,11 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.bannerNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.notificationTransition)
                 }
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
                         .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
-                        .transition(.notificationTransition)
                 }
 
                 if viewModel.isMarketsDetailsAvailable {
@@ -59,7 +57,6 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
-                        .transition(.notificationTransition)
                 }
 
                 PendingTransactionsListView(
@@ -83,9 +80,6 @@ struct TokenDetailsView: View {
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
-        .animation(.default, value: viewModel.bannerNotificationInputs)
-        .animation(.default, value: viewModel.tokenNotificationInputs)
-        .animation(.default, value: viewModel.pendingExpressTransactions)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
