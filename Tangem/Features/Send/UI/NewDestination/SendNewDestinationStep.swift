@@ -34,6 +34,10 @@ class SendNewDestinationStep {
     func set(stepRouter: SendDestinationStepRoutable) {
         viewModel.stepRouter = stepRouter
     }
+
+    func cancelChanges() {
+        interactorSaver.cancelChanges()
+    }
 }
 
 // MARK: - SendStep
@@ -51,19 +55,14 @@ extension SendNewDestinationStep: SendStep {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }
 
-    func saveChangesIfNeeded() {
-        interactorSaver.save()
-    }
-
     func initialAppear() {
         analyticsLogger.logDestinationStepOpened()
-        interactorSaver.autosave(enabled: true)
     }
 
     func willAppear(previous step: any SendStep) {
         isEditMode = step.type.isSummary
-
         isEditMode ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
-        interactorSaver.autosave(enabled: !isEditMode)
+
+        interactorSaver.captureValue()
     }
 }
