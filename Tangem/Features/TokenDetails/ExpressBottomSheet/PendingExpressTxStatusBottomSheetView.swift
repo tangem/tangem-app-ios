@@ -120,7 +120,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
         PendingExpressTxStatusView(
             title: viewModel.statusViewTitle,
             statusesList: viewModel.statusesList,
-            topTrailingAction: .goToProvider(action: viewModel.openProviderFromStatusHeader)
+            topTrailingAction: viewModel.showGoToProviderHeaderButton ? .goToProvider(action: viewModel.openProviderFromStatusHeader) : .none
         )
         // This prevents notification to appear and disappear on top of the statuses list
         .zIndex(5)
