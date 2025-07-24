@@ -69,14 +69,14 @@ final class PrivateInfoStorage {
         }
     }
 
-    func updatePasscode(_ newPasscode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
+    func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
         let encryptionKey = try encryptionKey(for: walletID, auth: oldAuth)
 
-        try storeEncryptionKeyWithPasscode(encryptionKey: encryptionKey, passcode: newPasscode, walletID: walletID)
+        try storeEncryptionKeyWithAccessCode(encryptionKey: encryptionKey, accessCode: newAccessCode, walletID: walletID)
     }
 
-    public func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws {
-        let encryptionKey = try encryptionKey(for: walletID, auth: .passcode(passcode))
+    public func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws {
+        let encryptionKey = try encryptionKey(for: walletID, auth: .accessCode(accessCode))
 
         try storeEncryptionKeyWithBiometrics(encryptionKey: encryptionKey, context: context, walletID: walletID)
     }
@@ -103,13 +103,13 @@ private extension PrivateInfoStorage {
         try secureStorage.store(keyToStore, forKey: walletID.storageEncryptionKey)
     }
 
-    private func storeEncryptionKeyWithPasscode(
+    private func storeEncryptionKeyWithAccessCode(
         encryptionKey: Data,
-        passcode: String,
+        accessCode: String,
         walletID: HotWalletID,
     ) throws {
         let encryptedAesKey = try AESEncoder.encryptWithPassword(
-            password: passcode,
+            password: accessCode,
             content: encryptionKey
         )
 
@@ -145,7 +145,7 @@ private extension PrivateInfoStorage {
         let savedKeyData: Data?
 
         switch auth {
-        case .none, .passcode:
+        case .none, .accessCode:
             savedKeyData = try secureStorage.get(walletID.storageEncryptionKey)
         case .biometrics(let context):
             savedKeyData = try biometricsStorage.get(walletID.storageEncryptionKey, context: context)
@@ -157,8 +157,8 @@ private extension PrivateInfoStorage {
 
         let encryptedAesKey = try secureEnclaveService.decryptData(savedKeyData, keyTag: walletID.storageEncryptionKey)
 
-        if case .passcode(let passcode) = auth {
-            return try AESEncoder.decryptWithPassword(password: passcode, encryptedData: encryptedAesKey)
+        if case .accessCode(let accessCode) = auth {
+            return try AESEncoder.decryptWithPassword(password: accessCode, encryptedData: encryptedAesKey)
         } else if case .biometrics(let context) = auth {
             let biometricsKey = try sharedBiometricsEncryptionKey(context: context)
             return try AESEncoder.decryptAES(rawEncryptionKey: biometricsKey, encryptedData: encryptedAesKey)
