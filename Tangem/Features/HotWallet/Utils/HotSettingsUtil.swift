@@ -11,9 +11,12 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 struct HotSettingsUtil {
-    private let statusUtil: HotStatusUtil
+    private var isAccessCodeRequired: Bool {
+        !AppSettings.shared.saveAccessCodes
+    }
 
     private let userWalletModel: UserWalletModel
+    private let statusUtil: HotStatusUtil
 
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
@@ -26,28 +29,29 @@ struct HotSettingsUtil {
 extension HotSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
+        let isUserWalletHot = statusUtil.isUserWalletHot
 
-        if statusUtil.isAccessCodeFeatureAvailable {
+        if isUserWalletHot, statusUtil.isAccessCodeFeatureAvailable {
             settings.append(.accessCode)
         }
 
-        if statusUtil.isBackupFeatureAvailable {
-            settings.append(.backup(hasBackup: !statusUtil.isBackupNeeded))
+        if isUserWalletHot, statusUtil.isBackupFeatureAvailable {
+            settings.append(.backup(hasBackup: !statusUtil.isSeedPhraseBackupNeeded))
         }
 
         return settings
     }
 
     func calculateAccessCodeState() async -> AccessCodeState {
-        if statusUtil.isBackupNeeded {
+        if statusUtil.isSeedPhraseBackupNeeded {
             return .backupNeeded
         }
 
-        if !statusUtil.isAccessCodeCreated {
+        if !statusUtil.isAccessCodeSet {
             return .onboarding(needsValidation: false)
         }
 
-        if statusUtil.isAccessCodeRequired {
+        if isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         }
 
@@ -57,11 +61,11 @@ extension HotSettingsUtil {
     }
 
     func calculateSeedPhraseState() async -> SeedPhraseState {
-        guard statusUtil.isAccessCodeCreated else {
+        guard statusUtil.isAccessCodeSet else {
             return .onboarding(needsValidation: false)
         }
 
-        if statusUtil.isAccessCodeRequired {
+        if isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         } else {
             let isBiometricsSuccessful = await isBiometricsSuccessful()

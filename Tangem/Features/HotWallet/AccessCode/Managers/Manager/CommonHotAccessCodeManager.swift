@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 final class CommonHotAccessCodeManager {
-    private let storageManager = CommonHotAccessCodeStorageManager()
+    @Injected(\.hotAccessCodeStorageManager) private var storageManager: HotAccessCodeStorageManager
 
     private lazy var stateManager = CommonHotAccessCodeStateManager(
         storage: self,
@@ -44,11 +44,11 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
 
 extension CommonHotAccessCodeManager: HotAccessCodeStorage {
     func getWrongAccessCodeStore() -> HotWrongAccessCodeStore {
-        storageManager.getWrongAccessCodeStore(userWalletModel: userWalletModel)
+        storageManager.getWrongAccessCodeStore(userWalletId: userWalletModel.userWalletId)
     }
 
     func storeWrongAccessCodeAttempt(date: Date) {
-        storageManager.storeWrongAccessCode(userWalletModel: userWalletModel, date: date)
+        storageManager.storeWrongAccessCode(userWalletId: userWalletModel.userWalletId, date: date)
     }
 }
 
@@ -65,12 +65,12 @@ extension CommonHotAccessCodeManager: HotAccessCodeValidator {
 
 extension CommonHotAccessCodeManager: HotAccessCodeHandler {
     func handleAccessCodeSuccessful() {
-        storageManager.clearWrongAccessCode(userWalletModel: userWalletModel)
+        storageManager.clearWrongAccessCode(userWalletId: userWalletModel.userWalletId)
         delegate?.handleAccessCodeSuccessful(userWalletModel: userWalletModel)
     }
 
     func handleAccessCodeDelete() {
-        storageManager.clearWrongAccessCode(userWalletModel: userWalletModel)
+        storageManager.clearWrongAccessCode(userWalletId: userWalletModel.userWalletId)
         delegate?.handleAccessCodeDelete(userWalletModel: userWalletModel)
     }
 }

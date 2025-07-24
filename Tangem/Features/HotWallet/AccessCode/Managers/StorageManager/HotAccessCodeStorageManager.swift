@@ -8,8 +8,8 @@
 
 import Foundation
 
-protocol HotAccessCodeStorageManager {
-    func getWrongAccessCodeStore(userWalletModel: UserWalletModel) -> HotWrongAccessCodeStore
-    func storeWrongAccessCode(userWalletModel: UserWalletModel, date: Date)
-    func clearWrongAccessCode(userWalletModel: UserWalletModel)
+protocol HotAccessCodeStorageManager: Initializable {
+    func getWrongAccessCodeStore(userWalletId: UserWalletId) -> HotWrongAccessCodeStore
+    func storeWrongAccessCode(userWalletId: UserWalletId, date: Date)
+    func clearWrongAccessCode(userWalletId: UserWalletId)
 }

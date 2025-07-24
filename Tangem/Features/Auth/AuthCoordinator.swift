@@ -10,11 +10,9 @@ import Foundation
 import Combine
 
 class AuthCoordinator: CoordinatorObject {
-    typealias OutputOptions = ScanDismissOptions
-
     // MARK: - Dependencies
 
-    let dismissAction: Action<ScanDismissOptions>
+    let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
@@ -35,7 +33,7 @@ class AuthCoordinator: CoordinatorObject {
     @Published var hotAccessCodeViewModel: HotAccessCodeViewModel?
 
     required init(
-        dismissAction: @escaping Action<ScanDismissOptions>,
+        dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -84,6 +82,10 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
+    func openMain() {
+        dismiss(with: .main(nil))
+    }
+
     func openHotAccessCode(with userWalletModel: UserWalletModel) {
         let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
         let unlockItem = HotAccessCodeViewModel.BiometryUnlockModeItem(
@@ -137,5 +139,12 @@ extension AuthCoordinator: CommonHotAccessCodeManagerDelegate {
 
     func handleAccessCodeDelete(userWalletModel: UserWalletModel) {
         // [REDACTED_TODO_COMMENT]
+    }
+}
+
+extension AuthCoordinator {
+    enum OutputOptions {
+        case main(UserWalletModel?)
+        case onboarding(OnboardingInput)
     }
 }

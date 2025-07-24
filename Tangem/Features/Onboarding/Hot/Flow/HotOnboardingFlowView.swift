@@ -16,6 +16,7 @@ struct HotOnboardingFlowView: View {
     @State private var navBarLeadingItem: HotOnboardingFlowNavBarItem?
     @State private var navBarTrailingItem: HotOnboardingFlowNavBarItem?
     @State private var progressBarItem: HotOnboardingFlowProgressBarItem?
+    @State private var progressBarAnimation: Animation?
 
     private let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     private let progressBarHeight = OnboardingLayoutConstants.progressBarHeight
@@ -23,7 +24,6 @@ struct HotOnboardingFlowView: View {
 
     var body: some View {
         content
-            .animation(.default, value: builder.currentStepId)
             .onPreferenceChange(HotOnboardingFlowNavBarTitleKey.self) { navBarTitle = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarLeadingItemKey.self) { navBarLeadingItem = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarTrailingItemKey.self) { navBarTrailingItem = $0 }
@@ -37,7 +37,10 @@ private extension HotOnboardingFlowView {
     var content: some View {
         VStack(spacing: 0) {
             flowBar
+                .onDidAppear { progressBarAnimation = .default }
+
             builder.content
+                .animation(.default, value: builder.currentStepId)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .transition(.opacity)
         }
@@ -50,6 +53,7 @@ private extension HotOnboardingFlowView {
             if builder.hasProgressBar {
                 progressBar
                     .padding(.horizontal, progressBarPadding)
+                    .animation(progressBarAnimation, value: progressBarItem)
             }
         }
     }

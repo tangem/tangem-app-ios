@@ -71,8 +71,12 @@ private extension NewAuthViewModel {
                     self?.openHotAccessCode(userWalletModel: singleWallet)
                 }
             }
-            return makeUnlockedState()
+            return makeWalletsState()
         }
+    }
+
+    func setupWalletsState() {
+        state = makeWalletsState()
     }
 
     func makeDefaultState() -> State {
@@ -83,7 +87,7 @@ private extension NewAuthViewModel {
         return .locked
     }
 
-    func makeUnlockedState() -> State {
+    func makeWalletsState() -> State {
         let addWallet = AddWalletItem(
             title: Localization.authInfoAddWalletTitle,
             action: weakify(self, forFunction: NewAuthViewModel.openAddWallet)
@@ -94,7 +98,7 @@ private extension NewAuthViewModel {
             description: Localization.authInfoSubtitle
         )
 
-        let wallets = makeWalletsItems()
+        let wallets = makeWalletItems()
 
         let unlock: UnlockItem?
         if BiometricsUtil.isAvailable {
@@ -106,25 +110,85 @@ private extension NewAuthViewModel {
             unlock = nil
         }
 
-        let stateItem = UnlockedStateItem(
+        let stateItem = WalletsStateItem(
             addWallet: addWallet,
             info: info,
             wallets: wallets,
             unlock: unlock
         )
 
-        return .unlocked(stateItem)
+        return .wallets(stateItem)
+    }
+}
+
+// MARK: - Helpers
+
+private extension NewAuthViewModel {
+    func makeWalletItems() -> [WalletItem] {
+        userWalletRepository.models.map(makeWalletItem)
     }
 
-    func makeWalletsItems() -> [WalletItem] {
-        // [REDACTED_TODO_COMMENT]
-        return []
+    func makeWalletItem(userWalletModel: UserWalletModel) -> WalletItem {
+        let description = walletItemDescription(userWalletModel: userWalletModel)
+        let action = walletItemAction(userWalletModel: userWalletModel)
+        let statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
+        return WalletItem(
+            title: userWalletModel.name,
+            description: description,
+            imageProvider: userWalletModel.walletImageProvider,
+            isSecured: statusUtil.isAccessCodeSet,
+            action: action
+        )
+    }
+
+    func walletItemDescription(userWalletModel: UserWalletModel) -> String {
+        let statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
+
+        if statusUtil.isUserWalletHot {
+            return "Phone Wallet"
+        } else {
+            let cardsCount = userWalletModel.config.cardsCount
+            return "\(cardsCount) cards"
+        }
+    }
+
+    func walletItemAction(userWalletModel: UserWalletModel) -> WalletItemAction {
+        let statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
+
+        if statusUtil.isUserWalletHot {
+            if statusUtil.isAccessCodeSet {
+                return { [weak self] in
+                    self?.openHotAccessCode(userWalletModel: userWalletModel)
+                }
+            } else {
+                return { [weak self] in
+                    self?.openMain(with: userWalletModel)
+                }
+            }
+        } else {
+            return { [weak self] in
+                self?.unlockWithCard(userWalletModel: userWalletModel)
+            }
+        }
     }
 
     /// Check if there are only unsecure hot wallets, meaning there are no secure hot wallets or any cold wallets.
     func haveOnlyUnsecureHotWallets() -> Bool {
-        // [REDACTED_TODO_COMMENT]
-        return false
+        let coldUserWallets = userWalletRepository.models.filter {
+            let statusUtil = HotStatusUtil(userWalletModel: $0)
+            return !statusUtil.isUserWalletHot
+        }
+
+        guard coldUserWallets.isEmpty else {
+            return false
+        }
+
+        let secureUserWallets = userWalletRepository.models.filter {
+            let statusUtil = HotStatusUtil(userWalletModel: $0)
+            return statusUtil.isAccessCodeSet
+        }
+
+        return secureUserWallets.isEmpty
     }
 
     /// Check if there are only one secure hot wallet.
@@ -160,11 +224,14 @@ private extension NewAuthViewModel {
                 }
             } catch {
                 viewModel.incomingActionManager.discardIncomingAction()
+                await runOnMain {
+                    viewModel.setupWalletsState()
+                }
             }
         }
     }
 
-    func unlockWithCard(userWalletId: UserWalletId) {
+    func unlockWithCard(userWalletModel: UserWalletModel) {
         isScanning = true
         Analytics.beginLoggingCardScan(source: .auth)
 
@@ -174,33 +241,36 @@ private extension NewAuthViewModel {
 
             let result = await userWalletCardScanner.scanCard()
             await runOnMain {
-                viewModel.handleUnlockWithCard(result: result, userWalletId: userWalletId)
+                viewModel.handleUnlockWithCard(result: result, userWalletModel: userWalletModel)
             }
         }
     }
 
-    func handleUnlockWithCard(result: UserWalletCardScanner.Result, userWalletId: UserWalletId) {
+    func handleUnlockWithCard(result: UserWalletCardScanner.Result, userWalletModel: UserWalletModel) {
         isScanning = false
 
         switch result {
         case .scanTroubleshooting:
             Analytics.log(.cantScanTheCard, params: [.source: .signIn])
             incomingActionManager.discardIncomingAction()
-            openTroubleshooting(userWalletId: userWalletId)
+            openTroubleshooting(userWalletModel: userWalletModel)
 
-        case .onboarding(let input):
+        case .onboarding:
+            // [REDACTED_TODO_COMMENT]
             incomingActionManager.discardIncomingAction()
-            openOnboarding(with: input)
 
         case .error(let error) where error.isCancellationError:
             incomingActionManager.discardIncomingAction()
 
         case .error(let error):
-            handleUnlockWithCard(resultError: error)
+            Analytics.logScanError(error, source: .signIn)
+            Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+            incomingActionManager.discardIncomingAction()
+            self.error = error.alertBinder
 
         case .success(let cardInfo):
             do {
-                let userWalletModel = try userWalletRepository.unlock(with: .card(cardInfo))
+                try userWalletRepository.unlock(userWalletId: userWalletModel.userWalletId, method: .card(cardInfo))
                 openMain(with: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -209,27 +279,9 @@ private extension NewAuthViewModel {
         }
     }
 
-    func handleUnlockWithCard(resultError: Error) {
-        Analytics.logScanError(resultError, source: .signIn)
-        Analytics.logVisaCardScanErrorIfNeeded(resultError, source: .signIn)
-        incomingActionManager.discardIncomingAction()
-
-        switch state {
-        case .locked:
-            state = makeUnlockedState()
-        case .unlocked:
-            if resultError.isCancellationError {
-                return
-            }
-            error = resultError.alertBinder
-        case .none:
-            break
-        }
-    }
-
-    func unlockWithCardTryAgain(userWalletId: UserWalletId) {
+    func unlockWithCardTryAgain(userWalletModel: UserWalletModel) {
         Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .signIn])
-        unlockWithCard(userWalletId: userWalletId)
+        unlockWithCard(userWalletModel: userWalletModel)
     }
 }
 
@@ -284,7 +336,7 @@ private extension NewAuthViewModel {
         coordinator?.openOnboarding(with: input)
     }
 
-    func openTroubleshooting(userWalletId: UserWalletId) {
+    func openTroubleshooting(userWalletModel: UserWalletModel) {
         let sheet = ActionSheet(
             title: Text(Localization.alertTroubleshootingScanCardTitle),
             message: Text(Localization.alertTroubleshootingScanCardMessage),
@@ -292,7 +344,7 @@ private extension NewAuthViewModel {
                 .default(
                     Text(Localization.alertButtonTryAgain),
                     action: { [weak self] in
-                        self?.unlockWithCardTryAgain(userWalletId: userWalletId)
+                        self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
                     }
                 ),
                 .default(
@@ -340,18 +392,18 @@ extension NewAuthViewModel: IncomingActionResponder {
 extension NewAuthViewModel {
     enum State: Equatable {
         case locked
-        case unlocked(UnlockedStateItem)
+        case wallets(WalletsStateItem)
 
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
             case (.locked, .locked): true
-            case (.unlocked, .unlocked): true
+            case (.wallets, .wallets): true
             default: false
             }
         }
     }
 
-    struct UnlockedStateItem {
+    struct WalletsStateItem {
         let addWallet: AddWalletItem
         let info: InfoItem
         let wallets: [WalletItem]
@@ -360,12 +412,14 @@ extension NewAuthViewModel {
 
     struct WalletItem: Identifiable {
         let id = UUID()
-        let name: String
+        let title: String
         let description: String
+        let imageProvider: WalletImageProviding
         let isSecured: Bool
-        let icon: ImageType
-        let action: () -> Void
+        let action: WalletItemAction
     }
+
+    typealias WalletItemAction = () -> Void
 
     struct AddWalletItem {
         let title: String

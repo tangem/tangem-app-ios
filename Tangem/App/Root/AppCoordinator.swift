@@ -123,12 +123,16 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupAuth(unlockOnAppear: Bool) {
-        let dismissAction: Action<ScanDismissOptions> = { [weak self] options in
+        let dismissAction: Action<AuthCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
             switch options {
             case .main(let model):
-                openMain(with: model)
+                if let model {
+                    openMain(with: model)
+                } else {
+                    start()
+                }
             case .onboarding(let input):
                 openOnboarding(with: .input(input))
             }
@@ -335,11 +339,4 @@ extension AppCoordinator {
 
         setState(.main(coordinator))
     }
-}
-
-// MARK: - ScanDismissOptions
-
-enum ScanDismissOptions {
-    case main(UserWalletModel)
-    case onboarding(OnboardingInput)
 }

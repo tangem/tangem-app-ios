@@ -24,12 +24,12 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
     }
 
     override func setupFlow() {
-        if statusUtil.isBackupNeeded {
-            setupBackupFlow()
+        if statusUtil.isSeedPhraseBackupNeeded {
+            setupSeedPhraseBackupFlow()
         }
 
-        if statusUtil.isAccessCodeNeeded {
-            setupAccessCodeFlow()
+        if statusUtil.isAccessCodeBackupNeeded {
+            setupAccessCodeBackupFlow()
         }
 
         let factory = PushNotificationsHelpersFactory()
@@ -60,7 +60,7 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
 // MARK: - Flows
 
 private extension HotOnboardingActivateWalletFlowBuilder {
-    func setupBackupFlow() {
+    func setupSeedPhraseBackupFlow() {
         let seedPhraseIntroStep = HotOnboardingSeedPhraseIntroStep(delegate: self)
             .configureNavBar(
                 title: Localization.commonBackup,
@@ -97,7 +97,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
         flow.append(doneStep)
     }
 
-    func setupAccessCodeFlow() {
+    func setupAccessCodeBackupFlow() {
         let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
         createAccessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
         flow.append(createAccessCodeStep)

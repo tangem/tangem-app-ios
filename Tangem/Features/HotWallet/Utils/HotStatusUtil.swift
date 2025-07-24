@@ -11,32 +11,32 @@ import Foundation
 struct HotStatusUtil {
     var isAccessCodeFeatureAvailable: Bool {
         // [REDACTED_TODO_COMMENT]
+        // userWalletModel.config.getFeatureAvailability(.accessCode) == .available
         false
     }
 
     var isBackupFeatureAvailable: Bool {
         // [REDACTED_TODO_COMMENT]
+        // userWalletModel.config.getFeatureAvailability(.backup) == .available
         false
     }
 
-    var isBackupNeeded: Bool {
+    var isSeedPhraseBackupNeeded: Bool {
         // [REDACTED_TODO_COMMENT]
         true
     }
 
-    var isAccessCodeNeeded: Bool {
+    var isAccessCodeBackupNeeded: Bool {
+        !isAccessCodeSet
+    }
+
+    var isAccessCodeSet: Bool {
         // [REDACTED_TODO_COMMENT]
-        true
+        false
     }
 
     // [REDACTED_TODO_COMMENT]
-    var isAccessCodeCreated: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    var isAccessCodeRequired: Bool {
-        // [REDACTED_TODO_COMMENT]
+    var isUserWalletHot: Bool {
         false
     }
 

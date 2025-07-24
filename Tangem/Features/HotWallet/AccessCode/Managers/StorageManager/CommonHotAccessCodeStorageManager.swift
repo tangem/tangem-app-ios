@@ -7,41 +7,99 @@
 //
 
 import Foundation
-
-private enum HotAccessCodeStorageKey: String {
-    /// Store wrong access code input events.
-    case wrongAccessCode
-}
+import Combine
 
 final class CommonHotAccessCodeStorageManager {
     // [REDACTED_TODO_COMMENT]
     @AppStorageCompat(HotAccessCodeStorageKey.wrongAccessCode)
     private var wrongAccessCodes: [String: [Date]] = [:]
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    private var bag: Set<AnyCancellable> = []
+
+    fileprivate init() {}
 }
 
 // MARK: - Private methods
 
 private extension CommonHotAccessCodeStorageManager {
-    func wrongAccessCodesDates(userWalletModel: UserWalletModel) -> [Date] {
-        wrongAccessCodes[userWalletModel.userWalletId.stringValue] ?? []
+    func bind() {
+        userWalletRepository.eventProvider
+            .withWeakCaptureOf(self)
+            .sink { manager, event in
+                manager.handleUserWalletRepositoryEvent(event: event)
+            }
+            .store(in: &bag)
+    }
+
+    func handleUserWalletRepositoryEvent(event: UserWalletRepositoryEvent) {
+        switch event {
+        case .unlockedBiometrics:
+            userWalletRepository.models
+                .filter { !$0.isUserWalletLocked }
+                .map(\.userWalletId)
+                .forEach {
+                    clearWrongAccessCode(userWalletId: $0)
+                }
+        case .unlocked(let userWalletId):
+            clearWrongAccessCode(userWalletId: userWalletId)
+        default:
+            break
+        }
+    }
+
+    func wrongAccessCodesDates(userWalletId: UserWalletId) -> [Date] {
+        wrongAccessCodes[userWalletId.stringValue] ?? []
     }
 }
 
 // MARK: - HotAccessCodeStorageManager
 
 extension CommonHotAccessCodeStorageManager: HotAccessCodeStorageManager {
-    func getWrongAccessCodeStore(userWalletModel: UserWalletModel) -> HotWrongAccessCodeStore {
-        let dates = wrongAccessCodesDates(userWalletModel: userWalletModel)
+    func getWrongAccessCodeStore(userWalletId: UserWalletId) -> HotWrongAccessCodeStore {
+        let dates = wrongAccessCodesDates(userWalletId: userWalletId)
         return HotWrongAccessCodeStore(dates: dates)
     }
 
-    func storeWrongAccessCode(userWalletModel: UserWalletModel, date: Date) {
-        var dates = wrongAccessCodesDates(userWalletModel: userWalletModel)
+    func storeWrongAccessCode(userWalletId: UserWalletId, date: Date) {
+        var dates = wrongAccessCodesDates(userWalletId: userWalletId)
         dates.append(date)
-        wrongAccessCodes[userWalletModel.userWalletId.stringValue] = dates
+        wrongAccessCodes[userWalletId.stringValue] = dates
     }
 
-    func clearWrongAccessCode(userWalletModel: UserWalletModel) {
-        wrongAccessCodes.removeValue(forKey: userWalletModel.userWalletId.stringValue)
+    func clearWrongAccessCode(userWalletId: UserWalletId) {
+        wrongAccessCodes.removeValue(forKey: userWalletId.stringValue)
     }
+}
+
+// MARK: - StorageKey
+
+private extension CommonHotAccessCodeStorageManager {
+    enum HotAccessCodeStorageKey: String {
+        /// Store wrong access code input events.
+        case wrongAccessCode
+    }
+}
+
+// MARK: - Initializable
+
+extension CommonHotAccessCodeStorageManager: Initializable {
+    func initialize() {
+        bind()
+    }
+}
+
+// MARK: - Injections
+
+extension InjectedValues {
+    var hotAccessCodeStorageManager: HotAccessCodeStorageManager {
+        get { Self[HotAccessCodeStorageManagerKey.self] }
+        set { Self[HotAccessCodeStorageManagerKey.self] = newValue }
+    }
+}
+
+private struct HotAccessCodeStorageManagerKey: InjectionKey {
+    static var currentValue: HotAccessCodeStorageManager = CommonHotAccessCodeStorageManager()
 }
