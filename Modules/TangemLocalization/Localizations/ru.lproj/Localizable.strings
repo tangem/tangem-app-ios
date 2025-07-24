@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -893,6 +894,10 @@
 "send_validation_destination_tag_required_description" = "Для завершения транзакции на указанный адрес необходим тег назначения (мемо).";
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
 "send_with_swap_confirm_title" = "Swap and send";
+"send_with_swap_convertation_cancel_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_convertation_cancel_alert_title" = "Confirm cancelation";
+"send_with_swap_convertation_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_convertation_change_token_alert_title" = "Changing token";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Will be sent a recipient";
@@ -1384,7 +1389,7 @@
 "warning_system_update_title" = "Доступно обновление системы";
 "warning_testnet_card_message" = "Это Testnet карта. Он не может обрабатывать транзакции и используется только в целях тестирования и разработки.";
 "warning_testnet_card_title" = "Только для целей тестирования";
-"warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your %2$@ account to associate this token";
+"warning_token_required_min_coin_reserve" = "Недостаточно %1$@. Пополните свой счет %2$@ для выполнения ассоциации токена";
 "warning_token_trustline_button_title" = "Открыть Trustline";
 "warning_token_trustline_subtitle" = "Согласно правилам сети, чтобы пополнить этот токен, необходимо сначала открыть Trustline — это позволит вашему кошельку принимать и хранить этот актив.";
 "warning_token_trustline_title" = "Требуется трастлайн";
