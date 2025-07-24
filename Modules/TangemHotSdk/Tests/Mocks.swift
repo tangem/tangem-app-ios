@@ -35,11 +35,11 @@ final class MockedSecureStorage: HotSecureStorage {
 
 final class MockedSecureEnclaveService: HotSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String) throws -> Data {
-        data
+        Data(data.bytes.reversed())
     }
 
     func decryptData(_ data: Data, keyTag: String) throws -> Data {
-        data
+        Data(data.bytes.reversed())
     }
 }
 
