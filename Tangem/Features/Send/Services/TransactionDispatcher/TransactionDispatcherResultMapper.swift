@@ -16,17 +16,14 @@ struct TransactionDispatcherResultMapper {
     func mapResult(
         _ result: TransactionSendResult,
         blockchain: Blockchain,
-        signer: Card?
+        signer: TangemSignerType?
     ) -> TransactionDispatcherResult {
         let factory = ExternalLinkProviderFactory()
         let provider = factory.makeProvider(for: blockchain)
         let explorerUrl = provider.url(transaction: result.hash)
 
-        let signerType = signer.map {
-            RingUtil().isRing(batchId: $0.batchId) ? Analytics.ParameterValue.ring.rawValue : Analytics.ParameterValue.card.rawValue
-        } ?? "unknown"
-
-        return TransactionDispatcherResult(hash: result.hash, url: explorerUrl, signerType: signerType)
+        let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
+        return TransactionDispatcherResult(hash: result.hash, url: explorerUrl, signerType: signerType.rawValue)
     }
 
     func mapError(_ error: UniversalError, transaction: SendTransactionType) -> TransactionDispatcherResult.Error {
