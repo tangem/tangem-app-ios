@@ -114,7 +114,6 @@ final class SendViewModel: ObservableObject {
         case .next:
             stepsManager.performNext()
         case .continue:
-            step.saveChangesIfNeeded()
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
             performApprove()
