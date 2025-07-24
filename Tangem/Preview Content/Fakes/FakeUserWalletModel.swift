@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemNFT
 
-class FakeUserWalletModel: UserWalletModel, ObservableObject {
+class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
     var keysRepository: KeysRepository {
@@ -33,7 +33,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let walletImageProvider: WalletImageProviding
-    let signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
