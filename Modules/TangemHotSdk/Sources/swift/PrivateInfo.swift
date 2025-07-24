@@ -51,7 +51,7 @@ extension PrivateInfo {
         let passphraseLength = Int(UInt32(bigEndian: data.subdata(in: offset ..< (offset + 4)).withUnsafeBytes { $0.load(as: UInt32.self) }))
         offset += 4
 
-        var passphrase: String = ""
+        var passphrase = ""
         if passphraseLength > 0 {
             guard data.count >= offset + passphraseLength else { return nil }
             let passphraseBytes = data.subdata(in: offset ..< (offset + passphraseLength))
