@@ -46,7 +46,7 @@ struct DerivationUtilTests {
         #expect(bitcoinResult.publicKey.hexString == "02616104143281B4679AFEB669392B073D63564606F431D13DF3EBEDE75D269509")
         #expect(bitcoinResult.chainCode.hexString == "EE4696FCB6920DBCBCF33423885C53CB5A16B5AD124715A26DF43299A087FB7D")
     }
-    
+
     @Test
     func secp256k1MasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
@@ -83,7 +83,7 @@ struct DerivationUtilTests {
 
         #expect(result.publicKey.hexString == expected)
     }
-    
+
     @Test
     func edCardanoMasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
@@ -120,7 +120,7 @@ struct DerivationUtilTests {
 
         #expect(result.publicKey.hexString == expected)
     }
-    
+
     @Test
     func edMasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
