@@ -16,7 +16,6 @@
 		0A0EC0BA2DD4D1D2009FD20F /* MarketsTokensSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0EC0B92DD4D1D2009FD20F /* MarketsTokensSummary.swift */; };
 		0A1396EB2D7AF67500CA6A31 /* ValidatorInfoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */; };
 		0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1992A52B5FBDF800344312 /* CurrencyTests.swift */; };
-		0A22617B2D9586CE004DC848 /* SignData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617A2D9586CE004DC848 /* SignData.swift */; };
 		0A22617E2D9588E7004DC848 /* CardanoAddressResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617D2D9588E7004DC848 /* CardanoAddressResponse.swift */; };
 		0A2261802D9588F3004DC848 /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */; };
 		0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261822D958ADA004DC848 /* CardanoTransaction.swift */; };
@@ -3912,7 +3911,6 @@
 		0A0EC0B92DD4D1D2009FD20F /* MarketsTokensSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokensSummary.swift; sourceTree = "<group>"; };
 		0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStatus.swift; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
-		0A22617A2D9586CE004DC848 /* SignData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignData.swift; sourceTree = "<group>"; };
 		0A22617D2D9588E7004DC848 /* CardanoAddressResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoAddressResponse.swift; sourceTree = "<group>"; };
 		0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		0A2261822D958ADA004DC848 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
@@ -13379,7 +13377,6 @@
 				B62D3F652CBC79D900C2460E /* PendingTransactionRecordMapper.swift */,
 				B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */,
 				B62D3F662CBC79D900C2460E /* SignatureInfo.swift */,
-				0A22617A2D9586CE004DC848 /* SignData.swift */,
 				B62D3F672CBC79D900C2460E /* SS58.swift */,
 				B62D3F682CBC79D900C2460E /* StakeKitTransaction.swift */,
 				0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */,
@@ -23383,7 +23380,6 @@
 				0A3C78772D8956F20031170E /* HederaTokenCustomFeesInfo.swift in Sources */,
 				B62D41C02CBC79DB00C2460E /* TONNetworkService.swift in Sources */,
 				B62D413A2CBC79DA00C2460E /* NEARNetworkResult.APIError.swift in Sources */,
-				0A22617B2D9586CE004DC848 /* SignData.swift in Sources */,
 				B62D42882CBC79DB00C2460E /* PolygonTransactionHistoryProvider.swift in Sources */,
 				B62D42B82CBC79DB00C2460E /* Token.swift in Sources */,
 				B62D41882CBC79DA00C2460E /* SolanaApiLoggerUtil.swift in Sources */,
@@ -30608,7 +30604,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 3.22.3;
+				version = 3.22.4;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
