@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
@@ -137,7 +138,7 @@ struct EnvironmentSetupView: View {
 
     private var exitButton: some View {
         Button("Exit", action: viewModel.showExitAlert)
-            .animation(nil)
+            .disableAnimations()
     }
 }
 
