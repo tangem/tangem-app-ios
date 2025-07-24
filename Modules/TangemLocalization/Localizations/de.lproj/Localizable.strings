@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "Du hast Deine Wallet erfolgreich gesichert.";
 "backup_complete_seed_description" = "Diese Wörter können bei Verlust nicht wiederhergestellt werden. Bewahre diese an einem sicheren Ort auf.";
 "backup_complete_title" = "Sicherung abgeschlossen";

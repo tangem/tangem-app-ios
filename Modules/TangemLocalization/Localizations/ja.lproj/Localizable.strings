@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "ウォレットのバックアップが正常に完了しました。";
 "backup_complete_seed_description" = "これらの単語は紛失した場合、復元できません。必ず安全な場所に保管してください。";
 "backup_complete_title" = "バックアップが完了しました";
