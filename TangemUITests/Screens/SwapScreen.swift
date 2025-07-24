@@ -86,10 +86,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             XCTAssertFalse(youReceiveText.isEmpty, "You receive amount should not be empty")
 
             // Extract numeric value from the text
-            // Remove ~ symbol and any currency symbols, keep only numbers and decimal separators
             let cleanedText = youReceiveText.replacingOccurrences(of: "~", with: "").trimmingCharacters(in: .whitespaces)
 
-            // Handle European decimal format (replace comma with dot) and remove any non-numeric characters except decimal point
+            // Handle European decimal format
             var numericString = cleanedText.replacingOccurrences(of: ",", with: ".")
 
             // Use a more precise regex to keep only digits and a single decimal point
