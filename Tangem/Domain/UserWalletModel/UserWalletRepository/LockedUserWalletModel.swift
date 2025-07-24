@@ -23,7 +23,6 @@ class LockedUserWalletModel: UserWalletModel {
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
-    var signer: TangemSigner
 
     var tokensCount: Int? { nil }
 
@@ -36,6 +35,10 @@ class LockedUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
 
     var emailConfig: EmailConfig? { nil }
+
+    var signer: TangemSigner {
+        fatalError("Should not be called for locked wallets")
+    }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
@@ -103,7 +106,6 @@ class LockedUserWalletModel: UserWalletModel {
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
-        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
