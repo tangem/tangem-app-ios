@@ -31,6 +31,10 @@ class SendNewAmountStep {
     func set(router: SendNewAmountRoutable) {
         viewModel.router = router
     }
+
+    func cancelChanges() {
+        interactorSaver.cancelChanges()
+    }
 }
 
 // MARK: - SendStep
@@ -48,19 +52,13 @@ extension SendNewAmountStep: SendStep {
         interactor.isValidPublisher.eraseToAnyPublisher()
     }
 
-    func saveChangesIfNeeded() {
-        interactorSaver.save()
-    }
-
     func initialAppear() {
         analyticsLogger.logAmountStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
-        let isEditMode = step.type.isSummary
-
-        isEditMode ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
-        interactorSaver.autosave(enabled: !isEditMode)
+        step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
+        interactorSaver.captureValue()
     }
 }
 
