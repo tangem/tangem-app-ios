@@ -14,7 +14,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:TangemUITests.xctestplan"
+            reference = "container:../xcshareddata/TangemUITests.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
