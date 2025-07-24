@@ -11,12 +11,10 @@ import TangemHotSdk
 import TangemSdk
 
 class KeysDerivingHotWalletInteractor {
-    let entropy: Data
-    let passphrase: String
+    let hotWallet: HotWallet
 
-    init(entropy: Data, passphrase: String) {
-        self.entropy = entropy
-        self.passphrase = passphrase
+    init(hotWallet: HotWallet?) { // [REDACTED_TODO_COMMENT]
+        self.hotWallet = hotWallet!
     }
 }
 
@@ -27,33 +25,21 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
         derivations: [Data: [DerivationPath]],
         completion: @escaping (Result<DerivationResult, Error>) -> Void
     ) {
+        let sdk = CommonHotSdk(
+            secureStorage: SecureStorage(),
+            biometricsStorage: BiometricsStorage(),
+            secureEnclaveService: SecureEnclaveService(config: .default)
+        )
+
         let result: Result<DerivationResult, Error> = Result {
-            try derivations.reduce(into: [:]) { result, derivation in
-                let derivedKeys = try deriveKeys(
-                    derivationPaths: derivation.value,
-                    masterKey: derivation.key
-                )
-                result[derivation.key] = derivedKeys
+            // [REDACTED_TODO_COMMENT]
+            let updatedWallet = try sdk.deriveKeys(wallet: hotWallet, auth: nil, derivationPaths: derivations)
+
+            return updatedWallet.wallets.reduce(into: [:]) { partialResult, keyInfo in
+                partialResult[keyInfo.publicKey] = .init(keys: keyInfo.derivedKeys)
             }
         }
 
         completion(result)
-    }
-
-    private func deriveKeys(
-        derivationPaths: [DerivationPath],
-        masterKey: Data
-    ) throws -> DerivedKeys {
-        let keys: [DerivationPath: ExtendedPublicKey] = try derivationPaths.reduce(into: [:]) { partResult, path in
-            let derivedKey = try DerivationUtil.deriveKeys(
-                entropy: entropy,
-                passphrase: passphrase,
-                derivationPath: path.rawPath,
-                masterKey: masterKey
-            )
-            partResult[path] = derivedKey
-        }
-
-        return DerivedKeys(keys: keys)
     }
 }
