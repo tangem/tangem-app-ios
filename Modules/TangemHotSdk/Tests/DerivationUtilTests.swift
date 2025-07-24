@@ -18,7 +18,7 @@ struct DerivationUtilTests {
     func secp256k1DerivationPaths() throws {
         let bitcoinResult = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/84'/0'/0'/0/0",
+            derivationPath: try DerivationPath(rawPath: "m/84'/0'/0'/0/0"),
             curve: .secp256k1
         )
 
@@ -27,7 +27,7 @@ struct DerivationUtilTests {
 
         let ethereumResult = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/44'/60'/0'/0/0",
+            derivationPath: try DerivationPath(rawPath:  "m/44'/60'/0'/0/0"),
             curve: .secp256k1
         )
 
@@ -39,7 +39,7 @@ struct DerivationUtilTests {
     func secp256k1DeriveFromMasterKey() throws {
         let bitcoinResult = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/84'/0'/0'/0/0",
+            derivationPath: try DerivationPath(rawPath: "m/84'/0'/0'/0/0"),
             masterKey: Data(hexString: "0374D0F81F42DDFE34114D533E95E6AE5FE6EA271C96F1FA505199FDC365AE9720"),
         )
 
@@ -62,7 +62,7 @@ struct DerivationUtilTests {
     func edCardanoDerivationPath() throws {
         let result = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/1852'/1815'/0'/0/0",
+            derivationPath: try DerivationPath(rawPath: "m/1852'/1815'/0'/0/0"),
             curve: .ed25519
         )
 
@@ -75,7 +75,7 @@ struct DerivationUtilTests {
     func edCardanoDeriveFromMasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/1852'/1815'/0'/0/0",
+            derivationPath: try DerivationPath(rawPath: "m/1852'/1815'/0'/0/0"),
             masterKey: Data(hexString: "32ea4ee339b0b01233e5f0728d733dc68a26d17a58c140aa23fe1c8eeabd5abe"),
         )
 
@@ -99,7 +99,7 @@ struct DerivationUtilTests {
     func edDerivationPath() throws {
         let result = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/44'/354'/0'/0'/0'",
+            derivationPath: try DerivationPath(rawPath: "m/44'/354'/0'/0'/0'"),
             curve: .ed25519_slip0010
         )
 
@@ -112,7 +112,7 @@ struct DerivationUtilTests {
     func edDeriveFromMasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: "m/44'/354'/0'/0'/0'",
+            derivationPath: try DerivationPath(rawPath: "m/44'/354'/0'/0'/0'"),
             masterKey: Data(hexString: "aac36941b9d4deb53d6c4a8cbadf0c25a509e39c83a7513c85ddf53b37ab4d51"),
         )
 
@@ -145,7 +145,7 @@ struct DerivationUtilTests {
         #expect(throws: HotWalletError.self) {
             try DerivationUtil.deriveKeys(
                 entropy: entropy,
-                derivationPath: "m/44'/0'/0'/0/0",
+                derivationPath: try DerivationPath(rawPath: "m/44'/0'/0'/0/0"),
                 curve: curve
             )
         }
