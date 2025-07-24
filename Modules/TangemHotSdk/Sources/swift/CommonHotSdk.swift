@@ -60,12 +60,12 @@ public final class CommonHotSdk: HotSdk {
         try privateInfoStorage.delete(hotWalletID: id)
     }
 
-    public func updatePasscode(_ newPasscode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
-        try privateInfoStorage.updatePasscode(newPasscode, oldAuth: oldAuth, for: walletID)
+    public func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
+        try privateInfoStorage.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
     }
 
-    public func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws {
-        try privateInfoStorage.enableBiometrics(for: walletID, passcode: passcode, context: context)
+    public func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws {
+        try privateInfoStorage.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
     }
 
     public func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet {
@@ -123,7 +123,7 @@ public final class CommonHotSdk: HotSdk {
             privateInfo.clear()
         }
 
-        var wallets: [HotWalletKeyInfo] = []
+        var wallets: [HotWalletKeyInfo] = wallet.wallets
 
         try derivationPaths.forEach { masterKey, derivationPaths in
             try derivationPaths.forEach { path in
@@ -134,8 +134,10 @@ public final class CommonHotSdk: HotSdk {
                     masterKey: masterKey
                 )
 
-                var wallet = wallet.wallets.first { $0.publicKey == masterKey }
-                wallet?.derivedKeys[path] = derivedPublicKey
+                guard let walletIndex = wallet.wallets.firstIndex(where: { $0.publicKey == masterKey }) else {
+                    return
+                }
+                wallets[walletIndex].derivedKeys[path] = derivedPublicKey
             }
         }
 
