@@ -120,7 +120,7 @@ extension UserWalletConfig where Self: CardContainer {
     }
 
     var tangemSigner: TangemSigner {
-        .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
     var isWalletsCreated: Bool {
