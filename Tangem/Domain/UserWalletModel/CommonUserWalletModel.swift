@@ -32,8 +32,6 @@ class CommonUserWalletModel {
 
     private let walletManagersRepository: WalletManagersRepository
 
-    var signer: TangemSigner { _signer }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
@@ -48,12 +46,6 @@ class CommonUserWalletModel {
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private var signSubscription: AnyCancellable?
-    private var _signer: TangemSigner {
-        didSet {
-            bindSigner()
-        }
-    }
 
     init(
         walletInfo: WalletInfo,
@@ -85,12 +77,9 @@ class CommonUserWalletModel {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
 
-        _signer = config.tangemSigner
         _userWalletNamePublisher = .init(name)
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         appendPersistentBlockchains()
-        bind()
-
         userTokensManager.sync {}
     }
 
@@ -119,38 +108,6 @@ class CommonUserWalletModel {
         }
 
         userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
-    }
-
-    // MARK: - Update
-
-    // [REDACTED_TODO_COMMENT]
-    func onSigned(_ card: Card) {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            var mutableCardInfo = cardInfo
-            for updatedWallet in card.wallets {
-                mutableCardInfo.card.wallets[updatedWallet.publicKey]?.totalSignedHashes = updatedWallet.totalSignedHashes
-                mutableCardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
-            }
-
-            walletInfo = .cardWallet(mutableCardInfo)
-            config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
-            userWalletRepository.save(userWalletModel: self)
-            _updatePublisher.send()
-        case .mobileWallet(let hotWalletInfo):
-            return
-        }
-    }
-
-    private func bind() {
-        bindSigner()
-    }
-
-    private func bindSigner() {
-        signSubscription = _signer.signPublisher
-            .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
-                self?.onSigned(card)
-            }
     }
 }
 
@@ -185,6 +142,10 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var hasBackupCards: Bool {
         walletInfo.hasBackupCards
+    }
+
+    var signer: TangemSigner {
+        config.tangemSigner
     }
 
     var cardsCount: Int {
@@ -244,7 +205,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
                 config = UserWalletConfigFactory().makeConfig(cardInfo: mutableCardInfo)
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
-                _signer = config.tangemSigner
                 // prevent save until onboarding completed
                 if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
                     userWalletRepository.save(userWalletModel: self)

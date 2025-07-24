@@ -127,8 +127,11 @@ private extension StakingTransactionDispatcher {
             )
         }
 
-        let signer = transactionSigner.latestSigner.value
-        return TransactionDispatcherResultMapper().mapResult(result.result, blockchain: walletModel.tokenItem.blockchain, signer: signer)
+        return TransactionDispatcherResultMapper().mapResult(
+            result.result,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType
+        )
     }
 }
 
