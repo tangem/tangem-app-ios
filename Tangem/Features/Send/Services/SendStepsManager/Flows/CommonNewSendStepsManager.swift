@@ -120,6 +120,15 @@ extension CommonNewSendStepsManager: SendStepsManager {
     }
 
     func performBack() {
+        switch currentStep().type {
+        case .newAmount where isEditAction:
+            amountStep.cancelChanges()
+        case .newDestination where isEditAction:
+            destinationStep.cancelChanges()
+        default:
+            break
+        }
+
         back()
     }
 
