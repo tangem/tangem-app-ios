@@ -22,34 +22,34 @@ public protocol HotSdk {
     /// Deletes a hot wallet.
     func delete(id: HotWalletID) throws
 
-    /// Updates the passcode for a hot wallet.
+    /// Updates the accessCode for a hot wallet.
     ///  - Parameters:
-    /// - `newPasscode`: The new passcode to set for the wallet.
-    /// - `oldAuth`: The old passcode or biometrics to unlock encrypted data. (could be nil if the wallet is not protected by passcode yet)
-    /// - `walletID`: The identifier of the wallet for which the passcode is being updated.
-    ///  - Throws: An error if the passcode update fails, such as if
+    /// - `newAccessCode`: The new accessCode to set for the wallet.
+    /// - `oldAuth`: The old accessCode or biometrics to unlock encrypted data. (could be nil if the wallet is not protected by accessCode yet)
+    /// - `walletID`: The identifier of the wallet for which the accessCode is being updated.
+    ///  - Throws: An error if the accessCode update fails, such as if
     /// the old authentication data is incorrect or if the wallet is missing
-    func updatePasscode(_ newPasscode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws
+    func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws
 
     /// Enables biometrics for a hot wallet.
     /// - Parameters:
     /// - `walletID`: The identifier of the wallet for which biometrics are being enabled.
-    /// - `passcode`: The passcode to unlock encrypted data before enabling biometrics.
+    /// - `accessCode`: The accessCode to unlock encrypted data before enabling biometrics.
     /// - `context`: The `LAContext` used for biometric authentication.
-    /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the passcode is incorrect.
-    func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws
+    /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the accessCode is incorrect.
+    func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws
 
     /// Derives master keys for a hot wallet.
     /// - Parameters:
     /// - `walletID`: The identifier of the wallet for which master keys are being derived
-    /// - `auth`: The authentication data used to unlock the wallet, such as a passcode or biometrics.
+    /// - `auth`: The authentication data used to unlock the wallet, such as a accessCode or biometrics.
     /// - Returns: A `HotWallet` object containing the derived master keys.
     func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet
     
     /// Derives keys for a hot wallet based on specified derivation paths.
     /// - Parameters:
     /// - `wallet`: The hot wallet for which keys are being derived.
-    /// - `auth`: The authentication data used to unlock the wallet, such as a passcode or biometrics.
+    /// - `auth`: The authentication data used to unlock the wallet, such as a accessCode or biometrics.
     /// - `derivationPaths`: A dictionary mapping key types to their respective derivation paths
     /// - Returns: A `HotWallet` object containing the derived keys.
     func deriveKeys(
