@@ -39,7 +39,19 @@ public protocol HotSdk {
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the passcode is incorrect.
     func enableBiometrics(for walletID: HotWalletID, passcode: String, context: LAContext) throws
 
+    /// Derives master keys for a hot wallet.
+    /// - Parameters:
+    /// - `walletID`: The identifier of the wallet for which master keys are being derived
+    /// - `auth`: The authentication data used to unlock the wallet, such as a passcode or biometrics.
+    /// - Returns: A `HotWallet` object containing the derived master keys.
     func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet
+    
+    /// Derives keys for a hot wallet based on specified derivation paths.
+    /// - Parameters:
+    /// - `wallet`: The hot wallet for which keys are being derived.
+    /// - `auth`: The authentication data used to unlock the wallet, such as a passcode or biometrics.
+    /// - `derivationPaths`: A dictionary mapping key types to their respective derivation paths
+    /// - Returns: A `HotWallet` object containing the derived keys.
     func deriveKeys(
         wallet: HotWallet,
         auth: AuthenticationUnlockData?,
