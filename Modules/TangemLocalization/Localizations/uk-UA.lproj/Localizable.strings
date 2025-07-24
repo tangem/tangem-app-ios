@@ -1384,7 +1384,7 @@
 "warning_system_update_title" = "Доступне оновлення системи";
 "warning_testnet_card_message" = "Це картка Testnet. Вона не може обробляти транзакції і повинна використовуватися лише для тестування та розробки.";
 "warning_testnet_card_title" = "Лише для цілей тестування";
-"warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your %2$@ account to associate this token";
+"warning_token_required_min_coin_reserve" = "Недостатньо %1$@. Поповніть свій рахунок %2$@, щоб прив’язати цей токен.";
 "warning_token_trustline_button_title" = "Відкрити Trustline";
 "warning_token_trustline_subtitle" = "Відповідно до правил мережі, щоб поповнити цей токен, спочатку потрібно відкрити Trustline — це дозволить вашому гаманцю приймати та зберігати цей актив.";
 "warning_token_trustline_title" = "Відкрийте Trustline";

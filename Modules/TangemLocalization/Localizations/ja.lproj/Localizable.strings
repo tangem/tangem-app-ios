@@ -10,8 +10,8 @@
 "access_code_create_description" = "ウォレットのロックを解除するには、 %@桁のアクセスコードを設定します。";
 "access_code_create_title" = "アクセスコードの作成";
 "access_code_navtitle" = "アクセスコード";
-"accessibility_action_long_press" = "Long press";
-"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"accessibility_action_long_press" = "長押し";
+"accessibility_hint_access_more_actions" = "上または下にスワイプして、他のアクションにアクセス";
 "action_buttons_buy_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して買付できるようにします。";
 "action_buttons_buy_navigation_bar_title" = "買付";
 "action_buttons_sell_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して売却できるようにします。";

@@ -79,7 +79,7 @@
 "backup_info_save_description" = "Save these %@ words in a secure location, such as a password manager, and never share them with anyone.";
 "backup_info_save_title" = "No Recovery Possible";
 "backup_info_title" = "Recovery phrase";
-"backup_seed_caution" = "Ne partagez jamais ces mots. Quiconque les apprend peut voler toutes vos cryptomonnaies. Tangem ne vous les demandera jamais. Les %@ mots ci-dessous constituent la phrase de récupération de votre portefeuille. Cette phrase vous permet de récupérer votre portefeuille en cas de perte de votre appareil.";
+"backup_seed_caution" = "Never share these words. Anyone who learns them can steal all of your crypto. Tangem will never ask you for them. The %@ words below are your wallet's recovery phrase. This phrase lets you recover your wallet if you lose your device.";
 "backup_seed_description" = "Write down these %@ words in order and keep them safe and private";
 "backup_seed_responsibility" = "Full responsibility for the security and backup of the wallet and recovery phrase lies with the user, not with Tangem.";
 "backup_seed_title" = "Recovery phrase";
@@ -1384,7 +1384,7 @@
 "warning_system_update_title" = "Mise à jour du système disponible";
 "warning_testnet_card_message" = "Il s'agit d'une carte Testnet. Elle ne peut pas traiter les transactions et ne doit être utilisée qu'à des fins de test et de développement.";
 "warning_testnet_card_title" = "À des fins de test uniquement";
-"warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your %2$@ account to associate this token";
+"warning_token_required_min_coin_reserve" = "Pas assez de %1$@. Rechargez votre compte %2$@ pour associer ce jeton.";
 "warning_token_trustline_button_title" = "Enable Trustline";
 "warning_token_trustline_subtitle" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
 "warning_token_trustline_title" = "Trustline Required";
