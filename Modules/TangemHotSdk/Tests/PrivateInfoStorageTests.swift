@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  PrivateInfoStorageTests.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -42,48 +42,48 @@ struct PrivateInfoStorageTests {
     }
 
     @Test
-    func testUpdatePasscodeSuccess() throws {
+    func testUpdateAccessCodeSuccess() throws {
         let storage = makeStorage()
         let walletID = HotWalletID()
 
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updatePasscode("passcode", oldAuth: nil, for: walletID)
+        try storage.updateAccessCode("accessCode", oldAuth: nil, for: walletID)
 
-        try storage.updatePasscode("newPasscode", oldAuth: .passcode("passcode"), for: walletID)
+        try storage.updateAccessCode("newAccessCode", oldAuth: .accessCode("accessCode"), for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, auth: .passcode("newPasscode"))
+        let result = try storage.getPrivateInfoData(for: walletID, auth: .accessCode("newAccessCode"))
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
 
     @Test
-    func testUpdateInvalidPasscodeFail() throws {
+    func testUpdateInvalidAccessCodeFail() throws {
         let storage = makeStorage()
         let walletID = HotWalletID()
 
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updatePasscode("passcode", oldAuth: nil, for: walletID)
+        try storage.updateAccessCode("accessCode", oldAuth: nil, for: walletID)
 
         #expect(throws: Error.self, performing: {
-            try storage.updatePasscode("newPasscode", oldAuth: .passcode("invalidPasscode"), for: walletID)
+            try storage.updateAccessCode("newAccessCode", oldAuth: .accessCode("invalidAccessCode"), for: walletID)
         })
     }
 
     @Test
-    func testSetBiometricWithValidPasscodeSuccess() throws {
+    func testSetBiometricWithValidAccessCodeSuccess() throws {
         let storage = makeStorage()
         let walletID = HotWalletID()
 
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updatePasscode("passcode", oldAuth: nil, for: walletID)
+        try storage.updateAccessCode("accessCode", oldAuth: nil, for: walletID)
 
-        try storage.enableBiometrics(for: walletID, passcode: "passcode", context: LAContext())
+        try storage.enableBiometrics(for: walletID, accessCode: "accessCode", context: LAContext())
 
         let result = try storage.getPrivateInfoData(for: walletID, auth: .biometrics(context: LAContext()))
 
@@ -91,17 +91,17 @@ struct PrivateInfoStorageTests {
     }
 
     @Test
-    func testSetBiometricsWithInvalidPasscodeFail() throws {
+    func testSetBiometricsWithInvalidAccessCodeFail() throws {
         let storage = makeStorage()
         let walletID = HotWalletID()
 
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updatePasscode("passcode", oldAuth: nil, for: walletID)
+        try storage.updateAccessCode("accessCode", oldAuth: nil, for: walletID)
 
         #expect(throws: Error.self, performing: {
-            try storage.enableBiometrics(for: walletID, passcode: "invalidPasscode", context: LAContext())
+            try storage.enableBiometrics(for: walletID, accessCode: "invalidAccessCode", context: LAContext())
         })
     }
 
