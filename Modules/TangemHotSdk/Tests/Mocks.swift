@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Mocks.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
