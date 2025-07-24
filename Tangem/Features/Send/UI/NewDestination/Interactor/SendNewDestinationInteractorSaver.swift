@@ -12,50 +12,40 @@ protocol SendNewDestinationInteractorSaver {
     func update(address: SendAddress?)
     func update(additionalField: SendDestinationAdditionalField)
 
-    func autosave(enabled: Bool)
-    func save()
+    func captureValue()
+    func cancelChanges()
 }
 
 class CommonSendNewDestinationInteractorSaver: SendNewDestinationInteractorSaver {
+    private weak var input: SendDestinationInput?
     private weak var output: SendDestinationOutput?
 
-    private var cachedDestination: SendAddress?
-    private var cachedAdditionalField: SendDestinationAdditionalField
+    private var captureDestination: SendAddress?
+    private var captureAdditionalField: SendDestinationAdditionalField?
 
-    private var isAutosaveEnabled: Bool = true
-
-    init(
-        input: SendDestinationInput,
-        output: SendDestinationOutput
-    ) {
-        cachedDestination = input.destination
-        cachedAdditionalField = input.destinationAdditionalField
-
+    init(input: any SendDestinationInput, output: any SendDestinationOutput) {
+        self.input = input
         self.output = output
     }
 
     func update(address: SendAddress?) {
-        cachedDestination = address
-
-        if isAutosaveEnabled {
-            output?.destinationDidChanged(cachedDestination)
-        }
+        output?.destinationDidChanged(address)
     }
 
     func update(additionalField: SendDestinationAdditionalField) {
-        cachedAdditionalField = additionalField
+        output?.destinationAdditionalParametersDidChanged(additionalField)
+    }
 
-        if isAutosaveEnabled {
-            output?.destinationAdditionalParametersDidChanged(cachedAdditionalField)
+    func captureValue() {
+        captureDestination = input?.destination
+        captureAdditionalField = input?.destinationAdditionalField
+    }
+
+    func cancelChanges() {
+        output?.destinationDidChanged(captureDestination)
+
+        if let captureAdditionalField {
+            output?.destinationAdditionalParametersDidChanged(captureAdditionalField)
         }
-    }
-
-    func autosave(enabled: Bool) {
-        isAutosaveEnabled = enabled
-    }
-
-    func save() {
-        output?.destinationDidChanged(cachedDestination)
-        output?.destinationAdditionalParametersDidChanged(cachedAdditionalField)
     }
 }
