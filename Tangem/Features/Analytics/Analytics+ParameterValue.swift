@@ -21,6 +21,7 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case loading = "Loading"
         case available = "Available"
         case unavailable = "Unavailable"
         case mainToken = "Main Token"
@@ -37,6 +38,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case mobileWallet = "MobileWallet"
         case visa = "Visa"
 
         case main = "Main"
