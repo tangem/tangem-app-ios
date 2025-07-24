@@ -28,7 +28,7 @@ struct PendingExpressTransactionFactory {
         var statusesList: [PendingExpressTransactionStatus] = defaultStatusesList
         var transactionRecord = transactionRecord
         switch params.externalStatus {
-        case .created, .waiting:
+        case .created, .waiting, .exchangeTxSent:
             currentStatus = .awaitingDeposit
         case .confirming:
             currentStatus = .confirming
@@ -44,7 +44,7 @@ struct PendingExpressTransactionFactory {
         case .unknown:
             currentStatus = .unknown
             statusesList = unknownHashStatusesList
-        case .failed, .exchangeTxSent:
+        case .failed:
             currentStatus = .failed
             statusesList = failedStatusesList
         case .txFailed:
