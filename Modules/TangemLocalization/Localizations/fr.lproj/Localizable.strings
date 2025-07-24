@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "Ces mots ne peuvent pas être récupérés en cas de perte. Assurez-vous de les conserver en lieu sûr.";
 "backup_complete_title" = "Backup Completed";
@@ -892,11 +893,15 @@
 "send_tron_account_activation_error" = "%1$@ est un actif du réseau Tron. Pour calculer les frais et effectuer une transaction, déposez du Tron (TRX) sur votre compte.";
 "send_validation_destination_tag_required_description" = "Une balise de destination (mémo) est requise pour terminer cette transaction pour l'adresse spécifiée.";
 "send_validation_destination_tag_required_title" = "Étiquette de destination requise";
+"send_with_swap_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Échanger et envoyer";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Will be sent a recipient";
 "send_with_swap_recipient_amount_title" = "Montant à recevoir";
+"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_remove_convert_alert_title" = "Confirm cancelation";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction envoyée";
 "settings_card_settings_footer" = "Scannez la carte/ bague que vous souhaitez configurer.";
@@ -1384,7 +1389,7 @@
 "warning_system_update_title" = "Mise à jour du système disponible";
 "warning_testnet_card_message" = "Il s'agit d'une carte Testnet. Elle ne peut pas traiter les transactions et ne doit être utilisée qu'à des fins de test et de développement.";
 "warning_testnet_card_title" = "À des fins de test uniquement";
-"warning_token_required_min_coin_reserve" = "Not enough %1$@. Top up your %2$@ account to associate this token";
+"warning_token_required_min_coin_reserve" = "Pas assez de %1$@. Rechargez votre compte %2$@ pour associer ce jeton.";
 "warning_token_trustline_button_title" = "Enable Trustline";
 "warning_token_trustline_subtitle" = "A Trustline must be enabled to receive this token. The network requires a %1$@ %2$@ reserve.";
 "warning_token_trustline_title" = "Trustline Required";
