@@ -49,8 +49,6 @@ enum HDNodeUtil {
                             curve: curve,
                         )
                     }
-
-
                 }
             }
         }
@@ -66,7 +64,7 @@ enum HDNodeUtil {
         curve: EllipticCurve
     ) throws -> HDNode {
         var node = HDNode()
-        
+
         let result = switch curve {
         case .ed25519:
             entropy_to_hdnode_cardano(
@@ -92,11 +90,11 @@ enum HDNodeUtil {
         default:
             throw HotWalletError.invalidCurve(curve)
         }
-        
+
         if !result {
             throw HotWalletError.failedToDeriveKey
         }
-        
+
         return node
     }
 }
