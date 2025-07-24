@@ -24,16 +24,15 @@ protocol SendNewDestinationInteractor {
 
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
-    func preloadTransactionsHistoryIfNeeded()
 
-    func saveChanges()
+    func preloadTransactionsHistoryIfNeeded()
 }
 
 class CommonSendNewDestinationInteractor {
     private weak var input: SendDestinationInput?
-    private weak var output: SendDestinationOutput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
+    private var saver: SendNewDestinationInteractorSaver
     private var dependenciesBuilder: SendNewDestinationInteractorDependenciesProvider
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
@@ -48,25 +47,19 @@ class CommonSendNewDestinationInteractor {
     private let _suggestedWallets: CurrentValueSubject<[SendSuggestedDestinationWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendSuggestedDestinationTransactionRecord], Never> = .init([])
 
-    private let _cachedDestination: CurrentValueSubject<SendAddress?, Never>
-    private let _cachedAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
-
     private var updatingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
         input: SendDestinationInput,
-        output: SendDestinationOutput,
         receiveTokenInput: SendReceiveTokenInput,
+        saver: SendNewDestinationInteractorSaver,
         dependenciesBuilder: SendNewDestinationInteractorDependenciesProvider
     ) {
         self.input = input
-        self.output = output
         self.receiveTokenInput = receiveTokenInput
+        self.saver = saver
         self.dependenciesBuilder = dependenciesBuilder
-
-        _cachedDestination = .init(input.destination)
-        _cachedAdditionalField = .init(input.destinationAdditionalField)
 
         bind()
     }
@@ -94,7 +87,7 @@ class CommonSendNewDestinationInteractor {
         case .success(.none), .success(.empty):
             _destinationValid.send(false)
             _destinationError.send(.none)
-            _cachedDestination.send(.none)
+            saver.update(address: .none)
 
         case .success(.some(let address)):
             assert(!address.isEmpty, "Had to fall in case above")
@@ -102,13 +95,13 @@ class CommonSendNewDestinationInteractor {
             _destinationValid.send(true)
             _destinationError.send(.none)
             dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
-            _cachedDestination.send(.init(value: address, source: source))
+            saver.update(address: .init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
             _destinationError.send(error)
             dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
-            _cachedDestination.send(.none)
+            saver.update(address: .none)
         }
     }
 
@@ -224,13 +217,13 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
     func update(additionalField value: String) {
         guard let type = dependenciesBuilder.additionalFieldType else {
             assertionFailure("This method don't have to be called if additionalFieldType is nil")
-            _cachedAdditionalField.send(.notSupported)
+            saver.update(additionalField: .notSupported)
             _additionalFieldValid.send(true)
             return
         }
 
         guard !value.isEmpty else {
-            output?.destinationAdditionalParametersDidChanged(.empty(type: type))
+            saver.update(additionalField: .empty(type: type))
             _destinationAdditionalFieldError.send(nil)
             _additionalFieldValid.send(true)
             return
@@ -238,23 +231,18 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
 
         do {
             let type = try proceed(additionalField: value)
-            _cachedAdditionalField.send(type)
+            saver.update(additionalField: type)
             _destinationAdditionalFieldError.send(nil)
             _additionalFieldValid.send(true)
         } catch {
             _destinationAdditionalFieldError.send(error)
-            _cachedAdditionalField.send(.empty(type: type))
+            saver.update(additionalField: .empty(type: type))
             _additionalFieldValid.send(false)
         }
     }
 
     func preloadTransactionsHistoryIfNeeded() {
         dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
-    }
-
-    func saveChanges() {
-        output?.destinationDidChanged(_cachedDestination.value)
-        output?.destinationAdditionalParametersDidChanged(_cachedAdditionalField.value)
     }
 }
 
