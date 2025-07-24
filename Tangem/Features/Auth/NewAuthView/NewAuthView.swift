@@ -78,7 +78,7 @@ private extension NewAuthView {
                 .renderingMode(.template)
                 .aspectRatio(contentMode: .fit)
                 .foregroundColor(Colors.Icon.primary1)
-                .frame(width: 87, height: 18)
+                .frame(width: 86, height: 18)
 
             Spacer()
 

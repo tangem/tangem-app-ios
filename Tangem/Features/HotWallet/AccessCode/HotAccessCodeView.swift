@@ -56,11 +56,11 @@ private extension HotAccessCodeView {
     func infoView(state: ViewModel.InfoState) -> some View {
         switch state {
         case .warning(let item):
-            InfoWarningView(item: item)
+            infoWarningView(item: item)
         }
     }
 
-    func InfoWarningView(item: ViewModel.InfoWarningItem) -> some View {
+    func infoWarningView(item: ViewModel.InfoWarningItem) -> some View {
         Text(item.title)
             .style(Fonts.Regular.footnote, color: Colors.Text.warning)
             .multilineTextAlignment(.center)

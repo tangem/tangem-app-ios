@@ -52,7 +52,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeStorage {
     }
 }
 
-// MARK: - CommonHotAccessCodeValidator
+// MARK: - HotAccessCodeValidator
 
 extension CommonHotAccessCodeManager: HotAccessCodeValidator {
     func isValid(accessCode: String) -> Bool {
