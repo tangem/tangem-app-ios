@@ -76,7 +76,7 @@ enum WalletInfo: Codable {
         case .cardWallet(let cardInfo):
             KeysDerivingCardInteractor(with: cardInfo)
         case .mobileWallet:
-            KeysDerivingHotWalletInteractor(entropy: Data(), passphrase: "")
+            KeysDerivingHotWalletInteractor(hotWallet: nil) // [REDACTED_TODO_COMMENT]
         }
     }
 }

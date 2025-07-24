@@ -10,10 +10,10 @@ import Foundation
 import LocalAuthentication
 import TangemSdk
 
-protocol HotBiometricsStorage {
+public protocol HotBiometricsStorage {
     func get(_ account: String, context: LAContext?) throws -> Data?
     func store(_ object: Data, forKey account: String, overwrite: Bool) throws
-    func delete(_ account : String) throws
+    func delete(_ account: String) throws
 }
 
 extension HotBiometricsStorage {
