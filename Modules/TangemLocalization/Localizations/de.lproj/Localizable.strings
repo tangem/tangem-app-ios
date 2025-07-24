@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "Du hast Deine Wallet erfolgreich gesichert.";
 "backup_complete_seed_description" = "Diese Wörter können bei Verlust nicht wiederhergestellt werden. Bewahre diese an einem sicheren Ort auf.";
 "backup_complete_title" = "Sicherung abgeschlossen";
@@ -893,6 +894,10 @@
 "send_validation_destination_tag_required_description" = "Um diese Transaktion für die angegebene Adresse abzuschließen, ist ein Ziel-Tag (Memo) erforderlich.";
 "send_validation_destination_tag_required_title" = "Ziel-Tag erforderlich";
 "send_with_swap_confirm_title" = "Tauschen und senden";
+"send_with_swap_convertation_cancel_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_convertation_cancel_alert_title" = "Confirm cancelation";
+"send_with_swap_convertation_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_convertation_change_token_alert_title" = "Changing token";
 "send_with_swap_notification_text" = "Sende uns ein Token, und wir konvertieren es unterwegs. Dein Empfänger erhält genau das, was er braucht – nahtlos.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Wird an den Empfänger gesendet";
