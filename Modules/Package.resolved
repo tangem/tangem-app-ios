@@ -1,5 +1,5 @@
 {
-  "originHash" : "675874a081348bea80841ccf0762d9426d56bd09e788fc4f32512d060db8c48c",
+  "originHash" : "9090f125e7a95e20c36080391a6225d887c791475bc3a962921692c4e592f4ca",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "ad6b5f17270a7008f60d35ec5378e6144a575162",
-        "version" : "2.84.0"
+        "revision" : "ba72f31e11275fc5bf060c966cf6c1f36842a291",
+        "version" : "2.79.0"
       }
     },
     {
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "f1f6f772198bee35d99dd145f1513d8581a54f2c",
-        "version" : "1.26.0"
+        "revision" : "00f3f72d2f9942d0e2dc96057ab50a37ced150d4",
+        "version" : "1.25.0"
       }
     },
     {
@@ -294,8 +294,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "5ca52e2f076c6a24451175f575f390569381d6a1",
-        "version" : "1.37.0"
+        "revision" : "170f4ca06b6a9c57b811293cebcb96e81b661310",
+        "version" : "1.35.0"
       }
     },
     {
@@ -303,8 +303,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "36b48956eb6c0569215dc15a587b491d2bb36122",
-        "version" : "2.32.0"
+        "revision" : "0cc3528ff48129d64ab9cab0b1cd621634edfc6b",
+        "version" : "2.29.3"
       }
     },
     {
@@ -312,8 +312,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-transport-services.git",
       "state" : {
-        "revision" : "decfd235996bc163b44e10b8a24997a3d2104b90",
-        "version" : "1.25.0"
+        "revision" : "3c394067c08d1225ba8442e9cffb520ded417b64",
+        "version" : "1.23.1"
       }
     },
     {
