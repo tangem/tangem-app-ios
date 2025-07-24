@@ -113,7 +113,6 @@ final class MainViewModel: ObservableObject {
             Analytics.log(.mainScreenOpened)
         }
 
-        recreatePages()
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
     }
