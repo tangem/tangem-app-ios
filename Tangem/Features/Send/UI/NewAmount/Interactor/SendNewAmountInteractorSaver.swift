@@ -11,38 +11,33 @@ import Foundation
 protocol SendNewAmountInteractorSaver {
     func update(amount: SendAmount?)
 
-    func autosave(enabled: Bool)
-    func save()
+    func captureValue()
+    func cancelChanges()
 }
 
 class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
+    private weak var sourceTokenAmountInput: SendSourceTokenAmountInput?
     private weak var sourceTokenAmountOutput: SendSourceTokenAmountOutput?
-    private var cachedAmount: SendAmount?
 
-    private var isAutosaveEnabled: Bool = true
+    private var captureAmount: SendAmount?
 
     init(
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
-        sourceTokenAmountOutput: SendSourceTokenAmountOutput
+        sourceTokenAmountOutput: any SendSourceTokenAmountOutput
     ) {
-        cachedAmount = sourceTokenAmountInput.amount
-
+        self.sourceTokenAmountInput = sourceTokenAmountInput
         self.sourceTokenAmountOutput = sourceTokenAmountOutput
     }
 
     func update(amount: SendAmount?) {
-        cachedAmount = amount
-
-        if isAutosaveEnabled {
-            save()
-        }
+        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: amount)
     }
 
-    func autosave(enabled: Bool) {
-        isAutosaveEnabled = enabled
+    func captureValue() {
+        captureAmount = sourceTokenAmountInput?.amount
     }
 
-    func save() {
-        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: cachedAmount)
+    func cancelChanges() {
+        sourceTokenAmountOutput?.sourceAmountDidChanged(amount: captureAmount)
     }
 }
