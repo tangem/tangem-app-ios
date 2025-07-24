@@ -22,9 +22,11 @@ struct SendNewDestinationStepBuilder {
         analyticsLogger: any SendDestinationAnalyticsLogger,
         router: SendDestinationRoutable
     ) -> ReturnValue {
+        let interactorSaver = CommonSendNewDestinationInteractorSaver(input: io.input, output: io.output)
         let interactor = makeSendDestinationInteractor(
             io: io,
             receiveTokenInput: receiveTokenInput,
+            interactorSaver: interactorSaver,
             analyticsLogger: analyticsLogger
         )
 
@@ -35,7 +37,12 @@ struct SendNewDestinationStepBuilder {
             router: router
         )
 
-        let step = SendNewDestinationStep(viewModel: viewModel, interactor: interactor, analyticsLogger: analyticsLogger)
+        let step = SendNewDestinationStep(
+            viewModel: viewModel,
+            interactor: interactor,
+            interactorSaver: interactorSaver,
+            analyticsLogger: analyticsLogger
+        )
         let compact = SendNewDestinationCompactViewModel(input: io.input)
         let finish = SendDestinationCompactViewModel(input: io.input, addressTextViewHeightModel: .init())
 
@@ -47,12 +54,13 @@ private extension SendNewDestinationStepBuilder {
     func makeSendDestinationInteractor(
         io: IO,
         receiveTokenInput: SendReceiveTokenInput,
+        interactorSaver: any SendNewDestinationInteractorSaver,
         analyticsLogger: SendDestinationAnalyticsLogger
     ) -> SendNewDestinationInteractor {
         CommonSendNewDestinationInteractor(
             input: io.input,
-            output: io.output,
             receiveTokenInput: receiveTokenInput,
+            saver: interactorSaver,
             dependenciesBuilder: builder.makeSendNewDestinationInteractorDependenciesProvider(
                 analyticsLogger: analyticsLogger
             ),
