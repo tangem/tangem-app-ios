@@ -80,32 +80,6 @@ class BaseTestCase: XCTestCase {
             }
         }
     }
-
-    /// Change scenario state during test
-    func setScenarioState(_ scenarioName: String, state: String) {
-        XCTContext.runActivity(named: "Set scenario '\(scenarioName)' to state '\(state)'") { _ in
-            wireMockClient.setScenarioStateSync(scenarioName, state: state)
-            activeScenarios[scenarioName] = state
-        }
-    }
-
-    /// Reset scenario to "Started" state
-    func resetScenario(_ scenarioName: String) {
-        XCTContext.runActivity(named: "Reset scenario '\(scenarioName)'") { _ in
-            wireMockClient.resetScenarioSync(scenarioName)
-            activeScenarios[scenarioName] = "Started"
-        }
-    }
-
-    /// Reset all active scenarios
-    func resetAllScenarios() {
-        XCTContext.runActivity(named: "Reset all WireMock scenarios") { _ in
-            wireMockClient.resetAllScenariosSync()
-            for key in activeScenarios.keys {
-                activeScenarios[key] = "Started"
-            }
-        }
-    }
 }
 
 extension XCUIApplication {
