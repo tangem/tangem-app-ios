@@ -156,12 +156,10 @@ extension VisaConfig: UserWalletConfig {
 
 extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return VisaOnboardingStepsBuilder(
             cardId: card.cardId,
-            isPushNotificationsAvailable: isPushNotificationsAvailable,
             isAccessCodeSet: card.isAccessCodeSet,
             activationLocalState: activationLocalState
         )
