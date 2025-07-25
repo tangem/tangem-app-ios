@@ -57,6 +57,7 @@ extension Analytics {
         case status = "Status"
         case option
         case feeType = "Fee Type"
+        case nonce = "Nonce"
         case permissionType = "Permission Type"
         case validation = "Validation"
         case memo = "Memo"
