@@ -142,7 +142,7 @@ extension HotUserWalletConfig: UserWalletConfig {
         CommonMainHeaderProviderFactory()
     }
 
-    func makeOnboardingStepsBuilder(backupService: BackupService, isPushNotificationsAvailable: Bool) -> any OnboardingStepsBuilder {
+    func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder {
         #warning("Add asset")
         fatalError("Unimplemented")
     }
