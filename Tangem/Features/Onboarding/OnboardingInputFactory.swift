@@ -34,12 +34,10 @@ class OnboardingInputFactory {
         }
 
         let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
         let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
-            backupService: backupService,
-            isPushNotificationsAvailable: availabilityProvider.isAvailable
+            backupService: backupService
         )
         let steps = stepsBuilder.buildOnboardingSteps()
 
@@ -71,8 +69,7 @@ class OnboardingInputFactory {
         }
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
-            backupService: backupService,
-            isPushNotificationsAvailable: false
+            backupService: backupService
         )
         guard let steps = stepsBuilder.buildBackupSteps() else {
             return nil
