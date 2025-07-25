@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemExpress
+import BlockchainSdk
 
 class CommonSendAnalyticsLogger {
     private weak var sendFeeInput: SendFeeInput?
@@ -164,11 +165,18 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         default: .sendTransactionSentScreenOpened
         }
 
-        Analytics.log(event: event, params: [
+        var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeTypeAnalyticsParameter.rawValue,
-        ])
+        ]
+
+        if let parameters = sendFeeInput?.selectedFee.value.value?.parameters as? EthereumFeeParameters,
+           let nonce = parameters.nonce {
+            analyticsParameters[.nonce] = String(nonce)
+        }
+
+        Analytics.log(event: event, params: analyticsParameters)
     }
 }
 
