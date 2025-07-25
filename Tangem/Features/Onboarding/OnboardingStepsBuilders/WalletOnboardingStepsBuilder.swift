@@ -17,19 +17,17 @@ struct WalletOnboardingStepsBuilder {
     private let canBackup: Bool
     private let hasBackup: Bool
     private let canSkipBackup: Bool
-    private let isPushNotificationsAvailable: Bool
     private let backupService: BackupService
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [WalletOnboardingStep] {
         var steps: [WalletOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
@@ -74,7 +72,6 @@ struct WalletOnboardingStepsBuilder {
         canBackup: Bool,
         hasBackup: Bool,
         canSkipBackup: Bool,
-        isPushNotificationsAvailable: Bool,
         backupService: BackupService
     ) {
         self.cardId = cardId
@@ -84,7 +81,6 @@ struct WalletOnboardingStepsBuilder {
         self.canBackup = canBackup
         self.hasBackup = hasBackup
         self.canSkipBackup = canSkipBackup
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
         self.backupService = backupService
     }
 }
