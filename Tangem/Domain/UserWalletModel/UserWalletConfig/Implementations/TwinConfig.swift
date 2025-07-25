@@ -186,14 +186,12 @@ extension TwinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return TwinOnboardingStepsBuilder(
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
-            twinData: twinData,
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            twinData: twinData
         )
     }
 
