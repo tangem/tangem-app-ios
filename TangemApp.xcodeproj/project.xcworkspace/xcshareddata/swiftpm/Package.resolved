@@ -1,5 +1,5 @@
 {
-  "originHash" : "2ceb6cad1d1f8f552d85a8c2ceebd89e54d0cfaaff1980e41c0a7791561bd7ef",
+  "originHash" : "ff1ddd0ef49d687dcec5cec343f9b712ceb9f93d9ca13c28d5f52b78302f9dee",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -655,7 +655,7 @@
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
         "branch" : "feature/IOS-9480_migrate_bsdk_to_spm",
-        "revision" : "c8e2c5e28b0b014e2a449cb7eb98a508e7c8f20b"
+        "revision" : "4e962f0624ae69bde5d1688e7f293a04f359530f"
       }
     },
     {
