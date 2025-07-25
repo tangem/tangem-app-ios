@@ -12,10 +12,15 @@ import TangemSdk
 class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    var shouldOpenBiometry: Bool {
-        AppSettings.shared.saveUserWallets
-            && userWalletRepository.models.isNotEmpty
-            && BiometricsUtil.isAvailable
+    var shouldOpenAuthScreen: Bool {
+        if FeatureProvider.isAvailable(.hotWallet) {
+            AppSettings.shared.saveUserWallets
+                && userWalletRepository.models.isNotEmpty
+        } else {
+            AppSettings.shared.saveUserWallets
+                && userWalletRepository.models.isNotEmpty
+                && BiometricsUtil.isAvailable
+        }
     }
 
     func getStartupOption() -> StartupOption {
@@ -23,7 +28,7 @@ class StartupProcessor {
             return .uncompletedBackup
         }
 
-        if shouldOpenBiometry {
+        if shouldOpenAuthScreen {
             return .auth
         }
 
