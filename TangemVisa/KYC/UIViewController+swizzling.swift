@@ -6,8 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import IdensicMobileSDK
+#if ALPHA || BETA || DEBUG
 import SwiftUI
+import IdensicMobileSDK
 
 extension UIViewController {
     static func toggleKYCSDKControllersSwizzling() {
@@ -112,3 +113,4 @@ private struct UIViewControllerWrapper: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
+#endif // ALPHA || BETA || DEBUG
