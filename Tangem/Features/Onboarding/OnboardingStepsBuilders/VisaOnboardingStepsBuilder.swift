@@ -12,20 +12,18 @@ import TangemVisa
 
 struct VisaOnboardingStepsBuilder {
     private let cardId: String
-    private let isPushNotificationsAvailable: Bool
     private let isAccessCodeSet: Bool
     private let activationLocalState: VisaCardActivationLocalState
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [VisaOnboardingStep] {
         var steps: [VisaOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
@@ -46,12 +44,10 @@ struct VisaOnboardingStepsBuilder {
 
     init(
         cardId: String,
-        isPushNotificationsAvailable: Bool,
         isAccessCodeSet: Bool,
         activationLocalState: VisaCardActivationLocalState
     ) {
         self.cardId = cardId
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
         self.isAccessCodeSet = isAccessCodeSet
         self.activationLocalState = activationLocalState
     }
