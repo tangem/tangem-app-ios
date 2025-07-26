@@ -13,18 +13,16 @@ struct TwinOnboardingStepsBuilder {
     private let cardId: String
     private let hasWallets: Bool
     private let twinData: TwinData
-    private let isPushNotificationsAvailable: Bool
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [TwinsOnboardingStep] {
         var steps: [TwinsOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
@@ -34,13 +32,11 @@ struct TwinOnboardingStepsBuilder {
     init(
         cardId: String,
         hasWallets: Bool,
-        twinData: TwinData,
-        isPushNotificationsAvailable: Bool
+        twinData: TwinData
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
         self.twinData = twinData
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 
