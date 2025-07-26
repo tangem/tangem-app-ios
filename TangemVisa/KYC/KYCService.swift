@@ -6,9 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+#if ALPHA || BETA || DEBUG
 import Combine
-import IdensicMobileSDK
 import SwiftUI
+import IdensicMobileSDK
 
 enum KYCServiceError: Error {
     case sdkIsNotReady
@@ -106,3 +107,4 @@ public extension KYCService {
         try await KYCService(getToken: getToken)
     }
 }
+#endif // ALPHA || BETA || DEBUG
