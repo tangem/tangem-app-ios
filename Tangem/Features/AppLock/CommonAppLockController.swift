@@ -40,7 +40,7 @@ extension CommonAppLockController: AppLockController {
     }
 
     func unlockApp() async -> UnlockResult {
-        guard startupProcessor.shouldOpenBiometry else {
+        guard startupProcessor.shouldOpenAuthScreen else {
             return .openWelcome
         }
 
