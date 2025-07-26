@@ -148,12 +148,10 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return Start2CoinOnboardingStepsBuilder(
-            hasWallets: !card.wallets.isEmpty,
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            hasWallets: !card.wallets.isEmpty
         )
     }
 
