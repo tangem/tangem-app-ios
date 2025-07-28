@@ -392,8 +392,18 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput) -> CommonSendFeeProvider {
-        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader())
+    func makeSendFeeProvider(input: any SendFeeProviderInput) -> SendFeeProvider {
+        var options = makeFeeOptions()
+
+        if makeCustomFeeService(input: input) != nil {
+            options.append(.custom)
+        }
+
+        return CommonSendFeeProvider(
+            input: input,
+            feeLoader: makeSendFeeLoader(),
+            defaultFeeOptions: options
+        )
     }
 
     func makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: (any CustomFeeService)?) -> FeeSelectorCustomFeeFieldsBuilder {
@@ -424,6 +434,7 @@ struct SendDependenciesBuilder {
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            sendAlertBuilder: makeSendAlertBuilder(),
             swapManager: swapManager,
             predefinedValues: predefinedValues
         )
