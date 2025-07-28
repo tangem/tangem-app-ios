@@ -178,9 +178,9 @@ enum SwapScreenElement: String, UIElement {
         case .feeSelectorTitle:
             return SwapAccessibilityIdentifiers.feeSelectorTitle
         case .normalFeeOption:
-            return SwapAccessibilityIdentifiers.normalFeeOption
+            return FeeAccessibilityIdentifiers.marketFeeOption
         case .priorityFeeOption:
-            return SwapAccessibilityIdentifiers.priorityFeeOption
+            return FeeAccessibilityIdentifiers.fastFeeOption
         }
     }
 }
