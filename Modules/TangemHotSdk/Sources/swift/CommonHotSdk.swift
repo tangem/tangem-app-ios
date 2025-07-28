@@ -11,7 +11,7 @@ import TangemSdk
 import LocalAuthentication
 
 public final class CommonHotSdk: HotSdk {
-    private let privateInfoStorage: PrivateInfoStorage
+    private let privateInfoStorageManager: PrivateInfoStorageManager
     
     public convenience init() {
         self.init(
@@ -24,16 +24,16 @@ public final class CommonHotSdk: HotSdk {
         secureStorage: HotSecureStorage,
         secureEnclaveService: HotSecureEnclaveService
     ) {
-        privateInfoStorage = PrivateInfoStorage(
+        privateInfoStorageManager = PrivateInfoStorageManager(
             secureStorage: secureStorage,
-            accessCodeSecureEnclaveService: secureEnclaveService
+            accessCodeSecureEnclaveService: SecureEnclaveService(config: .default)
         )
     }
 
     public func importWallet(entropy: Data, passphrase: String) throws -> HotWalletID {
         let walletID = HotWalletID()
-
-        try privateInfoStorage.storeUnsecured(
+        
+        try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
             walletID: walletID
         )
@@ -47,7 +47,7 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func exportPrivateInfo(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> PrivateInfo {
-        let privateInfo = try privateInfoStorage.getPrivateInfoData(for: walletID, auth: auth)
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToExportMnemonic
@@ -62,19 +62,19 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func delete(id: HotWalletID) throws {
-        try privateInfoStorage.delete(hotWalletID: id)
+        try privateInfoStorageManager.delete(hotWalletID: id)
     }
 
     public func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
-        try privateInfoStorage.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
+        try privateInfoStorageManager.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
     }
 
     public func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws {
-        try privateInfoStorage.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
+        try privateInfoStorageManager.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
     }
 
     public func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet {
-        let privateInfo = try privateInfoStorage.getPrivateInfoData(for: walletID, auth: auth)
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToDeriveKey
@@ -118,7 +118,7 @@ public final class CommonHotSdk: HotSdk {
         auth: AuthenticationUnlockData?,
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> HotWallet {
-        let privateInfo = try privateInfoStorage.getPrivateInfoData(for: wallet.id, auth: auth)
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: wallet.id, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToDeriveKey
