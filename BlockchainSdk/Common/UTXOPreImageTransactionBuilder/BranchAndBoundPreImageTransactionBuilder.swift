@@ -58,7 +58,7 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         let sorted = outputs.sorted { $0.amount > $1.amount }
         let context = Context(startDate: .now, changeScript: changeScript, destination: destination, fee: fee, total: Int(total))
 
-        logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete))")
+        logger.debug(self, "Start selection in: \(context.startDate.formatted(date: .omitted, time: .complete)) with outputs count: \(outputs.count)")
         let bestVariant = try select(in: context, sorted: sorted)
         logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(context.startDate)) sec with bestVariant: \(String(describing: bestVariant))")
 
