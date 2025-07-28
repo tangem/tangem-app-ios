@@ -1,3 +1,4 @@
+
 //
 //  StoriesScreen.swift
 //  TangemApp
@@ -15,10 +16,29 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
-            scanButton.waitAndTap()
-            let walletButton = app.buttons[name.rawValue]
-            walletButton.waitAndTap()
+            // Wait for scan button with extended timeout
+            guard scanButton.waitForExistence(timeout: .robustUIUpdate) else {
+                XCTFail("Initial scan button not found")
+                return MainScreen(app)
+            }
 
+            // Tap the scan button directly after existence check
+            scanButton.tap()
+
+            // Find the mock wallet button in the alert
+            let walletButton = app.buttons[name.rawValue]
+            guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
+                let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
+                XCTFail("Mock wallet button '\(name.rawValue)' not found in alert. Available buttons: \(availableButtons)")
+                return MainScreen(app)
+            }
+
+            guard walletButton.waitForState(state: .hittable) else {
+                XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
+                return MainScreen(app)
+            }
+
+            walletButton.tap()
             return MainScreen(app)
         }
     }

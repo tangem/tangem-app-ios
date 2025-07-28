@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemStaking
 import TangemStories
 import TangemFoundation
+import UIKit
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -110,6 +111,8 @@ class ServicesManager {
         } else {
             AppSettings.shared.termsOfServicesAccepted = []
         }
+
+        UIView.setAnimationsEnabled(false)
     }
 }
 
