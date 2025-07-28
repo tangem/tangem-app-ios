@@ -13,6 +13,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
+import TangemUIUtils
 
 class SendCoordinator: CoordinatorObject {
     enum DismissOptions {
