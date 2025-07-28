@@ -31,24 +31,11 @@ class CommonSendFeeInteractor {
 
     private let provider: SendFeeProvider
     private let customFeeService: CustomFeeService?
-
     private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
 
-    private let defaultFeeOptions: [FeeOption]
-    private var feeOptions: [FeeOption] {
-        var options = defaultFeeOptions
-        if supportCustomFee {
-            options.append(.custom)
-        }
-        return options
-    }
-
     private var supportCustomFee: Bool {
-        customFeeService != nil
+        provider.feeOptions.contains(.custom)
     }
-
-    private var cryptoAmountSubscription: AnyCancellable?
-    private var destinationAddressSubscription: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -56,13 +43,11 @@ class CommonSendFeeInteractor {
         input: SendFeeInput,
         output: SendFeeOutput,
         provider: SendFeeProvider,
-        defaultFeeOptions: [FeeOption],
         customFeeService: CustomFeeService?
     ) {
         self.input = input
         self.output = output
         self.provider = provider
-        self.defaultFeeOptions = defaultFeeOptions
         self.customFeeService = customFeeService
 
         bind()
@@ -164,11 +149,16 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
         fees.compactMap { mapToFeeSelectorFee(fee: $0) }
     }
 
-    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> {
         feesPublisher
             .withWeakCaptureOf(self)
             .compactMap { interactor, fees in
-                fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+                if fees.contains(where: { $0.value.isLoading }) {
+                    return .loading
+                }
+
+                let selectorFees = fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+                return .success(selectorFees)
             }
             .eraseToAnyPublisher()
     }
@@ -219,17 +209,17 @@ private extension CommonSendFeeInteractor {
     func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>, customFee: Fee?) -> [SendFee] {
         switch feesValue {
         case .loading:
-            return feeOptions.map { SendFee(option: $0, value: .loading) }
+            return provider.feeOptions.map { SendFee(option: $0, value: .loading) }
         case .success(let fees):
             return mapToFees(fees: fees, customFee: customFee)
         case .failure(let error):
-            return feeOptions.map { SendFee(option: $0, value: .failedToLoad(error: error)) }
+            return provider.feeOptions.map { SendFee(option: $0, value: .failedToLoad(error: error)) }
         }
     }
 
     func mapToFees(fees: [SendFee], customFee: Fee?) -> [SendFee] {
         // This filter hides the values if we have not passed the default values
-        var defaultOptions = fees.filter { defaultFeeOptions.contains($0.option) }
+        var defaultOptions = fees.filter { provider.feeOptions.contains($0.option) }
 
         if supportCustomFee {
             let customFee = customFee ?? defaultOptions.first(where: { $0.option == .market })?.value.value

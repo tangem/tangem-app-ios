@@ -7,8 +7,9 @@
 //
 
 import Combine
-import TangemUI
 import Foundation
+import TangemFoundation
+import TangemUI
 
 struct FeeSelectorFee {
     let option: FeeOption
@@ -20,7 +21,7 @@ protocol FeeSelectorContentViewModelInput: AnyObject {
     var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> { get }
 
     var selectorFees: [FeeSelectorFee] { get }
-    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> { get }
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> { get }
 }
 
 protocol FeeSelectorContentViewModelOutput: AnyObject {
