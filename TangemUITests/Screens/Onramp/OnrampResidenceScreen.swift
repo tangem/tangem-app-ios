@@ -16,7 +16,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
     @discardableResult
     func validateResidenceScreenOpened() -> Self {
         XCTContext.runActivity(named: "Validate Residence screen is opened") { _ in
-            XCTAssertTrue(searchField.waitForExistence(timeout: .longUIUpdate), "Residence screen search field should exist")
+            XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Residence screen search field should exist")
         }
         return self
     }
@@ -24,7 +24,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
     @discardableResult
     func searchForCountry(_ countryName: String) -> Self {
         XCTContext.runActivity(named: "Search for country '\(countryName)'") { _ in
-            XCTAssertTrue(searchField.waitForExistence(timeout: .longUIUpdate), "Search field should exist")
+            XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Search field should exist")
             searchField.tap()
             searchField.typeText(countryName)
         }
@@ -34,7 +34,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
     func selectCountry(_ countryName: String) -> OnrampSettingsScreen {
         XCTContext.runActivity(named: "Select country '\(countryName)'") { _ in
             let countryButton = app.buttons[OnrampAccessibilityIdentifiers.countryItem(code: countryName)]
-            XCTAssertTrue(countryButton.waitForExistence(timeout: .longUIUpdate), "Country '\(countryName)' should exist in the list")
+            XCTAssertTrue(countryButton.waitForExistence(timeout: .robustUIUpdate), "Country '\(countryName)' should exist in the list")
             countryButton.waitAndTap()
 
             return OnrampSettingsScreen(app)
@@ -43,7 +43,7 @@ final class OnrampResidenceScreen: ScreenBase<OnrampResidenceScreenElement> {
 
     func dismissResidenceSelector() -> OnrampSettingsScreen {
         XCTContext.runActivity(named: "Dismiss residence screen by swiping down on grabber") { _ in
-            _ = grabber.waitForExistence(timeout: .longUIUpdate)
+            _ = grabber.waitForExistence(timeout: .robustUIUpdate)
             fastSwipeDownOnGrabber()
 
             return OnrampSettingsScreen(app)
