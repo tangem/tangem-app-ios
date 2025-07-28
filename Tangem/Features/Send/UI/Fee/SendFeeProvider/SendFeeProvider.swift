@@ -16,6 +16,9 @@ protocol SendFeeProviderInput: AnyObject {
 }
 
 protocol SendFeeProvider {
+    /// Default supported fee options from provider
+    var feeOptions: [FeeOption] { get }
+
     var fees: LoadingResult<[SendFee], Error> { get }
     var feesPublisher: AnyPublisher<LoadingResult<[SendFee], Error>, Never> { get }
 
@@ -24,13 +27,15 @@ protocol SendFeeProvider {
 
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
-        feesPublisher.map { fees in
-            let feeValues = fees.value ?? []
-            let multipleFeeOptions = feeValues.count > 1
-            let hasError = feeValues.contains { $0.value.error != nil }
+        feesPublisher
+            .filter { !$0.isLoading }
+            .map { fees in
+                let feeValues = fees.value ?? []
+                let multipleFeeOptions = feeValues.count > 1
+                let hasError = feeValues.contains { $0.value.error != nil }
 
-            return multipleFeeOptions && !hasError
-        }
-        .eraseToAnyPublisher()
+                return multipleFeeOptions && !hasError
+            }
+            .eraseToAnyPublisher()
     }
 }
