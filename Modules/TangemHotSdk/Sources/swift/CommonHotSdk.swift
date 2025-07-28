@@ -12,16 +12,21 @@ import LocalAuthentication
 
 public final class CommonHotSdk: HotSdk {
     private let privateInfoStorage: PrivateInfoStorage
+    
+    public convenience init() {
+        self.init(
+            secureStorage: SecureStorage(),
+            secureEnclaveService: SecureEnclaveService(config: .default)
+        )
+    }
 
-    public init(
+    init(
         secureStorage: HotSecureStorage,
-        biometricsStorage: HotBiometricsStorage,
         secureEnclaveService: HotSecureEnclaveService
     ) {
         privateInfoStorage = PrivateInfoStorage(
             secureStorage: secureStorage,
-            biometricsStorage: biometricsStorage,
-            secureEnclaveService: secureEnclaveService
+            accessCodeSecureEnclaveService: secureEnclaveService
         )
     }
 

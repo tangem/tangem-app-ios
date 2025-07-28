@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-public protocol HotSecureStorage {
+protocol HotSecureStorage {
     func get(_ account: String) throws -> Data?
     func store(_ object: Data, forKey account: String, overwrite: Bool) throws
     func delete(_ account: String) throws
