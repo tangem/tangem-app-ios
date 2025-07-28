@@ -26,7 +26,7 @@ struct ExpressFeeSelectorView: View {
 
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
                 FeeRowView(viewModel: feeRowViewModel)
-                    .accessibilityIdentifier(feeRowViewModel.option == .market ? SwapAccessibilityIdentifiers.normalFeeOption : SwapAccessibilityIdentifiers.priorityFeeOption)
+                    .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
             } footer: {
                 Text(footerAttributedString)
             }
