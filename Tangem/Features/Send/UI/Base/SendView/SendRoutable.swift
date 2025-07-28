@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemExpress
+import struct TangemUIUtils.AlertBinder
 
 protocol SendRoutable: SendFeeRoutable, SendDestinationRoutable, OnrampRoutable, OnrampAmountRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
