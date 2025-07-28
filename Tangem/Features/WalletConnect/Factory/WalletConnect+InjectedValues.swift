@@ -19,11 +19,13 @@ private final class WalletConnectEnvironment {
     private lazy var walletKitClient = WalletKitClientFactory.make()
     private lazy var messageComposer = WalletConnectV2MessageComposer()
     private lazy var alertUIDelegate = WalletConnectAlertUIDelegate()
+    private lazy var walletNetworkServiceFactoryProvider = WalletNetworkServiceFactoryProvider()
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
         messageComposer: messageComposer,
         uiDelegate: alertUIDelegate,
-        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder()
+        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder(),
+        walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 
     private lazy var handlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
@@ -37,7 +39,8 @@ private final class WalletConnectEnvironment {
             dAppIconURLResolver: dAppIconURLResolver,
             appSettings: AppSettings.shared
         ),
-        dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient)
+        dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient),
+        logger: WCLogger
     )
 
     lazy var wcService: CommonWCService = {
@@ -45,7 +48,11 @@ private final class WalletConnectEnvironment {
         return CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
     }()
 
-    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(apiService: BlockaidFactory().makeBlockaidAPIService())
+    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
+        apiService: BlockaidFactory().makeBlockaidAPIService(),
+        logger: WCLogger
+    )
+
     lazy var dAppIconURLResolver = WalletConnectDAppIconURLResolver(
         remoteURLResourceResolver: RemoteURLResourceResolver(
             session: URLSession(configuration: .walletConnectIconsContentTypeResolveConfiguration)
