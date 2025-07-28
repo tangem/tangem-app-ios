@@ -23,7 +23,8 @@ struct PrivateInfoStorageTests {
         PrivateInfoStorage(
             secureStorage: MockedSecureStorage(),
             biometricsStorage: MockedBiometricsStorage(),
-            secureEnclaveService: MockedSecureEnclaveService()
+            accessCodeSecureEnclaveService: MockedSecureEnclaveService(config: .default),
+            biometricsSecureEnclaveServiceType: MockedSecureEnclaveService.self,
         )
     }
 
