@@ -23,7 +23,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         self.cryptoAmountState = cryptoAmountState
     }
 
-    func update(wallet: ExpressInteractor.Destination, initialWalletId: WalletModelId) {
+    func update(wallet: ExpressInteractor.Destination?, initialWalletId: WalletModelId) {
         expressCurrencyViewModel.update(wallet: wallet, initialWalletId: initialWalletId)
     }
 

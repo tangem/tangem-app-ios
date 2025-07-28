@@ -88,10 +88,10 @@ extension ExpressInteractor {
     }
 
     func getDestination() -> (any ExpressInteractorDestinationWallet)? {
-        _swappingPair.value.destination.value
+        _swappingPair.value.destination?.value
     }
 
-    func getDestinationValue() -> Destination {
+    func getDestinationValue() -> Destination? {
         _swappingPair.value.destination
     }
 
@@ -128,10 +128,10 @@ extension ExpressInteractor {
         swappingPairDidChange()
     }
 
-    func update(destination wallet: any ExpressInteractorDestinationWallet) {
-        log("Will update destination to \(wallet)")
+    func update(destination wallet: (any ExpressInteractorDestinationWallet)?) {
+        log("Will update destination to \(wallet as Any)")
 
-        _swappingPair.value.destination = .success(wallet)
+        _swappingPair.value.destination = wallet.map { .success($0) }
         swappingPairDidChange()
     }
 
@@ -567,7 +567,7 @@ private extension ExpressInteractor {
         do {
             try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
 
-            if _swappingPair.value.destination.value == nil {
+            if _swappingPair.value.destination?.value == nil {
                 _swappingPair.value.destination = .loading
                 let destination = try await expressDestinationService.getDestination(source: wallet)
                 update(destination: destination)
@@ -780,7 +780,7 @@ extension ExpressInteractor {
 
     struct SwappingPair {
         var sender: Source
-        var destination: Destination
+        var destination: Destination?
     }
 
     struct TransactionSendResultState {
