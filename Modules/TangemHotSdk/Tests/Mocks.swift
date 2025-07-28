@@ -9,6 +9,7 @@
 import Foundation
 import LocalAuthentication
 @testable import TangemHotSdk
+@testable import TangemSdk
 
 enum MockedError: Error {
     case genericError
@@ -34,6 +35,12 @@ final class MockedSecureStorage: HotSecureStorage {
 }
 
 final class MockedSecureEnclaveService: HotSecureEnclaveService {
+    private let config: SecureEnclaveService.Config
+    
+    init(config: SecureEnclaveService.Config) {
+        self.config = config
+    }
+    
     func encryptData(_ data: Data, keyTag: String) throws -> Data {
         Data(data.bytes.reversed())
     }
