@@ -12,21 +12,7 @@ import Foundation
 enum TransactionSimulationState: Equatable {
     case notStarted
     case loading
+    case simulationNotSupported(method: String)
     case simulationFailed(error: String)
     case simulationSucceeded(result: BlockaidChainScanResult)
-
-    static func == (lhs: TransactionSimulationState, rhs: TransactionSimulationState) -> Bool {
-        switch (lhs, rhs) {
-        case (.notStarted, .notStarted):
-            true
-        case (.loading, .loading):
-            true
-        case (.simulationFailed(let lhsError), .simulationFailed(let rhsError)):
-            lhsError == rhsError
-        case (.simulationSucceeded(let lhsResult), .simulationSucceeded(let rhsResult)):
-            lhsResult == rhsResult
-        default:
-            false
-        }
-    }
 }
