@@ -10,8 +10,8 @@
 "access_code_create_description" = "ウォレットのロックを解除するには、 %@桁のアクセスコードを設定します。";
 "access_code_create_title" = "アクセスコードの作成";
 "access_code_navtitle" = "アクセスコード";
-"accessibility_action_long_press" = "Long press";
-"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"accessibility_action_long_press" = "長押し";
+"accessibility_hint_access_more_actions" = "上または下にスワイプして、他のアクションにアクセス";
 "action_buttons_buy_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して買付できるようにします。";
 "action_buttons_buy_navigation_bar_title" = "買付";
 "action_buttons_sell_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して売却できるようにします。";
@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "ウォレットのバックアップが正常に完了しました。";
 "backup_complete_seed_description" = "これらの単語は紛失した場合、復元できません。必ず安全な場所に保管してください。";
 "backup_complete_title" = "バックアップが完了しました";
@@ -892,11 +893,15 @@
 "send_tron_account_activation_error" = "%1$@はTronネットワークのアセットです。手数料を計算して取引を行うには、アカウントにTron（TRX）を入金する必要があります。";
 "send_validation_destination_tag_required_description" = "指定されたアドレスへの取引を完了するには、宛先タグ（メモ）が必要です。";
 "send_validation_destination_tag_required_title" = "宛先タグが必要です";
+"send_with_swap_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "スワップして送信";
 "send_with_swap_notification_text" = "トークンを送信すれば、送信中に変換されます。受信者は必要なものをシームレスに受け取ります。";
 "send_with_swap_recipient_amount_success_title" = "受信者は受け取ります";
 "send_with_swap_recipient_amount_text" = "受信者に送信されます";
 "send_with_swap_recipient_amount_title" = "受取金額";
+"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_remove_convert_alert_title" = "Confirm cancelation";
 "send_with_swap_title" = "スワップして送信";
 "sent_transaction_sent_title" = "取引が送信されました";
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";

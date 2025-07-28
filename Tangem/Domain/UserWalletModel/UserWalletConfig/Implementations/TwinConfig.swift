@@ -78,10 +78,10 @@ extension TwinConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         if let twinKey {
-            return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
+            return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: twinKey)
         }
 
-        return .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+        return CardSigner(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
     }
 
     var emailData: [EmailCollectedData] {
@@ -186,14 +186,12 @@ extension TwinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return TwinOnboardingStepsBuilder(
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
-            twinData: twinData,
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            twinData: twinData
         )
     }
 

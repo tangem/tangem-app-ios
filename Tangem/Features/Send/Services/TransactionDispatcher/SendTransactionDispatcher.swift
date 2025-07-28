@@ -37,8 +37,12 @@ extension SendTransactionDispatcher: TransactionDispatcher {
         do {
             let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
             walletModel.updateAfterSendingTransaction()
-            let signer = transactionSigner.latestSigner.value
-            return mapper.mapResult(hash, blockchain: walletModel.tokenItem.blockchain, signer: signer)
+
+            return mapper.mapResult(
+                hash,
+                blockchain: walletModel.tokenItem.blockchain,
+                signer: transactionSigner.latestSignerType
+            )
         } catch {
             AppLogger.error(error: error)
             throw mapper.mapError(error.toUniversalError(), transaction: transaction)
