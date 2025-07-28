@@ -19,11 +19,11 @@ public class UITestOnrampRepository: OnrampRepository {
     public init() {}
 
     public var preferenceCountry: OnrampCountry? {
-        UITestOnrampRepository.defaultCountry
+        preference.value.country
     }
 
     public var preferenceCurrency: OnrampFiatCurrency? {
-        UITestOnrampRepository.defaultCurrency
+        preference.value.currency
     }
 
     public var preferencePublisher: AnyPublisher<OnrampPreference, Never> {
@@ -31,7 +31,23 @@ public class UITestOnrampRepository: OnrampRepository {
     }
 
     public func updatePreference(country: OnrampCountry?, currency: OnrampFiatCurrency?) {
-        // In UI tests, we don't need to update preferences as they are fixed
+        var currentPreference = preference.value
+
+        if let country = country {
+            currentPreference = OnrampPreference(
+                country: country,
+                currency: currentPreference.currency
+            )
+        }
+
+        if let currency = currency {
+            currentPreference = OnrampPreference(
+                country: currentPreference.country,
+                currency: currency
+            )
+        }
+
+        preference.send(currentPreference)
     }
 }
 
