@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemExpress
+import TangemUIUtils
 
 class SendRoutableMock: SendRoutable {
     func dismiss(reason: SendDismissReason) {}

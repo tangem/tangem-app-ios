@@ -88,10 +88,10 @@ extension ExpressInteractor {
     }
 
     func getDestination() -> (any ExpressInteractorDestinationWallet)? {
-        _swappingPair.value.destination.value
+        _swappingPair.value.destination?.value
     }
 
-    func getDestinationValue() -> Destination {
+    func getDestinationValue() -> Destination? {
         _swappingPair.value.destination
     }
 
@@ -128,10 +128,10 @@ extension ExpressInteractor {
         swappingPairDidChange()
     }
 
-    func update(destination wallet: any ExpressInteractorDestinationWallet) {
-        log("Will update destination to \(wallet)")
+    func update(destination wallet: (any ExpressInteractorDestinationWallet)?) {
+        log("Will update destination to \(wallet as Any)")
 
-        _swappingPair.value.destination = .success(wallet)
+        _swappingPair.value.destination = wallet.map { .success($0) }
         swappingPairDidChange()
     }
 
@@ -209,26 +209,6 @@ extension ExpressInteractor: ApproveViewModelInput {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func sendTransaction() async throws -> TransactionSendResultState {
-        switch getState() {
-        case .idle, .loading, .restriction:
-            throw ExpressInteractorError.transactionDataNotFound
-        case .permissionRequired:
-            assertionFailure("Should called sendApproveTransaction()")
-            throw ExpressInteractorError.transactionDataNotFound
-        case .previewCEX(let state, _):
-            guard let provider = await expressManager.getSelectedProvider() else {
-                throw ExpressInteractorError.providerNotFound
-            }
-            return try await sendCEXTransaction(state: state, provider: provider.provider)
-        case .readyToSwap(let state, _):
-            guard let provider = await expressManager.getSelectedProvider() else {
-                throw ExpressInteractorError.providerNotFound
-            }
-            return try await sendDEXTransaction(state: state, provider: provider.provider)
-        }
-    }
-
     func send() async throws -> SentExpressTransactionData {
         guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
@@ -236,7 +216,25 @@ extension ExpressInteractor {
 
         logSwapTransactionAnalyticsEvent()
 
-        let result: TransactionSendResultState = try await sendTransaction()
+        let result: TransactionSendResultState = try await {
+            switch getState() {
+            case .idle, .loading, .restriction:
+                throw ExpressInteractorError.transactionDataNotFound
+            case .permissionRequired:
+                assertionFailure("Should called sendApproveTransaction()")
+                throw ExpressInteractorError.transactionDataNotFound
+            case .previewCEX(let state, _):
+                guard let provider = await expressManager.getSelectedProvider() else {
+                    throw ExpressInteractorError.providerNotFound
+                }
+                return try await sendCEXTransaction(state: state, provider: provider.provider)
+            case .readyToSwap(let state, _):
+                guard let provider = await expressManager.getSelectedProvider() else {
+                    throw ExpressInteractorError.providerNotFound
+                }
+                return try await sendDEXTransaction(state: state, provider: provider.provider)
+            }
+        }()
 
         // Ignore error here
         let source = getSender()
@@ -250,7 +248,7 @@ extension ExpressInteractor {
 
         updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
-            hash: result.dispatcherResult.hash,
+            result: result.dispatcherResult,
             source: getSender(),
             destination: destination,
             fee: result.fee.amount.value,
@@ -567,7 +565,7 @@ private extension ExpressInteractor {
         do {
             try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
 
-            if _swappingPair.value.destination.value == nil {
+            if _swappingPair.value.destination?.value == nil {
                 _swappingPair.value.destination = .loading
                 let destination = try await expressDestinationService.getDestination(source: wallet)
                 update(destination: destination)
@@ -780,7 +778,7 @@ extension ExpressInteractor {
 
     struct SwappingPair {
         var sender: Source
-        var destination: Destination
+        var destination: Destination?
     }
 
     struct TransactionSendResultState {

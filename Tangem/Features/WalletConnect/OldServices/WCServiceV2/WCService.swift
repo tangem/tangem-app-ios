@@ -15,10 +15,7 @@ protocol WCService {
     func initialize()
     func reset()
 
-    func openSession(
-        with uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
-    ) async throws -> (Session.Proposal, VerifyContext?)
+    func openSession(with uri: WalletConnectRequestURI) async throws -> (Session.Proposal, VerifyContext?)
 
     func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session
     func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
