@@ -119,7 +119,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     }
 
     func removeReceivedToken() {
-        interactor.removeReceivedToken()
+        interactor.userDidRequestClearReceiveToken()
     }
 }
 
