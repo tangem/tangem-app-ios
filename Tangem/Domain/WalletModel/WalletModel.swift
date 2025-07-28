@@ -65,6 +65,7 @@ protocol WalletModelUpdater {
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
     /// Do not use with flatMap.
+    @discardableResult
     func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
 
     func updateTransactionsHistory() -> AnyPublisher<Void, Never>
