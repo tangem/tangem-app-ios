@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li 枚のカード</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>

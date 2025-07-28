@@ -83,6 +83,8 @@ struct SendNewAmountStepBuilder {
             swapProvidersInput: swapProvidersInput,
         )
 
+        interactorSaver.updater = amountUpdater
+
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
     }
 }
