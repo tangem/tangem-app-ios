@@ -18,7 +18,7 @@ struct FeeSelectorContentView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.commonNetworkFeeTitle, trailing: {
-                RoundedButton(style: .icon(Assets.cross, color: Colors.Icon.secondary), action: viewModel.dismiss)
+                CircleButton.close(action: viewModel.dismiss)
             })
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
@@ -38,7 +38,9 @@ struct FeeSelectorContentView: View {
                 .padding(.horizontal, 16)
         }
         .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.action
             configuration.sheetFrameUpdateAnimation = .easeInOut
+            configuration.backgroundInteractionBehavior = .consumeTouches
         }
     }
 }
