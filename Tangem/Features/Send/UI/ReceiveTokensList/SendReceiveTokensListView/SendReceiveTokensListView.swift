@@ -33,6 +33,13 @@ struct SendReceiveTokensListView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
 
+            if let notification = viewModel.onboardNotification {
+                NotificationView(input: notification)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+                    .transition(.notificationTransition.animation(.linear(duration: 0.2)))
+            }
+
             GroupedScrollView {
                 GroupedSection(viewModel.items) {
                     SendReceiveTokensListTokenView(viewModel: $0)
@@ -51,6 +58,7 @@ struct SendReceiveTokensListView: View {
             }
             .scrollDismissesKeyboardCompat(.interactively)
         }
+        .animation(.default, value: viewModel.onboardNotification == nil)
         .background(Colors.Background.tertiary)
         .onReceive(viewModel.$isFocused) { isFocused in
             self.isFocused = isFocused
