@@ -9,13 +9,23 @@
 import TangemFoundation
 import TangemExpress
 import TangemUI
+import TangemLocalization
 
 protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
     func dismissNetworkSelector(isSelected: Bool)
 }
 
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], Error> = .loading
+    @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], String> = .loading
+
+    var notSupportedTitle: String {
+        // It's should be the same token name in all token items
+        if let tokenName = networks.first?.token?.name {
+            return Localization.expressSwapNotSupportedTitle(tokenName)
+        }
+
+        return Localization.commonError
+    }
 
     private weak var sourceTokenInput: SendSourceTokenInput?
     private weak var receiveTokenOutput: SendReceiveTokenOutput?
@@ -65,8 +75,10 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
                 }.value
 
                 await runOnMain { viewModel.state = .success(items) }
+            } catch Error.supportedNetworksIsEmpty {
+                await runOnMain { viewModel.state = .failure(Localization.expressSwapNotSupportedText) }
             } catch {
-                await runOnMain { viewModel.state = .failure(error) }
+                await runOnMain { viewModel.state = .failure(error.localizedDescription) }
             }
         }
     }
@@ -94,6 +106,10 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
 
         let items = try await availableNetworks().map { network in
             return mapToSendReceiveTokenNetworkSelectorNetworkViewData(tokenItem: network)
+        }
+
+        if items.isEmpty {
+            throw Error.supportedNetworksIsEmpty
         }
 
         return items
@@ -126,5 +142,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private func userDidSelect(tokenItem: TokenItem) {
         receiveTokenOutput?.userDidSelect(receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem))
         router?.dismissNetworkSelector(isSelected: true)
+    }
+}
+
+extension SendReceiveTokenNetworkSelectorViewModel {
+    enum Error: LocalizedError {
+        case supportedNetworksIsEmpty
     }
 }
