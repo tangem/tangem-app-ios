@@ -227,6 +227,18 @@ extension Analytics {
         case onramp = "Onramp"
         case markets = "Markets"
 
+        // MARK: - Wallet Connect
+
+        case walletConnectSecurityAlertVerified = "Verified"
+        case walletConnectSecurityAlertRisky = "Risky"
+        case walletConnectSecurityAlertSourceDomain = "Domain"
+        case walletConnectSecurityAlertSourceSmartContract = "Smart Contract"
+
+        case walletConnectCancelButtonTypeDApp = "Connection"
+
+        case walletConnectTransactionEmulationStatusEmulated = "Emulated"
+        case walletConnectTransactionEmulationStatusCantEmulate = "Can`t Emulate"
+
         // MARK: - NFT
 
         case nft = "NFT"
