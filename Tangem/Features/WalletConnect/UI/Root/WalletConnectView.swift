@@ -35,6 +35,9 @@ struct WalletConnectView: View {
         .alert(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
         .confirmationDialog(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
         .background(Colors.Background.secondary)
+        .onAppear {
+            viewModel.handle(viewEvent: .viewDidAppear)
+        }
     }
 
     private var navigationButton: some ToolbarContent {

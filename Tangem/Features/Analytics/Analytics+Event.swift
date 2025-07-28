@@ -149,17 +149,30 @@ extension Analytics {
         // MARK: - Wallet Connect
 
         case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
+        case walletConnectDisconnectAllButtonTapped = "[Wallet Connect] Button - Disconnect All"
+
+        case walletConnectDAppDetailsDisconnectButtonTapped = "[Wallet Connect] Button - Disconnect"
+
         case walletConnectSessionInitiated = "[Wallet Connect] Session Initiated"
         case walletConnectSessionFailed = "[Wallet Connect] Session Failed"
 
-        case walletConnectDAppConnectionRequested = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
+        case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
+
+        case walletConnectSecurityAlertShown = "[Wallet Connect] Notice - Security Alert"
+
         case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
         case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
         case walletConnectDAppDisconnected = "[Wallet Connect] dApp Disconnected"
 
         case walletConnectSignatureRequestReceived = "[Wallet Connect] Signature Request Received"
+        case walletConnectSignatureRequestReceivedFailure = "[Wallet Connect] Signature Request Received with Failed"
+
         case walletConnectSignatureRequestHandled = "[Wallet Connect] Signature Request Handled"
         case walletConnectSignatureRequestFailed = "[Wallet Connect] Signature Request Failed"
+        case walletConnectTransactionDetailsOpened = "[Wallet Connect] Transaction Details Opened"
+        case walletConnectTransactionSignButtonTapped = "[Wallet Connect] Button - Sign"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
