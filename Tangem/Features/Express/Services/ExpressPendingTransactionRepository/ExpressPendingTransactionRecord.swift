@@ -46,6 +46,7 @@ struct ExpressPendingTransactionRecord: Codable, Equatable {
 extension ExpressPendingTransactionRecord {
     struct TokenTxInfo: Codable, Equatable {
         let tokenItem: TokenItem
+        let address: String?
         let amountString: String
         let isCustom: Bool
 
@@ -130,6 +131,7 @@ extension ExpressPendingTransactionRecord {
 
     private struct LegacyTokenTxInfo: Decodable {
         let tokenItem: LegacyTokenItem
+        let address: String?
         let amountString: String
         let isCustom: Bool
         let blockchainNetwork: BlockchainNetwork
@@ -137,6 +139,7 @@ extension ExpressPendingTransactionRecord {
         func mapToTokenTxInfo() throws -> TokenTxInfo {
             return .init(
                 tokenItem: try tokenItem.mapToTokenItem(blockchainNetwork: blockchainNetwork),
+                address: address,
                 amountString: amountString,
                 isCustom: isCustom
             )
