@@ -40,6 +40,10 @@ private extension SwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SwapFeeProvider: SendFeeProvider {
+    var feeOptions: [FeeOption] {
+        [.market, .fast]
+    }
+
     var fees: LoadingResult<[SendFee], any Error> {
         mapToFees(state: swapManager.state)
     }
