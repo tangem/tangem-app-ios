@@ -19,6 +19,8 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     private weak var sourceTokenAmountInput: SendSourceTokenAmountInput?
     private weak var sourceTokenAmountOutput: SendSourceTokenAmountOutput?
 
+    var updater: SendExternalAmountUpdater?
+
     private var captureAmount: SendAmount?
 
     init(
@@ -38,6 +40,7 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     }
 
     func cancelChanges() {
+        updater?.externalUpdate(amount: captureAmount?.main)
         sourceTokenAmountOutput?.sourceAmountDidChanged(amount: captureAmount)
     }
 }
