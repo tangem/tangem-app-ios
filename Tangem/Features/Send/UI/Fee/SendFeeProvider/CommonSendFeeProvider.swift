@@ -14,6 +14,7 @@ class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
     private let feeLoader: SendFeeLoader
+    private let defaultFeeOptions: [FeeOption]
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
@@ -23,9 +24,14 @@ class CommonSendFeeProvider {
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
-    init(input: any SendFeeProviderInput, feeLoader: SendFeeLoader) {
+    init(
+        input: any SendFeeProviderInput,
+        feeLoader: SendFeeLoader,
+        defaultFeeOptions: [FeeOption]
+    ) {
         self.input = input
         self.feeLoader = feeLoader
+        self.defaultFeeOptions = defaultFeeOptions
 
         bind(input: input)
     }
@@ -34,6 +40,10 @@ class CommonSendFeeProvider {
 // MARK: - SendFeeProvider
 
 extension CommonSendFeeProvider: SendFeeProvider {
+    var feeOptions: [FeeOption] {
+        defaultFeeOptions
+    }
+
     var fees: LoadingResult<[SendFee], any Error> {
         _fees.value
     }
