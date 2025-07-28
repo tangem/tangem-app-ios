@@ -42,7 +42,7 @@ public struct FloatingSheetView<HostContent: View>: View {
                 $0.gesture(verticalSwipeGesture)
             }
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.all, edges: .bottom)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             guard
                 sheetContentConfiguration.keyboardHandlingEnabled,
@@ -86,7 +86,7 @@ public struct FloatingSheetView<HostContent: View>: View {
                 ZStack {
                     sheetContent
                         .frame(
-                            height: min(sheetContentHeight, proxy.size.height * sheetContentConfiguration.maxHeightFraction),
+                            height: min(sheetContentHeight, bottomSheetMaxHeight(proxy: proxy)),
                             alignment: .bottom
                         )
                         .frame(maxWidth: .infinity)
@@ -153,9 +153,17 @@ public struct FloatingSheetView<HostContent: View>: View {
 
     private var bottomSheetPadding: CGFloat {
         let keyboardIsVisible = keyboardHeight > 0
-        return keyboardIsVisible
-            ? 12
-            : 32
+        return keyboardIsVisible ? 12 : 32
+    }
+
+    private func bottomSheetMaxHeight(proxy: GeometryProxy) -> CGFloat {
+        let visibleHeight = proxy.size.height + proxy.safeAreaInsets.top
+        let maxHeight = visibleHeight * sheetContentConfiguration.maxHeightFraction
+        let maxWithKeyboardHeight = proxy.size.height - keyboardHeight - bottomSheetPadding
+        let isKeyboardShowing = keyboardHeight > 0
+
+        // When keyboard is showing the max height will be limited the top safe area
+        return isKeyboardShowing ? maxWithKeyboardHeight : maxHeight
     }
 }
 
