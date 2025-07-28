@@ -70,27 +70,15 @@ private extension WCServiceV2 {
 
         walletKitClient
             .sessionDeletePublisher
-            .asyncMap { [weak self] topic, reason in
+            .asyncMap { [connectedDAppRepository] topic, reason in
                 WCLogger.info(LoggerStrings.receiveDeleteMessage(topic, reason))
 
-                guard
-                    let self,
-                    let connectedDApp = try? await connectedDAppRepository.getDApp(with: topic)
-                else {
+                do {
+                    try await connectedDAppRepository.deleteDApp(with: topic)
+                    WCLogger.info(LoggerStrings.sessionWasFound(topic))
+                } catch {
                     WCLogger.info(LoggerStrings.receiveDeleteMessageSessionNotFound(topic, reason))
-                    return
                 }
-
-                Analytics.log(
-                    event: .walletConnectDAppDisconnected,
-                    params: [
-                        .dAppName: connectedDApp.dAppData.name,
-                        .dAppUrl: connectedDApp.dAppData.domain.absoluteString,
-                    ]
-                )
-
-                WCLogger.info(LoggerStrings.sessionWasFound(topic))
-                try? await connectedDAppRepository.deleteDApp(with: topic)
             }
             .sink()
             .store(in: &bag)
@@ -106,12 +94,26 @@ private extension WCServiceV2 {
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
+                    let connectedDApp: WalletConnectConnectedDApp
+
+                    do {
+                        connectedDApp = try await self.connectedDAppRepository.getDApp(with: request.topic)
+                    } catch {
+                        let errorMessage = "Session for topic \(request.topic) not found."
+                        WCLogger.error(error: errorMessage)
+                        try? await walletKitClient.respond(
+                            topic: request.topic,
+                            requestId: request.id,
+                            response: .error(.init(code: 0, message: error.localizedDescription))
+                        )
+                        return
+                    }
+
                     do {
                         let validatedRequest = try await self.wcHandlersService.validate(request)
-                        let connectedBlockchains = try await self.connectedDAppRepository.getDApp(with: request.topic).blockchains
                         let transactionDTO = try await self.wcHandlersService.makeHandleTransactionDTO(
                             from: validatedRequest,
-                            connectedBlockchains: connectedBlockchains
+                            connectedBlockchains: connectedDApp.blockchains
                         )
 
                         self.transactionRequestSubject.send(
@@ -127,6 +129,7 @@ private extension WCServiceV2 {
                             requestId: request.id,
                             response: .error(.init(code: 0, message: error.localizedDescription))
                         )
+                        self.logSignatureRequestReceiveFailed(with: error, request: request, connectedDApp: connectedDApp)
                     }
                 }
             }
@@ -171,12 +174,8 @@ extension WCServiceV2 {
 // MARK: - Refac
 
 extension WCServiceV2 {
-    func openSession(
-        with uri: WalletConnectV2URI,
-        source: Analytics.WalletConnectSessionSource
-    ) async throws -> (Session.Proposal, VerifyContext?) {
+    func openSession(with uri: WalletConnectV2URI) async throws -> (Session.Proposal, VerifyContext?) {
         WCLogger.info(LoggerStrings.tryingToPairClient(uri))
-        Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
 
         return try await withCheckedThrowingContinuation { [weak self] continuation in
             Task {
@@ -190,7 +189,6 @@ extension WCServiceV2 {
                     await self?.sessionProposalContinuationStorage.resumeThrowing(error: error, for: uri.topic)
                     try? await self?.disconnectSession(withTopic: uri.topic)
                     WCLogger.error(LoggerStrings.failedToConnect(uri), error: error)
-                    Analytics.log(.walletConnectSessionFailed)
                 }
             }
         }
@@ -211,6 +209,24 @@ extension WCServiceV2 {
             WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
             throw error
         }
+    }
+}
+
+// MARK: - Analytics
+
+extension WCServiceV2 {
+    func logSignatureRequestReceiveFailed(with error: some Error, request: Request, connectedDApp: WalletConnectConnectedDApp) {
+        let blockchainName = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.displayName ?? request.chainId.absoluteString
+
+        let params: [Analytics.ParameterKey: String] = [
+            .methodName: request.method,
+            .walletConnectDAppName: connectedDApp.dAppData.name,
+            .walletConnectDAppUrl: connectedDApp.dAppData.domain.absoluteString,
+            .walletConnectBlockchain: blockchainName,
+            .errorCode: "\(error.universalErrorCode)",
+        ]
+
+        Analytics.log(event: .walletConnectSignatureRequestReceivedFailure, params: params)
     }
 }
 
