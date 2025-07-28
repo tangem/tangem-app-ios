@@ -85,7 +85,6 @@ private extension SendFeeStepBuilder {
             input: io.input,
             output: io.output,
             provider: sendFeeProvider,
-            defaultFeeOptions: builder.makeFeeOptions(),
             customFeeService: customFeeService
         )
 
