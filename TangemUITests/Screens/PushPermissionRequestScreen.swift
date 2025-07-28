@@ -22,7 +22,7 @@ final class PushPermissionRequestScreen: ScreenBase<PushPermissionRequestElement
     }
 
     func isShown() -> Bool {
-        return title.waitForExistence(timeout: .quickUIUpdate)
+        return title.waitForExistence(timeout: .robustUIUpdate)
     }
 
     func handlePermissionRequest() {
