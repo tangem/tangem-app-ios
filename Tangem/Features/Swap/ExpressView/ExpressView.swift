@@ -178,10 +178,7 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        // To force `.animation(nil)` behaviour
-        .transaction { transaction in
-            transaction.animation = nil
-        }
+        .disableAnimations() // To force `.animation(nil)` behaviour
     }
 
     @ViewBuilder

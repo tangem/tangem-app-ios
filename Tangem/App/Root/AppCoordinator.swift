@@ -25,7 +25,7 @@ class AppCoordinator: CoordinatorObject {
         mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
 
         let startupProcessor = StartupProcessor()
-        if startupProcessor.shouldOpenBiometry {
+        if startupProcessor.shouldOpenAuthScreen {
             setupAuth(unlockOnAppear: false)
         } else {
             setupWelcome()
