@@ -9,7 +9,9 @@
 import Foundation
 import TangemSdk
 
-public protocol HotSecureEnclaveService {
+protocol HotSecureEnclaveService {
+    init(config: SecureEnclaveService.Config)
+    
     func encryptData(_ data: Data, keyTag: String) throws -> Data
     func decryptData(_ data: Data, keyTag: String) throws -> Data
 }
