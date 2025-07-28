@@ -15,7 +15,8 @@ final class OnrampUITests: BaseTestCase {
 
     func testGoOnramp_validateScreen() {
         id(2566)
-        let expectedTextFieldValue = "0 €"
+        let expectedAmount = "0"
+        let expectedCurrency = "€"
         let expectedTitle = "Buy \(token)"
 
         launchApp(tangemApiType: .mock)
@@ -26,9 +27,10 @@ final class OnrampUITests: BaseTestCase {
             .tapActionButton(.buy)
             .tapCurrencySelector()
             .selectCurrency("EUR")
-            .validate(textFieldValue: expectedTextFieldValue, title: expectedTitle)
+            .validate(amount: expectedAmount, currency: expectedCurrency, title: expectedTitle)
             .enterAmount(amountToEnter)
             .validateCryptoAmount()
+            .hideKeyboard()
             .validateProviderToSLinkExists()
     }
 
@@ -41,6 +43,7 @@ final class OnrampUITests: BaseTestCase {
             .tapToken(token)
             .tapActionButton(.buy)
             .enterAmount(amountToEnter)
+            .waitForProvidersToLoad()
             .tapPayWithBlock()
             .validate()
             .validateAnyProviderCard()
@@ -65,7 +68,8 @@ final class OnrampUITests: BaseTestCase {
             .selectCurrency(newCurrency)
             .validateCurrencyChanged(expectedCurrency: newCurrencySymbol)
             .validate(
-                textFieldValue: "\(amountToEnter) \(newCurrencySymbol)",
+                amount: amountToEnter,
+                currency: newCurrencySymbol,
                 title: "Buy \(token)"
             )
     }
@@ -89,7 +93,8 @@ final class OnrampUITests: BaseTestCase {
             .validateSelectedCountry(countryToSelect)
             .dismissOnrampSettings()
             .validate(
-                textFieldValue: "\(amountToEnter) $",
+                amount: amountToEnter,
+                currency: "$",
                 title: "Buy \(token)"
             )
     }
@@ -105,6 +110,7 @@ final class OnrampUITests: BaseTestCase {
             .tapToken(token)
             .tapActionButton(.buy)
             .enterAmount(amountToEnter)
+            .waitForProvidersToLoad()
             .tapPayWithBlock()
             .validateScreenTitle()
             .validateProviderIconsAndNames()
