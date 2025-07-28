@@ -39,6 +39,7 @@ public struct BottomSheetErrorContentView: View {
                         .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 }
                 .multilineTextAlignment(.center)
+                .disableAnimations()
             }
             .padding(.vertical, 50)
 
