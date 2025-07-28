@@ -11,7 +11,7 @@ import Testing
 import LocalAuthentication
 @testable import TangemHotSdk
 
-struct PrivateInfoStorageTests {
+struct PrivateInfoStorageManagerTests {
     private func makePrivateInfo() -> PrivateInfo {
         let entropy = Data([0x01, 0x02, 0x03, 0x04, 0x05])
 
@@ -19,8 +19,8 @@ struct PrivateInfoStorageTests {
         return PrivateInfo(entropy: entropy, passphrase: passphrase)
     }
 
-    private func makeStorage() -> PrivateInfoStorage {
-        PrivateInfoStorage(
+    private func makeStorage() -> PrivateInfoStorageManager {
+        PrivateInfoStorageManager(
             secureStorage: MockedSecureStorage(),
             biometricsStorage: MockedBiometricsStorage(),
             accessCodeSecureEnclaveService: MockedSecureEnclaveService(config: .default),
