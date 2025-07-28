@@ -45,7 +45,7 @@ public protocol HotSdk {
     /// - `auth`: The authentication data used to unlock the wallet, such as a accessCode or biometrics.
     /// - Returns: A `HotWallet` object containing the derived master keys.
     func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet
-    
+
     /// Derives keys for a hot wallet based on specified derivation paths.
     /// - Parameters:
     /// - `wallet`: The hot wallet for which keys are being derived.
