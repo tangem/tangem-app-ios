@@ -23,15 +23,18 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let ethTransactionBuilder: WalletConnectEthTransactionBuilder
+    private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
 
     init(
         messageComposer: WalletConnectV2MessageComposable,
         uiDelegate: WalletConnectUIDelegate,
-        ethTransactionBuilder: WalletConnectEthTransactionBuilder
+        ethTransactionBuilder: WalletConnectEthTransactionBuilder,
+        walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
     ) {
         self.messageComposer = messageComposer
         self.uiDelegate = uiDelegate
         self.ethTransactionBuilder = ethTransactionBuilder
+        self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
     }
 
     func createHandler(
@@ -90,7 +93,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             return try WalletConnectSolanaSignTransactionHandler(
                 request: params,
                 blockchainId: blockchainId,
-                signer: SolanaWalletConnectSigner(signer: signer),
+                signer: signer,
+                walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider
             )
         case .solanaSignAllTransactions:
