@@ -62,6 +62,7 @@ extension WalletModel {
 // MARK: - Update
 
 protocol WalletModelUpdater {
+    @discardableResult
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
     /// Do not use with flatMap.
