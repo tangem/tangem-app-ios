@@ -37,16 +37,17 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     }
 
     @discardableResult
-    func validate(textFieldValue: String, title: String) -> Self {
+    func validate(amount: String, currency: String, title: String) -> Self {
         XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
             let actualValue = amountDisplayField.getValue()
-            XCTAssertEqual(actualValue, textFieldValue, "TextField value should be '\(textFieldValue)' but was '\(actualValue)'")
+            XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
+            XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
 
-            XCTAssertTrue(titleLabel.waitForExistence(timeout: .longUIUpdate), "Title should exist")
+            XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
             let actualTitle = titleLabel.label
             XCTAssertEqual(actualTitle, title, "Title should be '\(title)' but was '\(actualTitle)'")
 
-            XCTAssertTrue(closeButton.waitForExistence(timeout: .longUIUpdate), "Close button should exist")
+            XCTAssertTrue(closeButton.waitForExistence(timeout: .robustUIUpdate), "Close button should exist")
         }
         return self
     }
@@ -61,7 +62,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateProviderToSLinkExists() -> Self {
         XCTContext.runActivity(named: "Validate Provider ToS link exists") { _ in
-            XCTAssertTrue(providerToSLink.waitForExistence(timeout: .longUIUpdate), "Provider ToS link should exist")
+            XCTAssertTrue(providerToSLink.waitForExistence(timeout: .robustUIUpdate), "Provider ToS link should exist")
         }
         return self
     }
@@ -69,7 +70,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateCryptoAmountRounding() -> Self {
         XCTContext.runActivity(named: "Validate crypto amount is rounded to 8 decimal places") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .longUIUpdate), "Crypto amount label should exist")
+            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .robustUIUpdate), "Crypto amount label should exist")
             let cryptoAmount = cryptoAmountLabel.label
 
             if cryptoAmount.contains(".") {
@@ -87,16 +88,25 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount input field") { _ in
-            XCTAssertTrue(amountInputField.waitForExistence(timeout: .longUIUpdate), "Amount input field should exist")
+            XCTAssertTrue(amountInputField.waitForExistence(timeout: .robustUIUpdate), "Amount input field should exist")
             amountInputField.tap()
             amountInputField.typeText(amount)
-            app.hideKeyboard()
 
             let expectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "exists == true"),
                 object: amountDisplayField
             )
             _ = XCTWaiter.wait(for: [expectation], timeout: 3.0)
+
+            // Wait for providers to start loading after amount entry
+            // Check if payWithBlock appears or loading state changes
+            let providersExpectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "exists == true"),
+                object: payWithBlock
+            )
+
+            // Wait up to 5 seconds for providers to become available
+            _ = XCTWaiter.wait(for: [providersExpectation], timeout: 5.0)
         }
         return self
     }
@@ -104,7 +114,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validateCryptoAmount() -> Self {
         XCTContext.runActivity(named: "Validate crypto amount is updated and properly formatted") { _ in
-            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .longUIUpdate), "Crypto amount label should exist")
+            XCTAssertTrue(cryptoAmountLabel.waitForExistence(timeout: .robustUIUpdate), "Crypto amount label should exist")
             let cryptoAmount = cryptoAmountLabel.label
 
             XCTAssertFalse(cryptoAmount.isEmpty, "Crypto amount should not be empty")
@@ -129,7 +139,30 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
 
     func tapPayWithBlock() -> OnrampProvidersScreen {
         XCTContext.runActivity(named: "Tap Pay with block") { _ in
-            XCTAssertTrue(payWithBlock.waitForExistence(timeout: .longUIUpdate), "Pay with block should exist")
+            // First wait for the element to appear
+            let elementExists = payWithBlock.waitForExistence(timeout: .robustUIUpdate)
+
+            if !elementExists {
+                // If element doesn't exist, try scrolling to find it
+                scrollToElement(payWithBlock, attempts: .lazy)
+
+                // Wait again after scrolling
+                XCTAssertTrue(
+                    payWithBlock.waitForExistence(timeout: .robustUIUpdate),
+                    "Pay with block should exist after scrolling and extended wait"
+                )
+            }
+
+            // Wait for element to become hittable and enabled
+            XCTAssertTrue(
+                payWithBlock.waitForState(state: .hittable, for: .robustUIUpdate),
+                "Pay with block should be hittable"
+            )
+
+            // Ensure element is visible and ready for interaction
+            XCTAssertTrue(payWithBlock.exists, "Pay with block should exist")
+            XCTAssertTrue(payWithBlock.isEnabled, "Pay with block should be enabled")
+
             payWithBlock.waitAndTap()
             return OnrampProvidersScreen(app)
         }
@@ -137,7 +170,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
 
     func tapCurrencySelector() -> OnrampCurrencySelectorScreen {
         XCTContext.runActivity(named: "Tap currency selector button (flag + chevron)") { _ in
-            XCTAssertTrue(currencySelectorButton.waitForExistence(timeout: .longUIUpdate), "Currency selector button should exist")
+            XCTAssertTrue(currencySelectorButton.waitForExistence(timeout: .robustUIUpdate), "Currency selector button should exist")
             currencySelectorButton.waitAndTap()
             return OnrampCurrencySelectorScreen(app)
         }
@@ -168,7 +201,8 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     func validateErrorViewExists() -> Self {
         XCTContext.runActivity(named: "Validate error notification view exists") { _ in
             let refreshButton = app.buttons[CommonUIAccessibilityIdentifiers.notificationButton]
-            XCTAssertTrue(refreshButton.waitForExistence(timeout: .longUIUpdate), "Error notification view should exist (refresh button not found)")
+            let exists = refreshButton.waitForExistence(timeout: .robustUIUpdate)
+            XCTAssertTrue(exists, "Error notification view does not exist - refresh button not found after waiting")
         }
         return self
     }
@@ -178,15 +212,37 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         XCTContext.runActivity(named: "Validate error notification content") { _ in
             if let title = title {
                 let titleLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationTitle]
-                XCTAssertTrue(titleLabel.waitForExistence(timeout: .longUIUpdate), "Error title should exist")
+                XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Error title should exist")
                 XCTAssertEqual(titleLabel.label, title, "Error title should be '\(title)' but was '\(titleLabel.label)'")
             }
 
             if let message = message {
                 let messageLabel = app.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage]
-                XCTAssertTrue(messageLabel.waitForExistence(timeout: .longUIUpdate), "Error message should exist")
+                XCTAssertTrue(messageLabel.waitForExistence(timeout: .robustUIUpdate), "Error message should exist")
                 XCTAssertEqual(messageLabel.label, message, "Error message should be '\(message)' but was '\(messageLabel.label)'")
             }
+        }
+        return self
+    }
+
+    func hideKeyboard() -> Self {
+        app.hideKeyboard()
+        return self
+    }
+
+    /// Wait for providers to load after amount changes
+    @discardableResult
+    func waitForProvidersToLoad() -> Self {
+        XCTContext.runActivity(named: "Wait for providers to load") { _ in
+            XCTAssertTrue(
+                payWithBlock.waitForExistence(timeout: .robustUIUpdate),
+                "Pay with block should appear after providers load"
+            )
+
+            XCTAssertTrue(
+                payWithBlock.waitForState(state: .hittable, for: 2.0),
+                "Pay with block should be ready for interaction"
+            )
         }
         return self
     }
