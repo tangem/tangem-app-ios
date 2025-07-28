@@ -10,6 +10,8 @@
 "access_code_create_description" = "Set a %@-digit Access Code to unlock your wallet.";
 "access_code_create_title" = "Create Access Code";
 "access_code_navtitle" = "Access code";
+"accessibility_action_long_press" = "Long press";
+"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
 "action_buttons_sell_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for selling.";
@@ -65,6 +67,10 @@
 "app_settings_title" = "App settings";
 "app_settings_warning_subtitle" = "Go to settings to enable biometric authentication in the Tangem app";
 "app_settings_warning_title" = "Enable biometric authentication";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -410,6 +416,8 @@
 "hw_activation_need_description" = "To complete setup, back up your wallet and secure app access with a Access Code.";
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
+"hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
+"hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
@@ -423,6 +431,7 @@
 "hw_create_seed_description" = "Stay up to date with the latest features and news";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here, if you find any errors.";
 "initial_message_change_access_code_body" = "Avvicina per modificare il codice di accesso";
 "initial_message_change_passcode_body" = "Avvicina per modificare la password";
@@ -812,6 +821,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Destination Tag";
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
+"send_enter_address_field_ens" = "Enter ENS name or address";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
 "send_error_dust_change" = "L'importo residuo è molto basso";
@@ -885,10 +895,15 @@
 "send_tron_account_activation_error" = "%1$@ is an asset in the Tron network. To calculate the fee and make a transaction you need to deposit some Tron (TRX) in your account.";
 "send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
+"send_with_swap_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Will be sent a recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
+"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_remove_convert_alert_title" = "Confirm cancelation";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
@@ -1369,7 +1384,7 @@
 "warning_some_networks_unreachable_message" = "Swipe down to refresh or try again later.";
 "warning_some_networks_unreachable_title" = "Some networks are unreachable";
 "warning_some_token_balances_not_updated" = "Some token balances could not be updated";
-"warning_stellar_token_trustline_not_enough_xlm" = "Not enough %@. Top up your XLM account to associate this token";
+"warning_stellar_token_trustline_not_enough_xlm" = "Not enough %@. Top up your XLM account to open trustline.";
 "warning_system_deprecation_title" = "System update required";
 "warning_system_deprecation_with_date_message" = "Support for your version of the operating system will end on %@. To receive future app updates you must update it to the latest version.";
 "warning_system_update_message" = "Tangem recommends installing the latest iOS update for stable and safe operation";
@@ -1427,7 +1442,7 @@
 "wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Estimated wallet changes";
 "wc_malicious_transaction" = "Malicious transaction";
-"wc_missing_required_network_description" = "Add the %@ network to your profile for this wallet";
+"wc_missing_required_network_description" = "Add the %@ network to your portfolio for this wallet";
 "wc_missing_required_network_title" = "The wallet has no required networks";
 "wc_new_connection" = "New connection";
 "wc_no_sessions_desc" = "Connect your wallet to a different dApps";
