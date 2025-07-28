@@ -17,14 +17,14 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func validate() -> Self {
         XCTContext.runActivity(named: "Validate OnRamp providers screen elements") { _ in
-            XCTAssertTrue(closeButton.waitForExistence(timeout: .longUIUpdate), "Close button should exist")
-            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .longUIUpdate), "Payment method block should exist")
+            XCTAssertTrue(closeButton.waitForExistence(timeout: .robustUIUpdate), "Close button should exist")
+            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .robustUIUpdate), "Payment method block should exist")
 
             let providerCards = app.images.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderIcon_'"))
             XCTAssertTrue(providerCards.firstMatch.exists, "At least one provider card should exist")
 
             let firstProviderCard = providerCards.firstMatch
-            XCTAssertTrue(firstProviderCard.waitForExistence(timeout: .longUIUpdate), "First provider card should exist")
+            XCTAssertTrue(firstProviderCard.waitForExistence(timeout: .robustUIUpdate), "First provider card should exist")
         }
         return self
     }
@@ -32,7 +32,7 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func validateScreenTitle() -> Self {
         XCTContext.runActivity(named: "Validate Provider screen title") { _ in
-            XCTAssertTrue(app.staticTexts["Provider"].waitForExistence(timeout: .longUIUpdate), "Screen title should be 'Provider'")
+            XCTAssertTrue(app.staticTexts["Provider"].waitForExistence(timeout: .robustUIUpdate), "Screen title should be 'Provider'")
         }
         return self
     }
@@ -40,21 +40,30 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func validateProviderIconsAndNames() -> Self {
         XCTContext.runActivity(named: "Validate provider icons and names exist") { _ in
-            let providerNames = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderName_'"))
+            // Wait for any provider name to appear first
+            let providerNamesQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderName_'"))
+            let firstProviderName = providerNamesQuery.firstMatch
+            XCTAssertTrue(firstProviderName.waitForExistence(timeout: .robustUIUpdate), "First provider name should exist")
+
+            // Now get all provider names after waiting
+            let providerNames = providerNamesQuery.allElementsBoundByIndex
             let nameCount = providerNames.count
 
             XCTAssertGreaterThan(nameCount, 0, "At least one provider name should exist")
 
-            for index in 0 ..< nameCount {
-                let nameElement = providerNames.element(boundBy: index)
-                XCTAssertTrue(nameElement.exists, "Provider name at index \(index) should exist")
-                XCTAssertFalse(nameElement.label.isEmpty, "Provider name should not be empty at index \(index)")
+            for nameElement in providerNames {
+                // Wait for each name element and verify it's not empty
+                XCTAssertTrue(nameElement.waitForExistence(timeout: .robustUIUpdate), "Provider name element should exist")
+
+                // Wait a bit to ensure the label is populated
+                let nameNotEmpty = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "label.length > 0"), object: nameElement)], timeout: .robustUIUpdate)
+                XCTAssertEqual(nameNotEmpty, .completed, "Provider name should not be empty: \(nameElement.identifier)")
 
                 let nameIdentifier = nameElement.identifier
                 if let providerNameKey = nameIdentifier.components(separatedBy: "onrampProviderName_").last {
                     let iconIdentifier = "onrampProviderIcon_\(providerNameKey)"
                     let icon = app.images[iconIdentifier]
-                    XCTAssertTrue(icon.exists, "Provider icon should exist for provider: \(providerNameKey)")
+                    XCTAssertTrue(icon.waitForExistence(timeout: .robustUIUpdate), "Provider icon should exist for provider: \(providerNameKey)")
                 }
             }
         }
@@ -64,7 +73,7 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func validateSelectedPaymentMethod(_ expectedPaymentMethodId: String) -> Self {
         XCTContext.runActivity(named: "Validate selected payment method is \(expectedPaymentMethodId)") { _ in
-            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .longUIUpdate), "Payment method block should exist")
+            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .robustUIUpdate), "Payment method block should exist")
 
             let blockText = paymentMethodBlock.label
             XCTAssertFalse(blockText.isEmpty, "Payment method block should have text content")
@@ -80,11 +89,11 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
             let providerNameElement = app.staticTexts[OnrampAccessibilityIdentifiers.providerName(name: providerName)]
             let providerAmount = app.staticTexts[OnrampAccessibilityIdentifiers.providerAmount(name: providerName)]
 
-            XCTAssertTrue(providerCard.waitForExistence(timeout: .longUIUpdate), "Provider card should exist")
-            XCTAssertTrue(providerIcon.waitForExistence(timeout: .longUIUpdate), "Provider icon should exist")
-            XCTAssertTrue(providerNameElement.waitForExistence(timeout: .longUIUpdate), "Provider name should exist")
+            XCTAssertTrue(providerCard.waitForExistence(timeout: .robustUIUpdate), "Provider card should exist")
+            XCTAssertTrue(providerIcon.waitForExistence(timeout: .robustUIUpdate), "Provider icon should exist")
+            XCTAssertTrue(providerNameElement.waitForExistence(timeout: .robustUIUpdate), "Provider name should exist")
             XCTAssertFalse(providerNameElement.label.isEmpty, "Provider name should not be empty")
-            XCTAssertTrue(providerAmount.waitForExistence(timeout: .longUIUpdate), "Provider amount should exist")
+            XCTAssertTrue(providerAmount.waitForExistence(timeout: .robustUIUpdate), "Provider amount should exist")
             XCTAssertFalse(providerAmount.label.isEmpty, "Provider amount should not be empty")
         }
         return self
@@ -97,7 +106,7 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
             XCTAssertTrue(providerNames.firstMatch.exists, "At least one provider name should exist")
 
             let firstProviderName = providerNames.firstMatch
-            XCTAssertTrue(firstProviderName.waitForExistence(timeout: .longUIUpdate), "First provider name should be accessible")
+            XCTAssertTrue(firstProviderName.waitForExistence(timeout: .robustUIUpdate), "First provider name should be accessible")
 
             let providerName = firstProviderName.label
             XCTAssertFalse(providerName.isEmpty, "Provider name should not be empty")
@@ -117,7 +126,7 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
 
     func tapPaymentMethodBlock() -> OnrampPaymentMethodsScreen {
         XCTContext.runActivity(named: "Tap payment method block") { _ in
-            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .longUIUpdate), "Payment method block should exist before tapping")
+            XCTAssertTrue(paymentMethodBlock.waitForExistence(timeout: .robustUIUpdate), "Payment method block should exist before tapping")
             XCTAssertTrue(paymentMethodBlock.isHittable, "Payment method block should be hittable")
 
             paymentMethodBlock.waitAndTap()
