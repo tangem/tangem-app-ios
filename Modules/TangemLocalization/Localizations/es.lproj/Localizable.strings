@@ -10,6 +10,8 @@
 "access_code_create_description" = "Set a %@-digit Access Code to unlock your wallet.";
 "access_code_create_title" = "Create Access Code";
 "access_code_navtitle" = "Access code";
+"accessibility_action_long_press" = "Long press";
+"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
 "action_buttons_buy_empty_search_message" = "¿No encuentra el token en su billetera? Consulte la sección de Mercados para encontrarlo y añadirlo a la compra";
 "action_buttons_buy_navigation_bar_title" = "Comprar";
 "action_buttons_sell_empty_search_message" = "¿No encuentra el token en su billetera? Consulte los mercados para encontrarlo y añadirlo a la venta";
@@ -65,6 +67,10 @@
 "app_settings_title" = "Ajustes de la app";
 "app_settings_warning_subtitle" = "Vaya a ajustes para habilitar la autenticación biométrica en la Tangem App";
 "app_settings_warning_title" = "Habilitar autenticación biométrica";
+"auth_info_add_wallet_title" = "Add Wallet";
+"auth_info_subtitle" = "Select a wallet to log in";
+"auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "Copia de seguridad de tu billetera realizada con éxito.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Copia de seguridad completada";
@@ -410,6 +416,8 @@
 "hw_activation_need_description" = "To complete setup, back up your wallet and secure app access with a Access Code.";
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
+"hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
+"hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
@@ -420,9 +428,10 @@
 "hw_backup_seed_title" = "Recovery phrase";
 "hw_create_keys_description" = "Get notified of incoming transactions";
 "hw_create_keys_title" = "Keys are stored in the app";
-"hw_create_seed_description" = "Stay up to date with the latest features and news";
+"hw_create_seed_description" = "Mantente al día con las últimas funciones y noticias";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "Esta información fue generada con IA.\nPulse aquí si encuentra algún error.";
 "initial_message_change_access_code_body" = "Para cambiar el código de acceso coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_change_passcode_body" = "Toque para cambiar la contraseña";
@@ -812,6 +821,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "ID de destino";
 "send_dismiss_message" = "¿Está seguro (a) de que quiere cerrar la pantalla de envío?";
+"send_enter_address_field_ens" = "Enter ENS name or address";
 "send_enter_address_field" = "Introduce la dirección";
 "send_error_address_same_as_wallet" = "La dirección es la misma que su billetera.";
 "send_error_dust_change" = "La cantidad es demasiado baja";
@@ -885,10 +895,15 @@
 "send_tron_account_activation_error" = "%1$@  es un activo en la red Tron. Para calcular la tarifa y realizar una transacción, deba depositar algo de Tron (TRX) en su cuenta.";
 "send_validation_destination_tag_required_description" = "Es necesario una etiqueta de destino (memo) para completar esta transacción para la dirección especificada.";
 "send_validation_destination_tag_required_title" = "Etiqueta de destino obligatoria";
+"send_with_swap_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_notification_text" = "Envía cualquier token y lo convertiremos en el camino. Su destinatario obtiene exactamente lo que necesita, sin problemas.";
+"send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Se enviará un destinatario";
 "send_with_swap_recipient_amount_title" = "Cantidad a recibir";
+"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_remove_convert_alert_title" = "Confirm cancelation";
 "send_with_swap_title" = "Enviar con swap";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
