@@ -13,18 +13,16 @@ struct SingleCardOnboardingStepsBuilder {
     private let cardId: String
     private let hasWallets: Bool
     private let isMultiCurrency: Bool
-    private let isPushNotificationsAvailable: Bool
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
@@ -38,13 +36,11 @@ struct SingleCardOnboardingStepsBuilder {
     init(
         cardId: String,
         hasWallets: Bool,
-        isMultiCurrency: Bool,
-        isPushNotificationsAvailable: Bool
+        isMultiCurrency: Bool
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
         self.isMultiCurrency = isMultiCurrency
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 
