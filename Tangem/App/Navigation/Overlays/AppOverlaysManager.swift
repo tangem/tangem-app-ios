@@ -19,6 +19,7 @@ final class AppOverlaysManager {
 
     @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
+    @Injected(\.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
 
     private var overlayWindow: UIWindow?
@@ -42,7 +43,8 @@ final class AppOverlaysManager {
             from: windowScene,
             sheetViewModel: floatingSheetViewModel,
             storiesViewModel: tangemStoriesViewModel,
-            sheetRegistry: sheetRegistry
+            sheetRegistry: sheetRegistry,
+            alertPresenterViewModel: alertPresenterViewModel
         )
 
         bindStories()
@@ -116,10 +118,15 @@ extension AppOverlaysManager {
         from windowScene: UIWindowScene,
         sheetViewModel: FloatingSheetViewModel,
         storiesViewModel: TangemStoriesViewModel,
-        sheetRegistry: FloatingSheetRegistry
+        sheetRegistry: FloatingSheetRegistry,
+        alertPresenterViewModel: AlertPresenterViewModel
     ) -> UIWindow {
-        let rootView = OverlayRootView(floatingSheetViewModel: sheetViewModel, tangemStoriesViewModel: storiesViewModel)
-            .environment(\.floatingSheetRegistry, sheetRegistry)
+        let rootView = OverlayRootView(
+            floatingSheetViewModel: sheetViewModel,
+            tangemStoriesViewModel: storiesViewModel,
+            alertPresenterViewModel: alertPresenterViewModel
+        )
+        .environment(\.floatingSheetRegistry, sheetRegistry)
 
         let rootViewController = UIHostingController(rootView: rootView)
         rootViewController.view.backgroundColor = .clear

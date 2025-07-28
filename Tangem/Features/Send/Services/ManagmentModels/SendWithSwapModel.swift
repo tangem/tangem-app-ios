@@ -31,9 +31,12 @@ class SendWithSwapModel {
     // MARK: - Dependencies
 
     var externalAmountUpdater: SendExternalAmountUpdater!
+    var externalDestinationUpdater: SendExternalDestinationUpdater!
     var sendFeeProvider: SendFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
+
     weak var router: SendModelRoutable?
+    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
@@ -41,6 +44,7 @@ class SendWithSwapModel {
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
+    private let sendAlertBuilder: SendAlertBuilder
     private let swapManager: SwapManager
 
     private var bag: Set<AnyCancellable> = []
@@ -53,6 +57,7 @@ class SendWithSwapModel {
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
+        sendAlertBuilder: SendAlertBuilder,
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
@@ -60,6 +65,7 @@ class SendWithSwapModel {
         self.feeIncludedCalculator = feeIncludedCalculator
         self.analyticsLogger = analyticsLogger
         self.sendReceiveTokenBuilder = sendReceiveTokenBuilder
+        self.sendAlertBuilder = sendAlertBuilder
         self.swapManager = swapManager
 
         _sendingToken = .init(userToken)
@@ -151,6 +157,45 @@ private extension SendWithSwapModel {
     private func makeAmount(decimal: Decimal) -> Amount {
         let tokenItem = _sendingToken.value.tokenItem
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: decimal)
+    }
+}
+
+// MARK: - Reset flow
+
+private extension SendWithSwapModel {
+    func resetFlow(
+        newReceiveToken: SendReceiveTokenType,
+        reset: @escaping () -> Void,
+        cancel: @escaping () -> Void = {}
+    ) {
+        func resetFlowAction() {
+            reset()
+            externalDestinationUpdater.externalUpdate(address: .init(value: "", source: .textField))
+            router?.resetFlow()
+        }
+
+        switch newReceiveToken {
+        // If we don't have any destination address
+        // We can safely change the token
+        case _ where destination == nil:
+            reset()
+
+        // If both tokens have the same network
+        // it means destination will be valid after change
+        // Then we safely change the token
+        case .swap(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+            reset()
+
+        case .swap:
+            alertPresenter?.showAlert(
+                sendAlertBuilder.makeChangeTokenFlowAlert(action: resetFlowAction, cancel: cancel)
+            )
+
+        case .same:
+            alertPresenter?.showAlert(
+                sendAlertBuilder.makeCancelConvertingFlowAlert(action: resetFlowAction, cancel: cancel)
+            )
+        }
     }
 }
 
@@ -328,12 +373,22 @@ extension SendWithSwapModel: SendReceiveTokenInput {
 // MARK: - SendReceiveTokenOutput
 
 extension SendWithSwapModel: SendReceiveTokenOutput {
-    func userDidSelect(receiveToken: SendReceiveToken) {
-        _receivedToken.send(.swap(receiveToken))
+    func userDidRequestClearSelection() {
+        let newReceiveToken = SendReceiveTokenType.same(_sendingToken.value)
+        resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
+            self?._receivedToken.send(newReceiveToken)
+        })
     }
 
-    func userDidRequestClearSelection() {
-        _receivedToken.send(.same(_sendingToken.value))
+    func userDidRequestSelect(receiveToken: SendReceiveToken, selected: @escaping (Bool) -> Void) {
+        let newReceiveToken = SendReceiveTokenType.swap(receiveToken)
+
+        resetFlow(newReceiveToken: newReceiveToken, reset: { [weak self] in
+            self?._receivedToken.send(newReceiveToken)
+            selected(true)
+        }, cancel: {
+            selected(false)
+        })
     }
 }
 

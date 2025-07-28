@@ -11,7 +11,12 @@ import BlockchainSdk
 
 struct SendNewDestinationStepBuilder {
     typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
-    typealias ReturnValue = (step: SendNewDestinationStep, compact: SendNewDestinationCompactViewModel, finish: SendDestinationCompactViewModel)
+    typealias ReturnValue = (
+        step: SendNewDestinationStep,
+        externalUpdater: SendExternalDestinationUpdater,
+        compact: SendNewDestinationCompactViewModel,
+        finish: SendDestinationCompactViewModel
+    )
 
     let builder: SendDependenciesBuilder
 
@@ -43,10 +48,13 @@ struct SendNewDestinationStepBuilder {
             interactorSaver: interactorSaver,
             analyticsLogger: analyticsLogger
         )
+        let externalUpdater = SendExternalDestinationUpdater(viewModel: viewModel)
         let compact = SendNewDestinationCompactViewModel(input: io.input)
         let finish = SendDestinationCompactViewModel(input: io.input, addressTextViewHeightModel: .init())
 
-        return (step: step, compact: compact, finish: finish)
+        interactorSaver.updater = externalUpdater
+
+        return (step: step, externalUpdater: externalUpdater, compact: compact, finish: finish)
     }
 }
 
