@@ -424,6 +424,7 @@ struct SendDependenciesBuilder {
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            sendAlertBuilder: makeSendAlertBuilder(),
             swapManager: swapManager,
             predefinedValues: predefinedValues
         )

@@ -624,7 +624,11 @@ extension MainCoordinator: WCTransactionRoutable {
     func showWCTransactionRequest(with data: WCHandleTransactionData) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(dappData: data.dAppData, transactionData: data)
+                sheet: WCTransactionViewModel(
+                    dappData: data.dAppData,
+                    transactionData: data,
+                    analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
+                )
             )
         }
     }
