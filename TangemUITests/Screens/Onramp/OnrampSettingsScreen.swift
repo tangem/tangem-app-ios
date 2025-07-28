@@ -22,7 +22,7 @@ final class OnrampSettingsScreen: ScreenBase<OnrampSettingsScreenElement> {
     @discardableResult
     func validateSelectedCountry(_ expectedCountry: String) -> Self {
         XCTContext.runActivity(named: "Validate selected country is '\(expectedCountry)' on settings screen") { _ in
-            XCTAssertTrue(residenceButton.waitForExistence(timeout: .longUIUpdate), "Residence button should exist")
+            XCTAssertTrue(residenceButton.waitForExistence(timeout: .robustUIUpdate), "Residence button should exist")
 
             let buttonText = residenceButton.label
             XCTAssertTrue(buttonText.contains(expectedCountry), "Residence button should contain '\(expectedCountry)' but was '\(buttonText)'")
@@ -32,7 +32,7 @@ final class OnrampSettingsScreen: ScreenBase<OnrampSettingsScreenElement> {
 
     func dismissOnrampSettings() -> OnrampScreen {
         XCTContext.runActivity(named: "Dismiss settings screen by back navigation") { _ in
-            _ = residenceButton.waitForExistence(timeout: .quickUIUpdate)
+            _ = residenceButton.waitForExistence(timeout: .robustUIUpdate)
 
             app.navigationBars["Settings"].buttons["Back"].waitAndTap()
 
