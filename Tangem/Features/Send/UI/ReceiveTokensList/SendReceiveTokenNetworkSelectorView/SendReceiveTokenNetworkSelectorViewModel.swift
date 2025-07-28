@@ -140,8 +140,11 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     }
 
     private func userDidSelect(tokenItem: TokenItem) {
-        receiveTokenOutput?.userDidSelect(receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem))
-        router?.dismissNetworkSelector(isSelected: true)
+        receiveTokenOutput?.userDidRequestSelect(
+            receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem)
+        ) { [weak self] selected in
+            self?.router?.dismissNetworkSelector(isSelected: selected)
+        }
     }
 }
 

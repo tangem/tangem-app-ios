@@ -21,4 +21,11 @@ final class AppPresenter: @unchecked Sendable {
             UIApplication.modalFromTop(controller)
         }
     }
+
+    @available(iOS, deprecated: 100000.0, message: "Use `AlertPresenter` as @Injected dependency instead")
+    func show(_ controller: UIAlertController, delay: TimeInterval = 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            UIApplication.modalFromTop(controller)
+        }
+    }
 }
