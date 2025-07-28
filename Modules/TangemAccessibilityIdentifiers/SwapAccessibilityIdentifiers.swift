@@ -26,12 +26,10 @@ public enum SwapAccessibilityIdentifiers {
 
     // Fee selector elements
     public static let feeSelectorTitle = "swapFeeSelectorTitle"
-    public static let normalFeeOption = "swapNormalFeeOption"
-    public static let priorityFeeOption = "swapPriorityFeeOption"
 
-    /// Loading indicators
+    // Loading indicators
     public static let loadingIndicator = "swapLoadingIndicator"
 
-    /// Action buttons
+    // Action buttons
     public static let confirmButton = "swapConfirmButton"
 }
