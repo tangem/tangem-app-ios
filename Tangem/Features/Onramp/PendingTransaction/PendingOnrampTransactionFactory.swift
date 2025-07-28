@@ -62,6 +62,7 @@ struct PendingOnrampTransactionFactory {
         transactionRecord.transactionStatus = currentStatus
         transactionRecord.destinationTokenTxInfo = .init(
             tokenItem: transactionRecord.destinationTokenTxInfo.tokenItem,
+            address: transactionRecord.destinationTokenTxInfo.address,
             amountString: currentOnrampTransaction.toAmount.map(\.stringValue) ?? "",
             isCustom: transactionRecord.destinationTokenTxInfo.isCustom
         )
