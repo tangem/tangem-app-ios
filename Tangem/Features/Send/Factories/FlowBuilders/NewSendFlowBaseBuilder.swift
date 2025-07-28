@@ -92,6 +92,7 @@ struct NewSendFlowBaseBuilder {
 
         // We have to set dependencies here after all setups is completed
         sendModel.externalAmountUpdater = amount.amountUpdater
+        sendModel.externalDestinationUpdater = destination.externalUpdater
         sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             input: sendModel, output: sendModel, provider: sendFeeProvider
@@ -144,9 +145,11 @@ struct NewSendFlowBaseBuilder {
         stepsManager.set(output: viewModel)
         stepsManager.router = router
 
+        sendModel.router = viewModel
+        sendModel.alertPresenter = viewModel
+
         // [REDACTED_TODO_COMMENT]
         // fee.step.set(alertPresenter: viewModel)
-        sendModel.router = viewModel
         amount.step.set(router: viewModel)
 
         return viewModel

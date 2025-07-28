@@ -9,6 +9,7 @@
 import Foundation
 import BigInt
 
+// [REDACTED_TODO_COMMENT]
 /// Service for creating display model from transaction simulation data
 struct WCTransactionSimulationDisplayService {
     // MARK: - Public Methods
@@ -24,6 +25,12 @@ struct WCTransactionSimulationDisplayService {
             return WCTransactionSimulationDisplayModel(
                 cardTitle: "Estimated wallet changes",
                 content: .loading
+            )
+
+        case .simulationNotSupported(let method):
+            return WCTransactionSimulationDisplayModel(
+                cardTitle: "Estimated wallet changes",
+                content: .failed(message: "Estimation is not supported for \(method)")
             )
 
         case .simulationFailed(let error):
