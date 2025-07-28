@@ -25,7 +25,7 @@ final class WalletConnectPersistConnectedDAppUseCase {
         let connectedDApp = WalletConnectConnectedDApp(
             session: dAppSession,
             userWalletID: userWallet.userWalletId.stringValue,
-            dAppData: connectionProposal.dApp,
+            dAppData: connectionProposal.dAppData,
             verificationStatus: connectionProposal.verificationStatus,
             blockchains: blockchains,
             connectionDate: Date.now
