@@ -233,6 +233,22 @@ extension SendNewDestinationViewModel: SendNewDestinationAddressViewRoutable {
     }
 }
 
+// MARK: - SendExternalDestinationUpdatableViewModel
+
+extension SendNewDestinationViewModel: SendExternalDestinationUpdatableViewModel {
+    func externalUpdate(address: SendAddress) {
+        destinationAddressViewModel.update(address: address)
+    }
+
+    func externalUpdate(additionalField: SendDestinationAdditionalField) {
+        guard case .filled(_, let value, _) = additionalField else {
+            return
+        }
+
+        additionalFieldViewModel?.update(text: value)
+    }
+}
+
 // MARK: - SendStepViewAnimatable
 
 extension SendNewDestinationViewModel: SendStepViewAnimatable {

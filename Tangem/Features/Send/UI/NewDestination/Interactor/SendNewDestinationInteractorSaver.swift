@@ -19,6 +19,7 @@ protocol SendNewDestinationInteractorSaver {
 class CommonSendNewDestinationInteractorSaver: SendNewDestinationInteractorSaver {
     private weak var input: SendDestinationInput?
     private weak var output: SendDestinationOutput?
+    var updater: SendExternalDestinationUpdater?
 
     private var captureDestination: SendAddress?
     private var captureAdditionalField: SendDestinationAdditionalField?
@@ -42,10 +43,14 @@ class CommonSendNewDestinationInteractorSaver: SendNewDestinationInteractorSaver
     }
 
     func cancelChanges() {
-        output?.destinationDidChanged(captureDestination)
+        if let captureDestination {
+            output?.destinationDidChanged(captureDestination)
+            updater?.externalUpdate(address: captureDestination)
+        }
 
         if let captureAdditionalField {
             output?.destinationAdditionalParametersDidChanged(captureAdditionalField)
+            updater?.externalUpdate(additionalField: captureAdditionalField)
         }
     }
 }
