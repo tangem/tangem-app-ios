@@ -189,11 +189,16 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
         fees.compactMap { mapToFeeSelectorFee(fee: $0) }
     }
 
-    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> {
         feesPublisher
             .withWeakCaptureOf(self)
             .compactMap { interactor, fees in
-                fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+                if fees.contains(where: { $0.value.isLoading }) {
+                    return .loading
+                }
+
+                let selectorFees = fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+                return .success(selectorFees)
             }
             .eraseToAnyPublisher()
     }

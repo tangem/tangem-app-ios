@@ -16,7 +16,6 @@ final class ToSScreen: ScreenBase<ToSPageUIElement> {
     func acceptAgreement() -> StoriesScreen {
         XCTContext.runActivity(named: "Tap Accept Button") { _ in
             acceptButton.waitAndTap()
-            PushPermissionRequestScreen(app).handlePermissionRequest()
             return StoriesScreen(app)
         }
     }
