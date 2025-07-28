@@ -1,5 +1,5 @@
 //
-//  ScanMockWalletUITests.swift
+//  ToSUITests.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,10 +7,11 @@
 //
 import XCTest
 
-final class ScanMockWalletUITests: BaseTestCase {
+final class ToSUITests: BaseTestCase {
     lazy var tosPage = ToSScreen(app)
 
-    func testScanMockWallet_ShouldShowMainScreen() {
+    func testAcceptToSAndScanWallet_ShouldShowMainScreen() {
+        id(3573)
         launchApp(tangemApiType: .mock, skipToS: false)
 
         tosPage
