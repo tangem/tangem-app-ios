@@ -308,6 +308,8 @@ private extension StakingModel {
 // MARK: - SendFeeProvider
 
 extension StakingModel: SendFeeProvider {
+    var feeOptions: [FeeOption] { [.market] }
+
     var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
         .success([mapToSendFee(_state.value)])
     }
