@@ -339,7 +339,7 @@ private extension ExpressViewModel {
                     self?.updateSendView(wallet: pair.sender)
                 }
 
-                if pair.destination.value?.id != prev.destination.value?.id {
+                if pair.destination?.value?.id != prev.destination?.value?.id {
                     self?.updateReceiveView(wallet: pair.destination)
                 }
 
@@ -352,7 +352,7 @@ private extension ExpressViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, pair -> Bool in
                 do {
-                    if let destination = pair.destination.value as? ExpressSourceWallet {
+                    if let destination = pair.destination?.value as? ExpressSourceWallet {
                         let oppositePair = ExpressManagerSwappingPair(source: destination, destination: pair.sender)
                         let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
                         return oppositeProviders.isEmpty
@@ -417,7 +417,7 @@ private extension ExpressViewModel {
 
     // MARK: - Receive view bubble
 
-    func updateReceiveView(wallet: ExpressInteractor.Destination) {
+    func updateReceiveView(wallet: ExpressInteractor.Destination?) {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
@@ -440,7 +440,7 @@ private extension ExpressViewModel {
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
         let sendingMainToken = pair.sender.isMainToken
-        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination.value?.tokenItem.blockchainNetwork
+        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination?.value?.tokenItem.blockchainNetwork
 
         isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
