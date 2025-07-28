@@ -77,7 +77,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     }
 
     func openExplore() {
-        guard let exploreURL = data.source.exploreTransactionURL(for: data.hash) else {
+        guard let exploreURL = data.source.exploreTransactionURL(for: data.result.hash) else {
             return
         }
 

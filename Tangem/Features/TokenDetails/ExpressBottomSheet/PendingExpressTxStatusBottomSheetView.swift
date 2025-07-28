@@ -156,11 +156,13 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
+                address: UUID().uuidString,
                 amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: .token(.shibaInuMock, .init(.ethereum(testnet: false), derivationPath: nil)),
+                address: UUID().uuidString,
                 amountString: "1",
                 isCustom: false
             ),
