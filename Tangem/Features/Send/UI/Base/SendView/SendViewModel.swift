@@ -20,6 +20,10 @@ protocol SendViewAlertPresenter: AnyObject {
 }
 
 final class SendViewModel: ObservableObject {
+    // MARK: - Injections
+
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     // MARK: - ViewState
 
     @Published var step: SendStep
@@ -35,8 +39,6 @@ final class SendViewModel: ObservableObject {
     @Published var isUserInteractionDisabled = false
     @Published var mainButtonLoading: Bool = false
     @Published var actionIsAvailable: Bool = false
-
-    @Published var alert: AlertBinder?
 
     var title: String? { step.title }
     var subtitle: String? { step.subtitle }
@@ -164,9 +166,9 @@ final class SendViewModel: ObservableObject {
             // We perform the back action with no save changes in new UI
             stepsManager.performBack()
         case _ where shouldShowDismissAlert:
-            alert = alertBuilder.makeDismissAlert { [weak self] in
+            showAlert(alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)
-            }
+            })
         case _:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
@@ -188,7 +190,7 @@ final class SendViewModel: ObservableObject {
 private extension SendViewModel {
     func performOnramp() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            showAlert(AlertBuilder.makeDemoAlert(disabledLocalizedReason))
             return
         }
 
@@ -197,7 +199,7 @@ private extension SendViewModel {
             let onrampRedirectingBuilder = try dataBuilder.onrampBuilder().makeDataForOnrampRedirecting()
             coordinator?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -206,7 +208,7 @@ private extension SendViewModel {
             let (settings, approveViewModelInput) = try dataBuilder.stakingBuilder().makeDataForExpressApproveViewModel()
             coordinator?.openApproveView(settings: settings, approveViewModelInput: approveViewModelInput)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -252,23 +254,23 @@ private extension SendViewModel {
         case .userCancelled, .transactionNotFound, .actionNotSupported:
             break
         case .informationRelevanceServiceError:
-            alert = alertBuilder.makeFeeRetryAlert { [weak self] in
+            showAlert(alertBuilder.makeFeeRetryAlert { [weak self] in
                 self?.interactor.actualizeInformation()
-            }
+            })
         case .informationRelevanceServiceFeeWasIncreased:
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
+            showAlert(AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle))
         case .sendTxError(let transaction, let sendTxError):
-            alert = alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
+            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
                 self?.openMail(transaction: transaction, error: sendTxError)
-            }
+            })
         case .loadTransactionInfo(let error):
-            alert = alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
+            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
                 self?.openMail(error: error)
-            }
+            })
         case .demoAlert:
-            alert = AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
+            showAlert(AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
                 self?.coordinator?.dismiss(reason: .other)
-            }
+            })
         }
     }
 
@@ -279,7 +281,7 @@ private extension SendViewModel {
             let (emailDataCollector, recipient) = try dataBuilder.stakingBuilder().makeMailData(stakingRequestError: error)
             coordinator?.openMail(with: emailDataCollector, recipient: recipient)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -298,7 +300,7 @@ private extension SendViewModel {
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
             }
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -343,6 +345,10 @@ extension SendViewModel: SendModelRoutable {
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
+
+    func resetFlow() {
+        stepsManager.resetFlow()
+    }
 }
 
 // MARK: - SendNewAmountRoutable
@@ -355,7 +361,7 @@ extension SendViewModel: SendNewAmountRoutable {
             let tokensListBuilder = try builder.makeSendReceiveTokensList()
             coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 }
@@ -370,7 +376,7 @@ extension SendViewModel: OnrampModelRoutable {
             let (repository, dataRepository) = builder.makeDataForOnrampCountryBottomSheet()
             coordinator?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -383,7 +389,7 @@ extension SendViewModel: OnrampModelRoutable {
                 dataRepository: dataRepository
             )
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -405,7 +411,7 @@ extension SendViewModel: OnrampSummaryRoutable {
             let (providersBuilder, paymentMethodsBuilder) = builder.makeDataForOnrampProvidersPaymentMethodsView()
             coordinator?.openOnrampProviders(providersBuilder: providersBuilder, paymentMethodsBuilder: paymentMethodsBuilder)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -415,7 +421,7 @@ extension SendViewModel: OnrampSummaryRoutable {
             let (repository, _) = builder.makeDataForOnrampCountrySelectorView()
             coordinator?.openOnrampSettings(repository: repository)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -428,7 +434,7 @@ extension SendViewModel: OnrampSummaryRoutable {
                 dataRepository: dataRepository
             )
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 }
@@ -437,7 +443,7 @@ extension SendViewModel: OnrampSummaryRoutable {
 
 extension SendViewModel: SendViewAlertPresenter {
     func showAlert(_ alert: AlertBinder) {
-        self.alert = alert
+        alertPresenter.present(alert: alert)
     }
 }
 
