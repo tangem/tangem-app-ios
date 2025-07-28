@@ -70,7 +70,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             )
 
         default:
-            state = .simulationFailed(error: "Simulation not supported for \(method.rawValue)")
+            state = .simulationNotSupported(method: method.rawValue)
         }
 
         return state

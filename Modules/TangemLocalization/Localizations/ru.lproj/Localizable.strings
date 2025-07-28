@@ -416,6 +416,7 @@
 "hw_activation_need_description" = "To complete setup, back up your wallet and secure app access with a Access Code.";
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
+"hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
 "hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
@@ -820,6 +821,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Код назначения";
 "send_dismiss_message" = "Вы действительно хотите закрыть экран отправки транзакции?";
+"send_enter_address_field_ens" = "Enter ENS name or address";
 "send_enter_address_field" = "Введите адрес";
 "send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
 "send_error_dust_change" = "Сдача слишком мала";
