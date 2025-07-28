@@ -10,10 +10,13 @@ import Combine
 import enum BlockchainSdk.Blockchain
 import TangemFoundation
 import TangemLocalization
+import TangemLogger
 
 @MainActor
 final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     private let interactor: WalletConnectDAppConnectionInteractor
+    private let logger: TangemLogger.Logger
+    private let analyticsLogger: any WalletConnectDAppConnectionRequestAnalyticsLogger
     private let hapticFeedbackGenerator: any WalletConnectHapticFeedbackGenerator
 
     private var selectedUserWallet: any UserWalletModel
@@ -31,11 +34,15 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
     init(
         state: WalletConnectDAppConnectionRequestViewState,
         interactor: WalletConnectDAppConnectionInteractor,
+        analyticsLogger: some WalletConnectDAppConnectionRequestAnalyticsLogger,
+        logger: TangemLogger.Logger,
         hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         selectedUserWallet: some UserWalletModel
     ) {
         self.state = state
         self.interactor = interactor
+        self.logger = logger
+        self.analyticsLogger = analyticsLogger
 
         self.hapticFeedbackGenerator = hapticFeedbackGenerator
 
@@ -91,20 +98,24 @@ extension WalletConnectDAppConnectionRequestViewModel {
         hapticFeedbackGenerator.prepareNotificationFeedback()
         dAppLoadingTask?.cancel()
 
-        dAppLoadingTask = Task { [weak self, getDAppConnectionProposal = interactor.getDAppConnectionProposal] in
+        dAppLoadingTask = Task { [weak self, getDAppConnectionProposal = interactor.getDAppConnectionProposal, analyticsLogger] in
             // [REDACTED_USERNAME], due to Task's operation closure error erasing nature in current language version,
             // it is required to explicitly define error type in order to compile :/
             do throws(WalletConnectDAppProposalLoadingError) {
+                analyticsLogger.logSessionInitiated()
                 let dAppProposal = try await getDAppConnectionProposal()
                 self?.handleLoadedDAppProposal(dAppProposal)
             } catch {
                 self?.hapticFeedbackGenerator.errorNotificationOccurred()
                 self?.coordinator?.display(proposalLoadingError: error)
+                analyticsLogger.logSessionFailed(with: error)
             }
         }
     }
 
     private func handleLoadedDAppProposal(_ dAppProposal: WalletConnectDAppConnectionProposal) {
+        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
             selectedBlockchains: dAppProposal.sessionProposal.optionalBlockchains,
@@ -123,6 +134,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
 extension WalletConnectDAppConnectionRequestViewModel {
     private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [Blockchain]) async {
+        analyticsLogger.logConnectButtonTapped()
+
         let dAppSession: WalletConnectDAppSession
 
         do {
@@ -132,6 +145,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 selectedUserWallet: selectedUserWallet
             )
         } catch {
+            analyticsLogger.logDAppConnectionFailed(with: error)
             hapticFeedbackGenerator.errorNotificationOccurred()
             coordinator?.display(proposalApprovalError: error)
             return
@@ -147,25 +161,29 @@ extension WalletConnectDAppConnectionRequestViewModel {
         } catch {
             hapticFeedbackGenerator.errorNotificationOccurred()
             coordinator?.display(dAppPersistenceError: error)
+            logger.error("Failed to persist \(proposal.dAppData.name) dApp", error: error)
             return
         }
 
+        analyticsLogger.logDAppConnected(with: proposal.dAppData)
         hapticFeedbackGenerator.successNotificationOccurred()
-        coordinator?.displaySuccessfulDAppConnection(with: proposal.dApp.name)
+        coordinator?.displaySuccessfulDAppConnection(with: proposal.dAppData.name)
         coordinator?.dismiss()
     }
 
     private func rejectDAppProposal() {
         if let loadedDAppProposal {
-            Task { [rejectDAppProposal = interactor.rejectDAppProposal] in
+            Task { [rejectDAppProposal = interactor.rejectDAppProposal, analyticsLogger, logger] in
                 do {
                     try await rejectDAppProposal(proposalID: loadedDAppProposal.sessionProposal.id)
+                    analyticsLogger.logDAppDisconnected(with: loadedDAppProposal.dAppData)
                 } catch {
-                    // [REDACTED_TODO_COMMENT]
+                    logger.error("Failed to disconnect \(loadedDAppProposal.dAppData.name) dApp", error: error)
                 }
             }
         }
 
+        analyticsLogger.logCancelButtonTapped()
         coordinator?.dismiss()
     }
 }
@@ -203,7 +221,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleVerifiedDomainIconTapped() {
-        guard !state.dAppDescriptionSection.isLoading, let dAppName = loadedDAppProposal?.dApp.name else { return }
+        guard !state.dAppDescriptionSection.isLoading, let dAppName = loadedDAppProposal?.dAppData.name else { return }
         coordinator?.openVerifiedDomain(for: dAppName)
     }
 
@@ -310,7 +328,7 @@ extension WalletConnectDAppConnectionRequestViewState {
         return WalletConnectDAppConnectionRequestViewState(
             dAppDescriptionSection: WalletConnectDAppDescriptionViewModel.content(
                 WalletConnectDAppDescriptionViewModel.ContentState(
-                    dAppData: proposal.dApp,
+                    dAppData: proposal.dAppData,
                     verificationStatus: proposal.verificationStatus
                 )
             ),

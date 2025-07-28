@@ -37,7 +37,8 @@ private final class WalletConnectEnvironment {
             dAppIconURLResolver: dAppIconURLResolver,
             appSettings: AppSettings.shared
         ),
-        dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient)
+        dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService(walletKitClient: walletKitClient),
+        logger: WCLogger
     )
 
     lazy var wcService: CommonWCService = {
@@ -45,7 +46,11 @@ private final class WalletConnectEnvironment {
         return CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
     }()
 
-    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(apiService: BlockaidFactory().makeBlockaidAPIService())
+    lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(
+        apiService: BlockaidFactory().makeBlockaidAPIService(),
+        logger: WCLogger
+    )
+
     lazy var dAppIconURLResolver = WalletConnectDAppIconURLResolver(
         remoteURLResourceResolver: RemoteURLResourceResolver(
             session: URLSession(configuration: .walletConnectIconsContentTypeResolveConfiguration)

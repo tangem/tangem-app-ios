@@ -24,6 +24,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     private let simulationService: WCTransactionSimulationService
     private let simulationDisplayService: WCTransactionSimulationDisplayService
     private let feeSelectorFactory: WCFeeSelectorFactory
+    private let analyticsLogger: any WalletConnectTransactionAnalyticsLogger
 
     // MARK: Published properties
 
@@ -76,13 +77,15 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         transactionData: WCHandleTransactionData,
         simulationService: WCTransactionSimulationService = CommonWCTransactionSimulationService(blockaidService: BlockaidFactory().makeBlockaidAPIService()),
         simulationDisplayService: WCTransactionSimulationDisplayService? = nil,
-        feeSelectorFactory: WCFeeSelectorFactory = WCFeeSelectorFactory()
+        feeSelectorFactory: WCFeeSelectorFactory = WCFeeSelectorFactory(),
+        analyticsLogger: some WalletConnectTransactionAnalyticsLogger
     ) {
         self.dappData = dappData
         self.transactionData = transactionData
         self.simulationService = simulationService
         self.simulationDisplayService = simulationDisplayService ?? WCTransactionSimulationDisplayService()
         self.feeSelectorFactory = feeSelectorFactory
+        self.analyticsLogger = analyticsLogger
 
         currentTransaction = parseEthTransaction()
 
@@ -133,6 +136,8 @@ private extension WCTransactionViewModel {
                 requestData: transactionData.requestData,
                 domain: dappData.domain
             )
+
+            analyticsLogger.logSignatureRequestReceived(transactionData: transactionData, simulationState: simulationState)
         }
     }
 }
@@ -379,15 +384,19 @@ private extension WCTransactionViewModel {
     @MainActor
     func signTransaction(onComplete: (() -> Void)? = nil) async {
         do {
+            analyticsLogger.logSignButtonTapped(transactionData: transactionData)
+
             try await transactionData.accept()
 
             onComplete?()
+            analyticsLogger.logSignatureRequestHandled(transactionData: transactionData)
 
             makeSuccessToast(with: Localization.sendTransactionSuccess)
 
             floatingSheetPresenter.removeActiveSheet()
         } catch {
             onComplete?()
+            analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
 
             makeWarningToast(with: error.localizedDescription)
         }
@@ -395,6 +404,7 @@ private extension WCTransactionViewModel {
 
     func cancel() {
         Task {
+            analyticsLogger.logCancelButtonTapped()
             try? await transactionData.reject()
             floatingSheetPresenter.removeActiveSheet()
         }
@@ -411,6 +421,7 @@ private extension WCTransactionViewModel {
         )
 
         presentationState = .requestData(input)
+        analyticsLogger.logTransactionDetailsOpened(transactionData: transactionData)
     }
 }
 
