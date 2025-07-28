@@ -23,7 +23,7 @@ protocol SendNewAmountInteractor {
     func update(type: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
 
-    func removeReceivedToken()
+    func userDidRequestClearReceiveToken()
 }
 
 class CommonSendNewAmountInteractor {
@@ -270,7 +270,7 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
         }
     }
 
-    func removeReceivedToken() {
+    func userDidRequestClearReceiveToken() {
         receiveTokenOutput?.userDidRequestClearSelection()
     }
 }
