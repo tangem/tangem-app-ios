@@ -3628,6 +3628,7 @@
 		EFD39C982A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */; };
 		EFD39C992A6A916C0055D215 /* EnvironmentSetupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */; };
 		EFD39C9D2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */; };
+		EFD6491D2E337106008468BF /* SendReceiveTokensListNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD6491C2E337106008468BF /* SendReceiveTokensListNotification.swift */; };
 		EFD6782F2E27BF1E0065AD50 /* SendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD6782E2E27BF1E0065AD50 /* SendAnalyticsLogger.swift */; };
 		EFD678312E27BF250065AD50 /* CommonSendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678302E27BF250065AD50 /* CommonSendAnalyticsLogger.swift */; };
 		EFD678332E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD678322E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift */; };
@@ -7502,6 +7503,7 @@
 		EFD39C952A6A916C0055D215 /* EnvironmentSetupCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupCoordinatorView.swift; sourceTree = "<group>"; };
 		EFD39C962A6A916C0055D215 /* EnvironmentSetupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutable.swift; sourceTree = "<group>"; };
 		EFD39C9C2A6ADA730055D215 /* EnvironmentSetupRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupRoutableMock.swift; sourceTree = "<group>"; };
+		EFD6491C2E337106008468BF /* SendReceiveTokensListNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokensListNotification.swift; sourceTree = "<group>"; };
 		EFD6782E2E27BF1E0065AD50 /* SendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EFD678302E27BF250065AD50 /* CommonSendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EFD678322E27C7ED0065AD50 /* CommonStakingSendAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingSendAnalyticsLogger.swift; sourceTree = "<group>"; };
@@ -20249,6 +20251,7 @@
 			children = (
 				EFFA43652E02E8F1001E0E54 /* SendReceiveTokensListView.swift */,
 				EFFA43632E02E8E0001E0E54 /* SendReceiveTokensListViewModel.swift */,
+				EFD6491C2E337106008468BF /* SendReceiveTokensListNotification.swift */,
 				EFFA43692E02E8FF001E0E54 /* SendReceiveTokensListTokenView */,
 			);
 			path = SendReceiveTokensListView;
@@ -22168,6 +22171,7 @@
 				B0AF9BFB2C32D01200EC5830 /* MarketsTokenDetailsView+Skeletons.swift in Sources */,
 				B08EE5192BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift in Sources */,
 				DC13D03929DEC1230003895C /* CardDTO.swift in Sources */,
+				EFD6491D2E337106008468BF /* SendReceiveTokensListNotification.swift in Sources */,
 				2DC567662B0DFFAF00B0244F /* MarketsView.swift in Sources */,
 				EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */,
 				EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */,
