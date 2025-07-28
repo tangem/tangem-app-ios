@@ -24,12 +24,12 @@ public enum SwapAccessibilityIdentifiers {
     public static let feeBlock = "swapFeeBlock"
     public static let tangemCommissionLabel = "swapTangemCommissionLabel"
 
-    // Fee selector elements
+    /// Fee selector elements
     public static let feeSelectorTitle = "swapFeeSelectorTitle"
 
-    // Loading indicators
+    /// Loading indicators
     public static let loadingIndicator = "swapLoadingIndicator"
 
-    // Action buttons
+    /// Action buttons
     public static let confirmButton = "swapConfirmButton"
 }
