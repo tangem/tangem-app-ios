@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.22.3")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.23.1")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -131,6 +131,12 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TrezorCrypto",
             path: "TangemHotSdk/Sources/TrezorCrypto",
+            exclude: [
+                "crypto/ed25519-donna/README.md",
+                "crypto/nist256p1.table",
+                "crypto/secp256k1.table",
+                "crypto/test.db",
+            ],
             sources: ["crypto"],
             publicHeadersPath: "include",
         ),
