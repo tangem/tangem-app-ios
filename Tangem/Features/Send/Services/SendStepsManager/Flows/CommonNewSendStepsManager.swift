@@ -63,17 +63,15 @@ class CommonNewSendStepsManager {
         stack.append(step)
 
         switch step.type {
-        case .summary, .newSummary:
+        case .newSummary:
             output?.update(state: .init(step: step, action: .action))
-        case .finish, .newFinish:
+        case .newFinish:
             output?.update(state: .init(step: step, action: .close))
-        case .newAmount where isEditAction,
-             .newDestination where isEditAction,
-             .fee where isEditAction:
+        case .newAmount where isEditAction, .newDestination where isEditAction:
             output?.update(state: .init(step: step, action: .continue))
         case .newAmount, .newDestination:
             output?.update(state: .init(step: step, action: .next))
-        case .amount, .fee, .validators, .onramp, .destination:
+        case .amount, .fee, .validators, .onramp, .destination, .summary, .finish:
             assertionFailure("There is no next step")
         }
     }
@@ -117,6 +115,11 @@ extension CommonNewSendStepsManager: SendStepsManager {
 
     func set(output: SendStepsManagerOutput) {
         self.output = output
+    }
+
+    func resetFlow() {
+        stack = [amountStep]
+        output?.update(state: .init(step: amountStep, action: .next))
     }
 
     func performBack() {
