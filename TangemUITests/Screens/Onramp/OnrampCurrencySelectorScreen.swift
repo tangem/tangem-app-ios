@@ -16,8 +16,8 @@ final class OnrampCurrencySelectorScreen: ScreenBase<OnrampCurrencySelectorScree
     @discardableResult
     func validate() -> Self {
         XCTContext.runActivity(named: "Validate OnRamp Currency Selector screen elements") { _ in
-            XCTAssertTrue(popularSection.waitForExistence(timeout: .longUIUpdate), "Popular section should exist")
-            XCTAssertTrue(otherSection.waitForExistence(timeout: .longUIUpdate), "Other section should exist")
+            XCTAssertTrue(popularSection.waitForExistence(timeout: .robustUIUpdate), "Popular section should exist")
+            XCTAssertTrue(otherSection.waitForExistence(timeout: .robustUIUpdate), "Other section should exist")
         }
         return self
     }
@@ -25,8 +25,8 @@ final class OnrampCurrencySelectorScreen: ScreenBase<OnrampCurrencySelectorScree
     func selectCurrency(_ currencyCode: String) -> OnrampScreen {
         XCTContext.runActivity(named: "Select currency '\(currencyCode)'") { _ in
             let currencyButton = app.buttons[OnrampAccessibilityIdentifiers.currencyItem(code: currencyCode)]
-            XCTAssertTrue(currencyButton.waitForExistence(timeout: .longUIUpdate), "Currency '\(currencyCode)' should exist")
-            currencyButton.waitAndTap()
+            XCTAssertTrue(currencyButton.waitForExistence(timeout: .robustUIUpdate), "Currency '\(currencyCode)' should exist")
+            currencyButton.tap()
             return OnrampScreen(app)
         }
     }
@@ -35,7 +35,7 @@ final class OnrampCurrencySelectorScreen: ScreenBase<OnrampCurrencySelectorScree
     func validateCurrencyExists(_ currencyCode: String) -> Self {
         XCTContext.runActivity(named: "Validate currency '\(currencyCode)' exists") { _ in
             let currencyButton = app.buttons[OnrampAccessibilityIdentifiers.currencyItem(code: currencyCode)]
-            XCTAssertTrue(currencyButton.waitForExistence(timeout: .longUIUpdate), "Currency '\(currencyCode)' should exist")
+            XCTAssertTrue(currencyButton.waitForExistence(timeout: .robustUIUpdate), "Currency '\(currencyCode)' should exist")
         }
         return self
     }
