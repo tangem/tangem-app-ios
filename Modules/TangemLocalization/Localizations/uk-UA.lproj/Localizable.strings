@@ -1132,8 +1132,8 @@
 "transaction_history_transaction_from_address" = "від: %@";
 "transaction_history_transaction_to_address" = "до: %@";
 "transaction_history_transaction_validator" = "валідатор: %@";
-"transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
-"transaction_notifications_warning_title" = "Transaction Notifications";
+"transaction_notifications_warning_description" = "Сповіщення ввімкнені, але не працюватимуть, доки ви не дозволите їх у налаштуваннях пристрою.";
+"transaction_notifications_warning_title" = "Сповіщення про транзакції";
 "transfer_min_amount_error" = "Мінімум %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Мінімальна сума транзакції становить %1$@.";
 "tron_will_be_send_token_fee_description" = "Комісії мережі Tron для популярних токенів можуть бути вищими. Стейкінг TRX може допомогти знизити транзакційні витрати.";

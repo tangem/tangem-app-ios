@@ -14,6 +14,10 @@ import TangemUIUtils
 import TangemAssets
 
 final class TransactionNotificationsRowToggleViewModel: ObservableObject {
+    // MARK: - Services
+
+    @Injected(\.pushNotificationsPermission) var pushNotificationsPermission: PushNotificationsPermissionService
+
     // MARK: - Public Properties
 
     @Published var isPushNotifyEnabled: Bool
@@ -35,6 +39,7 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
         )
     }
 
+    private var requestAuthorizationTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = .init()
 
     // MARK: - Dependencies
@@ -136,8 +141,7 @@ private extension TransactionNotificationsRowToggleViewModel {
         case .enabled, .disabled:
             toUpdatePushNotifyStatus = toggleValue ? .enabled : .disabled
         case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && toggleValue:
-            // To display a system message about the need for permission to receive notifications.
-            showPushSettingsAlert?()
+            handleAndCheckUnavailablePushNotifyStatus()
             return
         case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && !toggleValue:
             toUpdatePushNotifyStatus = .unavailable(reason: .permissionDenied, enabledRemote: false)
@@ -147,5 +151,21 @@ private extension TransactionNotificationsRowToggleViewModel {
         }
 
         userTokensPushNotificationsManager.updateWalletPushNotifyStatus(toUpdatePushNotifyStatus)
+    }
+
+    func handleAndCheckUnavailablePushNotifyStatus() {
+        requestAuthorizationTask?.cancel()
+
+        requestAuthorizationTask = runTask(in: self) { @MainActor viewModel in
+            await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
+
+            if await viewModel.pushNotificationsPermission.isAuthorized {
+                viewModel.userTokensPushNotificationsManager.updateWalletPushNotifyStatus(.enabled)
+            } else {
+                // To display a system message about the need for permission to receive notifications.
+                viewModel.showPushSettingsAlert?()
+                return
+            }
+        }
     }
 }
