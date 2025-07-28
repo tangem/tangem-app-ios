@@ -70,6 +70,7 @@
 "auth_info_add_wallet_title" = "Add Wallet";
 "auth_info_subtitle" = "Select a wallet to log in";
 "auth_info_title" = "Welcome back!";
+"auth_wallet_mobile_description" = "Phone Wallet";
 "backup_complete_description" = "You successfully backed up your wallet.";
 "backup_complete_seed_description" = "These words can’t be recovered if lost. Make sure to keep it somewhere secure.";
 "backup_complete_title" = "Backup Completed";
@@ -892,11 +893,15 @@
 "send_tron_account_activation_error" = "%1$@ is an asset in the Tron network. To calculate the fee and make a transaction you need to deposit some Tron (TRX) in your account.";
 "send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
+"send_with_swap_change_token_alert_message" = "Are you sure you want to change the token? After changing, previous data will be reset.";
+"send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "Will be sent a recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
+"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? After changing, previous data will be reset.";
+"send_with_swap_remove_convert_alert_title" = "Confirm cancelation";
 "send_with_swap_title" = "Send with swap";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
