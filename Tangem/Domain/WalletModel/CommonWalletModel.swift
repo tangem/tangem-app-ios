@@ -343,6 +343,9 @@ extension CommonWalletModel: WalletModel {
 // MARK: - Updater
 
 extension CommonWalletModel: WalletModelUpdater {
+    /// Fire-and-forget — subscriptions are managed internally:
+    /// `update()` in CommonWalletModel uses `updateWalletModelSubscription`,
+    /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
 
