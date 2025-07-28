@@ -10,7 +10,8 @@ import Foundation
 
 class SolanaStakeKitTransactionHelper {
     func prepareForSign(_ unsignedData: String) throws -> Data {
-        try SolanaTransactionHelper().removeSignaturesPlaceholders(from: Data(hex: unsignedData))
+        let (transaction, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: Data(hex: unsignedData))
+        return transaction
     }
 
     func prepareForSend(_ unsignedData: String, signature: Data) throws -> String {
