@@ -16,11 +16,18 @@ protocol SendStepsManager {
 
     var shouldShowDismissAlert: Bool { get }
 
+    func resetFlow()
+
     func performNext()
     func performBack()
-
     func performContinue()
     func performFinish()
 
     func set(output: SendStepsManagerOutput)
+}
+
+extension SendStepsManager {
+    func resetFlow() {
+        assertionFailure("Reset flow not implemented")
+    }
 }

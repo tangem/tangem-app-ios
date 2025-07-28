@@ -13,6 +13,7 @@ import BlockchainSdk
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
+    func resetFlow()
 }
 
 class SendModel {
