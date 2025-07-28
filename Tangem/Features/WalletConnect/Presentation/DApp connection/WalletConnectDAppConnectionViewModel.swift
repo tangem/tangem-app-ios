@@ -26,18 +26,13 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
     @Published private(set) var state: WalletConnectDAppConnectionViewState
 
     init(
-        interactor: WalletConnectDAppConnectionInteractor,
+        connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel,
         hapticFeedbackGenerator: some WalletConnectHapticFeedbackGenerator,
         userWallets: [any UserWalletModel],
         selectedUserWallet: some UserWalletModel,
         dismissFlowAction: @escaping () -> Void
     ) {
-        connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: userWallets.count > 1),
-            interactor: interactor,
-            hapticFeedbackGenerator: hapticFeedbackGenerator,
-            selectedUserWallet: selectedUserWallet
-        )
+        self.connectionRequestViewModel = connectionRequestViewModel
         state = .connectionRequest(connectionRequestViewModel)
 
         self.hapticFeedbackGenerator = hapticFeedbackGenerator
