@@ -95,7 +95,7 @@ extension CommonSwapManager: SwapManager {
     }
 
     func send() async throws -> TransactionDispatcherResult {
-        try await interactor.sendTransaction().dispatcherResult
+        try await interactor.send().result
     }
 }
 
