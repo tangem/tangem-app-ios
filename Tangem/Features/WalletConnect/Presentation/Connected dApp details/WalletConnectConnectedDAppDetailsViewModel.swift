@@ -8,11 +8,14 @@
 
 import Combine
 import Foundation
+import TangemLogger
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
     private let connectedDApp: WalletConnectConnectedDApp
     private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
+    private let analyticsLogger: any WalletConnectConnectedDAppDetailsAnalyticsLogger
+    private let logger: TangemLogger.Logger
     private let closeAction: () -> Void
     private let onDisconnect: () -> Void
     private let dateFormatter: RelativeDateTimeFormatter
@@ -26,17 +29,21 @@ final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
         connectedDApp: WalletConnectConnectedDApp,
         disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
         userWalletRepository: some UserWalletRepository,
+        analyticsLogger: some WalletConnectConnectedDAppDetailsAnalyticsLogger,
+        logger: TangemLogger.Logger,
         closeAction: @escaping () -> Void,
         onDisconnect: @escaping () -> Void
     ) {
         self.connectedDApp = connectedDApp
         self.disconnectDAppUseCase = disconnectDAppUseCase
+        self.analyticsLogger = analyticsLogger
+        self.logger = logger
         self.closeAction = closeAction
         self.onDisconnect = onDisconnect
 
         let dateFormatter = Self.makeDateFormatter()
         self.dateFormatter = dateFormatter
-        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter, userWalletRepository: userWalletRepository)
+        state = Self.makeInitialState(for: connectedDApp, using: dateFormatter, userWalletRepository: userWalletRepository, logger: logger)
 
         subscribeToConnectedTimeUpdates()
     }
@@ -108,11 +115,18 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         state = .dAppDetails(dAppDetailsViewState)
 
         disconnectDAppTask?.cancel()
-        disconnectDAppTask = Task { [disconnectDAppUseCase, closeAction, onDisconnect, connectedDApp] in
-            try? await disconnectDAppUseCase(connectedDApp)
+        disconnectDAppTask = Task { [disconnectDAppUseCase, logger, closeAction, onDisconnect, connectedDApp] in
+            do {
+                try await disconnectDAppUseCase(connectedDApp)
+            } catch {
+                logger.error("Failed to disconnect \(connectedDApp.dAppData.name) dApp", error: error)
+            }
+
             closeAction()
             onDisconnect()
         }
+
+        analyticsLogger.logDisconnectButtonTapped(for: connectedDApp.dAppData)
     }
 }
 
@@ -128,10 +142,18 @@ extension WalletConnectConnectedDAppDetailsViewModel {
     private static func makeInitialState(
         for dApp: WalletConnectConnectedDApp,
         using dateFormatter: RelativeDateTimeFormatter,
-        userWalletRepository: some UserWalletRepository
+        userWalletRepository: some UserWalletRepository,
+        logger: TangemLogger.Logger
     ) -> WalletConnectConnectedDAppDetailsViewState {
         let imageProvider = NetworkImageProvider()
-        let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID })?.name ?? ""
+        let walletName: String
+
+        if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) {
+            walletName = userWalletModel.name
+        } else {
+            logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
+            walletName = ""
+        }
 
         return WalletConnectConnectedDAppDetailsViewState.dAppDetails(
             WalletConnectConnectedDAppDetailsViewState.DAppDetails(
