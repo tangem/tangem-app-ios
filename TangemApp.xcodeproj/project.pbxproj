@@ -3117,6 +3117,9 @@
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
 		EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */; };
 		EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */; };
+		EF3F754E2E324EFD00334E51 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F754D2E324EFD00334E51 /* AlertPresenter.swift */; };
+		EF3F75502E324F0D00334E51 /* AlertPresenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F754F2E324F0D00334E51 /* AlertPresenterViewModel.swift */; };
+		EF3F75522E32608300334E51 /* SendExternalDestinationUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F75512E32608300334E51 /* SendExternalDestinationUpdater.swift */; };
 		EF4041302DE4670E002F996A /* SendNewSummaryStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40412F2DE4670E002F996A /* SendNewSummaryStep.swift */; };
 		EF4041322DE46749002F996A /* SendNewSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041312DE46749002F996A /* SendNewSummaryView.swift */; };
 		EF4041352DE46772002F996A /* SendNewSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */; };
@@ -6995,6 +6998,9 @@
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactView.swift; sourceTree = "<group>"; };
 		EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactViewModel.swift; sourceTree = "<group>"; };
+		EF3F754D2E324EFD00334E51 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
+		EF3F754F2E324F0D00334E51 /* AlertPresenterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenterViewModel.swift; sourceTree = "<group>"; };
+		EF3F75512E32608300334E51 /* SendExternalDestinationUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendExternalDestinationUpdater.swift; sourceTree = "<group>"; };
 		EF40412F2DE4670E002F996A /* SendNewSummaryStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryStep.swift; sourceTree = "<group>"; };
 		EF4041312DE46749002F996A /* SendNewSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryView.swift; sourceTree = "<group>"; };
 		EF4041342DE46772002F996A /* SendNewSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewSummaryViewModel.swift; sourceTree = "<group>"; };
@@ -10410,6 +10416,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				EF3F754C2E324EF400334E51 /* AlertPresenter */,
 				EF4C04552DEF2A740059D7AA /* FeeSelector */,
 				C22564002D9154CE003063DA /* FloatingSheet */,
 				DCC05A5E2CD17DE6004CE6A4 /* TokenSelectorView */,
@@ -17946,6 +17953,15 @@
 			path = Appearance;
 			sourceTree = "<group>";
 		};
+		EF3F754C2E324EF400334E51 /* AlertPresenter */ = {
+			isa = PBXGroup;
+			children = (
+				EF3F754D2E324EFD00334E51 /* AlertPresenter.swift */,
+				EF3F754F2E324F0D00334E51 /* AlertPresenterViewModel.swift */,
+			);
+			path = AlertPresenter;
+			sourceTree = "<group>";
+		};
 		EF40412E2DE466DA002F996A /* NewSummary */ = {
 			isa = PBXGroup;
 			children = (
@@ -18775,6 +18791,7 @@
 		EF70A4062C17149400805D9F /* Interactor */ = {
 			isa = PBXGroup;
 			children = (
+				EF3F75512E32608300334E51 /* SendExternalDestinationUpdater.swift */,
 				EF70A4092C1753BC00805D9F /* SendDestinationInteractor.swift */,
 				EF70A4072C1714A100805D9F /* SendDestinationValidator.swift */,
 				EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */,
@@ -21059,6 +21076,7 @@
 				0F65AC6B2E0C2A6B004AD460 /* HotOnboardingCheckAccessCodeDelegate.swift in Sources */,
 				DCB14B0F2DC6173B0075F340 /* WalletConnectConnectedDAppDetailsView.swift in Sources */,
 				B03662612B6384BA0064E073 /* VisaTransactionDetailsView.swift in Sources */,
+				EF3F75522E32608300334E51 /* SendExternalDestinationUpdater.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
 				DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */,
 				B06ADFD829B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift in Sources */,
@@ -22254,6 +22272,7 @@
 				C25E103A2DFF1EDC0050BC26 /* WalletConnectConnectedDApp.swift in Sources */,
 				B0290CDD2CAED941008ABBD2 /* MarketsTokenDetailsExchangeItemView.swift in Sources */,
 				EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */,
+				EF3F75502E324F0D00334E51 /* AlertPresenterViewModel.swift in Sources */,
 				B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */,
 				DC5118632860A339004FB954 /* SecurityModeRoutable.swift in Sources */,
 				EFEE22BC2BFCE44B0099917E /* ValidationErrorEvent.swift in Sources */,
@@ -22347,6 +22366,7 @@
 				EFE8C7102C77388A0067CF2E /* MultipleRewardsRoutable.swift in Sources */,
 				EFE661A12E01A103009EECDD /* WalletModel+ExpressInteractorWalletWrapper.swift in Sources */,
 				EFD678312E27BF250065AD50 /* CommonSendAnalyticsLogger.swift in Sources */,
+				EF3F754E2E324EFD00334E51 /* AlertPresenter.swift in Sources */,
 				B6A089402DD7AB9B005CBBA2 /* NFTNavigationInput.swift in Sources */,
 				B6180C862A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
