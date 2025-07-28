@@ -12,20 +12,17 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
     private let verificationService: any WalletConnectDAppVerificationService
 
     private let uri: WalletConnectRequestURI
-    private let analyticsSource: Analytics.WalletConnectSessionSource
 
     init(
         dAppDataService: some WalletConnectDAppDataService,
         dAppProposalApprovalService: some WalletConnectDAppProposalApprovalService,
         verificationService: some WalletConnectDAppVerificationService,
-        uri: WalletConnectRequestURI,
-        analyticsSource: Analytics.WalletConnectSessionSource
+        uri: WalletConnectRequestURI
     ) {
         self.dAppDataService = dAppDataService
         self.dAppProposalApprovalService = dAppProposalApprovalService
         self.verificationService = verificationService
         self.uri = uri
-        self.analyticsSource = analyticsSource
     }
 
     func callAsFunction() async throws(WalletConnectDAppProposalLoadingError) -> WalletConnectDAppConnectionProposal {
@@ -37,14 +34,18 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
 
         let verificationStatus = await getVerificationStatus(from: dAppData, proposal: sessionProposal)
 
-        return WalletConnectDAppConnectionProposal(dApp: dAppData, verificationStatus: verificationStatus, sessionProposal: sessionProposal)
+        return WalletConnectDAppConnectionProposal(
+            dAppData: dAppData,
+            verificationStatus: verificationStatus,
+            sessionProposal: sessionProposal
+        )
     }
 
     private func getDAppDataAndProposal() async
         throws(WalletConnectDAppProposalLoadingError)
         -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
         do {
-            return try await dAppDataService.getDAppDataAndProposal(for: uri, source: analyticsSource)
+            return try await dAppDataService.getDAppDataAndProposal(for: uri)
 
         } catch WalletConnectDAppProposalLoadingError.unsupportedDomain(let unsupportedDomainError) {
             try? await dAppProposalApprovalService.rejectConnectionProposal(
@@ -81,14 +82,12 @@ final class WalletConnectGetDAppConnectionProposalUseCase {
             break
 
         case .invalid:
-            // [REDACTED_TODO_COMMENT]
             return .malicious
         }
 
         do {
             return try await verificationService.verify(dAppDomain: dAppData.domain)
         } catch {
-            // [REDACTED_TODO_COMMENT]
             return .unknownDomain
         }
     }

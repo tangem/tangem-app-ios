@@ -13,6 +13,7 @@ import CombineExt
 import BlockchainSdk
 import TangemVisa
 import TangemNFT
+import TangemFoundation
 
 class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -144,6 +145,9 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     }
 
     private func showMarketsTooltip() {
+        // Don't show markets tooltip during UI testing
+        guard !AppEnvironment.current.isUITest else { return }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tooltipAnimationDelay) { [weak self] in
             guard let self else {
                 self?.isMarketsTooltipVisible = false
@@ -620,7 +624,11 @@ extension MainCoordinator: WCTransactionRoutable {
     func showWCTransactionRequest(with data: WCHandleTransactionData) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(dappData: data.dAppData, transactionData: data)
+                sheet: WCTransactionViewModel(
+                    dappData: data.dAppData,
+                    transactionData: data,
+                    analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
+                )
             )
         }
     }

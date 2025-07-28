@@ -7,6 +7,7 @@
 //
 
 enum WalletConnectViewEvent {
+    case viewDidAppear
     case newConnectionButtonTapped
     case disconnectAllDAppsButtonTapped
     case dAppTapped(WalletConnectConnectedDApp)
