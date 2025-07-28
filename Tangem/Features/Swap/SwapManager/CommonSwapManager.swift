@@ -79,12 +79,6 @@ extension CommonSwapManager: SwapManager {
             SwapManagerDestinationWallet(tokenItem: $0, address: address)
         }
 
-        guard let destinationWallet else {
-            // Clear destination
-            // [REDACTED_TODO_COMMENT]
-            return
-        }
-
         interactor.update(destination: destinationWallet)
     }
 
@@ -101,7 +95,7 @@ extension CommonSwapManager: SwapManager {
     }
 
     func send() async throws -> TransactionDispatcherResult {
-        try await interactor.sendTransaction().dispatcherResult
+        try await interactor.send().result
     }
 }
 
