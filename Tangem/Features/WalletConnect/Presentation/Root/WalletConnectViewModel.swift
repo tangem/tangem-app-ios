@@ -15,15 +15,12 @@ import TangemFoundation
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
-    private let establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
-    private let getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase
-    private let dAppsSessionExtender: WalletConnectDAppSessionsExtender
-    private let disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase
+    private let interactor: WalletConnectInteractor
     private let userWalletRepository: any UserWalletRepository
+    private let analyticsLogger: any WalletConnectAnalyticsLogger
+    private let logger: TangemLogger.Logger
 
     private weak var coordinator: (any WalletConnectRoutable)?
-
-    private let logger: Logger
 
     private var initialLoadingTask: Task<Void, Never>?
     private var connectedDAppsUpdateHandleTask: Task<Void, Never>?
@@ -33,22 +30,18 @@ final class WalletConnectViewModel: ObservableObject {
 
     init(
         state: WalletConnectViewState = .initial,
-        establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase,
-        getConnectedDAppsUseCase: WalletConnectGetConnectedDAppsUseCase,
-        dAppsSessionExtender: WalletConnectDAppSessionsExtender,
-        disconnectDAppUseCase: WalletConnectDisconnectDAppUseCase,
+        interactor: WalletConnectInteractor,
         userWalletRepository: some UserWalletRepository,
+        analyticsLogger: some WalletConnectAnalyticsLogger,
+        logger: TangemLogger.Logger,
         coordinator: some WalletConnectRoutable
     ) {
         self.state = state
-        self.establishDAppConnectionUseCase = establishDAppConnectionUseCase
-        self.getConnectedDAppsUseCase = getConnectedDAppsUseCase
-        self.dAppsSessionExtender = dAppsSessionExtender
-        self.disconnectDAppUseCase = disconnectDAppUseCase
+        self.interactor = interactor
         self.userWalletRepository = userWalletRepository
+        self.analyticsLogger = analyticsLogger
+        self.logger = logger
         self.coordinator = coordinator
-
-        logger = WCLogger
     }
 
     deinit {
@@ -60,17 +53,18 @@ final class WalletConnectViewModel: ObservableObject {
     func fetchConnectedDApps() {
         initialLoadingTask?.cancel()
 
-        initialLoadingTask = Task { [dAppsSessionExtender, getConnectedDAppsUseCase, weak self] in
-            await dAppsSessionExtender.extendConnectedDAppSessionsIfNeeded()
+        initialLoadingTask = Task { [interactor, logger, weak self] in
+            await interactor.extendConnectedDApps()
 
             guard !Task.isCancelled else { return }
 
             let connectedDApps: [WalletConnectConnectedDApp]
 
             do throws(WalletConnectDAppPersistenceError) {
-                connectedDApps = try await getConnectedDAppsUseCase.callAsFunction()
+                connectedDApps = try await interactor.getConnectedDApps()
             } catch {
                 connectedDApps = []
+                logger.error("Initial dApps list fetch failed", error: error)
             }
 
             self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
@@ -79,8 +73,8 @@ final class WalletConnectViewModel: ObservableObject {
     }
 
     private func subscribeToConnectedDAppsUpdates() {
-        connectedDAppsUpdateHandleTask = Task { [weak self, getConnectedDAppsUseCase] in
-            for await connectedDApps in await getConnectedDAppsUseCase() {
+        connectedDAppsUpdateHandleTask = Task { [weak self, getConnectedDAppsStream = interactor.getConnectedDApps] in
+            for await connectedDApps in await getConnectedDAppsStream() {
                 self?.handle(viewEvent: .connectedDAppsChanged(connectedDApps))
             }
         }
@@ -94,11 +88,15 @@ final class WalletConnectViewModel: ObservableObject {
 
         let allConnectedDApps = walletsWithDApps.flatMap(\.dApps)
 
-        disconnectAllDAppsTask = Task { [weak self] in
+        disconnectAllDAppsTask = Task { [weak self, disconnectDApp = interactor.disconnectDApp, logger] in
             await withTaskGroup(of: Void.self) { group in
                 for dApp in allConnectedDApps {
                     group.addTask {
-                        try? await self?.disconnectDAppUseCase(dApp.domainModel)
+                        do {
+                            try await disconnectDApp(dApp.domainModel)
+                        } catch {
+                            logger.error("Failed to disconnect \(dApp.domainModel.dAppData.name) dApp", error: error)
+                        }
                     }
                 }
             }
@@ -121,6 +119,9 @@ final class WalletConnectViewModel: ObservableObject {
 extension WalletConnectViewModel {
     func handle(viewEvent: WalletConnectViewEvent) {
         switch viewEvent {
+        case .viewDidAppear:
+            handleViewDidAppear()
+
         case .newConnectionButtonTapped:
             handleNewConnectionButtonTapped()
 
@@ -138,11 +139,15 @@ extension WalletConnectViewModel {
         }
     }
 
+    private func handleViewDidAppear() {
+        analyticsLogger.logScreenOpened()
+    }
+
     private func handleNewConnectionButtonTapped() {
         guard !state.newConnectionButton.isLoading else { return }
 
         do {
-            let newDAppConnectionResult = try establishDAppConnectionUseCase()
+            let newDAppConnectionResult = try interactor.establishDAppConnection()
 
             switch newDAppConnectionResult {
             case .cameraAccessDenied(let clipboardURI, let openSystemSettingsAction):
@@ -195,8 +200,9 @@ extension WalletConnectViewModel {
     }
 
     private func handleDisconnectAllDAppsButtonTapped() {
-        let disconnectAllDAppsAction: () -> Void = { [weak self] in
+        let disconnectAllDAppsAction: () -> Void = { [weak self, analyticsLogger] in
             self?.disconnectAllConnectedDApps()
+            analyticsLogger.logDisconnectAllButtonTapped()
         }
 
         state.dialog = .alert(.disconnectAllDApps(action: disconnectAllDAppsAction))
@@ -257,7 +263,14 @@ extension WalletConnectViewModel {
             .compactMap { userWalletID in
                 guard let dApps = userWalletIDToConnectedDApps[userWalletID] else { return nil }
 
-                let walletName = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID })?.name ?? ""
+                let walletName: String
+
+                if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID }) {
+                    walletName = userWalletModel.name
+                } else {
+                    logger.warning("UserWalletModel not found for \(dApps.map(\.dAppData.name).joined(separator: ", ")) dApps")
+                    walletName = ""
+                }
 
                 return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
                     walletId: userWalletID,
