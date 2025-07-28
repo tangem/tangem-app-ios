@@ -23,10 +23,9 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     }
 
     func getDAppDataAndProposal(
-        for uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
+        for uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
-        let (reownSessionProposal, reownVerifyContext) = try await openSession(uri: uri, source: source)
+        let (reownSessionProposal, reownVerifyContext) = try await openSession(uri: uri)
 
         try Self.validateDomainIsSupported(from: reownSessionProposal)
 
@@ -107,11 +106,10 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     }
 
     private func openSession(
-        uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
+        uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (Session.Proposal, VerifyContext?) {
         do {
-            return try await walletConnectService.openSession(with: uri, source: source)
+            return try await walletConnectService.openSession(with: uri)
         } catch is CancellationError {
             throw WalletConnectDAppProposalLoadingError.cancelledByUser
         } catch {
