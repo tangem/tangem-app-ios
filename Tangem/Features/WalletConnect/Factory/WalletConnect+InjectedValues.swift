@@ -19,11 +19,13 @@ private final class WalletConnectEnvironment {
     private lazy var walletKitClient = WalletKitClientFactory.make()
     private lazy var messageComposer = WalletConnectV2MessageComposer()
     private lazy var alertUIDelegate = WalletConnectAlertUIDelegate()
+    private lazy var walletNetworkServiceFactoryProvider = WalletNetworkServiceFactoryProvider()
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
         messageComposer: messageComposer,
         uiDelegate: alertUIDelegate,
-        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder()
+        ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder(),
+        walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 
     private lazy var handlersService = CommonWCHandlersService(wcHandlersFactory: handlersFactory)
