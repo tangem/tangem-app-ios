@@ -27,7 +27,7 @@ struct DerivationUtilTests {
 
         let ethereumResult = try DerivationUtil.deriveKeys(
             entropy: entropy,
-            derivationPath: try DerivationPath(rawPath:  "m/44'/60'/0'/0/0"),
+            derivationPath: try DerivationPath(rawPath: "m/44'/60'/0'/0/0"),
             curve: .secp256k1
         )
 
