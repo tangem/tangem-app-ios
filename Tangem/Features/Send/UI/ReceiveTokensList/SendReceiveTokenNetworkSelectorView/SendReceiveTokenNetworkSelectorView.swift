@@ -17,9 +17,12 @@ struct SendReceiveTokenNetworkSelectorView: View {
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: .zero) {
-                BottomSheetHeaderView(title: viewModel.state.isSuccess ? Localization.commonChooseNetwork : "", trailing: {
-                    RoundedButton(style: .icon(Assets.cross, color: Colors.Icon.secondary), action: viewModel.dismiss)
-                })
+                BottomSheetHeaderView(
+                    title: viewModel.state.isSuccess ? Localization.commonChooseNetwork : "",
+                    trailing: {
+                        CircleButton.close(action: viewModel.dismiss)
+                    }
+                )
                 .padding(.vertical, 4)
                 .padding(.horizontal, 16)
 
@@ -31,7 +34,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.action
             configuration.sheetFrameUpdateAnimation = .easeInOut
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
@@ -62,10 +65,11 @@ struct SendReceiveTokenNetworkSelectorView: View {
             EmptyView()
         case .failure(let error):
             BottomSheetErrorContentView(
-                title: Localization.expressSwapNotSupportedText,
-                subtitle: error.localizedDescription,
+                title: viewModel.notSupportedTitle,
+                subtitle: error,
                 gotItButtonAction: viewModel.dismiss
             )
+            .padding(.horizontal, 16)
             .padding(.bottom, 16)
         }
     }
