@@ -471,6 +471,7 @@ extension OnrampModel: OnrampRedirectingOutput {
             txId: data.txId,
             provider: provider.provider,
             destinationTokenItem: walletModel.tokenItem,
+            destinationAddress: walletModel.defaultAddressString,
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
