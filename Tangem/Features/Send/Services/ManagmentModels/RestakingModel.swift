@@ -240,6 +240,8 @@ private extension RestakingModel {
 // MARK: - SendFeeProvider
 
 extension RestakingModel: SendFeeProvider {
+    var feeOptions: [FeeOption] { [.market] }
+
     var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
         .success([mapToSendFee(_state.value)])
     }
