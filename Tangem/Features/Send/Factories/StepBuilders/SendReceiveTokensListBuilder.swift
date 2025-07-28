@@ -27,7 +27,7 @@ struct SendReceiveTokensListBuilder {
     }
 
     func makeReceiveTokensListViewModel(router: any SendReceiveTokensListViewRoutable) -> SendReceiveTokensListViewModel {
-        let viewModel = SendReceiveTokensListViewModel(router: router)
+        let viewModel = SendReceiveTokensListViewModel(sourceTokenInput: sourceTokenInput, router: router)
         return viewModel
     }
 
