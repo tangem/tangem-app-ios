@@ -63,14 +63,18 @@ enum WalletConnectModuleFactory {
             connectedDAppRepository: connectedDAppRepository
         )
 
-        let getConnectedDAppsUseCase = WalletConnectGetConnectedDAppsUseCase(repository: connectedDAppRepository)
+        let interactor = WalletConnectInteractor(
+            extendConnectedDApps: WalletConnectExtendConnectedDAppsUseCase(sessionsExtender: dAppsSessionExtender),
+            getConnectedDApps: WalletConnectGetConnectedDAppsUseCase(repository: connectedDAppRepository),
+            establishDAppConnection: establishDAppConnectionUseCase,
+            disconnectDApp: disconnectDAppUseCase
+        )
 
         return WalletConnectViewModel(
-            establishDAppConnectionUseCase: establishDAppConnectionUseCase,
-            getConnectedDAppsUseCase: getConnectedDAppsUseCase,
-            dAppsSessionExtender: dAppsSessionExtender,
-            disconnectDAppUseCase: disconnectDAppUseCase,
+            interactor: interactor,
             userWalletRepository: userWalletRepository,
+            analyticsLogger: CommonWalletConnectAnalyticsLogger(),
+            logger: WCLogger,
             coordinator: coordinator
         )
     }
@@ -98,8 +102,7 @@ enum WalletConnectModuleFactory {
             dAppDataService: dAppDataService,
             dAppProposalApprovalService: dAppProposalApprovalService,
             verificationService: dAppVerificationService,
-            uri: uri,
-            analyticsSource: source
+            uri: uri
         )
 
         let interactor = WalletConnectDAppConnectionInteractor(
@@ -110,9 +113,20 @@ enum WalletConnectModuleFactory {
             persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository)
         )
 
-        return WalletConnectDAppConnectionViewModel(
+        let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
+
+        let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
+            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: filteredUserWallets.count > 1),
             interactor: interactor,
-            hapticFeedbackGenerator: WalletConnectUIFeedbackGenerator(),
+            analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
+            logger: WCLogger,
+            hapticFeedbackGenerator: hapticFeedbackGenerator,
+            selectedUserWallet: selectedUserWallet
+        )
+
+        return WalletConnectDAppConnectionViewModel(
+            connectionRequestViewModel: connectionRequestViewModel,
+            hapticFeedbackGenerator: hapticFeedbackGenerator,
             userWallets: filteredUserWallets,
             selectedUserWallet: selectedUserWallet,
             dismissFlowAction: { [weak floatingSheetPresenter] in
@@ -146,6 +160,8 @@ enum WalletConnectModuleFactory {
             connectedDApp: dApp,
             disconnectDAppUseCase: disconnectDAppUseCase,
             userWalletRepository: userWalletRepository,
+            analyticsLogger: CommonWalletConnectConnectedDAppDetailsAnalyticsLogger(),
+            logger: WCLogger,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
             },

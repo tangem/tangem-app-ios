@@ -416,6 +416,7 @@
 "hw_activation_need_description" = "Um die Einrichtung abzuschließen, sicher Deine Wallet und sicher den App-Zugriff mit einem Access Code.";
 "hw_activation_need_finish" = "Jetzt beenden";
 "hw_activation_need_title" = "Wallet-Aktivierung abschließen";
+"hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
 "hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Stelle eine vorhandene Wallet wieder her, die in Deinem iCloud-Backup gespeichert ist";
 "hw_backup_icloud_title" = "iCloud-Sicherung";
@@ -820,6 +821,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Ziel-Tag";
 "send_dismiss_message" = "Möchtest du den Sendebildschirm wirklich schließen?";
+"send_enter_address_field_ens" = "Enter ENS name or address";
 "send_enter_address_field" = "Adresse eingeben";
 "send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
 "send_error_dust_change" = "Die Veränderung ist zu gering";
