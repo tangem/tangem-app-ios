@@ -94,8 +94,8 @@ final class OldWalletConnectV2Service {
             Analytics.log(
                 event: .walletConnectDAppDisconnected,
                 params: [
-                    .dAppName: session.sessionInfo.dAppInfo.name,
-                    .dAppUrl: session.sessionInfo.dAppInfo.url,
+                    .walletConnectDAppName: session.sessionInfo.dAppInfo.name,
+                    .walletConnectDAppUrl: session.sessionInfo.dAppInfo.url,
                 ]
             )
 
@@ -216,8 +216,8 @@ final class OldWalletConnectV2Service {
                 Analytics.log(
                     event: .walletConnectDAppDisconnected,
                     params: [
-                        .dAppName: session.sessionInfo.dAppInfo.name,
-                        .dAppUrl: session.sessionInfo.dAppInfo.url,
+                        .walletConnectDAppName: session.sessionInfo.dAppInfo.name,
+                        .walletConnectDAppUrl: session.sessionInfo.dAppInfo.url,
                     ]
                 )
 
@@ -461,12 +461,12 @@ extension OldWalletConnectV2Service {
         var params: [Analytics.ParameterKey: String] = [:]
 
         if let session {
-            params[.dAppName] = session.sessionInfo.dAppInfo.name
-            params[.dAppUrl] = session.sessionInfo.dAppInfo.url
+            params[.walletConnectDAppName] = session.sessionInfo.dAppInfo.name
+            params[.walletConnectDAppUrl] = session.sessionInfo.dAppInfo.url
         }
 
         if let blockchainCurrencySymbol = OldWalletConnectV2Utils().createBlockchain(for: request.chainId)?.currencySymbol {
-            params[.blockchain] = blockchainCurrencySymbol
+            params[.walletConnectBlockchain] = blockchainCurrencySymbol
         }
 
         params[.methodName] = request.method
@@ -496,7 +496,7 @@ extension OldWalletConnectV2Service {
             .getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
             .joined(separator: ",")
 
-        let event = Analytics.Event.walletConnectDAppConnectionRequested
+        let event = Analytics.Event.walletConnectDAppSessionProposalReceived
         let params: [Analytics.ParameterKey: String] = [
             .networks: blockchainNames,
         ]
@@ -514,9 +514,9 @@ extension OldWalletConnectV2Service {
 
     private static func logDAppConnectionStatusEvent(_ event: Analytics.Event, proposal: Session.Proposal, blockchainNames: [String]) {
         let params: [Analytics.ParameterKey: String] = [
-            .dAppName: proposal.proposer.name,
-            .dAppUrl: proposal.proposer.url,
-            .blockchain: blockchainNames.joined(separator: ","),
+            .walletConnectDAppName: proposal.proposer.name,
+            .walletConnectDAppUrl: proposal.proposer.url,
+            .walletConnectBlockchain: blockchainNames.joined(separator: ","),
         ]
 
         Analytics.log(event: event, params: params)
