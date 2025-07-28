@@ -10,11 +10,11 @@ import Foundation
 import Combine
 
 public extension Future where Failure == Error {
-    static func async(operation: @escaping () async throws -> Output) -> some Publisher<Output, Failure> {
+    static func async(priority: TaskPriority? = nil, operation: @escaping () async throws -> Output) -> some Publisher<Output, Failure> {
         var task: Task<Void, Failure>?
 
         return Future<Output, Failure> { promise in
-            task = Task {
+            task = Task(priority: priority) {
                 do {
                     let output = try await operation()
                     try Task.checkCancellation()
