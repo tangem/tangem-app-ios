@@ -1132,8 +1132,8 @@
 "transaction_history_transaction_from_address" = "de : %@";
 "transaction_history_transaction_to_address" = "à : %@";
 "transaction_history_transaction_validator" = "validateur : %@";
-"transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
-"transaction_notifications_warning_title" = "Transaction Notifications";
+"transaction_notifications_warning_description" = "Les notifications sont activées, mais elles ne fonctionneront pas tant que vous n'aurez pas autorisé les notifications dans les paramètres de votre appareil.";
+"transaction_notifications_warning_title" = "Notifications de transaction";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Le montant minimum pour effectuer cette transaction est %1$@.";
 "tron_will_be_send_token_fee_description" = "Tron network fees for popular tokens can be higher. Staking TRX may help reduce transaction costs.";
