@@ -12,6 +12,7 @@ import TangemUI
 struct OverlayRootView: View {
     @ObservedObject var floatingSheetViewModel: FloatingSheetViewModel
     @ObservedObject var tangemStoriesViewModel: TangemStoriesViewModel
+    @ObservedObject var alertPresenterViewModel: AlertPresenterViewModel
 
     var body: some View {
         EmptyView()
@@ -20,5 +21,6 @@ struct OverlayRootView: View {
                 viewModel: floatingSheetViewModel.activeSheet,
                 dismissSheetAction: floatingSheetViewModel.removeActiveSheet
             )
+            .alert(item: $alertPresenterViewModel.alert) { $0.alert }
     }
 }

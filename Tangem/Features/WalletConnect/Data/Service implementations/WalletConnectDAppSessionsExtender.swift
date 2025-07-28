@@ -7,11 +7,13 @@
 //
 
 import Foundation
+import TangemLogger
 
 actor WalletConnectDAppSessionsExtender {
     private let connectedDAppRepository: any WalletConnectConnectedDAppRepository
     private let savedSessionMigrationService: WalletConnectSavedSessionMigrationService
     private let dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService
+    private let logger: TangemLogger.Logger
     private let currentDateProvider: () -> Date
 
     private var extendTask: Task<Void, Never>?
@@ -20,11 +22,13 @@ actor WalletConnectDAppSessionsExtender {
         connectedDAppRepository: some WalletConnectConnectedDAppRepository,
         savedSessionMigrationService: WalletConnectSavedSessionMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService,
+        logger: TangemLogger.Logger,
         currentDateProvider: @escaping @autoclosure () -> Date = Date()
     ) {
         self.connectedDAppRepository = connectedDAppRepository
         self.savedSessionMigrationService = savedSessionMigrationService
         self.dAppSessionExtensionService = dAppSessionExtensionService
+        self.logger = logger
         self.currentDateProvider = currentDateProvider
     }
 
@@ -33,7 +37,7 @@ actor WalletConnectDAppSessionsExtender {
             return await extendTask.value
         }
 
-        let task = Task { [connectedDAppRepository, savedSessionMigrationService, weak self] in
+        let task = Task { [connectedDAppRepository, savedSessionMigrationService, logger, weak self] in
             do {
                 let dAppsToExtend: [WalletConnectConnectedDApp]
 
@@ -49,7 +53,7 @@ actor WalletConnectDAppSessionsExtender {
                     }
                 }
             } catch {
-                // [REDACTED_TODO_COMMENT]
+                logger.error("Failed to extend connected dApps", error: error)
             }
         }
 
