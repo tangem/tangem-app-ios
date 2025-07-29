@@ -8,6 +8,7 @@
 
 import struct SwiftUI.Image
 import TangemLocalization
+import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 struct WalletConnectWalletSelectorViewState {
