@@ -20,6 +20,7 @@ protocol UserWalletModel:
     EmailDataProvider,
     OldWalletConnectUserWalletInfoProvider,
     KeysDerivingProvider,
+    WalletSelectorInfoProvider,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
@@ -32,20 +33,34 @@ protocol UserWalletModel:
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
-    var updatePublisher: AnyPublisher<Void, Never> { get }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var walletImageProvider: WalletImageProviding { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
     func validate() -> Bool
-    func onBackupUpdate(type: BackupUpdateType)
-    func updateWalletName(_ name: String)
+    func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
     func cleanup()
 }
 
-enum BackupUpdateType {
-    case primaryCardBackuped(card: Card)
+enum UpdateRequest {
+    case backupStarted(card: Card)
     case backupCompleted
+    case newName(_ name: String)
+}
+
+enum UpdateResult {
+    case backupDidChange
+    case nameDidChange(name: String)
+
+    var newName: String? {
+        switch self {
+        case .nameDidChange(let name):
+            return name
+        default:
+            return nil
+        }
+    }
 }
