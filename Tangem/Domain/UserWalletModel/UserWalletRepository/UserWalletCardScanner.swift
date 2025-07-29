@@ -59,7 +59,6 @@ class UserWalletCardScanner {
         }
 
         let factory = OnboardingInputFactory(
-            userWalletModel: nil,
             sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
