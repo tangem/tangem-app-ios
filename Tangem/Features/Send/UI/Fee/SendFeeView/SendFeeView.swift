@@ -49,6 +49,7 @@ struct SendFeeView: View {
                             }
                         }
                         .visible(viewModel.auxiliaryViewsVisible)
+                        .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
                 } footer: {
                     if viewModel.auxiliaryViewsVisible {
                         feeSelectorFooter
