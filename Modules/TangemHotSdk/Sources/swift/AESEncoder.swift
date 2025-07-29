@@ -218,6 +218,6 @@ extension AESEncoder {
         static let ivLengthByte = 12
         static let saltSize = 16
         static let minIterations = 1_000
-        static let iterations = 262_144
+        static let iterations = 600_000
     }
 }

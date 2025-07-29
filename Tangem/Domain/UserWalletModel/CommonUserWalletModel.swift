@@ -13,6 +13,7 @@ import TangemAssets
 import TangemVisa
 import TangemSdk
 import TangemNFT
+import TangemFoundation
 
 class CommonUserWalletModel {
     // MARK: Services

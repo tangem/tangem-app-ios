@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 struct NoteConfig: CardContainer {
     let card: CardDTO

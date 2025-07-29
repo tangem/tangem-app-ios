@@ -9,18 +9,21 @@
 import Foundation
 import TangemSdk
 import LocalAuthentication
+import TangemFoundation
 
 public protocol HotSdk {
     /// Generates a new hot wallet.
-    func generateWallet() throws -> HotWalletID
+    func generateWallet() throws -> UserWalletId
     /// Imports a hot wallet using the provided entropy and passphrase.
-    func importWallet(entropy: Data, passphrase: String) throws -> HotWalletID
+    func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId
 
-    func exportPrivateInfo(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> PrivateInfo
-    func exportBackup(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> Data
+    /// Exports the mnemonic phrase for a hot wallet.
+    func exportMnemonic(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> [String]
+    /// Exports the backup data for a hot wallet.
+    func exportBackup(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> Data
 
     /// Deletes a hot wallet.
-    func delete(id: HotWalletID) throws
+    func delete(id: UserWalletId) throws
 
     /// Updates the accessCode for a hot wallet.
     ///  - Parameters:
@@ -29,7 +32,7 @@ public protocol HotSdk {
     /// - `walletID`: The identifier of the wallet for which the accessCode is being updated.
     ///  - Throws: An error if the accessCode update fails, such as if
     /// the old authentication data is incorrect or if the wallet is missing
-    func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws
+    func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData, for walletID: UserWalletId) throws
 
     /// Enables biometrics for a hot wallet.
     /// - Parameters:
@@ -37,14 +40,14 @@ public protocol HotSdk {
     /// - `accessCode`: The accessCode to unlock encrypted data before enabling biometrics.
     /// - `context`: The `LAContext` used for biometric authentication.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the accessCode is incorrect.
-    func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws
+    func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws
 
     /// Derives master keys for a hot wallet.
     /// - Parameters:
     /// - `walletID`: The identifier of the wallet for which master keys are being derived
     /// - `auth`: The authentication data used to unlock the wallet, such as a accessCode or biometrics.
     /// - Returns: A `HotWallet` object containing the derived master keys.
-    func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet
+    func deriveMasterKeys(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> HotWallet
 
     /// Derives keys for a hot wallet based on specified derivation paths.
     /// - Parameters:
@@ -53,8 +56,8 @@ public protocol HotSdk {
     /// - `derivationPaths`: A dictionary mapping key types to their respective derivation paths
     /// - Returns: A `HotWallet` object containing the derived keys.
     func deriveKeys(
-        wallet: HotWallet,
-        auth: AuthenticationUnlockData?,
+        walletID: UserWalletId,
+        auth: AuthenticationUnlockData,
         derivationPaths: [Data: [DerivationPath]]
-    ) throws -> HotWallet
+    ) throws -> [Data: [HotWalletKeyInfo]]
 }
