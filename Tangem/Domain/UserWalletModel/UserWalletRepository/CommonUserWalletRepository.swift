@@ -47,6 +47,19 @@ class CommonUserWalletRepository: UserWalletRepository {
         AppLogger.debug(self)
     }
 
+    func initialize() async {
+        let savedSelectedUserWalletId = await AppSettings.shared.selectedUserWalletId
+
+        if !savedSelectedUserWalletId.isEmpty {
+            selectedUserWalletId = UserWalletId(value: savedSelectedUserWalletId)
+        }
+
+        let savedUserWallets = userWalletDataStorage.fetchPublicData()
+        let models = savedUserWallets.map { LockedUserWalletModel(with: $0) }
+        self.models = models
+        AppLogger.info(self)
+    }
+
     func unlock(userWalletId: UserWalletId, method: UserWalletRepositoryUnlockMethod) throws {
         switch method {
         case .card(let cardInfo):
@@ -273,9 +286,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func handleUnlock(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) throws -> UserWalletModel {
-        // We have to refresh a key on every scan because we are unable to check presence of the key
-        UserWalletEncryptionKeyStorage().refreshEncryptionKey(encryptionKey, for: userWalletId)
-
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(
             unlockMethod: .userWallet(userWalletId: userWalletId, key: encryptionKey),
             userWalletIds: models.map { $0.userWalletId }
@@ -318,7 +328,15 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func lockInternal() {
-        models = []
+        let lockedModels = models.compactMap { model -> LockedUserWalletModel? in
+            guard let serialized = model.serializePublic() else {
+                return nil
+            }
+
+            return LockedUserWalletModel(with: serialized)
+        }
+
+        models = lockedModels
         globalServicesContext.resetServices()
         globalServicesContext.stopAnalyticsSession()
         sendEvent(.locked)
@@ -334,21 +352,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
         eventSubject.send(event)
-    }
-}
-
-extension CommonUserWalletRepository {
-    func initialize() async {
-        let savedSelectedUserWalletId = await AppSettings.shared.selectedUserWalletId
-
-        if !savedSelectedUserWalletId.isEmpty {
-            selectedUserWalletId = UserWalletId(value: savedSelectedUserWalletId)
-        }
-
-        let savedUserWallets = userWalletDataStorage.fetchPublicData()
-        let models = savedUserWallets.map { LockedUserWalletModel(with: $0) }
-        self.models = models
-        AppLogger.info(self)
     }
 }
 
