@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemStaking
+import TangemFoundation
 
 struct CommonWalletModelsFactory {
     private let config: UserWalletConfig
