@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct ExpressFeeSelectorView: View {
     @ObservedObject private var viewModel: ExpressFeeSelectorViewModel
@@ -21,9 +22,11 @@ struct ExpressFeeSelectorView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.commonFeeSelectorTitle)
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeSelectorTitle)
 
-            GroupedSection(viewModel.feeRowViewModels) {
-                FeeRowView(viewModel: $0)
+            GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
+                FeeRowView(viewModel: feeRowViewModel)
+                    .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
             } footer: {
                 Text(footerAttributedString)
             }
