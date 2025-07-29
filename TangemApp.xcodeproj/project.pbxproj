@@ -413,6 +413,8 @@
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
+		3001C3302E38C26700CE2726 /* AccountFormGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3001C32F2E38C26700CE2726 /* AccountFormGridView.swift */; };
+		3001C3362E38C2FE00CE2726 /* AccountFormGridViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3001C3352E38C2F600CE2726 /* AccountFormGridViewModels.swift */; };
 		300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
@@ -4334,6 +4336,8 @@
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		2DFDD6082DF1ECF700CB72B5 /* SuiContractAddressConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiContractAddressConverter.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
+		3001C32F2E38C26700CE2726 /* AccountFormGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormGridView.swift; sourceTree = "<group>"; };
+		3001C3352E38C2F600CE2726 /* AccountFormGridViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormGridViewModels.swift; sourceTree = "<group>"; };
 		300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExternalLinksProvider.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
 		300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressTests.swift; sourceTree = "<group>"; };
@@ -8853,6 +8857,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3001C3312E38C2AB00CE2726 /* AccountForm */ = {
+			isa = PBXGroup;
+			children = (
+				3001C3322E38C2E100CE2726 /* GridView */,
+			);
+			path = AccountForm;
+			sourceTree = "<group>";
+		};
+		3001C3322E38C2E100CE2726 /* GridView */ = {
+			isa = PBXGroup;
+			children = (
+				3001C3352E38C2F600CE2726 /* AccountFormGridViewModels.swift */,
+				3001C32F2E38C26700CE2726 /* AccountFormGridView.swift */,
+			);
+			path = GridView;
+			sourceTree = "<group>";
+		};
 		30188F672D75CF8E00217353 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -8990,6 +9011,14 @@
 				30A5A4492E0D508000ACFD5A /* TransferERC721TokenMethodTestCase.swift */,
 			);
 			path = SmartContractTestCases;
+			sourceTree = "<group>";
+		};
+		30A8C86C2E38A8020052BE14 /* Accounts */ = {
+			isa = PBXGroup;
+			children = (
+				3001C3312E38C2AB00CE2726 /* AccountForm */,
+			);
+			path = Accounts;
 			sourceTree = "<group>";
 		};
 		30BA4FE52D7085E900C2B108 /* Tezos */ = {
@@ -16512,6 +16541,7 @@
 		DC8C22E42D89FF6E005159FE /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				30A8C86C2E38A8020052BE14 /* Accounts */,
 				0FEA23612DF1A805000EDB4D /* NewWalletSelector */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				DC5E6FDA2C906331008A98D0 /* AppLock */,
@@ -21774,6 +21804,7 @@
 				B65CB3FC2A98A29500C31199 /* UserTokensReordering.swift in Sources */,
 				C207D5E02DE60CA200A5FB2E /* WalletConnectDAppDescriptionView.swift in Sources */,
 				C207D5E12DE60CA200A5FB2E /* WalletConnectWarningNotificationView.swift in Sources */,
+				3001C3362E38C2FE00CE2726 /* AccountFormGridViewModels.swift in Sources */,
 				C207D5E22DE60CA200A5FB2E /* WalletConnectNavigationBarView.swift in Sources */,
 				EF9EA96A2B110F4900AC1DA1 /* CommonExpressModulesFactory.swift in Sources */,
 				B6323E3A2C61D8FD00C1CE60 /* MarketsTokenDetailsPriceInfoHelper.swift in Sources */,
@@ -22573,6 +22604,7 @@
 				B002654E2CE1F62F00D969E0 /* VisaOnboardingPinViewModel.swift in Sources */,
 				EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */,
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
+				3001C3302E38C26700CE2726 /* AccountFormGridView.swift in Sources */,
 				DC2891B82CDB09DE00F57F59 /* ActionButtonsSellFlowRoutable.swift in Sources */,
 				0F84C1202E1515A900DC7FB1 /* HotOnboardingSuccessViewModel.swift in Sources */,
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
@@ -22671,7 +22703,7 @@
 				EFA4E37B2C3EEC6D008815AD /* StakingValidatorsStepBuilder.swift in Sources */,
 				DC6340DF2E1D8042004BFDE5 /* KeychainCleaner.swift in Sources */,
 				C2321F422E301A4B006428A8 /* CommonWalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */,
-				EFB4CA552E0BE2AF003C1522 /* CommonSendNewDestinationInteractorDependenciesBuilder.swift in Sources */,
+				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
 				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				0FE588522DEF2A1500E5663E /* HotOnboardingViewModel.swift in Sources */,
