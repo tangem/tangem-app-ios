@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 /// NFT feature availability for a particular wallet.
 protocol NFTAvailabilityProvider {
