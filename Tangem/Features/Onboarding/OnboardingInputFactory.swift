@@ -12,16 +12,13 @@ import TangemSdk
 class OnboardingInputFactory {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    private let userWalletModel: UserWalletModel?
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
 
     init(
-        userWalletModel: UserWalletModel?,
         sdkFactory: TangemSdkFactory & BackupServiceFactory,
         onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
     ) {
-        self.userWalletModel = userWalletModel
         self.sdkFactory = sdkFactory
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
     }
@@ -59,9 +56,7 @@ class OnboardingInputFactory {
         )
     }
 
-    func makeBackupInput(cardInfo: CardInfo) -> OnboardingInput? {
-        guard let userWalletModel else { return nil }
-
+    func makeBackupInput(cardInfo: CardInfo, userWalletModel: UserWalletModel) -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {
@@ -88,7 +83,11 @@ class OnboardingInputFactory {
     }
 
     private func makeCardInput(cardInfo: CardInfo) -> OnboardingInput.CardInput {
-        if let userWalletModel {
+        // onboarded previously
+        if let userWalletModel = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        ) {
             return .userWalletModel(userWalletModel)
         }
 
