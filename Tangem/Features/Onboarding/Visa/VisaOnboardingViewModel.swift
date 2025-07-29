@@ -612,7 +612,6 @@ extension VisaOnboardingViewModel {
         ))
         let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationLocalState: activationStatus)
         let inputFactory = OnboardingInputFactory(
-            userWalletModel: visaUserWalletModelMock,
             sdkFactory: cardMockConfig,
             onboardingStepsBuilderFactory: cardMockConfig
         )
