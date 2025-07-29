@@ -50,12 +50,10 @@ public enum DerivationUtil {
             throw HotWalletError.tangemSdk(.unsupportedCurve)
         }
     }
-}
-
-private extension DerivationUtil {
+    
     static func curve(for masterKey: Data, entropy: Data, passphrase: String) -> EllipticCurve? {
         let curves: [EllipticCurve] = [.secp256k1, .ed25519, .ed25519_slip0010]
-
+        
         return curves
             .first { curve in
                 guard let key = try? Self.masterKey(from: curve, entropy: entropy, passphrase: passphrase) else {
@@ -64,6 +62,9 @@ private extension DerivationUtil {
                 return key == masterKey
             }
     }
+}
+
+private extension DerivationUtil {
 
     static func masterKey(from curve: EllipticCurve, entropy: Data, passphrase: String) throws -> Data {
         try publicKeyDefault(entropy: entropy, passphrase: passphrase, derivationPath: nil, curve: curve).publicKey
