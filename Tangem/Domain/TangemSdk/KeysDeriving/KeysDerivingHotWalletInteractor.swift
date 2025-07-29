@@ -9,14 +9,13 @@
 import Foundation
 import TangemHotSdk
 import TangemSdk
+import TangemFoundation
 
 class KeysDerivingHotWalletInteractor {
-    let entropy: Data
-    let passphrase: String
+    let userWalletId: UserWalletId
 
-    init(entropy: Data, passphrase: String) {
-        self.entropy = entropy
-        self.passphrase = passphrase
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
     }
 }
 
@@ -27,33 +26,17 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
         derivations: [Data: [DerivationPath]],
         completion: @escaping (Result<DerivationResult, Error>) -> Void
     ) {
+        let sdk = CommonHotSdk()
+
         let result: Result<DerivationResult, Error> = Result {
-            try derivations.reduce(into: [:]) { result, derivation in
-                let derivedKeys = try deriveKeys(
-                    derivationPaths: derivation.value,
-                    masterKey: derivation.key
-                )
-                result[derivation.key] = derivedKeys
+            // [REDACTED_TODO_COMMENT]
+            let derived = try sdk.deriveKeys(walletID: userWalletId, auth: .none, derivationPaths: derivations)
+
+            return derived.reduce(into: [:]) { partialResult, keyInfo in
+                partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
             }
         }
 
         completion(result)
-    }
-
-    private func deriveKeys(
-        derivationPaths: [DerivationPath],
-        masterKey: Data
-    ) throws -> DerivedKeys {
-        let keys: [DerivationPath: ExtendedPublicKey] = try derivationPaths.reduce(into: [:]) { partResult, path in
-            let derivedKey = try DerivationUtil.deriveKeys(
-                entropy: entropy,
-                passphrase: passphrase,
-                derivationPath: path.rawPath,
-                masterKey: masterKey
-            )
-            partResult[path] = derivedKey
-        }
-
-        return DerivedKeys(keys: keys)
     }
 }
