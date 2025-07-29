@@ -47,7 +47,9 @@ class UserWalletModelMock: UserWalletModel {
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 
-    var updatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
+    private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
+
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     var emailData: [EmailCollectedData] { [] }
 
@@ -58,8 +60,6 @@ class UserWalletModelMock: UserWalletModel {
     var backupInput: OnboardingInput? { nil }
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
-
-    var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
 
@@ -96,15 +96,13 @@ class UserWalletModelMock: UserWalletModel {
         return nil
     }
 
-    func updateWalletName(_ name: String) {}
-
     func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
     func validate() -> Bool { true }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
+    func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
 
