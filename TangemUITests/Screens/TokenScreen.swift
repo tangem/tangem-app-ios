@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TokenScreen: ScreenBase<TokenScreenElement> {
     enum TokenAction: String {
         case buy = "Buy"
+        case swap = "Swap"
     }
 
     private lazy var moreButton = otherElement(.moreButton)
@@ -25,14 +26,22 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return MainScreen(app)
     }
 
-    func tapActionButton(_ action: TokenAction) -> OnrampScreen {
-        XCTContext.runActivity(named: "Tap token with label: \(action.rawValue)") { _ in
+    @discardableResult
+    func tapActionButton(_ action: TokenAction) -> Self {
+        XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
             actionButtons.buttons[action.rawValue].waitAndTap()
-            switch action {
-            case .buy:
-                return OnrampScreen(app)
-            }
         }
+        return self
+    }
+
+    func tapBuyButton() -> OnrampScreen {
+        tapActionButton(.buy)
+        return OnrampScreen(app)
+    }
+
+    func tapSwapButton() -> SwapScreen {
+        tapActionButton(.swap)
+        return SwapScreen(app)
     }
 }
 
