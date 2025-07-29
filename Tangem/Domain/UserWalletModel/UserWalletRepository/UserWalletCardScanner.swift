@@ -8,6 +8,7 @@
 
 import Combine
 import TangemSdk
+import TangemFoundation
 
 class UserWalletCardScanner {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
