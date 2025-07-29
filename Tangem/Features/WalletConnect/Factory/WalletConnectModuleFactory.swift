@@ -201,6 +201,7 @@ enum WalletConnectModuleFactory {
              .unsupportedDomain,
              .unsupportedBlockchains,
              .noBlockchainsProvidedByDApp,
+             .pairingTimeout,
              .cancelledByUser:
             return nil
         }
@@ -280,6 +281,14 @@ enum WalletConnectModuleFactory {
                 \(noBlockchainsProvidedByDAppError.dAppName) does not specify any blockchains — neither required nor optional.
                 Please ensure you used the correct URI
                 """,
+                buttonStyle: .primary
+            )
+
+        case .pairingTimeout:
+            viewState = WalletConnectErrorViewState(
+                icon: .walletConnect,
+                title: Localization.wcAlertConnectionTimeoutTitle,
+                subtitle: Localization.walletConnectErrorTimeout,
                 buttonStyle: .primary
             )
 
