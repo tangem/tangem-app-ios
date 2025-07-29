@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import protocol Foundation.LocalizedError
+import Foundation
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
@@ -103,6 +103,55 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         )
 
         return (dAppData, sessionProposal)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func openSessionWithForcedTimeout(
+        uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource
+    ) async throws(WalletConnectDAppProposalLoadingError) -> (Session.Proposal, VerifyContext?) {
+        try await withCheckedContinuation { continuation in
+            Task {
+                await self.innerOpenSessionWithForcedTimeout(uri: uri, source: source, continuation: continuation)
+            }
+        }.get()
+    }
+
+    private func innerOpenSessionWithForcedTimeout(
+        uri: WalletConnectRequestURI,
+        source: Analytics.WalletConnectSessionSource,
+        continuation: CheckedContinuation<Result<(Session.Proposal, VerifyContext?), WalletConnectDAppProposalLoadingError>, Never>
+    ) async {
+        let gate = LockGate()
+
+        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
+            guard let self else {
+                gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.cancelledByUser)) }
+                return
+            }
+
+            taskGroup.addTask {
+                do throws(WalletConnectDAppProposalLoadingError) {
+                    let result = try await self.openSession(uri: uri)
+                    gate.run { continuation.resume(returning: .success(result)) }
+                } catch {
+                    gate.run { continuation.resume(returning: .failure(error)) }
+                }
+            }
+
+            taskGroup.addTask {
+                do {
+                    let nanoseconds = UInt64(Constants.pairingTaskTimeout * Double(NSEC_PER_SEC))
+                    try await Task.sleep(nanoseconds: nanoseconds)
+                    gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.pairingTimeout)) }
+                } catch {
+                    gate.run { continuation.resume(returning: .failure(WalletConnectDAppProposalLoadingError.cancelledByUser)) }
+                }
+            }
+
+            defer { taskGroup.cancelAll() }
+            await taskGroup.next()
+        }
     }
 
     private func openSession(
@@ -230,6 +279,29 @@ extension ReownWalletConnectDAppDataService {
                     blockchainNames: unsupportedOptionalBlockchainNames.sorted()
                 )
             )
+        }
+    }
+}
+
+// MARK: - Nested types
+
+extension ReownWalletConnectDAppDataService {
+    private enum Constants {
+        static let pairingTaskTimeout: TimeInterval = 30
+    }
+
+    @available(*, deprecated, message: "replace with general purpose forced-timeout function in https://tangem.atlassian.net/browse/[REDACTED_INFO]")
+    private final class LockGate {
+        private var isResumed = false
+        private let lock = NSLock()
+
+        func run(_ action: () -> Void) {
+            lock.lock()
+            defer { lock.unlock() }
+
+            guard !isResumed else { return }
+            isResumed = true
+            action()
         }
     }
 }
