@@ -2311,6 +2311,7 @@
 		D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */; };
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
+		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
 		D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */; };
 		DA0ABE942E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */; };
@@ -2733,6 +2734,7 @@
 		DC5118632860A339004FB954 /* SecurityModeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118622860A339004FB954 /* SecurityModeRoutable.swift */; };
 		DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* AppCoordinator.swift */; };
 		DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppCoordinatorView.swift */; };
+		DC523FEF2E37E88E0020A89F /* WalletSelectorInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */; };
 		DC57CE6E2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC57CE6D2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift */; };
 		DC592B872C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC592B862C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift */; };
 		DC592B8A2C419F50005AB9A7 /* StakingPendingHashesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC592B892C419F50005AB9A7 /* StakingPendingHashesRepository.swift */; };
@@ -6197,6 +6199,7 @@
 		D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Allure.swift"; sourceTree = "<group>"; };
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
+		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
 		D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionRequestScreen.swift; sourceTree = "<group>"; };
 		DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaKYCAccessTokenResponse.swift; sourceTree = "<group>"; };
@@ -6622,6 +6625,7 @@
 		DC5118622860A339004FB954 /* SecurityModeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityModeRoutable.swift; sourceTree = "<group>"; };
 		DC5118792860B704004FB954 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC51187B2860B728004FB954 /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
+		DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorInfoProvider.swift; sourceTree = "<group>"; };
 		DC57CE6D2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsTokenSelectItemViewModel.swift; sourceTree = "<group>"; };
 		DC592B862C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+SubmitHash.swift"; sourceTree = "<group>"; };
 		DC592B892C419F50005AB9A7 /* StakingPendingHashesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingHashesRepository.swift; sourceTree = "<group>"; };
@@ -8331,6 +8335,7 @@
 		2D5DCC342C330A33000EE379 /* WalletSelectorItemView */ = {
 			isa = PBXGroup;
 			children = (
+				DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */,
 				2D5DCC322C330A33000EE379 /* WalletSelectorItemView.swift */,
 				2D5DCC332C330A33000EE379 /* WalletSelectorItemViewModel.swift */,
 			);
@@ -9396,6 +9401,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D89ABED82E31979900855B00 /* SwapScreen.swift */,
 				D856AA172E257F4700E3D975 /* Onramp */,
 				7985089E2DE99FE800388668 /* ToSScreen.swift */,
 				7982B02D2DE7259500C41EA5 /* MainScreen.swift */,
@@ -21143,6 +21149,7 @@
 				DCB385182D240AE100105DD4 /* SeedNotifyDTO.swift in Sources */,
 				EFC84B102C37FAB500546882 /* SendDependenciesBuilder.swift in Sources */,
 				B06ADFDB29BAFA4600E92E5E /* SeedPhraseManager.swift in Sources */,
+				DC523FEF2E37E88E0020A89F /* WalletSelectorInfoProvider.swift in Sources */,
 				DC0568D92E0E5BD3008A3770 /* WCTransactionSimulationDisplayModel.swift in Sources */,
 				EF1E17302BF64224000364AE /* SettingsUserWalletRowViewModel.swift in Sources */,
 				DC1DA92A2D554356003638ED /* ScrollViewContentOffsetLocker.swift in Sources */,
@@ -23323,6 +23330,7 @@
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
+				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
 				7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */,
 				7982B00C2DE70E0100C41EA5 /* Timeouts.swift in Sources */,
