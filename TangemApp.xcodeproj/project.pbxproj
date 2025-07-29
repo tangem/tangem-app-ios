@@ -2311,6 +2311,7 @@
 		D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */; };
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
+		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
 		D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */; };
 		DA0ABE942E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */; };
@@ -6197,6 +6198,7 @@
 		D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Allure.swift"; sourceTree = "<group>"; };
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
+		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
 		D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionRequestScreen.swift; sourceTree = "<group>"; };
 		DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaKYCAccessTokenResponse.swift; sourceTree = "<group>"; };
@@ -9396,6 +9398,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D89ABED82E31979900855B00 /* SwapScreen.swift */,
 				D856AA172E257F4700E3D975 /* Onramp */,
 				7985089E2DE99FE800388668 /* ToSScreen.swift */,
 				7982B02D2DE7259500C41EA5 /* MainScreen.swift */,
@@ -23323,6 +23326,7 @@
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
+				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
 				7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */,
 				7982B00C2DE70E0100C41EA5 /* Timeouts.swift in Sources */,
