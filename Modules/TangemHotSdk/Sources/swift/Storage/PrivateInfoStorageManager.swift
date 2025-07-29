@@ -109,7 +109,7 @@ extension PrivateInfoStorageManager {
     }
 }
 
-extension UserWalletId { // rename to tag
+extension UserWalletId {
     var privateInfoTag: String {
         PrivateInfoStorageManager.Constants.privateInfoPrefix + stringValue
     }
