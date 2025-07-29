@@ -44,8 +44,12 @@ public final class CommonHotSdk: HotSdk {
         return try importWallet(entropy: entropy, passphrase: "")
     }
 
-    public func exportMnemonic(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> [String] {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
+    public func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {
+        try privateInfoStorageManager.validate(auth: auth, for: walletID)
+    }
+
+    public func exportMnemonic(context: MobileWalletContext) throws -> [String] {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToExportMnemonic
@@ -56,7 +60,7 @@ public final class CommonHotSdk: HotSdk {
         return mnemonic.mnemonicComponents
     }
 
-    public func exportBackup(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> Data {
+    public func exportBackup(context: MobileWalletContext) throws -> Data {
         // Placeholder for backup export logic
         return Data()
     }
@@ -67,18 +71,20 @@ public final class CommonHotSdk: HotSdk {
 
     public func updateAccessCode(
         _ newAccessCode: String,
-        oldAuth: AuthenticationUnlockData,
-        for walletID: UserWalletId
+        context: MobileWalletContext
     ) throws {
-        try privateInfoStorageManager.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
+        try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
     }
 
-    public func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws {
-        try privateInfoStorageManager.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
+    public func enableBiometrics(
+        context: MobileWalletContext,
+        laContext: LAContext
+    ) throws {
+        try privateInfoStorageManager.enableBiometrics(context: context, laContext: laContext)
     }
 
-    public func deriveMasterKeys(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> HotWallet {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
+    public func deriveMasterKeys(context: MobileWalletContext) throws -> HotWallet {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToDeriveKey
@@ -93,15 +99,14 @@ public final class CommonHotSdk: HotSdk {
             passphrase: privateInfo.passphrase
         )
 
-        return HotWallet(id: walletID, wallets: keyInfos)
+        return HotWallet(id: context.walletID, wallets: keyInfos)
     }
 
     public func deriveKeys(
-        walletID: UserWalletId,
-        auth: AuthenticationUnlockData,
+        context: MobileWalletContext,
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> [Data: HotWalletKeyInfo] {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToDeriveKey
@@ -148,11 +153,39 @@ public final class CommonHotSdk: HotSdk {
 
         return result
     }
+
+    public func publicDataEncryptionKeyData(context: MobileWalletContext) throws -> Data {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw HotWalletError.failedToDeriveKey
+        }
+
+        defer {
+            privateInfo.clear()
+        }
+
+        let masterKeys = try deriveMasterKeys(
+            entropy: privateInfo.entropy,
+            passphrase: privateInfo.passphrase,
+            curves: [.secp256k1]
+        )
+
+        guard let secp256k1Key = masterKeys.first else {
+            throw HotWalletError.failedToDeriveKey
+        }
+
+        return secp256k1Key.publicKey
+    }
 }
 
 private extension CommonHotSdk {
-    func deriveMasterKeys(entropy: Data, passphrase: String) throws -> [HotWalletKeyInfo] {
-        try EllipticCurve.allCases.compactMap { curve -> HotWalletKeyInfo? in
+    func deriveMasterKeys(
+        entropy: Data,
+        passphrase: String,
+        curves: [EllipticCurve] = EllipticCurve.allCases
+    ) throws -> [HotWalletKeyInfo] {
+        try curves.compactMap { curve -> HotWalletKeyInfo? in
             let publicKey: ExtendedPublicKey
             switch curve {
             case .bls12381_G2_AUG:
