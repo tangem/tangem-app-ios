@@ -213,6 +213,15 @@ final class UserWalletNotificationManager {
         bag.removeAll()
 
         userWalletModel.updatePublisher
+            .filter { value in
+                switch value {
+                case .backupDidChange:
+                    return true
+                case .nameDidChange:
+                    return false
+                }
+            }
+            .mapToVoid()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
