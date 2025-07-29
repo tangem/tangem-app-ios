@@ -11,6 +11,7 @@ import Combine
 import TangemAssets
 import TangemNFT
 import BlockchainSdk
+import TangemFoundation
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
