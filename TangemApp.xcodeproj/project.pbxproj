@@ -22610,7 +22610,7 @@
 				EFA4E37B2C3EEC6D008815AD /* StakingValidatorsStepBuilder.swift in Sources */,
 				DC6340DF2E1D8042004BFDE5 /* KeychainCleaner.swift in Sources */,
 				C2321F422E301A4B006428A8 /* CommonWalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */,
-				EFB4CA552E0BE2AF003C1522 /* CommonSendNewDestinationInteractorDependenciesBuilder.swift in Sources */,
+				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
 				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				0FE588522DEF2A1500E5663E /* HotOnboardingViewModel.swift in Sources */,
