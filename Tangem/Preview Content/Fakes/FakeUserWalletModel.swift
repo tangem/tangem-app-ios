@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemNFT
+import TangemFoundation
 
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }

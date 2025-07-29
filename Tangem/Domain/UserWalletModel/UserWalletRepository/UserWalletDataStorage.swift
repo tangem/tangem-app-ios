@@ -11,6 +11,7 @@ import CryptoKit
 import TangemSdk
 import TangemHotSdk
 import LocalAuthentication
+import TangemFoundation
 
 class UserWalletDataStorage {
     private let fileManager: FileManager = .default

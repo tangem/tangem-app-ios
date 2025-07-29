@@ -139,6 +139,9 @@ var serviceModules: [PackageDescription.Target] {
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
+            cSettings: [
+                .unsafeFlags(["-Wno-shorten-64-to-32"]),
+            ],
         ),
     ]
 }

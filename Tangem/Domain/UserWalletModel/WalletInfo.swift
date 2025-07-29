@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemHotSdk
+import TangemFoundation
 
 enum WalletInfo: Codable {
     case cardWallet(CardInfo)
@@ -74,9 +75,10 @@ enum WalletInfo: Codable {
     var keysDerivingInteractor: KeysDeriving {
         switch self {
         case .cardWallet(let cardInfo):
-            KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            KeysDerivingHotWalletInteractor(entropy: Data(), passphrase: "")
+            return KeysDerivingCardInteractor(with: cardInfo)
+        case .mobileWallet(let hotWalletInfo):
+            let userWalletId = UserWalletId(with: hotWalletInfo.userWalletIdSeed)
+            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
         }
     }
 }

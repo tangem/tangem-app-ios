@@ -9,6 +9,7 @@
 import Foundation
 import TangemNFT
 import TangemHotSdk
+import TangemFoundation
 
 struct CommonUserWalletModelFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository

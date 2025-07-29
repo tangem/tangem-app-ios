@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemVisa
+import TangemFoundation
 
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
