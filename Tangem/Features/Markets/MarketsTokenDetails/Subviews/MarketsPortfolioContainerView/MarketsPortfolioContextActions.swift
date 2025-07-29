@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 protocol MarketsPortfolioContextActionsProvider: AnyObject {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType]
