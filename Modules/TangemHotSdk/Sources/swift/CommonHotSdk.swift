@@ -97,11 +97,11 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func deriveKeys(
-        wallet: HotWallet,
+        walletID: UserWalletId,
         auth: AuthenticationUnlockData,
         derivationPaths: [Data: [DerivationPath]]
-    ) throws -> HotWallet {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: wallet.id, auth: auth)
+    ) throws -> [Data: HotWalletKeyInfo] {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToDeriveKey
@@ -111,25 +111,42 @@ public final class CommonHotSdk: HotSdk {
             privateInfo.clear()
         }
 
-        var wallets: [HotWalletKeyInfo] = wallet.wallets
+        var result = [Data: HotWalletKeyInfo]()
+
+        let masterKeys = try deriveMasterKeys(
+            entropy: privateInfo.entropy,
+            passphrase: privateInfo.passphrase
+        )
 
         try derivationPaths.forEach { masterKey, derivationPaths in
+            guard let masterKeyInfo = masterKeys.first(where: { $0.publicKey == masterKey }) else {
+                throw HotWalletError.failedToDeriveKey
+            }
+
+            var keyInfo = HotWalletKeyInfo(
+                publicKey: masterKeyInfo.publicKey,
+                chainCode: masterKeyInfo.chainCode,
+                curve: masterKeyInfo.curve
+            )
+
             try derivationPaths.forEach { path in
                 let derivedPublicKey = try DerivationUtil.deriveKeys(
                     entropy: privateInfo.entropy,
                     passphrase: privateInfo.passphrase,
                     derivationPath: path,
-                    masterKey: masterKey
+                    curve: masterKeyInfo.curve
                 )
 
-                guard let walletIndex = wallet.wallets.firstIndex(where: { $0.publicKey == masterKey }) else {
-                    return
-                }
-                wallets[walletIndex].derivedKeys[path] = derivedPublicKey
+                var derivedKeys = keyInfo.derivedKeys
+                derivedKeys[path] = derivedPublicKey
+
+                keyInfo.derivedKeys = derivedKeys
             }
+
+            result[keyInfo.publicKey] = keyInfo
         }
 
-        return HotWallet(id: wallet.id, wallets: wallets)
+        return result
     }
 }
 
