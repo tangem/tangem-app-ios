@@ -268,7 +268,7 @@ extension KoinosError: UniversalError {
     }
 }
 
-extension SolanaError: @retroactive UniversalError {
+extension SolanaError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .blockHashNotFound:
