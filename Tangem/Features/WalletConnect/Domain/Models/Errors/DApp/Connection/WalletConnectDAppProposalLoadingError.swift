@@ -12,7 +12,7 @@ enum WalletConnectDAppProposalLoadingError: Error {
     /// - Note: This may occur if the user scans the same QR code multiple times without refreshing.
     case uriAlreadyUsed
 
-    /// An untyped error thrown during dApp connection proposal loading.
+    /// An untyped error thrown during session pairing.
     case pairingFailed(any Error)
 
     /// The dApp URL string is not a valid ``URL``.
@@ -26,6 +26,10 @@ enum WalletConnectDAppProposalLoadingError: Error {
 
     /// The dApp does not specify any blockchains — neither required nor optional.
     case noBlockchainsProvidedByDApp(NoBlockchainsProvidedByDAppError)
+
+    /// The session pairing operation timed out.
+    /// - Note: The timeout interval is 30 seconds.
+    case pairingTimeout
 
     /// The dApp connection proposal loading was explicitly cancelled by user.
     case cancelledByUser
