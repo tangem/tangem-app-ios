@@ -59,5 +59,5 @@ public protocol HotSdk {
         walletID: UserWalletId,
         auth: AuthenticationUnlockData,
         derivationPaths: [Data: [DerivationPath]]
-    ) throws -> [Data: [HotWalletKeyInfo]]
+    ) throws -> [Data: HotWalletKeyInfo]
 }
