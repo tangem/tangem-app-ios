@@ -19,7 +19,7 @@ public struct WalletNetworkServiceFactory {
 
     // MARK: - Init
 
-    init(
+    public init(
         blockchainSdkKeysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
         apiList: APIList
