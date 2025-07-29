@@ -12,7 +12,7 @@ import Combine
 
 protocol MultiWalletMainHeaderSubtitleDataSource: AnyObject {
     var cardsCount: Int { get }
-    var updatePublisher: AnyPublisher<Void, Never> { get }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var hasImportedWallets: Bool { get }
 }
 
@@ -62,8 +62,13 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     private func subscribeToUpdates() {
         updateSubscription = dataSource.updatePublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.formatSubtitle()
+            .sink(receiveValue: { [weak self] value in
+                switch value {
+                case .backupDidChange:
+                    self?.formatSubtitle()
+                default:
+                    break
+                }
             })
     }
 
