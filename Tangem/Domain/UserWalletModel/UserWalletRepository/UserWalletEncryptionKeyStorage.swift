@@ -10,6 +10,7 @@ import Foundation
 import CryptoKit
 import LocalAuthentication
 import TangemSdk
+import TangemFoundation
 
 class UserWalletEncryptionKeyStorage {
     private let secureStorage = SecureStorage()
