@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory {
     var emailConfig: EmailConfig? { get }
