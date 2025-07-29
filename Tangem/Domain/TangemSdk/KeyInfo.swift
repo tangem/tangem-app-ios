@@ -38,7 +38,7 @@ extension CardDTO.Wallet {
     }
 }
 
-extension HotWallet {
+extension HotWalletKeyInfo {
     var keyInfo: KeyInfo {
         KeyInfo(
             publicKey: publicKey,

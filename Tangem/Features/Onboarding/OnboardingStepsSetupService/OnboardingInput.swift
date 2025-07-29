@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemSdk
+import TangemFoundation
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
