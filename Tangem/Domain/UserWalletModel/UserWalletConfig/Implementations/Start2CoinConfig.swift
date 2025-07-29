@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 struct Start2CoinConfig: CardContainer {
     let card: CardDTO
