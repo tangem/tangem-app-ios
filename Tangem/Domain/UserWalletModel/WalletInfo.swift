@@ -75,9 +75,10 @@ enum WalletInfo: Codable {
     var keysDerivingInteractor: KeysDeriving {
         switch self {
         case .cardWallet(let cardInfo):
-            KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            KeysDerivingHotWalletInteractor(hotWallet: nil) // [REDACTED_TODO_COMMENT]
+            return KeysDerivingCardInteractor(with: cardInfo)
+        case .mobileWallet(let hotWalletInfo):
+            let userWalletId = UserWalletId(with: hotWalletInfo.userWalletIdSeed)
+            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
         }
     }
 }
