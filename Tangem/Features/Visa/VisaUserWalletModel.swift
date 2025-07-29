@@ -553,7 +553,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var signer: TangemSigner { userWalletModel.signer }
 
-    var updatePublisher: AnyPublisher<Void, Never> { userWalletModel.updatePublisher }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { userWalletModel.updatePublisher }
 
     var backupInput: OnboardingInput? { nil }
 
@@ -562,8 +562,6 @@ extension VisaUserWalletModel: UserWalletModel {
     var name: String { userWalletModel.name }
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
-
-    var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
 
     var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
 
@@ -595,10 +593,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     func validate() -> Bool { userWalletModel.validate() }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
-
-    func updateWalletName(_ name: String) {
-        userWalletModel.updateWalletName(name)
+    func update(type: UpdateRequest) {
+        userWalletModel.update(type: type)
     }
 
     func addAssociatedCard(cardId: String) {}
