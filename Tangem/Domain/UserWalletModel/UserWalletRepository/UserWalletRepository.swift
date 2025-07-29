@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import LocalAuthentication
+import TangemFoundation
 
 protocol UserWalletRepository {
     var isLocked: Bool { get }

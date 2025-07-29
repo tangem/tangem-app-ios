@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 protocol TokenBalancesStorage {
     func store(balance: CachedBalance, type: CachedBalanceType, id: WalletModelId, userWalletId: UserWalletId)

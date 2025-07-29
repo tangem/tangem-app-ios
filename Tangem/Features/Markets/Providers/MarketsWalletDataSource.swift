@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class MarketsWalletDataProvider {
     // MARK: - Injected
