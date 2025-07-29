@@ -14,6 +14,7 @@ import CombineExt
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
+import TangemFoundation
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository

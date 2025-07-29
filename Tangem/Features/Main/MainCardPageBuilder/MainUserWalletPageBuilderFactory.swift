@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemNFT
+import TangemFoundation
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(
