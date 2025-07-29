@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 class FakeUserWalletRepository: UserWalletRepository {
     var selectedUserWalletId: UserWalletId?
