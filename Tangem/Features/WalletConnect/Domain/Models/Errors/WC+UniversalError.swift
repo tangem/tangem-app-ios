@@ -32,8 +32,10 @@ extension WalletConnectDAppProposalLoadingError: UniversalError {
             107001005
         case .noBlockchainsProvidedByDApp:
             107001006
-        case .cancelledByUser:
+        case .pairingTimeout:
             107001007
+        case .cancelledByUser:
+            107001008
         }
     }
 }
