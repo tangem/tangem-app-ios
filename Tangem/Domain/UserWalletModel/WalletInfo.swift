@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemHotSdk
+import TangemFoundation
 
 enum WalletInfo: Codable {
     case cardWallet(CardInfo)
