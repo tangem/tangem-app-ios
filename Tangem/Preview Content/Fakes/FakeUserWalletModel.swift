@@ -25,7 +25,7 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
-    var name: String { "" }
+    private(set) var name: String
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
@@ -41,6 +41,7 @@ class FakeUserWalletModel: UserWalletModel {
     var cardsCount: Int
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
+    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: "", cardPublicKey: Data())
@@ -73,13 +74,10 @@ class FakeUserWalletModel: UserWalletModel {
         return nil
     }
 
-    var userWalletName: String { _userWalletNamePublisher.value }
-
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
-    var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
-    private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
-    private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
+    private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
     init(
         userWalletName: String,
@@ -94,7 +92,7 @@ class FakeUserWalletModel: UserWalletModel {
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
         self.config = config
-        _userWalletNamePublisher = .init(userWalletName)
+        name = userWalletName
 
         walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
         let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: walletManagers, isDelayed: isDelayed)
@@ -114,11 +112,6 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
-    func updateWalletName(_ name: String) {
-        _userWalletNamePublisher.send(name)
-        _updatePublisher.send(())
-    }
-
     var totalBalance: TotalBalanceState {
         .loading(cached: .none)
     }
@@ -131,19 +124,24 @@ class FakeUserWalletModel: UserWalletModel {
         return true
     }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
+    func update(type: UpdateRequest) {
+        switch type {
+        case .newName(let name):
+            self.name = name
+            _updatePublisher.send(.nameDidChange(name: name))
+        default:
+            break
+        }
+    }
+
     func addAssociatedCard(cardId: String) {}
     func cleanup() {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
-    var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
-
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
-
-    var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 }
 
 extension FakeUserWalletModel: AnalyticsContextDataProvider {

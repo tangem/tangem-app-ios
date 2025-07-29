@@ -25,6 +25,10 @@ class LockedUserWalletModel: UserWalletModel {
     let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
 
+    var isUserWalletLocked: Bool { true }
+
+    var isTokensListEmpty: Bool { false }
+
     var tokensCount: Int? { nil }
 
     var cardsCount: Int { config.cardsCount }
@@ -43,7 +47,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
-    var updatePublisher: AnyPublisher<Void, Never> { .just }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     var emailData: [EmailCollectedData] {
         var data = config.emailData
@@ -103,6 +107,7 @@ class LockedUserWalletModel: UserWalletModel {
     let backupInput: OnboardingInput? = nil
 
     private let userWallet: StoredUserWallet
+    private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
@@ -110,16 +115,12 @@ class LockedUserWalletModel: UserWalletModel {
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
-    func updateWalletName(_ name: String) {
-        // Renaming locked wallets is prohibited
-    }
-
     func validate() -> Bool {
         // Nothing to validate for locked wallets
         return true
     }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
+    func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
 
@@ -144,17 +145,9 @@ class LockedUserWalletModel: UserWalletModel {
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
-    var isUserWalletLocked: Bool { true }
-
-    var userWalletNamePublisher: AnyPublisher<String, Never> {
-        .just(output: userWallet.name)
-    }
-
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
-
-    var isTokensListEmpty: Bool { false }
 }
 
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
