@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
+
 // [REDACTED_TODO_COMMENT]
 protocol GlobalServicesContext {
     func resetServices()
