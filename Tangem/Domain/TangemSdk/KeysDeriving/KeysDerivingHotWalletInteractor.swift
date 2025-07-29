@@ -9,12 +9,13 @@
 import Foundation
 import TangemHotSdk
 import TangemSdk
+import TangemFoundation
 
 class KeysDerivingHotWalletInteractor {
-    let hotWallet: HotWallet?
+    let userWalletId: UserWalletId
 
-    init(hotWallet: HotWallet?) { // [REDACTED_TODO_COMMENT]
-        self.hotWallet = hotWallet
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
     }
 }
 
@@ -25,22 +26,14 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
         derivations: [Data: [DerivationPath]],
         completion: @escaping (Result<DerivationResult, Error>) -> Void
     ) {
-        guard let hotWallet else { // [REDACTED_TODO_COMMENT]
-            completion(.failure(TangemSdkError.unknownError))
-            return
-        }
-        let sdk = CommonHotSdk(
-            secureStorage: SecureStorage(),
-            biometricsStorage: BiometricsStorage(),
-            secureEnclaveService: SecureEnclaveService(config: .default)
-        )
+        let sdk = CommonHotSdk()
 
         let result: Result<DerivationResult, Error> = Result {
             // [REDACTED_TODO_COMMENT]
-            let updatedWallet = try sdk.deriveKeys(wallet: hotWallet, auth: nil, derivationPaths: derivations)
-
-            return updatedWallet.wallets.reduce(into: [:]) { partialResult, keyInfo in
-                partialResult[keyInfo.publicKey] = .init(keys: keyInfo.derivedKeys)
+            let derived = try sdk.deriveKeys(walletID: userWalletId, auth: .none, derivationPaths: derivations)
+//
+            return derived.reduce(into: [:]) { partialResult, keyInfo in
+                partialResult[keyInfo.key] = .init(keys: keyInfo.val))
             }
         }
 

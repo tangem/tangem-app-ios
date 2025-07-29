@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import LocalAuthentication
+import TangemFoundation
 
 final class PrivateInfoStorage {
     private let secureStorage: HotSecureStorage
@@ -24,33 +25,33 @@ final class PrivateInfoStorage {
 
     func storePrivateInfoData(
         _ privateInfoData: Data,
-        for walletID: HotWalletID,
+        for walletID: UserWalletId,
         aesEncryptionKey: Data,
     ) throws {
         let aesEncryptedData = try AESEncoder.encryptAES(
             rawEncryptionKey: aesEncryptionKey,
             rawData: privateInfoData
         )
-        
+
         let secureEnclaveEncryptedData = try secureEnclaveService.encryptData(
             aesEncryptedData,
-            keyTag: walletID.storageKey
+            keyTag: walletID.privateInfoTag
         )
 
-        try secureStorage.store(secureEnclaveEncryptedData, forKey: walletID.storageKey)
+        try secureStorage.store(secureEnclaveEncryptedData, forKey: walletID.privateInfoTag)
     }
 
     func getPrivateInfoData(
-        for walletID: HotWalletID,
+        for walletID: UserWalletId,
         aesEncryptionKey: Data
     ) throws -> Data {
-        guard let secureEnclaveEncryptedData = try secureStorage.get(walletID.storageKey) else {
+        guard let secureEnclaveEncryptedData = try secureStorage.get(walletID.privateInfoTag) else {
             throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
         }
-        
+
         let aesEncryptedData = try secureEnclaveService.decryptData(
             secureEnclaveEncryptedData,
-            keyTag: walletID.storageKey
+            keyTag: walletID.privateInfoTag
         )
 
         return try AESEncoder.decryptAES(
@@ -59,7 +60,7 @@ final class PrivateInfoStorage {
         )
     }
 
-    func delete(hotWalletID: HotWalletID) throws {
-        try secureStorage.delete(hotWalletID.storageKey)
+    func deletePrivateInfoData(for walletID: UserWalletId) throws {
+        try secureStorage.delete(walletID.privateInfoTag)
     }
 }

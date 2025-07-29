@@ -15,6 +15,7 @@ struct Authentication {
 }
 
 public enum AuthenticationUnlockData {
+    case none
     case accessCode(_ accessCode: String)
     case biometrics(context: LAContext)
 }
