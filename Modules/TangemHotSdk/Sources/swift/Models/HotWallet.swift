@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct HotWallet {
-    public let id: HotWalletID
+    public let id: UserWalletId
     public let wallets: [HotWalletKeyInfo]
 }

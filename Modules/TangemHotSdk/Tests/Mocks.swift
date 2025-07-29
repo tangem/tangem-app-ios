@@ -36,11 +36,11 @@ final class MockedSecureStorage: HotSecureStorage {
 
 final class MockedSecureEnclaveService: HotSecureEnclaveService {
     private let config: SecureEnclaveService.Config
-    
+
     init(config: SecureEnclaveService.Config) {
         self.config = config
     }
-    
+
     func encryptData(_ data: Data, keyTag: String) throws -> Data {
         Data(data.bytes.reversed())
     }

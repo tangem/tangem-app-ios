@@ -9,71 +9,75 @@
 import Foundation
 import TangemSdk
 import LocalAuthentication
+import TangemFoundation
 
 public final class CommonHotSdk: HotSdk {
     private let privateInfoStorageManager: PrivateInfoStorageManager
-    
-    public convenience init() {
-        self.init(
-            secureStorage: SecureStorage(),
-            secureEnclaveService: SecureEnclaveService(config: .default)
-        )
-    }
 
-    init(
-        secureStorage: HotSecureStorage,
-        secureEnclaveService: HotSecureEnclaveService
-    ) {
+    public init() {
         privateInfoStorageManager = PrivateInfoStorageManager(
-            secureStorage: secureStorage,
-            accessCodeSecureEnclaveService: SecureEnclaveService(config: .default)
+            privateInfoStorage: PrivateInfoStorage(),
+            encryptionKeySecureStorage: EncryptionKeySecureStorage(),
+            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage()
         )
     }
 
-    public func importWallet(entropy: Data, passphrase: String) throws -> HotWalletID {
-        let walletID = HotWalletID()
-        
+    public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
+        let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase)
+
+        guard let walletID = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
+            throw HotWalletError.failedToDeriveKey
+        }
+
+        let userWalletId = UserWalletId(with: walletID)
+
         try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
-            walletID: walletID
+            walletID: userWalletId
         )
-        return walletID
+        return userWalletId
     }
 
-    public func generateWallet() throws -> HotWalletID {
+    public func generateWallet() throws -> UserWalletId {
         let entropy = try CryptoUtils.generateRandomBytes(count: 32) // 256 bits of entropy
 
         return try importWallet(entropy: entropy, passphrase: "")
     }
 
-    public func exportPrivateInfo(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> PrivateInfo {
+    public func exportMnemonic(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> [String] {
         let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
             throw HotWalletError.failedToExportMnemonic
         }
 
-        return privateInfo
+        let mnemonic = try Mnemonic(entropyData: privateInfo.entropy, wordList: .en)
+
+        return mnemonic.mnemonicComponents
     }
 
-    public func exportBackup(walletID: HotWalletID, auth: AuthenticationUnlockData) throws -> Data {
+    public func exportBackup(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> Data {
         // Placeholder for backup export logic
         return Data()
     }
 
-    public func delete(id: HotWalletID) throws {
+    public func delete(id: UserWalletId) throws {
         try privateInfoStorageManager.delete(hotWalletID: id)
     }
 
-    public func updateAccessCode(_ newAccessCode: String, oldAuth: AuthenticationUnlockData?, for walletID: HotWalletID) throws {
+    public func updateAccessCode(
+        _ newAccessCode: String,
+        oldAuth: AuthenticationUnlockData,
+        for walletID: UserWalletId
+    ) throws {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
     }
 
-    public func enableBiometrics(for walletID: HotWalletID, accessCode: String, context: LAContext) throws {
+    public func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws {
         try privateInfoStorageManager.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
     }
 
-    public func deriveMasterKeys(walletID: HotWalletID, auth: AuthenticationUnlockData?) throws -> HotWallet {
+    public func deriveMasterKeys(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> HotWallet {
         let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
 
         guard let privateInfo = PrivateInfo(data: privateInfo) else {
@@ -84,38 +88,17 @@ public final class CommonHotSdk: HotSdk {
             privateInfo.clear()
         }
 
-        let keyInfos = try EllipticCurve.allCases.compactMap { curve -> HotWalletKeyInfo? in
-            let publicKey: ExtendedPublicKey
-            switch curve {
-            case .bls12381_G2_AUG:
-                publicKey = try BLSUtil.publicKey(entropy: privateInfo.entropy, passphrase: privateInfo.passphrase)
-            case .secp256k1, .ed25519, .ed25519_slip0010:
-                publicKey = try DerivationUtil.deriveKeys(
-                    entropy: privateInfo.entropy,
-                    passphrase: privateInfo.passphrase,
-                    derivationPath: nil,
-                    curve: curve
-                )
-            default:
-                return nil
-            }
-
-            return HotWalletKeyInfo(
-                publicKey: publicKey.publicKey,
-                chainCode: publicKey.chainCode,
-                curve: curve
-            )
-        }
-
-        return HotWallet(
-            id: walletID,
-            wallets: keyInfos,
+        let keyInfos = try deriveMasterKeys(
+            entropy: privateInfo.entropy,
+            passphrase: privateInfo.passphrase
         )
+
+        return HotWallet(id: walletID, wallets: keyInfos)
     }
 
     public func deriveKeys(
         wallet: HotWallet,
-        auth: AuthenticationUnlockData?,
+        auth: AuthenticationUnlockData,
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> HotWallet {
         let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: wallet.id, auth: auth)
@@ -147,5 +130,32 @@ public final class CommonHotSdk: HotSdk {
         }
 
         return HotWallet(id: wallet.id, wallets: wallets)
+    }
+}
+
+private extension CommonHotSdk {
+    func deriveMasterKeys(entropy: Data, passphrase: String) throws -> [HotWalletKeyInfo] {
+        try EllipticCurve.allCases.compactMap { curve -> HotWalletKeyInfo? in
+            let publicKey: ExtendedPublicKey
+            switch curve {
+            case .bls12381_G2_AUG:
+                publicKey = try BLSUtil.publicKey(entropy: entropy, passphrase: passphrase)
+            case .secp256k1, .ed25519, .ed25519_slip0010:
+                publicKey = try DerivationUtil.deriveKeys(
+                    entropy: entropy,
+                    passphrase: passphrase,
+                    derivationPath: nil,
+                    curve: curve
+                )
+            default:
+                return nil
+            }
+
+            return HotWalletKeyInfo(
+                publicKey: publicKey.publicKey,
+                chainCode: publicKey.chainCode,
+                curve: curve
+            )
+        }
     }
 }
