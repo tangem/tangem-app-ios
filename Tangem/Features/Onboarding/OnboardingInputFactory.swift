@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 class OnboardingInputFactory {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
