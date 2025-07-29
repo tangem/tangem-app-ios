@@ -44,13 +44,9 @@ class BaseTestCase: XCTestCase {
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
-        if let tangemApiType {
-            arguments.append(contentsOf: ["-tangem_api_type", tangemApiType.rawValue])
-        }
+        arguments.append(contentsOf: ["-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue])
 
-        if let expressApiType {
-            arguments.append(contentsOf: ["-api_express", expressApiType.rawValue])
-        }
+        arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
@@ -81,32 +77,6 @@ class BaseTestCase: XCTestCase {
                     wireMockClient.setScenarioStateSync(scenario.name, state: scenario.initialState)
                 }
                 activeScenarios[scenario.name] = scenario.initialState
-            }
-        }
-    }
-
-    /// Change scenario state during test
-    func setScenarioState(_ scenarioName: String, state: String) {
-        XCTContext.runActivity(named: "Set scenario '\(scenarioName)' to state '\(state)'") { _ in
-            wireMockClient.setScenarioStateSync(scenarioName, state: state)
-            activeScenarios[scenarioName] = state
-        }
-    }
-
-    /// Reset scenario to "Started" state
-    func resetScenario(_ scenarioName: String) {
-        XCTContext.runActivity(named: "Reset scenario '\(scenarioName)'") { _ in
-            wireMockClient.resetScenarioSync(scenarioName)
-            activeScenarios[scenarioName] = "Started"
-        }
-    }
-
-    /// Reset all active scenarios
-    func resetAllScenarios() {
-        XCTContext.runActivity(named: "Reset all WireMock scenarios") { _ in
-            wireMockClient.resetAllScenariosSync()
-            for key in activeScenarios.keys {
-                activeScenarios[key] = "Started"
             }
         }
     }
