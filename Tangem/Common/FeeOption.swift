@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 enum FeeOption: String, Hashable, Equatable {
     case slow
@@ -52,6 +53,19 @@ enum FeeOption: String, Hashable, Equatable {
             return .transactionFeeMax
         case .custom:
             return .custom
+        }
+    }
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .slow:
+            return FeeAccessibilityIdentifiers.slowFeeOption
+        case .market:
+            return FeeAccessibilityIdentifiers.marketFeeOption
+        case .fast:
+            return FeeAccessibilityIdentifiers.fastFeeOption
+        case .custom:
+            return FeeAccessibilityIdentifiers.customFeeOption
         }
     }
 }
