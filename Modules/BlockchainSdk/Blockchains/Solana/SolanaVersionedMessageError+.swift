@@ -12,7 +12,7 @@ import SolanaSwift
 
 extension VersionedMessageError: @retroactive LocalizedError {}
 
-extension VersionedMessageError: @retroactive UniversalError {
+extension VersionedMessageError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .expectedVersionedMessageButReceivedLegacyMessage:
