@@ -42,37 +42,45 @@ final class PrivateInfoStorageManager {
         )
     }
 
-    func getPrivateInfoData(for walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> Data {
-        var aesEncryptionKey = try getEncryptionKey(for: walletID, auth: auth)
+    func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {
+        _ = try getEncryptionKey(for: walletID, auth: auth)
+
+        return MobileWalletContext(walletID: walletID, authentication: auth)
+    }
+
+    func getPrivateInfoData(context: MobileWalletContext) throws -> Data {
+        var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
         defer {
             secureErase(data: &aesEncryptionKey)
         }
 
-        return try privateInfoStorage.getPrivateInfoData(for: walletID, aesEncryptionKey: aesEncryptionKey)
+        return try privateInfoStorage.getPrivateInfoData(for: context.walletID, aesEncryptionKey: aesEncryptionKey)
     }
 
     func updateAccessCode(
         _ newAccessCode: String,
-        oldAuth: AuthenticationUnlockData,
-        for walletID: UserWalletId
+        context: MobileWalletContext
     ) throws {
-        let aesEncryptionKey = try getEncryptionKey(for: walletID, auth: oldAuth)
+        let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
         try encryptionKeySecureStorage.storeEncryptionKey(
             aesEncryptionKey,
-            for: walletID,
+            for: context.walletID,
             accessCode: newAccessCode
         )
     }
 
-    public func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws {
-        let aesEncryptionKey = try getEncryptionKey(for: walletID, auth: .accessCode(accessCode))
+    public func enableBiometrics(
+        context: MobileWalletContext,
+        laContext: LAContext
+    ) throws {
+        let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
         try encryptionKeyBiometricsStorage.storeEncryptionKey(
             aesEncryptionKey,
-            for: walletID,
-            context: context
+            for: context.walletID,
+            context: laContext
         )
     }
 
