@@ -30,11 +30,12 @@ extension KeysDerivingHotWalletInteractor: KeysDeriving {
 
         let result: Result<DerivationResult, Error> = Result {
             // [REDACTED_TODO_COMMENT]
-            let derived = try sdk.deriveKeys(walletID: userWalletId, auth: .none, derivationPaths: derivations)
-
-            return derived.reduce(into: [:]) { partialResult, keyInfo in
-                partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
-            }
+            fatalError()
+//            let derived = try sdk.deriveKeys(walletID: userWalletId, auth: .none, derivationPaths: derivations)
+//
+//            return derived.reduce(into: [:]) { partialResult, keyInfo in
+//                partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
+//            }
         }
 
         completion(result)
