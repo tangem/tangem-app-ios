@@ -13,6 +13,7 @@ import TangemSdk
 import TangemNFT
 import BlockchainSdk
 import TangemVisa
+import TangemFoundation
 
 class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository

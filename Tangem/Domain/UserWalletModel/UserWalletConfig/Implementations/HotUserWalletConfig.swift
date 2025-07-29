@@ -78,7 +78,7 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var userWalletIdSeed: Data? {
-        hotWallet.publicKey
+        hotWallet.wallets.first?.publicKey
     }
 
     var productType: Analytics.ProductType {
