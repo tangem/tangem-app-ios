@@ -2734,6 +2734,7 @@
 		DC5118632860A339004FB954 /* SecurityModeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118622860A339004FB954 /* SecurityModeRoutable.swift */; };
 		DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* AppCoordinator.swift */; };
 		DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppCoordinatorView.swift */; };
+		DC523FEF2E37E88E0020A89F /* WalletSelectorInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */; };
 		DC57CE6E2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC57CE6D2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift */; };
 		DC592B872C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC592B862C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift */; };
 		DC592B8A2C419F50005AB9A7 /* StakingPendingHashesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC592B892C419F50005AB9A7 /* StakingPendingHashesRepository.swift */; };
@@ -6624,6 +6625,7 @@
 		DC5118622860A339004FB954 /* SecurityModeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityModeRoutable.swift; sourceTree = "<group>"; };
 		DC5118792860B704004FB954 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC51187B2860B728004FB954 /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
+		DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorInfoProvider.swift; sourceTree = "<group>"; };
 		DC57CE6D2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsTokenSelectItemViewModel.swift; sourceTree = "<group>"; };
 		DC592B862C41961D005AB9A7 /* StakeKitDTO+SubmitHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+SubmitHash.swift"; sourceTree = "<group>"; };
 		DC592B892C419F50005AB9A7 /* StakingPendingHashesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingHashesRepository.swift; sourceTree = "<group>"; };
@@ -8333,6 +8335,7 @@
 		2D5DCC342C330A33000EE379 /* WalletSelectorItemView */ = {
 			isa = PBXGroup;
 			children = (
+				DC523FEE2E37E8880020A89F /* WalletSelectorInfoProvider.swift */,
 				2D5DCC322C330A33000EE379 /* WalletSelectorItemView.swift */,
 				2D5DCC332C330A33000EE379 /* WalletSelectorItemViewModel.swift */,
 			);
@@ -21146,6 +21149,7 @@
 				DCB385182D240AE100105DD4 /* SeedNotifyDTO.swift in Sources */,
 				EFC84B102C37FAB500546882 /* SendDependenciesBuilder.swift in Sources */,
 				B06ADFDB29BAFA4600E92E5E /* SeedPhraseManager.swift in Sources */,
+				DC523FEF2E37E88E0020A89F /* WalletSelectorInfoProvider.swift in Sources */,
 				DC0568D92E0E5BD3008A3770 /* WCTransactionSimulationDisplayModel.swift in Sources */,
 				EF1E17302BF64224000364AE /* SettingsUserWalletRowViewModel.swift in Sources */,
 				DC1DA92A2D554356003638ED /* ScrollViewContentOffsetLocker.swift in Sources */,
@@ -22674,7 +22678,7 @@
 				EFA4E37B2C3EEC6D008815AD /* StakingValidatorsStepBuilder.swift in Sources */,
 				DC6340DF2E1D8042004BFDE5 /* KeychainCleaner.swift in Sources */,
 				C2321F422E301A4B006428A8 /* CommonWalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */,
-				EFB4CA552E0BE2AF003C1522 /* CommonSendNewDestinationInteractorDependenciesBuilder.swift in Sources */,
+				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
 				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				0FE588522DEF2A1500E5663E /* HotOnboardingViewModel.swift in Sources */,
