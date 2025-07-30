@@ -11,7 +11,6 @@ import Foundation
 import TangemAccessibilityIdentifiers
 
 final class DetailsScreen: ScreenBase<DetailsScreenElement> {
-    /// Open wallet settings for specific wallet by name
     func openWalletSettings(for walletName: String) -> CardSettingsScreen {
         XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
             let specificWalletButton = app.buttons[WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: walletName)]
