@@ -15,9 +15,11 @@ final class HotBackupNeededViewModel {
     let description = Localization.hwBackupNeedDescription
     let actionTitle = Localization.hwBackupNeedAction
 
-    private weak var routable: HotBackupNeedRoutable?
+    private let userWalletModel: UserWalletModel
+    private weak var routable: HotBackupNeededRoutable?
 
-    init(routable: HotBackupNeedRoutable) {
+    init(userWalletModel: UserWalletModel, routable: HotBackupNeededRoutable) {
+        self.userWalletModel = userWalletModel
         self.routable = routable
     }
 }
@@ -31,7 +33,7 @@ extension HotBackupNeededViewModel {
 
     func onBackupTap() {
         routable?.dismissHotBackupNeeded()
-        routable?.openHotBackupOnboarding()
+        routable?.openHotBackupOnboarding(userWalletModel: userWalletModel)
     }
 }
 
