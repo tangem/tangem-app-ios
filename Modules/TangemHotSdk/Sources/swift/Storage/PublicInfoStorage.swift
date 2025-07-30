@@ -1,5 +1,5 @@
 //
-//  PrivateInfoStorage.swift
+//  File.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import TangemFoundation
 
-final class PrivateInfoStorage {
+final class PublicInfoStorage {
     private let storage: EncryptedStorage
 
     init(
@@ -23,27 +23,27 @@ final class PrivateInfoStorage {
         )
     }
 
-    func storePrivateInfoData(
-        _ privateInfoData: Data,
+    func storePublicInfoData(
+        _ publicInfoData: Data,
         for walletID: UserWalletId,
         aesEncryptionKey: Data,
     ) throws {
         try storage.storeData(
-            privateInfoData,
-            storageKeyTag: walletID.privateInfoTag,
-            secureEnclaveKeyTag: walletID.privateInfoSecureEnclaveTag,
+            publicInfoData,
+            storageKeyTag: walletID.publicInfoTag,
+            secureEnclaveKeyTag: walletID.publicInfoSecureEnclaveTag,
             aesEncryptionKey: aesEncryptionKey
         )
     }
 
-    func getPrivateInfoData(
+    func getPublicInfoData(
         for walletID: UserWalletId,
         aesEncryptionKey: Data
     ) throws -> Data {
         try storage.getData(storageKeyTag: walletID.privateInfoTag, secureEnclaveKeyTag: walletID.privateInfoSecureEnclaveTag, aesEncryptionKey: aesEncryptionKey)
     }
 
-    func deletePrivateInfoData(for walletID: UserWalletId) throws {
+    func deletePublicData(for walletID: UserWalletId) throws {
         try storage.deleteData(storageKeyTag: walletID.privateInfoTag)
     }
 }
