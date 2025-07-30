@@ -52,7 +52,7 @@ public protocol HotSdk {
     /// Deletes a hot wallet.
     /// - Parameter id: The identifier of the wallet to delete.
     /// - Throws: An error if deletion fails.
-    func delete(id: UserWalletId) throws
+    func delete(walletID: UserWalletId) throws
 
     /// Updates the access code for a hot wallet.
     /// - Parameters:
@@ -92,7 +92,7 @@ public protocol HotSdk {
 
     /// Retrieves the public data encryption key for a hot wallet.
     /// - Parameter context: The `MobileWalletContext` containing the authentication context.
-    /// - Returns: The public data encryption key as `Data`. Expected to be used in UserWalletEncryptionKey(userWalletIdSeed:)
-    /// - Throws: An error if the key retrieval fails, such as if the wallet is
-    func publicDataEncryptionKeyData(context: MobileWalletContext) throws -> Data
+    /// - Returns: The public data encryption key as `UserWalletEncryptionKey`.
+    /// - Throws: An error if the key retrieval fails, such as if the wallet is missing or the context is corrupted.
+    func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey
 }
