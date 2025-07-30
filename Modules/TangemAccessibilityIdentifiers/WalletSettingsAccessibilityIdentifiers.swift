@@ -9,5 +9,8 @@
 import Foundation
 
 public enum WalletSettingsAccessibilityIdentifiers {
-    public static let walletSettingsButton = "walletSettingsButton"
+    /// Wallet settings button with unique wallet name
+    public static func walletSettingsButton(name: String) -> String {
+        return "walletSettingsButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+    }
 }
