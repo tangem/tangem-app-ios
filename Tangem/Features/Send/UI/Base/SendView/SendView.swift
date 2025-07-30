@@ -112,7 +112,7 @@ struct SendView: View {
             EmptyView()
 
         case .closeButton:
-            CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: viewModel.dismiss)
+            CircleButton.close(action: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
 
         case .qrCodeButton(let action):
