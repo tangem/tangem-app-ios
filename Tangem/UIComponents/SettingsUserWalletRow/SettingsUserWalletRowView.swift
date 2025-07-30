@@ -20,7 +20,7 @@ struct SettingsUserWalletRowView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!viewModel.isUserWalletLocked)
-        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton)
+        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
         .onAppear(perform: viewModel.onAppear)
     }
 
