@@ -174,11 +174,11 @@ extension WelcomeViewModel: StoriesDelegate {
     }
 
     func createWallet() {
-        coordinator?.openNewWalletSelector(with: .create)
+        coordinator?.openCreateWallet()
     }
 
     func importWallet() {
-        coordinator?.openNewWalletSelector(with: .import)
+        coordinator?.openImportWallet()
     }
 
     func openTokenList() {

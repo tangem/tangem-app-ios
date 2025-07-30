@@ -9,5 +9,5 @@
 import Foundation
 
 protocol HotBackupOnboardingRoutable: AnyObject {
-    func openHotBackupOnboarding()
+    func openHotBackupOnboarding(userWalletModel: UserWalletModel)
 }
