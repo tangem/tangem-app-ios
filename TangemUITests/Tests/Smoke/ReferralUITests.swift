@@ -12,7 +12,7 @@ final class ReferralUITests: BaseTestCase {
     func testReferralProgramFlow_DisplayConditionsAndParticipateButton() {
         id(3647)
         let walletName = "Wallet"
-        
+
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
