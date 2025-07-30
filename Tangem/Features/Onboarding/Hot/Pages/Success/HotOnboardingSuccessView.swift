@@ -22,7 +22,7 @@ struct HotOnboardingSuccessView: View {
             Spacer()
             actionButton(viewModel.actionItem)
         }
-        .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: viewModel.onWillAppear)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
