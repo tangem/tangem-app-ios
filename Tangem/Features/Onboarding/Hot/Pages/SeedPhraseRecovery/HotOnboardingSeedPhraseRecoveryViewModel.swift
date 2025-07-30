@@ -19,9 +19,12 @@ final class HotOnboardingSeedPhraseRecoveryViewModel {
     private let seedPhrase: SeedPhrase
     private weak var delegate: HotOnboardingSeedPhraseRecoveryDelegate?
 
-    init(delegate: HotOnboardingSeedPhraseRecoveryDelegate) {
+    init(
+        seedPhraseResolver: HotOnboardingSeedPhraseResolver,
+        delegate: HotOnboardingSeedPhraseRecoveryDelegate
+    ) {
         self.delegate = delegate
-        seedPhrase = SeedPhrase(words: delegate.getSeedPhrase())
+        seedPhrase = SeedPhrase(words: seedPhraseResolver.words)
     }
 }
 

@@ -8,6 +8,7 @@
 
 import Foundation
 
-protocol HotBackupTypesRoutable: HotBackupOnboardingRoutable {
-    func openHotBackupSeedPhrase()
+protocol HotBackupTypesRoutable: AnyObject {
+    func openHotBackupOnboardingSeedPhrase(userWalletModel: UserWalletModel)
+    func openHotBackupRevealSeedPhrase(userWalletModel: UserWalletModel)
 }
