@@ -11,5 +11,14 @@ import TangemExpress
 import TangemFoundation
 
 struct SendSwapProviderCompactViewData {
-    let provider: LoadingResult<ExpressProvider, String>
+    let provider: LoadingResult<ProviderData, String>
+
+    var isTappable: Bool { provider.value != nil }
+}
+
+extension SendSwapProviderCompactViewData {
+    struct ProviderData {
+        let provider: ExpressProvider
+        let isBest: Bool
+    }
 }
