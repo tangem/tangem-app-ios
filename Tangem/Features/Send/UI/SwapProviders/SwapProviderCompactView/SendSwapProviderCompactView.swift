@@ -13,6 +13,9 @@ import TangemLocalization
 
 struct SendSwapProviderCompactView: View {
     let data: SendSwapProviderCompactViewData
+    @Binding var shouldAnimateBestRateBadge: Bool
+
+    @State private var badgeViewSize: CGSize = .zero
 
     var body: some View {
         BaseOneLineRow(icon: Assets.Glyphs.stackNew, title: Localization.expressProvider) {
@@ -32,13 +35,25 @@ struct SendSwapProviderCompactView: View {
                 .frame(width: 20, height: 20)
         case .loading:
             ProgressView()
-        case .success(let provider):
-            HStack(spacing: 6) {
-                IconView(url: provider.imageURL, size: CGSize(width: 20, height: 20), forceKingfisher: true)
+        case .success(let data):
+            ZStack(alignment: .bottomLeading) {
+                HStack(spacing: 6) {
+                    IconView(
+                        url: data.provider.imageURL,
+                        size: CGSize(width: 20, height: 20),
+                        forceKingfisher: true
+                    )
 
-                Text(provider.name)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                    .lineLimit(1)
+                    Text(data.provider.name)
+                        .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                }
+
+                if data.isBest {
+                    SendSwapProviderBestRateAnimationBadgeView(shouldAnimate: $shouldAnimateBestRateBadge)
+                        .readGeometry(\.frame.size, bindTo: $badgeViewSize)
+                        .offset(x: 12.5, y: 7.5)
+                }
             }
         }
     }
