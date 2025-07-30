@@ -30,11 +30,11 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeySecureStorage: EncryptionKeySecureStorage(
+            encryptionKeySecureStorage: EncryptedSecureStorage(
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
+            encryptionKeyBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
         )
     }
 
@@ -48,7 +48,7 @@ struct PrivateInfoStorageManagerTests {
 
         let context = try storage.validate(auth: .none, for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, context: context)
+        let result = try storage.getPrivateInfoData(context: context)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -63,15 +63,15 @@ struct PrivateInfoStorageManagerTests {
 
         let context1 = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context1, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context1)
 
         let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
 
-        try storage.updateAccessCode("newAccessCode", context: context2, for: walletID)
+        try storage.updateAccessCode("newAccessCode", context: context2)
 
         let context3 = try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, context: context3)
+        let result = try storage.getPrivateInfoData(context: context3)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -86,7 +86,7 @@ struct PrivateInfoStorageManagerTests {
 
         let context = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context)
 
         #expect(throws: Error.self, performing: {
             try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
@@ -103,15 +103,15 @@ struct PrivateInfoStorageManagerTests {
 
         let context1 = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context1, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context1)
 
         let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
 
-        try storage.enableBiometrics(for: walletID, context: context2, laContext: LAContext())
+        try storage.enableBiometrics(context: context2, laContext: LAContext())
 
         let context3 = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, context: context3)
+        let result = try storage.getPrivateInfoData(context: context3)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -126,7 +126,7 @@ struct PrivateInfoStorageManagerTests {
 
         let context = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context, for: walletID)
+        try storage.updateAccessCode("accessCode", context: context)
 
         #expect(throws: Error.self, performing: {
             _ = try storage.validate(auth: .accessCode("invalidAccessCode"), for: walletID)
@@ -140,7 +140,7 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.delete(hotWalletID: walletID)
+        try storage.delete(walletID: walletID)
 
         #expect(throws: Error.self, performing: {
             _ = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
@@ -156,7 +156,7 @@ struct PrivateInfoStorageManagerTests {
         let storage = makeStorage()
 
         #expect(throws: Error.self, performing: {
-            try storage.delete(hotWalletID: walletID)
+            try storage.delete(walletID: walletID)
         })
     }
 }

@@ -8,19 +8,19 @@
 
 import Foundation
 import TangemSdk
+import LocalAuthentication
 import TangemFoundation
 
 final class PrivateInfoStorage {
-    private let storage: EncryptedStorage
+    private let secureStorage: HotSecureStorage
+    private let secureEnclaveService: HotSecureEnclaveService
 
     init(
         secureStorage: HotSecureStorage = SecureStorage(),
         secureEnclaveService: HotSecureEnclaveService = SecureEnclaveService(config: .default),
     ) {
-        storage = EncryptedStorage(
-            secureStorage: secureStorage,
-            secureEnclaveService: secureEnclaveService
-        )
+        self.secureStorage = secureStorage
+        self.secureEnclaveService = secureEnclaveService
     }
 
     func storePrivateInfoData(
@@ -28,22 +28,39 @@ final class PrivateInfoStorage {
         for walletID: UserWalletId,
         aesEncryptionKey: Data,
     ) throws {
-        try storage.storeData(
+        let secureEnclaveEncryptedData = try secureEnclaveService.encryptData(
             privateInfoData,
-            storageKeyTag: walletID.privateInfoTag,
-            secureEnclaveKeyTag: walletID.privateInfoSecureEnclaveTag,
-            aesEncryptionKey: aesEncryptionKey
+            keyTag: walletID.privateInfoSecureEnclaveTag
         )
+
+        let aesEncryptedData = try AESEncoder.encryptAES(
+            rawEncryptionKey: aesEncryptionKey,
+            rawData: secureEnclaveEncryptedData
+        )
+
+        try secureStorage.store(aesEncryptedData, forKey: walletID.privateInfoTag)
     }
 
     func getPrivateInfoData(
         for walletID: UserWalletId,
         aesEncryptionKey: Data
     ) throws -> Data {
-        try storage.getData(storageKeyTag: walletID.privateInfoTag, secureEnclaveKeyTag: walletID.privateInfoSecureEnclaveTag, aesEncryptionKey: aesEncryptionKey)
+        guard let aesEncryptedData = try secureStorage.get(walletID.privateInfoTag) else {
+            throw PrivateInfoStorageError.noInfo(tag: walletID.stringValue)
+        }
+
+        let secureEnclaveEncryptedData = try AESEncoder.decryptAES(
+            rawEncryptionKey: aesEncryptionKey,
+            encryptedData: aesEncryptedData
+        )
+
+        return try secureEnclaveService.decryptData(
+            secureEnclaveEncryptedData,
+            keyTag: walletID.privateInfoSecureEnclaveTag
+        )
     }
 
     func deletePrivateInfoData(for walletID: UserWalletId) throws {
-        try storage.deleteData(storageKeyTag: walletID.privateInfoTag)
+        try secureStorage.delete(walletID.privateInfoTag)
     }
 }
