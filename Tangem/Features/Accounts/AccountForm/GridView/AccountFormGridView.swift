@@ -11,8 +11,8 @@ import TangemAssets
 import TangemUIUtils
 
 struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
-    @Binding
-    var selectedItem: Item
+    @Binding var selectedItem: Item
+
     let items: [Item]
     let content: (Item, Bool) -> Content
 
@@ -42,7 +42,7 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var selectedColor = GridItemColor(Colors.Accounts.brightBlue)
-    @Previewable @State var selectedImage = GridItemImage(Assets.Accounts.airplane)
+    @Previewable @State var selectedImage = GridItemImage(.image(Assets.Accounts.airplane))
 
     let colors = [
         Colors.Accounts.brightBlue,
@@ -60,6 +60,7 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
     ].map(GridItemColor.init)
 
     let images = [
+        Assets.Accounts.letter,
         Assets.Accounts.airplane,
         Assets.Accounts.beach,
         Assets.Accounts.bookmark,
@@ -68,7 +69,6 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
         Assets.Accounts.favorite,
         Assets.Accounts.gift,
         Assets.Accounts.home,
-        Assets.Accounts.letter,
         Assets.Accounts.money,
         Assets.Accounts.package,
         Assets.Accounts.safe,
@@ -78,7 +78,10 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
         Assets.Accounts.startUp,
         Assets.Accounts.user,
         Assets.Accounts.wallet,
-    ].map(GridItemImage.init)
+    ].map {
+        let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
+        return GridItemImage(kind)
+    }
 
     ZStack {
         Color.gray
@@ -105,20 +108,40 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
                 selectedItem: $selectedImage,
                 items: images,
                 content: { imageItem, isSelected in
-                    imageItem.imageType.image
+                    let imageSelectedColor = switch imageItem.kind {
+                    case .image: Colors.Text.secondary
+                    case .letter: Colors.Text.accent
+                    }
+
+                    let imageNotSelectedColor = switch imageItem.kind {
+                    case .image: Colors.Text.tertiary
+                    case .letter: Colors.Text.accent
+                    }
+
+                    let backgroundColor = switch imageItem.kind {
+                    case .image: Colors.Field.focused
+                    case .letter: Colors.Text.accent.opacity(0.1)
+                    }
+
+                    let strokeColor = switch imageItem.kind {
+                    case .image: Colors.Text.secondary
+                    case .letter: Colors.Icon.accent
+                    }
+
+                    return imageItem.kind.imageType.image
                         .renderingMode(.template)
-                        .foregroundStyle(isSelected ? Colors.Text.secondary : Colors.Text.tertiary)
+                        .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
                         .padding(8)
                         .background(
                             Circle()
-                                .fill(Colors.Field.focused)
+                                .fill(backgroundColor)
                         )
                         .overlay(
                             Circle()
                                 .strokeBorder(Color.white, lineWidth: isSelected ? 4 : 0)
                                 .overlay(
                                     Circle()
-                                        .strokeBorder(Colors.Text.secondary, lineWidth: isSelected ? 2 : 0)
+                                        .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
                                 )
                         )
                         .frame(width: 40, height: 40)

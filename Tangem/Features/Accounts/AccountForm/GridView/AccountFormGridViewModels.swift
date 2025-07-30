@@ -25,10 +25,22 @@ struct GridItemColor: SelectableGridItem {
 
 struct GridItemImage: SelectableGridItem {
     let id: String
-    let imageType: ImageType
+    let kind: GridItemImageKind
 
-    init(_ imageType: ImageType) {
-        self.imageType = imageType
-        id = "\(imageType.hashValue)"
+    init(_ kind: GridItemImageKind) {
+        self.kind = kind
+        id = "\(kind.imageType.hashValue)"
+    }
+}
+
+enum GridItemImageKind: Equatable {
+    case image(ImageType)
+    case letter(ImageType)
+
+    var imageType: ImageType {
+        switch self {
+        case .image(let imageType): imageType
+        case .letter(let imageType): imageType
+        }
     }
 }
