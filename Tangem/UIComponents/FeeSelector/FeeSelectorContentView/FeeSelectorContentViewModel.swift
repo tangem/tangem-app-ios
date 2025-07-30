@@ -82,6 +82,8 @@ private extension FeeSelectorContentViewModel {
         }
 
         input.selectorFeesPublisher
+            // Skip a different loading states when fees is empty
+            .compactMap { $0.value }
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, values in

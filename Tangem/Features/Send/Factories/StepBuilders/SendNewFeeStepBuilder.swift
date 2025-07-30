@@ -64,7 +64,6 @@ struct SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             provider: feeProvider,
-            defaultFeeOptions: builder.makeFeeOptions(),
             customFeeService: customFeeService
         )
 

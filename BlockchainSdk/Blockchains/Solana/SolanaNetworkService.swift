@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemSdk
 
 @available(iOS 13.0, *)
-final class SolanaNetworkService: MultiNetworkProvider {
+public final class SolanaNetworkService: MultiNetworkProvider {
     let providers: [RPCEndpoint]
     var currentProviderIndex: Int = 0
     var blockchainName: String {
@@ -224,6 +224,37 @@ final class SolanaNetworkService: MultiNetworkProvider {
             }
             .eraseToAnyPublisher()
     }
+
+    func getAddressLookupTable(accountKey: PublicKey) async throws -> AddressLookupTableAccount {
+        let maxAttempts = 15
+        let delay: UInt64 = 1_500_000_000 // 1.5 second
+
+        for attempt in 1 ... maxAttempts {
+            do {
+                let alt = try await solanaSdk.api.getAddressLookupTable(accountKey: accountKey)
+                return alt
+            } catch {
+                if attempt == maxAttempts {
+                    throw error
+                }
+
+                BSDKLogger.warning("ALT: getAddressLookupTable failed, attempt \(attempt)/\(maxAttempts), retrying...")
+                try await Task.sleep(nanoseconds: delay)
+            }
+        }
+
+        throw SolanaError.nullValue
+    }
+
+    func getLatestBlockhash() async throws -> String {
+        try await solanaSdk.api.getLatestBlockhash()
+    }
+
+    func getSlot() async throws -> UInt64 {
+        try await solanaSdk.api.getSlot()
+    }
+
+    // MARK: - Private Implementation
 
     private func getFeeForMessage(
         amount: UInt64,
