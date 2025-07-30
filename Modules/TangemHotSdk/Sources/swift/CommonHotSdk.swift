@@ -17,8 +17,8 @@ public final class CommonHotSdk: HotSdk {
     public init() {
         privateInfoStorageManager = PrivateInfoStorageManager(
             privateInfoStorage: PrivateInfoStorage(),
-            encryptionKeySecureStorage: EncryptedSecureStorage(),
-            encryptionKeyBiometricsStorage: EncryptedBiometricsStorage()
+            encryptedSecureStorage: EncryptedSecureStorage(),
+            encryptedBiometricsStorage: EncryptedBiometricsStorage()
         )
     }
 
