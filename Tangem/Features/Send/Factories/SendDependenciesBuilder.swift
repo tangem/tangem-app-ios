@@ -28,7 +28,9 @@ struct SendDependenciesBuilder {
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletModel: userWalletModel,
             initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            destinationWalletModel: .none,
+            // We support only `CEX` in `Send With Swap` flow
+            supportedProviderTypes: [.cex]
         )
     }
 
