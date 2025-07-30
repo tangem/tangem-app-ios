@@ -164,12 +164,11 @@ extension CommonUserWalletModel: UserWalletModel {
         switch walletInfo {
         case .cardWallet(let cardInfo):
             let factory = OnboardingInputFactory(
-                userWalletModel: self,
                 sdkFactory: config,
                 onboardingStepsBuilderFactory: config
             )
 
-            return factory.makeBackupInput(cardInfo: cardInfo)
+            return factory.makeBackupInput(cardInfo: cardInfo, userWalletModel: self)
         case .mobileWallet:
             return nil
         }
