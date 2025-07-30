@@ -84,11 +84,9 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     private func updateAmount(from amount: LoadingResult<SendAmount?, Error>) {
         switch amount {
-        case .loading:
-            break // [REDACTED_TODO_COMMENT]
-        case .failure, .success(.none):
-            amountTextFieldViewModel.update(value: .none)
-            alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
+        case .loading, .failure, .success(.none):
+            // Do nothing. Just leave a current amount on UI
+            break
 
         case .success(.some(let amount)):
             switch amount.type {
