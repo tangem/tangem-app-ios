@@ -23,7 +23,7 @@ struct VisaConfig: CardContainer {
     }
 
     private var defaultBlockchain: Blockchain {
-        VisaUtilities().visaBlockchain
+        VisaUtilities.visaBlockchain
     }
 }
 
