@@ -110,8 +110,11 @@ private extension PrivateInfoStorageManager {
 extension PrivateInfoStorageManager {
     enum Constants {
         static let privateInfoPrefix = "hotsdk_private_info_"
+        static let privateInfoSecureEnclavePrefix = "hotsdk_private_info_secure_enclave_"
         static let encryptionKeyPrefix = "hotsdk_encryption_key_"
+        static let encryptionKeySecureEnclavePrefix = "hotsdk_encryption_key_secure_enclave_"
         static let encryptionKeyBiometricsPrefix = "hotsdk_encryption_key_"
+        static let encryptionKeyBiometricsSecureEnclavePrefix = "hotsdk_encryption_key_secure_enclave_"
         static let aesKeySize = 32
         static let defaultAccessCode = "0000"
     }
@@ -121,13 +124,25 @@ extension UserWalletId {
     var privateInfoTag: String {
         PrivateInfoStorageManager.Constants.privateInfoPrefix + stringValue
     }
-
-    var privateInfoEncryptionKeyTag: String {
-        PrivateInfoStorageManager.Constants.encryptionKeyPrefix + stringValue
+    
+    var privateInfoSecureEnclaveTag: String {
+        PrivateInfoStorageManager.Constants.privateInfoSecureEnclavePrefix + stringValue
     }
 
-    var privateInfoEncryptionKeyBiometricsTag: String {
+    var encryptionKeyTag: String {
+        PrivateInfoStorageManager.Constants.encryptionKeyPrefix + stringValue
+    }
+    
+    var encryptionKeySecureEnclaveTag: String {
+        PrivateInfoStorageManager.Constants.encryptionKeySecureEnclavePrefix + stringValue
+    }
+
+    var encryptionKeyBiometricsTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeyBiometricsPrefix + stringValue
+    }
+    
+    var encryptionKeyBiometricsSecureEnclaveTag: String {
+        PrivateInfoStorageManager.Constants.encryptionKeyBiometricsSecureEnclavePrefix + stringValue
     }
 }
 

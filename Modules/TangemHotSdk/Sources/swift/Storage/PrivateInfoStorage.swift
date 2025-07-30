@@ -28,35 +28,35 @@ final class PrivateInfoStorage {
         for walletID: UserWalletId,
         aesEncryptionKey: Data,
     ) throws {
+        let secureEnclaveEncryptedData = try secureEnclaveService.encryptData(
+            privateInfoData,
+            keyTag: walletID.privateInfoSecureEnclaveTag
+        )
+
         let aesEncryptedData = try AESEncoder.encryptAES(
             rawEncryptionKey: aesEncryptionKey,
-            rawData: privateInfoData
+            rawData: secureEnclaveEncryptedData
         )
 
-        let secureEnclaveEncryptedData = try secureEnclaveService.encryptData(
-            aesEncryptedData,
-            keyTag: walletID.privateInfoTag
-        )
-
-        try secureStorage.store(secureEnclaveEncryptedData, forKey: walletID.privateInfoTag)
+        try secureStorage.store(aesEncryptedData, forKey: walletID.privateInfoTag)
     }
 
     func getPrivateInfoData(
         for walletID: UserWalletId,
         aesEncryptionKey: Data
     ) throws -> Data {
-        guard let secureEnclaveEncryptedData = try secureStorage.get(walletID.privateInfoTag) else {
+        guard let aesEncryptedData = try secureStorage.get(walletID.privateInfoTag) else {
             throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
         }
 
-        let aesEncryptedData = try secureEnclaveService.decryptData(
-            secureEnclaveEncryptedData,
-            keyTag: walletID.privateInfoTag
-        )
-
-        return try AESEncoder.decryptAES(
+        let secureEnclaveEncryptedData = try AESEncoder.decryptAES(
             rawEncryptionKey: aesEncryptionKey,
             encryptedData: aesEncryptedData
+        )
+
+        return try secureEnclaveService.decryptData(
+            secureEnclaveEncryptedData,
+            keyTag: walletID.privateInfoSecureEnclaveTag
         )
     }
 
