@@ -28,7 +28,9 @@ struct SendDependenciesBuilder {
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletModel: userWalletModel,
             initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            destinationWalletModel: .none,
+            // We support only `CEX` in `Send With Swap` flow
+            supportedProviderTypes: [.cex]
         )
     }
 
@@ -392,8 +394,18 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput) -> CommonSendFeeProvider {
-        CommonSendFeeProvider(input: input, feeLoader: makeSendFeeLoader())
+    func makeSendFeeProvider(input: any SendFeeProviderInput) -> SendFeeProvider {
+        var options = makeFeeOptions()
+
+        if makeCustomFeeService(input: input) != nil {
+            options.append(.custom)
+        }
+
+        return CommonSendFeeProvider(
+            input: input,
+            feeLoader: makeSendFeeLoader(),
+            defaultFeeOptions: options
+        )
     }
 
     func makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: (any CustomFeeService)?) -> FeeSelectorCustomFeeFieldsBuilder {
