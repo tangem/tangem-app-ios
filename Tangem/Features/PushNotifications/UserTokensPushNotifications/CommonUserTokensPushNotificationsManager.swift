@@ -158,23 +158,20 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 // MARK: - UserTokenListExternalParametersProvider
 
 extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
-    func provideTokenListAddresses() -> [TokenItemId: [String]]? {
+    func provideTokenListAddresses() -> [WalletModelId: [String]]? {
         guard let statusValue = provideTokenListNotifyStatusValue(), statusValue else {
             return nil
         }
 
         let walletModels = walletModelsManager.walletModels
 
-        let addresses: [TokenItemId: [String]] = walletModels
+        let result: [WalletModelId: [String]] = walletModels
             .reduce(into: [:]) { partialResult, walletModel in
-                let addressValues = walletModel.addresses.map(\.value)
-
-                if let tokenItemId = walletModel.tokenItem.id {
-                    partialResult[tokenItemId] = addressValues
-                }
+                let addresses = walletModel.addresses.map(\.value)
+                partialResult[walletModel.id] = addresses
             }
 
-        return addresses
+        return result
     }
 
     func provideTokenListNotifyStatusValue() -> Bool? {
