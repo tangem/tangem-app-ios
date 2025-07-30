@@ -62,6 +62,7 @@ actor WalletConnectDAppSessionsExtender {
         return await task.value
     }
 
+    // [REDACTED_TODO_COMMENT]
     private func extendDAppsWithTimeout(
         _ connectedDApps: [WalletConnectConnectedDApp],
         continuation: CheckedContinuation<Void, any Swift.Error>
@@ -77,26 +78,34 @@ actor WalletConnectDAppSessionsExtender {
 
         let gate = LockGate()
 
-        await withThrowingTaskGroup(of: Void.self) { [weak self] taskGroup in
+        await withTaskGroup(of: Void.self) { [weak self] taskGroup in
             guard let self else {
                 gate.run { continuation.resume() }
                 return
             }
 
             taskGroup.addTask {
-                let result = try await self.extend(connectedDApps: nonExpiredDApps)
-                try await self.handle(extendedDApps: result)
-                gate.run { continuation.resume() }
+                do {
+                    let result = try await self.extend(connectedDApps: nonExpiredDApps)
+                    try await self.handle(extendedDApps: result)
+                    gate.run { continuation.resume() }
+                } catch {
+                    gate.run { continuation.resume(throwing: error) }
+                }
             }
 
             taskGroup.addTask {
-                let nanoseconds = UInt64(Constants.extendTaskTimeout * Double(NSEC_PER_SEC))
-                try await Task.sleep(nanoseconds: nanoseconds)
-                gate.run { continuation.resume(throwing: Error.timeout) }
+                do {
+                    let nanoseconds = UInt64(Constants.extendTaskTimeout * Double(NSEC_PER_SEC))
+                    try await Task.sleep(nanoseconds: nanoseconds)
+                    gate.run { continuation.resume(throwing: Error.timeout) }
+                } catch {
+                    gate.run { continuation.resume(throwing: error) }
+                }
             }
 
             defer { taskGroup.cancelAll() }
-            _ = try? await taskGroup.next()
+            await taskGroup.next()
         }
     }
 
@@ -134,6 +143,7 @@ actor WalletConnectDAppSessionsExtender {
 }
 
 extension WalletConnectDAppSessionsExtender {
+    @available(*, deprecated, message: "replace with general purpose forced-timeout function in https://tangem.atlassian.net/browse/[REDACTED_INFO]")
     private final class LockGate {
         private var isResumed = false
         private let lock = NSLock()
