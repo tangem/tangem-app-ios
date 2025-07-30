@@ -37,22 +37,17 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
-    private let hotNotificationsManager: HotNotificationsManager
-    private var shownHotFinishActivationNotification = false
-
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
 
     init(
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController,
         contextDataProvider: AnalyticsContextDataProvider?,
-        referralNotificationController: ReferralNotificationController,
-        hotNotificationsManager: HotNotificationsManager
+        referralNotificationController: ReferralNotificationController
     ) {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
         self.referralNotificationController = referralNotificationController
-        self.hotNotificationsManager = hotNotificationsManager
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -127,15 +122,6 @@ final class UserWalletNotificationManager {
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
-                )
-            )
-        }
-
-        if FeatureProvider.isAvailable(.hotWallet), shownHotFinishActivationNotification {
-            inputs.append(
-                factory.buildNotificationInput(
-                    for: HotNotificationEvent.finishActivation,
-                    buttonAction: buttonAction
                 )
             )
         }
@@ -249,15 +235,6 @@ final class UserWalletNotificationManager {
                 showReferralNotification = value
                 createNotifications()
             })
-            .store(in: &bag)
-
-        hotNotificationsManager
-            .showFinishActivationNotificationPublisher
-            .withWeakCaptureOf(self)
-            .sink { manager, shouldShow in
-                manager.shownHotFinishActivationNotification = shouldShow
-                manager.createNotifications()
-            }
             .store(in: &bag)
     }
 

@@ -28,6 +28,9 @@ class DetailsViewModel: ObservableObject {
         addOrScanNewUserWalletViewModel.map { viewModel in
             viewModels.append(.addOrScanNewUserWalletButton(viewModel))
         }
+        addNewUserWalletViewModel.map { viewModel in
+            viewModels.append(.addNewUserWalletButton(viewModel))
+        }
 
         return viewModels
     }
@@ -41,6 +44,7 @@ class DetailsViewModel: ObservableObject {
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
+    @Published private var addNewUserWalletViewModel: DefaultRowViewModel?
 
     private var isScanning: Bool = false {
         didSet {
@@ -213,6 +217,37 @@ extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
+    func openAddNewUserWallet() {
+        let sheet = ActionSheet(
+            title: Text(Localization.userWalletListAddButton),
+            buttons: [
+                .default(
+                    Text(Localization.homeButtonCreateNewWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openCreateWallet)
+                ),
+                .default(
+                    Text(Localization.homeButtonAddExistingWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openImportWallet)
+                ),
+                .default(
+                    Text(Localization.detailsBuyWallet),
+                    action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+                ),
+                .cancel(),
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
+    func openCreateWallet() {
+        coordinator?.openCreateWallet()
+    }
+
+    func openImportWallet() {
+        coordinator?.openImportWallet()
+    }
+
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
@@ -277,11 +312,18 @@ private extension DetailsViewModel {
             }
         }
 
-        addOrScanNewUserWalletViewModel = DefaultRowViewModel(
-            title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-            detailsType: isScanning ? .loader : .none,
-            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-        )
+        if FeatureProvider.isAvailable(.hotWallet) {
+            addNewUserWalletViewModel = DefaultRowViewModel(
+                title: Localization.userWalletListAddButton,
+                action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
+            )
+        } else {
+            addOrScanNewUserWalletViewModel = DefaultRowViewModel(
+                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+                detailsType: isScanning ? .loader : .none,
+                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
+            )
+        }
     }
 
     func updateAddOrScanNewUserWalletButton() {
@@ -464,12 +506,15 @@ extension DetailsViewModel {
     enum WalletSectionType: Identifiable {
         case wallet(SettingsUserWalletRowViewModel)
         case addOrScanNewUserWalletButton(DefaultRowViewModel)
+        case addNewUserWalletButton(DefaultRowViewModel)
 
         var id: Int {
             switch self {
             case .wallet(let viewModel):
                 return viewModel.id.hashValue
             case .addOrScanNewUserWalletButton(let viewModel):
+                return viewModel.id.hashValue
+            case .addNewUserWalletButton(let viewModel):
                 return viewModel.id.hashValue
             }
         }

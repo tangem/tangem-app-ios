@@ -23,33 +23,36 @@ final class EncryptionKeySecureStorage {
     }
 
     func storeEncryptionKey(_ aesEncryptionKey: Data, for walletID: UserWalletId, accessCode: String) throws {
+        let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
+            aesEncryptionKey,
+            keyTag: walletID.encryptionKeySecureEnclaveTag
+        )
+
         let encryptedAesKey = try AESEncoder.encryptWithPassword(
             password: accessCode,
-            content: aesEncryptionKey
+            content: secureEnclaveEncryptedKey
         )
 
-        let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
-            encryptedAesKey,
-            keyTag: walletID.privateInfoEncryptionKeyTag
-        )
-
-        try secureStorage.store(secureEnclaveEncryptedKey, forKey: walletID.privateInfoEncryptionKeyTag)
+        try secureStorage.store(encryptedAesKey, forKey: walletID.encryptionKeyTag)
     }
 
     func getEncryptionKey(for walletID: UserWalletId, accessCode: String) throws -> Data {
-        guard let secureEnclaveEncryptedKey = try secureStorage.get(walletID.privateInfoEncryptionKeyTag) else {
+        guard let encryptedAesKey = try secureStorage.get(walletID.encryptionKeyTag) else {
             throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
         }
 
-        let encryptedAesKey = try secureEnclaveService.decryptData(
-            secureEnclaveEncryptedKey,
-            keyTag: walletID.privateInfoEncryptionKeyTag
+        let secureEnclaveEncryptedKey = try AESEncoder.decryptWithPassword(
+            password: accessCode,
+            encryptedData: encryptedAesKey
         )
 
-        return try AESEncoder.decryptWithPassword(password: accessCode, encryptedData: encryptedAesKey)
+        return try secureEnclaveService.decryptData(
+            secureEnclaveEncryptedKey,
+            keyTag: walletID.encryptionKeySecureEnclaveTag
+        )
     }
 
     func deleteEncryptionKey(for walletID: UserWalletId) throws {
-        try secureStorage.delete(walletID.privateInfoEncryptionKeyTag)
+        try secureStorage.delete(walletID.encryptionKeyTag)
     }
 }
