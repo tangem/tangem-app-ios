@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 public struct VisaAPIServiceBuilder {
     private let isMockedAPIEnabled: Bool
@@ -20,8 +21,7 @@ public struct VisaAPIServiceBuilder {
 
     public func buildTransactionHistoryService(
         authorizationTokensHandler: VisaAuthorizationTokensHandler,
-        isTestnet: Bool,
-        urlSessionConfiguration: URLSessionConfiguration
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaTransactionHistoryAPIService {
         return CommonTransactionHistoryService(
             apiType: apiType,
@@ -34,7 +34,9 @@ public struct VisaAPIServiceBuilder {
     }
 
     /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
-    public func buildAuthorizationService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationService {
+    public func buildAuthorizationService(
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+    ) -> VisaAuthorizationService {
         if isMockedAPIEnabled {
             return AuthorizationServiceMock()
         }
