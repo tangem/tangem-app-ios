@@ -39,7 +39,7 @@ final class EncryptionKeyBiometricsStorage {
             walletID.encryptionKeyBiometricsTag,
             context: context
         ) else {
-            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+            throw PrivateInfoStorageError.noPrivateInfo(tag: walletID.encryptionKeyBiometricsTag)
         }
 
         let secureEnclaveService = secureEnclaveServiceType.init(config: .biometrics(context))
