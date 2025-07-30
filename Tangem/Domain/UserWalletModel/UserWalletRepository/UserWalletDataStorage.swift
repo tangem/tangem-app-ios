@@ -11,6 +11,7 @@ import CryptoKit
 import TangemSdk
 import TangemHotSdk
 import LocalAuthentication
+import TangemFoundation
 
 class UserWalletDataStorage {
     private let fileManager: FileManager = .default
@@ -136,6 +137,7 @@ class UserWalletDataStorage {
             let sensitiveDataPath = userWalletPath(for: userWalletId)
             try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)
             try excludeFromBackup(url: sensitiveDataPath)
+            encryptionKeyStorage.add(userWalletId, encryptionKey: encryptionKey)
         } catch {
             AppLogger.error("Failed to save user wallet private data", error: error)
         }
@@ -188,6 +190,8 @@ class UserWalletDataStorage {
         case .biometrics(let context):
             return try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         case .userWallet(let userWalletId, let key):
+            // We have to refresh a key on every unlock by scan because we are unable to check presence of the key
+            encryptionKeyStorage.refreshEncryptionKey(key, for: userWalletId)
             // [REDACTED_TODO_COMMENT]
             return [userWalletId: key]
         }
