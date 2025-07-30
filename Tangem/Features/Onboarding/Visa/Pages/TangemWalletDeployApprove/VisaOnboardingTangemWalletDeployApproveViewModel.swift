@@ -114,7 +114,11 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
 private extension VisaOnboardingTangemWalletDeployApproveViewModel {
     func signData(_ dataToSign: Data) async throws -> VisaSignedApproveResponse {
         VisaLogger.info("Attempt to sign data with unknown wallet pair. Creating VisaCustomerWalletApproveTask")
-        let task = VisaCustomerWalletApproveTask(targetAddress: targetWalletAddress, approveData: dataToSign)
+        let task = await VisaCustomerWalletApproveTask(
+            targetAddress: targetWalletAddress,
+            approveData: dataToSign,
+            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet
+        )
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
         let signResponse: VisaSignedApproveResponse = try await withCheckedThrowingContinuation { continuation in
             tangemSdk.startSession(with: task) { result in
