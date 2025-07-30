@@ -13,13 +13,13 @@ import TangemFoundation
 
 final class PrivateInfoStorageManager {
     private let privateInfoStorage: PrivateInfoStorage
-    private let encryptionKeySecureStorage: EncryptionKeySecureStorage
-    private let encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage
+    private let encryptionKeySecureStorage: EncryptedSecureStorage
+    private let encryptionKeyBiometricsStorage: EncryptedBiometricsStorage
 
     init(
         privateInfoStorage: PrivateInfoStorage,
-        encryptionKeySecureStorage: EncryptionKeySecureStorage,
-        encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage
+        encryptionKeySecureStorage: EncryptedSecureStorage,
+        encryptionKeyBiometricsStorage: EncryptedBiometricsStorage
     ) {
         self.privateInfoStorage = privateInfoStorage
         self.encryptionKeySecureStorage = encryptionKeySecureStorage
@@ -35,9 +35,10 @@ final class PrivateInfoStorageManager {
 
         try privateInfoStorage.storePrivateInfoData(privateInfoData, for: walletID, aesEncryptionKey: aesEncryptionKey)
 
-        try encryptionKeySecureStorage.storeEncryptionKey(
+        try encryptionKeySecureStorage.storeData(
             aesEncryptionKey,
-            for: walletID,
+            keyTag: walletID.encryptionKeyTag,
+            secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
             accessCode: Constants.defaultAccessCode
         )
     }
@@ -64,9 +65,10 @@ final class PrivateInfoStorageManager {
     ) throws {
         let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
-        try encryptionKeySecureStorage.storeEncryptionKey(
+        try encryptionKeySecureStorage.storeData(
             aesEncryptionKey,
-            for: context.walletID,
+            keyTag: context.walletID.encryptionKeyTag,
+            secureEnclaveKeyTag: context.walletID.encryptionKeySecureEnclaveTag,
             accessCode: newAccessCode
         )
     }
@@ -77,19 +79,20 @@ final class PrivateInfoStorageManager {
     ) throws {
         let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
-        try encryptionKeyBiometricsStorage.storeEncryptionKey(
+        try encryptionKeyBiometricsStorage.storeData(
             aesEncryptionKey,
-            for: context.walletID,
+            keyTag: context.walletID.encryptionKeyBiometricsTag,
+            secureEnclaveKeyTag: context.walletID.encryptionKeyBiometricsSecureEnclaveTag,
             context: laContext
         )
     }
 
-    func delete(hotWalletID: UserWalletId) throws {
-        try privateInfoStorage.deletePrivateInfoData(for: hotWalletID)
+    func delete(walletID: UserWalletId) throws {
+        try privateInfoStorage.deletePrivateInfoData(for: walletID)
 
-        try encryptionKeySecureStorage.deleteEncryptionKey(for: hotWalletID)
+        try encryptionKeySecureStorage.deleteData(keyTag: walletID.encryptionKeyTag)
 
-        try? encryptionKeyBiometricsStorage.deleteEncryptionKey(for: hotWalletID)
+        try? encryptionKeyBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
     }
 }
 
@@ -98,11 +101,23 @@ private extension PrivateInfoStorageManager {
     func getEncryptionKey(for walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> Data {
         switch auth {
         case .accessCode(let accessCode):
-            try encryptionKeySecureStorage.getEncryptionKey(for: walletID, accessCode: accessCode)
+            try encryptionKeySecureStorage.getData(
+                keyTag: walletID.encryptionKeyTag,
+                secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
+                accessCode: accessCode
+            )
         case .biometrics(let context):
-            try encryptionKeyBiometricsStorage.getEncryptionKey(for: walletID, context: context)
+            try encryptionKeyBiometricsStorage.getData(
+                keyTag: walletID.encryptionKeyBiometricsTag,
+                secureEnclaveKeyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag,
+                context: context
+            )
         case .none:
-            try encryptionKeySecureStorage.getEncryptionKey(for: walletID, accessCode: Constants.defaultAccessCode)
+            try encryptionKeySecureStorage.getData(
+                keyTag: walletID.encryptionKeyTag,
+                secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
+                accessCode: Constants.defaultAccessCode
+            )
         }
     }
 }
@@ -146,7 +161,7 @@ extension UserWalletId {
     var encryptionKeyBiometricsSecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeyBiometricsSecureEnclavePrefix + stringValue
     }
-    
+
     var publicInfoTag: String {
         PrivateInfoStorageManager.Constants.publicInfoPrefix + stringValue
     }
@@ -160,7 +175,7 @@ extension UserWalletId {
 enum PrivateInfoStorageError: Error {
     case noEncryptionType(walletID: UserWalletId)
     case invalidEncryptionType(walletID: UserWalletId)
-    case noPrivateInfo(tag: String)
+    case noInfo(tag: String)
     case unknown
 }
 
