@@ -11,36 +11,13 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 struct HotSettingsUtil {
+    private let statusUtil: HotStatusUtil
+
     private let userWalletModel: UserWalletModel
-
-    private var isAccessCodeFeatureAvailable: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isBackupFeatureAvailable: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isBackupNeeded: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private var isAccessCodeCreated: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
-
-    private var isAccessCodeRequired: Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
-    }
 
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
+        statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
     }
 }
 
@@ -50,36 +27,56 @@ extension HotSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
 
-        if isAccessCodeFeatureAvailable {
+        if statusUtil.isAccessCodeFeatureAvailable {
             settings.append(.accessCode)
         }
 
-        if isBackupFeatureAvailable {
-            settings.append(.backup(hasBackup: !isBackupNeeded))
+        if statusUtil.isBackupFeatureAvailable {
+            settings.append(.backup(hasBackup: !statusUtil.isBackupNeeded))
         }
 
         return settings
     }
 
-    func performAccessCodeAction() async -> AccessCodeActionResult {
-        if isBackupNeeded {
+    func calculateAccessCodeState() async -> AccessCodeState {
+        if statusUtil.isBackupNeeded {
             return .backupNeeded
         }
 
-        if !isAccessCodeCreated {
+        if !statusUtil.isAccessCodeCreated {
             return .onboarding(needsValidation: false)
         }
 
-        if isAccessCodeRequired {
+        if statusUtil.isAccessCodeRequired {
             return .onboarding(needsValidation: true)
         }
 
-        do {
-            let _ = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+        let isBiometricsSuccessful = await isBiometricsSuccessful()
+
+        return .onboarding(needsValidation: !isBiometricsSuccessful)
+    }
+
+    func calculateSeedPhraseState() async -> SeedPhraseState {
+        guard statusUtil.isAccessCodeCreated else {
             return .onboarding(needsValidation: false)
-        } catch {
-            return .onboarding(needsValidation: true)
         }
+
+        if statusUtil.isAccessCodeRequired {
+            return .onboarding(needsValidation: true)
+        } else {
+            let isBiometricsSuccessful = await isBiometricsSuccessful()
+            return .onboarding(needsValidation: !isBiometricsSuccessful)
+        }
+    }
+}
+
+// MARK: - Private methods
+
+private extension HotSettingsUtil {
+    // [REDACTED_TODO_COMMENT]
+    func isBiometricsSuccessful() async -> Bool {
+        let context = try? await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+        return context != nil
     }
 }
 
@@ -91,8 +88,12 @@ extension HotSettingsUtil {
         case backup(hasBackup: Bool)
     }
 
-    enum AccessCodeActionResult {
+    enum AccessCodeState {
         case backupNeeded
+        case onboarding(needsValidation: Bool)
+    }
+
+    enum SeedPhraseState {
         case onboarding(needsValidation: Bool)
     }
 }
