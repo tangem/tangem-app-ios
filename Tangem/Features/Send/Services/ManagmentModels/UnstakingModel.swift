@@ -206,6 +206,8 @@ private extension UnstakingModel {
 // MARK: - SendFeeProvider
 
 extension UnstakingModel: SendFeeProvider {
+    var feeOptions: [FeeOption] { [.market] }
+
     var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
         .success([mapToSendFee(_state.value)])
     }
