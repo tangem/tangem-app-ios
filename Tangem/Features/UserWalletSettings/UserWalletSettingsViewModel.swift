@@ -189,9 +189,9 @@ private extension UserWalletSettingsViewModel {
 
     func hotAccessCodeAction() {
         runTask(in: self) { viewModel in
-            let result = await viewModel.hotSettingsUtil.performAccessCodeAction()
+            let state = await viewModel.hotSettingsUtil.calculateAccessCodeState()
 
-            switch result {
+            switch state {
             case .backupNeeded:
                 viewModel.openHotBackupNeeded()
             case .onboarding(let needsValidation):
@@ -308,16 +308,20 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openHotBackupNeeded() {
-        coordinator?.openHotBackupNeeded()
+        coordinator?.openHotBackupNeeded(userWalletModel: userWalletModel)
     }
 
     func openHotAccessCodeOnboarding(needsValidation: Bool) {
-        let input = HotOnboardingInput(flow: .accessCodeChange(needAccessCodeValidation: needsValidation))
+        let flow = HotOnboardingFlow.accessCodeChange(
+            userWalletModel: userWalletModel,
+            needAccessCodeValidation: needsValidation
+        )
+        let input = HotOnboardingInput(flow: flow)
         openOnboarding(with: .hotInput(input))
     }
 
     func openHotBackupTypes() {
-        coordinator?.openHotBackupTypes()
+        coordinator?.openHotBackupTypes(userWalletModel: userWalletModel)
     }
 }
 

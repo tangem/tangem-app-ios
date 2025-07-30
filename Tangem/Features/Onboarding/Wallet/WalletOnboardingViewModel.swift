@@ -766,7 +766,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
                             pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == backupService.primaryCard?.cardId {
-                                userWalletModel?.onBackupUpdate(type: .primaryCardBackuped(card: updatedCard))
+                                userWalletModel?.update(type: .backupStarted(card: updatedCard))
                             }
 
                             if backupServiceState == .finished {
@@ -779,7 +779,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 trySaveAccessCodes()
 
                                 pendingBackupManager.onBackupCompleted()
-                                userWalletModel?.onBackupUpdate(type: .backupCompleted)
+                                userWalletModel?.update(type: .backupCompleted)
                                 Analytics.log(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
