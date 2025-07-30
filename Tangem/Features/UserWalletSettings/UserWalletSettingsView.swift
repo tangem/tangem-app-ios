@@ -10,7 +10,6 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
-import TangemAccessibilityIdentifiers
 
 struct UserWalletSettingsView: View {
     @ObservedObject private var viewModel: UserWalletSettingsViewModel
@@ -80,8 +79,8 @@ struct UserWalletSettingsView: View {
     }
 
     private var commonSection: some View {
-        GroupedSection(viewModel.commonSectionModels) { viewModel in
-            DefaultRowView(viewModel: viewModel)
+        GroupedSection(viewModel.commonSectionModels) {
+            DefaultRowView(viewModel: $0)
         }
     }
 
