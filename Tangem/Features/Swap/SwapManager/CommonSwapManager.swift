@@ -54,6 +54,8 @@ extension CommonSwapManager: SwapManager {
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         statePublisher
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
             .withWeakCaptureOf(self)
             .asyncMap { manager, _ in
                 await manager.interactor.getAllProviders()
@@ -63,6 +65,8 @@ extension CommonSwapManager: SwapManager {
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
         statePublisher
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
             .withWeakCaptureOf(self)
             .asyncMap { manager, _ in
                 await manager.interactor.getSelectedProvider()
@@ -137,6 +141,15 @@ private extension CommonSwapManager {
 
             AppLogger.info("Timer call autoupdate")
             $0.interactor.refresh(type: .refreshRates)
+        }
+    }
+}
+
+private extension SwapManagerState {
+    var isRefreshRates: Bool {
+        switch self {
+        case .loading(.refreshRates): true
+        default: false
         }
     }
 }
