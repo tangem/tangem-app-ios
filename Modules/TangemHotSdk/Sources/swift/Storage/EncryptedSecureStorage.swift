@@ -1,5 +1,5 @@
 //
-//  EncryptionKeySecureStorage.swift
+//  EncryptedSecureStorage.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import TangemFoundation
 
-final class EncryptionKeySecureStorage {
+final class EncryptedSecureStorage {
     private let secureStorage: HotSecureStorage
     private let secureEnclaveService: HotSecureEnclaveService
 
@@ -22,10 +22,15 @@ final class EncryptionKeySecureStorage {
         self.secureEnclaveService = secureEnclaveService
     }
 
-    func storeEncryptionKey(_ aesEncryptionKey: Data, for walletID: UserWalletId, accessCode: String) throws {
+    func storeData(
+        _ data: Data,
+        keyTag: String,
+        secureEnclaveKeyTag: String,
+        accessCode: String
+    ) throws {
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
-            aesEncryptionKey,
-            keyTag: walletID.encryptionKeySecureEnclaveTag
+            data,
+            keyTag: secureEnclaveKeyTag
         )
 
         let encryptedAesKey = try AESEncoder.encryptWithPassword(
@@ -33,12 +38,16 @@ final class EncryptionKeySecureStorage {
             content: secureEnclaveEncryptedKey
         )
 
-        try secureStorage.store(encryptedAesKey, forKey: walletID.encryptionKeyTag)
+        try secureStorage.store(encryptedAesKey, forKey: keyTag)
     }
 
-    func getEncryptionKey(for walletID: UserWalletId, accessCode: String) throws -> Data {
-        guard let encryptedAesKey = try secureStorage.get(walletID.encryptionKeyTag) else {
-            throw PrivateInfoStorageError.noPrivateInfo(tag: walletID.encryptionKeyTag)
+    func getData(
+        keyTag: String,
+        secureEnclaveKeyTag: String,
+        accessCode: String
+    ) throws -> Data {
+        guard let encryptedAesKey = try secureStorage.get(keyTag) else {
+            throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
 
         let secureEnclaveEncryptedKey = try AESEncoder.decryptWithPassword(
@@ -48,11 +57,11 @@ final class EncryptionKeySecureStorage {
 
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedKey,
-            keyTag: walletID.encryptionKeySecureEnclaveTag
+            keyTag: secureEnclaveKeyTag
         )
     }
 
-    func deleteEncryptionKey(for walletID: UserWalletId) throws {
-        try secureStorage.delete(walletID.encryptionKeyTag)
+    func deleteData(keyTag: String) throws {
+        try secureStorage.delete(keyTag)
     }
 }

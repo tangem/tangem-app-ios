@@ -17,19 +17,21 @@ public final class CommonHotSdk: HotSdk {
     public init() {
         privateInfoStorageManager = PrivateInfoStorageManager(
             privateInfoStorage: PrivateInfoStorage(),
-            encryptionKeySecureStorage: EncryptionKeySecureStorage(),
-            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage()
+            encryptionKeySecureStorage: EncryptedSecureStorage(),
+            encryptionKeyBiometricsStorage: EncryptedBiometricsStorage()
         )
     }
 
     public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
         let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase)
 
-        guard let walletID = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
+        guard let walletIdSeed = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
             throw HotWalletError.failedToDeriveKey
         }
 
-        let userWalletId = UserWalletId(with: walletID)
+        let userWalletId = UserWalletId(with: walletIdSeed)
+        
+        try storeUserWalletId(userWalletId, accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode)
 
         try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
@@ -65,8 +67,8 @@ public final class CommonHotSdk: HotSdk {
         return Data()
     }
 
-    public func delete(id: UserWalletId) throws {
-        try privateInfoStorageManager.delete(hotWalletID: id)
+    public func delete(walletID: UserWalletId) throws {
+        try privateInfoStorageManager.delete(walletID: walletID)
     }
 
     public func updateAccessCode(
@@ -74,6 +76,11 @@ public final class CommonHotSdk: HotSdk {
         context: MobileWalletContext
     ) throws {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
+        
+        try storeUserWalletId(
+            context.walletID,
+            accessCode: newAccessCode
+        )
     }
 
     public func enableBiometrics(
@@ -154,32 +161,33 @@ public final class CommonHotSdk: HotSdk {
         return result
     }
 
-    public func publicDataEncryptionKeyData(context: MobileWalletContext) throws -> Data {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
-
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
-            throw HotWalletError.failedToDeriveKey
+    public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
+        guard case .accessCode(let accessCode) = context.authentication else {
+            throw HotWalletError.accessCodeIsRequired
         }
-
-        defer {
-            privateInfo.clear()
-        }
-
-        let masterKeys = try deriveMasterKeys(
-            entropy: privateInfo.entropy,
-            passphrase: privateInfo.passphrase,
-            curves: [.secp256k1]
+        let publicDataStorage = EncryptedSecureStorage()
+        let userWalletIdSeed = try publicDataStorage.getData(
+            keyTag: context.walletID.publicInfoTag,
+            secureEnclaveKeyTag: context.walletID.publicInfoSecureEnclaveTag,
+            accessCode: accessCode
         )
-
-        guard let secp256k1Key = masterKeys.first else {
-            throw HotWalletError.failedToDeriveKey
-        }
-
-        return secp256k1Key.publicKey
+        
+        return UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed)
+            
     }
 }
 
 private extension CommonHotSdk {
+    func storeUserWalletId(_ userWalletId: UserWalletId, accessCode: String) throws {
+        let publicDataStorage = EncryptedSecureStorage()
+        try publicDataStorage.storeData(
+            userWalletId.value,
+            keyTag: userWalletId.publicInfoTag,
+            secureEnclaveKeyTag: userWalletId.publicInfoSecureEnclaveTag,
+            accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode
+        )
+    }
+    
     func deriveMasterKeys(
         entropy: Data,
         passphrase: String,
