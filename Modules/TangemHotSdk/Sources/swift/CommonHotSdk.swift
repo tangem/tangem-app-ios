@@ -30,7 +30,7 @@ public final class CommonHotSdk: HotSdk {
         }
 
         let userWalletId = UserWalletId(with: walletIdSeed)
-        
+
         try storeUserWalletId(userWalletId, accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode)
 
         try privateInfoStorageManager.storeUnsecured(
@@ -76,7 +76,7 @@ public final class CommonHotSdk: HotSdk {
         context: MobileWalletContext
     ) throws {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
-        
+
         try storeUserWalletId(
             context.walletID,
             accessCode: newAccessCode
@@ -171,9 +171,8 @@ public final class CommonHotSdk: HotSdk {
             secureEnclaveKeyTag: context.walletID.publicInfoSecureEnclaveTag,
             accessCode: accessCode
         )
-        
+
         return UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed)
-            
     }
 }
 
@@ -187,7 +186,7 @@ private extension CommonHotSdk {
             accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode
         )
     }
-    
+
     func deriveMasterKeys(
         entropy: Data,
         passphrase: String,
