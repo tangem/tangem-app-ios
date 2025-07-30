@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -125,7 +126,8 @@ private extension UserWalletSettingsViewModel {
             referralViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral),
+                    accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton
                 )
         } else {
             referralViewModel = nil

@@ -11,12 +11,14 @@ import XCTest
 final class ReferralUITests: BaseTestCase {
     func testReferralProgramFlow_DisplayConditionsAndParticipateButton() {
         id(3647)
+        let walletName = "Wallet"
+        
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
-            .openWalletSettings()
+            .openWalletSettings(for: walletName)
             .openReferralProgram()
             .validate()
     }
