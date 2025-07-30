@@ -31,6 +31,10 @@ struct SettingsUserWalletRowView: View {
 
             Spacer()
 
+            if viewModel.isUserWalletBackupNeeded {
+                BadgeView.noBackup
+            }
+
             if !viewModel.isUserWalletLocked {
                 Assets.chevron.image
             }
@@ -103,10 +107,12 @@ struct SettingsUserWalletRowView: View {
         VStack {
             SettingsUserWalletRowView(
                 viewModel: .init(
+                    name: "My wallet",
                     cardsCount: 3,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "My wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -114,10 +120,12 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
+                    name: "My wallet",
                     cardsCount: 2,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "My wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -125,10 +133,12 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
+                    name: "Old wallet",
                     cardsCount: 2,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "Old wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Old wallet")),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
+                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -136,10 +146,12 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
+                    name: "Locked wallet",
                     cardsCount: 2,
                     isUserWalletLocked: true,
-                    userWalletNamePublisher: .just(output: "Locked wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Locked wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
+                    isUserWalletBackupNeededPublisher: .just(output: true),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )

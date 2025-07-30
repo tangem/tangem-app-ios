@@ -45,6 +45,8 @@ struct BadgeView: View {
     }
 }
 
+// MARK: - Types
+
 extension BadgeView {
     struct Item: Hashable {
         let title: String
