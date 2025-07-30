@@ -11,23 +11,18 @@ import Foundation
 import TangemAccessibilityIdentifiers
 
 final class DetailsScreen: ScreenBase<DetailsScreenElement> {
-    private lazy var walletSettingsButton = button(.walletSettingsButton)
-
-    func openWalletSettings() -> CardSettingsScreen {
-        XCTContext.runActivity(named: "Open wallet settings screen") { _ in
-            walletSettingsButton.waitAndTap()
+    /// Open wallet settings for specific wallet by name
+    func openWalletSettings(for walletName: String) -> CardSettingsScreen {
+        XCTContext.runActivity(named: "Open wallet settings for wallet: \(walletName)") { _ in
+            let specificWalletButton = app.buttons[WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: walletName)]
+            specificWalletButton.waitAndTap()
             return CardSettingsScreen(app)
         }
     }
 }
 
-enum DetailsScreenElement: String, UIElement {
-    case walletSettingsButton
-
+enum DetailsScreenElement: UIElement {
     var accessibilityIdentifier: String {
-        switch self {
-        case .walletSettingsButton:
-            return WalletSettingsAccessibilityIdentifiers.walletSettingsButton
-        }
+        return ""
     }
 }

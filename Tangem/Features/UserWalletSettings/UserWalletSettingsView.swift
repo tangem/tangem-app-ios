@@ -82,7 +82,6 @@ struct UserWalletSettingsView: View {
     private var commonSection: some View {
         GroupedSection(viewModel.commonSectionModels) { viewModel in
             DefaultRowView(viewModel: viewModel)
-                .accessibilityIdentifier(viewModel.title == Localization.detailsReferralTitle ? CardSettingsAccessibilityIdentifiers.referralProgramButton : "")
         }
     }
 
