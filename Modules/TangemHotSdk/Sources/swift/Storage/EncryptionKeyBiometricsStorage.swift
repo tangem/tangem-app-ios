@@ -28,15 +28,15 @@ final class EncryptionKeyBiometricsStorage {
 
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
             aesEncryptionKey,
-            keyTag: walletID.privateInfoEncryptionKeyBiometricsTag
+            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
         )
 
-        try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: walletID.privateInfoEncryptionKeyBiometricsTag)
+        try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: walletID.encryptionKeyBiometricsTag)
     }
 
     func getEncryptionKey(for walletID: UserWalletId, context: LAContext) throws -> Data {
         guard let secureEnclaveEncryptedData = try biometricsStorage.get(
-            walletID.privateInfoEncryptionKeyBiometricsTag,
+            walletID.encryptionKeyBiometricsTag,
             context: context
         ) else {
             throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
@@ -46,12 +46,12 @@ final class EncryptionKeyBiometricsStorage {
 
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedData,
-            keyTag: walletID.privateInfoEncryptionKeyBiometricsTag
+            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
         )
     }
 
     func deleteEncryptionKey(for walletID: UserWalletId) throws {
-        try biometricsStorage.delete(walletID.privateInfoEncryptionKeyBiometricsTag)
+        try biometricsStorage.delete(walletID.encryptionKeyBiometricsTag)
     }
 }
 
