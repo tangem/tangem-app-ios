@@ -8,6 +8,7 @@
 
 import Combine
 import TangemSdk
+import TangemFoundation
 
 class UserWalletCardScanner {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -59,7 +60,6 @@ class UserWalletCardScanner {
         }
 
         let factory = OnboardingInputFactory(
-            userWalletModel: nil,
             sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
