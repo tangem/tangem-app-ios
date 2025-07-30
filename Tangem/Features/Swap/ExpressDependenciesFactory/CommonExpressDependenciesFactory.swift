@@ -12,6 +12,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private let userWalletModel: UserWalletModel
     private let initialWalletModel: any WalletModel
     private let destinationWalletModel: (any WalletModel)?
+    private let supportedProviderTypes: [ExpressProviderType]
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
     @Injected(\.expressPendingTransactionsRepository)
@@ -21,10 +22,16 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var expressRepository = makeExpressRepository()
 
-    init(userWalletModel: UserWalletModel, initialWalletModel: any WalletModel, destinationWalletModel: (any WalletModel)?) {
+    init(
+        userWalletModel: UserWalletModel,
+        initialWalletModel: any WalletModel,
+        destinationWalletModel: (any WalletModel)?,
+        supportedProviderTypes: [ExpressProviderType]
+    ) {
         self.userWalletModel = userWalletModel
         self.initialWalletModel = initialWalletModel
         self.destinationWalletModel = destinationWalletModel
+        self.supportedProviderTypes = supportedProviderTypes
     }
 }
 
@@ -35,7 +42,8 @@ private extension CommonExpressDependenciesFactory {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            supportedProviderTypes: supportedProviderTypes
         )
 
         let interactor = ExpressInteractor(
