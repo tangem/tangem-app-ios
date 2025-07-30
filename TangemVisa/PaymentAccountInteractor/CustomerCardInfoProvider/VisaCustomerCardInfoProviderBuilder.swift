@@ -8,67 +8,52 @@
 
 import Foundation
 import BlockchainSdk
+import TangemNetworkUtils
 
 public struct VisaCustomerCardInfoProviderBuilder {
     private let apiType: VisaAPIType
     private let isMockedAPIEnabled: Bool
-    private let isTestnet: Bool
-    private let cardId: String
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool, isTestnet: Bool, cardId: String) {
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
         self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
-        self.isTestnet = isTestnet
-        self.cardId = cardId
-    }
-
-    public func build(
-        cardActivationState: VisaCardActivationLocalState,
-        refreshTokenSaver: VisaRefreshTokenSaver,
-        evmSmartContractInteractor: EVMSmartContractInteractor,
-        urlSessionConfiguration: URLSessionConfiguration
-    ) -> VisaCustomerCardInfoProvider {
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
-            .build(
-                cardId: cardId,
-                cardActivationStatus: cardActivationState,
-                refreshTokenSaver: refreshTokenSaver,
-                urlSessionConfiguration: urlSessionConfiguration
-            )
-
-        return build(
-            authorizationTokensHandler: authorizationTokensHandler,
-            evmSmartContractInteractor: evmSmartContractInteractor,
-            urlSessionConfiguration: urlSessionConfiguration
-        )
     }
 
     public func build(
         authorizationTokensHandler: VisaAuthorizationTokensHandler?,
         evmSmartContractInteractor: EVMSmartContractInteractor,
-        urlSessionConfiguration: URLSessionConfiguration
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaCustomerCardInfoProvider {
         var customerInfoManagementService: CustomerInfoManagementService?
         if let authorizationTokensHandler {
-            if isMockedAPIEnabled {
-                customerInfoManagementService = CustomerInfoManagementServiceMock()
-            } else {
-                customerInfoManagementService = CommonCustomerInfoManagementService(
-                    apiType: apiType,
-                    authorizationTokenHandler: authorizationTokensHandler,
-                    apiService: .init(
-                        provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                        decoder: JSONDecoderFactory().makeCIMDecoder()
-                    )
-                )
-            }
+            customerInfoManagementService = buildCustomerInfoManagementService(
+                authorizationTokensHandler: authorizationTokensHandler,
+                urlSessionConfiguration: urlSessionConfiguration
+            )
         }
 
         return CommonCustomerCardInfoProvider(
-            isTestnet: isTestnet,
-            authorizationTokensHandler: authorizationTokensHandler,
+            isTestnet: apiType.isTestnet,
             customerInfoManagementService: customerInfoManagementService,
             evmSmartContractInteractor: evmSmartContractInteractor
         )
+    }
+
+    public func buildCustomerInfoManagementService(
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+    ) -> CustomerInfoManagementService {
+        if isMockedAPIEnabled {
+            return CustomerInfoManagementServiceMock()
+        } else {
+            return CommonCustomerInfoManagementService(
+                apiType: apiType,
+                authorizationTokenHandler: authorizationTokensHandler,
+                apiService: .init(
+                    provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                    decoder: JSONDecoderFactory().makeCIMDecoder()
+                )
+            )
+        }
     }
 }
