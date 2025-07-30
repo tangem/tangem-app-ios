@@ -466,6 +466,7 @@
 		30B457582D943444002B8BD0 /* PropertyListObjectRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B457572D943444002B8BD0 /* PropertyListObjectRepresentable.swift */; };
 		30B457592D943444002B8BD0 /* AppStorageCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B457562D943444002B8BD0 /* AppStorageCompat.swift */; };
 		30B4575D2D9434A4002B8BD0 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */; };
+		30B628942E3A48240075AECA /* AccountFormHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B628932E3A48240075AECA /* AccountFormHeaderView.swift */; };
 		30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */; };
 		30BA4FE72D7085FB00C2B108 /* TezosTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */; };
 		30BD35622DBFC6F800866D51 /* NFTChainNameProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */; };
@@ -4386,6 +4387,7 @@
 		30B457562D943444002B8BD0 /* AppStorageCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageCompat.swift; sourceTree = "<group>"; };
 		30B457572D943444002B8BD0 /* PropertyListObjectRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListObjectRepresentable.swift; sourceTree = "<group>"; };
 		30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
+		30B628932E3A48240075AECA /* AccountFormHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormHeaderView.swift; sourceTree = "<group>"; };
 		30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosTransactionTests.swift; sourceTree = "<group>"; };
 		30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTChainNameProvider.swift; sourceTree = "<group>"; };
@@ -8860,6 +8862,7 @@
 		3001C3312E38C2AB00CE2726 /* AccountForm */ = {
 			isa = PBXGroup;
 			children = (
+				30B628932E3A48240075AECA /* AccountFormHeaderView.swift */,
 				3001C3322E38C2E100CE2726 /* GridView */,
 			);
 			path = AccountForm;
@@ -22858,6 +22861,7 @@
 				EF0E1D972CE37DA4003D47AA /* OnrampProviderRowView.swift in Sources */,
 				EF0E1D982CE37DA4003D47AA /* OnrampProvidersCompactViewModel.swift in Sources */,
 				EF0E1D992CE37DA4003D47AA /* OnrampProvidersCoordinator.swift in Sources */,
+				30B628942E3A48240075AECA /* AccountFormHeaderView.swift in Sources */,
 				EFADE7912E0ED5A900CA7916 /* SendSourceToken.swift in Sources */,
 				EF0E1D9A2CE37DA4003D47AA /* OnrampProviderRowViewData.swift in Sources */,
 				EF0E1D9B2CE37DA4003D47AA /* OnrampProvidersInputOutput.swift in Sources */,
