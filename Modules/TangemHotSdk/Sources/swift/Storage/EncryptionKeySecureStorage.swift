@@ -38,7 +38,7 @@ final class EncryptionKeySecureStorage {
 
     func getEncryptionKey(for walletID: UserWalletId, accessCode: String) throws -> Data {
         guard let encryptedAesKey = try secureStorage.get(walletID.encryptionKeyTag) else {
-            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+            throw PrivateInfoStorageError.noPrivateInfo(tag: walletID.encryptionKeyTag)
         }
 
         let secureEnclaveEncryptedKey = try AESEncoder.decryptWithPassword(
