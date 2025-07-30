@@ -31,6 +31,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case seedSupport
     case seedSupport2
     case referralProgram
+    case hotFinishActivation(isWarning: Bool)
 }
 
 /// For Notifications
@@ -81,6 +82,16 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .referralProgram:
             return .string(Localization.notificationReferralPromoTitle)
+        case .hotFinishActivation(let isWarning):
+            let text = Localization.hwActivationNeedTitle
+            if isWarning {
+                var string = AttributedString(text)
+                string.foregroundColor = Colors.Text.warning
+                string.font = Fonts.Bold.footnote
+                return .attributed(string)
+            } else {
+                return .string(text)
+            }
         }
     }
 
@@ -127,6 +138,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseContactedSupport
         case .referralProgram:
             return Localization.notificationReferralPromoText
+        case .hotFinishActivation(let isWarning):
+            return isWarning ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         }
     }
 
@@ -138,7 +151,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .seedSupport,
              .seedSupport2,
              .referralProgram,
-             .backupErrors:
+             .backupErrors,
+             .hotFinishActivation:
             return .primary
         default:
             return .secondary
@@ -166,6 +180,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
         case .referralProgram:
             return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
+        case .hotFinishActivation(let isWarning):
+            let imageType = isWarning ? Assets.criticalAttentionShield : Assets.attentionShield
+            return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         }
     }
 
@@ -192,7 +209,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .lowSignatures,
              .systemDeprecationPermanent,
              .missingBackup,
-             .supportedOnlySingleCurrencyWallet:
+             .supportedOnlySingleCurrencyWallet,
+             .hotFinishActivation:
             return .warning
         }
     }
@@ -214,7 +232,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
              .seedSupport,
-             .seedSupport2:
+             .seedSupport2,
+             .hotFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -280,6 +299,17 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
             ])
+        case .hotFinishActivation(let isWarning):
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(
+                    action: buttonAction,
+                    actionType: .openHotFinishActivation(isWarning: isWarning),
+                    isWithLoader: false
+                ),
+            ])
         default: break
         }
         return .plain
@@ -311,6 +341,7 @@ extension GeneralNotificationEvent {
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
         case .referralProgram: return .mainReferralProgram
+        case .hotFinishActivation: return nil
         }
     }
 
