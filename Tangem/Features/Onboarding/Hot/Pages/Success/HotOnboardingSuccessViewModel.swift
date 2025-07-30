@@ -15,21 +15,25 @@ final class HotOnboardingSuccessViewModel {
     lazy var actionItem = makeActionItem()
 
     private let type: SuccessType
-    private weak var delegate: HotOnboardingSuccessDelegate?
+    private let onAppear: () -> Void
+    private let onComplete: () -> Void
 
-    init(type: SuccessType, delegate: HotOnboardingSuccessDelegate) {
+    init(
+        type: SuccessType,
+        onAppear: @escaping () -> Void,
+        onComplete: @escaping () -> Void
+    ) {
         self.type = type
-        self.delegate = delegate
+        self.onAppear = onAppear
+        self.onComplete = onComplete
     }
 }
 
 // MARK: - Internal methods
 
 extension HotOnboardingSuccessViewModel {
-    func onAppear() {
-        if type == .walletReady {
-            delegate?.fireConfetti()
-        }
+    func onWillAppear() {
+        onAppear()
     }
 }
 
@@ -72,10 +76,14 @@ private extension HotOnboardingSuccessViewModel {
 
         return ActionItem(
             title: title,
-            action: { [weak delegate] in
-                delegate?.success()
+            action: { [weak self] in
+                self?.completeAction()
             }
         )
+    }
+
+    func completeAction() {
+        onComplete()
     }
 }
 
