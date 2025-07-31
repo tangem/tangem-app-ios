@@ -111,6 +111,6 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
     }
 
     func logCancelButtonTapped() {
-        Analytics.log(.walletConnectCancelButtonTapped, params: [.type: .sign])
+        Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .sign])
     }
 }
