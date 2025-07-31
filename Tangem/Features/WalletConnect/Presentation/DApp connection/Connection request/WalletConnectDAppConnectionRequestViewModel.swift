@@ -176,9 +176,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
             Task { [rejectDAppProposal = interactor.rejectDAppProposal, analyticsLogger, logger] in
                 do {
                     try await rejectDAppProposal(proposalID: loadedDAppProposal.sessionProposal.id)
-                    analyticsLogger.logDAppDisconnected(with: loadedDAppProposal.dAppData)
                 } catch {
-                    logger.error("Failed to disconnect \(loadedDAppProposal.dAppData.name) dApp", error: error)
+                    logger.error("Failed to reject \(loadedDAppProposal.dAppData.name) dApp proposal", error: error)
                 }
             }
         }
