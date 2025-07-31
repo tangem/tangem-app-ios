@@ -91,6 +91,8 @@ extension BlockchainSdkError: UniversalError {
             return 102000022
         case .twMakeAddressFailed:
             return 102000023
+        case .noTrustlineAtDestination:
+            return 102000024
         }
     }
 }
@@ -381,6 +383,10 @@ extension XRPError: UniversalError {
             102015011
         case .read:
             102015012
+        case .failedLoadTrustLines:
+            102015013
+        case .failedParseAssetId:
+            102015014
         }
     }
 }

@@ -19,7 +19,7 @@ class IssuedAmount {
     init(value: String) {
         stringVal = value
 
-        if let value = Decimal(string: stringVal) {
+        if let value = Decimal(stringValue: stringVal) {
             decimal = value
         } else {
             fatalError()
@@ -32,9 +32,9 @@ class IssuedAmount {
         }
 
         let sign = decimal.sign
-        var exponent: Int = decimal.exponent
-        let digits = stringVal.replacingOccurrences(of: ".", with: "")
-        var mantissa = UInt64(digits)!
+        let significant = decimal.significand
+        var exponent = decimal.exponent
+        var mantissa = significant.uint64Value
 
         while mantissa < MIN_MANTISSA && exponent > MIN_EXP {
             mantissa = mantissa * 10
