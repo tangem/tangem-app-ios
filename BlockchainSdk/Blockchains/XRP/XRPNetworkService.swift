@@ -63,4 +63,10 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
             provider.checkAccountDestinationTag(account: account)
         }
     }
+
+    func getAccountTrustlines(account: String) -> AnyPublisher<Result<[XRPTrustLine], Error>, Error> {
+        providerPublisher { provider in
+            provider.getAccountTrustlines(account: account)
+        }
+    }
 }
