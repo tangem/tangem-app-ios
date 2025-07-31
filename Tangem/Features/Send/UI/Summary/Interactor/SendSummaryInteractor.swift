@@ -19,43 +19,59 @@ class CommonSendSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
 
-    private let descriptionBuilder: SendTransactionSummaryDescriptionBuilder
+    private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder?
+    private let stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder?
 
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        descriptionBuilder: SendTransactionSummaryDescriptionBuilder
+        sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder?,
+        stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder?,
     ) {
         self.input = input
         self.output = output
-        self.descriptionBuilder = descriptionBuilder
+        self.sendDescriptionBuilder = sendDescriptionBuilder
+        self.stakingDescriptionBuilder = stakingDescriptionBuilder
     }
 }
 
 extension CommonSendSummaryInteractor: SendSummaryInteractor {
     var transactionDescription: AnyPublisher<String?, Never> {
         guard let input else {
-            assertionFailure("SendFeeInput is not found")
+            assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
         }
 
         return input
             .summaryTransactionDataPublisher
             .withWeakCaptureOf(self)
-            .map { interactor, transactionData in
-                transactionData.flatMap {
-                    interactor.descriptionBuilder.makeDescription(transactionType: $0)
-                }
-            }
+            .map { $0.summaryDescription(data: $1) }
             .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
         guard let input else {
-            assertionFailure("SendFeeInput is not found")
+            assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
         }
 
         return input.isNotificationButtonIsLoading
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendSummaryInteractor {
+    private func summaryDescription(data: SendSummaryTransactionData?) -> String? {
+        switch data {
+        case .none, .swap:
+            return nil
+        case .send(let amount, let fee):
+            let description = sendDescriptionBuilder?.makeDescription(amount: amount, fee: fee)
+            return description
+        case .staking(let amount, let schedule):
+            let description = stakingDescriptionBuilder?.makeDescription(amount: amount, schedule: schedule)
+            return description
+        }
     }
 }
