@@ -1,5 +1,5 @@
 //
-//  CommonSendTransactionSummaryDescriptionBuilder.swift
+//  TronSendTransactionSummaryDescriptionBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,9 @@
 
 import Foundation
 import TangemLocalization
+import BlockchainSdk
 
-struct CommonSendTransactionSummaryDescriptionBuilder {
+struct TronSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -21,20 +22,16 @@ struct CommonSendTransactionSummaryDescriptionBuilder {
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
-extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(transactionType: SendSummaryTransactionData) -> String? {
-        guard case .send(let amount, let fee) = transactionType else {
+extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> String? {
+        guard let feeParameters = fee.parameters as? TronFeeParameters else {
+            AppLogger.error(error: "Fee parameters must be set for TronSendTransactionSummaryDescriptionBuilder")
             return nil
         }
 
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
         let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
-
-        var totalInFiat: Decimal? = nil
-
-        if let amountInFiat, let feeInFiat {
-            totalInFiat = amountInFiat + feeInFiat
-        }
+        let totalInFiat = [amountInFiat, feeInFiat].compactMap { $0 }.reduce(0, +)
 
         let formattingOptions = BalanceFormattingOptions(
             minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
@@ -45,8 +42,22 @@ extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
 
         let formatter = BalanceFormatter()
         let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
+
+        let prefix = Localization.sendSummaryTransactionDescriptionPrefix(totalInFiatFormatted)
         let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
 
-        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
+        let energySpentString = String(feeParameters.energySpent)
+
+        let suffix = if feeParameters.energySpent > 0 {
+            if feeParameters.energyFullyCoversFee {
+                Localization.sendSummaryTransactionDescriptionSuffixFeeCovered(energySpentString)
+            } else {
+                Localization.sendSummaryTransactionDescriptionSuffixFeeReduced(energySpentString)
+            }
+        } else {
+            Localization.sendSummaryTransactionDescriptionSuffixIncluding(feeInFiatFormatted)
+        }
+
+        return [prefix, suffix].joined(separator: ", ")
     }
 }
