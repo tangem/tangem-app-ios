@@ -22,7 +22,7 @@ struct UserTokenListConverter {
     // MARK: - Stored to Remote
 
     func convertStoredToRemote(_ storedUserTokenList: StoredUserTokenList) -> UserTokenList {
-        let tokenAddresses = externalParametersProvider?.provideTokenListAddresses()
+        let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
 
         let tokens = storedUserTokenList
             .entries
@@ -33,11 +33,7 @@ struct UserTokenListConverter {
                 // Determine the addresses based on the notifyStatusValue.
                 // If notifyStatusValue is true, fetch the addresses from the externalParametersProvider.
                 // Otherwise, set addresses to an empty array.
-                var addresses: [String]?
-
-                if let id {
-                    addresses = tokenAddresses?[id]
-                }
+                let addresses: [String]? = walletModelAddresses?[entry.walletModelId]
 
                 return UserTokenList.Token(
                     id: id,
