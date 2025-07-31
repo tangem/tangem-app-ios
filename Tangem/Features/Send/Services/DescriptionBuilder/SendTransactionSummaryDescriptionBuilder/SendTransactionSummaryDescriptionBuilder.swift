@@ -1,5 +1,5 @@
 //
-//  KoinosSendTransactionSummaryDescriptionBuilder.swift
+//  SendTransactionSummaryDescriptionBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,11 @@
 import Foundation
 import TangemLocalization
 
-struct KoinosSendTransactionSummaryDescriptionBuilder {
+protocol SendTransactionSummaryDescriptionBuilder {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> String?
+}
+
+struct CommonSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -21,13 +25,16 @@ struct KoinosSendTransactionSummaryDescriptionBuilder {
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
-extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(transactionType: SendSummaryTransactionData) -> String? {
-        guard case .send(let amount, let fee) = transactionType else {
-            return nil
-        }
-
+extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> String? {
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
+        let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
+
+        var totalInFiat: Decimal? = nil
+
+        if let amountInFiat, let feeInFiat {
+            totalInFiat = amountInFiat + feeInFiat
+        }
 
         let formattingOptions = BalanceFormattingOptions(
             minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
@@ -37,11 +44,9 @@ extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
         )
 
         let formatter = BalanceFormatter()
-        let feeFormatter = CommonFeeFormatter(balanceFormatter: formatter, balanceConverter: .init())
+        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
+        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
 
-        return Localization.sendSummaryTransactionDescriptionNoFiatFee(
-            formatter.formatFiatBalance(amountInFiat, formattingOptions: formattingOptions),
-            feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
-        )
+        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }

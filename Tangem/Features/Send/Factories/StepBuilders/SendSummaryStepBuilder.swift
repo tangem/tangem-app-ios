@@ -18,7 +18,6 @@ struct SendSummaryStepBuilder {
     func makeSendSummaryStep(
         io: IO,
         actionType: SendFlowActionType,
-        descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
         notificationManager: NotificationManager,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
@@ -28,10 +27,7 @@ struct SendSummaryStepBuilder {
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
         analyticsLogger: any SendSummaryAnalyticsLogger
     ) -> ReturnValue {
-        let interactor = makeSendSummaryInteractor(
-            io: io,
-            descriptionBuilder: descriptionBuilder
-        )
+        let interactor = makeSendSummaryInteractor(io: io)
 
         let viewModel = makeSendSummaryViewModel(
             interactor: interactor,
@@ -92,14 +88,12 @@ private extension SendSummaryStepBuilder {
         )
     }
 
-    func makeSendSummaryInteractor(
-        io: IO,
-        descriptionBuilder: any SendTransactionSummaryDescriptionBuilder
-    ) -> SendSummaryInteractor {
+    func makeSendSummaryInteractor(io: IO) -> SendSummaryInteractor {
         CommonSendSummaryInteractor(
             input: io.input,
             output: io.output,
-            descriptionBuilder: descriptionBuilder
+            sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
+            stakingDescriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder()
         )
     }
 }
