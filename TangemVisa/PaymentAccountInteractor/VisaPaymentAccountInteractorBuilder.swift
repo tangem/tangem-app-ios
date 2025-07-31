@@ -8,26 +8,27 @@
 
 import Foundation
 import BlockchainSdk
+import TangemNetworkUtils
 
 public struct VisaPaymentAccountInteractorBuilder {
     private let isTestnet: Bool
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let urlSessionConfiguration: URLSessionConfiguration
     private let isMockedAPIEnabled: Bool
 
     public init(
         isTestnet: Bool,
         evmSmartContractInteractor: EVMSmartContractInteractor,
-        urlSessionConfiguration: URLSessionConfiguration,
         isMockedAPIEnabled: Bool
     ) {
         self.isTestnet = isTestnet
         self.evmSmartContractInteractor = evmSmartContractInteractor
-        self.urlSessionConfiguration = urlSessionConfiguration
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
-    public func build(customerCardInfo: VisaCustomerCardInfo) async throws -> VisaPaymentAccountInteractor {
+    public func build(
+        customerCardInfo: VisaCustomerCardInfo,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+    ) async throws -> VisaPaymentAccountInteractor {
         VisaLogger.info("Start loading token info")
         let tokenInfoLoader = VisaTokenInfoLoader(
             isTestnet: isTestnet,
