@@ -14,6 +14,7 @@ import TangemFoundation
 protocol SendNewAmountInteractor {
     var isReceiveTokenSelectionAvailable: Bool { get }
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
@@ -190,6 +191,12 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
             _error.removeDuplicates().map { $0.map { .error($0) } },
         )
         .eraseToAnyPublisher()
+    }
+
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        receivedTokenAmountPublisher
+            .map { $0.isLoading }
+            .eraseToAnyPublisher()
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
