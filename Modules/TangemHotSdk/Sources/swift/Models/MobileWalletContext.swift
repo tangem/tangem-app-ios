@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MobileWalletContext.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
