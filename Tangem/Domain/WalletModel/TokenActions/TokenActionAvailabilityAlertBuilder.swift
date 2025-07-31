@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
+import enum BlockchainSdk.Blockchain
 
 struct TokenActionAvailabilityAlertBuilder {
     func alert(for status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> AlertBinder? {
@@ -118,18 +119,17 @@ struct TokenActionAvailabilityAlertBuilder {
         }
     }
 
-    func alert(for status: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus) -> AlertBinder? {
+    func alert(for status: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus, blockchain: Blockchain) -> AlertBinder? {
         switch status {
         case .available:
             return nil
-        case .assetRequirement(let blockchain):
+
+        case .assetRequirement:
             switch blockchain {
+            case .xrp, .stellar:
+                return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
             case .hedera:
                 return .init(title: "", message: Localization.warningReceiveBlockedHederaTokenAssociationRequiredMessage)
-
-            case .stellar, .xrp:
-                return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
-
             default:
                 return nil
             }
