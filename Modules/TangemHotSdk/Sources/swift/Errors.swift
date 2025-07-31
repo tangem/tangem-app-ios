@@ -17,13 +17,20 @@ enum HotWalletError: Error, Equatable {
     case failedToDeriveKey
     case failedToCreateSeed
     case failedToSignHash
+    case failedToExportMnemonic
 
     case tangemSdk(TangemSdkError)
 
     static func == (lhs: HotWalletError, rhs: HotWalletError) -> Bool {
         switch (lhs, rhs) {
         case (.derivationIsNotSupported, .derivationIsNotSupported),
-             (.invalidStakingKey, .invalidStakingKey): true
+             (.invalidStakingKey, .invalidStakingKey),
+             (.failedToCreateMnemonic, .failedToCreateMnemonic),
+             (.failedToDeriveKey, .failedToDeriveKey),
+             (.failedToCreateSeed, .failedToCreateSeed),
+             (.failedToSignHash, .failedToSignHash),
+             (.failedToExportMnemonic, .failedToExportMnemonic): true
+        case (.invalidCurve(let left), .invalidCurve(let right)) where left == right: true
         case (.tangemSdk(let left), .tangemSdk(let right)) where left.code == right.code: true
         default: false
         }
