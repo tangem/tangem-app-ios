@@ -151,6 +151,7 @@ extension WCServiceV2 {
                     taskGroup.addTask {
                         do {
                             try await walletKitClient.disconnect(topic: dApp.session.topic)
+                            self.logDAppDisconnected(dApp)
                         } catch {
                             WCLogger.error(LoggerStrings.failedDisconnectSessions(userWalletId), error: error)
                         }
@@ -227,6 +228,16 @@ extension WCServiceV2 {
         ]
 
         Analytics.log(event: .walletConnectSignatureRequestReceivedFailure, params: params)
+    }
+
+    func logDAppDisconnected(_ dApp: WalletConnectConnectedDApp) {
+        Analytics.log(
+            event: .walletConnectDAppDisconnected,
+            params: [
+                .walletConnectDAppName: dApp.dAppData.name,
+                .walletConnectDAppUrl: dApp.dAppData.domain.absoluteString,
+            ]
+        )
     }
 }
 
