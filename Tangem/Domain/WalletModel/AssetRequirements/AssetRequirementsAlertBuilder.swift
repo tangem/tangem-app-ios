@@ -19,8 +19,8 @@ struct AssetRequirementsAlertBuilder {
         hasFeeCurrency: Bool
     ) -> AlertBinder? {
         switch requirementsCondition {
-        case .requiresTrustline(blockchain: .stellar, _, _) where !hasFeeCurrency:
-            return AlertBinder(title: "", message: Localization.warningStellarTokenTrustlineNotEnoughXlm(feeTokenItem.currencySymbol))
+        case .requiresTrustline where !hasFeeCurrency:
+            return AlertBinder(title: "", message: Localization.warningTokenRequiredMinCoinReserve(feeTokenItem.currencySymbol, feeTokenItem.currencySymbol))
 
         case .paidTransactionWithFee(blockchain: .hedera, _, feeAmount: .none) where !hasFeeCurrency:
             return AlertBinder(
