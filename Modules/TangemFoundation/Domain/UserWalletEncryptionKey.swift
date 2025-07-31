@@ -19,7 +19,7 @@ public struct UserWalletEncryptionKey {
 
 public extension UserWalletEncryptionKey {
     init(userWalletIdSeed: Data) {
-        let keyHash = Data(SHA512.hash(data: userWalletIdSeed))
+        let keyHash = Data(SHA256.hash(data: userWalletIdSeed))
         let key = SymmetricKey(data: keyHash)
         let message = Constants.messageForTokensKey.data(using: .utf8)!
         let tokensSymmetricKey = HMAC<SHA256>.authenticationCode(for: message, using: key)

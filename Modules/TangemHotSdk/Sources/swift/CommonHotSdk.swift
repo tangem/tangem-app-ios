@@ -183,7 +183,7 @@ private extension CommonHotSdk {
             userWalletId.value,
             keyTag: userWalletId.publicInfoTag,
             secureEnclaveKeyTag: userWalletId.publicInfoSecureEnclaveTag,
-            accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode
+            accessCode: accessCode
         )
     }
 
