@@ -48,7 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .onramp: return .version("5.24.2")
         case .visa: return .unspecified
         case .nft: return .version("5.25")
-        case .walletConnectUI: return .unspecified
+        case .walletConnectUI: return .version("5.27")
         case .logs: return .version("5.25")
         case .newSendUI: return .unspecified
         case .sendViaSwap: return .unspecified
