@@ -135,9 +135,6 @@
 		0FFA35052E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35042E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift */; };
 		0FFA35072E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35062E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift */; };
 		0FFA35092E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA35082E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift */; };
-		0FFA350E2E058FD400ACB48F /* HotOnboardingAccessCodeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350A2E058FD400ACB48F /* HotOnboardingAccessCodeDelegate.swift */; };
-		0FFA350F2E058FD400ACB48F /* HotOnboardingAccessCodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350C2E058FD400ACB48F /* HotOnboardingAccessCodeViewModel.swift */; };
-		0FFA35102E058FD400ACB48F /* HotOnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FFA350B2E058FD400ACB48F /* HotOnboardingAccessCodeView.swift */; };
 		2D1400CA2C43F79F00B75A42 /* MarketsPortfolioContextActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */; };
 		2D1400CE2C44090400B75A42 /* MarketsPortfolioContainerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400CD2C44090400B75A42 /* MarketsPortfolioContainerRoutable.swift */; };
 		2D1400D22C4425B300B75A42 /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1400D12C4425B300B75A42 /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift */; };
@@ -883,6 +880,9 @@
 		B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */; };
 		B62238CF2CDDAED5003C07EC /* MarketsTokenDetailsSecurityScoreRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62238CE2CDDAED5003C07EC /* MarketsTokenDetailsSecurityScoreRatingView.swift */; };
 		B62A28F62DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A28F52DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift */; };
+		B62A39052E3B781800FE114C /* HotOnboardingAccessCodeCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A39032E3B781800FE114C /* HotOnboardingAccessCodeCreateView.swift */; };
+		B62A39062E3B781800FE114C /* HotOnboardingAccessCodeCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A39042E3B781800FE114C /* HotOnboardingAccessCodeCreateViewModel.swift */; };
+		B62A39072E3B781800FE114C /* HotOnboardingAccessCodeCreateDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A39022E3B781800FE114C /* HotOnboardingAccessCodeCreateDelegate.swift */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
 		B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167C2CBE0A3D00522683 /* Alamofire */; };
@@ -2844,9 +2844,6 @@
 		0FFA35042E05428200ACB48F /* HotOnboardingSeedPhraseRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryView.swift; sourceTree = "<group>"; };
 		0FFA35062E05428C00ACB48F /* HotOnboardingSeedPhraseRecoveryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryViewModel.swift; sourceTree = "<group>"; };
 		0FFA35082E05429500ACB48F /* HotOnboardingSeedPhraseRecoveryDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseRecoveryDelegate.swift; sourceTree = "<group>"; };
-		0FFA350A2E058FD400ACB48F /* HotOnboardingAccessCodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeDelegate.swift; sourceTree = "<group>"; };
-		0FFA350B2E058FD400ACB48F /* HotOnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeView.swift; sourceTree = "<group>"; };
-		0FFA350C2E058FD400ACB48F /* HotOnboardingAccessCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeViewModel.swift; sourceTree = "<group>"; };
 		2D1400C82C43F4FD00B75A42 /* MarketsPortfolioContextActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioContextActions.swift; sourceTree = "<group>"; };
 		2D1400CD2C44090400B75A42 /* MarketsPortfolioContainerRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioContainerRoutable.swift; sourceTree = "<group>"; };
 		2D1400D12C4425B300B75A42 /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsPortfolioCoordinatorFactory.swift; sourceTree = "<group>"; };
@@ -3602,6 +3599,9 @@
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
 		B62238CE2CDDAED5003C07EC /* MarketsTokenDetailsSecurityScoreRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreRatingView.swift; sourceTree = "<group>"; };
 		B62A28F52DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
+		B62A39022E3B781800FE114C /* HotOnboardingAccessCodeCreateDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeCreateDelegate.swift; sourceTree = "<group>"; };
+		B62A39032E3B781800FE114C /* HotOnboardingAccessCodeCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeCreateView.swift; sourceTree = "<group>"; };
+		B62A39042E3B781800FE114C /* HotOnboardingAccessCodeCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeCreateViewModel.swift; sourceTree = "<group>"; };
 		B62C65C72C38D06A00189AD4 /* CommonPushNotificationsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsService.swift; sourceTree = "<group>"; };
 		B62D34222CBC4DCD00C2460E /* TangemSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TangemSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B62D43782CBC7EC700C2460E /* BlockchainSdkExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlockchainSdkExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -5787,10 +5787,10 @@
 		0FFA350D2E058FD400ACB48F /* AccessCodeCreate */ = {
 			isa = PBXGroup;
 			children = (
-				0FFA350B2E058FD400ACB48F /* HotOnboardingAccessCodeView.swift */,
-				0FFA350C2E058FD400ACB48F /* HotOnboardingAccessCodeViewModel.swift */,
+				B62A39022E3B781800FE114C /* HotOnboardingAccessCodeCreateDelegate.swift */,
 				0F2786322E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift */,
-				0FFA350A2E058FD400ACB48F /* HotOnboardingAccessCodeDelegate.swift */,
+				B62A39032E3B781800FE114C /* HotOnboardingAccessCodeCreateView.swift */,
+				B62A39042E3B781800FE114C /* HotOnboardingAccessCodeCreateViewModel.swift */,
 			);
 			path = AccessCodeCreate;
 			sourceTree = "<group>";
@@ -15679,9 +15679,6 @@
 				DCB14AE62DC615C60075F340 /* WalletConnectCoordinator.swift in Sources */,
 				C2F1B33E2DE9F76600EDA3E1 /* WalletConnectHapticFeedbackGenerator.swift in Sources */,
 				EFE0D5D82E095D5B00936D4F /* CommonSendFeeProvider.swift in Sources */,
-				0FFA350E2E058FD400ACB48F /* HotOnboardingAccessCodeDelegate.swift in Sources */,
-				0FFA350F2E058FD400ACB48F /* HotOnboardingAccessCodeViewModel.swift in Sources */,
-				0FFA35102E058FD400ACB48F /* HotOnboardingAccessCodeView.swift in Sources */,
 				DCB14AE72DC615C60075F340 /* WalletConnectQRScanViewState.swift in Sources */,
 				DCB14AE82DC615C60075F340 /* WalletConnectViewState.swift in Sources */,
 				DCB14AE92DC615C60075F340 /* WalletConnectViewEvent.swift in Sources */,
@@ -16615,7 +16612,6 @@
 				EF70A40A2C1753BC00805D9F /* SendDestinationInteractor.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B63B72892AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift in Sources */,
-				0F84C1142E13FD6900DC7FB1 /* HotNotificationsManager.swift in Sources */,
 				B617305C2E39272E006A45F1 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */,
 				EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */,
 				B65C518C2B7FB1FA006E3C34 /* TangemBaseAPIError.swift in Sources */,
@@ -17298,6 +17294,9 @@
 				EF0E1D9F2CE37DA4003D47AA /* OnrampProvidersPaymentViewData.swift in Sources */,
 				EF0E1DA02CE37DA4003D47AA /* OnrampProvidersCompactView.swift in Sources */,
 				EF0E1DA12CE37DA4003D47AA /* OnrampProvidersView.swift in Sources */,
+				B62A39052E3B781800FE114C /* HotOnboardingAccessCodeCreateView.swift in Sources */,
+				B62A39062E3B781800FE114C /* HotOnboardingAccessCodeCreateViewModel.swift in Sources */,
+				B62A39072E3B781800FE114C /* HotOnboardingAccessCodeCreateDelegate.swift in Sources */,
 				EFADE7932E0ED86C00CA7916 /* SendSourceTokenInput.swift in Sources */,
 				2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */,
 				EF6883142CF8B8EC00658644 /* OnrampStatusCompactViewModel.swift in Sources */,
