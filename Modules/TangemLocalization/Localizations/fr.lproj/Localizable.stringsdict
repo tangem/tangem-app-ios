@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>%@ token</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>%@ tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
