@@ -38,6 +38,7 @@ struct XrpResult: Codable {
     let state: XrpState?
     let error_code: Int?
     let tx_json: XrpTxJson?
+    let lines: [XRPTrustLine]?
 }
 
 struct XrpAccountData: Codable {
@@ -72,4 +73,14 @@ struct XrpTxJson: Codable {
 
 struct XRPAccountFlags: Codable {
     let requireDestinationTag: Bool
+}
+
+struct XRPTrustLine: Codable, Hashable {
+    let account: String
+    let balance: String
+    let currency: String
+
+    func matches(currency: String, issuer: String) -> Bool {
+        self.currency == currency && account == issuer
+    }
 }
