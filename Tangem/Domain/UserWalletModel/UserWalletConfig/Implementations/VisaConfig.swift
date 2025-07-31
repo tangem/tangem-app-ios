@@ -11,6 +11,7 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemVisa
+import TangemFoundation
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
@@ -22,7 +23,7 @@ struct VisaConfig: CardContainer {
     }
 
     private var defaultBlockchain: Blockchain {
-        VisaUtilities().visaBlockchain
+        VisaUtilities.visaBlockchain
     }
 }
 
