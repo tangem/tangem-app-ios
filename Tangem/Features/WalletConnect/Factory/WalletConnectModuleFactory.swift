@@ -160,7 +160,7 @@ enum WalletConnectModuleFactory {
             connectedDApp: dApp,
             disconnectDAppUseCase: disconnectDAppUseCase,
             userWalletRepository: userWalletRepository,
-            analyticsLogger: CommonWalletConnectConnectedDAppDetailsAnalyticsLogger(),
+            analyticsLogger: CommonWalletConnectConnectedDAppDetailsAnalyticsLogger(dAppData: dApp.dAppData),
             logger: WCLogger,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
