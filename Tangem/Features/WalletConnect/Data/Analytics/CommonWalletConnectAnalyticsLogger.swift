@@ -14,4 +14,14 @@ final class CommonWalletConnectAnalyticsLogger: WalletConnectAnalyticsLogger {
     func logDisconnectAllButtonTapped() {
         Analytics.log(.walletConnectDisconnectAllButtonTapped)
     }
+
+    func logDAppDisconnected(dAppData: WalletConnectDAppData) {
+        Analytics.log(
+            event: .walletConnectDAppDisconnected,
+            params: [
+                .walletConnectDAppName: dAppData.name,
+                .walletConnectDAppUrl: dAppData.domain.absoluteString,
+            ]
+        )
+    }
 }
