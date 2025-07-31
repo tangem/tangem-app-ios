@@ -814,6 +814,7 @@
 "send_alert_transaction_failed_text" = "Причина: %1$@\nКод: %2$@";
 "send_alert_transaction_failed_title" = "Транзакція не завершена";
 "send_amount_convert_to_another_token" = "Convert to another token";
+"send_amount_label" = "Сума";
 "send_amount_receive_token_subtitle" = "Will be sent to recipient";
 "send_bitcoin_custom_fee_footer" = "Ви можете встановити розмір комісії за транзакцію, налаштувавши значення в полі Satoshi per vByte.";
 "send_custom_amount_fee_footer" = "Комісія, яка буде стягнута за вашу транзакцію. Ви можете встановити власне значення.";
