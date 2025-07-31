@@ -490,23 +490,7 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .same:
-                    return model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
-                case .swap:
-                    return model.swapManager.statePublisher.map { state in
-                        switch state {
-                        // We don't disable main button when rates in refreshing
-                        case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
-                            return true
-                        case .idle, .loading, .restriction:
-                            return false
-                        }
-                    }
-                    .eraseToAnyPublisher()
-                }
-            }
+            .flatMapLatest { $0.isReadyToSend(token: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -517,12 +501,66 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        _transaction.map { transaction -> SendSummaryTransactionData? in
-            transaction?.value.map {
-                .send(amount: $0.amount.value, fee: $0.fee)
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.summaryTransactionData(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func isReadyToSend(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+        switch token {
+        case .same:
+            return _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        case .swap:
+            return swapManager.statePublisher.map { state in
+                switch state {
+                // We don't disable main button when rates in refreshing
+                case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
+                    return true
+                case .idle, .loading, .restriction:
+                    return false
+                }
             }
+            .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+    }
+
+    private func summaryTransactionData(token: SendReceiveTokenType) -> AnyPublisher<SendSummaryTransactionData?, Never> {
+        switch token {
+        case .same:
+            return _transaction
+                .withWeakCaptureOf(self)
+                .map { model, transaction -> SendSummaryTransactionData? in
+                    guard let transaction = transaction?.value else {
+                        return nil
+                    }
+
+                    return .send(amount: transaction.amount.value, fee: transaction.fee)
+                }
+                .eraseToAnyPublisher()
+        case .swap:
+            return Publishers.CombineLatest(
+                swapManager.statePublisher,
+                swapManager.selectedProviderPublisher
+            )
+            .withWeakCaptureOf(self)
+            .flatMap { model, args -> AnyPublisher<SendSummaryTransactionData?, Never> in
+                let (state, selectedProvider) = args
+                switch state {
+                case .loading(.refreshRates), .loading(.fee):
+                    return Empty().eraseToAnyPublisher()
+                case .idle, .loading(.full):
+                    return .just(output: .none)
+                case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
+                    guard let provider = selectedProvider?.provider else {
+                        return .just(output: .none)
+                    }
+
+                    return .just(output: .swap(provider: provider))
+                }
+            }
+            .eraseToAnyPublisher()
+        }
     }
 }
 
