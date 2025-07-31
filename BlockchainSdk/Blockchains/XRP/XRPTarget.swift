@@ -42,6 +42,16 @@ struct XRPTarget: TargetType {
                     ],
                 ],
             ]
+        case .accountLines(let account):
+            parameters = [
+                "method": "account_lines",
+                "params": [
+                    [
+                        "account": account,
+                        "ledger_index": "validated",
+                    ],
+                ],
+            ]
         case .unconfirmed(let account):
             parameters = [
                 "method": "account_info",
@@ -89,6 +99,7 @@ extension XRPTarget {
     enum XRPTargetType {
         case accountInfo(account: String)
         case unconfirmed(account: String)
+        case accountLines(account: String)
         case submit(tx: String)
         case fee
         case reserve
@@ -100,6 +111,8 @@ extension XRPTarget: TargetTypeLogConvertible {
         switch target {
         case .accountInfo:
             "accountInfo"
+        case .accountLines:
+            "accountLines"
         case .unconfirmed:
             "unconfirmed"
         case .submit:
