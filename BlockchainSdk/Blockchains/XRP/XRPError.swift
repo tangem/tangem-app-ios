@@ -20,4 +20,6 @@ enum XRPError: LocalizedError {
     case invalidBufferSize
     case open(Int32)
     case read(Int32)
+    case failedLoadTrustLines
+    case failedParseAssetId
 }
