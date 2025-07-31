@@ -276,6 +276,8 @@ extension HorizonRequestError {
 
 extension ChangeTrustOperation {
     enum ChangeTrustLimit {
+        /// Maximum trustline limit: 922_337_203_685.4775807 (Int64 max / 1e7).
+        /// https://developers.stellar.org/docs/fundamentals-and-concepts/primitives/#amounts
         case max
         /// Sets a custom trustline limit using a decimal string.
         case custom(amount: String)
@@ -285,7 +287,7 @@ extension ChangeTrustOperation {
         var value: Decimal? {
             switch self {
             case .max:
-                return Decimal(stringValue: "900000000000")
+                return Decimal(stringValue: "922337203685.4775807")
             case .custom(let amount):
                 return Decimal(stringValue: amount)
             case .remove:
