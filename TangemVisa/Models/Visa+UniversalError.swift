@@ -126,6 +126,7 @@ extension VisaUtilitiesError: VisaError {
         switch self {
         case .failedToCreateDerivation: return 104009001
         case .failedToCreateAddress(let error): return error.toUniversalError().errorCode
+        case .failedToCreateEIP191Message: return 104009002
         }
     }
 }
