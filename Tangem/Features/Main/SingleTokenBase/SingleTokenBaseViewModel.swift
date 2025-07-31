@@ -511,8 +511,10 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
-        if let receiveUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.receiveAvailablity) {
-            alert = receiveUnavailableAlert
+        if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailablity, blockchain: blockchain
+        ) {
+            alert = availabilityAlert
             return
         }
 
