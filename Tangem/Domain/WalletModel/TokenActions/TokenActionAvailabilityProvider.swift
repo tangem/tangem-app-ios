@@ -382,7 +382,7 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
-        case assetRequirement(blockchain: Blockchain)
+        case assetRequirement
     }
 
     var isReceiveAvailable: Bool {
@@ -394,27 +394,8 @@ extension TokenActionAvailabilityProvider {
     }
 
     var receiveAvailablity: ReceiveActionAvailabilityStatus {
-        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
-
-        switch requirementsCondition {
-        case .paidTransactionWithFee(let blockchain, _, _):
-            switch blockchain {
-            case .hedera:
-                return .assetRequirement(blockchain: blockchain)
-            default:
-                break
-            }
-
-        case .requiresTrustline(let blockchain, _, _):
-            switch blockchain {
-            case .stellar:
-                return .assetRequirement(blockchain: blockchain)
-            default:
-                break
-            }
-
-        case .none:
-            break
+        if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
+            return .assetRequirement
         }
 
         return .available
