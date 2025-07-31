@@ -112,12 +112,14 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         }
 
         dAppDetailsViewState.disconnectButton.isLoading = true
+        analyticsLogger.logDisconnectButtonTapped()
         state = .dAppDetails(dAppDetailsViewState)
 
         disconnectDAppTask?.cancel()
-        disconnectDAppTask = Task { [disconnectDAppUseCase, logger, closeAction, onDisconnect, connectedDApp] in
+        disconnectDAppTask = Task { [disconnectDAppUseCase, analyticsLogger, logger, closeAction, onDisconnect, connectedDApp] in
             do {
                 try await disconnectDAppUseCase(connectedDApp)
+                analyticsLogger.logDAppDisconnected()
             } catch {
                 logger.error("Failed to disconnect \(connectedDApp.dAppData.name) dApp", error: error)
             }
@@ -125,8 +127,6 @@ extension WalletConnectConnectedDAppDetailsViewModel {
             closeAction()
             onDisconnect()
         }
-
-        analyticsLogger.logDisconnectButtonTapped(for: connectedDApp.dAppData)
     }
 }
 
