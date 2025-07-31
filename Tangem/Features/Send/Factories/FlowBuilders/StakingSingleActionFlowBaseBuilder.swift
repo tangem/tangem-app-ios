@@ -40,7 +40,6 @@ struct StakingSingleActionFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: actionModel, output: actionModel),
             actionType: actionType,
-            descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .noEditable,
             amountEditableType: .noEditable,
