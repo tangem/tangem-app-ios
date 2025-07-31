@@ -814,6 +814,7 @@
 "send_alert_transaction_failed_text" = "理由: %1$@ \nコード: %2$@";
 "send_alert_transaction_failed_title" = "取引は完了していません";
 "send_amount_convert_to_another_token" = "別のトークンに変換する";
+"send_amount_label" = "金額";
 "send_amount_receive_token_subtitle" = "受取人に送信されます";
 "send_bitcoin_custom_fee_footer" = "取引手数料は、vByteフィールドのSatoshiの値を調整して設定できます。";
 "send_custom_amount_fee_footer" = "取引にかかる手数料です。自由に設定できます。";
