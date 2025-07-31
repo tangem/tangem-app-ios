@@ -347,19 +347,23 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        if case .nonFungible = walletModel.tokenItem.token?.metadata.kind {
+            return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: walletModel.feeTokenItem)
+        }
+
         switch walletModel.tokenItem.blockchain {
         case .koinos:
-            KoinosSendTransactionSummaryDescriptionBuilder(
+            return KoinosSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
         case .tron where walletModel.tokenItem.isToken:
-            TronSendTransactionSummaryDescriptionBuilder(
+            return TronSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
         default:
-            CommonSendTransactionSummaryDescriptionBuilder(
+            return CommonSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
@@ -517,6 +521,10 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
+        CommonSwapTransactionSummaryDescriptionBuilder()
+    }
+
     // MARK: - NFT support
 
     func makeNFTSendAmountValidator() -> SendAmountValidator {
@@ -529,10 +537,6 @@ struct SendDependenciesBuilder {
         let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
 
         return NFTSendAmountModifier(amount: nftSendUtil.amountToSend)
-    }
-
-    func makeNFTSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
-        return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: walletModel.feeTokenItem)
     }
 
     // MARK: - Staking
@@ -652,8 +656,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeStakingTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
-        StakingTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem)
+    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
+        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem)
     }
 
     func makeAllowanceService() -> AllowanceService {
