@@ -30,11 +30,11 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeySecureStorage: EncryptedSecureStorage(
+            encryptedSecureStorage: EncryptedSecureStorage(
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeyBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
+            encryptedBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
         )
     }
 
