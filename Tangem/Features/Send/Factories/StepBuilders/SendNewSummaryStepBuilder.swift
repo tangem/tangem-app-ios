@@ -17,39 +17,33 @@ struct SendNewSummaryStepBuilder {
 
     func makeSendSummaryStep(
         io: IO,
-        actionType: SendFlowActionType,
-        descriptionBuilder: any SendTransactionSummaryDescriptionBuilder,
-        notificationManager: NotificationManager,
+        receiveTokenInput: SendReceiveTokenInput,
         sendFeeProvider: SendFeeProvider,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
+        notificationManager: NotificationManager,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
-        let interactor = makeSendSummaryInteractor(
-            io: io,
-            descriptionBuilder: descriptionBuilder
-        )
+        let interactor = makeSendNewSummaryInteractor(io: io, receiveTokenInput: receiveTokenInput)
 
-        let viewModel = makeSendSummaryViewModel(
+        let viewModel = SendNewSummaryViewModel(
             interactor: interactor,
-            actionType: actionType,
-            notificationManager: notificationManager,
             destinationEditableType: destinationEditableType,
             amountEditableType: amountEditableType,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
+            notificationManager: notificationManager,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
         let step = SendNewSummaryStep(
             viewModel: viewModel,
-            input: io.input,
-            sendFeeProvider: sendFeeProvider,
-            title: builder.summaryTitle(action: actionType)
+            interactor: interactor,
+            sendFeeProvider: sendFeeProvider
         )
 
         return step
@@ -59,43 +53,13 @@ struct SendNewSummaryStepBuilder {
 // MARK: - Private
 
 private extension SendNewSummaryStepBuilder {
-    func makeSendSummaryViewModel(
-        interactor: SendSummaryInteractor,
-        actionType: SendFlowActionType,
-        notificationManager: NotificationManager,
-        destinationEditableType: SendSummaryViewModel.EditableType,
-        amountEditableType: SendSummaryViewModel.EditableType,
-        sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
-        sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
-    ) -> SendNewSummaryViewModel {
-        let settings = SendNewSummaryViewModel.Settings(
-            tokenItem: tokenItem,
-            destinationEditableType: destinationEditableType,
-            amountEditableType: amountEditableType,
-            actionType: actionType
-        )
-
-        return SendNewSummaryViewModel(
-            settings: settings,
-            interactor: interactor,
-            notificationManager: notificationManager,
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
-        )
-    }
-
-    func makeSendSummaryInteractor(
-        io: IO,
-        descriptionBuilder: any SendTransactionSummaryDescriptionBuilder
-    ) -> SendSummaryInteractor {
-        CommonSendSummaryInteractor(
+    func makeSendNewSummaryInteractor(io: IO, receiveTokenInput: SendReceiveTokenInput) -> SendNewSummaryInteractor {
+        CommonSendNewSummaryInteractor(
             input: io.input,
             output: io.output,
-            descriptionBuilder: descriptionBuilder
+            receiveTokenInput: receiveTokenInput,
+            sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: builder.makeSwapTransactionSummaryDescriptionBuilder()
         )
     }
 }
