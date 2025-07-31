@@ -88,12 +88,13 @@ final class WalletConnectViewModel: ObservableObject {
 
         let allConnectedDApps = walletsWithDApps.flatMap(\.dApps)
 
-        disconnectAllDAppsTask = Task { [weak self, disconnectDApp = interactor.disconnectDApp, logger] in
+        disconnectAllDAppsTask = Task { [weak self, disconnectDApp = interactor.disconnectDApp, analyticsLogger, logger] in
             await withTaskGroup(of: Void.self) { group in
                 for dApp in allConnectedDApps {
                     group.addTask {
                         do {
                             try await disconnectDApp(dApp.domainModel)
+                            analyticsLogger.logDAppDisconnected(dAppData: dApp.domainModel.dAppData)
                         } catch {
                             logger.error("Failed to disconnect \(dApp.domainModel.dAppData.name) dApp", error: error)
                         }
