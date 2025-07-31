@@ -79,7 +79,7 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
     }
 
     func logCancelButtonTapped() {
-        Analytics.log(.walletConnectCancelButtonTapped, params: [.type: .walletConnectCancelButtonTypeDApp])
+        Analytics.log(.walletConnectCancelButtonTapped, params: [.commonType: .walletConnectCancelButtonTypeDApp])
     }
 
     func logDAppConnected(with dAppData: WalletConnectDAppData) {
