@@ -116,7 +116,7 @@ extension UserWalletId {
     var privateInfoTag: String {
         PrivateInfoStorageManager.Constants.privateInfoPrefix + stringValue
     }
-    
+
     var privateInfoSecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.privateInfoSecureEnclavePrefix + stringValue
     }
@@ -124,7 +124,7 @@ extension UserWalletId {
     var encryptionKeyTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeyPrefix + stringValue
     }
-    
+
     var encryptionKeySecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeySecureEnclavePrefix + stringValue
     }
@@ -132,7 +132,7 @@ extension UserWalletId {
     var encryptionKeyBiometricsTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeyBiometricsPrefix + stringValue
     }
-    
+
     var encryptionKeyBiometricsSecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.encryptionKeyBiometricsSecureEnclavePrefix + stringValue
     }
