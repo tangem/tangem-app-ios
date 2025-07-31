@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemFoundation
 
 class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
