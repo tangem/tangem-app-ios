@@ -814,6 +814,7 @@
 "send_alert_transaction_failed_text" = "Raison : %1$@\nCode : %2$@";
 "send_alert_transaction_failed_title" = "La transaction est incomplète";
 "send_amount_convert_to_another_token" = "Convertir en un autre jeton";
+"send_amount_label" = "Montant";
 "send_amount_receive_token_subtitle" = "Sera envoyé au destinataire";
 "send_bitcoin_custom_fee_footer" = "Vous pouvez définir vos frais de transaction en ajustant la valeur dans le champ Satoshi par vByte.";
 "send_custom_amount_fee_footer" = "Les frais qui seront facturés pour votre transaction. Vous pouvez définir votre propre valeur.";

@@ -814,6 +814,7 @@
 "send_alert_transaction_failed_text" = "Grund: %1$@\nCode: %2$@";
 "send_alert_transaction_failed_title" = "Die Transaktion ist nicht abgeschlossen";
 "send_amount_convert_to_another_token" = "In ein anderes Token umwandeln";
+"send_amount_label" = "Betrag";
 "send_amount_receive_token_subtitle" = "Wird an den Empfänger gesendet";
 "send_bitcoin_custom_fee_footer" = "Du kannst deine Transaktionsgebühr festlegen, indem du den Wert im Feld Satoshi pro vByte anpasst.";
 "send_custom_amount_fee_footer" = "Die Gebühr, die für deine Transaktion erhoben wird. Du kannst einen eigenen Wert festlegen.";
