@@ -7,11 +7,19 @@
 //
 
 import Foundation
+import Combine
 
 protocol PushNotificationsInteractor: Initializable {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool
     func allowRequest(in flow: PushNotificationsPermissionRequestFlow) async
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow)
+
+    var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> { get }
+}
+
+enum PushNotificationsPermissionRequest {
+    case allow(_ flow: PushNotificationsPermissionRequestFlow)
+    case postpone(_ flow: PushNotificationsPermissionRequestFlow)
 }
 
 // MARK: - Dependency injection
