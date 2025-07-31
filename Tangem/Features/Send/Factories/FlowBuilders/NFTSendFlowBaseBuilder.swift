@@ -56,7 +56,6 @@ struct NFTSendFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            descriptionBuilder: builder.makeNFTSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .editable,
             amountEditableType: .noEditable, // Amount is fixed for NFTs
