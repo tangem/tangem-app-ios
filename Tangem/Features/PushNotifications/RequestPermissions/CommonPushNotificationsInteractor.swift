@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import Combine
 
 final class CommonPushNotificationsInteractor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -19,13 +20,16 @@ final class CommonPushNotificationsInteractor {
     private var hasSavedWalletsFromPreviousVersion: Bool? = nil
 
     @AppStorageCompat(StorageKeys.canRequestAuthorization)
-    private var canRequestAuthorization = true
+    private var canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
 
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWalletOnboarding)
     private var didPostponeAuthorizationRequestOnWalletOnboarding = false
 
     @AppStorageCompat(StorageKeys.didPostponeAuthorizationRequestOnWelcomeOnboarding)
     private var didPostponeAuthorizationRequestOnWelcomeOnboarding = false
+
+    @AppStorageCompat(StorageKeys.resetPushNotificationsAuthorizationRequestCounter)
+    private var resetPushNotificationsAuthorizationRequestCounter: Int = ResetVersion.default.rawValue
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
 
@@ -69,6 +73,8 @@ final class CommonPushNotificationsInteractor {
             return .main
         }
     }
+
+    private let _permissionRequestEventSubject: PassthroughSubject<PushNotificationsPermissionRequest, Never> = .init()
 }
 
 // MARK: - PushNotificationsInteractor protocol conformance
@@ -102,6 +108,7 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         await logAuthorizationStatus()
         runOnMain {
             canRequestAuthorization = false
+            _permissionRequestEventSubject.send(.allow(flow))
         }
     }
 
@@ -115,9 +122,14 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .afterLogin:
             // Stop all future authorization requests
             canRequestAuthorization = false
+            _permissionRequestEventSubject.send(.postpone(flow))
         }
 
         logPostponedRequest(in: flow)
+    }
+
+    var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> {
+        _permissionRequestEventSubject.eraseToAnyPublisher()
     }
 }
 
@@ -125,8 +137,19 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
 
 extension CommonPushNotificationsInteractor: Initializable {
     func initialize() {
+        resetPushNotificationsAuthorizationRequestCounterIfNeeded()
         updateSavedWalletsStatusIfNeeded()
         registerIfPossible()
+    }
+
+    private func resetPushNotificationsAuthorizationRequestCounterIfNeeded() {
+        let currentVersion = ResetVersion.current.rawValue
+
+        if resetPushNotificationsAuthorizationRequestCounter < currentVersion {
+            hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+            canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
+            resetPushNotificationsAuthorizationRequestCounter = currentVersion
+        }
     }
 }
 
@@ -138,5 +161,21 @@ private extension CommonPushNotificationsInteractor {
         case canRequestAuthorization = "can_request_authorization"
         case didPostponeAuthorizationRequestOnWelcomeOnboarding = "did_postpone_authorization_request_on_welcome_onboarding"
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
+        case resetPushNotificationsAuthorizationRequestCounter = "reset_push_notifications_authorization_request_counter"
+    }
+
+    enum ResetVersion: Int {
+        case `default` = 0
+
+        /// We've blocked transactional push notifications, so we need to reset allow notifications.
+        case transactionPushNotifications = 1
+
+        static var current: ResetVersion {
+            .transactionPushNotifications
+        }
+    }
+
+    enum Constants {
+        static let canRequestAuthorizationDefaultValue = true
     }
 }
