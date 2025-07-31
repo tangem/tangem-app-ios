@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 let HASH_TX_SIGN: [UInt8] = [0x53, 0x54, 0x58, 0x00]
 let HASH_TX_SIGN_TESTNET: [UInt8] = [0x73, 0x74, 0x78, 0x00]
@@ -15,6 +16,10 @@ class XRPTransaction {
 
     init(fields: [String: Any], autofill: Bool = false) {
         self.fields = enforceJSONTypes(fields: fields)
+    }
+
+    init(params: XRPTransactionEncodable) {
+        fields = params.toAnyDictionary()
     }
 
     func dataToSign(publicKey: String) -> Data {
@@ -56,5 +61,107 @@ class XRPTransaction {
         let jsonData = try! JSONSerialization.data(withJSONObject: fields, options: .prettyPrinted)
         let fields = try! JSONSerialization.jsonObject(with: jsonData, options: .mutableLeaves)
         return fields as! [String: Any]
+    }
+}
+
+protocol XRPTransactionEncodable {
+    func toAnyDictionary() -> [String: Any]
+}
+
+extension XRPTransaction {
+    enum TransactionType {
+        static let trustSet = "TrustSet"
+        static let payment = "Payment"
+    }
+
+    /// Flags used in XRPL TrustSet transactions.
+    ///
+    /// These flags control specific behaviors on the trust line, such as enabling or disabling rippling,
+    /// setting authorization requirements, or freezing trust lines.
+    /// Combine multiple flags using the bitwise OR (`|`) operator.
+    enum Flag: Int {
+        /// Disables the No Ripple flag on the trust line,
+        /// allowing rippling (value transfer through this trust line).
+        case tfClearNoRipple = 262144
+    }
+
+    /// Parameters for building a TrustSet transaction on the XRP Ledger
+    struct TrustSetParams: XRPTransactionEncodable {
+        /// Type of the transaction — always "TrustSet" for this struct
+        let transactionType: String = TransactionType.trustSet
+        /// XRP Ledger account address initiating the transaction
+        let account: String
+        /// Transaction fee in drops (1 drop = 0.000001 XRP).
+        /// Typically, a standard fee of 10 drops is used for TrustSet transactions.
+        let fee: Decimal
+        /// Current account sequence number — must match the sender's sequence
+        let sequence: Int
+        /// Specifies the asset and limit to which this trust line applies
+        let limitAmount: LimitAmount
+        /// Integer bitmask for TrustSet flags (e.g. tfClearNoRipple)
+        let flags: Set<Flag>
+
+        /// Represents the "LimitAmount" object in a TrustSet transaction
+        /// This defines the asset to trust and the maximum amount trusted
+        struct LimitAmount {
+            /// The currency this trust line applies to.
+            /// Must be a 3-letter ISO 4217 currency code or a 160-bit hex value (for tokens).
+            /// "XRP" is invalid — trust lines cannot be created for XRP.
+            let currency: String
+            /// The issuer address of the token/currency being trusted
+            let issuer: String
+            /// Maximum amount of the token this account is willing to hold from the issuer.
+            /// Typically set to a very high number like "9999999999999999e80".
+            /// This is scientific notation (value × 10^exponent) used in XRP Ledger for large amounts.
+            let value: String
+
+            var asDictionary: [String: Any] {
+                [
+                    "currency": currency,
+                    "issuer": issuer,
+                    "value": value,
+                ]
+            }
+        }
+
+        // MARK: - XRPTransactionEncodable
+
+        func toAnyDictionary() -> [String: Any] {
+            [
+                "TransactionType": transactionType,
+                "Account": account,
+                "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
+                "Sequence": sequence,
+                "LimitAmount": limitAmount.asDictionary,
+                "Flags": flags.reduce(0) { $0 | $1.rawValue },
+            ]
+        }
+    }
+}
+
+extension XRPTransaction {
+    struct PaymentParams: XRPTransactionEncodable {
+        let account: String
+        let destination: String
+        let amount: Any
+        let fee: Decimal
+        let sequence: Int
+        let destinationTag: UInt32?
+
+        // MARK: - XRPTransactionEncodable
+
+        func toAnyDictionary() -> [String: Any] {
+            var dict: [String: Any?] = [
+                "Account": account,
+                "TransactionType": TransactionType.payment,
+                "Destination": destination,
+                "Amount": amount,
+                "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
+                "Sequence": sequence,
+                "DestinationTag": destinationTag,
+            ]
+
+            return dict.compactMapValues { $0 }
+        }
     }
 }

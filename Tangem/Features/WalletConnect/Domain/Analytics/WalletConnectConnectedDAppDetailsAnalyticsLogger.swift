@@ -7,5 +7,6 @@
 //
 
 protocol WalletConnectConnectedDAppDetailsAnalyticsLogger {
-    func logDisconnectButtonTapped(for dAppData: WalletConnectDAppData)
+    func logDisconnectButtonTapped()
+    func logDAppDisconnected()
 }
