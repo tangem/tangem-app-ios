@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-public struct MobileWalletContext {
+public struct MobileWalletContext: Hashable {
     let walletID: UserWalletId
     let authentication: AuthenticationUnlockData
 }
