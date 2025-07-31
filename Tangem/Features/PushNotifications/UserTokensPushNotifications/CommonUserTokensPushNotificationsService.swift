@@ -220,6 +220,11 @@ private extension CommonUserTokensPushNotificationsService {
     }
 
     func updateEntryByUserWalletModelIfNeeded() {
+        guard AppSettings.shared.saveUserWallets else {
+            createAndConnectWallet(entries: [])
+            return
+        }
+
         let userWalletModels = userWalletRepository.models
 
         let toUpdateEntries = userWalletModels.map {
@@ -236,25 +241,7 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        let toUpdateItems = toUpdateEntries.map {
-            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
-        }
-
-        updateStateTask?.cancel()
-
-        updateStateTask = runTask(in: self) { service in
-            do {
-                try await service.tangemApiService.createAndConnectUserWallet(
-                    applicationUid: service.applicationUid,
-                    items: toUpdateItems
-                )
-
-                await service.update(entries: toUpdateEntries)
-            } catch {
-                // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
-                AppLogger.error(error: error)
-            }
-        }
+        createAndConnectWallet(entries: toUpdateEntries)
     }
 
     func findUserWalletsToUpdate() -> [PendingToUpdateUserWalletItem] {
@@ -305,6 +292,28 @@ private extension CommonUserTokensPushNotificationsService {
         }
 
         userWalletModel.update(type: .newName(name))
+    }
+
+    func createAndConnectWallet(entries: [ApplicationWalletEntry]) {
+        let toUpdateItems = entries.map {
+            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
+        }
+
+        updateStateTask?.cancel()
+
+        updateStateTask = runTask(in: self) { service in
+            do {
+                try await service.tangemApiService.createAndConnectUserWallet(
+                    applicationUid: service.applicationUid,
+                    items: toUpdateItems
+                )
+
+                await service.update(entries: entries)
+            } catch {
+                // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
+                AppLogger.error(error: error)
+            }
+        }
     }
 
     @MainActor
