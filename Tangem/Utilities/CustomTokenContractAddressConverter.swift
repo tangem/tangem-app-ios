@@ -43,6 +43,10 @@ struct CustomTokenContractAddressConverter {
             let converter = StellarAssetIdParser()
             let normalizedConractAddrss = converter.normalizeAssetId(originalAddress)
             return normalizedConractAddrss
+        case .xrp:
+            let converter = XRPAssetIdParser()
+            let normalizedConractAddress = converter.normalizeAssetId(originalAddress)
+            return normalizedConractAddress
         case .bitcoin,
              .litecoin,
              .ethereum,
@@ -52,7 +56,6 @@ struct CustomTokenContractAddressConverter {
              .rsk,
              .bitcoinCash,
              .binance,
-             .xrp,
              .ducatus,
              .tezos,
              .dogecoin,

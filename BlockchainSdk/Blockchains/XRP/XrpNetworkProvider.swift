@@ -127,17 +127,19 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     }
 
     func getInfo(account: String) -> AnyPublisher<XrpInfoResponse, Error> {
-        return Publishers.Zip3(
+        return Publishers.Zip4(
             getUnconfirmed(account: account),
             getReserve(),
-            getAccountInfo(account: account)
+            getAccountInfo(account: account),
+            getAccountTrustlines(account: account)
         )
-        .map { unconfirmed, reserve, info -> XrpInfoResponse in
+        .map { unconfirmed, reserve, info, trustlines -> XrpInfoResponse in
             return XrpInfoResponse(
                 balance: info.balance,
                 sequence: info.sequence,
                 unconfirmedBalance: unconfirmed,
-                reserve: reserve
+                reserve: reserve,
+                trustlines: trustlines
             )
         }
         .eraseToAnyPublisher()
@@ -155,6 +157,18 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             }
             .eraseToAnyPublisher()
             .eraseError()
+    }
+
+    func getAccountTrustlines(account: String) -> AnyPublisher<Result<[XRPTrustLine], Error>, Error> {
+        request(.accountLines(account: account))
+            .map { response in
+                let trustlines = response.result?.lines ?? []
+                return .success(trustlines)
+            }
+            .catch { error in
+                Just(.failure(error)).setFailureType(to: Error.self)
+            }
+            .eraseToAnyPublisher()
     }
 
     func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
