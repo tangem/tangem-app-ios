@@ -26,9 +26,7 @@ public struct VisaCardActivationInput: Equatable, Codable {
         cardId = cardInput.cardId
         cardPublicKey = cardInput.cardPublicKey
         isAccessCodeSet = true
-
-        let visaUtilities = VisaUtilities(isTestnet: isTestnet)
-        walletAddress = try visaUtilities.makeAddress(using: cardActivationResponse).value
+        walletAddress = try VisaUtilities.makeAddress(using: cardActivationResponse, isTestnet: isTestnet).value
     }
 }
 

@@ -14,9 +14,11 @@ final class HotBackupTypesViewModel {
 
     lazy var backupTypes = makeBackupTypes()
 
+    private let userWalletModel: UserWalletModel
     private weak var routable: HotBackupTypesRoutable?
 
-    init(routable: HotBackupTypesRoutable) {
+    init(userWalletModel: UserWalletModel, routable: HotBackupTypesRoutable) {
+        self.userWalletModel = userWalletModel
         self.routable = routable
     }
 }
@@ -25,23 +27,23 @@ final class HotBackupTypesViewModel {
 
 private extension HotBackupTypesViewModel {
     func makeBackupTypes() -> [BackupType] {
-        [makeSeedBackupType(), makeICloudBackupType()]
+        [makeSeedBackupType(userWalletModel: userWalletModel), makeICloudBackupType()]
     }
 
-    func makeSeedBackupType() -> BackupType {
+    func makeSeedBackupType(userWalletModel: UserWalletModel) -> BackupType {
         let badge: BadgeView.Item
         let action: () -> Void
 
         // [REDACTED_TODO_COMMENT]
         if false {
-            badge = BadgeView.Item(title: Localization.commonDone, style: .accent)
-            action = { [routable] in
-                routable?.openHotBackupSeedPhrase()
+            badge = .done
+            action = { [weak routable] in
+                routable?.openHotBackupRevealSeedPhrase(userWalletModel: userWalletModel)
             }
         } else {
-            badge = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
-            action = { [routable] in
-                routable?.openHotBackupOnboarding()
+            badge = .noBackup
+            action = { [weak routable] in
+                routable?.openHotBackupOnboardingSeedPhrase(userWalletModel: userWalletModel)
             }
         }
 
