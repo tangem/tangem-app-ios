@@ -538,16 +538,7 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        let refreshRatesPublisher = swapManager.statePublisher.map { state in
-            switch state {
-            case .loading(.refreshRates): true
-            default: false
-            }
-        }
-
-        return Publishers
-            .Merge(_isSending, refreshRatesPublisher)
-            .eraseToAnyPublisher()
+        _isSending.eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
