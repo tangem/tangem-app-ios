@@ -57,15 +57,6 @@ extension WalletConnectDAppProposalApprovalError: UniversalError {
     }
 }
 
-extension WCFeeProviderError: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .unsupportedBlockchain:
-            107003000
-        }
-    }
-}
-
 extension CommonBlockaidAPIService.BlockaidAPIServiceError: UniversalError {
     var errorCode: Int {
         switch self {
