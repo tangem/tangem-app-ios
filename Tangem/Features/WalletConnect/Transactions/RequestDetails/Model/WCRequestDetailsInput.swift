@@ -11,6 +11,7 @@ import Foundation
 struct WCRequestDetailsInput {
     let builder: WCRequestDetailsBuilder
     let rawTransaction: String?
+    let simulationResult: BlockaidChainScanResult?
     let backAction: () -> Void
 }
 
