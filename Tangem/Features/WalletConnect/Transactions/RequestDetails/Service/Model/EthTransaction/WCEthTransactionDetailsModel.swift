@@ -7,17 +7,25 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-/// Model for ETH transaction details (eth_signTransaction and eth_sendTransaction)
 struct WCEthTransactionDetailsModel {
     let data: [WCTransactionDetailsSection]
 
-    init(for method: WalletConnectMethod, source: Data) {
+    private let blockchain: Blockchain
+
+    init(for method: WalletConnectMethod, source: Data, blockchain: Blockchain) {
+        self.blockchain = blockchain
+
         guard let transaction = try? JSONDecoder().decode(WalletConnectEthTransaction.self, from: source) else {
             data = []
             return
         }
 
-        data = WCRequestDetailsEthTransactionParser.parse(transaction: transaction, method: method)
+        data = WCRequestDetailsEthTransactionParser.parse(
+            transaction: transaction,
+            method: method,
+            blockchain: blockchain
+        )
     }
 }

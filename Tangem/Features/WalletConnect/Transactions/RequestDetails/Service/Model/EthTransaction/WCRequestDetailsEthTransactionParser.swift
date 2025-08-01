@@ -7,17 +7,19 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-/// Parser for Ethereum transaction details
 enum WCRequestDetailsEthTransactionParser {
-    // MARK: - Public Methods
-
-    static func parse(transaction: WalletConnectEthTransaction, method: WalletConnectMethod) -> [WCTransactionDetailsSection] {
+    static func parse(
+        transaction: WalletConnectEthTransaction,
+        method: WalletConnectMethod,
+        blockchain: Blockchain
+    ) -> [WCTransactionDetailsSection] {
         var sections: [WCTransactionDetailsSection] = []
 
         sections.append(createTransactionTypeSection(method: method))
 
-        sections.append(createBasicDetailsSection(transaction: transaction))
+        sections.append(createBasicDetailsSection(transaction: transaction, blockchain: blockchain))
 
         if let advancedSection = createAdvancedDetailsSection(transaction: transaction) {
             sections.append(advancedSection)
@@ -26,8 +28,6 @@ enum WCRequestDetailsEthTransactionParser {
         return sections
     }
 
-    // MARK: - Section Creators
-
     private static func createTransactionTypeSection(method: WalletConnectMethod) -> WCTransactionDetailsSection {
         return .init(
             sectionTitle: nil,
@@ -35,11 +35,13 @@ enum WCRequestDetailsEthTransactionParser {
         )
     }
 
-    private static func createBasicDetailsSection(transaction: WalletConnectEthTransaction) -> WCTransactionDetailsSection {
+    private static func createBasicDetailsSection(transaction: WalletConnectEthTransaction, blockchain: Blockchain) -> WCTransactionDetailsSection {
+        let formattedValue = formatTokenValue(transaction.value ?? "0x0", currencySymbol: blockchain.currencySymbol)
+
         let basicItems: [WCTransactionDetailsSection.WCTransactionDetailsItem] = [
             .init(title: "From", value: transaction.from),
             .init(title: "To", value: transaction.to),
-            .init(title: "Value", value: formatEthValue(transaction.value ?? "0x0")),
+            .init(title: "Value", value: formattedValue),
         ]
 
         return .init(sectionTitle: "Transaction", items: basicItems)
@@ -56,7 +58,7 @@ enum WCRequestDetailsEthTransactionParser {
             advancedItems.append(.init(title: "Gas Price", value: formatGasPrice(gasPrice)))
         }
 
-        let gasLimit = transaction.gasLimit ?? transaction.gas
+        let gasLimit = transaction.gas
         if let gasLimit = gasLimit {
             advancedItems.append(.init(title: "Gas Limit", value: formatGas(gasLimit)))
         }
@@ -72,21 +74,27 @@ enum WCRequestDetailsEthTransactionParser {
         return .init(sectionTitle: "Advanced", items: advancedItems)
     }
 
-    // MARK: - Value Formatters
+    private static func formatDecimalValue(_ amount: Decimal, currencySymbol: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 8
+        formatter.minimumFractionDigits = 0
 
-    private static func formatEthValue(_ hexValue: String) -> String {
-        guard let value = Int(hexValue.replacingOccurrences(of: "0x", with: ""), radix: 16) else {
+        let formattedValue = formatter.string(from: amount as NSDecimalNumber) ?? "\(amount)"
+        return "\(formattedValue) " + currencySymbol
+    }
+
+    private static func formatTokenValue(_ hexValue: String, currencySymbol: String) -> String {
+        guard let amount = EthereumUtils.parseEthereumDecimal(hexValue, decimalsCount: 18) else {
             return hexValue
         }
 
-        // Convert to ETH units (wei to ETH)
-        let ethValue = Decimal(value) / pow(10, 18)
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 8
 
-        let formattedValue = formatter.string(from: ethValue as NSDecimalNumber) ?? "\(ethValue)"
-        return "\(formattedValue) ETH"
+        let formattedValue = formatter.string(from: amount as NSDecimalNumber) ?? "\(amount)"
+        return "\(formattedValue) " + currencySymbol
     }
 
     private static func formatGasPrice(_ hexGasPrice: String) -> String {
@@ -94,7 +102,6 @@ enum WCRequestDetailsEthTransactionParser {
             return hexGasPrice
         }
 
-        // Convert to Gwei units
         let gweiValue = Decimal(gasPrice) / pow(10, 9)
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
@@ -122,7 +129,7 @@ enum WCRequestDetailsEthTransactionParser {
 
     private static func formatData(_ data: String) -> String {
         if data.count > 66 {
-            return "\(data.prefix(8))...\(data.suffix(8))"
+            return "\(String(data.prefix(8)))...\(String(data.suffix(8)))"
         }
         return data
     }
