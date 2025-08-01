@@ -87,6 +87,11 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
 
             case .success(let cardInfo):
                 do {
+                    guard let userWalletId = UserWalletId(cardInfo: cardInfo),
+                          userWalletId == viewModel.userWalletModel.userWalletId else {
+                        throw UserWalletRepositoryError.cardWithWrongUserWalletIdScanned
+                    }
+
                     try viewModel.userWalletRepository.unlock(
                         userWalletId: viewModel.userWalletModel.userWalletId,
                         method: .card(cardInfo)
