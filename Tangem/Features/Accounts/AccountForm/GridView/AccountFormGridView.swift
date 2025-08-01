@@ -30,12 +30,16 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
             }
         }
         .roundedBackground(
-            with: Colors.Background.action,
+            with: AccountFormGridViewConstants.backgroundColor,
             verticalPadding: 16,
             horizontalPadding: 20,
             radius: 14
         )
     }
+}
+
+enum AccountFormGridViewConstants {
+    static let backgroundColor: Color = Colors.Background.action
 }
 
 #if DEBUG

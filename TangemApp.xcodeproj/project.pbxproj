@@ -483,6 +483,8 @@
 		307646412E3CA6C2001F2F82 /* ImportWalletSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307646342E3CA6C2001F2F82 /* ImportWalletSelectorRoutable.swift */; };
 		307646422E3CA6C2001F2F82 /* ImportWalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307646352E3CA6C2001F2F82 /* ImportWalletSelectorView.swift */; };
 		307A40482DC2335300AA4224 /* NFTExplorerLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307A40472DC2334800AA4224 /* NFTExplorerLinkProvider.swift */; };
+		3083B5612E3BAD7B00DD006A /* AccountFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3083B5602E3BAD7B00DD006A /* AccountFormView.swift */; };
+		3083B5632E3BAD8000DD006A /* AccountFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3083B5622E3BAD8000DD006A /* AccountFormViewModel.swift */; };
 		308501872E0DA20700AB58B3 /* TonSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 308501862E0DA20700AB58B3 /* TonSwift */; };
 		309938FE2D786A9A00DA3667 /* StellarAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FD2D786A9300DA3667 /* StellarAddressTests.swift */; };
 		309939002D786D6200DA3667 /* SuiAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309938FF2D786D5C00DA3667 /* SuiAddressTests.swift */; };
@@ -4447,6 +4449,8 @@
 		307646352E3CA6C2001F2F82 /* ImportWalletSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletSelectorView.swift; sourceTree = "<group>"; };
 		307646362E3CA6C2001F2F82 /* ImportWalletSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		307A40472DC2334800AA4224 /* NFTExplorerLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTExplorerLinkProvider.swift; sourceTree = "<group>"; };
+		3083B5602E3BAD7B00DD006A /* AccountFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormView.swift; sourceTree = "<group>"; };
+		3083B5622E3BAD8000DD006A /* AccountFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFormViewModel.swift; sourceTree = "<group>"; };
 		309938FD2D786A9300DA3667 /* StellarAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAddressTests.swift; sourceTree = "<group>"; };
 		309938FF2D786D5C00DA3667 /* SuiAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiAddressTests.swift; sourceTree = "<group>"; };
 		309939012D786F2C00DA3667 /* TONAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONAddressTests.swift; sourceTree = "<group>"; };
@@ -9036,8 +9040,10 @@
 		3001C3312E38C2AB00CE2726 /* AccountForm */ = {
 			isa = PBXGroup;
 			children = (
+				3083B5602E3BAD7B00DD006A /* AccountFormView.swift */,
 				30B628932E3A48240075AECA /* AccountFormHeaderView.swift */,
 				3001C3322E38C2E100CE2726 /* GridView */,
+				3083B5622E3BAD8000DD006A /* AccountFormViewModel.swift */,
 			);
 			path = AccountForm;
 			sourceTree = "<group>";
@@ -22800,6 +22806,7 @@
 				B60C13B32A530C500003F68F /* ScrollDetector.swift in Sources */,
 				DC8B159F2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift in Sources */,
 				EFFA43712E03F565001E0E54 /* ExpressDependenciesFactory.swift in Sources */,
+				3083B5612E3BAD7B00DD006A /* AccountFormView.swift in Sources */,
 				B00EBF832B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift in Sources */,
 				DC2891B12CDAF4E700F57F59 /* TokenAvailabilitySorter.swift in Sources */,
 				0F3D64212E0ECFAF00670DC9 /* HotBackupNeededViewModel.swift in Sources */,
@@ -22908,6 +22915,7 @@
 				DC742C2F2BC85E5E00BECF09 /* CardInitializer.swift in Sources */,
 				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
+				3083B5632E3BAD8000DD006A /* AccountFormViewModel.swift in Sources */,
 				C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift in Sources */,
 				EFC7AD5D2DD4F44000AE78E1 /* SendNewAmountStep.swift in Sources */,
 				DA81B0F12AB0A74000FA86D3 /* ChangeSignType.swift in Sources */,

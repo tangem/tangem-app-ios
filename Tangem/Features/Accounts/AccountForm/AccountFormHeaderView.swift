@@ -41,7 +41,10 @@ struct AccountFormHeaderView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 24)
                         .fill(color)
+                        .animation(.default, value: color)
                 )
+                .animation(.default, value: previewType)
+
             Spacer()
         }
     }
@@ -53,11 +56,12 @@ struct AccountFormHeaderView: View {
             Text(letter)
                 .style(Fonts.Bold.largeTitle, color: Colors.Text.constantWhite)
 
-        case .image(let image):
+        case .image(let image, let config):
             image
                 .renderingMode(.template)
                 .resizable()
                 .foregroundStyle(Colors.Text.constantWhite)
+                .opacity(config.opacity)
         }
     }
 
@@ -79,9 +83,17 @@ struct AccountFormHeaderView: View {
     }
 }
 
-enum AccountFormHeaderType {
+enum AccountFormHeaderType: Equatable {
     case letter(String)
-    case image(Image)
+    case image(Image, config: ImageConfig = .default)
+}
+
+extension AccountFormHeaderType {
+    struct ImageConfig: Equatable {
+        var opacity: Double = 1
+
+        static let `default`: Self = ImageConfig()
+    }
 }
 
 #if DEBUG
