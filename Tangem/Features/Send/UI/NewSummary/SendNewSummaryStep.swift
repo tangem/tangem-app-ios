@@ -12,20 +12,17 @@ import SwiftUI
 
 class SendNewSummaryStep {
     private let viewModel: SendNewSummaryViewModel
-    private let input: SendSummaryInput
+    private let interactor: SendNewSummaryInteractor
     private let sendFeeProvider: SendFeeProvider
-    private let _title: String?
 
     init(
         viewModel: SendNewSummaryViewModel,
-        input: SendSummaryInput,
-        sendFeeProvider: SendFeeProvider,
-        title: String?
+        interactor: SendNewSummaryInteractor,
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
-        self.input = input
+        self.interactor = interactor
         self.sendFeeProvider = sendFeeProvider
-        _title = title
     }
 
     func set(router: SendSummaryStepsRoutable) {
@@ -36,7 +33,7 @@ class SendNewSummaryStep {
 // MARK: - SendStep
 
 extension SendNewSummaryStep: SendStep {
-    var title: String? { _title }
+    var title: String? { interactor.title }
 
     var type: SendStepType { .newSummary(viewModel) }
 
@@ -46,7 +43,7 @@ extension SendNewSummaryStep: SendStep {
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        input.isReadyToSendPublisher.eraseToAnyPublisher()
+        interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }
 
     func willAppear(previous step: any SendStep) {
