@@ -10,44 +10,40 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-final class WCFeeSelectorFactory {
-    func createFeeSelector(
-        for transaction: WalletConnectEthTransaction,
-        walletModel: any WalletModel,
-        output: WCFeeInteractorOutput?
-    ) -> FeeSelectorContentViewModel {
-        let feeProvider = CommonWCFeeProvider()
+struct SimpleCustomFeeFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder {
+    let buildFields: () -> [FeeSelectorCustomFeeRowViewModel]
 
-        let feeInteractor = WCFeeInteractor(
-            transaction: transaction,
-            walletModel: walletModel,
-            feeProvider: feeProvider,
-            output: output
-        )
+    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
+        return buildFields()
+    }
+}
 
-        let analytics = WCFeeSelectorAnalytics()
-        let customFieldsBuilder = WCFeeSelectorCustomFeeFieldsBuilder()
-
-        return FeeSelectorContentViewModel(
-            input: feeInteractor,
-            output: feeInteractor,
-            analytics: analytics,
-            customFieldsBuilder: customFieldsBuilder,
-            feeTokenItem: walletModel.feeTokenItem
-        )
+struct SimpleAnalytics: FeeSelectorContentViewModelAnalytics {
+    func logSendFeeSelected(_ feeOption: FeeOption) {
+        // [REDACTED_TODO_COMMENT]
     }
 
-    func createFeeSelectorFromInteractor(
-        feeInteractor: WCFeeInteractor,
-        walletModel: any WalletModel
+    func didSelectFeeOption(_ feeOption: FeeOption) {
+        if feeOption == .custom {
+            Analytics.log(.sendCustomFeeClicked)
+        }
+    }
+}
+
+final class WCFeeSelectorFactory {
+    func createFeeSelector(
+        customFeeService: WCCustomEvmFeeService,
+        walletModel: any WalletModel,
+        feeInteractor: WCFeeInteractor
     ) -> FeeSelectorContentViewModel {
-        let analytics = WCFeeSelectorAnalytics()
-        let customFieldsBuilder = WCFeeSelectorCustomFeeFieldsBuilder()
+        let customFieldsBuilder = SimpleCustomFeeFieldsBuilder(
+            buildFields: { customFeeService.selectorCustomFeeRowViewModels() }
+        )
 
         return FeeSelectorContentViewModel(
             input: feeInteractor,
             output: feeInteractor,
-            analytics: analytics,
+            analytics: SimpleAnalytics(),
             customFieldsBuilder: customFieldsBuilder,
             feeTokenItem: walletModel.feeTokenItem
         )
