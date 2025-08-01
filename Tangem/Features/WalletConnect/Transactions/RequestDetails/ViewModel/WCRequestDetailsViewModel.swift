@@ -38,8 +38,6 @@ final class WCRequestDetailsViewModel: ObservableObject {
     }
 }
 
-// MARK: - ViewAction
-
 extension WCRequestDetailsViewModel {
     enum ViewAction {
         case returnTransactionDetails
