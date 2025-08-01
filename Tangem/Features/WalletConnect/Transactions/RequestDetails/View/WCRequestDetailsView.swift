@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemLocalization
 
 struct WCRequestDetailsView: View {
     @StateObject private var viewModel: WCRequestDetailsViewModel
@@ -75,7 +76,7 @@ struct WCRequestDetailsView: View {
 
     private var requestDataHeader: some View {
         WalletConnectNavigationBarView(
-            title: "Transactions request",
+            title: Localization.wcTransactionRequestTitle,
             backButtonAction: { viewModel.handleViewAction(.returnTransactionDetails) }
         )
     }
@@ -83,7 +84,7 @@ struct WCRequestDetailsView: View {
     @ViewBuilder
     private var copyButton: some View {
         MainButton(
-            title: "Copy data",
+            title: Localization.wcCopyDataButtonText,
             icon: .trailing(Assets.Glyphs.copy),
             style: .primary,
             size: .default,
