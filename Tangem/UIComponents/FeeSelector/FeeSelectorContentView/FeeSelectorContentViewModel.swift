@@ -35,7 +35,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
         output: FeeSelectorContentViewModelOutput,
         analytics: FeeSelectorContentViewModelAnalytics,
         customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder,
-        feeTokenItem: TokenItem
+        feeTokenItem: TokenItem,
     ) {
         self.input = input
         self.output = output
@@ -48,7 +48,7 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
 
     func isSelected(_ option: FeeOption) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
-            root.selectedFeeOption == option
+            return root.selectedFeeOption == option
         } set: { root, isSelected in
             root.selectedFeeOption = option
 
@@ -79,7 +79,7 @@ private extension FeeSelectorContentViewModel {
     func bind(input: FeeSelectorContentViewModelInput) {
         if let currentSelectedFee = input.selectedSelectorFee {
             selectedFeeOption = currentSelectedFee.option
-        }
+        } else {}
 
         input.selectorFeesPublisher
             // Skip a different loading states when fees is empty
@@ -102,7 +102,8 @@ private extension FeeSelectorContentViewModel {
 
     func updateViewModels(values: [FeeSelectorFee]) {
         feesRowData = values.compactMap { fee in
-            mapToFeeRowViewModel(fee: fee)
+            let viewModel = mapToFeeRowViewModel(fee: fee)
+            return viewModel
         }
     }
 
@@ -113,10 +114,13 @@ private extension FeeSelectorContentViewModel {
             formattingOptions: .sendCryptoFeeFormattingOptions
         )
 
+        // Custom fields создаем только для .custom опции
+        let customFields = fee.option == .custom ? customFieldsBuilder.buildCustomFeeFields() : []
+
         return FeeSelectorContentRowViewModel(
             feeOption: fee.option,
             feeComponents: feeComponents,
-            customFields: customFieldsBuilder.buildCustomFeeFields()
+            customFields: customFields
         )
     }
 }
