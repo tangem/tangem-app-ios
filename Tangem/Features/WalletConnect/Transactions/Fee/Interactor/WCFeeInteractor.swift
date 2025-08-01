@@ -10,34 +10,46 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import BigInt
 
-struct WCFee: Hashable {
-    let option: FeeOption
-    let value: LoadingValue<Fee>
-}
-
-protocol WCFeeInteractorOutput: AnyObject {
-    func feeDidChanged(fee: WCFee)
-
-    @MainActor
-    func returnToTransactionDetails()
-}
-
-final class WCFeeInteractor {
+final class WCFeeInteractor: WCFeeInteractorType {
     // MARK: - Dependencies
+
+    let customFeeService: WCCustomEvmFeeService
 
     private let transaction: WalletConnectEthTransaction
     private let walletModel: any WalletModel
-    private let feeProvider: WCFeeProvider
-    private weak var output: WCFeeInteractorOutput?
+    private let feeRepository: any WCTransactionFeePreferencesRepository
+
+    weak var output: WCFeeInteractorOutput?
+
+    // MARK: - Reactive Properties
+
+    private let networkFeesSubject: CurrentValueSubject<LoadingValue<[Fee]>, Never> = .init(.loading)
+    private let selectedFeeSubject: CurrentValueSubject<WCFee, Never>
+    private let customFeeSubject: CurrentValueSubject<Fee?, Never> = .init(.none)
+
+    var selectedFee: WCFee {
+        return selectedFeeSubject.value
+    }
+
+    var fees: [WCFee] {
+        let customFee = customFeeSubject.value
+        return mapToWCFees(feesValue: networkFeesSubject.value, customFee: customFee)
+    }
+
+    // MARK: - Publishers for external subscription
+
+    var selectedFeePublisher: AnyPublisher<WCFee, Never> {
+        selectedFeeSubject.eraseToAnyPublisher()
+    }
 
     // MARK: - Private Properties
 
-    private let _fees = CurrentValueSubject<LoadingValue<[Fee]>, Never>(.loading)
-    private let _selectedFee = CurrentValueSubject<WCFee, Never>(.init(option: .market, value: .loading))
-
+    private let initialFeeOption: FeeOption
     private let defaultFeeOptions: [FeeOption] = [.slow, .market, .fast, .custom]
 
+    private let hasSuggestedFee: Bool
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Initialization
@@ -45,148 +57,283 @@ final class WCFeeInteractor {
     init(
         transaction: WalletConnectEthTransaction,
         walletModel: any WalletModel,
-        feeProvider: WCFeeProvider,
+        customFeeService: WCCustomEvmFeeService,
+        initialFeeOption: FeeOption = .market,
+        feeRepository: any WCTransactionFeePreferencesRepository,
+        hasSuggestedFee: Bool,
         output: WCFeeInteractorOutput?
     ) {
         self.transaction = transaction
         self.walletModel = walletModel
-        self.feeProvider = feeProvider
+        self.customFeeService = customFeeService
+        self.initialFeeOption = initialFeeOption
+        self.feeRepository = feeRepository
         self.output = output
+        self.hasSuggestedFee = hasSuggestedFee
 
+        selectedFeeSubject = .init(.init(option: initialFeeOption, value: .loading))
+
+        self.customFeeService.setup(output: self)
         bind()
         loadFees()
-    }
-
-    // MARK: - Public Interface
-
-    var selectedFee: WCFee {
-        _selectedFee.value
-    }
-
-    var selectedFeePublisher: AnyPublisher<WCFee, Never> {
-        _selectedFee.eraseToAnyPublisher()
-    }
-
-    var fees: [WCFee] {
-        mapToWCFees(feesValue: _fees.value)
-    }
-
-    var feesPublisher: AnyPublisher<[WCFee], Never> {
-        _fees
-            .withWeakCaptureOf(self)
-            .map { interactor, feesValue in
-                interactor.mapToWCFees(feesValue: feesValue)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func update(selectedFee: WCFee) {
-        _selectedFee.send(selectedFee)
-        output?.feeDidChanged(fee: selectedFee)
-    }
-
-    func loadFees() {
-        if _fees.value.error != nil {
-            _fees.send(.loading)
-        }
-
-        feeProvider
-            .getFee(for: transaction, walletModel: walletModel)
-            .mapToResult()
-            .withWeakCaptureOf(self)
-            .sink { interactor, result in
-                switch result {
-                case .success(let fees):
-                    interactor._fees.send(.loaded(fees))
-                case .failure(let error):
-                    interactor._fees.send(.failedToLoad(error: error))
-                }
-            }
-            .store(in: &bag)
     }
 
     // MARK: - Private Methods
 
     private func bind() {
-        let suggestedFeeToUse = _fees
+        selectedFeeSubject
             .withWeakCaptureOf(self)
-            .compactMap { interactor, fees in
-                switch fees {
-                case .loaded(let fees):
-                    return interactor.feeForAutoupdate(fees: fees)
-                case .failedToLoad(let error):
-                    return WCFee(option: .market, value: .failedToLoad(error: error))
-                case .loading where interactor._selectedFee.value.value.value == nil:
-                    return WCFee(option: .market, value: .loading)
-                case .loading:
-                    return nil
+            .sink { interactor, selectedFee in
+                guard case .loaded = selectedFee.value else {
+                    return
                 }
-            }
-            .share()
 
-        suggestedFeeToUse
-            .withWeakCaptureOf(self)
-            .sink { interactor, fee in
-                interactor.autoupdateSelectedFee(fee: fee)
+                Task {
+                    await interactor.feeRepository.saveSelectedFeeOption(
+                        selectedFee.option,
+                        for: interactor.walletModel.tokenItem.blockchain.networkId
+                    )
+
+                    interactor.output?.feeDidChanged(fee: selectedFee)
+                }
             }
             .store(in: &bag)
     }
 
-    private func mapToWCFees(feesValue: LoadingValue<[Fee]>) -> [WCFee] {
+    private func loadFees() {
+        guard let ethereumProvider = walletModel.ethereumNetworkProvider else {
+            handleFeeLoadingError(WCFeeInteractorError.feeLoadingFailed)
+            return
+        }
+
+        let transactionData = Data(hexString: transaction.data)
+
+        let feePublisher = ethereumProvider.getFee(
+            destination: transaction.to,
+            value: transaction.value,
+            data: transactionData
+        )
+
+        feePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    switch completion {
+                    case .failure(let error):
+                        self?.handleFeeLoadingError(error)
+                    case .finished:
+                        break
+                    }
+                },
+                receiveValue: { [weak self] networkFees in
+                    guard let self else { return }
+
+                    networkFeesSubject.send(.loaded(networkFees))
+                    updateCustomFeeWithNetworkData(fees: networkFees)
+                    updateSelectedFeeWithNetworkData(fees: networkFees)
+                }
+            )
+            .store(in: &bag)
+    }
+
+    private func updateSelectedFeeWithNetworkData(fees: [Fee]) {
+        let currentSelectedFee = selectedFeeSubject.value
+
+        if case .loading = currentSelectedFee.value {
+            if let networkFee = getFeeForOption(currentSelectedFee.option, from: fees) {
+                let updatedFee = WCFee(option: currentSelectedFee.option, value: .loaded(networkFee))
+                selectedFeeSubject.send(updatedFee)
+            }
+        }
+    }
+
+    private func getFeeForOption(_ option: FeeOption, from fees: [Fee]) -> Fee? {
+        switch option {
+        case .suggestedByDApp:
+            return fees.count > 3 ? fees[0] : nil
+        case .slow:
+            let slowIndex = fees.count > 3 ? 1 : 0
+            return fees.indices.contains(slowIndex) ? fees[slowIndex] : fees.first
+        case .market:
+            let marketIndex = fees.count > 3 ? 2 : 1
+            return fees.indices.contains(marketIndex) ? fees[marketIndex] : fees.first
+        case .fast:
+            let fastIndex = fees.count > 3 ? 3 : 2
+            return fees.indices.contains(fastIndex) ? fees[fastIndex] : fees.last
+        case .custom:
+            return nil
+        }
+    }
+
+    private func updateCustomFeeWithNetworkData(fees: [Fee]) {
+        guard fees.count >= 2 else { return }
+
+        let marketFee = fees[1]
+        customFeeService.initialSetupCustomFee(marketFee)
+    }
+
+    private func getGasLimitFromTransaction() -> BigUInt {
+        if let gasString = transaction.gas, let gasValue = BigUInt(gasString.removeHexPrefix(), radix: 16) {
+            return gasValue
+        }
+        return BigUInt(21000)
+    }
+
+    private func getGasPriceFromTransaction() -> BigUInt {
+        if let gasPrice = transaction.gasPrice, let gasPriceValue = BigUInt(gasPrice.removeHexPrefix(), radix: 16) {
+            return gasPriceValue
+        }
+
+        return BigUInt(20000000000)
+    }
+
+    private func createEIP1559Fee(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, blockchain: Blockchain) -> Fee {
+        let parameters = EthereumEIP1559FeeParameters(
+            gasLimit: gasLimit,
+            maxFeePerGas: maxFeePerGas,
+            priorityFee: priorityFee
+        )
+
+        let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
+        let amount = Amount(with: blockchain, value: feeValue)
+
+        return Fee(amount, parameters: parameters)
+    }
+
+    private func createLegacyFee(gasLimit: BigUInt, gasPrice: BigUInt, blockchain: Blockchain) -> Fee {
+        let parameters = EthereumLegacyFeeParameters(
+            gasLimit: gasLimit,
+            gasPrice: gasPrice
+        )
+
+        let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
+        let amount = Amount(with: blockchain, value: feeValue)
+
+        return Fee(amount, parameters: parameters)
+    }
+
+    private func makeFeeOptions() -> [FeeOption] {
+        var options: [FeeOption] = []
+
+        if hasSuggestedFee {
+            options.append(.suggestedByDApp(dappName: feeRepository.dappName))
+        }
+
+        options.append(contentsOf: defaultFeeOptions)
+        return options
+    }
+
+    private func mapToWCFees(feesValue: LoadingValue<[Fee]>, customFee: Fee?) -> [WCFee] {
+        let feeOptions = makeFeeOptions()
+
         switch feesValue {
         case .loading:
-            return defaultFeeOptions.map { WCFee(option: $0, value: .loading) }
+            let loadingFees = feeOptions.map { WCFee(option: $0, value: .loading) }
+
+            return loadingFees
+
         case .loaded(let fees):
-            return mapToDefaultFees(fees: fees)
-        case .failedToLoad(let error):
-            return defaultFeeOptions.map { WCFee(option: $0, value: .failedToLoad(error: error)) }
+            var wcFees: [WCFee] = []
+            let availableOptions = feeOptions
+
+            var feeIndex = 0
+
+            for option in availableOptions {
+                if option == .suggestedByDApp(dappName: feeRepository.dappName) {
+                    if fees.count > 3, let suggestedFee = fees.first {
+                        wcFees.append(WCFee(option: option, value: .loaded(suggestedFee)))
+                    } else {
+                        wcFees.append(WCFee(option: option, value: .loading))
+                    }
+                } else if option == .custom {
+                    if let customFee = customFee {
+                        wcFees.append(WCFee(option: .custom, value: .loaded(customFee)))
+                    } else {
+                        wcFees.append(WCFee(option: .custom, value: .loading))
+                    }
+                } else {
+                    let targetIndex = fees.count > 3 ? feeIndex + 1 : feeIndex
+                    if targetIndex < fees.count {
+                        wcFees.append(WCFee(option: option, value: .loaded(fees[targetIndex])))
+                    } else if let lastFee = fees.last {
+                        wcFees.append(WCFee(option: option, value: .loaded(lastFee)))
+                    }
+                    feeIndex += 1
+                }
+            }
+
+            return wcFees
+
+        case .failedToLoad:
+            let failedFees = defaultFeeOptions.map { option in
+                WCFee(option: option, value: .failedToLoad(error: WCFeeInteractorError.feeLoadingFailed))
+            }
+
+            return failedFees
         }
     }
 
-    private func mapToDefaultFees(fees: [Fee]) -> [WCFee] {
-        switch fees.count {
-        case 1:
-            return [WCFee(option: .market, value: .loaded(fees[0]))]
-        case 3:
-            return [
-                WCFee(option: .slow, value: .loaded(fees[0])),
-                WCFee(option: .market, value: .loaded(fees[1])),
-                WCFee(option: .fast, value: .loaded(fees[2])),
-            ]
-        default:
-            // Fallback: create only market fee
-            return [WCFee(option: .market, value: fees.first.map { .loaded($0) } ?? .loading)]
+    // MARK: - Helper Methods
+
+    private func mapToFeeSelectorFee(fee: WCFee) -> FeeSelectorFee? {
+        guard case .loaded(let feeValue) = fee.value else {
+            return nil
         }
+
+        return FeeSelectorFee(
+            option: fee.option,
+            value: feeValue.amount.value
+        )
     }
 
-    private func feeForAutoupdate(fees: [Fee]) -> WCFee? {
-        let values = mapToDefaultFees(fees: fees)
-        let selectedOption = _selectedFee.value.option
-        return values.first(where: { $0.option == selectedOption }) ?? values.first(where: { $0.option == .market })
+    private func handleFeeLoadingError(_ error: Error) {
+        let currentSelectedFee = selectedFeeSubject.value
+        let failedFee = WCFee(option: currentSelectedFee.option, value: .failedToLoad(error: error))
+        selectedFeeSubject.send(failedFee)
+
+        networkFeesSubject.send(.failedToLoad(error: error))
     }
 
-    private func autoupdateSelectedFee(fee: WCFee) {
-        _selectedFee.send(fee)
-        output?.feeDidChanged(fee: fee)
+    func retryFeeLoading() {
+        let currentSelectedFee = selectedFeeSubject.value
+        let loadingFee = WCFee(option: currentSelectedFee.option, value: .loading)
+        selectedFeeSubject.send(loadingFee)
+
+        networkFeesSubject.send(.loading)
+        loadFees()
     }
 }
 
-// MARK: - FeeSelectorContentViewModelInput
+// MARK: - CustomFeeServiceOutput
+
+extension WCFeeInteractor: WCCustomFeeServiceOutput {
+    func customFeeDidChanged(_ customFee: Fee) {
+        customFeeSubject.send(customFee)
+
+        let customWCFee = WCFee(option: .custom, value: .loaded(customFee))
+        selectedFeeSubject.send(customWCFee)
+    }
+
+    func updateCustomFeeForInitialization(_ customFee: Fee) {
+        customFeeSubject.send(customFee)
+    }
+}
+
+// MARK: - Errors
+
+enum WCFeeInteractorError: Error {
+    case feeLoadingFailed
+}
 
 extension WCFeeInteractor: FeeSelectorContentViewModelInput {
-    var selectedSelectorFee: FeeSelectorFee? {
-        mapToFeeSelectorFee(fee: selectedFee)
-    }
-
-    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
-        selectedFeePublisher
+    var feesPublisher: AnyPublisher<[WCFee], Never> {
+        Publishers.CombineLatest(networkFeesSubject, customFeeSubject)
             .withWeakCaptureOf(self)
-            .compactMap { $0.mapToFeeSelectorFee(fee: $1) }
+            .map { interactor, args in
+                let (feesValue, customFee) = args
+                return interactor.mapToWCFees(feesValue: feesValue, customFee: customFee)
+            }
             .eraseToAnyPublisher()
-    }
-
-    var selectorFees: [FeeSelectorFee] {
-        fees.compactMap { mapToFeeSelectorFee(fee: $0) }
     }
 
     var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> {
@@ -203,33 +350,41 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToFeeSelectorFee(fee: WCFee) -> FeeSelectorFee? {
-        guard let value = fee.value.value else {
-            return nil
-        }
+    var selectedSelectorFee: FeeSelectorFee? {
+        let fee = mapToFeeSelectorFee(fee: selectedFee)
+        return fee
+    }
 
-        return .init(option: fee.option, value: value.amount.value)
+    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+        selectedFeePublisher
+            .withWeakCaptureOf(self)
+            .compactMap { interactor, wcFee in
+                return interactor.mapToFeeSelectorFee(fee: wcFee)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorFees: [FeeSelectorFee] {
+        let wcFees = fees
+        let selectorFees = wcFees.compactMap { mapToFeeSelectorFee(fee: $0) }
+        return selectorFees
     }
 }
 
-// MARK: - FeeSelectorContentViewModelOutput
-
 extension WCFeeInteractor: FeeSelectorContentViewModelOutput {
     func update(selectedSelectorFee: FeeSelectorFee) {
-        if let wcFee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
-            update(selectedFee: wcFee)
+        guard let wcFee = fees.first(where: { $0.option == selectedSelectorFee.option }) else {
+            return
         }
+
+        selectedFeeSubject.send(wcFee)
     }
 
     func dismissFeeSelector() {
-        Task { @MainActor in
-            output?.returnToTransactionDetails()
-        }
+        output?.returnToTransactionDetails()
     }
 
     func completeFeeSelection() {
-        Task { @MainActor in
-            output?.returnToTransactionDetails()
-        }
+        output?.returnToTransactionDetails()
     }
 }

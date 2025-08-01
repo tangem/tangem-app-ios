@@ -65,13 +65,6 @@ extension BlockaidDTO {
             let data: String
             let blockTag: String
             let chain: String
-            let calldata: Calldata?
-        }
-
-        struct Calldata: Decodable {
-            let functionSelector: String
-            let functionSignature: String
-            let functionDeclaration: String?
         }
 
         struct AssetDiff: Decodable {
