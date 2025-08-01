@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import BlockchainSdk
+import TangemLocalization
 
 struct WCTransactionView: View {
     @ObservedObject var viewModel: WCTransactionViewModel
@@ -31,8 +32,8 @@ struct WCTransactionView: View {
             case .customAllowance(let input):
                 WCCustomAllowanceView(input: input)
                     .transition(topEdgeTransition)
-            case .securityAlert(let viewModel):
-                WCTransactionSecurityAlertView(viewModel: viewModel)
+            case .securityAlert(let state, let input):
+                WCTransactionSecurityAlertView(state: state, input: input)
                     .transition(bottomEdgeTransition)
             }
         }
@@ -62,7 +63,7 @@ struct WCTransactionView: View {
         HStack(spacing: 8) {
             MainButton(
                 settings: .init(
-                    title: "Cancel",
+                    title: Localization.commonCancel,
                     style: .secondary,
                     action: { viewModel.handleViewAction(.cancel) }
                 )
@@ -72,6 +73,8 @@ struct WCTransactionView: View {
                 settings: .init(
                     title: viewModel.primariActionButtonTitle,
                     icon: .trailing(Assets.tangemIcon),
+                    isLoading: viewModel.presentationState == .signing,
+                    isDisabled: viewModel.isActionButtonBlocked,
                     action: { viewModel.handleViewAction(.sign) }
                 )
             )
@@ -84,12 +87,10 @@ struct WCTransactionView: View {
     }
 }
 
-// MARK: - Transaction default section
-
 private extension WCTransactionView {
     var header: some View {
         WalletConnectNavigationBarView(
-            title: "Wallet Connect",
+            title: Localization.wcWalletConnect,
             closeButtonAction: { viewModel.handleViewAction(.dismissTransactionView) }
         )
     }
@@ -100,11 +101,19 @@ private extension WCTransactionView {
                 dappInfoSection
 
                 if viewModel.simulationState != .notStarted {
+                    ForEach(viewModel.simulationValidationInputs) {
+                        NotificationView(input: $0)
+                    }
+
                     simulationResultSection
                         .transition(bottomEdgeTransition)
                 }
 
                 transactionDetailsContent
+
+                ForEach(viewModel.feeValidationInputs) {
+                    NotificationView(input: $0)
+                }
             }
             .padding(.init(top: 0, leading: 16, bottom: Constants.scrollContentBottomPadding, trailing: 16))
         }
@@ -113,11 +122,16 @@ private extension WCTransactionView {
 
     var dappInfoSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Request from")
+            Text(Localization.wcRequestFrom)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 14)
+                .lineLimit(1)
 
-            WCDappTitleView(isLoading: false, dAppData: viewModel.dappData, iconSideLength: 36)
+            WCDappTitleView(
+                dAppData: viewModel.transactionData.dAppData,
+                iconSideLength: 36,
+                isVerified: viewModel.isDappVerified
+            )
 
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.vertical, 12)
@@ -138,7 +152,7 @@ private extension WCTransactionView {
                 .renderingMode(.template)
                 .foregroundStyle(Colors.Icon.accent)
 
-            Text("Transactions request")
+            Text(Localization.wcTransactionRequest)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -150,22 +164,28 @@ private extension WCTransactionView {
 
     private var simulationResultSection: some View {
         WCTransactionSimulationView(displayModel: viewModel.simulationDisplayModel)
-            .padding(.vertical, 4)
     }
 }
-
-// MARK: - Transactions request
 
 private extension WCTransactionView {
     @ViewBuilder
     var transactionDetailsContent: some View {
         switch viewModel.transactionData.method {
         case .personalSign:
-            WCEthPersonalSignTransactionView(walletName: viewModel.userWalletName)
+            WCEthPersonalSignTransactionView(
+                walletName: viewModel.userWalletName,
+                isWalletRowVisible: viewModel.isWalletRowVisible
+            )
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
-            WCSolanaDefaultTransactionDetailsView(walletName: viewModel.userWalletName)
+            WCSolanaDefaultTransactionDetailsView(
+                walletName: viewModel.userWalletName,
+                isWalletRowVisible: viewModel.isWalletRowVisible
+            )
         case .signTypedData, .signTypedDataV4:
-            WCEthPersonalSignTransactionView(walletName: viewModel.userWalletName)
+            WCEthPersonalSignTransactionView(
+                walletName: viewModel.userWalletName,
+                isWalletRowVisible: viewModel.isWalletRowVisible
+            )
         case .sendTransaction, .signTransaction:
             WCEthTransactionDetailsView(viewModel: viewModel)
         default:
@@ -173,8 +193,6 @@ private extension WCTransactionView {
         }
     }
 }
-
-// MARK: - UI Helpers
 
 private extension WCTransactionView {
     func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
@@ -232,10 +250,8 @@ private extension WCTransactionView {
     }
 }
 
-// MARK: - Constants
-
 private enum Constants {
-    static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 40 } // summ padding between scroll content and overlay buttons
+    static var scrollContentBottomPadding: CGFloat { MainButton.Size.default.height + 28 }
 }
 
 private extension Animation {
