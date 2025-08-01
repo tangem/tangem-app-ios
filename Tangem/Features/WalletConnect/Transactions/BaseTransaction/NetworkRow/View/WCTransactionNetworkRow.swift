@@ -10,6 +10,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 struct WCTransactionNetworkRow: View {
     let viewModel: WCTransactionNetworkRowViewModel
@@ -25,9 +26,10 @@ struct WCTransactionNetworkRow: View {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(Colors.Icon.accent)
 
-            Text("Networks")
+            Text(Localization.wcCommonNetwork)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer()
 
             Text(viewModel.blockchainName)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
@@ -36,5 +38,6 @@ struct WCTransactionNetworkRow: View {
                 .resizable()
                 .frame(size: .init(bothDimensions: 20))
         }
+        .lineLimit(1)
     }
 }
