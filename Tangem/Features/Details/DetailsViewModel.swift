@@ -35,6 +35,7 @@ class DetailsViewModel: ObservableObject {
         return viewModels
     }
 
+    @Published var tangemPayRowViewModel: TangemPayRowViewModel?
     @Published var buyWalletViewModel: DefaultRowViewModel?
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
@@ -262,6 +263,12 @@ private extension DetailsViewModel {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
         setupBuyWalletViewModel()
+
+        // [REDACTED_TODO_COMMENT]
+//        tangemPayRowViewModel = TangemPayRowViewModel(isKYCInProgress: false) { [weak coordinator] in
+//            coordinator?.openTangemPayOfferViewModel()
+//        }
+
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
