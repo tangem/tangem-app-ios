@@ -23,8 +23,6 @@ enum WCRequestDetailsEIP712Parser {
         return sections
     }
 
-    // MARK: - Section Creators
-
     private static func createBasicSections(typedData: EIP712TypedData, method: WalletConnectMethod) -> [WCTransactionDetailsSection] {
         return [
             .init(sectionTitle: nil, items: [.init(title: "Signature Type", value: method.rawValue)]),
@@ -56,8 +54,6 @@ enum WCRequestDetailsEIP712Parser {
         }
     }
 
-    // MARK: - Value Formatters
-
     private static func formatValue(from json: JSON) -> String {
         extractSimpleValue(from: json)
     }
@@ -79,21 +75,17 @@ enum WCRequestDetailsEIP712Parser {
         }
     }
 
-    // MARK: - Complex Type Formatters
-
     private static func formatArray(_ array: [JSON], level: Int, indent: String) -> String {
         guard array.isNotEmpty else { return "[]" }
 
         let nextIndent = indent + "  "
 
-        // Handle simple arrays compactly
         if array.count < 5, array.allSatisfy({ isSimpleValue($0) }) {
             let items = array.map { extractSimpleValue(from: $0, level: level + 1, indent: nextIndent) }
 
             return "[\(items.joined(separator: ", "))]"
         }
 
-        // Format complex arrays with line breaks
         var result = "[\n"
 
         for (index, item) in array.enumerated() {
@@ -116,7 +108,6 @@ enum WCRequestDetailsEIP712Parser {
 
         let nextIndent = indent + "  "
 
-        // Handle simple objects compactly
         if object.count < 3, object.allSatisfy({ isSimpleValue($0.value) }) {
             let pairs = object.map { key, value in
                 "\(key): \(extractSimpleValue(from: value, level: level + 1, indent: nextIndent))"
@@ -125,7 +116,6 @@ enum WCRequestDetailsEIP712Parser {
             return "{\(pairs.joined(separator: ", "))}"
         }
 
-        // Format complex objects with line breaks
         var result = "{\n"
 
         for (index, (key, value)) in object.enumerated() {
@@ -142,8 +132,6 @@ enum WCRequestDetailsEIP712Parser {
 
         return result
     }
-
-    // MARK: - Helper Methods
 
     private static func isSimpleValue(_ json: JSON) -> Bool {
         switch json {
