@@ -146,7 +146,7 @@ extension CommonPushNotificationsInteractor: Initializable {
         let currentVersion = ResetVersion.current.rawValue
 
         if resetPushNotificationsAuthorizationRequestCounter < currentVersion {
-            hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+            hasSavedWalletsFromPreviousVersion = userWalletRepository.models.isNotEmpty
             canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
             resetPushNotificationsAuthorizationRequestCounter = currentVersion
         }
