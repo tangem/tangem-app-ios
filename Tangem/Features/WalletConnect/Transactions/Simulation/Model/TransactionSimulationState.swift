@@ -8,7 +8,6 @@
 
 import Foundation
 
-/// Represents the state of a transaction simulation
 enum TransactionSimulationState: Equatable {
     case notStarted
     case loading
