@@ -11,7 +11,11 @@ import TangemAssets
 import TangemUI
 
 struct WCTransactionSecurityAlertView: View {
-    let viewModel: WCTransactionSecurityAlertViewModel
+    @StateObject private var viewModel: WCTransactionSecurityAlertViewModel
+
+    init(state: WCTransactionSecurityAlertState, input: WCTransactionSecurityAlertInput) {
+        _viewModel = StateObject(wrappedValue: .init(state: state, input: input))
+    }
 
     var body: some View {
         content
@@ -21,7 +25,7 @@ struct WCTransactionSecurityAlertView: View {
 
     private var content: some View {
         VStack(spacing: 0) {
-            WalletConnectNavigationBarView(closeButtonAction: { viewModel.handleViewAction(.closeButtonTapped) })
+            WalletConnectNavigationBarView(backButtonAction: { viewModel.handleViewAction(.backButtonTapped) })
 
             VStack(spacing: 0) {
                 icon
@@ -39,7 +43,12 @@ struct WCTransactionSecurityAlertView: View {
                         .padding(.init(top: 0, leading: 16, bottom: 50, trailing: 16))
 
                     makeButton(from: viewModel.state.primaryButton, action: { viewModel.handleViewAction(.primaryButtonTapped) })
-                    makeButton(from: viewModel.state.secondaryButton, action: { viewModel.handleViewAction(.secondaryButtonTapped) })
+
+                    makeButton(
+                        from: viewModel.state.secondaryButton,
+                        icon: .trailing(Assets.tangemIcon),
+                        action: { viewModel.handleViewAction(.secondaryButtonTapped) }
+                    )
                 }
                 .multilineTextAlignment(.center)
             }
@@ -61,12 +70,15 @@ struct WCTransactionSecurityAlertView: View {
 
     private func makeButton(
         from state: WCTransactionSecurityAlertState.ButtonSettings,
+        icon: MainButton.Icon? = nil,
         action: @escaping () -> Void
     ) -> MainButton {
         MainButton(
             settings: .init(
                 title: state.title,
+                icon: icon,
                 style: state.style,
+                isLoading: state.isLoading,
                 action: action
             )
         )
