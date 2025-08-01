@@ -108,6 +108,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.didMigrateWalletConnectSavedSessions)
     var didMigrateWalletConnectSavedSessions: Bool = false
 
+    @AppStorageCompat(StorageType.allowanceUserWalletIdTransactionsPush)
+    var allowanceUserWalletIdTransactionsPush: [String] = []
+
     @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
     var isSendWithSwapOnboardNotificationHidden: Bool = false
 
