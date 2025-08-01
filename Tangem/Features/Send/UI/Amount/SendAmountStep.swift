@@ -33,7 +33,7 @@ class SendAmountStep {
 // MARK: - SendStep
 
 extension SendAmountStep: SendStep {
-    var title: String? { Localization.sendAmountLabel }
+    var title: String? { Localization.commonAmount }
 
     var type: SendStepType { .amount(viewModel) }
 
