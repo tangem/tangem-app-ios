@@ -28,4 +28,6 @@ protocol DetailsRoutable: AnyObject {
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()
+
+    func openTangemPayOfferViewModel()
 }
