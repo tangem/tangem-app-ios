@@ -11,21 +11,15 @@ import Combine
 import BigInt
 
 final class WCCustomAllowanceViewModel: ObservableObject {
-    // MARK: - Published Properties
-
     @Published var amountText: String = ""
     @Published var isUnlimited: Bool = false
     @Published private(set) var isValidAmount: Bool = false
     @Published private(set) var canSubmit: Bool = false
 
-    // MARK: - Dependencies
-
     private let input: WCCustomAllowanceInput
     private let amountConverter: WCCustomAllowanceAmountConverter
 
     private var bag: Set<AnyCancellable> = []
-
-    // MARK: - Computed Properties
 
     var tokenSymbol: String {
         input.tokenInfo.symbol
@@ -39,8 +33,6 @@ final class WCCustomAllowanceViewModel: ObservableObject {
         input.asset
     }
 
-    // MARK: - Initialization
-
     init(input: WCCustomAllowanceInput) {
         self.input = input
         amountConverter = WCCustomAllowanceAmountConverter(tokenInfo: input.tokenInfo)
@@ -49,20 +41,17 @@ final class WCCustomAllowanceViewModel: ObservableObject {
         bind()
     }
 
-    // MARK: - View Actions
-
-    func handleViewAction(_ action: ViewAction) {
+    @MainActor
+    func handleViewAction(_ action: ViewAction) async {
         switch action {
         case .back:
             input.backAction()
         case .done:
-            handleDoneAction()
+            await handleDoneAction()
         case .unlimitedToggled(let isUnlimited):
             handleUnlimitedToggle(isUnlimited)
         }
     }
-
-    // MARK: - Private Methods
 
     private func setupInitialValues() {
         isUnlimited = input.approvalInfo.isUnlimited
@@ -110,7 +99,8 @@ final class WCCustomAllowanceViewModel: ObservableObject {
         amountText = isUnlimited ? "∞" : ""
     }
 
-    private func handleDoneAction() {
+    @MainActor
+    private func handleDoneAction() async {
         let finalAmount: BigUInt
 
         if isUnlimited {
@@ -122,11 +112,9 @@ final class WCCustomAllowanceViewModel: ObservableObject {
             finalAmount = amount
         }
 
-        input.updateAction(finalAmount)
+        await input.updateAction(finalAmount)
     }
 }
-
-// MARK: - ViewAction
 
 extension WCCustomAllowanceViewModel {
     enum ViewAction {
