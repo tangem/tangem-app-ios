@@ -8,7 +8,14 @@
 
 struct WCTransactionSecurityAlertInput {
     let validationStatus: BlockaidChainScanResult.ValidationStatus
+    let validationDescription: String?
     let primaryAction: () -> Void
-    let secondaryAction: () -> Void
-    let closeAction: () -> Void
+    let secondaryAction: () async -> Void
+    let backAction: () -> Void
+}
+
+extension WCTransactionSecurityAlertInput: Equatable {
+    static func == (lhs: WCTransactionSecurityAlertInput, rhs: WCTransactionSecurityAlertInput) -> Bool {
+        return lhs.validationStatus == rhs.validationStatus
+    }
 }
