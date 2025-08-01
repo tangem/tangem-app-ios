@@ -68,6 +68,7 @@ public struct FloatingSheetView<HostContent: View>: View {
     private var backgroundView: some View {
         Colors.Overlays.overlaySecondary
             .opacity(viewModel == nil ? .zero : 1)
+            .ignoresSafeArea()
             .allowsHitTesting(sheetContentConfiguration.backgroundInteractionBehavior != .passTouchesThrough)
             .onTapGesture {
                 guard sheetContentConfiguration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
