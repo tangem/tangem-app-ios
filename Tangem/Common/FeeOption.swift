@@ -80,6 +80,8 @@ enum FeeOption: Hashable, Equatable {
 
     var accessibilityIdentifier: String {
         switch self {
+        case .suggestedByDApp:
+            return FeeAccessibilityIdentifiers.suggestedFeeOption
         case .slow:
             return FeeAccessibilityIdentifiers.slowFeeOption
         case .market:
