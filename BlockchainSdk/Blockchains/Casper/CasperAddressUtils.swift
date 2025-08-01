@@ -18,7 +18,7 @@ struct CasperAddressUtils {
     // or
     // Secp256k1: encode([0x02]) + encode(<public key bytes>)
     func checksum(input: Data) throws -> String {
-        let byteArray = input.bytes
+        let byteArray = input.bytes as [UInt8]
 
         guard byteArray.count > 2, let first = byteArray.first else {
             throw Error.failedSizeInputChecksum
