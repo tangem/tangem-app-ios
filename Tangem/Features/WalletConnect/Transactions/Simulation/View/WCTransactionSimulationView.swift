@@ -15,89 +15,41 @@ import TangemUI
 struct WCTransactionSimulationView: View {
     @State private var connectionRequestIconIsRotating = false
 
-    private let displayModel: WCTransactionSimulationDisplayModel
+    private let displayModel: WCTransactionSimulationDisplayModel?
 
-    init(displayModel: WCTransactionSimulationDisplayModel) {
+    init(displayModel: WCTransactionSimulationDisplayModel?) {
         self.displayModel = displayModel
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            // MARK: – Validation Banner
+        if let displayModel {
+            VStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(displayModel.cardTitle)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            if case .success(let successContent) = displayModel.content,
-               let banner = successContent.validationBanner {
-                validationBanner(banner: banner)
-            }
-
-            // MARK: – Simulation Card
-
-            VStack(alignment: .leading, spacing: 8) {
-                // Header
-                Text(displayModel.cardTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                switch displayModel.content {
-                case .loading:
-                    loadingRow
-                        .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
-                case .failed(let message):
-                    failedView(message: message)
-                        .transition(topEdgeTransition)
-                case .success(let successContent):
-                    content(for: successContent)
-                        .transition(topEdgeTransition)
+                    switch displayModel.content {
+                    case .loading:
+                        loadingRow
+                            .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
+                    case .failed(let message):
+                        failedView(message: message)
+                            .transition(topEdgeTransition)
+                    case .success(let successContent):
+                        content(for: successContent)
+                            .transition(topEdgeTransition)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
+                .background(Colors.Background.action)
+                .cornerRadius(14)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
-            .background(Colors.Background.action)
-            .cornerRadius(14)
-        }
-        .onAppear {
-            connectionRequestIconIsRotating = true
-        }
-    }
-
-    // MARK: – Banner
-
-    private func validationBanner(banner: WCTransactionSimulationDisplayModel.ValidationBanner) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            bannerImage(for: banner.type)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(banner.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text(banner.description)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .onAppear {
+                connectionRequestIconIsRotating = true
             }
         }
-        .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
-        .background(bannerBackgroundColor(for: banner.type))
-        .cornerRadius(14)
     }
-
-    private func bannerImage(for type: WCTransactionSimulationDisplayModel.ValidationBanner.BannerType) -> some View {
-        switch type {
-        case .malicious:
-            Assets.redCircleWarning.image
-        case .suspicious:
-            Assets.warningIcon.image
-        }
-    }
-
-    @ViewBuilder
-    private func bannerBackgroundColor(for type: WCTransactionSimulationDisplayModel.ValidationBanner.BannerType) -> some View {
-        switch type {
-        case .malicious:
-            Colors.Icon.warning.opacity(0.1)
-        case .suspicious:
-            Colors.Button.disabled
-        }
-    }
-
-    // MARK: – Loading & Failure
 
     private var loadingRow: some View {
         HStack(spacing: 8) {
@@ -120,8 +72,6 @@ struct WCTransactionSimulationView: View {
         }
     }
 
-    // MARK: – Content for Success
-
     private func content(for successContent: WCTransactionSimulationDisplayModel.SuccessContent) -> some View {
         ForEach(Array(successContent.sections.enumerated()), id: \.offset) { index, section in
             switch section {
@@ -134,8 +84,6 @@ struct WCTransactionSimulationView: View {
             }
         }
     }
-
-    // MARK: – Sections
 
     private func assetChangesSection(_ assetChanges: WCTransactionSimulationDisplayModel.AssetChangesSection) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -177,8 +125,6 @@ struct WCTransactionSimulationView: View {
         .frame(alignment: .topLeading)
     }
 
-    // MARK: - Direction Helpers
-
     @ViewBuilder
     private func directionImage(for direction: WCTransactionSimulationDisplayModel.AssetItem.Direction) -> some View {
         switch direction {
@@ -207,8 +153,6 @@ struct WCTransactionSimulationView: View {
         }
     }
 
-    // MARK: – Rows
-
     private func assetItemRow(_ item: WCTransactionSimulationDisplayModel.AssetItem) -> some View {
         HStack(spacing: 8) {
             directionImage(for: item.direction)
@@ -221,12 +165,6 @@ struct WCTransactionSimulationView: View {
             Text("\(directionSign(for: item.direction))\(item.formattedAmount) \(item.symbol)")
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .multilineTextAlignment(.trailing)
-
-            if let iconURL = item.iconURL {
-                let iconSize = CGSize(bothDimensions: 20)
-                let cornerRadius = WCAssetIconHelper.cornerRadius(for: item.asset, iconSize: iconSize)
-                IconView(url: iconURL, size: iconSize, cornerRadius: cornerRadius)
-            }
         }
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -250,11 +188,6 @@ struct WCTransactionSimulationView: View {
         HStack(spacing: 8) {
             switch content {
             case .editable(let iconURL, let formattedAmount, let asset):
-                if let iconURL = iconURL {
-                    let iconSize = CGSize(bothDimensions: 24)
-                    let cornerRadius = WCAssetIconHelper.cornerRadius(for: asset, iconSize: iconSize)
-                    IconView(url: iconURL, size: iconSize, cornerRadius: cornerRadius)
-                }
                 Text(formattedAmount)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
             case .nonEditable:
@@ -263,7 +196,7 @@ struct WCTransactionSimulationView: View {
                     .frame(size: .init(bothDimensions: 24))
                     .foregroundStyle(Colors.Icon.accent)
 
-                Text("Approve")
+                Text(Localization.commonApprove)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
             }
         }
@@ -275,12 +208,6 @@ struct WCTransactionSimulationView: View {
             case .tokenInfo(let formattedAmount, let iconURL, let asset):
                 Text(formattedAmount)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-                if let iconURL = iconURL {
-                    let iconSize = CGSize(bothDimensions: 20)
-                    let cornerRadius = WCAssetIconHelper.cornerRadius(for: asset, iconSize: iconSize)
-                    IconView(url: iconURL, size: iconSize, cornerRadius: cornerRadius)
-                }
             case .empty:
                 EmptyView()
             }
@@ -292,7 +219,7 @@ struct WCTransactionSimulationView: View {
             action: onEdit,
             label: {
                 HStack(spacing: 4) {
-                    Text("Edit")
+                    Text(Localization.commonEdit)
                         .style(Fonts.Regular.body, color: Colors.Text.tertiary)
 
                     Assets.Glyphs.editNew.image
@@ -307,8 +234,6 @@ struct WCTransactionSimulationView: View {
         Text("No wallet changes detected")
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
     }
-
-    // MARK: - Transitions
 
     var topEdgeTransition: AnyTransition {
         .asymmetric(
