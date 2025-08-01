@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
 
 struct WCTransactionFeeRowView: View {
     let fee: Fee
@@ -27,7 +28,7 @@ struct WCTransactionFeeRowView: View {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(Colors.Icon.accent)
                 .padding(.trailing, 8)
-            Text("Network fee")
+            Text(Localization.commonNetworkFeeTitle)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 8)
