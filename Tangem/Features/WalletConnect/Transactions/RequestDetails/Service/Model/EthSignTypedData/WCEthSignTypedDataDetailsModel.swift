@@ -8,7 +8,6 @@
 
 import Foundation
 
-/// Main model using the parser service
 struct WCEthSignTypedDataDetailsModel {
     let data: [WCTransactionDetailsSection]
 

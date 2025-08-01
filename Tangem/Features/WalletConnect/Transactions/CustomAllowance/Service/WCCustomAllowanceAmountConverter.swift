@@ -8,6 +8,7 @@
 
 import Foundation
 import BigInt
+import TangemLocalization
 
 struct WCCustomAllowanceAmountConverter {
     private let tokenInfo: WCApprovalHelpers.TokenInfo
@@ -15,8 +16,6 @@ struct WCCustomAllowanceAmountConverter {
     init(tokenInfo: WCApprovalHelpers.TokenInfo) {
         self.tokenInfo = tokenInfo
     }
-
-    // MARK: - Public Methods
 
     func parseInputToBigUInt(_ input: String) -> BigUInt? {
         guard !input.isEmpty else {
@@ -40,7 +39,7 @@ struct WCCustomAllowanceAmountConverter {
 
     func formatBigUIntForDisplay(_ bigUInt: BigUInt) -> String {
         if bigUInt == BigUInt.maxUInt256 {
-            return "Unlimited"
+            return Localization.wcCommonUnlimited
         }
 
         guard let decimal = convertBigUIntToDecimal(bigUInt) else {
@@ -57,14 +56,10 @@ struct WCCustomAllowanceAmountConverter {
         return "\(formattedValue) \(tokenInfo.symbol)"
     }
 
-    // MARK: - Private Methods
-
     private func convertDecimalToBigUInt(_ decimal: Decimal) -> BigUInt? {
-        // Multiply by 10^decimals for conversion to wei
         let multiplier = Decimal(sign: .plus, exponent: tokenInfo.decimals, significand: 1)
         let weiDecimal = decimal * multiplier
 
-        // Convert to string without exponential notation
         let formatter = NumberFormatter()
         formatter.numberStyle = .none
         formatter.maximumFractionDigits = 0
@@ -84,7 +79,6 @@ struct WCCustomAllowanceAmountConverter {
             return nil
         }
 
-        // Divide by 10^decimals for conversion from wei
         let divisor = Decimal(sign: .plus, exponent: tokenInfo.decimals, significand: 1)
         return decimal / divisor
     }
@@ -92,7 +86,7 @@ struct WCCustomAllowanceAmountConverter {
     private func formatDecimalForInput(_ decimal: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = min(tokenInfo.decimals, 8) // No more than 8 digits
+        formatter.maximumFractionDigits = min(tokenInfo.decimals, 8)
         formatter.minimumFractionDigits = 0
         formatter.usesGroupingSeparator = false
 
