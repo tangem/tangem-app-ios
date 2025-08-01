@@ -11,6 +11,7 @@ import ReownWalletKit
 import BlockchainSdk
 
 struct WCHandleTransactionData {
+    let topic: String
     let method: WalletConnectMethod
     let userWalletModel: UserWalletModel
     let blockchain: BlockchainSdk.Blockchain
@@ -33,6 +34,7 @@ extension WCHandleTransactionData {
         validatedRequest: WCValidatedRequest,
         respond: @escaping (String, RPCID, RPCResult) async throws -> Void
     ) {
+        topic = validatedRequest.request.topic
         userWalletModel = validatedRequest.userWalletModel
         method = dto.method
         rawTransaction = dto.rawTransaction

@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import Combine
+import TangemLocalization
 
 protocol WCTransactionSimulationService {
     func simulateTransaction(
@@ -21,16 +22,15 @@ protocol WCTransactionSimulationService {
 }
 
 final class CommonWCTransactionSimulationService: WCTransactionSimulationService {
-    // MARK: - Dependencies
-
     private let blockaidService: BlockaidAPIService
     private let decoder = JSONDecoder()
+    private let simulationFailed = TransactionSimulationState.simulationFailed(
+        error: Localization.wcEstimatedWalletChangesNotSimulated
+    )
 
     init(blockaidService: BlockaidAPIService) {
         self.blockaidService = blockaidService
     }
-
-    // MARK: - WCTransactionSimulationService
 
     func simulateTransaction(
         for method: WalletConnectMethod,
@@ -76,8 +76,6 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
         return state
     }
 
-    // MARK: - Private methods
-
     private func handleEIP712Simulation(
         method: String,
         address: String,
@@ -87,7 +85,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
     ) async -> TransactionSimulationState {
         do {
             guard let messageString = String(data: data, encoding: .utf8) else {
-                return .simulationFailed(error: "Failed to decode message data")
+                return simulationFailed
             }
 
             let response = try await blockaidService.scanEvm(
@@ -103,7 +101,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             return .simulationSucceeded(result: result)
 
         } catch {
-            return .simulationFailed(error: "Simulation failed: \(error.localizedDescription)")
+            return simulationFailed
         }
     }
 
@@ -115,8 +113,8 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
         domain: URL
     ) async -> TransactionSimulationState {
         do {
-            guard let transaction = try? JSONDecoder().decode(WalletConnectEthTransaction.self, from: data) else {
-                return .simulationFailed(error: "Failed to parse ETH transaction data")
+            guard let transaction = try? decoder.decode(WalletConnectEthTransaction.self, from: data) else {
+                return simulationFailed
             }
 
             let transactionParams = BlockaidDTO.EvmScan.Request.TransactionParams(
@@ -139,7 +137,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             return .simulationSucceeded(result: result)
 
         } catch {
-            return .simulationFailed(error: error.localizedDescription)
+            return simulationFailed
         }
     }
 
@@ -155,7 +153,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
 
             let response = try await blockaidService.scanSolana(
                 address: address.base58DecodedData.base64EncodedString(),
-                method: method.trimmedPrefixValue, // Remove "solana_" prefix
+                method: method.trimmedPrefixValue,
                 transactions: transactions,
                 domain: domain
             )
@@ -164,16 +162,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             return .simulationSucceeded(result: result)
 
         } catch {
-            return .simulationFailed(error: "Simulation failed: \(error.localizedDescription)")
+            return simulationFailed
         }
-    }
-
-    private func handleSolanaMessageSimulation(
-        address: String,
-        blockchain: Blockchain,
-        data: Data,
-        domain: URL
-    ) async -> TransactionSimulationState {
-        return .simulationFailed(error: "Message simulation not supported for Solana yet")
     }
 }
