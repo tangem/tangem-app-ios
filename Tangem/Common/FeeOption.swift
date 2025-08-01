@@ -11,14 +11,32 @@ import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
 
-enum FeeOption: String, Hashable, Equatable {
+enum FeeOption: Hashable, Equatable {
+    case suggestedByDApp(dappName: String)
     case slow
     case market
     case fast
     case custom
 
+    var rawValue: String {
+        switch self {
+        case .suggestedByDApp(let dappName):
+            "suggestedByDapp \(dappName)"
+        case .slow:
+            "slow"
+        case .market:
+            "market"
+        case .fast:
+            "fast"
+        case .custom:
+            "custom"
+        }
+    }
+
     var icon: ImageType {
         switch self {
+        case .suggestedByDApp:
+            return Assets.FeeOptions.suggestedFeeIcon
         case .slow:
             return Assets.FeeOptions.slowFeeIcon
         case .market:
@@ -32,6 +50,8 @@ enum FeeOption: String, Hashable, Equatable {
 
     var title: String {
         switch self {
+        case .suggestedByDApp(let dappName):
+            return Localization.wcFeeSuggested(dappName)
         case .slow:
             return Localization.commonFeeSelectorOptionSlow
         case .market:
@@ -45,6 +65,8 @@ enum FeeOption: String, Hashable, Equatable {
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
+        case .suggestedByDApp:
+            return .custom
         case .slow:
             return .transactionFeeMin
         case .market:
