@@ -20,7 +20,12 @@ enum BlockaidMapper {
 
         let approvals = response.simulation?.exposures.flatMap { mapToApprovals(from: $0.values.flatMap { $0 }) }
 
-        return BlockaidChainScanResult(validationStatus: validationStatus, assetsDiff: assetsDiff, approvals: approvals)
+        return BlockaidChainScanResult(
+            validationStatus: validationStatus,
+            validationDescription: response.validation?.description,
+            assetsDiff: assetsDiff,
+            approvals: approvals
+        )
     }
 
     static func mapBlockchainScan(_ response: BlockaidDTO.SolanaScan.Response) -> BlockaidChainScanResult {
@@ -29,7 +34,12 @@ enum BlockaidMapper {
             mapToAssetsDiffs(from: $0.accountSummary.accountAssetsDiff)
         }
 
-        return BlockaidChainScanResult(validationStatus: validationStatus, assetsDiff: assetsDiffs, approvals: nil)
+        return BlockaidChainScanResult(
+            validationStatus: validationStatus,
+            validationDescription: response.result.validation?.description,
+            assetsDiff: assetsDiffs,
+            approvals: nil
+        )
     }
 }
 
