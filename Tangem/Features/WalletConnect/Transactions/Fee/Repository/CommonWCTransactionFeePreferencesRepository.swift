@@ -39,7 +39,7 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
             return savedOption
         }
 
-        return hasSuggestedFee ? .suggestedByDApp : .market
+        return hasSuggestedFee ? .suggestedByDApp(dappName: dappName) : .market
     }
 
     func saveSelectedFeeOption(_ option: FeeOption, for networkId: String) {
@@ -47,7 +47,7 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
     }
 
     func getLastCustomFeeValues(for networkId: String) -> (feeValue: Decimal, gasPrice: Decimal)? {
-        return lastCustomFeeValues[networkId]
+        lastCustomFeeValues[networkId]
     }
 
     func saveCustomFeeValues(_ values: (feeValue: Decimal, gasPrice: Decimal), for networkId: String) {
@@ -55,7 +55,7 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
     }
 
     func getSuggestedFeeFromDApp(for networkId: String) -> (gasLimit: BigUInt, gasPrice: BigUInt)? {
-        return suggestedFeesFromDApp[networkId]
+        suggestedFeesFromDApp[networkId]
     }
 
     func saveSuggestedFeeFromDApp(gasLimit: BigUInt, gasPrice: BigUInt, for networkId: String) {
