@@ -1,9 +1,5 @@
 //
-//  WCTransactionSecurityAlertState.swift
-//  TangemApp
 //
-//  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -25,5 +21,20 @@ struct WCTransactionSecurityAlertState: Equatable {
     struct ButtonSettings: Equatable {
         let title: String
         let style: MainButton.Style
+        let isLoading: Bool
+    }
+}
+
+extension WCTransactionSecurityAlertState {
+    init(from state: WCTransactionSecurityAlertState, isLoading: Bool) {
+        title = state.title
+        subtitle = state.subtitle
+        icon = state.icon
+        primaryButton = state.primaryButton
+        secondaryButton = .init(
+            title: state.secondaryButton.title,
+            style: state.secondaryButton.style,
+            isLoading: isLoading
+        )
     }
 }
