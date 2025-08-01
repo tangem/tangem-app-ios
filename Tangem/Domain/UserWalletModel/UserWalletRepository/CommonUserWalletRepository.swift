@@ -37,6 +37,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
+    private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let userWalletDataStorage = UserWalletDataStorage()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
@@ -130,21 +131,28 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     func save(userWalletModel: UserWalletModel) {
         savePublicData()
-        savePrivateData(userWalletModel: userWalletModel)
+
+        if let encryptionKey = UserWalletEncryptionKey(config: userWalletModel.config) {
+            savePrivateData(userWalletModel: userWalletModel, encryptionKey: encryptionKey)
+            encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
+        }
     }
 
     func onSaveUserWalletsChanged(enabled: Bool) {
         if enabled {
             savePublicData()
 
-            if let selectedModel {
-                savePrivateData(userWalletModel: selectedModel)
+            if let selectedModel, let encryptionKey = UserWalletEncryptionKey(config: selectedModel.config) {
+                savePrivateData(userWalletModel: selectedModel, encryptionKey: encryptionKey)
+                encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
             }
         } else {
             let selectedModel = selectedModel
 
             visaRefreshTokenRepository.clearPersistent()
-            userWalletDataStorage.clear(userWalletIds: models.map { $0.userWalletId })
+            let userWalletIds = models.map { $0.userWalletId }
+            userWalletDataStorage.clear(userWalletIds: userWalletIds)
+            encryptionKeyStorage.clear(userWalletIds: userWalletIds)
 
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
 
@@ -191,12 +199,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
+        encryptionKeyStorage.clear(userWalletIds: [userWalletId])
         globalServicesContext.cleanServicesForWallet(userWalletId: userWalletId,)
 
         if models.isEmpty {
             AppSettings.shared.startWalletUsageDate = nil
-            lockInternal()
-        } else if !models.contains(where: { !$0.isUserWalletLocked }) {
             lockInternal()
         } else {
             sendEvent(.deleted(userWalletIds: [userWalletId]))
@@ -205,9 +212,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func savePrivateData(userWalletModel: UserWalletModel) {
-        if let encryptionKey = UserWalletEncryptionKey(config: userWalletModel.config),
-           let sensitiveInfo = userWalletModel.serializePrivate() {
+    private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
+        if let sensitiveInfo = userWalletModel.serializePrivate() {
             userWalletDataStorage.savePrivateData(
                 sensitiveInfo: sensitiveInfo,
                 userWalletId: userWalletModel.userWalletId,
@@ -235,10 +241,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
-        let sensitiveInfos = userWalletDataStorage.fetchPrivateData(
-            unlockMethod: .biometrics(context),
-            userWalletIds: models.map { $0.userWalletId }
-        )
+        let userWalletIds = models.map { $0.userWalletId }
+        let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
+        let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
 
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
@@ -286,10 +291,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func handleUnlock(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) throws -> UserWalletModel {
-        let sensitiveInfos = userWalletDataStorage.fetchPrivateData(
-            unlockMethod: .userWallet(userWalletId: userWalletId, key: encryptionKey),
-            userWalletIds: models.map { $0.userWalletId }
-        )
+        // We have to refresh a key on every unlock by scan because we are unable to check presence of the key
+        encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
+
+        let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])
 
         // unlock all locked and unprotected mobile wallets
         for sensitiveInfo in sensitiveInfos.filter({ $0.key != userWalletId }) {

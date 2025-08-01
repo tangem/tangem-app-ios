@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct WCCustomAllowanceView: View {
     @StateObject private var viewModel: WCCustomAllowanceViewModel
@@ -35,28 +36,27 @@ struct WCCustomAllowanceView: View {
         }
     }
 
-    // MARK: - Header
-
     private var headerView: some View {
         WalletConnectNavigationBarView(
-            title: "Custom allowance",
-            backButtonAction: { viewModel.handleViewAction(.back) }
+            title: Localization.wcCustomAllowanceTitle,
+            backButtonAction: {
+                Task {
+                    await viewModel.handleViewAction(.back)
+                }
+            }
         )
     }
-
-    // MARK: - Amount Section
 
     private var amountSection: some View {
         HStack(spacing: 8) {
             VStack(spacing: 4) {
-                Text("Amount")
+                Text(Localization.commonAmount)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Amount input field
                 TextField("0", text: $viewModel.amountText)
                     .style(Fonts.Regular.body, color: viewModel.isUnlimited ? Colors.Text.tertiary : Colors.Text.primary1)
-                    .keyboardType(.numberPad)
+                    .keyboardType(.decimalPad)
                     .disabled(viewModel.isUnlimited)
                     .multilineTextAlignment(.leading)
             }
@@ -79,7 +79,6 @@ struct WCCustomAllowanceView: View {
         if let iconURL = viewModel.tokenIconURL {
             IconView(url: iconURL, size: iconSize, cornerRadius: cornerRadius)
         } else {
-            // Fallback when no icon URL is available
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(Colors.Background.primary)
                 .frame(size: iconSize)
@@ -90,18 +89,18 @@ struct WCCustomAllowanceView: View {
         }
     }
 
-    // MARK: - Unlimited Toggle
-
     private var unlimitedToggleSection: some View {
         HStack(spacing: 16) {
-            Text("Unlimited Amount")
+            Text(Localization.wcUnlimitedAmount)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Toggle("", isOn: $viewModel.isUnlimited)
                 .tint(Colors.Control.checked)
                 .onChange(of: viewModel.isUnlimited) { newValue in
-                    viewModel.handleViewAction(.unlimitedToggled(newValue))
+                    Task {
+                        await viewModel.handleViewAction(.unlimitedToggled(newValue))
+                    }
                 }
         }
         .padding(.horizontal, 14)
@@ -110,9 +109,15 @@ struct WCCustomAllowanceView: View {
         .cornerRadius(14)
     }
 
-    // MARK: - Done Button
-
     private var doneButton: some View {
-        MainButton(title: "Done", isDisabled: !viewModel.canSubmit, action: { viewModel.handleViewAction(.done) })
+        MainButton(
+            title: Localization.commonDone,
+            isDisabled: !viewModel.canSubmit,
+            action: {
+                Task {
+                    await viewModel.handleViewAction(.done)
+                }
+            }
+        )
     }
 }

@@ -36,6 +36,7 @@ public enum BlockchainSdkError: LocalizedError {
     case networkProvidersNotSupportsRbf
     case networkUnavailable
     case twMakeAddressFailed
+    case noTrustlineAtDestination
 
     public var errorDescription: String? {
         switch self {

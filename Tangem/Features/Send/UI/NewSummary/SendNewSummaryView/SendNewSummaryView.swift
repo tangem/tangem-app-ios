@@ -80,12 +80,19 @@ struct SendNewSummaryView: View {
 
     @ViewBuilder
     private var descriptionView: some View {
-        if let transactionDescription = viewModel.transactionDescription {
-            Text(.init(transactionDescription))
-                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 16)
-                .visible(viewModel.transactionDescriptionIsVisible)
+        Group {
+            switch viewModel.transactionDescription {
+            case .none:
+                EmptyView()
+            case .string(let string):
+                Text(.init(string))
+                    .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+            case .attributed(let attributedString):
+                Text(attributedString)
+            }
         }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 16)
+        .visible(viewModel.transactionDescriptionIsVisible)
     }
 }
