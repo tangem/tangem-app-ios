@@ -10,24 +10,27 @@ import TangemLocalization
 import TangemAssets
 
 enum WCTransactionSecurityAlertFactory {
-    static func makeSecurityAlertViewModel(
-        input: WCTransactionSecurityAlertInput,
-    ) -> WCTransactionSecurityAlertViewModel? {
+    static func makeSecurityAlertState(
+        input: WCTransactionSecurityAlertInput
+    ) -> WCTransactionSecurityAlertState? {
         let state: WCTransactionSecurityAlertState
 
         switch input.validationStatus {
         case .malicious, .warning:
             state = .init(
                 title: Localization.securityAlertTitle,
-                subtitle: input.validationStatus.description,
-                icon: .init(asset: Assets.Glyphs.knightShield, color: Colors.Icon.warning),
-                primaryButton: .init(title: Localization.commonCancel, style: .primary),
-                secondaryButton: .init(title: "Send anyway", style: .secondary)
+                subtitle: input.validationDescription ?? input.validationStatus.rawValue,
+                icon: .init(
+                    asset: Assets.Glyphs.knightShield,
+                    color: input.validationStatus == .malicious ? Colors.Icon.warning : Colors.Icon.attention
+                ),
+                primaryButton: .init(title: Localization.commonBack, style: .primary, isLoading: false),
+                secondaryButton: .init(title: Localization.wcSendAnyway, style: .secondary, isLoading: false)
             )
         case .benign:
             return nil
         }
 
-        return WCTransactionSecurityAlertViewModel(state: state, input: input)
+        return state
     }
 }
