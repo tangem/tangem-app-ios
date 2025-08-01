@@ -205,8 +205,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if models.isEmpty {
             AppSettings.shared.startWalletUsageDate = nil
             lockInternal()
-        } else if !models.contains(where: { !$0.isUserWalletLocked }) {
-            lockInternal()
         } else {
             sendEvent(.deleted(userWalletIds: [userWalletId]))
             let newModel = models[nextSelectionIndex]
