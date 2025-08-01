@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 struct WCTransactionWalletRow: View {
     let walletName: String
@@ -20,12 +21,15 @@ struct WCTransactionWalletRow: View {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(Colors.Icon.accent)
                 .padding(.trailing, 8)
-            Text("Wallet")
+            Text(Localization.wcCommonWallet)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 8)
+
+            Spacer()
+
             Text(walletName)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
         }
+        .lineLimit(1)
     }
 }
