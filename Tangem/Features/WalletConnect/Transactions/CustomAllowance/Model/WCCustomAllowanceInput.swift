@@ -12,9 +12,9 @@ import BigInt
 struct WCCustomAllowanceInput {
     let approvalInfo: ApprovalInfo
     let tokenInfo: WCApprovalHelpers.TokenInfo
-    let asset: BlockaidChainScanResult.Asset // Asset data for icon and type determination
-    let updateAction: (BigUInt) -> Void
-    let backAction: () -> Void
+    let asset: BlockaidChainScanResult.Asset
+    let updateAction: @MainActor (BigUInt) async -> Void
+    let backAction: @MainActor () -> Void
 }
 
 extension WCCustomAllowanceInput: Equatable {
