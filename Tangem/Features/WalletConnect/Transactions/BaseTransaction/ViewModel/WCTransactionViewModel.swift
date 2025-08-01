@@ -14,83 +14,105 @@ import Foundation
 import BlockchainSdk
 import TangemUI
 import TangemLocalization
+import TangemUIUtils
 
 @MainActor
-final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel {
-    // MARK: Dependencies
-
+final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel & WCTransactionViewModelDisplayData {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
-    private let simulationService: WCTransactionSimulationService
-    private let simulationDisplayService: WCTransactionSimulationDisplayService
-    private let feeSelectorFactory: WCFeeSelectorFactory
     private let analyticsLogger: any WalletConnectTransactionAnalyticsLogger
+    private let simulationManager: WCTransactionSimulationManager
+    private let securityManager: WCTransactionSecurityManager
+    private let customAllowanceManager: WCCustomAllowanceManager
+    private let requestDetailsInputFactory: WCRequestDetailsInputFactory
+    private let toastFactory: WCToastFactory
+    private let notificationManager: WCNotificationManager
+    private let validationService: WCTransactionValidationService
 
-    // MARK: Published properties
+    lazy var displayModel: WCTransactionDisplayModel = CommonWCTransactionDisplayModel(
+        transactionData: transactionData,
+        userWalletRepository: userWalletRepository,
+        simulationManager: simulationManager,
+        securityManager: securityManager,
+        viewModel: self
+    )
 
     @Published private(set) var presentationState: PresentationState = .transactionDetails
     @Published private(set) var simulationState: TransactionSimulationState = .notStarted
 
-    // MARK: Fee management
-
     @Published private(set) var selectedFee: WCFee?
+    @Published private(set) var feeRowViewModel: WCFeeRowViewModel?
 
-    // MARK: Approval editing
+    @Published private(set) var feeValidationInputs: [NotificationViewInput] = []
+    @Published private(set) var simulationValidationInputs: [NotificationViewInput] = []
 
-    @Published private(set) var currentTransaction: WalletConnectEthTransaction?
+    private(set) var currentTransaction: WalletConnectEthTransaction?
 
-    private var feeInteractor: WCFeeInteractor?
+    private(set) var feeInteractor: (any WCFeeInteractorType)?
+    private var bag = Set<AnyCancellable>()
 
-    // MARK: Public properties
+    let transactionData: WCHandleTransactionData
+    let feeManager: WCTransactionFeeManager
 
-    let dappData: WalletConnectDAppData
-    var transactionData: WCHandleTransactionData
+    private(set) var isDappVerified: Bool = false
 
-    var userWalletName: String {
-        transactionData.userWalletModel.name
-    }
+    init(
+        transactionData: WCHandleTransactionData,
+        feeManager: WCTransactionFeeManager,
+        simulationManager: WCTransactionSimulationManager = CommonWCTransactionSimulationManager(),
+        securityManager: WCTransactionSecurityManager = CommonWCTransactionSecurityManager(),
+        customAllowanceManager: WCCustomAllowanceManager = CommonWCCustomAllowanceManager(),
+        requestDetailsInputFactory: WCRequestDetailsInputFactory = CommonWCRequestDetailsInputFactory(),
+        toastFactory: WCToastFactory = CommonWCToastFactory(),
+        notificationManager: WCNotificationManager = WCNotificationManager(),
+        validationService: WCTransactionValidationService = CommonWCTransactionValidationService(),
+        analyticsLogger: some WalletConnectTransactionAnalyticsLogger
+    ) {
+        self.transactionData = transactionData
+        self.feeManager = feeManager
+        self.simulationManager = simulationManager
+        self.securityManager = securityManager
+        self.customAllowanceManager = customAllowanceManager
+        self.requestDetailsInputFactory = requestDetailsInputFactory
+        self.toastFactory = toastFactory
+        self.notificationManager = notificationManager
+        self.validationService = validationService
+        self.analyticsLogger = analyticsLogger
 
-    var primariActionButtonTitle: String {
-        switch transactionData.method {
-        case .sendTransaction:
-            "Send"
-        default:
-            "Sign"
+        Task {
+            self.isDappVerified = (try? await securityManager.getDAppVerificationStatus(
+                for: transactionData.topic,
+                connectedDAppRepository: connectedDAppRepository
+            )) ?? false
+
+            currentTransaction = parseEthTransaction()
+
+            bindSimulationState()
+            bindSimulationStateToNotifications()
+
+            await saveSuggestedDappGas()
+            await setupFeeManagement()
+            await startTransactionSimulation()
         }
     }
 
-    // MARK: - Simulation Display Model
+    private func saveSuggestedDappGas() async {
+        guard
+            let gasString = currentTransaction?.gas,
+            let gasPriceString = currentTransaction?.gasPrice,
+            let gasLimit = BigUInt(gasString.removeHexPrefix(), radix: 16),
+            let gasPrice = BigUInt(gasPriceString.removeHexPrefix(), radix: 16)
+        else {
+            return
+        }
 
-    var simulationDisplayModel: WCTransactionSimulationDisplayModel {
-        simulationDisplayService.createDisplayModel(
-            from: simulationState,
-            originalTransaction: currentTransaction,
-            userWalletModel: transactionData.userWalletModel,
-            onApprovalEdit: { [weak self] approvalInfo, asset in
-                self?.handleViewAction(.editApproval(approvalInfo, asset))
-            }
+        await feeManager.feeRepository.saveSuggestedFeeFromDApp(
+            gasLimit: gasLimit,
+            gasPrice: gasPrice,
+            for: transactionData.blockchain.networkId
         )
-    }
-
-    init(
-        dappData: WalletConnectDAppData,
-        transactionData: WCHandleTransactionData,
-        simulationService: WCTransactionSimulationService = CommonWCTransactionSimulationService(blockaidService: BlockaidFactory().makeBlockaidAPIService()),
-        simulationDisplayService: WCTransactionSimulationDisplayService? = nil,
-        feeSelectorFactory: WCFeeSelectorFactory = WCFeeSelectorFactory(),
-        analyticsLogger: some WalletConnectTransactionAnalyticsLogger
-    ) {
-        self.dappData = dappData
-        self.transactionData = transactionData
-        self.simulationService = simulationService
-        self.simulationDisplayService = simulationDisplayService ?? WCTransactionSimulationDisplayService()
-        self.feeSelectorFactory = feeSelectorFactory
-        self.analyticsLogger = analyticsLogger
-
-        currentTransaction = parseEthTransaction()
-
-        startTransactionSimulation()
-        setupFeeManagement()
     }
 
     func handleViewAction(_ action: ViewAction) {
@@ -112,59 +134,45 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             showCustomAllowanceEditor(approvalInfo: approvalInfo, asset: asset)
         }
     }
-}
 
-// MARK: - Transaction Simulation
+    func getWalletModelForTransaction() -> (any WalletModel)? {
+        guard let ethTransaction = currentTransaction else {
+            return nil
+        }
 
-private extension WCTransactionViewModel {
-    func startTransactionSimulation() {
-        Task {
-            simulationState = .loading
-
-            guard
-                let address = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
-                    $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-                })?.defaultAddressString
-            else {
-                return
-            }
-
-            simulationState = await simulationService.simulateTransaction(
-                for: transactionData.method,
-                address: address,
-                blockchain: transactionData.blockchain,
-                requestData: transactionData.requestData,
-                domain: dappData.domain
-            )
-
-            analyticsLogger.logSignatureRequestReceived(transactionData: transactionData, simulationState: simulationState)
+        return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
+            walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
+                walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
 }
 
-// MARK: - Fee Management
-
 private extension WCTransactionViewModel {
-    func setupFeeManagement() {
-        guard let ethTransaction = currentTransaction else {
-            return
-        }
-
-        guard let walletModel = getWalletModelForTransaction() else {
-            return
-        }
-
-        let feeProvider = CommonWCFeeProvider()
-        let interactor = WCFeeInteractor(
-            transaction: ethTransaction,
-            walletModel: walletModel,
-            feeProvider: feeProvider,
-            output: self
+    func startTransactionSimulation() async {
+        await simulationManager.startSimulation(
+            for: transactionData,
+            userWalletModel: transactionData.userWalletModel
         )
 
-        feeInteractor = interactor
+        analyticsLogger.logSignatureRequestReceived(
+            transactionData: transactionData,
+            simulationState: simulationState
+        )
     }
 
+    func bindSimulationState() {
+        simulationManager.simulationState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                Task { @MainActor in
+                    self?.simulationState = state
+                }
+            }
+            .store(in: &bag)
+    }
+}
+
+private extension WCTransactionViewModel {
     func shouldShowFeeSelector() -> Bool {
         switch transactionData.method {
         case .sendTransaction, .signTransaction:
@@ -181,58 +189,108 @@ private extension WCTransactionViewModel {
         return transaction
     }
 
-    func getWalletModelForTransaction() -> (any WalletModel)? {
-        guard let ethTransaction = currentTransaction else {
-            return nil
-        }
-
-        return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
-            walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
-                walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
-        }
-    }
-
     func showFeeSelector() {
-        guard let feeInteractor, let walletModel = getWalletModelForTransaction() else { return }
+        guard
+            let ethTransaction = currentTransaction,
+            let walletModel = getWalletModelForTransaction(),
+            let feeInteractor = feeInteractor as? WCFeeInteractor
+        else {
+            return
+        }
 
-        let feeSelectorViewModel = feeSelectorFactory.createFeeSelectorFromInteractor(
+        let feeSelectorViewModel = feeManager.createFeeSelector(
+            for: ethTransaction,
+            walletModel: walletModel,
+            validationService: validationService,
+            notificationManager: notificationManager,
             feeInteractor: feeInteractor,
-            walletModel: walletModel
+            onValidationUpdate: { [weak self] inputs in
+                Task { @MainActor in
+                    guard let self = self, self.displayModel.isDataReady else { return }
+                    self.feeValidationInputs = inputs
+                }
+            },
+            output: self
         )
 
         presentationState = .feeSelector(feeSelectorViewModel)
     }
-}
 
-// MARK: - Custom Allowance
+    func setupFeeManagement() async {
+        guard
+            shouldShowFeeSelector(),
+            let ethTransaction = currentTransaction,
+            let walletModel = getWalletModelForTransaction()
+        else {
+            return
+        }
+
+        let wcFeeInteractor = await feeManager.setupFeeManagement(
+            for: ethTransaction,
+            walletModel: walletModel,
+            validationService: validationService,
+            notificationManager: notificationManager,
+            onValidationUpdate: { [weak self] inputs in
+                Task { @MainActor in
+                    guard let self, self.displayModel.isDataReady else { return }
+                    self.feeValidationInputs = inputs
+                }
+            },
+            onFeeChanged: { [weak self] fee in
+                Task { @MainActor in
+                    self?.feeDidChanged(fee:)
+                }
+            },
+            output: self
+        )
+
+        feeInteractor = wcFeeInteractor
+
+        wcFeeInteractor.selectedFeePublisher
+            .sink { [weak self] newSelectedFee in
+                Task { @MainActor in
+                    self?.selectedFee = newSelectedFee
+                    self?.updateFeeRowViewModel()
+                    self?.handleFeeLoadingError(newSelectedFee)
+                }
+            }
+            .store(in: &bag)
+    }
+}
 
 private extension WCTransactionViewModel {
     func showCustomAllowanceEditor(approvalInfo: ApprovalInfo, asset: BlockaidChainScanResult.Asset) {
-        guard let tokenInfo = determineTokenInfoForApproval(approvalInfo: approvalInfo) else { return }
+        let simulationResult: BlockaidChainScanResult?
+        if case .simulationSucceeded(let result) = simulationState {
+            simulationResult = result
+        } else {
+            simulationResult = nil
+        }
 
-        let input = WCCustomAllowanceInput(
+        guard let input = customAllowanceManager.createCustomAllowanceInput(
             approvalInfo: approvalInfo,
-            tokenInfo: tokenInfo,
             asset: asset,
+            currentTransaction: currentTransaction,
+            transactionData: transactionData,
+            simulationResult: simulationResult,
             updateAction: { [weak self] newAmount in
-                Task { @MainActor in
-                    await self?.updateApprovalTransaction(approvalInfo: approvalInfo, newAmount: newAmount)
-                }
+                await self?.updateApprovalTransaction(approvalInfo: approvalInfo, newAmount: newAmount)
             },
             backAction: { [weak self] in
                 self?.returnToTransactionDetails()
             }
         )
+        else {
+            return
+        }
 
         presentationState = .customAllowance(input)
     }
 
     func updateApprovalTransaction(approvalInfo: ApprovalInfo, newAmount: BigUInt) async {
-        guard let originalTransaction = currentTransaction else {
-            return
-        }
+        guard let originalTransaction = currentTransaction else { return }
 
-        guard let updatedTransaction = WCApprovalAnalyzer.createUpdatedApproval(
+        guard let updatedTransaction = customAllowanceManager.updateApprovalTransaction(
             originalTransaction: originalTransaction,
             newAmount: newAmount
         ) else {
@@ -244,49 +302,17 @@ private extension WCTransactionViewModel {
 
         await MainActor.run {
             currentTransaction = updatedTransaction
-
             transactionData.updateTransaction(updatedTransaction)
-
-            setupFeeManagement()
-
             presentationState = .transactionDetails
         }
     }
-
-    func determineTokenInfoForApproval(approvalInfo: ApprovalInfo) -> WCApprovalHelpers.TokenInfo? {
-        guard let transaction = currentTransaction else {
-            return WCApprovalHelpers.TokenInfo(
-                symbol: "",
-                decimals: 18,
-                source: .wallet
-            )
-        }
-
-        let simulationResult = getSimulationResult()
-
-        return WCApprovalHelpers.determineTokenInfo(
-            contractAddress: transaction.to,
-            amount: approvalInfo.amount,
-            userWalletModel: transactionData.userWalletModel,
-            simulationResult: simulationResult
-        )
-    }
-
-    private func getSimulationResult() -> BlockaidChainScanResult? {
-        if case .simulationSucceeded(let result) = simulationState {
-            return result
-        }
-        return nil
-    }
 }
-
-// MARK: - WCFeeInteractorOutput
 
 extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
     func feeDidChanged(fee: WCFee) {
         Task { @MainActor in
             selectedFee = fee
-
+            updateFeeRowViewModel()
             updateTransactionWithFee(fee: fee)
         }
     }
@@ -296,89 +322,81 @@ extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
     }
 
     private func updateTransactionWithFee(fee: WCFee) {
-        guard let currentTx = currentTransaction else {
-            return
-        }
+        guard let currentTx = currentTransaction else { return }
 
-        guard let feeValue = fee.value.value else {
-            return
-        }
-
-        guard let ethereumFeeParameters = feeValue.parameters as? EthereumFeeParameters else {
-            return
-        }
-
-        let updatedTx: WalletConnectEthTransaction
-
-        switch ethereumFeeParameters.parametersType {
-        case .legacy(let legacyParams):
-            let gasLimitHex = String(legacyParams.gasLimit, radix: 16).addHexPrefix()
-            let gasPriceHex = String(legacyParams.gasPrice, radix: 16).addHexPrefix()
-
-            updatedTx = WalletConnectEthTransaction(
-                from: currentTx.from,
-                to: currentTx.to,
-                value: currentTx.value,
-                data: currentTx.data,
-                gas: gasLimitHex,
-                gasLimit: gasLimitHex,
-                gasPrice: gasPriceHex,
-                nonce: currentTx.nonce
-            )
-
-        case .eip1559(let eip1559Params):
-            let gasLimitHex = String(eip1559Params.gasLimit, radix: 16).addHexPrefix()
-            let maxFeeHex = String(eip1559Params.maxFeePerGas, radix: 16).addHexPrefix()
-
-            updatedTx = WalletConnectEthTransaction(
-                from: currentTx.from,
-                to: currentTx.to,
-                value: currentTx.value,
-                data: currentTx.data,
-                gas: gasLimitHex,
-                gasLimit: gasLimitHex,
-                gasPrice: maxFeeHex,
-                nonce: currentTx.nonce
-            )
-        }
+        guard let updatedTx = feeManager.updateTransactionWithFee(fee, currentTransaction: currentTx) else { return }
 
         currentTransaction = updatedTx
-
         transactionData.updateTransaction(updatedTx)
+
+        if let feeValue = fee.value.value,
+           let walletModel = getWalletModelForTransaction() {
+            validateFeeNotifications(fee: feeValue, transaction: updatedTx, walletModel: walletModel)
+        }
     }
 }
-
-// MARK: - Action methods
 
 private extension WCTransactionViewModel {
     func sign() {
         Task { @MainActor [weak self] in
-            switch self?.simulationState {
-            case .simulationSucceeded(let result) where result.validationStatus == .warning || result.validationStatus == .malicious:
-                guard
-                    let validationStatus = result.validationStatus,
-                    let securityAlertViewModel = WCTransactionSecurityAlertFactory.makeSecurityAlertViewModel(
-                        input: .init(
-                            validationStatus: validationStatus,
-                            primaryAction: { self?.cancel() },
-                            secondaryAction: {
-                                Task { [weak self] in
-                                    await self?.signTransaction()
-                                }
-                            },
-                            closeAction: { self?.cancel() }
-                        )
-                    )
-                else {
+            guard let self else { return }
+
+            let securityResult = securityManager.validateTransactionSecurity(
+                simulationState: simulationState
+            )
+
+            if let securityResult = securityResult {
+                guard let securityAlert = securityManager.createSecurityAlert(
+                    for: securityResult,
+                    primaryAction: { [weak self] in self?.returnToTransactionDetails() },
+                    secondaryAction: { [weak self] in await self?.signTransaction() },
+                    backAction: { [weak self] in self?.returnToTransactionDetails() }
+                ) else {
+                    await validateAndSignTransaction()
                     return
                 }
 
-                self?.presentationState = .securityAlert(securityAlertViewModel)
-            default:
-                self?.presentationState = .signing
-                await self?.signTransaction(onComplete: self?.returnToTransactionDetails)
+                presentationState = .securityAlert(state: securityAlert.state, input: securityAlert.input)
+            } else {
+                await validateAndSignTransaction()
             }
         }
+    }
+
+    @MainActor
+    private func validateAndSignTransaction() async {
+        presentationState = .signing
+        await signTransaction(onComplete: returnToTransactionDetails)
+    }
+
+    private func validateFeeNotifications(fee: Fee, transaction: WalletConnectEthTransaction, walletModel: any WalletModel) {
+        guard displayModel.isDataReady, let feeInteractor else { return }
+
+        let selectedFee = feeInteractor.selectedFee
+
+        let allEvents = feeManager.validateFeeAndBalance(
+            fee: fee,
+            transaction: transaction,
+            walletModel: walletModel,
+            validationService: validationService,
+            feeInteractor: feeInteractor,
+            selectedFeeOption: selectedFee.option
+        )
+
+        feeValidationInputs = notificationManager.updateFeeValidationNotifications(allEvents, buttonAction: { [weak self] _, actionType in
+            self?.handleNotificationButtonAction(actionType)
+        })
+    }
+
+    private func bindSimulationStateToNotifications() {
+        $simulationState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                let events = validationService.validateSimulationResult(state)
+                simulationValidationInputs = notificationManager.updateSimulationValidationNotifications(events)
+            }
+            .store(in: &bag)
     }
 
     @MainActor
@@ -391,14 +409,14 @@ private extension WCTransactionViewModel {
             onComplete?()
             analyticsLogger.logSignatureRequestHandled(transactionData: transactionData)
 
-            makeSuccessToast(with: Localization.sendTransactionSuccess)
+            toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
 
             floatingSheetPresenter.removeActiveSheet()
         } catch {
             onComplete?()
             analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
 
-            makeWarningToast(with: error.localizedDescription)
+            toastFactory.makeWarningToast(with: error.localizedDescription)
         }
     }
 
@@ -411,75 +429,80 @@ private extension WCTransactionViewModel {
     }
 
     func showRequestData() {
-        let input = WCRequestDetailsInput(
-            builder: .init(
-                method: transactionData.method,
-                source: transactionData.requestData
-            ),
-            rawTransaction: transactionData.rawTransaction,
+        let simulationResult: BlockaidChainScanResult?
+        if case .simulationSucceeded(let result) = simulationState {
+            simulationResult = result
+        } else {
+            simulationResult = nil
+        }
+
+        let input = requestDetailsInputFactory.createRequestDetailsInput(
+            transactionData: transactionData,
+            simulationResult: simulationResult,
             backAction: returnToTransactionDetails
         )
 
         presentationState = .requestData(input)
         analyticsLogger.logTransactionDetailsOpened(transactionData: transactionData)
     }
-}
 
-// MARK: - Factory methods
+    private func handleFeeLoadingError(_ selectedFee: WCFee) {
+        switch selectedFee.value {
+        case .failedToLoad:
+            let networkFeeEvent = WCNotificationEvent.networkFeeUnreachable
+            feeValidationInputs = notificationManager.updateFeeValidationNotifications([networkFeeEvent], buttonAction: { [weak self] _, actionType in
+                self?.handleNotificationButtonAction(actionType)
+            })
+        case .loading, .loaded:
+            let currentEvents = notificationManager.currentFeeValidationInputs(buttonAction: { [weak self] _, actionType in
+                self?.handleNotificationButtonAction(actionType)
+            })
+            .compactMap { $0.settings.event as? WCNotificationEvent }
+            .filter { !($0 == .networkFeeUnreachable) }
 
-extension WCTransactionViewModel {
-    private func makeWarningToast(with text: String) {
-        Toast(view: WarningToast(text: text))
-            .present(
-                layout: .top(padding: 20),
-                type: .temporary()
-            )
-    }
-
-    private func makeSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
-            .present(
-                layout: .top(padding: 20),
-                type: .temporary()
-            )
-    }
-}
-
-extension WCTransactionViewModel {
-    enum ViewAction {
-        case dismissTransactionView
-        case cancel
-        case sign
-        case returnTransactionDetails
-        case showRequestData
-        case showFeeSelector
-        case editApproval(ApprovalInfo, BlockaidChainScanResult.Asset)
-    }
-
-    enum PresentationState: Equatable {
-        case signing
-        case transactionDetails
-        case requestData(WCRequestDetailsInput)
-        case feeSelector(FeeSelectorContentViewModel)
-        case customAllowance(WCCustomAllowanceInput)
-        case securityAlert(WCTransactionSecurityAlertViewModel)
-
-        static func == (lhs: PresentationState, rhs: PresentationState) -> Bool {
-            switch (lhs, rhs) {
-            case (.signing, .signing),
-                 (.transactionDetails, .transactionDetails):
-                return true
-            case (.requestData(let lhsInput), .requestData(let rhsInput)):
-                return lhsInput == rhsInput
-            case (.feeSelector, .feeSelector):
-                return true
-            case (.customAllowance(let lhsInput), .customAllowance(let rhsInput)):
-                return lhsInput == rhsInput
-            case (.securityAlert(let lhsStatus), .securityAlert(let rhsStatus)):
-                return lhsStatus == rhsStatus
-            default:
-                return false
-            }
+            feeValidationInputs = notificationManager.updateFeeValidationNotifications(currentEvents, buttonAction: { [weak self] _, actionType in
+                self?.handleNotificationButtonAction(actionType)
+            })
         }
+    }
+
+    func retryFeeLoading() {
+        feeInteractor?.retryFeeLoading()
+    }
+
+    private func handleNotificationButtonAction(_ actionType: NotificationButtonActionType) {
+        switch actionType {
+        case .refreshFee:
+            retryFeeLoading()
+        default:
+            break
+        }
+    }
+
+    private func updateFeeRowViewModel() {
+        guard let selectedFee = selectedFee,
+              let feeTokenItem = getFeeTokenItem() else {
+            feeRowViewModel = nil
+            return
+        }
+
+        feeRowViewModel = WCFeeRowViewModel(
+            selectedFee: selectedFee,
+            blockchain: transactionData.blockchain,
+            feeTokenItem: feeTokenItem,
+            onTap: { [weak self] in
+                self?.handleViewAction(.showFeeSelector)
+            }
+        )
+    }
+
+    private func getFeeTokenItem() -> TokenItem? {
+        if let walletModel = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
+            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
+        }) {
+            return walletModel.feeTokenItem
+        }
+
+        return nil
     }
 }

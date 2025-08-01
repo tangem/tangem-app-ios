@@ -11,6 +11,7 @@ import BlockchainSdk
 
 struct BlockaidChainScanResult: Equatable {
     let validationStatus: ValidationStatus?
+    let validationDescription: String?
     let assetsDiff: AssetDiff?
     let approvals: [Asset]?
 
@@ -18,17 +19,6 @@ struct BlockaidChainScanResult: Equatable {
         case malicious = "Malicious"
         case warning = "Warning"
         case benign = "Benign"
-
-        var description: String {
-            switch self {
-            case .malicious:
-                "The transaction approves tokens to a known malicious address"
-            case .warning:
-                "The transaction is likely to be a user-mistake transaction resulting in a loss of assets without any compensation"
-            case .benign:
-                ""
-            }
-        }
     }
 
     struct AssetDiff: Equatable {
