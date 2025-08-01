@@ -12,23 +12,23 @@ import TangemUI
 import ReownWalletKit
 
 struct WCDappTitleView: View {
-    private let isLoading: Bool
     private let icons: [URL]
     private let dappName: String
     private let dappUrl: String
     private let iconSideLength: CGFloat
     private let placeholderIconSideLength: CGFloat
+    private let isVerified: Bool
 
     init(
-        isLoading: Bool,
         dAppData: WalletConnectDAppData,
-        iconSideLength: CGFloat = 56,
+        iconSideLength: CGFloat,
+        isVerified: Bool,
         placeholderIconSideLength: CGFloat = 26
     ) {
-        self.isLoading = isLoading
         icons = [dAppData.icon].compactMap { $0 }
         dappName = dAppData.name
         dappUrl = dAppData.domain.host ?? ""
+        self.isVerified = isVerified
         self.iconSideLength = iconSideLength
         self.placeholderIconSideLength = placeholderIconSideLength
     }
@@ -37,69 +37,41 @@ struct WCDappTitleView: View {
         content
     }
 
-    @ViewBuilder
     private var content: some View {
-        if isLoading {
-            dappTitleStub
-                .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
-        } else {
-            HStack(spacing: 16) {
-                if let iconURL = icons.last {
-                    IconView(url: iconURL, size: .init(bothDimensions: iconSideLength))
-                } else {
-                    ZStack {
-                        Colors.Icon.accent.opacity(0.1)
-                            .frame(size: .init(bothDimensions: iconSideLength))
-                            .cornerRadius(8, corners: .allCorners)
-                        Assets.Glyphs.explore.image
-                            .renderingMode(.template)
-                            .foregroundStyle(Colors.Icon.accent)
-                            .frame(size: .init(bothDimensions: placeholderIconSideLength))
-                    }
+        HStack(spacing: 16) {
+            if let iconURL = icons.last {
+                IconView(url: iconURL, size: .init(bothDimensions: iconSideLength))
+            } else {
+                ZStack {
+                    Colors.Icon.accent.opacity(0.1)
+                        .frame(size: .init(bothDimensions: iconSideLength))
+                        .cornerRadius(8, corners: .allCorners)
+                    Assets.Glyphs.explore.image
+                        .renderingMode(.template)
+                        .foregroundStyle(Colors.Icon.accent)
+                        .frame(size: .init(bothDimensions: placeholderIconSideLength))
                 }
+            }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    if !dappName.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                if dappName.isNotEmpty {
+                    HStack(spacing: 8) {
                         Text(dappName)
                             .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    }
 
-                    if dappUrl.isEmpty {
-                        Text(dappUrl)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        if isVerified {
+                            Assets.Glyphs.verified.image
+                                .foregroundStyle(Colors.Icon.accent)
+                        }
                     }
                 }
-                .multilineTextAlignment(.leading)
+
+                if dappUrl.isNotEmpty {
+                    Text(dappUrl)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
             }
-            .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
+            .multilineTextAlignment(.leading)
         }
-    }
-
-    private var dappTitleStub: some View {
-        HStack(spacing: 16) {
-            Rectangle()
-                .foregroundStyle(.clear)
-                .frame(size: .init(bothDimensions: 56))
-                .skeletonable(isShown: true, radius: 12)
-            VStack(alignment: .leading, spacing: 4) {
-                Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(width: 119, height: 25)
-                    .skeletonable(isShown: true, radius: 8)
-
-                Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(width: 168, height: 18)
-                    .skeletonable(isShown: true, radius: 8)
-            }
-        }
-    }
-}
-
-// MARK: - UI Helpers
-
-private extension WCDappTitleView {
-    func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
-        .curve(.easeOutStandard, duration: duration)
     }
 }

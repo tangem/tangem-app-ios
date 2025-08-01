@@ -16,6 +16,7 @@ class CommonUserTokensPushNotificationsManager {
 
     @Injected(\.userTokensPushNotificationsService) var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.pushNotificationsPermission) var pushNotificationsPermission: PushNotificationsPermissionService
+    @Injected(\.pushNotificationsInteractor) var pushNotificationsInteractor: PushNotificationsInteractor
 
     // MARK: - Private Properties
 
@@ -26,11 +27,16 @@ class CommonUserTokensPushNotificationsManager {
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.unavailable(reason: .notInitialized, enabledRemote: false))
 
-    private var taskCancellable: Task<Void, Error>?
+    private var allowanceTask: Task<Void, Error>?
+    private var updateTask: Task<Void, Error>?
     private var cancellables = Set<AnyCancellable>()
 
     private var isAvailableFeatureToggle: Bool {
         FeatureProvider.isAvailable(.pushTransactionNotifications)
+    }
+
+    private var currentEntry: ApplicationWalletEntry? {
+        userTokensPushNotificationsService.entries.first(where: { $0.id == userWalletId.stringValue })
     }
 
     // MARK: Init
@@ -58,13 +64,13 @@ class CommonUserTokensPushNotificationsManager {
             .withWeakCaptureOf(self)
             .sink { manager, entries in
                 // Need cancel update status when entries did update
-                manager.taskCancellable?.cancel()
+                manager.updateTask?.cancel()
 
                 guard let entry = entries.first(where: { $0.id == manager.userWalletId.stringValue }) else {
                     return
                 }
 
-                manager.updateStatusIfNeeded(by: entry)
+                manager.updateStatusIfNeeded(with: entry.notifyStatus)
             }
             .store(in: &cancellables)
 
@@ -83,15 +89,61 @@ class CommonUserTokensPushNotificationsManager {
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .withWeakCaptureOf(self)
             .sink { manager, _ in
-                guard let entry = manager.userTokensPushNotificationsService.entries.first(where: {
-                    $0.id == manager.userWalletId.stringValue
-                }) else {
+                guard let currentEntry = manager.currentEntry else {
                     return
                 }
 
-                manager.updateStatusIfNeeded(by: entry)
+                manager.updateStatusIfNeeded(with: currentEntry.notifyStatus)
             }
             .store(in: &cancellables)
+
+        // It is used for existing versions in order to automatically show a notification to the user about transactions.
+        pushNotificationsInteractor
+            .permissionRequestPublisher
+            .withWeakCaptureOf(self)
+            .sink { manager, request in
+                guard case .allow(.afterLogin) = request else {
+                    return
+                }
+
+                // Need cancel allowance when permission did update
+                manager.allowanceTask?.cancel()
+
+                manager.checkAndUpdateInitialPushAllowanceForExistingWallet()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func checkAndUpdateInitialPushAllowanceForExistingWallet() {
+        allowanceTask = runTask(in: self) { @MainActor manager in
+            let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(manager.userWalletId.stringValue)
+
+            if !allowanceUserWalletIdTransactionsPush {
+                AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(manager.userWalletId.stringValue)
+
+                // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
+                manager.updateStatusIfNeeded(with: true)
+            }
+
+            if let currentEntry = manager.currentEntry {
+                manager.updateStatusIfNeeded(with: currentEntry.notifyStatus)
+            }
+        }
+    }
+
+    private func updateStatusIfNeeded(with remoteNotifyStatus: Bool) {
+        updateTask = runTask { [weak self] in
+            guard let self else {
+                return
+            }
+
+            let pushNotifyStatus = await definePushNotifyStatus(with: remoteNotifyStatus)
+
+            // Checking the deduplication of a status update call
+            if pushNotifyStatus != _userWalletPushStatusSubject.value {
+                updateWalletPushNotifyStatus(pushNotifyStatus)
+            }
+        }
     }
 
     private func definePushNotifyStatus(with remoteStatus: Bool) async -> UserWalletPushNotifyStatus {
@@ -100,27 +152,6 @@ class CommonUserTokensPushNotificationsManager {
             return remoteStatus ? .enabled : .disabled
         } catch {
             return .unavailable(reason: error, enabledRemote: remoteStatus)
-        }
-    }
-
-    private func updateStatusIfNeeded(by entry: ApplicationWalletEntry) {
-        taskCancellable = runTask { [weak self] in
-            guard let self else {
-                return
-            }
-
-            let pushNotifyStatus = await definePushNotifyStatus(with: entry.notifyStatus)
-
-            // Just updating the status, as everything you need came from the backend.
-            if case .unavailable(reason: .notInitialized, _) = _userWalletPushStatusSubject.value {
-                _userWalletPushStatusSubject.send(pushNotifyStatus)
-                return
-            }
-
-            // Checking the deduplication of a status update call
-            if pushNotifyStatus != _userWalletPushStatusSubject.value {
-                updateWalletPushNotifyStatus(pushNotifyStatus)
-            }
         }
     }
 
@@ -158,23 +189,20 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 // MARK: - UserTokenListExternalParametersProvider
 
 extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
-    func provideTokenListAddresses() -> [TokenItemId: [String]]? {
+    func provideTokenListAddresses() -> [WalletModelId: [String]]? {
         guard let statusValue = provideTokenListNotifyStatusValue(), statusValue else {
             return nil
         }
 
         let walletModels = walletModelsManager.walletModels
 
-        let addresses: [TokenItemId: [String]] = walletModels
+        let result: [WalletModelId: [String]] = walletModels
             .reduce(into: [:]) { partialResult, walletModel in
-                let addressValues = walletModel.addresses.map(\.value)
-
-                if let tokenItemId = walletModel.tokenItem.id {
-                    partialResult[tokenItemId] = addressValues
-                }
+                let addresses = walletModel.addresses.map(\.value)
+                partialResult[walletModel.id] = addresses
             }
 
-        return addresses
+        return result
     }
 
     func provideTokenListNotifyStatusValue() -> Bool? {
