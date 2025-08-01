@@ -625,8 +625,10 @@ extension MainCoordinator: WCTransactionRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
                 sheet: WCTransactionViewModel(
-                    dappData: data.dAppData,
                     transactionData: data,
+                    feeManager: CommonWCTransactionFeeManager(
+                        feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: data.dAppData.name)
+                    ),
                     analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
                 )
             )
