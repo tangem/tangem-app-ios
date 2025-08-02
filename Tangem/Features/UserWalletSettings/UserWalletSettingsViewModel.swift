@@ -126,8 +126,8 @@ private extension UserWalletSettingsViewModel {
             referralViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral),
-                    accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton
+                    accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
         } else {
             referralViewModel = nil
