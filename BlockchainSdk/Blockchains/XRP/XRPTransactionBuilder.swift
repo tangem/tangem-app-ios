@@ -8,12 +8,16 @@
 
 import Foundation
 import TangemSdk
+import Combine
+import TangemFoundation
 
 /// XRP transactions decoder https://fluxw42.github.io/ripple-tx-decoder/
 class XRPTransactionBuilder {
     var account: String?
     let walletPublicKey: Data
     let curve: EllipticCurve
+
+    private let utils: XRPAmountConverter
 
     init(walletPublicKey: Data, curve: EllipticCurve) throws {
         var key: Data
@@ -27,22 +31,30 @@ class XRPTransactionBuilder {
         }
         self.walletPublicKey = key
         self.curve = curve
+        utils = XRPAmountConverter(curve: curve)
     }
 
-    func buildForSign(transaction: Transaction) throws -> (XRPTransaction, Data)? {
-        guard let tx = try buildTransaction(from: transaction) else {
-            return nil
-        }
-
-        let dataToSign = tx.dataToSign(publicKey: walletPublicKey.hex())
+    private func sign(transaction: XRPTransaction) -> (XRPTransaction, Data) {
+        let dataToSign = transaction.dataToSign(publicKey: walletPublicKey.hex())
         switch curve {
         case .ed25519, .ed25519_slip0010:
-            return (tx, dataToSign)
+            return (transaction, dataToSign)
         case .secp256k1:
-            return (tx, dataToSign.sha512Half())
+            return (transaction, dataToSign.sha512Half())
         default:
             fatalError("unsupported curve")
         }
+    }
+
+    func buildTrustSetTransactionForSign(transaction: Transaction) throws -> (transaction: XRPTransaction, hash: Data) {
+        let transaction = try buildTrustSetTransaction(from: transaction)
+        let signed = sign(transaction: transaction)
+        return signed
+    }
+
+    func buildForSign(transaction: Transaction) throws -> (XRPTransaction, Data) {
+        let transaction = try buildTransaction(from: transaction)
+        return sign(transaction: transaction)
     }
 
     func buildForSend(transaction: XRPTransaction, signature: Data) throws -> String {
@@ -61,18 +73,15 @@ class XRPTransactionBuilder {
         return blob
     }
 
-    private func buildTransaction(from transaction: Transaction) throws -> XRPTransaction? {
-        guard let sequence = (transaction.params as? XRPTransactionParams)?.sequence else {
-            return nil
+    private func buildTransaction(from transaction: Transaction) throws -> XRPTransaction {
+        guard let account = account,
+              let sequence = (transaction.params as? XRPTransactionParams)?.sequence
+        else {
+            throw BlockchainSdkError.failedToBuildTx
         }
 
-        guard let account else {
-            return nil
-        }
-
-        let amountDrops = (transaction.amount.value * Decimal(1000000)).rounded(blockchain: .xrp(curve: curve))
-        let feeDrops = (transaction.fee.amount.value * Decimal(1000000)).rounded(blockchain: .xrp(curve: curve))
-
+        let amountField = try constructAmountField(for: transaction)
+        let feeDrops = utils.convertToDrops(amount: transaction.fee.amount.value)
         let decodedXAddress = try? XRPAddress.decodeXAddress(xAddress: transaction.destinationAddress)
         let destination = decodedXAddress?.rAddress ?? transaction.destinationAddress
 
@@ -94,22 +103,65 @@ class XRPTransactionBuilder {
             }
         }()
 
-        // dictionary containing partial transaction fields
-        var fields: [String: Any] = [
-            "Account": account,
-            "TransactionType": "Payment",
-            "Destination": destination,
-            "Amount": "\(amountDrops)",
-            // "Flags" : UInt64(2147483648),
-            "Fee": "\(feeDrops)",
-            "Sequence": sequence,
-        ]
+        let params = XRPTransaction.PaymentParams(
+            account: account,
+            destination: destination,
+            amount: amountField,
+            fee: feeDrops,
+            sequence: sequence,
+            destinationTag: destinationTag
+        )
 
-        if destinationTag != nil {
-            fields["DestinationTag"] = destinationTag
+        return XRPTransaction(params: params)
+    }
+
+    func buildTrustSetTransaction(from transaction: Transaction) throws -> XRPTransaction {
+        guard let account = account,
+              let sequence = (transaction.params as? XRPTransactionParams)?.sequence,
+              case .token(let token) = transaction.amount.type
+        else {
+            throw BlockchainSdkError.failedToBuildTx
         }
 
-        // create the transaction from dictionary
-        return XRPTransaction(fields: fields)
+        let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+        let limitAmount = XRPTransaction.TrustSetParams.LimitAmount(currency: currency, issuer: issuer, value: Constants.trustlineMaxLimit)
+        let feeInXrp = transaction.fee.amount.value.rounded()
+
+        let params = XRPTransaction.TrustSetParams(
+            account: account,
+            fee: feeInXrp,
+            sequence: sequence,
+            limitAmount: limitAmount,
+            flags: [XRPTransaction.Flag.tfClearNoRipple]
+        )
+
+        return XRPTransaction(params: params)
+    }
+
+    private func constructAmountField(for transaction: Transaction) throws -> Any {
+        switch transaction.amount.type {
+        case .coin:
+            let amountInDrops = utils.convertToDrops(amount: transaction.amount.value)
+            return amountInDrops.decimalNumber.description(withLocale: Locale.posixEnUS)
+
+        case .token(let token):
+            let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+            let value = transaction.amount.value.decimalNumber.description(withLocale: Locale.posixEnUS)
+            return ["currency": currency, "issuer": issuer, "value": value]
+
+        case .feeResource, .reserve:
+            assertionFailure("We cannot build transactions with fee resource or reserve amount")
+            throw BlockchainSdkError.failedToBuildTx
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension XRPTransactionBuilder {
+    enum Constants {
+        /// Maximum allowed trustline limit (XRP Ledger)
+        /// https://xrpl.org/docs/references/protocol/data-types/currency-formats
+        static let trustlineMaxLimit = "9999999999999999e80"
     }
 }
