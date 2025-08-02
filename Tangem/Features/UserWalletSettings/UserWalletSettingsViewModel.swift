@@ -19,6 +19,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
+    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
 
     // MARK: - ViewState
 
@@ -147,7 +148,7 @@ private extension UserWalletSettingsViewModel {
             nftViewModel = nil
         }
 
-        if FeatureProvider.isAvailable(.pushTransactionNotifications) {
+        if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
             pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
                 userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
                 coordinator: coordinator,
