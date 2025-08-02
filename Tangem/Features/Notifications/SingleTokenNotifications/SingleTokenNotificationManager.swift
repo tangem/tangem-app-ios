@@ -12,7 +12,6 @@ import TangemSdk
 import BlockchainSdk
 import TangemStaking
 import TangemFoundation
-import TangemAssets
 
 final class SingleTokenNotificationManager {
     weak var interactionDelegate: SingleTokenNotificationManagerInteractionDelegate?
@@ -271,13 +270,13 @@ final class SingleTokenNotificationManager {
         feeAmount: Amount?
     ) -> TokenNotificationEvent.UnfulfilledRequirementsConfiguration {
         switch blockchain {
-        case .stellar where feeAmount?.value != nil:
+        case .stellar, .xrp:
             let formattedReserve = BalanceFormatter().formatDecimal(feeAmount?.value, formattingOptions: .defaultCryptoFeeFormattingOptions)
             return .missingTokenTrustline(
                 .init(
                     reserveCurrencySymbol: blockchain.currencySymbol,
                     reserveAmount: formattedReserve,
-                    icon: Tokens.stellarFill
+                    icon: NetworkImageProvider().provide(by: blockchain, filled: true)
                 )
             )
 
