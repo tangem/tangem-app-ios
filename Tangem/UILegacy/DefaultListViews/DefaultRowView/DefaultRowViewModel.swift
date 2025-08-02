@@ -19,15 +19,15 @@ class DefaultRowViewModel: ObservableObject, Identifiable {
     init(
         title: String,
         detailsType: DetailsType? = .none,
+        accessibilityIdentifier: String? = nil,
         action: (() -> Void)? = nil,
-        secondaryAction: (() -> Void)? = nil,
-        accessibilityIdentifier: String? = nil
+        secondaryAction: (() -> Void)? = nil
     ) {
         self.title = title
         self.detailsType = detailsType
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
         self.secondaryAction = secondaryAction
-        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     func update(title: String) {
