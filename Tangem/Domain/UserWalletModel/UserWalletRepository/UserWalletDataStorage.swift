@@ -17,7 +17,6 @@ class UserWalletDataStorage {
     private let fileManager: FileManager = .default
     private let encoder = JSONEncoder.tangemSdkEncoder
     private let decoder = JSONDecoder.tangemSdkDecoder
-    private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let secureStorage = SecureStorage()
 
     private lazy var userWalletDirectoryUrl: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
@@ -26,7 +25,6 @@ class UserWalletDataStorage {
 
     func clear(userWalletIds: [UserWalletId]) {
         do {
-            encryptionKeyStorage.clear(userWalletIds: userWalletIds)
             try secureStorage.delete(Constants.publicDataEncryptionKeyStorageKey)
 
             if fileManager.fileExists(atPath: userWalletDirectoryUrl.path) {
@@ -39,8 +37,6 @@ class UserWalletDataStorage {
 
     func delete(userWalletId: UserWalletId, updatedWallets: [StoredUserWallet]) {
         do {
-            encryptionKeyStorage.clear(userWalletIds: [userWalletId])
-
             let userWalletSensitiveDataPath = userWalletPath(for: userWalletId)
             if fileManager.fileExists(atPath: userWalletSensitiveDataPath.path) {
                 try fileManager.removeItem(at: userWalletSensitiveDataPath)
@@ -94,17 +90,11 @@ class UserWalletDataStorage {
 
     // MARK: Private data
 
-    func fetchPrivateData(unlockMethod: UnlockMethod, userWalletIds: [UserWalletId]) -> [UserWalletId: StoredUserWallet.SensitiveInfo] {
+    func fetchPrivateData(encryptionKeys: [UserWalletId: UserWalletEncryptionKey]) -> [UserWalletId: StoredUserWallet.SensitiveInfo] {
         do {
-            let encryptionKeyByUserWalletId = try getEncryptionKeys(unlockMethod: unlockMethod, userWalletIds: userWalletIds)
-
             var privateInfos: [UserWalletId: StoredUserWallet.SensitiveInfo] = [:]
 
-            for userWalletId in userWalletIds {
-                guard let userWalletEncryptionKey = encryptionKeyByUserWalletId[userWalletId] else {
-                    continue
-                }
-
+            for (userWalletId, userWalletEncryptionKey) in encryptionKeys {
                 let sensitiveInformationEncryptedData = try Data(contentsOf: userWalletPath(for: userWalletId))
                 let sensitiveInformationData = try decrypt(sensitiveInformationEncryptedData, with: userWalletEncryptionKey)
 
@@ -137,7 +127,6 @@ class UserWalletDataStorage {
             let sensitiveDataPath = userWalletPath(for: userWalletId)
             try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)
             try excludeFromBackup(url: sensitiveDataPath)
-            encryptionKeyStorage.add(userWalletId, encryptionKey: encryptionKey)
         } catch {
             AppLogger.error("Failed to save user wallet private data", error: error)
         }
@@ -183,18 +172,6 @@ class UserWalletDataStorage {
         let sealedBox = try ChaChaPoly.seal(data, using: key.symmetricKey)
         let sealedData = sealedBox.combined
         return sealedData
-    }
-
-    private func getEncryptionKeys(unlockMethod: UnlockMethod, userWalletIds: [UserWalletId]) throws -> [UserWalletId: UserWalletEncryptionKey] {
-        switch unlockMethod {
-        case .biometrics(let context):
-            return try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
-        case .userWallet(let userWalletId, let key):
-            // We have to refresh a key on every unlock by scan because we are unable to check presence of the key
-            encryptionKeyStorage.refreshEncryptionKey(key, for: userWalletId)
-            // [REDACTED_TODO_COMMENT]
-            return [userWalletId: key]
-        }
     }
 }
 

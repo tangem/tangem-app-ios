@@ -484,7 +484,7 @@ private extension VisaOnboardingViewModel {
             return
         }
 
-        let searchUtility = VisaApprovePairSearchUtility(isTestnet: false)
+        let searchUtility = VisaApprovePairSearchUtility(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
 
         guard
             let approvePair = searchUtility.findApprovePair(
