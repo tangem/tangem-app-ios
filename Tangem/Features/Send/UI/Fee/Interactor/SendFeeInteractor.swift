@@ -163,7 +163,7 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToFeeSelectorFee(fee: SendFee?) -> FeeSelectorFee? {
+    func mapToFeeSelectorFee(fee: SendFee?) -> FeeSelectorFee? {
         guard let fee, let value = fee.value.value else {
             return nil
         }
