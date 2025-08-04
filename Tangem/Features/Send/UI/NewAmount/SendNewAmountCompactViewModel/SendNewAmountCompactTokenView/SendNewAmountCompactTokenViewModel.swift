@@ -11,8 +11,11 @@ import Combine
 import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
+import struct TangemUIUtils.AlertBinder
 
 class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     let walletNameTitle: String
     let tokenIconInfo: TokenIconInfo
 
@@ -21,6 +24,7 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
     @Published private(set) var amountTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published private(set) var alternativeAmount: String?
+    @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
 
     @Published private(set) var balance: LoadableTokenBalanceView.State?
 
@@ -82,6 +86,22 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
             }
     }
 
+    func bind(highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never>) {
+        highPriceImpactPublisher.map { result in
+            if let result, result.isHighPriceImpact {
+                return HighPriceImpactWarning(percent: result.lossesInPercentsFormatted, infoMessage: result.infoMessage)
+            }
+
+            return nil
+        }
+        .receiveOnMain()
+        .assign(to: &$highPriceImpactWarning)
+    }
+
+    func userDidTapHighPriceImpactWarning(highPriceImpactWarning: HighPriceImpactWarning) {
+        alertPresenter.present(alert: .init(title: "", message: highPriceImpactWarning.infoMessage))
+    }
+
     private func updateAmount(from amount: LoadingResult<SendAmount?, Error>) {
         switch amount {
         case .loading, .failure, .success(.none):
@@ -102,5 +122,12 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             }
         }
+    }
+}
+
+extension SendNewAmountCompactTokenViewModel {
+    struct HighPriceImpactWarning {
+        let percent: String
+        let infoMessage: String
     }
 }
