@@ -245,31 +245,18 @@ extension StellarWalletManager: TransactionSender {
 extension StellarWalletManager: ThenProcessable {}
 
 extension StellarWalletManager: ReserveAmountRestrictable {
-    func validateReserveAmount(amount: Amount, addressType: ReserveAmountRestrictableAddressType) async throws {
-        let isAccountCreated: Bool = try await {
-            switch addressType {
-            case .notCreated:
-                return false
-            case .address(let address):
-                let account = try await networkService.checkTargetAccount(address: address, token: amount.type.token).async()
-                return account.accountCreated
-            }
-        }()
-
-        guard !isAccountCreated else {
-            return
-        }
-
+    func validateReserveAmount(amount: Amount, address: String) async throws {
+        let account = try await networkService.checkTargetAccount(address: address, token: amount.type.token).async()
         let reserveAmount = Amount(with: wallet.blockchain, value: Constants.minAmountToCreateCoinAccount)
+
         switch amount.type {
-        case .coin:
-            if amount < reserveAmount {
-                throw ValidationError.reserve(amount: reserveAmount)
-            }
-        case .token:
-            // From TxBuilder
-            throw StellarError.assetNoAccountOnDestination
-        case .reserve, .feeResource:
+        case .coin where !account.accountCreated && amount < reserveAmount:
+            throw ValidationError.reserve(amount: reserveAmount)
+        case .token where !account.accountCreated:
+            throw ValidationError.reserve(amount: reserveAmount)
+        case .token where !account.trustlineCreated:
+            throw ValidationError.noTrustlineAtDestination
+        case .reserve, .feeResource, .coin, .token:
             break
         }
     }
