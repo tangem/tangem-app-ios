@@ -283,7 +283,8 @@ private extension CommonSendNotificationManager {
                  .koinosInsufficientBalanceToSendKoin,
                  .insufficientAmountToReserveAtDestination,
                  .minimumRestrictAmount,
-                 .destinationMemoRequired:
+                 .destinationMemoRequired,
+                 .noTrustlineAtDestination:
                 show(notification: .validationErrorEvent(validationErrorEvent))
             case .invalidNumber:
                 hideAllValidationErrorEvent()
