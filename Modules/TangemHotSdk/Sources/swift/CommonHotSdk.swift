@@ -31,7 +31,7 @@ public final class CommonHotSdk: HotSdk {
 
         let userWalletId = UserWalletId(with: walletIdSeed)
 
-        try storeUserWalletId(userWalletId, accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode)
+        try storeUserWalletId(userWalletId, accessCode: nil)
 
         try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
@@ -69,6 +69,9 @@ public final class CommonHotSdk: HotSdk {
 
     public func delete(walletID: UserWalletId) throws {
         try privateInfoStorageManager.delete(walletID: walletID)
+        
+        let publicDataStorage = EncryptedSecureStorage()
+        try publicDataStorage.deleteData(keyTag: walletID.publicInfoTag)
     }
 
     public func updateAccessCode(
@@ -84,10 +87,9 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func enableBiometrics(
-        context: MobileWalletContext,
-        laContext: LAContext
+        context: MobileWalletContext
     ) throws {
-        try privateInfoStorageManager.enableBiometrics(context: context, laContext: laContext)
+        try privateInfoStorageManager.enableBiometrics(context: context)
     }
 
     public func deriveMasterKeys(context: MobileWalletContext) throws -> HotWallet {
@@ -162,9 +164,12 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
-        guard case .accessCode(let accessCode) = context.authentication else {
-            throw HotWalletError.accessCodeIsRequired
+        let accessCode: String? = switch context.authentication {
+        case .accessCode(let accessCode): accessCode
+        case .none: nil
+        case .biometrics: throw HotWalletError.encryptionKeyIsNotAvailableViaBiometrics
         }
+
         let publicDataStorage = EncryptedSecureStorage()
         let userWalletIdSeed = try publicDataStorage.getData(
             keyTag: context.walletID.publicInfoTag,
@@ -177,7 +182,7 @@ public final class CommonHotSdk: HotSdk {
 }
 
 private extension CommonHotSdk {
-    func storeUserWalletId(_ userWalletId: UserWalletId, accessCode: String) throws {
+    func storeUserWalletId(_ userWalletId: UserWalletId, accessCode: String?) throws {
         let publicDataStorage = EncryptedSecureStorage()
         try publicDataStorage.storeData(
             userWalletId.value,

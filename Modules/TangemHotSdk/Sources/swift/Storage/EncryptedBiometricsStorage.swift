@@ -13,24 +13,21 @@ import TangemFoundation
 
 final class EncryptedBiometricsStorage {
     private let biometricsStorage: HotBiometricsStorage
-    private let secureEnclaveServiceType: HotSecureEnclaveService.Type
+    private let secureEnclaveService: HotSecureEnclaveService
 
     init(
         biometricsStorage: HotBiometricsStorage = BiometricsStorage(),
-        secureEnclaveServiceType: HotSecureEnclaveService.Type = SecureEnclaveService.self
+        secureEnclaveService: HotSecureEnclaveService = SecureEnclaveService(config: .default)
     ) {
         self.biometricsStorage = biometricsStorage
-        self.secureEnclaveServiceType = secureEnclaveServiceType
+        self.secureEnclaveService = secureEnclaveService
     }
 
     func storeData(
         _ data: Data,
         keyTag: String,
-        secureEnclaveKeyTag: String,
-        context: LAContext
+        secureEnclaveKeyTag: String
     ) throws {
-        let secureEnclaveService = secureEnclaveServiceType.init(config: .biometrics(context))
-
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
             data,
             keyTag: secureEnclaveKeyTag
@@ -50,8 +47,6 @@ final class EncryptedBiometricsStorage {
         ) else {
             throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
-
-        let secureEnclaveService = secureEnclaveServiceType.init(config: .biometrics(context))
 
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedData,
