@@ -85,7 +85,7 @@ private extension SendWithSwapModel {
         Publishers
             .CombineLatest3(
                 _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value },
+                _destination.compactMap { $0?.value.transactionAddress },
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
@@ -124,7 +124,7 @@ private extension SendWithSwapModel {
             .withWeakCaptureOf(self)
             .sink { model, args in
                 let (token, destination) = args
-                model.swapManager.update(destination: token.receiveToken?.tokenItem, address: destination?.value)
+                model.swapManager.update(destination: token.receiveToken?.tokenItem, address: destination?.value.transactionAddress)
             }
             .store(in: &bag)
     }
@@ -170,7 +170,7 @@ private extension SendWithSwapModel {
     ) {
         func resetFlowAction() {
             reset()
-            externalDestinationUpdater.externalUpdate(address: .init(value: "", source: .textField))
+            externalDestinationUpdater.externalUpdate(address: .init(value: .plain(""), source: .textField))
             router?.resetFlow()
         }
 
@@ -472,7 +472,7 @@ extension SendWithSwapModel: SendFeeProviderInput {
     }
 
     var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+        _destination.compactMap { $0?.value.transactionAddress }.eraseToAnyPublisher()
     }
 }
 
