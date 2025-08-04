@@ -14,7 +14,7 @@ final class OnrampUITests: BaseTestCase {
     let amountToEnter = "100"
 
     func testGoOnramp_validateScreen() {
-        id(2566)
+        setAllureId(2566)
         let expectedAmount = "0"
         let expectedCurrency = "€"
         let expectedTitle = "Buy \(token)"
@@ -35,7 +35,7 @@ final class OnrampUITests: BaseTestCase {
     }
 
     func testGoOnramp_validateProvidersScreen() {
-        id(2570)
+        setAllureId(2570)
         launchApp(tangemApiType: .mock)
 
         StoriesScreen(app)
@@ -51,7 +51,7 @@ final class OnrampUITests: BaseTestCase {
     }
 
     func testGoOnramp_validateCurrencySelector() {
-        id(2565)
+        setAllureId(2565)
         let newCurrency = "USD"
         let newCurrencySymbol = "$"
 
@@ -75,7 +75,7 @@ final class OnrampUITests: BaseTestCase {
     }
 
     func testGoOnramp_validateResidenceSelection() {
-        id(2563)
+        setAllureId(2563)
         let countryToSelect = "United States of America"
 
         launchApp(tangemApiType: .mock)
@@ -100,7 +100,7 @@ final class OnrampUITests: BaseTestCase {
     }
 
     func testGoOnramp_validatePaymentMethodsSelection() {
-        id(3479)
+        setAllureId(3479)
         let amountToEnter = "100"
 
         launchApp(tangemApiType: .mock)
@@ -125,7 +125,7 @@ final class OnrampUITests: BaseTestCase {
     }
 
     func testGoOnramp_paymentMethodsErrorShowed() {
-        id(3478)
+        setAllureId(3478)
         let errorScenario = ScenarioConfig(
             name: "payment_methods",
             initialState: "Error"
