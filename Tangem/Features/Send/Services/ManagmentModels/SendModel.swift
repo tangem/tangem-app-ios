@@ -83,7 +83,7 @@ private extension SendModel {
         Publishers
             .CombineLatest3(
                 _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value },
+                _destination.compactMap { $0?.value.transactionAddress },
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
@@ -290,7 +290,7 @@ extension SendModel: SendFeeProviderInput {
     }
 
     var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+        _destination.compactMap { $0?.value.transactionAddress }.eraseToAnyPublisher()
     }
 }
 
