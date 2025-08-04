@@ -47,6 +47,8 @@ class SendWithSwapModel {
     private let sendAlertBuilder: SendAlertBuilder
     private let swapManager: SwapManager
 
+    private let balanceConverter = BalanceConverter()
+
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -406,6 +408,25 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        Publishers.CombineLatest3(
+            sourceAmountPublisher.compactMap { $0.value },
+            receiveAmountPublisher.compactMap { $0.value },
+            selectedExpressProviderPublisher.compactMap { $0?.provider }
+        )
+        .withWeakCaptureOf(self)
+        .setFailureType(to: Error.self)
+        .asyncTryMap {
+            try await $0.mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: $1.0,
+                receiveTokenAmount: $1.1,
+                provider: $1.2
+            )
+        }
+        .replaceError(with: nil)
+        .eraseToAnyPublisher()
+    }
+
     private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
         switch state {
         case .restriction(.requiredRefresh(let error), _):
@@ -415,8 +436,36 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
         case .loading:
             return .loading
         case .previewCEX(_, let quote):
-            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: quote.expectAmount)))
+            let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
+            }
+            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
         }
+    }
+
+    private func mapToSendNewAmountCompactTokenViewModel(
+        sourceTokenAmount: SendAmount?,
+        receiveTokenAmount: SendAmount?,
+        provider: ExpressProvider
+    ) async throws -> HighPriceImpactCalculator.Result? {
+        guard let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
+              let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
+              case .swap(let receiveToken) = receiveToken else {
+            return nil
+        }
+
+        let impactCalculator = HighPriceImpactCalculator(
+            source: sourceToken.tokenItem,
+            destination: receiveToken.tokenItem
+        )
+
+        let result = try await impactCalculator.isHighPriceImpact(
+            provider: provider,
+            sourceFiatAmount: sourceTokenFiatAmount,
+            destinationFiatAmount: receiveTokenFiatAmount
+        )
+
+        return result
     }
 }
 
