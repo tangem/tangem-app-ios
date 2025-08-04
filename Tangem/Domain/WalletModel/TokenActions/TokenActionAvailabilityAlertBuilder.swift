@@ -64,6 +64,8 @@ struct TokenActionAvailabilityAlertBuilder {
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonNotExchangeable(tokenName)
             )
+        case .missingAssetRequirement:
+            return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
         }
     }
 
@@ -84,6 +86,8 @@ struct TokenActionAvailabilityAlertBuilder {
             return tryAgainLaterAlert
         case .demo(disabledLocalizedReason: let disabledLocalizedReason):
             return AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+        case .missingAssetRequirement:
+            return .init(title: "", message: Localization.warningReceiveBlockedTokenTrustlineRequiredMessage)
         }
     }
 
