@@ -512,7 +512,7 @@ extension SingleTokenBaseViewModel {
 extension SingleTokenBaseViewModel {
     func openReceive() {
         if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailablity, blockchain: blockchain
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
         ) {
             alert = availabilityAlert
             return
@@ -662,7 +662,7 @@ extension SingleTokenBaseViewModel {
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .action: Analytics.ParameterValue.receive.rawValue,
-            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailablity).rawValue,
+            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailability).rawValue,
         ])
 
         openReceive()
