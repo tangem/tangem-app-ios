@@ -15,6 +15,7 @@ protocol SendNewDestinationInteractor {
     var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 
+    var destinationResolvedAddress: AnyPublisher<String?, Never> { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
     var destinationValid: AnyPublisher<Bool, Never> { get }
@@ -82,20 +83,21 @@ class CommonSendNewDestinationInteractor {
             .store(in: &bag)
     }
 
-    private func update(destination result: Result<String?, Error>, source: Analytics.DestinationAddressSource) {
+    private func update(destination result: Result<SendAddress?, Error>, source: Analytics.DestinationAddressSource) {
         switch result {
-        case .success(.none), .success(.empty):
+        case .success(.some(let address)) where address.value.typedAddress.isEmpty:
+            fallthrough
+
+        case .success(.none):
             _destinationValid.send(false)
             _destinationError.send(.none)
             saver.update(address: .none)
 
         case .success(.some(let address)):
-            assert(!address.isEmpty, "Had to fall in case above")
-
             _destinationValid.send(true)
             _destinationError.send(.none)
             dependenciesBuilder.analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
-            saver.update(address: .init(value: address, source: source))
+            saver.update(address: address)
 
         case .failure(let error):
             _destinationValid.send(false)
@@ -125,16 +127,19 @@ class CommonSendNewDestinationInteractor {
         }
     }
 
-    private func resolveIfPossible(address: String) async throws -> String {
+    private func resolveIfPossible(address: String, source: Analytics.DestinationAddressSource) async throws -> SendAddress {
         guard let addressResolver = dependenciesBuilder.addressResolver else {
-            return address
+            return .init(value: .plain(address), source: source)
         }
 
         defer { _isValidatingDestination.send(false) }
-
         _isValidatingDestination.send(true)
+
+        // Add some debounce to send the request
+        try await Task.sleep(seconds: 0.2)
+
         let resolved = try await addressResolver.resolve(address)
-        return resolved
+        return .init(value: .resolved(address: address, resolved: resolved), source: source)
     }
 }
 
@@ -162,6 +167,14 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
 
     var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> {
         _suggestedWallets.eraseToAnyPublisher()
+    }
+
+    var destinationResolvedAddress: AnyPublisher<String?, Never> {
+        guard let input else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.destinationPublisher.map { $0?.value.showableResolved }.eraseToAnyPublisher()
     }
 
     var isValidatingDestination: AnyPublisher<Bool, Never> {
@@ -204,12 +217,15 @@ extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
         updatingTask = runTask(in: self) {
             do {
                 try validator.validate(destination: address)
-                let resolved = try await $0.resolveIfPossible(address: address)
+                let resolved = try await $0.resolveIfPossible(address: address, source: source)
                 $0.update(destination: .success(resolved), source: source)
             } catch is CancellationError {
                 // Do nothing
-            } catch {
+            } catch let error as SendAddressServiceError {
                 $0.update(destination: .failure(error), source: source)
+            } catch {
+                AppLogger.error("Resolving address error: ", error: error)
+                $0.update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
             }
         }
     }
