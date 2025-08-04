@@ -1,6 +1,6 @@
 //
 //  AccountFormGridView.swift
-//  TangemApp
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
+struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View {
     @Binding var selectedItem: Item
 
     let items: [Item]
@@ -100,7 +100,6 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
                                         .strokeBorder(colorItem.color, lineWidth: isSelected ? 2 : 0)
                                 )
                         )
-                        .frame(width: 40, height: 40)
                 }
             )
 
@@ -128,13 +127,14 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
                     case .letter: Colors.Icon.accent
                     }
 
-                    return imageItem.kind.imageType.image
-                        .renderingMode(.template)
-                        .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
-                        .padding(8)
-                        .background(
-                            Circle()
-                                .fill(backgroundColor)
+                    return  Circle()
+                        .fill(backgroundColor)
+                        .overlay(
+                            imageItem.kind.imageType.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .padding(8)
+                                .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
                         )
                         .overlay(
                             Circle()
@@ -144,7 +144,6 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
                                         .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
                                 )
                         )
-                        .frame(width: 40, height: 40)
                 }
             )
         }
