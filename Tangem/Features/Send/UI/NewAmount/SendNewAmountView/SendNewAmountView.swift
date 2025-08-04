@@ -47,7 +47,6 @@ struct SendNewAmountView: View {
             Separator(color: Colors.Stroke.primary)
 
             SendNewAmountTokenView(data: viewModel.tokenWithAmountViewData)
-                .padding(.vertical, 14)
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
     }
@@ -81,7 +80,7 @@ struct SendNewAmountView: View {
                     SendNewAmountTokenView(data: $0)
                 }
                 .backgroundColor(Colors.Background.action)
-                .innerContentPadding(14)
+                .innerContentPadding(0)
 
                 CircleButton(
                     content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
