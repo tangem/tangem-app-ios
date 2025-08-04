@@ -12,9 +12,18 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "Jeton non trouvé dans votre portefeuille ? Consultez les marchés pour le trouver et l'ajouter à l'achat";
 "action_buttons_buy_navigation_bar_title" = "Acheter";
 "action_buttons_sell_empty_search_message" = "Jeton non trouvé dans votre portefeuille ? Consultez les marchés pour le trouver et l'ajouter à la vente";
@@ -1082,6 +1091,7 @@
 "swapping_fee_estimation_error_text" = "Erreur d'estimation des frais. Veuillez envoyer vos commentaires à l'équide de support.";
 "swapping_from_title" = "Vous échangez";
 "swapping_high_price_impact_description" = "Échanger ce montant de jetons sélectionnés aura un impact significatif sur les prix et réduira votre résultat.";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Fonds insuffisants";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
