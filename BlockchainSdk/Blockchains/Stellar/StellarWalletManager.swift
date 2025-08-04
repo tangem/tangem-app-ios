@@ -22,6 +22,7 @@ enum StellarError: Int, Error, LocalizedError {
     case assetCreateAccount
     case assetNoAccountOnDestination
     case assetNoTrustline
+    case failedParseAssetId
 
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
 
@@ -73,7 +74,7 @@ class StellarWalletManager: BaseManager, WalletManager {
     var currentHost: String { networkService.host }
 
     /// Established trustlines fetched from the Stellar wallet response.
-    private var establishedTrustlines = [Trustline]()
+    private var establishedTrustlines = [StellarAssetResponse]()
 
     /// Assets that are currently undergoing the trustline creation process in the Stellar network.
     /// This set holds asset identifiers (currency code + issuer) that have initiated the trustline setup
@@ -81,7 +82,7 @@ class StellarWalletManager: BaseManager, WalletManager {
     ///
     /// Since Stellar also uses a single wallet and manager for both the native coin and all tokens,
     /// multiple tokens may be in the process of opening trustlines simultaneously.
-    private var tokensOpeningTrustline = Set<String>()
+    private var tokensOpeningTrustline = Set<StellarAssetResponse>()
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = networkService
@@ -159,9 +160,19 @@ class StellarWalletManager: BaseManager, WalletManager {
                     transactionXDR: transactionXDR
                 )
                 .handleEvents(receiveCompletion: { [weak manager] completion in
-                    if case .failure = completion {
-                        manager?.tokensOpeningTrustline.remove(token.contractAddress)
+                    guard case .failure = completion,
+                          let manager,
+                          let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress),
+                          let trustline = StellarTrustlineUtils.firstMatchingTrustline(
+                              in: manager.tokensOpeningTrustline,
+                              assetCode: code,
+                              issuer: issuer
+                          )
+                    else {
+                        return
                     }
+
+                    manager.tokensOpeningTrustline.remove(trustline)
                 })
                 .mapToVoid()
                 .mapError { $0 as Error }
@@ -190,12 +201,13 @@ class StellarWalletManager: BaseManager, WalletManager {
             }
         } else {
             for token in cardTokens {
-                let assetBalance = response.assetBalances.first(where: { $0.code == token.symbol })?.balance ?? 0.0
-                wallet.add(tokenValue: assetBalance, for: token)
+                // If balance is nil, trustline is not opened — treat as 0 balance
+                let balance = StellarTrustlineUtils.firstMatchingTrustline(in: response.assetBalances, for: token)?.balance
+                wallet.add(tokenValue: balance ?? 0.0, for: token)
             }
         }
 
-        establishedTrustlines = response.assetBalances.map { Trustline(assetCode: $0.code, issuer: $0.issuer) }
+        establishedTrustlines = response.assetBalances
 
         // We believe that a transaction will be confirmed within 10 seconds
         let date = Date(timeIntervalSinceNow: -10)
@@ -298,14 +310,15 @@ extension StellarWalletManager: AssetRequirementsManager {
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
         switch asset {
         case .token(let token):
-            guard let codeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress),
-                  !establishedTrustlines.contains(where: { $0.assetCode == codeAndIssuer.assetCode && $0.issuer == codeAndIssuer.issuer })
-            else {
-                tokensOpeningTrustline.remove(token.contractAddress)
+            guard !StellarTrustlineUtils.containsTrustline(in: establishedTrustlines, for: token) else {
+                if let trustline = StellarTrustlineUtils.firstMatchingTrustline(in: tokensOpeningTrustline, for: token) {
+                    tokensOpeningTrustline.remove(trustline)
+                }
+
                 return nil
             }
 
-            let isTrustlineOperationInProgress = tokensOpeningTrustline.contains(token.contractAddress)
+            let isTrustlineOperationInProgress = StellarTrustlineUtils.containsTrustline(in: tokensOpeningTrustline, for: token)
 
             // Base reserve calculation reference: https://developers.stellar.org/docs/learn/fundamentals/lumens#minimum-balance
             // We only show the base reserve here (0.5 XLM), because the account already exists,
@@ -324,7 +337,9 @@ extension StellarWalletManager: AssetRequirementsManager {
             return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
         }
 
-        tokensOpeningTrustline.insert(token.contractAddress)
+        if let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress) {
+            tokensOpeningTrustline.insert(.init(code: code, issuer: issuer, balance: .zero))
+        }
 
         return networkService.getFee()
             .tryMap { fees -> Amount in
