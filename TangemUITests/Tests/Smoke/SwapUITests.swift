@@ -13,7 +13,7 @@ final class SwapUITests: BaseTestCase {
     let amountToEnter = "100"
 
     func testSwapCommission_validateReceivedAmount() {
-        id(3546)
+        setAllureId(3546)
 
         launchApp(tangemApiType: .mock)
 
@@ -28,7 +28,7 @@ final class SwapUITests: BaseTestCase {
     }
 
     func testChangeCommissionType_receivedAmountChanged() {
-        id(3547)
+        setAllureId(3547)
 
         launchApp(tangemApiType: .mock)
 
