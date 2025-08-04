@@ -23,7 +23,8 @@ class StakingDependenciesFactory {
         return TangemStakingFactory().makeStakingAPIProvider(
             credential: StakingAPICredential(apiKey: keysManager.stakeKitKey),
             configuration: .stakingConfiguration,
-            plugins: plugins
+            plugins: plugins,
+            apiType: FeatureStorage.instance.stakingAPIType
         )
     }
 
