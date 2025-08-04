@@ -1,6 +1,6 @@
 //
 //  AccountFormGridView.swift
-//  TangemApp
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -9,17 +9,40 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemFoundation
 
-struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
+public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View {
     @Binding var selectedItem: Item
 
-    let items: [Item]
-    let content: (Item, Bool) -> Content
+    private let items: [Item]
+    private let content: (Item, Bool) -> Content
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: interitemPadding),
+        count: 6
+    )
 
-    var body: some View {
-        LazyVGrid(columns: columns, spacing: 18) {
+    private static var interitemPadding: CGFloat {
+        switch IPhoneModel() {
+        case .iPhoneSE:
+            8
+        default:
+            16
+        }
+    }
+
+    public init(
+        selectedItem: Binding<Item>,
+        items: [Item],
+        content: @escaping (Item, Bool) -> Content
+    ) {
+        _selectedItem = selectedItem
+        self.items = items
+        self.content = content
+    }
+
+    public var body: some View {
+        LazyVGrid(columns: columns, spacing: Self.interitemPadding) {
             ForEach(items) { item in
                 let isSelected = item == selectedItem
                 content(item, isSelected)
@@ -38,8 +61,8 @@ struct AccountFormGridView<Item: SelectableGridItem, Content: View>: View {
     }
 }
 
-enum AccountFormGridViewConstants {
-    static let backgroundColor: Color = Colors.Background.action
+public enum AccountFormGridViewConstants {
+    public static let backgroundColor: Color = Colors.Background.action
 }
 
 #if DEBUG
@@ -104,7 +127,6 @@ enum AccountFormGridViewConstants {
                                         .strokeBorder(colorItem.color, lineWidth: isSelected ? 2 : 0)
                                 )
                         )
-                        .frame(width: 40, height: 40)
                 }
             )
 
@@ -132,13 +154,14 @@ enum AccountFormGridViewConstants {
                     case .letter: Colors.Icon.accent
                     }
 
-                    return imageItem.kind.imageType.image
-                        .renderingMode(.template)
-                        .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
-                        .padding(8)
-                        .background(
-                            Circle()
-                                .fill(backgroundColor)
+                    return Circle()
+                        .fill(backgroundColor)
+                        .overlay(
+                            imageItem.kind.imageType.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .padding(8)
+                                .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
                         )
                         .overlay(
                             Circle()
@@ -148,7 +171,6 @@ enum AccountFormGridViewConstants {
                                         .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
                                 )
                         )
-                        .frame(width: 40, height: 40)
                 }
             )
         }

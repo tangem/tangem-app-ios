@@ -10,6 +10,7 @@ import TangemAssets
 import Foundation
 import TangemLocalization
 import TangemUIUtils
+import TangemAccounts
 
 final class AccountFormViewModel: ObservableObject {
     @Published var accountName: String
@@ -143,7 +144,7 @@ final class AccountFormViewModel: ObservableObject {
             case .create:
                 "Are you sure you want to discard new account?"
             }
-            
+
             alert = makeExitAlert(message: message)
             return
         }
@@ -151,9 +152,7 @@ final class AccountFormViewModel: ObservableObject {
         close()
     }
 
-    private func close() {
-
-    }
+    private func close() {}
 
     // [REDACTED_TODO_COMMENT]
     private func makeExitAlert(message: String) -> AlertBinder {

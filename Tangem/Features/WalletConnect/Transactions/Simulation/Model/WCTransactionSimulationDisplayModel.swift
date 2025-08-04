@@ -9,7 +9,6 @@
 import Foundation
 import BigInt
 
-/// Data model for displaying transaction simulation results
 struct WCTransactionSimulationDisplayModel {
     let cardTitle: String
     let content: Content
@@ -21,7 +20,6 @@ struct WCTransactionSimulationDisplayModel {
     }
 
     struct SuccessContent {
-        let validationBanner: ValidationBanner?
         let sections: [Section]
     }
 
@@ -56,7 +54,7 @@ struct WCTransactionSimulationDisplayModel {
         let iconURL: URL?
         let formattedAmount: String
         let symbol: String
-        let asset: BlockaidChainScanResult.Asset // Original asset for type determination
+        let asset: BlockaidChainScanResult.Asset
 
         enum Direction {
             case send
@@ -69,7 +67,7 @@ struct WCTransactionSimulationDisplayModel {
         let leftContent: LeftContent
         let rightContent: RightContent
         let onEdit: (() -> Void)?
-        let asset: BlockaidChainScanResult.Asset // Original asset for type determination
+        let asset: BlockaidChainScanResult.Asset
 
         enum LeftContent {
             case editable(iconURL: URL?, formattedAmount: String, asset: BlockaidChainScanResult.Asset)
