@@ -3006,6 +3006,7 @@
 		EA46738F2E37F4800052E196 /* XRPAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */; };
 		EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */; };
 		EA669FF72E390D200003688A /* XRPTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */; };
+		EA66A07B2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
@@ -6916,6 +6917,7 @@
 		EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAmountConverter.swift; sourceTree = "<group>"; };
 		EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
 		EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTrustlineUtils.swift; sourceTree = "<group>"; };
+		EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRequirementFeeStatus.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
@@ -13523,6 +13525,7 @@
 				B62D3F6F2CBC79D900C2460E /* Wallet+PublicKey.swift */,
 				B62D3F702CBC79D900C2460E /* WalletCoreAddressService.swift */,
 				B62D3F732CBC79D900C2460E /* WalletManagerAssembly.swift */,
+				EA66A07A2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift */,
 				B62D3ECA2CBC79D900C2460E /* Account */,
 				B62D3ED02CBC79D900C2460E /* Address */,
 				B62D3EE62CBC79D900C2460E /* API */,
@@ -24483,6 +24486,7 @@
 				B62D40192CBC79DA00C2460E /* OP_NIP.swift in Sources */,
 				B62D419C2CBC79DA00C2460E /* StellarWalletManager.swift in Sources */,
 				B62D422E2CBC79DB00C2460E /* BlockBookUTXOProvider.swift in Sources */,
+				EA66A07B2E3B5BDF0003688A /* AssetRequirementFeeStatus.swift in Sources */,
 				EF6ECA622D482F3D00415F23 /* BlockchainSDKLogger.swift in Sources */,
 				B62D41EF2CBC79DB00C2460E /* VeChainNetworkResult.AccountInfo.swift in Sources */,
 				B62D41832CBC79DA00C2460E /* RavencoinWalletAssembly.swift in Sources */,
