@@ -143,7 +143,10 @@ private extension ExpressTokensListViewModel {
 
                 let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
                 let isNotCustom = !walletModel.isCustom
-                if isAvailable, isNotCustom {
+                let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
+
+                // requirementsCondition == nil means there are no unfulfilled requirements for this wallet model
+                if isAvailable, isNotCustom, requirementsCondition == nil {
                     availableWalletModels.append(walletModel)
                 } else {
                     unavailableWalletModels.append(walletModel)
