@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel
@@ -19,6 +20,7 @@ struct SettingsUserWalletRowView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!viewModel.isUserWalletLocked)
+        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
         .onAppear(perform: viewModel.onAppear)
     }
 
