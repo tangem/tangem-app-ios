@@ -10,6 +10,7 @@ import Foundation
 
 public enum FeeAccessibilityIdentifiers {
     // Fee options
+    public static let suggestedFeeOption = "feeOptionSuggested"
     public static let slowFeeOption = "feeOptionSlow"
     public static let marketFeeOption = "feeOptionMarket"
     public static let fastFeeOption = "feeOptionFast"
