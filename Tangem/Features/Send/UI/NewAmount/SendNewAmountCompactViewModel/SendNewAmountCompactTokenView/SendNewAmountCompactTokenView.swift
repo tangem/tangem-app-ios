@@ -56,9 +56,13 @@ struct SendNewAmountCompactTokenView: View {
                 .appearance(.init(font: Fonts.Regular.title1))
                 .allowsHitTesting(false) // This text field is read-only
 
-            Text(viewModel.alternativeAmount ?? " ")
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                .lineLimit(1)
+            HStack(spacing: 8) {
+                Text(viewModel.alternativeAmount ?? " ")
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+
+                highPriceImpactWarningView
+            }
         }
     }
 
@@ -69,6 +73,31 @@ struct SendNewAmountCompactTokenView: View {
             Text(viewModel.tokenCurrencySymbol)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var highPriceImpactWarningView: some View {
+        if let highPriceImpactWarning = viewModel.highPriceImpactWarning {
+            HStack(spacing: 2) {
+                Text(highPriceImpactWarning.percent)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
+
+                if #available(iOS 16.4, *) {
+                    InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
+                        .color(Colors.Text.attention)
+                } else {
+                    Button(action: {
+                        viewModel.userDidTapHighPriceImpactWarning(highPriceImpactWarning: highPriceImpactWarning)
+                    }) {
+                        Assets.infoCircle16.image
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Colors.Text.attention)
+                    }
+                }
+            }
         }
     }
 }
