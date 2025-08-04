@@ -3016,6 +3016,7 @@
 		EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */; };
 		EAB55F632DF0C3990016BF78 /* MainCoordinatorChildFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */; };
 		EAB55F672DF0C3E10016BF78 /* CommonMainCoordinatorChildFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F662DF0C3E10016BF78 /* CommonMainCoordinatorChildFactory.swift */; };
+		EAC5CBD92E3BA44B009E5886 /* StellarTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC5CBD82E3BA44B009E5886 /* StellarTrustlineUtils.swift */; };
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
 		EAD10C5E2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */; };
 		EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */; };
@@ -6925,6 +6926,7 @@
 		EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorChildFactory.swift; sourceTree = "<group>"; };
 		EAB55F662DF0C3E10016BF78 /* CommonMainCoordinatorChildFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMainCoordinatorChildFactory.swift; sourceTree = "<group>"; };
+		EAC5CBD82E3BA44B009E5886 /* StellarTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarTrustlineUtils.swift; sourceTree = "<group>"; };
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
 		EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEvents.swift; sourceTree = "<group>"; };
 		EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigationAction.swift; sourceTree = "<group>"; };
@@ -13465,6 +13467,7 @@
 				B62D3F432CBC79D900C2460E /* EthereumUtils.swift */,
 				B62D3F462CBC79D900C2460E /* SignatureUtils.swift */,
 				EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */,
+				EAC5CBD82E3BA44B009E5886 /* StellarTrustlineUtils.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -23644,6 +23647,7 @@
 				B62D413F2CBC79DA00C2460E /* NEARNetworkResult.TransactionSendAwait.swift in Sources */,
 				B62D407E2CBC79DA00C2460E /* DogecoinWalletAssembly.swift in Sources */,
 				B62D3FFE2CBC79DA00C2460E /* OP_CHECKLOCKTIMEVERIFY.swift in Sources */,
+				EAC5CBD92E3BA44B009E5886 /* StellarTrustlineUtils.swift in Sources */,
 				B62D41F32CBC79DB00C2460E /* VeChainNetworkResult.Transaction.swift in Sources */,
 				B62D3FA42CBC79DA00C2460E /* AlgorandProviderTarget.swift in Sources */,
 				2D665C342CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift in Sources */,
