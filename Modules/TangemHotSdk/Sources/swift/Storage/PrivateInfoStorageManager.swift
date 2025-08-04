@@ -39,7 +39,7 @@ final class PrivateInfoStorageManager {
             aesEncryptionKey,
             keyTag: walletID.encryptionKeyTag,
             secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
-            accessCode: Constants.defaultAccessCode
+            accessCode: nil
         )
     }
 
@@ -74,8 +74,7 @@ final class PrivateInfoStorageManager {
     }
 
     public func enableBiometrics(
-        context: MobileWalletContext,
-        laContext: LAContext
+        context: MobileWalletContext
     ) throws {
         let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
@@ -83,7 +82,6 @@ final class PrivateInfoStorageManager {
             aesEncryptionKey,
             keyTag: context.walletID.encryptionKeyBiometricsTag,
             secureEnclaveKeyTag: context.walletID.encryptionKeyBiometricsSecureEnclaveTag,
-            context: laContext
         )
     }
 
@@ -116,7 +114,7 @@ private extension PrivateInfoStorageManager {
             try encryptedSecureStorage.getData(
                 keyTag: walletID.encryptionKeyTag,
                 secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
-                accessCode: Constants.defaultAccessCode
+                accessCode: nil
             )
         }
     }
@@ -133,7 +131,6 @@ extension PrivateInfoStorageManager {
         static let publicInfoPrefix = "hotsdk_public_info_"
         static let publicInfoSecureEnclavePrefix = "hotsdk_public_info_secure_enclave_"
         static let aesKeySize = 32
-        static let defaultAccessCode = "0000"
     }
 }
 

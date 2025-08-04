@@ -34,7 +34,10 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptedBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
+            encryptedBiometricsStorage: EncryptedBiometricsStorage(
+                biometricsStorage: mockedBiometricsStorage,
+                secureEnclaveService: MockedSecureEnclaveService(config: .default)
+            )
         )
     }
 
@@ -107,7 +110,7 @@ struct PrivateInfoStorageManagerTests {
 
         let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
 
-        try storage.enableBiometrics(context: context2, laContext: LAContext())
+        try storage.enableBiometrics(context: context2)
 
         let context3 = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
 
