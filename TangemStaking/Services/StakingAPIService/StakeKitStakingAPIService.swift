@@ -13,6 +13,7 @@ import TangemNetworkUtils
 class StakeKitStakingAPIService: StakingAPIService {
     private let provider: TangemProvider<StakeKitTarget>
     private let credential: StakingAPICredential
+    private let apiType: StakingAPIType
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -20,9 +21,10 @@ class StakeKitStakingAPIService: StakingAPIService {
         return decoder
     }()
 
-    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential) {
+    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential, apiType: StakingAPIType = .prod) {
         self.provider = provider
         self.credential = credential
+        self.apiType = apiType
     }
 
     func enabledYields() async throws -> StakeKitDTO.Yield.Enabled.Response {
@@ -92,7 +94,7 @@ private extension StakeKitStakingAPIService {
     }
 
     func response(target: StakeKitTarget.Target) async throws -> Moya.Response {
-        let request = StakeKitTarget(apiKey: credential.apiKey, target: target)
+        let request = StakeKitTarget(apiKey: credential.apiKey, apiType: apiType, target: target)
         var response = try await provider.requestPublisher(request).async()
 
         do {
