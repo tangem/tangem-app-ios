@@ -98,23 +98,12 @@ struct PercentFormatter {
 }
 
 extension PercentFormatter {
-    enum Option {
-        case priceChange
-        case express
-        case staking
+    struct Option: Hashable {
+        static let priceChange = Option(fractionDigits: 2, clearPrefix: true)
+        static let express = Option(fractionDigits: 1, clearPrefix: false)
+        static let staking = Option(fractionDigits: 2, clearPrefix: true)
 
-        var fractionDigits: Int {
-            switch self {
-            case .priceChange, .staking: 2
-            case .express: 1
-            }
-        }
-
-        var clearPrefix: Bool {
-            switch self {
-            case .priceChange, .staking: true
-            case .express: false
-            }
-        }
+        let fractionDigits: Int
+        let clearPrefix: Bool
     }
 }
