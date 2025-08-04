@@ -12,9 +12,18 @@
 "access_code_navtitle" = "Zugangscode";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum kaufen im Portfolio hinzu.";
 "action_buttons_buy_navigation_bar_title" = "Kaufen";
 "action_buttons_sell_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum verkaufen im Portfolio hinzu.";
@@ -1082,6 +1091,7 @@
 "swapping_fee_estimation_error_text" = "Fehler bei der Gebührenschätzung. Bitte sende dein Feedback an den Support.";
 "swapping_from_title" = "Du wechselst";
 "swapping_high_price_impact_description" = "Der Tausch dieser Menge ausgewählter Token hat erhebliche Auswirkungen auf den Preis und verringert dein Ergebnis.";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Unzureichende Mittel";
 "swapping_permission_header" = "Erlaubnis erteilen";
 "swapping_permit_and_swap" = "Genehmigen und tauschen";
