@@ -60,9 +60,8 @@ public protocol HotSdk {
     /// Enables biometric authentication for a hot wallet.
     /// - Parameters:
     ///   - context: The wallet context containing authentication information.
-    ///   - laContext: The `LAContext` used for biometric authentication.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or authentication is incorrect.
-    func enableBiometrics(context: MobileWalletContext, laContext: LAContext) throws
+    func enableBiometrics(context: MobileWalletContext) throws
 
     /// Derives master keys for a hot wallet.
     /// - Parameter context: The wallet context containing authentication information.
