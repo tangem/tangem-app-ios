@@ -15,6 +15,7 @@ class SendNewDestinationCompactViewModel: ObservableObject, Identifiable {
 
     let suiTextViewModel: SUITextViewModel
     @Published var address: String = ""
+    @Published var resolved: String?
     @Published var additionalField: String?
 
     private var inputSubscription: AnyCancellable?
@@ -31,12 +32,13 @@ class SendNewDestinationCompactViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, args in
-                viewModel.updateView(address: args.0?.value ?? "", additionalField: args.1)
+                viewModel.updateView(address: args.0, additionalField: args.1)
             }
     }
 
-    private func updateView(address: String, additionalField: SendDestinationAdditionalField) {
-        self.address = address
+    private func updateView(address: SendAddress?, additionalField: SendDestinationAdditionalField) {
+        self.address = address?.value.typedAddress ?? ""
+        resolved = address?.value.showableResolved
 
         switch additionalField {
         case .filled(let type, let value, _):
