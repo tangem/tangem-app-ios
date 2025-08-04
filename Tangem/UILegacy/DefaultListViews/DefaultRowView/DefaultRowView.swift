@@ -27,6 +27,7 @@ struct DefaultRowView: View {
                 content
             }
             .buttonStyle(PlainButtonStyle())
+            .accessibilityIdentifier(viewModel.accessibilityIdentifier)
         } else {
             content
         }

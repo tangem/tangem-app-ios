@@ -10,7 +10,7 @@ import XCTest
 
 final class OrganizeTokensUITests: BaseTestCase {
     func testCheckOrganizeTokensOrder_TheSameOrderAsOnMain() {
-        id(2752)
+        setAllureId(2752)
         launchApp(tangemApiType: .mock)
 
         let mainTokensOrder = StoriesScreen(app)
@@ -23,7 +23,7 @@ final class OrganizeTokensUITests: BaseTestCase {
     }
 
     func testSortTokensByBalance_TokensSortedOnMain() {
-        id(2754)
+        setAllureId(2754)
         let expectedTokensOrder: [String] = ["Polygon", "Bitcoin", "Ethereum"]
         launchApp(tangemApiType: .mock)
 
@@ -39,7 +39,7 @@ final class OrganizeTokensUITests: BaseTestCase {
     }
 
     func testChangeTokensOrder_TokensOrderChangedOnMain() {
-        id(2753)
+        setAllureId(2753)
         let expectedTokensOrder: [String] = ["Bitcoin", "Polygon", "Ethereum"]
         launchApp(tangemApiType: .mock)
 
@@ -55,7 +55,7 @@ final class OrganizeTokensUITests: BaseTestCase {
     }
 
     func testGroupUngroup_TokensGroupedAndUngroupedCorrectly() {
-        id(2755)
+        setAllureId(2755)
         launchApp(tangemApiType: .mock)
 
         let organizeTokensScreen = StoriesScreen(app)
