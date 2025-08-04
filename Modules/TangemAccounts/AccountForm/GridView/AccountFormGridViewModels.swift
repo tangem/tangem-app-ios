@@ -1,6 +1,6 @@
 //
 //  GridViewModels.swift
-//  TangemApp
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -9,11 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-protocol SelectableGridItem: Identifiable, Equatable {
-    var id: String { get }
-}
-
-struct GridItemColor: SelectableGridItem {
+struct GridItemColor: Identifiable, Equatable {
     let id: String
     let color: Color
 
@@ -23,7 +19,7 @@ struct GridItemColor: SelectableGridItem {
     }
 }
 
-struct GridItemImage: SelectableGridItem {
+struct GridItemImage: Identifiable, Equatable {
     let id: String
     let kind: GridItemImageKind
 
