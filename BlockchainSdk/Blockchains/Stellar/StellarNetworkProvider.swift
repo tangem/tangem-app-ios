@@ -170,10 +170,14 @@ struct StellarResponse {
     let sequence: Int64
 }
 
-struct StellarAssetResponse {
+struct StellarAssetResponse: Hashable {
     let code: String
     let issuer: String
     let balance: Decimal
+
+    func matches(currency: String, issuer: String) -> Bool {
+        code == currency && self.issuer == issuer
+    }
 }
 
 struct StellarTargetAccountResponse {
