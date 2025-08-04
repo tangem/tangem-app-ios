@@ -24,6 +24,7 @@ extension Analytics {
         case loading = "Loading"
         case available = "Available"
         case unavailable = "Unavailable"
+        case missingAssetRequirement = "Missing Asset Requirement"
         case mainToken = "Main Token"
         case customToken = "Custom Token"
         case noRate = "No Rate"
