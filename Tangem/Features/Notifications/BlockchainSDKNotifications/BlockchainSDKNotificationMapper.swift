@@ -75,6 +75,8 @@ struct BlockchainSDKNotificationMapper {
             return .sendingAmountIsLessThanRentExemption(amount: amount.description)
         case .destinationMemoRequired:
             return .destinationMemoRequired
+        case .noTrustlineAtDestination:
+            return .noTrustlineAtDestination
         }
     }
 
