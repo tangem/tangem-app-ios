@@ -189,6 +189,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemUIUtils",
                 "TangemUI",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
