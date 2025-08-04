@@ -29,6 +29,8 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.assetsLoading
         case .expressNotLoaded:
             return Analytics.ParameterValue.assetsNotFound
+        case .missingAssetRequirement:
+            return Analytics.ParameterValue.missingAssetRequirement
         }
     }
 
@@ -76,6 +78,8 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.unavailable
         case .demo:
             return Analytics.ParameterValue.demo
+        case .missingAssetRequirement:
+            return Analytics.ParameterValue.missingAssetRequirement
         }
     }
 
