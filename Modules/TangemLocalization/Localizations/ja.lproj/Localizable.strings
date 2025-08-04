@@ -12,9 +12,18 @@
 "access_code_navtitle" = "アクセスコード";
 "accessibility_action_long_press" = "長押し";
 "accessibility_hint_access_more_actions" = "上または下にスワイプして、他のアクションにアクセス";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して買付できるようにします。";
 "action_buttons_buy_navigation_bar_title" = "買付";
 "action_buttons_sell_empty_search_message" = "トークンが見つかりませんか？メインページのマーケットセクションに移動し、ポートフォリオに追加して売却できるようにします。";
@@ -1082,6 +1091,7 @@
 "swapping_fee_estimation_error_text" = "手数料見積りエラーです。サポートにフィードバックをお送りください。";
 "swapping_from_title" = "スワップする";
 "swapping_high_price_impact_description" = "選択したトークンをこの量を交換すると、価格に大きな影響が生じ、結果が減少します。";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "残高不足";
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
