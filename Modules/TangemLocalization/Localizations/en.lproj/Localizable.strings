@@ -12,9 +12,18 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
 "action_buttons_sell_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for selling.";
@@ -1082,6 +1091,7 @@
 "swapping_fee_estimation_error_text" = "Fee estimation error. Please send feedback to support.";
 "swapping_from_title" = "You swap";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_permission_header" = "Give Permission";
 "swapping_permit_and_swap" = "Permit and Swap";
