@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccounts
 
 struct AccountFormView: View {
     @ObservedObject var viewModel: AccountFormViewModel
@@ -134,16 +135,16 @@ struct AccountFormView: View {
         case .letter: Colors.Icon.accent
         }
 
-        return kind.imageType.image
-            .renderingMode(.template)
-            .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
-            .padding(8)
-            .background(
-                Circle()
-                    .fill(backgroundColor)
+        return Circle()
+            .fill(backgroundColor)
+            .overlay(
+                kind.imageType.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .padding(8)
+                    .foregroundStyle(isSelected ? imageSelectedColor : imageNotSelectedColor)
             )
             .overlay(makeItemOverlayView(isSelected: isSelected, strokeColor: strokeColor))
-            .frame(width: 40, height: 40)
     }
 
     private func makeItemOverlayView(isSelected: Bool, strokeColor: Color) -> some View {
