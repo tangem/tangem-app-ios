@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemFoundation
 
 struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View {
     @Binding var selectedItem: Item
@@ -16,10 +17,13 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
     let items: [Item]
     let content: (Item, Bool) -> Content
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: interitemPadding),
+        count: 6
+    )
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 18) {
+        LazyVGrid(columns: columns, spacing: Self.interitemPadding) {
             ForEach(items) { item in
                 let isSelected = item == selectedItem
                 content(item, isSelected)
@@ -35,6 +39,15 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
             horizontalPadding: 20,
             radius: 14
         )
+    }
+
+    private static var interitemPadding: CGFloat {
+        switch IPhoneModel() {
+        case .iPhoneSE:
+            8
+        default:
+            16
+        }
     }
 }
 
