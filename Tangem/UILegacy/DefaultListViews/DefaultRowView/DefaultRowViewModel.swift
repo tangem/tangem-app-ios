@@ -14,15 +14,18 @@ class DefaultRowViewModel: ObservableObject, Identifiable {
     @Published private(set) var detailsType: DetailsType?
     @Published private(set) var action: (() -> Void)?
     @Published private(set) var secondaryAction: (() -> Void)?
+    private(set) var accessibilityIdentifier: String?
 
     init(
         title: String,
         detailsType: DetailsType? = .none,
+        accessibilityIdentifier: String? = nil,
         action: (() -> Void)? = nil,
         secondaryAction: (() -> Void)? = nil
     ) {
         self.title = title
         self.detailsType = detailsType
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
         self.secondaryAction = secondaryAction
     }
