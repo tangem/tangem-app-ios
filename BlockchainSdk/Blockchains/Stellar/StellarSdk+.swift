@@ -52,15 +52,15 @@ extension AccountService {
 
     func checkTargetAccount(address: String, token: Token?) -> AnyPublisher<StellarTargetAccountResponse, Error> {
         getAccountDetails(accountId: address)
-            .map { resp -> StellarTargetAccountResponse in
+            .tryMap { resp -> StellarTargetAccountResponse in
                 guard let token = token else {
                     return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: false)
                 }
 
-                let currencyCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress)
+                let (code, issuer) = try StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress)
 
                 let balance = resp.balances.filter {
-                    $0.assetCode == currencyCodeAndIssuer?.assetCode && $0.assetIssuer == currencyCodeAndIssuer?.issuer
+                    $0.assetCode == code && $0.assetIssuer == issuer
                 }
 
                 return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: !balance.isEmpty)
