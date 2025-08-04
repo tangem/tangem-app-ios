@@ -37,14 +37,17 @@ class StellarTransactionBuilder {
         transaction: Transaction,
         limit: ChangeTrustOperation.ChangeTrustLimit
     ) throws -> (hash: Data, transaction: stellarsdk.TransactionXDR) {
-        guard
-            let assetId = transaction.contractAddress,
-            let assetCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId),
-            let contractKeyPair = try? KeyPair(accountId: assetCodeAndIssuer.issuer),
-            let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress),
-            let asset = createNonNativeAsset(code: assetCodeAndIssuer.assetCode, issuer: contractKeyPair),
-            let changeTrustAsset = asset.toChangeTrustAsset(),
-            let limit = limit.value
+        guard let assetId = transaction.contractAddress else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        let (code, issuer) = try StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId)
+
+        guard let contractKeyPair = try? KeyPair(accountId: issuer),
+              let sourceKeyPair = try? KeyPair(accountId: transaction.sourceAddress),
+              let asset = createNonNativeAsset(code: code, issuer: contractKeyPair),
+              let changeTrustAsset = asset.toChangeTrustAsset(),
+              let limit = limit.value
         else {
             throw BlockchainSdkError.failedToBuildTx
         }
@@ -88,10 +91,14 @@ class StellarTransactionBuilder {
             return serializedOperation
 
         case .token:
-            guard let assetId = transaction.contractAddress,
-                  let assetCodeAndIssuer = StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId),
-                  let keyPair = try? KeyPair(accountId: assetCodeAndIssuer.issuer),
-                  let asset = createNonNativeAsset(code: assetCodeAndIssuer.assetCode, issuer: keyPair)
+            guard let assetId = transaction.contractAddress else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            let (code, issuer) = try StellarAssetIdParser().getAssetCodeAndIssuer(from: assetId)
+
+            guard let keyPair = try? KeyPair(accountId: issuer),
+                  let asset = createNonNativeAsset(code: code, issuer: keyPair)
             else {
                 throw BlockchainSdkError.failedToBuildTx
             }
