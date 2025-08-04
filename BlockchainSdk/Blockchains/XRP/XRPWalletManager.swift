@@ -294,23 +294,27 @@ extension XRPWalletManager: TransactionSender {
 extension XRPWalletManager: ThenProcessable {}
 
 extension XRPWalletManager: ReserveAmountRestrictable {
-    func validateReserveAmount(amount: Amount, addressType: ReserveAmountRestrictableAddressType) async throws {
-        guard let walletReserve = wallet.amounts[.reserve] else {
-            throw XRPError.missingReserve
-        }
+    func validateReserveAmount(amount: Amount, address: String) async throws {
+        let reserveAmount = Amount(with: wallet.blockchain, value: Constants.minAmountToCreateCoinAccount)
+        let addressDecoded = decodeAddress(address: address)
+        let isAccountCreated = try await networkService.checkAccountCreated(account: addressDecoded).async()
+        let trustlines = try await networkService.getAccountTrustlines(account: addressDecoded).async().get()
 
-        let isAccountCreated: Bool = try await {
-            switch addressType {
-            case .notCreated:
-                return false
-            case .address(let address):
-                let addressDecoded = decodeAddress(address: address)
-                return try await networkService.checkAccountCreated(account: addressDecoded).async()
+        switch amount.type {
+        case .coin where !isAccountCreated && amount.value < Constants.minAmountToCreateCoinAccount:
+            throw ValidationError.reserve(amount: reserveAmount)
+
+        case .token where !isAccountCreated:
+            throw ValidationError.reserve(amount: reserveAmount)
+
+        case .token(let token):
+            let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+            if !XRPTrustlineUtils.containsTrustline(in: trustlines, currency: currency, issuer: issuer) {
+                throw ValidationError.noTrustlineAtDestination
             }
-        }()
 
-        if !isAccountCreated, amount.value < walletReserve.value {
-            throw ValidationError.reserve(amount: walletReserve)
+        case .reserve, .feeResource, .coin:
+            break
         }
     }
 }
@@ -392,5 +396,8 @@ extension XRPWalletManager {
         /// This amount (0.2 XRP) is added for each additional ledger entry owned by the account.
         /// https://xrpl.org/reserves.html
         static let ownerReserveIncrement: Decimal = .init(stringValue: "0.2")!
+
+        /// 1 XRP
+        static let minAmountToCreateCoinAccount: Decimal = 1
     }
 }
