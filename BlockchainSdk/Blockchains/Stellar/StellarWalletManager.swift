@@ -284,14 +284,29 @@ extension StellarWalletManager: RequiredMemoRestrictable {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension StellarWalletManager: AssetRequirementsManager {
-    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
-        guard case .token = asset, case .requiresTrustline(_, let fee, _) = requirementsCondition else {
-            assertionFailure("Asset must be .token and condition must be .requiresTrustline to check Stellar trustline fee.")
-            return false
-        }
+    func feeStatusForRequirement(asset: Asset) -> AnyPublisher<AssetRequirementFeeStatus, Never> {
+        networkService.getFee()
+            .replaceError(with: [])
+            .map {
+                $0[safe: 1]?.value ?? .zero // p80 fee
+            }
+            .withWeakCaptureOf(self)
+            .map { manager, fee in
+                let feeBalance = manager.wallet.feeCurrencyBalance(amountType: .coin)
+                let totalRequired = Self.Constants.baseReserve + fee
 
-        let balance = wallet.feeCurrencyBalance(amountType: .coin)
-        return balance >= fee.value
+                if feeBalance > totalRequired {
+                    return .sufficient
+                } else {
+                    let missingAmount = (totalRequired - feeBalance)
+                        .rounded(blockchain: manager.wallet.blockchain)
+                        .decimalNumber
+                        .description(withLocale: Locale.posixEnUS)
+
+                    return .insufficient(missingAmount: missingAmount)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
@@ -310,9 +325,14 @@ extension StellarWalletManager: AssetRequirementsManager {
             // Base reserve calculation reference: https://developers.stellar.org/docs/learn/fundamentals/lumens#minimum-balance
             // We only show the base reserve here (0.5 XLM), because the account already exists,
             // and the initial 1 XLM reserve (2 × base) and reserves for existing trustlines are already locked.
-            let feeAmount = Amount(with: wallet.blockchain, value: Constants.baseReserve)
+            let requiredReserve = Amount(with: wallet.blockchain, value: Constants.baseReserve)
 
-            return .requiresTrustline(blockchain: wallet.blockchain, fee: feeAmount, isProcessing: isTrustlineOperationInProgress)
+            return .requiresTrustline(
+                blockchain: wallet.blockchain,
+                trustlineReserve: requiredReserve,
+                isProcessing: isTrustlineOperationInProgress
+            )
+
         case .coin, .reserve, .feeResource:
             return nil
         }
