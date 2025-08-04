@@ -337,14 +337,30 @@ extension XRPWalletManager: RequiredMemoRestrictable {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension XRPWalletManager: AssetRequirementsManager {
-    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
-        guard case .token = asset, case .requiresTrustline(_, let fee, _) = requirementsCondition else {
-            assertionFailure("Asset must be .token and condition must be .requiresTrustline to check XRP trustline fee.")
-            return false
-        }
+    func feeStatusForRequirement(asset: Asset) -> AnyPublisher<AssetRequirementFeeStatus, Never> {
+        networkService.getFee()
+            .replaceError(with: .init(min: .zero, normal: .zero, max: .zero))
+            .map {
+                $0.normal
+            }
+            .withWeakCaptureOf(self)
+            .map { manager, fee in
+                let feeBalance = manager.wallet.feeCurrencyBalance(amountType: .coin)
+                let feeInDrops = XRPAmountConverter(blockchain: manager.wallet.blockchain).convertFromDrops(fee)
+                let totalRequired = Self.Constants.ownerReserveIncrement + feeInDrops
 
-        let balance = wallet.feeCurrencyBalance(amountType: .coin)
-        return balance >= fee.value
+                if feeBalance > totalRequired {
+                    return .sufficient
+                } else {
+                    let missingAmount = (totalRequired - feeBalance)
+                        .rounded(blockchain: manager.wallet.blockchain)
+                        .decimalNumber
+                        .description(withLocale: Locale.posixEnUS)
+
+                    return .insufficient(missingAmount: missingAmount)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
@@ -361,9 +377,9 @@ extension XRPWalletManager: AssetRequirementsManager {
 
             // The base reserve (1 XRP) and reserves for existing entries are already accounted for.
             // This value represents only the incremental reserve required for the new entry.
-            let feeAmount = Amount(with: wallet.blockchain, value: Constants.ownerReserveIncrement)
+            let reserveAmount = Amount(with: wallet.blockchain, value: Constants.ownerReserveIncrement)
 
-            return .requiresTrustline(blockchain: wallet.blockchain, fee: feeAmount, isProcessing: isTrustlineOperationInProgress)
+            return .requiresTrustline(blockchain: wallet.blockchain, trustlineReserve: reserveAmount, isProcessing: isTrustlineOperationInProgress)
         case .coin, .reserve, .feeResource:
             return nil
         }
