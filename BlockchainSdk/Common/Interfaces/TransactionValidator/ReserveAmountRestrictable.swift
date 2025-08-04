@@ -10,23 +10,16 @@ import Foundation
 import Combine
 
 protocol ReserveAmountRestrictable {
-    func validateReserveAmount(amount: Amount, addressType: ReserveAmountRestrictableAddressType) async throws
+    func validateReserveAmount(amount: Amount, address: String) async throws
 }
 
 extension ReserveAmountRestrictable {
     func validateReserveAmount(amount: Amount, destination: DestinationType) async throws {
         switch destination {
         case .generate:
-            try await validateReserveAmount(amount: amount, addressType: .notCreated)
+            return
         case .address(let string):
-            try await validateReserveAmount(amount: amount, addressType: .address(string))
+            try await validateReserveAmount(amount: amount, address: string)
         }
     }
-}
-
-enum ReserveAmountRestrictableAddressType {
-    /// The specified address will be used for verification
-    case address(String)
-    /// It will be considered as an absolute brand new address for verification
-    case notCreated
 }
