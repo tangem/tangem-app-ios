@@ -203,6 +203,10 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .nft:
             return .available
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
         }
     }
 
