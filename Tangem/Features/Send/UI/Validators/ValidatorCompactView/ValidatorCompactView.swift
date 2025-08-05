@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct ValidatorCompactViewData: Identifiable, Hashable {
     var id: Int { hashValue }
@@ -45,5 +46,6 @@ struct ValidatorCompactView: View {
         }
         .infinityFrame(axis: .horizontal)
         .padding(.vertical, 12)
+        .accessibilityIdentifier(StakingAccessibilityIdentifiers.validatorBlock)
     }
 }
