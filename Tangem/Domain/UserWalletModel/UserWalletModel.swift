@@ -22,6 +22,7 @@ protocol UserWalletModel:
     OldWalletConnectUserWalletInfoProvider,
     KeysDerivingProvider,
     WalletSelectorInfoProvider,
+    UserWalletModelUnlockerResolvable,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
@@ -43,17 +44,19 @@ protocol UserWalletModel:
     func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
-    func cleanup()
 }
 
 enum UpdateRequest {
     case backupStarted(card: Card)
     case backupCompleted
     case newName(_ name: String)
+    case mnemonicBackupCompleted
+    case iCloudBackupCompleted
+    case accessCodeDidSet
 }
 
 enum UpdateResult {
-    case backupDidChange
+    case configurationChanged
     case nameDidChange(name: String)
 
     var newName: String? {
