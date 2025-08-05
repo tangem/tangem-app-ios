@@ -50,21 +50,26 @@ extension CardSigner: TangemSigner {
     var latestSignerType: TangemSignerType? { _latestSignerType }
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        let signCommand = SignAndReadTask(
+        let dataToSign = SignData(
+            derivationPath: walletPublicKey.derivationPath,
             hashes: hashes,
-            seedKey: walletPublicKey.seedKey,
-            pairWalletPublicKey: twinKey?.getPairKey(for: walletPublicKey.seedKey),
-            hdKey: walletPublicKey.derivationPath.map {
-                .init(blockchainKey: walletPublicKey.blockchainKey, derivationPath: $0)
-            }
+            publicKey: walletPublicKey.blockchainKey
         )
 
+        return sign(dataToSign: [dataToSign], walletPublicKey: walletPublicKey)
+    }
+
+    func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        let signCommand = MultipleSignTask(dataToSign: dataToSign, seedKey: walletPublicKey.seedKey)
         return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
             .handleEvents(
                 receiveOutput: { [weak self] response in
-                    self?.updateLatestSignerType(card: response.card)
-                    self?.warnDeprecatedCards(card: response.card)
-                }, receiveCompletion: { completion in
+                    if let lastResponse = response.last {
+                        self?.updateLatestSignerType(card: lastResponse.card)
+                        self?.warnDeprecatedCards(card: lastResponse.card)
+                    }
+                },
+                receiveCompletion: { completion in
                     switch completion {
                     case .finished:
                         break
@@ -75,33 +80,14 @@ extension CardSigner: TangemSigner {
                     }
                 }
             )
-            .map { response in
-                let signatures = zip(hashes, response.signatures).map { hash, signature in
-                    SignatureInfo(signature: signature, publicKey: response.publicKey, hash: hash)
+            .map { responses in
+                responses.flatMap { response in
+                    zip(response.signatures, response.hashes).map { signature, hash in
+                        SignatureInfo(signature: signature, publicKey: response.publicKey, hash: hash)
+                    }
                 }
-
-                return signatures
             }
             .eraseError()
-            .eraseToAnyPublisher()
-    }
-
-    func sign(
-        dataToSign: [SignData],
-        seedKey: Data
-    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
-        let signCommand = MultipleSignTask(dataToSign: dataToSign, seedKey: seedKey)
-        return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
-            .mapError { $0 }
-            .handleEvents(receiveOutput: { [weak self] response in
-                if let lastResponse = response.last {
-                    self?.updateLatestSignerType(card: lastResponse.card)
-                    self?.warnDeprecatedCards(card: lastResponse.card)
-                }
-            })
-            .map { response in
-                return response.map { ($0.signature, $0.publicKey) }
-            }
             .eraseToAnyPublisher()
     }
 
