@@ -1,5 +1,5 @@
 //
-//  EncryptionKeyBiometricsStorage.swift
+//  EncryptedBiometricsStorage.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemSdk
 import LocalAuthentication
 import TangemFoundation
 
-final class EncryptionKeyBiometricsStorage {
+final class EncryptedBiometricsStorage {
     private let biometricsStorage: HotBiometricsStorage
     private let secureEnclaveService: HotBiometricsSecureEnclaveService
 
@@ -23,38 +23,40 @@ final class EncryptionKeyBiometricsStorage {
         self.secureEnclaveService = secureEnclaveService
     }
 
-    func storeEncryptionKey(_ aesEncryptionKey: Data, for walletID: UserWalletId) throws {
+    func storeData(
+        _ data: Data,
+        keyTag: String,
+        secureEnclaveKeyTag: String
+    ) throws {
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
-            aesEncryptionKey,
-            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag,
+            data,
+            keyTag: secureEnclaveKeyTag,
             context: nil
         )
 
-        try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: walletID.encryptionKeyBiometricsTag)
+        try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: keyTag)
     }
 
-    func getEncryptionKey(for walletID: UserWalletId, context: LAContext) throws -> Data {
+    func getData(
+        keyTag: String,
+        secureEnclaveKeyTag: String,
+        context: LAContext
+    ) throws -> Data {
         guard let secureEnclaveEncryptedData = try biometricsStorage.get(
-            walletID.encryptionKeyBiometricsTag,
+            keyTag,
             context: context
         ) else {
-            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+            throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
 
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedData,
-            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag,
+            keyTag: secureEnclaveKeyTag,
             context: context
         )
     }
 
-    func deleteEncryptionKey(for walletID: UserWalletId) throws {
-        try biometricsStorage.delete(walletID.encryptionKeyBiometricsTag)
-    }
-}
-
-private extension EncryptionKeyBiometricsStorage {
-    enum Constants {
-        static let aesKeySize = 32
+    func deleteData(keyTag: String) throws {
+        try biometricsStorage.delete(keyTag)
     }
 }

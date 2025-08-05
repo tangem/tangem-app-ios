@@ -46,7 +46,7 @@ final class PrivateInfoStorage {
         aesEncryptionKey: Data
     ) throws -> Data {
         guard let aesEncryptedData = try secureStorage.get(walletID.privateInfoTag) else {
-            throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
+            throw PrivateInfoStorageError.noInfo(tag: walletID.stringValue)
         }
 
         let secureEnclaveEncryptedData = try AESEncoder.decryptAES(
