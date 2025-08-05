@@ -15,7 +15,6 @@ struct CommonUserWalletModelFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func makeModel(publicData: StoredUserWallet, sensitiveData: StoredUserWallet.SensitiveInfo) -> UserWalletModel? {
-        // CardInfo has to contain wallets due to UserWalletConfig
         switch (publicData.walletInfo, sensitiveData) {
         case (.cardWallet(let cardInfo), .cardWallet(let keys)):
             var mutableCardInfo = cardInfo
@@ -26,12 +25,17 @@ struct CommonUserWalletModelFactory {
                 keys: sensitiveData.asWalletKeys,
                 name: publicData.name
             )
-        default:
+        case (.mobileWallet(let info), .mobileWallet(let keys)):
+            var mutableInfo = info
+            mutableInfo.keys = keys
+
             return makeModel(
-                walletInfo: publicData.walletInfo,
+                walletInfo: .mobileWallet(mutableInfo),
                 keys: sensitiveData.asWalletKeys,
                 name: publicData.name
             )
+        default:
+            return nil
         }
     }
 
