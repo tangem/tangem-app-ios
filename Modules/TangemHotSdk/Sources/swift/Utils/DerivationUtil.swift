@@ -54,13 +54,19 @@ public enum DerivationUtil {
     static func curve(for masterKey: Data, entropy: Data, passphrase: String) -> EllipticCurve? {
         let curves: [EllipticCurve] = [.secp256k1, .ed25519, .ed25519_slip0010]
 
-        return curves
+        let curve = curves
             .first { curve in
                 guard let key = try? Self.masterKey(from: curve, entropy: entropy, passphrase: passphrase) else {
                     return false
                 }
                 return key == masterKey
             }
+
+        if curve == nil, (try? BLSUtil.publicKey(entropy: entropy, passphrase: passphrase).publicKey) == masterKey {
+            return .bls12381_G2
+        }
+
+        return curve
     }
 }
 
@@ -95,7 +101,10 @@ private extension DerivationUtil {
             var pubKey = [UInt8](repeating: 0, count: Constants.edPublicKeySize)
 
             pubKey.withUnsafeMutableBufferPointer { publicKeyBuf in
-                ed25519_publickey(&node.private_key, publicKeyBuf.baseAddress)
+                ed25519_publickey(
+                    &node.private_key,
+                    publicKeyBuf.baseAddress
+                )
             }
 
             publicKey = Data(pubKey)
@@ -116,15 +125,12 @@ private extension DerivationUtil {
 
             publicKey = Data(pubKey)
         case .ed25519:
-            var pubKey = [UInt8](repeating: 0, count: DerivationUtil.Constants.edPublicKeySize)
+            var pubKey = [UInt8](repeating: 0, count: Constants.edPublicKeySize)
 
-            try pubKey.withUnsafeMutableBytes { publicKeyBuf in
-                guard let publicKeyPtr = publicKeyBuf.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
-                    throw HotWalletError.failedToDeriveKey
-                }
-                return ed25519_publickey_ext(
+            pubKey.withUnsafeMutableBufferPointer { publicKeyBuf in
+                ed25519_publickey_ext(
                     &node.private_key,
-                    publicKeyPtr
+                    publicKeyBuf.baseAddress
                 )
             }
 
