@@ -15,10 +15,6 @@ import TangemFoundation
 
 struct HotUserWalletConfig {
     let hotWalletInfo: HotWalletInfo
-
-    var transactionSigner: TransactionSigner {
-        fatalError("Unimplemented")
-    }
 }
 
 extension HotUserWalletConfig: UserWalletConfig {
@@ -40,7 +36,7 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        fatalError("Unimplemented")
+        MobileWalletSigner(hotWalletInfo: hotWalletInfo)
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
