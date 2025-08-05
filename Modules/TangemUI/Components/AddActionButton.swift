@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  AddActionButton.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -30,6 +30,7 @@ public struct AddActionButton: View {
                     .style(Fonts.Bold.subheadline, color: textAndIconColor)
             }
         }
+        .disabled(isDisabled)
     }
 
     private var plusIcon: some View {
@@ -69,4 +70,4 @@ public struct AddActionButton: View {
         AddActionButton(text: "Add account", action: {}, isDisabled: true)
     }
 }
- #endif
+#endif
