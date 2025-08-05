@@ -13,22 +13,21 @@ import TangemFoundation
 
 final class EncryptionKeyBiometricsStorage {
     private let biometricsStorage: HotBiometricsStorage
-    private let secureEnclaveServiceType: HotSecureEnclaveService.Type
+    private let secureEnclaveService: HotBiometricsSecureEnclaveService
 
     init(
         biometricsStorage: HotBiometricsStorage = BiometricsStorage(),
-        secureEnclaveServiceType: HotSecureEnclaveService.Type = SecureEnclaveService.self
+        secureEnclaveService: HotBiometricsSecureEnclaveService = BiometricsSecureEnclaveService()
     ) {
         self.biometricsStorage = biometricsStorage
-        self.secureEnclaveServiceType = secureEnclaveServiceType
+        self.secureEnclaveService = secureEnclaveService
     }
 
-    func storeEncryptionKey(_ aesEncryptionKey: Data, for walletID: UserWalletId, context: LAContext) throws {
-        let secureEnclaveService = secureEnclaveServiceType.init(config: .biometrics(context))
-
+    func storeEncryptionKey(_ aesEncryptionKey: Data, for walletID: UserWalletId) throws {
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
             aesEncryptionKey,
-            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
+            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag,
+            context: nil
         )
 
         try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: walletID.encryptionKeyBiometricsTag)
@@ -42,11 +41,10 @@ final class EncryptionKeyBiometricsStorage {
             throw PrivateInfoStorageError.noPrivateInfo(walletID: walletID)
         }
 
-        let secureEnclaveService = secureEnclaveServiceType.init(config: .biometrics(context))
-
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedData,
-            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag
+            keyTag: walletID.encryptionKeyBiometricsSecureEnclaveTag,
+            context: context
         )
     }
 
