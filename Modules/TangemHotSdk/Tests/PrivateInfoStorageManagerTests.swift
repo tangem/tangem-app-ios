@@ -22,7 +22,8 @@ struct PrivateInfoStorageManagerTests {
 
     private func makeStorage() -> PrivateInfoStorageManager {
         let mockedSecureStorage = MockedSecureStorage()
-        let mockedSecureEnclaveService = MockedSecureEnclaveService(config: .default)
+        let mockedSecureEnclaveService = MockedSecureEnclaveService()
+        let mockedBiometricsSecureEnclaveService = MockedBiometricsSecureEnclaveService()
         let mockedBiometricsStorage = MockedBiometricsStorage()
 
         return PrivateInfoStorageManager(
@@ -34,7 +35,10 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
+            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage(
+                biometricsStorage: mockedBiometricsStorage,
+                secureEnclaveService: mockedBiometricsSecureEnclaveService
+            )
         )
     }
 
@@ -90,7 +94,7 @@ struct PrivateInfoStorageManagerTests {
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
         try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
 
-        try storage.enableBiometrics(for: walletID, accessCode: "accessCode", context: LAContext())
+        try storage.enableBiometrics(for: walletID, accessCode: "accessCode")
 
         let result = try storage.getPrivateInfoData(for: walletID, auth: .biometrics(context: LAContext()))
 
@@ -107,7 +111,7 @@ struct PrivateInfoStorageManagerTests {
         try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
 
         #expect(throws: Error.self, performing: {
-            try storage.enableBiometrics(for: walletID, accessCode: "invalidAccessCode", context: LAContext())
+            try storage.enableBiometrics(for: walletID, accessCode: "invalidAccessCode")
         })
     }
 
