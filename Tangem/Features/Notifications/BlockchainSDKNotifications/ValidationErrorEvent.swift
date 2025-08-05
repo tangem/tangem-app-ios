@@ -34,6 +34,7 @@ enum ValidationErrorEvent: Hashable {
     case sendingAmountIsLessThanRentExemption(amount: String)
 
     case destinationMemoRequired
+    case noTrustlineAtDestination
 }
 
 extension ValidationErrorEvent: NotificationEvent {
@@ -55,6 +56,7 @@ extension ValidationErrorEvent: NotificationEvent {
         case .remainingAmountIsLessThanRentExemption: "remainingAmountIsLessThanRentExemption".hashValue
         case .sendingAmountIsLessThanRentExemption: "sendingAmountIsLessThanRentExemption".hashValue
         case .destinationMemoRequired: "destinationMemoRequired".hashValue
+        case .noTrustlineAtDestination: "noTrustlineAtDestination".hashValue
         }
     }
 
@@ -88,6 +90,8 @@ extension ValidationErrorEvent: NotificationEvent {
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .destinationMemoRequired:
             return .string(Localization.sendValidationDestinationTagRequiredTitle)
+        case .noTrustlineAtDestination:
+            return .string(Localization.commonError)
         }
     }
 
@@ -131,6 +135,8 @@ extension ValidationErrorEvent: NotificationEvent {
             return Localization.sendNotificationInvalidAmountRentDestination(amount)
         case .destinationMemoRequired:
             return Localization.sendValidationDestinationTagRequiredDescription
+        case .noTrustlineAtDestination:
+            return Localization.noTrustlineXlmAsset
         }
     }
 
@@ -161,7 +167,8 @@ extension ValidationErrorEvent: NotificationEvent {
              .remainingAmountIsLessThanRentExemption,
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -183,7 +190,8 @@ extension ValidationErrorEvent: NotificationEvent {
              .remainingAmountIsLessThanRentExemption,
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return .critical
         }
     }
@@ -217,7 +225,8 @@ extension ValidationErrorEvent {
              .remainingAmountIsLessThanRentExemption,
              .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return nil
         }
     }

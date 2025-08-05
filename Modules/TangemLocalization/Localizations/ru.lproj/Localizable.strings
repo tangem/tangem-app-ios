@@ -12,9 +12,18 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "Не нашли свой токен? Перейдите в раздел «Рынок» на главной странице и добавьте его в свой портфель для покупки.";
 "action_buttons_buy_navigation_bar_title" = "Купить";
 "action_buttons_sell_empty_search_message" = "Не нашли свой токен? Перейдите в раздел «Рынок» на главной странице и добавьте его в свой портфель для продажи.";
@@ -1082,6 +1091,7 @@
 "swapping_fee_estimation_error_text" = "Ошибка расчета комиссии. Пожалуйста, отправьте информацию в поддержку.";
 "swapping_from_title" = "Вы отправляете";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";

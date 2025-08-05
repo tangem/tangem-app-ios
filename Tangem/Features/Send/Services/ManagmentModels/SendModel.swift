@@ -13,6 +13,7 @@ import BlockchainSdk
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func resetFlow()
 }
 

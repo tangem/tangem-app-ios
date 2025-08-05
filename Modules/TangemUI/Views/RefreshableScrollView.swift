@@ -34,15 +34,22 @@ public struct RefreshableScrollView<Content: View>: View {
     }
 
     public var body: some View {
-        if #available(iOS 16, *), useNativeRefresh {
-            ScrollView(.vertical, showsIndicators: false) {
-                content
-            }
-            .refreshable { [weak refreshContainer] in
-                await refreshContainer?.refreshAsync()
-            }
+        // NOTE: On iOS 26 `RefreshableScrollViewCompat` works incredibly worse
+        if #available(iOS 26, *) {
+            nativeScrollView
+        } else if #available(iOS 16, *), useNativeRefresh {
+            nativeScrollView
         } else {
             RefreshableScrollViewCompat(onRefresh: refreshContainer.onRefresh, content: content)
+        }
+    }
+
+    private var nativeScrollView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            content
+        }
+        .refreshable { [weak refreshContainer] in
+            await refreshContainer?.refreshAsync()
         }
     }
 }

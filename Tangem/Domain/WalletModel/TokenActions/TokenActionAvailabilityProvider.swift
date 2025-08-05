@@ -176,6 +176,7 @@ extension TokenActionAvailabilityProvider {
         case expressUnreachable
         case expressLoading
         case expressNotLoaded
+        case missingAssetRequirement
     }
 
     var isSwapAvailable: Bool {
@@ -189,6 +190,10 @@ extension TokenActionAvailabilityProvider {
     var swapAvailability: SwapActionAvailabilityStatus {
         if walletModel.isCustom {
             return .customToken
+        }
+
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
         }
 
         switch walletModel.sendingRestrictions {
@@ -336,6 +341,7 @@ extension TokenActionAvailabilityProvider {
         case expressLoading
         case expressNotLoaded
         case demo(disabledLocalizedReason: String)
+        case missingAssetRequirement
     }
 
     var isBuyAvailable: Bool {
@@ -347,6 +353,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var buyAvailablity: BuyActionAvailabilityStatus {
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
+        }
+
         if FeatureProvider.isAvailable(.onramp) {
             let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
             let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
@@ -386,14 +396,14 @@ extension TokenActionAvailabilityProvider {
     }
 
     var isReceiveAvailable: Bool {
-        if case .available = receiveAvailablity {
+        if case .available = receiveAvailability {
             return true
         }
 
         return false
     }
 
-    var receiveAvailablity: ReceiveActionAvailabilityStatus {
+    var receiveAvailability: ReceiveActionAvailabilityStatus {
         if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
             return .assetRequirement
         }

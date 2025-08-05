@@ -13,7 +13,7 @@ import Foundation
 public enum AssetRequirementsCondition {
     /// The exact value of the fee for this type of condition is stored in `feeAmount`.
     case paidTransactionWithFee(blockchain: Blockchain, transactionAmount: Amount?, feeAmount: Amount?)
-    case requiresTrustline(blockchain: Blockchain, fee: Amount, isProcessing: Bool)
+    case requiresTrustline(blockchain: Blockchain, trustlineReserve: Amount, isProcessing: Bool)
     @available(*, unavailable, message: "Minimum Balance Change support not implemented yet")
     case minimumBalanceChange(newMinimumBalance: Amount)
 }
