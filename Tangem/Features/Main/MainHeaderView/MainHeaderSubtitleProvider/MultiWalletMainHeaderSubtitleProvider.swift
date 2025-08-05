@@ -64,7 +64,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] value in
                 switch value {
-                case .backupDidChange:
+                case .configurationChanged:
                     self?.formatSubtitle()
                 default:
                     break
