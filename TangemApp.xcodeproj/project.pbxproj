@@ -55,6 +55,7 @@
 		0AB8BD3E2DBB7EFD00D88677 /* ReferralConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
+		0ABDAEC42E325816001C7EE4 /* MobileWalletSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */; };
 		0AC9EFF52CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */; };
 		0AC9EFF72CAE857C005F868F /* StakingSingleActionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */; };
 		0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */; };
@@ -65,6 +66,8 @@
 		0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */; };
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */; };
+		0ADFB9342E424F7D00334A3C /* MobileWalletError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */; };
+		0ADFB9362E42500700334A3C /* MobileWallet+UniversalError.swift in Resources */ = {isa = PBXBuildFile; fileRef = 0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */; };
 		0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */; };
 		0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */; };
 		0AE3EE0F2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */; };
@@ -4051,6 +4054,7 @@
 		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
+		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
 		0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionModel.swift; sourceTree = "<group>"; };
 		0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingSingleActionStepsManager.swift; sourceTree = "<group>"; };
@@ -4062,6 +4066,8 @@
 		0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSignTask.swift; sourceTree = "<group>"; };
 		0AD9EF0E2CC2A9B600466191 /* UnstakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingAmountValidator.swift; sourceTree = "<group>"; };
+		0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletError.swift; sourceTree = "<group>"; };
+		0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileWallet+UniversalError.swift"; sourceTree = "<group>"; };
 		0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewOffsetHandler.swift; sourceTree = "<group>"; };
 		0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationBarTitle.swift; sourceTree = "<group>"; };
 		0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+MarketsTokenDetails.swift"; sourceTree = "<group>"; };
@@ -8013,6 +8019,8 @@
 				0FA453B52E1D3AFE0055B5BB /* AccessCode */,
 				0FA453702E1D0D6A0055B5BB /* Utils */,
 				0A8DD9762E018F1500783A9E /* HotWalletImageProvider.swift */,
+				0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */,
+				0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */,
 			);
 			path = HotWallet;
 			sourceTree = "<group>";
@@ -17312,6 +17320,7 @@
 			children = (
 				DC8F84FB2E315B9A003F5A4E /* TangemSignerType.swift */,
 				DC8F84F62E3158DA003F5A4E /* CardSigner.swift */,
+				0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */,
 				5DB862B7252396CD00566AA0 /* TangemSigner.swift */,
 			);
 			path = TangemSigner;
@@ -21404,6 +21413,7 @@
 				DC4512722BD15DFB00DE6F94 /* xlmBird.json in Resources */,
 				B07C6A0D2A77E5AD00ACCBB0 /* xrpNote.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
+				0ADFB9362E42500700334A3C /* MobileWallet+UniversalError.swift in Resources */,
 				B07C6A0B2A77E5A600ACCBB0 /* wallet2.json in Resources */,
 				EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */,
 				B0DC10D1292755BB00BBE854 /* wallet.json in Resources */,
@@ -21737,6 +21747,7 @@
 				DCE2F7F22CE7253A00BDE145 /* ActionButtonsSendToSellModel.swift in Sources */,
 				C22564022D9154DD003063DA /* FloatingSheetPresenter.swift in Sources */,
 				EFD39C8E2A6A87F90055D215 /* SupportedBlockchains.swift in Sources */,
+				0ADFB9342E424F7D00334A3C /* MobileWalletError.swift in Sources */,
 				EFC84B2B2C37FBB300546882 /* SendFeeStep.swift in Sources */,
 				B0C9559A2D13FF4B00ABD5E8 /* VisaOnboardingInProgressView.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
@@ -22656,6 +22667,7 @@
 				0F2786452E2BA95000742D0F /* HotOnboardingBackupSeedPhraseFlowBuilder.swift in Sources */,
 				DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */,
 				DA8C33952BF38CB2002AE4F9 /* UserWalletFinder.swift in Sources */,
+				0ABDAEC42E325816001C7EE4 /* MobileWalletSigner.swift in Sources */,
 				B6AA136E2A2A376900B53937 /* CardInfoPageTransactionDefaultCellPreviewViewModel.swift in Sources */,
 				EFB999AF2C3D9A7F00F6A987 /* CommonSendStepsManager.swift in Sources */,
 				B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */,
@@ -31285,7 +31297,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 3.23.1;
+				version = 3.23.4;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
