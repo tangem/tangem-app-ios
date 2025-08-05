@@ -14,15 +14,36 @@ import TangemUIUtils
 public struct BottomSheetErrorContentView: View {
     private let title: String
     private let subtitle: String
-    private let gotItButtonAction: () -> Void
+    private let closeAction: (() -> Void)?
+    private let primaryButton: MainButton.Settings?
+    private let secondaryButton: MainButton.Settings?
 
-    public init(title: String, subtitle: String, gotItButtonAction: @escaping () -> Void) {
+    public init(
+        title: String,
+        subtitle: String,
+        closeAction: (() -> Void)? = nil,
+        primaryButton: MainButton.Settings? = nil,
+        secondaryButton: MainButton.Settings? = nil
+    ) {
         self.title = title
         self.subtitle = subtitle
-        self.gotItButtonAction = gotItButtonAction
+        self.closeAction = closeAction
+        self.primaryButton = primaryButton
+        self.secondaryButton = secondaryButton
     }
 
     public var body: some View {
+        ZStack(alignment: .topTrailing) {
+            content
+
+            if let closeAction {
+                CircleButton.close(action: closeAction)
+                    .padding(.all, 16)
+            }
+        }
+    }
+
+    public var content: some View {
         VStack(spacing: .zero) {
             VStack(spacing: 24) {
                 Assets.attention.image
@@ -39,11 +60,20 @@ public struct BottomSheetErrorContentView: View {
                         .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 }
                 .multilineTextAlignment(.center)
-                .disableAnimations()
             }
             .padding(.vertical, 50)
+            .padding(.horizontal, 16)
 
-            MainButton(title: Localization.commonGotIt, style: .secondary, action: gotItButtonAction)
+            VStack(spacing: 8) {
+                if let primaryButton {
+                    MainButton(settings: primaryButton)
+                }
+
+                if let secondaryButton {
+                    MainButton(settings: secondaryButton)
+                }
+            }
+            .padding(.all, 16)
         }
         .infinityFrame(axis: .horizontal)
     }
