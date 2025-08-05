@@ -34,4 +34,6 @@ public enum ValidationError: Error, Equatable {
     case sendingAmountIsLessThanRentExemption(amount: Amount)
 
     case destinationMemoRequired
+
+    case noTrustlineAtDestination
 }

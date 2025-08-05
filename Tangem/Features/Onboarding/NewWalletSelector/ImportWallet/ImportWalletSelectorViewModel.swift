@@ -146,7 +146,15 @@ private extension ImportWalletSelectorViewModel {
 
             case .success(let cardInfo):
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                    guard let userWalletId = UserWalletId(config: config),
+                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
+                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
 
                     await runOnMain {
                         viewModel.isScanning = false
