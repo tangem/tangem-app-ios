@@ -13,10 +13,6 @@ public enum StakingAccessibilityIdentifiers {
     public static let title = "stakingTitle"
     public static let stakeButton = "stakingStakeButton"
 
-    /// Send Summary Screen elements
-    public static let validatorBlock = "stakingValidatorBlock"
-    public static let networkFeeBlock = "stakingNetworkFeeBlock"
-
     /// Staking Details Screen elements
     public static let annualPercentageRateValue = "stakingAnnualPercentageRateValue"
     public static let availableValue = "stakingAvailableValue"

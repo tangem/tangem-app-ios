@@ -13,10 +13,17 @@ public enum SendAccessibilityIdentifiers {
     public static let feeSelector = "sendFeeSelector"
     public static let decimalNumberTextField = "sendDecimalNumberTextField"
 
-    /// Fee options
-    public static let normalFeeOption = "sendNormalFeeOption"
-    public static let priorityFeeOption = "sendPriorityFeeOption"
-
-    /// Amount validation
+    /// SendView
+    public static let sendViewTitle = "sendViewTitle"
+    public static let sendViewNextButton = "sendViewTitle"
     public static let balanceLabel = "sendBalanceLabel"
+
+    /// SendAmountCompactView
+    public static let sendAmountViewValue = "stakingAmountValue"
+
+    /// ValidatorCompactView
+    public static let validatorBlock = "sendValidatorBlock"
+
+    /// SendFeeCompactView
+    public static let networkFeeBlock = "sendNetworkFeeBlock"
 }
