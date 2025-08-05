@@ -174,9 +174,14 @@ extension AlephiumWalletManager: DustRestrictable {
 
 extension AlephiumWalletManager: MaximumAmountRestrictable {
     func validateMaximumAmount(amount: Amount, fee: Amount) throws {
-        let maxUnspentsToSpendAmount = transactionBuilder.getMaxUnspentsToSpendAmount()
+        let maxUnspentsToSpendDecimal = transactionBuilder.getMaxUnspentsToSpendAmount()
+        let maxUnspentsToSpendAmount = maxUnspentsToSpendDecimal / wallet.blockchain.decimalValue
 
         let amountAvailableToSend = Amount(with: amount, value: maxUnspentsToSpendAmount) - fee
+
+        if amount <= amountAvailableToSend {
+            return
+        }
 
         throw ValidationError.maximumUTXO(
             blockchainName: wallet.blockchain.displayName,

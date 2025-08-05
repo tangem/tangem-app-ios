@@ -328,43 +328,25 @@ private extension ExpressInteractor {
         case .idle:
             return .idle
 
-        case .restriction(.tooSmallAmount(let minAmount), let quote):
-            return .restriction(.tooSmallAmountForSwapping(minAmount: minAmount), quote: quote)
+        case .restriction(let restriction, let quote):
+            return try await map(restriction: restriction, quote: quote)
 
-        case .restriction(.tooBigAmount(let maxAmount), let quote):
-            return .restriction(.tooBigAmountForSwapping(maxAmount: maxAmount), quote: quote)
+        case .permissionRequired(let permissionRequired) where hasPendingTransaction():
+            return try await .restriction(.hasPendingTransaction, quote: map(quote: permissionRequired.quote))
 
-        case .restriction(.approveTransactionInProgress, let quote):
-            return .restriction(.hasPendingApproveTransaction, quote: quote)
+        case .previewCEX(let previewCEX) where hasPendingTransaction():
+            return try await .restriction(.hasPendingTransaction, quote: map(quote: previewCEX.quote))
 
-        case .restriction(.insufficientBalance(let requiredAmount), let quote):
-            return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
-
-        case .restriction(.feeCurrencyHasZeroBalance, let quote):
-            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
-
-        case .restriction(.feeCurrencyInsufficientBalanceForTxValue(let fee), let quote):
-            return .restriction(.notEnoughAmountForTxValue(fee), quote: quote)
+        case .ready(let ready) where hasPendingTransaction():
+            return try await .restriction(.hasPendingTransaction, quote: map(quote: ready.quote))
 
         case .permissionRequired(let permissionRequired):
-            if hasPendingTransaction() {
-                return .restriction(.hasPendingTransaction, quote: permissionRequired.quote)
-            }
-
             return try await map(permissionRequired: permissionRequired)
 
         case .previewCEX(let previewCEX):
-            if hasPendingTransaction() {
-                return .restriction(.hasPendingTransaction, quote: previewCEX.quote)
-            }
-
             return try await map(previewCEX: previewCEX)
 
         case .ready(let ready):
-            if hasPendingTransaction() {
-                return .restriction(.hasPendingTransaction, quote: ready.quote)
-            }
-
             return try await map(ready: ready)
         }
     }
@@ -397,17 +379,48 @@ private extension ExpressInteractor {
         return false
     }
 
+    func map(restriction: ExpressRestriction, quote: ExpressQuote?) async throws -> State {
+        let quote: Quote? = try await {
+            if let quote {
+                return try await map(quote: quote)
+            }
+
+            return nil
+        }()
+
+        switch restriction {
+        case .tooSmallAmount(let minAmount):
+            return .restriction(.tooSmallAmountForSwapping(minAmount: minAmount), quote: quote)
+
+        case .tooBigAmount(let maxAmount):
+            return .restriction(.tooBigAmountForSwapping(maxAmount: maxAmount), quote: quote)
+
+        case .approveTransactionInProgress:
+            return .restriction(.hasPendingApproveTransaction, quote: quote)
+
+        case .insufficientBalance(let requiredAmount):
+            return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
+
+        case .feeCurrencyHasZeroBalance:
+            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
+
+        case .feeCurrencyInsufficientBalanceForTxValue(let fee):
+            return .restriction(.notEnoughAmountForTxValue(fee), quote: quote)
+        }
+    }
+
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
         let fees = mapToFees(fee: .init(option: .market, variants: .single(permissionRequired.data.fee)))
         let amount = makeAmount(value: permissionRequired.quote.fromAmount)
         let fee = try fees.selectedFee()
+        let quote = try await map(quote: permissionRequired.quote)
 
         let permissionRequiredState = PermissionRequiredState(
             policy: permissionRequired.policy,
             data: permissionRequired.data,
             fees: fees
         )
-        let correctState: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
+        let correctState: State = .permissionRequired(permissionRequiredState, quote: quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
     }
@@ -416,9 +429,10 @@ private extension ExpressInteractor {
         let fees = mapToFees(fee: ready.fee)
         let fee = try fees.selectedFee()
         let amount = makeAmount(value: ready.quote.fromAmount)
+        let quote = try await map(quote: ready.quote)
 
         let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
-        let correctState: State = .readyToSwap(readyToSwapState, quote: ready.quote)
+        let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
     }
@@ -427,6 +441,7 @@ private extension ExpressInteractor {
         let fees = mapToFees(fee: previewCEX.fee)
         let fee = try fees.selectedFee()
         let amount = makeAmount(value: previewCEX.quote.fromAmount)
+        let quote = try await map(quote: previewCEX.quote)
 
         let withdrawalNotificationProvider = getSender().withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
@@ -437,12 +452,12 @@ private extension ExpressInteractor {
            previewCEX.quote.expectAmount < destination.amountToCreateAccount {
             return .restriction(
                 .notEnoughReceivedAmount(minAmount: destination.amountToCreateAccount, tokenSymbol: destination.tokenItem.currencySymbol),
-                quote: previewCEX.quote
+                quote: quote
             )
         }
 
         let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, notification: notification)
-        let correctState: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
+        let correctState: State = .previewCEX(previewCEXState, quote: quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
     }
@@ -463,6 +478,27 @@ private extension ExpressInteractor {
         }
 
         return correctState
+    }
+
+    func map(quote: ExpressQuote) async throws -> Quote {
+        let highPriceImpact = try await calculateHighPriceImpact(quote: quote)
+        return Quote(
+            fromAmount: quote.fromAmount,
+            expectAmount: quote.expectAmount,
+            highPriceImpact: highPriceImpact
+        )
+    }
+
+    func calculateHighPriceImpact(quote: ExpressQuote?) async throws -> HighPriceImpactCalculator.Result? {
+        guard let provider = await getSelectedProvider()?.provider,
+              let quote,
+              let destinationCurrency = _swappingPair.value.destination?.value?.tokenItem else {
+            return nil
+        }
+
+        let priceImpactCalculator = HighPriceImpactCalculator(source: _swappingPair.value.sender.tokenItem, destination: destinationCurrency)
+        let result = try await priceImpactCalculator.isHighPriceImpact(provider: provider, quote: quote)
+        return result
     }
 }
 
@@ -682,10 +718,10 @@ extension ExpressInteractor {
     indirect enum State {
         case idle
         case loading(type: RefreshType)
-        case restriction(RestrictionType, quote: ExpressQuote?)
-        case permissionRequired(PermissionRequiredState, quote: ExpressQuote)
-        case previewCEX(PreviewCEXState, quote: ExpressQuote)
-        case readyToSwap(ReadyToSwapState, quote: ExpressQuote)
+        case restriction(RestrictionType, quote: Quote?)
+        case permissionRequired(PermissionRequiredState, quote: Quote)
+        case previewCEX(PreviewCEXState, quote: Quote)
+        case readyToSwap(ReadyToSwapState, quote: Quote)
 
         var fees: Fees {
             switch self {
@@ -706,7 +742,7 @@ extension ExpressInteractor {
             }
         }
 
-        var quote: ExpressQuote? {
+        var quote: Quote? {
             switch self {
             case .idle, .loading:
                 return nil
@@ -747,6 +783,12 @@ extension ExpressInteractor {
         case noDestinationTokens
         case validationError(error: ValidationError, context: ValidationErrorContext)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+    }
+
+    struct Quote: Hashable {
+        let fromAmount: Decimal
+        let expectAmount: Decimal
+        let highPriceImpact: HighPriceImpactCalculator.Result?
     }
 
     struct PermissionRequiredState {

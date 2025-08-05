@@ -9,17 +9,15 @@
 public struct StellarAssetIdParser {
     public init() {}
 
-    public func getAssetCodeAndIssuer(from assetId: String) -> (assetCode: String, issuer: String)? {
+    public func getAssetCodeAndIssuer(from assetId: String) throws -> (assetCode: String, issuer: String) {
         let normalizedAssetId = normalizeAssetId(assetId)
         let parts = normalizedAssetId.split(separator: "-", omittingEmptySubsequences: false).map(String.init)
 
-        guard let assetCode = parts.first,
-              let issuer = parts[safe: 1]
-        else {
-            return nil
+        guard parts.count == 2 else {
+            throw StellarError.failedParseAssetId
         }
 
-        return (assetCode, issuer)
+        return (parts.first!, parts[1])
     }
 
     public func normalizeAssetId(_ assetId: String) -> String {

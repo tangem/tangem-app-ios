@@ -103,10 +103,9 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var name: String { userWallet.name }
-
     let backupInput: OnboardingInput? = nil
+    let userWallet: StoredUserWallet
 
-    private let userWallet: StoredUserWallet
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
     init(with userWallet: StoredUserWallet) {
@@ -123,25 +122,6 @@ class LockedUserWalletModel: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {
-        switch userWallet.walletInfo {
-        case .cardWallet(let cardInfo):
-            try? visaRefreshTokenRepository.deleteToken(cardId: cardInfo.card.cardId)
-
-            if AppSettings.shared.saveAccessCodes {
-                do {
-                    let accessCodeRepository = AccessCodeRepository()
-                    try accessCodeRepository.deleteAccessCode(for: Array(cardInfo.associatedCardIds))
-                } catch {
-                    Analytics.error(error: error)
-                    AppLogger.error(error: error)
-                }
-            }
-        case .mobileWallet(let mobileWalletInfo):
-            return
-        }
-    }
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -176,5 +156,16 @@ extension LockedUserWalletModel: UserWalletSerializable {
 
     func serializePrivate() -> StoredUserWallet.SensitiveInfo {
         fatalError("Should not be called for locked wallets")
+    }
+}
+
+extension LockedUserWalletModel: AssociatedCardIdsProvider {
+    var associatedCardIds: Set<String> {
+        switch userWallet.walletInfo {
+        case .cardWallet(let cardInfo):
+            return cardInfo.associatedCardIds
+        case .mobileWallet:
+            return []
+        }
     }
 }
