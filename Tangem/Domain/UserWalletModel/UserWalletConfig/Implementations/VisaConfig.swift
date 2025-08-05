@@ -143,6 +143,10 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .nft:
             return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
         }
     }
 
