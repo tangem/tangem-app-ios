@@ -66,13 +66,12 @@ final class PrivateInfoStorageManager {
         )
     }
 
-    public func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws {
+    public func enableBiometrics(for walletID: UserWalletId, accessCode: String) throws {
         let aesEncryptionKey = try getEncryptionKey(for: walletID, auth: .accessCode(accessCode))
 
         try encryptionKeyBiometricsStorage.storeEncryptionKey(
             aesEncryptionKey,
             for: walletID,
-            context: context
         )
     }
 
