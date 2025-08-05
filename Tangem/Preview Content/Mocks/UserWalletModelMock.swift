@@ -106,6 +106,4 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }

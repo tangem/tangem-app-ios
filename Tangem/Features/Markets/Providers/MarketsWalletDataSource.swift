@@ -123,7 +123,7 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
                 ) { [weak self] userWalletId in
                     guard let self = self else { return }
 
-                    let selectedUserWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                    let selectedUserWalletModel = userWalletModels[userWalletId]
                     _selectedUserWalletModel.send(selectedUserWalletModel)
                 }
             }
