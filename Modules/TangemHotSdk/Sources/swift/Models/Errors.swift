@@ -18,6 +18,7 @@ enum HotWalletError: Error, Equatable {
     case failedToCreateSeed
     case failedToSignHash
     case failedToExportMnemonic
+    case accessCodeIsRequired
 
     case tangemSdk(TangemSdkError)
 
@@ -29,6 +30,7 @@ enum HotWalletError: Error, Equatable {
              (.failedToDeriveKey, .failedToDeriveKey),
              (.failedToCreateSeed, .failedToCreateSeed),
              (.failedToSignHash, .failedToSignHash),
+             (.accessCodeIsRequired, .accessCodeIsRequired),
              (.failedToExportMnemonic, .failedToExportMnemonic): true
         case (.invalidCurve(let left), .invalidCurve(let right)) where left == right: true
         case (.tangemSdk(let left), .tangemSdk(let right)) where left.code == right.code: true
