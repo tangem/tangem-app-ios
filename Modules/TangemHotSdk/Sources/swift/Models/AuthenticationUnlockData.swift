@@ -9,12 +9,7 @@
 import Foundation
 import LocalAuthentication
 
-struct Authentication {
-    let accessCode: String
-    let biometrics: Bool
-}
-
-public enum AuthenticationUnlockData {
+public enum AuthenticationUnlockData: Hashable {
     case none
     case accessCode(_ accessCode: String)
     case biometrics(context: LAContext)
