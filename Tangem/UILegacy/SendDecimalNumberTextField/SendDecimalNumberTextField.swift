@@ -231,9 +231,6 @@ extension SendDecimalNumberTextField: Setupable {
         map { $0.minTextScale = minTextScale }
     }
 
-    /// Sets the accessibility identifier for the text field
-    /// - Parameter accessibilityIdentifier: The accessibility identifier to set
-    /// - Returns: The modified view
     func accessibilityIdentifier(_ accessibilityIdentifier: String?) -> Self {
         map { $0.accessibilityIdentifier = accessibilityIdentifier }
     }
