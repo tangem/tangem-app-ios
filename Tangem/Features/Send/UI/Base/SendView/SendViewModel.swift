@@ -351,6 +351,10 @@ extension SendViewModel: SendModelRoutable {
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
+        coordinator?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+    }
+
     func resetFlow() {
         stepsManager.resetFlow()
     }
