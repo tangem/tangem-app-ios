@@ -46,6 +46,6 @@ struct ValidatorCompactView: View {
         }
         .infinityFrame(axis: .horizontal)
         .padding(.vertical, 12)
-        .accessibilityIdentifier(StakingAccessibilityIdentifiers.validatorBlock)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.validatorBlock)
     }
 }
