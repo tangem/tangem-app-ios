@@ -556,8 +556,9 @@ extension HederaWalletManager: WalletManager {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension HederaWalletManager: AssetRequirementsManager {
-    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
-        wallet.hasFeeCurrency(amountType: asset)
+    func feeStatusForRequirement(asset: Asset) -> AnyPublisher<AssetRequirementFeeStatus, Never> {
+        let status: AssetRequirementFeeStatus = wallet.hasFeeCurrency(amountType: asset) ? .sufficient : .insufficient(missingAmount: "")
+        return Just(status).eraseToAnyPublisher()
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
