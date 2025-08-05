@@ -50,12 +50,15 @@ extension MobileWalletSigner: TangemSigner {
                 return Fail(error: MobileWalletError.seedKeyNotFound).eraseToAnyPublisher()
             }
 
+            let sdk = CommonHotSdk()
+
+            let context = try sdk.validate(auth: .none, for: UserWalletId(with: userWalletIdSeed))
+
             // [REDACTED_TODO_COMMENT]
-            let signedHashesInfo = try CommonHotSdk().sign(
+            let signedHashesInfo = try sdk.sign(
                 dataToSign: dataToSign,
                 seedKey: walletPublicKey.seedKey,
-                walletID: UserWalletId(with: userWalletIdSeed),
-                auth: .none
+                context: context
             )
 
             let result = dataToSign
