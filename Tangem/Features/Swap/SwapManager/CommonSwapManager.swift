@@ -52,6 +52,14 @@ extension CommonSwapManager: SwapManager {
         interactor.state
     }
 
+    var providers: [ExpressAvailableProvider] {
+        get async { await interactor.getAllProviders() }
+    }
+
+    var selectedProvider: ExpressAvailableProvider? {
+        get async { await interactor.getSelectedProvider() }
+    }
+
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         statePublisher
             // Skip rates loading to avoid UI jumping
