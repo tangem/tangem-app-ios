@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactContentView: View {
     @ObservedObject var viewModel: SendAmountCompactContentViewModel
@@ -32,6 +33,7 @@ struct SendAmountCompactContentView: View {
                         .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                         .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                         .allowsHitTesting(false) // This text field is read-only
+                        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.sendAmountViewValue)
                 }
                 // We have to keep frame until SendDecimalNumberTextField size fix
                 // Just on appear it has the zero height. Is cause break animation

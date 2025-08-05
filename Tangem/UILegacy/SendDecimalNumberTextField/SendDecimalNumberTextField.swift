@@ -29,6 +29,7 @@ struct SendDecimalNumberTextField: View {
     private var onFocusChanged: ((Bool) -> Void)?
     private var prefixSuffixOptions: PrefixSuffixOptions?
     private var minTextScale: CGFloat?
+    private var accessibilityIdentifier: String?
 
     private var textToMeasure: String {
         var text = ""
@@ -137,6 +138,7 @@ struct SendDecimalNumberTextField: View {
             .onChange(of: isInputActive) { isInputActive in
                 onFocusChanged?(isInputActive)
             }
+            .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -227,6 +229,13 @@ extension SendDecimalNumberTextField: Setupable {
     /// - minTextScale: The desired `minimumScaleFactor` for custom font scaling. If nil, no font scaling applies.
     func minTextScale(_ minTextScale: CGFloat?) -> Self {
         map { $0.minTextScale = minTextScale }
+    }
+
+    /// Sets the accessibility identifier for the text field
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to set
+    /// - Returns: The modified view
+    func accessibilityIdentifier(_ accessibilityIdentifier: String?) -> Self {
+        map { $0.accessibilityIdentifier = accessibilityIdentifier }
     }
 }
 

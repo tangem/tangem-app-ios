@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendFeeCompactView: View {
     @ObservedObject var viewModel: SendFeeCompactViewModel
@@ -48,5 +49,6 @@ struct SendFeeCompactView: View {
                 action()
             }
         }
+        .accessibilityIdentifier(StakingAccessibilityIdentifiers.networkFeeBlock)
     }
 }
