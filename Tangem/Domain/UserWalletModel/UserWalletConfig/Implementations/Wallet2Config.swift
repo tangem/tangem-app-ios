@@ -426,6 +426,10 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .nft:
             return .available
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
         }
     }
 
