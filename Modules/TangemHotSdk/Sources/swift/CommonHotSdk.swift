@@ -73,8 +73,8 @@ public final class CommonHotSdk: HotSdk {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, oldAuth: oldAuth, for: walletID)
     }
 
-    public func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws {
-        try privateInfoStorageManager.enableBiometrics(for: walletID, accessCode: accessCode, context: context)
+    public func enableBiometrics(for walletID: UserWalletId, accessCode: String) throws {
+        try privateInfoStorageManager.enableBiometrics(for: walletID, accessCode: accessCode)
     }
 
     public func deriveMasterKeys(walletID: UserWalletId, auth: AuthenticationUnlockData) throws -> HotWallet {
@@ -144,6 +144,48 @@ public final class CommonHotSdk: HotSdk {
             }
 
             result[keyInfo.publicKey] = keyInfo
+        }
+
+        return result
+    }
+
+    public func sign(
+        dataToSign: [SignData],
+        seedKey: Data,
+        walletID: UserWalletId,
+        auth: AuthenticationUnlockData
+    ) throws -> [Data: [Data]] {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(for: walletID, auth: auth)
+
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw HotWalletError.failedToDeriveKey
+        }
+
+        defer {
+            privateInfo.clear()
+        }
+
+        let curves: [Data: EllipticCurve] = dataToSign.reduce(into: [:]) { partialResult, signData in
+            let curve = DerivationUtil.curve(
+                for: signData.publicKey,
+                entropy: privateInfo.entropy,
+                passphrase: privateInfo.passphrase
+            )
+            partialResult[signData.publicKey] = curve
+        }
+
+        var result = [Data: [Data]]()
+
+        try dataToSign.forEach { dataToSign in
+            guard let curve = curves[dataToSign.publicKey] else { return }
+            let signedHashes = try SignUtil.sign(
+                entropy: privateInfo.entropy,
+                passphrase: privateInfo.passphrase,
+                hashes: dataToSign.hashes,
+                curve: curve,
+                derivationPath: dataToSign.derivationPath
+            )
+            result[dataToSign.publicKey] = signedHashes
         }
 
         return result
