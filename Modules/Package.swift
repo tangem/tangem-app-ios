@@ -182,6 +182,20 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemAccounts",
+            dependencies: [
+                "TangemAssets",
+                "TangemLocalization",
+                "TangemUIUtils",
+                "TangemUI",
+                "TangemFoundation",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
