@@ -32,10 +32,12 @@ enum SolanaSignerTestUtility {
 
         public func sign(
             dataToSign: [SignData],
-            seedKey: Data
-        ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+            walletPublicKey: Wallet.PublicKey
+        ) -> AnyPublisher<[BlockchainSdk.SignatureInfo], Error> {
             dataToSign.forEach { data in
-                sizeTester.testTxSize(data.hash)
+                data.hashes.forEach { hash in
+                    sizeTester.testTxSize(hash)
+                }
             }
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()
@@ -63,10 +65,12 @@ enum SolanaSignerTestUtility {
 
         public func sign(
             dataToSign: [SignData],
-            seedKey: Data
-        ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+            walletPublicKey: Wallet.PublicKey
+        ) -> AnyPublisher<[BlockchainSdk.SignatureInfo], Error> {
             dataToSign.forEach { data in
-                sizeTester.testTxSize(data.hash)
+                data.hashes.forEach { hash in
+                    sizeTester.testTxSize(hash)
+                }
             }
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()

@@ -16,7 +16,7 @@ final class EncryptionKeySecureStorage {
 
     init(
         secureStorage: HotSecureStorage = SecureStorage(),
-        secureEnclaveService: HotSecureEnclaveService = SecureEnclaveService(config: .default)
+        secureEnclaveService: HotSecureEnclaveService = SecureEnclaveService()
     ) {
         self.secureStorage = secureStorage
         self.secureEnclaveService = secureEnclaveService
