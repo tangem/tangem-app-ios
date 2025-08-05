@@ -2346,6 +2346,9 @@
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
 		D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89ABED82E31979900855B00 /* SwapScreen.swift */; };
 		D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */; };
+		D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */; };
+		D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */; };
+		D8E15EF22E41549000E217BB /* SendSummaryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E15EF12E41549000E217BB /* SendSummaryScreen.swift */; };
 		D8E17CE32E37B6E600E9D791 /* CardSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE02E37B6E600E9D791 /* CardSettingsScreen.swift */; };
 		D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */; };
 		D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */; };
@@ -6299,6 +6302,9 @@
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
 		D89ABED82E31979900855B00 /* SwapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapScreen.swift; sourceTree = "<group>"; };
 		D8DEEABA2E14252800DACD4B /* TangemAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPIType.swift; sourceTree = "<group>"; };
+		D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDetailsScreen.swift; sourceTree = "<group>"; };
+		D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendScreen.swift; sourceTree = "<group>"; };
+		D8E15EF12E41549000E217BB /* SendSummaryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryScreen.swift; sourceTree = "<group>"; };
 		D8E17CE02E37B6E600E9D791 /* CardSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsScreen.swift; sourceTree = "<group>"; };
 		D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsScreen.swift; sourceTree = "<group>"; };
 		D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralScreen.swift; sourceTree = "<group>"; };
@@ -9654,6 +9660,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D8E15EEE2E41155900E217BB /* Staking */,
 				D8E17CE02E37B6E600E9D791 /* CardSettingsScreen.swift */,
 				D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */,
 				D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */,
@@ -15117,6 +15124,16 @@
 				C274DFB12DDBDD1500B1D97B /* WalletConnectDAppConnectionViewModel.swift */,
 			);
 			path = "DApp connection";
+			sourceTree = "<group>";
+		};
+		D8E15EEE2E41155900E217BB /* Staking */ = {
+			isa = PBXGroup;
+			children = (
+				D8E15EF12E41549000E217BB /* SendSummaryScreen.swift */,
+				D8E15EEC2E40FEB500E217BB /* StakingDetailsScreen.swift */,
+				D8E15EEF2E41156B00E217BB /* StakingSendScreen.swift */,
+			);
+			path = Staking;
 			sourceTree = "<group>";
 		};
 		DA10101E2CDA4D9C00EE0D05 /* Subviews */ = {
@@ -23774,12 +23791,15 @@
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				7982B0212DE70E1900C41EA5 /* StoriesScreen.swift in Sources */,
+				D8E15EF22E41549000E217BB /* SendSummaryScreen.swift in Sources */,
 				7982B0222DE70E1900C41EA5 /* XCUIElement+Extensions.swift in Sources */,
 				7982B0232DE70E1900C41EA5 /* NSPredicateFormat.swift in Sources */,
 				7982B0242DE70E1900C41EA5 /* UIElement.swift in Sources */,
 				7982B0252DE70E1900C41EA5 /* Screen.swift in Sources */,
 				7982B0262DE70E1900C41EA5 /* ScreenBase.swift in Sources */,
 				D8E17CE32E37B6E600E9D791 /* CardSettingsScreen.swift in Sources */,
+				D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */,
+				D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */,
 				D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */,
 				D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */,
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
