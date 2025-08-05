@@ -102,22 +102,6 @@ class XRPWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func buildIfSufficientFunds(transaction: Transaction, isAccountCreated: Bool) throws -> (XRPTransaction, Data) {
-        guard let walletReserve = wallet.amounts[.reserve] else {
-            throw XRPError.missingReserve
-        }
-
-        if !isAccountCreated, transaction.amount.value < walletReserve.value {
-            throw BlockchainSdkError.noAccount(
-                message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue),
-                amountToCreate: walletReserve.value
-            )
-        }
-
-        let buildResponse = try txBuilder.buildForSign(transaction: transaction)
-        return buildResponse
-    }
-
     private func signAndSend(
         transaction: Transaction,
         signer: TransactionSigner,
@@ -228,7 +212,7 @@ extension XRPWalletManager: TransactionSender {
         .tryMap { manager, results in
             let (isAccountCreated, sequence) = results
             let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-            let txBuiltForSign = try manager.buildIfSufficientFunds(transaction: enrichedTx, isAccountCreated: isAccountCreated)
+            let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
             return txBuiltForSign
         }
         .mapSendTxError()
