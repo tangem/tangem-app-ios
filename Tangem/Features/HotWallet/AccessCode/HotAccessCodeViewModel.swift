@@ -100,7 +100,7 @@ private extension HotAccessCodeViewModel {
         runTask(in: self) { viewModel in
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
-                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+                let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
 
                 await runOnMain {
                     viewModel.openMain(with: userWalletModel)

@@ -418,14 +418,21 @@ private extension DetailsViewModel {
 
             case .success(let cardInfo):
                 do {
+                    let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                    guard let userWalletId = UserWalletId(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
+                    if viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) {
+                        throw UserWalletRepositoryError.duplicateWalletAdded
+                    }
+
                     guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) else {
-                        await runOnMain {
-                            viewModel.coordinator?.dismiss()
-                        }
-                        return
+                        throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
                     if await AppSettings.shared.saveUserWallets {
