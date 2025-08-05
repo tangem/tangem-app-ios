@@ -58,9 +58,8 @@ public protocol HotSdk {
     /// - Parameters:
     ///   - walletID: The identifier of the wallet for which biometrics are being enabled.
     ///   - accessCode: The access code to unlock encrypted data before enabling biometrics.
-    ///   - context: The `LAContext` used for biometric authentication.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or the access code is incorrect.
-    func enableBiometrics(for walletID: UserWalletId, accessCode: String, context: LAContext) throws
+    func enableBiometrics(for walletID: UserWalletId, accessCode: String) throws
 
     /// Derives master keys for a hot wallet.
     /// - Parameters:
@@ -82,4 +81,19 @@ public protocol HotSdk {
         auth: AuthenticationUnlockData,
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> [Data: HotWalletKeyInfo]
+
+    /// Signs data using the provided seed key and wallet ID.
+    /// - Parameters:
+    ///  - dataToSign: An array of `SignData` objects containing the data to sign.
+    ///  - seedKey: The seed key used for signing.
+    ///  - walletID: The identifier of the wallet used for signing.
+    ///  - auth: The authentication data used to unlock the wallet, such as an access
+    ///  code or biometrics.
+    ///  - Throws: An error if signing fails, such as if the wallet is missing or the authentication data is incorrect.
+    func sign(
+        dataToSign: [SignData],
+        seedKey: Data,
+        walletID: UserWalletId,
+        auth: AuthenticationUnlockData
+    ) throws -> [Data: [Data]]
 }
