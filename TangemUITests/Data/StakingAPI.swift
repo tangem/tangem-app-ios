@@ -1,9 +1,9 @@
 //
 //  StakingAPI.swift
-//  TangemUITests
+//  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
-//  Автор: Max Kuznetsov
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation

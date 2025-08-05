@@ -17,7 +17,7 @@ public enum StakingAPIType: String, CaseIterable, Codable {
         case .prod:
             return URL(string: "https://api.stakek.it/v1/")!
         case .mock:
-            return URL(string: "http://localhost:8081/stake_api/v1/")!
+            return URL(string: "https://wiremock.tests-d.com/stake_api/v1/")!
         }
     }
 }
