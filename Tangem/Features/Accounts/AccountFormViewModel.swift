@@ -106,6 +106,11 @@ final class AccountFormViewModel: ObservableObject {
         }
     }
 
+    var mainButtonDisabled: Bool {
+        // [REDACTED_TODO_COMMENT]
+        accountName.isEmpty
+    }
+
     // [REDACTED_TODO_COMMENT]
     var title: String {
         switch flowType {

@@ -23,6 +23,8 @@ struct AccountFormView: View {
 
     @State private var shouldShowShadow = false
 
+    private let coordinateSpaceName = UUID()
+
     var body: some View {
         ZStack(alignment: .bottom) {
             scrollableContent
@@ -51,7 +53,7 @@ struct AccountFormView: View {
             .readGeometry(\.size.height) { height in
                 contentHeight = height
             }
-            .readContentOffset(inCoordinateSpace: .global) { point in
+            .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { point in
                 let contentMaxY = contentHeight - point.y - buttonHeight + 16
                 shouldShowShadow = contentMaxY > buttonMinY
             }
@@ -65,16 +67,15 @@ struct AccountFormView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: viewModel.buttonTitle,
-            isDisabled: viewModel.accountName.isEmpty,
+            isDisabled: viewModel.mainButtonDisabled,
             action: viewModel.onMainButtonTap
         )
         .padding(.bottom, 6)
-        .if(shouldShowShadow) { view in
-            view.background(
-                ListFooterOverlayShadowView()
-            )
-        }
-        .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
+        .background(
+            ListFooterOverlayShadowView()
+                .hidden(!shouldShowShadow)
+        )
+        .readGeometry(\.frame, inCoordinateSpace: .named(coordinateSpaceName)) { frame in
             buttonHeight = frame.height
             buttonMinY = frame.minY
         }
@@ -111,7 +112,6 @@ struct AccountFormView: View {
         Circle()
             .fill(color)
             .overlay(makeItemOverlayView(isSelected: isSelected, strokeColor: color))
-            .frame(width: 40, height: 40)
     }
 
     private func makeIconItem(kind: GridItemImageKind, isSelected: Bool) -> some View {
