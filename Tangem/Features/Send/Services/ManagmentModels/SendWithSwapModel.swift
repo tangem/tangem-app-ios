@@ -204,9 +204,10 @@ private extension SendWithSwapModel {
 // MARK: - Send
 
 private extension SendWithSwapModel {
+    /// 1. First we check the fee is actual
     private func sendIfInformationIsActual() async throws -> TransactionDispatcherResult {
         if informationRelevanceService.isActual {
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
 
         let result = try await informationRelevanceService.updateInformation().mapToResult().async()
@@ -216,10 +217,23 @@ private extension SendWithSwapModel {
         case .success(.feeWasIncreased):
             throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
         case .success(.ok):
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
     }
 
+    /// 2. Second we check the high price impact warning
+    private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
+        if let highPriceImpact = await highPriceImpact {
+            let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
+            router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+
+            return try await viewModel.process(send: send)
+        }
+
+        return try await send()
+    }
+
+    /// 3. Then at the end we start the send actions
     private func send() async throws -> TransactionDispatcherResult {
         switch receiveToken {
         case .same:
@@ -408,6 +422,16 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var highPriceImpact: HighPriceImpactCalculator.Result? {
+        get async {
+            try? await mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: sourceAmount.value?.flatMap { $0 },
+                receiveTokenAmount: receiveAmount.value?.flatMap { $0 },
+                provider: swapManager.selectedProvider?.provider
+            )
+        }
+    }
+
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         Publishers.CombineLatest3(
             sourceAmountPublisher.compactMap { $0.value },
@@ -446,10 +470,11 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
     private func mapToSendNewAmountCompactTokenViewModel(
         sourceTokenAmount: SendAmount?,
         receiveTokenAmount: SendAmount?,
-        provider: ExpressProvider
+        provider: ExpressProvider?
     ) async throws -> HighPriceImpactCalculator.Result? {
         guard let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
               let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
+              let provider = provider,
               case .swap(let receiveToken) = receiveToken else {
             return nil
         }
