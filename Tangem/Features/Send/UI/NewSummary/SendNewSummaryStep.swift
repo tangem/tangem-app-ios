@@ -42,6 +42,10 @@ extension SendNewSummaryStep: SendStep {
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        interactor.isUpdatingPublisher.eraseToAnyPublisher()
+    }
+
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.isReadyToSendPublisher.eraseToAnyPublisher()
     }

@@ -18,6 +18,7 @@ struct SendNewSummaryStepBuilder {
     func makeSendSummaryStep(
         io: IO,
         receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
         sendFeeProvider: SendFeeProvider,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
@@ -27,7 +28,11 @@ struct SendNewSummaryStepBuilder {
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
-        let interactor = makeSendNewSummaryInteractor(io: io, receiveTokenInput: receiveTokenInput)
+        let interactor = makeSendNewSummaryInteractor(
+            io: io,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput
+        )
 
         let viewModel = SendNewSummaryViewModel(
             interactor: interactor,
@@ -53,11 +58,16 @@ struct SendNewSummaryStepBuilder {
 // MARK: - Private
 
 private extension SendNewSummaryStepBuilder {
-    func makeSendNewSummaryInteractor(io: IO, receiveTokenInput: SendReceiveTokenInput) -> SendNewSummaryInteractor {
+    func makeSendNewSummaryInteractor(
+        io: IO,
+        receiveTokenInput: any SendReceiveTokenInput,
+        receiveTokenAmountInput: any SendReceiveTokenAmountInput
+    ) -> SendNewSummaryInteractor {
         CommonSendNewSummaryInteractor(
             input: io.input,
             output: io.output,
             receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
             sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             swapDescriptionBuilder: builder.makeSwapTransactionSummaryDescriptionBuilder()
         )
