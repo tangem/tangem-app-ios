@@ -140,7 +140,7 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
                     case .letter: Colors.Icon.accent
                     }
 
-                    return  Circle()
+                    return Circle()
                         .fill(backgroundColor)
                         .overlay(
                             imageItem.kind.imageType.image
