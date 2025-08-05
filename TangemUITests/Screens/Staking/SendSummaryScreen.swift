@@ -48,15 +48,15 @@ enum SendSummaryScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .title:
-            return CommonUIAccessibilityIdentifiers.title
+            return StakingAccessibilityIdentifiers.title
         case .stakeButton:
             return StakingAccessibilityIdentifiers.stakeButton
         case .amountValue:
-            return CommonUIAccessibilityIdentifiers.sendAmountViewValue
+            return SendAccessibilityIdentifiers.sendAmountViewValue
         case .validatorBlock:
-            return StakingAccessibilityIdentifiers.validatorBlock
+            return SendAccessibilityIdentifiers.validatorBlock
         case .networkFeeBlock:
-            return StakingAccessibilityIdentifiers.networkFeeBlock
+            return SendAccessibilityIdentifiers.networkFeeBlock
         }
     }
 }

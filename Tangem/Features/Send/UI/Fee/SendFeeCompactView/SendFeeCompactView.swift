@@ -49,6 +49,6 @@ struct SendFeeCompactView: View {
                 action()
             }
         }
-        .accessibilityIdentifier(StakingAccessibilityIdentifiers.networkFeeBlock)
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }
