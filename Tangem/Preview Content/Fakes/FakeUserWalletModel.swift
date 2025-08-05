@@ -135,7 +135,6 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(cardId: String) {}
-    func cleanup() {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
