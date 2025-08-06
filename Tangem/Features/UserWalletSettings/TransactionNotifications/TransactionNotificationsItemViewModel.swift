@@ -16,25 +16,20 @@ class TransactionNotificationsItemViewModel: Identifiable, ObservableObject {
     let isLoading: Bool
     let networkName: String
     let networkSymbol: String
+    let iconImageAsset: ImageType
 
-    var iconImageAsset: ImageType {
-        imageAsset
-    }
-
-    // MARK: - Private Properties
-
-    private let imageAsset: ImageType
 
     // MARK: - Init
 
     init(
-        blockchainNetwork: BlockchainNetwork,
-        isLoading: Bool = false,
-        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+        networkName: String,
+        networkSymbol: String,
+        iconImageAsset: ImageType,
+        isLoading: Bool = false
     ) {
-        imageAsset = blockchainIconProvider.provide(by: blockchainNetwork.blockchain, filled: true)
-        networkName = blockchainNetwork.blockchain.displayName
-        networkSymbol = blockchainNetwork.blockchain.currencySymbol
+        self.networkName = networkName
+        self.networkSymbol = networkSymbol
+        self.iconImageAsset = iconImageAsset
         self.isLoading = isLoading
     }
 }
