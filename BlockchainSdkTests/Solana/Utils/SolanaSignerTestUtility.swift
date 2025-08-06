@@ -30,7 +30,7 @@ enum SolanaSignerTestUtility {
                 .eraseToAnyPublisher()
         }
 
-        public func sign(
+        func sign(
             dataToSign: [SignData],
             walletPublicKey: Wallet.PublicKey
         ) -> AnyPublisher<[BlockchainSdk.SignatureInfo], Error> {
@@ -63,7 +63,7 @@ enum SolanaSignerTestUtility {
                 .eraseToAnyPublisher()
         }
 
-        public func sign(
+        func sign(
             dataToSign: [SignData],
             walletPublicKey: Wallet.PublicKey
         ) -> AnyPublisher<[BlockchainSdk.SignatureInfo], Error> {
