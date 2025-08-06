@@ -364,10 +364,20 @@ extension SendWithSwapModel: SendSourceTokenOutput {
 // MARK: - SendSourceTokenAmountInput
 
 extension SendWithSwapModel: SendSourceTokenAmountInput {
-    var sourceAmount: LoadingResult<SendAmount?, any Error> { .success(_amount.value) }
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
 
-    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
-        _amount.map { .success($0) }.eraseToAnyPublisher()
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
@@ -420,11 +430,11 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 // MARK: - SendReceiveTokenAmountInput
 
 extension SendWithSwapModel: SendReceiveTokenAmountInput {
-    var receiveAmount: LoadingResult<SendAmount?, any Error> {
+    var receiveAmount: LoadingResult<SendAmount, any Error> {
         mapToReceiveSendAmount(state: swapManager.state)
     }
 
-    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToReceiveSendAmount(state: $1) }
@@ -434,8 +444,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
     var highPriceImpact: HighPriceImpactCalculator.Result? {
         get async {
             try? await mapToSendNewAmountCompactTokenViewModel(
-                sourceTokenAmount: sourceAmount.value?.flatMap { $0 },
-                receiveTokenAmount: receiveAmount.value?.flatMap { $0 },
+                sourceTokenAmount: sourceAmount.value,
+                receiveTokenAmount: receiveAmount.value,
                 provider: swapManager.selectedProvider?.provider
             )
         }
@@ -460,12 +470,12 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
         .eraseToAnyPublisher()
     }
 
-    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
+    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount, any Error> {
         switch state {
         case .restriction(.requiredRefresh(let error), _):
             return .failure(error)
         case .idle, .restriction, .permissionRequired, .readyToSwap:
-            return .success(.none)
+            return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
         case .previewCEX(_, let quote):
