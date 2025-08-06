@@ -93,7 +93,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
-            ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
+            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
         }
 
@@ -106,7 +106,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerState {
         guard _feeOption != feeOption else {
-            ExpressLogger.info(self, "ExpressFeeOption already is \(feeOption)")
+            ExpressLogger.warning(self, "ExpressFeeOption already is \(feeOption)")
             return try await selectedProviderState()
         }
 
