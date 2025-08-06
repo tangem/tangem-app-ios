@@ -43,7 +43,7 @@ class FakeUserWalletModel: UserWalletModel {
     var emailConfig: EmailConfig? { nil }
     var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())
     }
 
@@ -135,7 +135,6 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(cardId: String) {}
-    func cleanup() {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {

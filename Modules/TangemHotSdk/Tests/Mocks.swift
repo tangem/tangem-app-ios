@@ -35,17 +35,21 @@ final class MockedSecureStorage: HotSecureStorage {
 }
 
 final class MockedSecureEnclaveService: HotSecureEnclaveService {
-    private let config: SecureEnclaveService.Config
-
-    init(config: SecureEnclaveService.Config) {
-        self.config = config
-    }
-
     func encryptData(_ data: Data, keyTag: String) throws -> Data {
         Data(data.bytes.reversed())
     }
 
     func decryptData(_ data: Data, keyTag: String) throws -> Data {
+        Data(data.bytes.reversed())
+    }
+}
+
+final class MockedBiometricsSecureEnclaveService: HotBiometricsSecureEnclaveService {
+    func encryptData(_ data: Data, keyTag: String, context: LAContext?) throws -> Data {
+        Data(data.bytes.reversed())
+    }
+
+    func decryptData(_ data: Data, keyTag: String, context: LAContext) throws -> Data {
         Data(data.bytes.reversed())
     }
 }

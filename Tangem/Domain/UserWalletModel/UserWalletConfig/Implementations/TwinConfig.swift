@@ -171,6 +171,12 @@ extension TwinConfig: UserWalletConfig {
             return .hidden
         case .nft:
             return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
         }
     }
 
