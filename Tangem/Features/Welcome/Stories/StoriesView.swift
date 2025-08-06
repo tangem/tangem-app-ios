@@ -22,7 +22,7 @@ struct StoriesView: View {
                 contentView
             }
         }
-        .animation(.default, value: viewModel.checkingPromotionAvailability)
+        .conditionalAnimation(.default, value: viewModel.checkingPromotionAvailability)
     }
 
     @ViewBuilder

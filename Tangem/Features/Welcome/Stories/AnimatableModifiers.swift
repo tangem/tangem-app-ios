@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 
 private func normalize(progress: Double, start: Double, end: Double) -> Double {
     let value = (progress - start) / (end - start)
@@ -27,6 +28,7 @@ struct AnimatableScaleModifier: AnimatableModifier {
     func body(content: Content) -> some View {
         content
             .scaleEffect(curve(normalizeProgress(progress)))
+            .disableAnimationForUITests()
     }
 
     private func normalizeProgress(_ progress: Double) -> Double {
@@ -47,6 +49,7 @@ struct AnimatableVisibilityModifier: AnimatableModifier {
     func body(content: Content) -> some View {
         content
             .opacity((start <= progress && progress < end) ? 1 : 0)
+            .disableAnimationForUITests()
     }
 }
 
@@ -68,6 +71,7 @@ struct AnimatableOffsetModifier: AnimatableModifier {
                 x: curveX(normalizeProgress(progress)),
                 y: curveY(normalizeProgress(progress))
             )
+            .disableAnimationForUITests()
     }
 
     private func normalizeProgress(_ progress: Double) -> Double {
