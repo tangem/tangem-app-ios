@@ -9,7 +9,7 @@
 import Foundation
 
 enum Timeouts {
-    static let robustUIUpdate = 30.0
+    static let robustUIUpdate = 60.0
     static let networkRequest = 60.0
 }
 

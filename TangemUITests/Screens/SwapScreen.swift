@@ -164,6 +164,7 @@ enum SwapScreenElement: String, UIElement {
     case feeSelectorTitle
     case normalFeeOption
     case priorityFeeOption
+    case storiesCloseButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -181,6 +182,8 @@ enum SwapScreenElement: String, UIElement {
             return FeeAccessibilityIdentifiers.marketFeeOption
         case .priorityFeeOption:
             return FeeAccessibilityIdentifiers.fastFeeOption
+        case .storiesCloseButton:
+            return StoriesAccessibilityIdentifiers.closeButton
         }
     }
 }

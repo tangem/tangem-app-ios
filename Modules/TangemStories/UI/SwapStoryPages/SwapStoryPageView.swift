@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
 public struct SwapStoryPageView: View {
     private static let iOS18Available: Bool = if #available(iOS 18.0, *) { true } else { false }
@@ -53,6 +54,9 @@ public struct SwapStoryPageView: View {
         }
         .multilineTextAlignment(.center)
         .onAppear {
+            // UI тесты: отключаем анимацию
+            guard !AppEnvironment.current.isUITest else { return }
+
             withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
                 startPoint = UnitPoint(x: 1, y: 1)
                 endPoint = UnitPoint(x: 3.0, y: 1.2)

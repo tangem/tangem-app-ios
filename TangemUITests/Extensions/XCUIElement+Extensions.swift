@@ -82,7 +82,7 @@ extension XCUIElement {
     }
 
     func staticTextByLabel(label: String) -> XCUIElement {
-        staticTexts.element(matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
+        staticTexts.element(matching: NSPredicate(format: "label == %@", label))
     }
 
     func containsLabel(label: String) -> Bool {
