@@ -58,7 +58,7 @@ class LockedUserWalletModel: UserWalletModel {
         return data
     }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         userWallet.walletInfo.tangemApiAuthData
     }
 

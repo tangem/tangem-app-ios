@@ -25,12 +25,12 @@ enum WalletInfo: Codable {
         }
     }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         switch self {
         case .cardWallet(let cardInfo):
-            TangemApiTarget.AuthData(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
+            return TangemApiAuthorizationData(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
         case .mobileWallet:
-            TangemApiTarget.AuthData(cardId: "", cardPublicKey: Data())
+            return nil
         }
     }
 
