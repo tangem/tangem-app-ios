@@ -8,18 +8,15 @@
 
 final class WalletConnectEstablishDAppConnectionUseCase {
     private let userWalletRepository: any UserWalletRepository
-    private let uriProvider: any WalletConnectURIProvider
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
     private let openSystemSettingsAction: () -> Void
 
     init(
         userWalletRepository: some UserWalletRepository,
-        uriProvider: some WalletConnectURIProvider,
         cameraAccessProvider: some WalletConnectCameraAccessProvider,
         openSystemSettingsAction: @escaping () -> Void
     ) {
         self.userWalletRepository = userWalletRepository
-        self.uriProvider = uriProvider
         self.cameraAccessProvider = cameraAccessProvider
         self.openSystemSettingsAction = openSystemSettingsAction
     }
@@ -27,12 +24,11 @@ final class WalletConnectEstablishDAppConnectionUseCase {
     func callAsFunction() throws(FeatureDisabledError) -> Result {
         try validateFeatureAvailability()
 
-        let clipboardURI = try? uriProvider.tryExtractClipboardURI()
         let cameraAccessDenied = cameraAccessProvider.checkCameraAccess() == .denied
 
         return cameraAccessDenied
-            ? .cameraAccessDenied(clipboardURI: clipboardURI, openSystemSettingsAction: openSystemSettingsAction)
-            : .canOpenQRScanner(clipboardURI: clipboardURI)
+            ? .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
+            : .canOpenQRScanner
     }
 
     private func validateFeatureAvailability() throws(FeatureDisabledError) {
@@ -57,8 +53,8 @@ final class WalletConnectEstablishDAppConnectionUseCase {
 
 extension WalletConnectEstablishDAppConnectionUseCase {
     enum Result {
-        case cameraAccessDenied(clipboardURI: WalletConnectRequestURI?, openSystemSettingsAction: () -> Void)
-        case canOpenQRScanner(clipboardURI: WalletConnectRequestURI?)
+        case cameraAccessDenied(openSystemSettingsAction: () -> Void)
+        case canOpenQRScanner
     }
 
     struct FeatureDisabledError: Swift.Error {
