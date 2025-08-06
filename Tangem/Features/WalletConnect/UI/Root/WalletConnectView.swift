@@ -80,7 +80,7 @@ struct WalletConnectView: View {
             }
         }
         .padding(.horizontal, viewModel.state.contentState.isEmpty ? 80 : 16)
-        .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 6)
+        .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
         .offset(y: newConnectionButtonYOffset(proxy))
         .animation(.easeInOut(duration: 0.2), value: viewModel.state.contentState.isEmpty)
     }
