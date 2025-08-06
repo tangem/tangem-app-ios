@@ -98,6 +98,10 @@ extension CommonSwapManager: SwapManager {
         interactor.updateProvider(provider: provider)
     }
 
+    func update(feeOption: FeeOption) {
+        interactor.updateFeeOption(option: feeOption)
+    }
+
     func update() {
         interactor.refresh(type: .full)
     }
@@ -149,15 +153,6 @@ private extension CommonSwapManager {
 
             AppLogger.info("Timer call autoupdate")
             $0.interactor.refresh(type: .refreshRates)
-        }
-    }
-}
-
-private extension SwapManagerState {
-    var isRefreshRates: Bool {
-        switch self {
-        case .loading(.refreshRates): true
-        default: false
         }
     }
 }
