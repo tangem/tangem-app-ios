@@ -68,6 +68,7 @@ public struct FloatingSheetView<HostContent: View>: View {
     private var backgroundView: some View {
         Colors.Overlays.overlaySecondary
             .opacity(viewModel == nil ? .zero : 1)
+            .ignoresSafeArea()
             .allowsHitTesting(sheetContentConfiguration.backgroundInteractionBehavior != .passTouchesThrough)
             .onTapGesture {
                 guard sheetContentConfiguration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
@@ -152,8 +153,13 @@ public struct FloatingSheetView<HostContent: View>: View {
     }
 
     private var bottomSheetPadding: CGFloat {
-        let keyboardIsVisible = keyboardHeight > 0
-        return keyboardIsVisible ? 12 : 32
+        let keyboardIsHidden = keyboardHeight == .zero
+
+        guard Layout.deviceWithoutPhysicalHomeButton, keyboardIsHidden else {
+            return 8
+        }
+
+        return 32
     }
 
     private func bottomSheetMaxHeight(proxy: GeometryProxy) -> CGFloat {
@@ -165,6 +171,10 @@ public struct FloatingSheetView<HostContent: View>: View {
         // When keyboard is showing the max height will be limited the top safe area
         return isKeyboardShowing ? maxWithKeyboardHeight : maxHeight
     }
+}
+
+private enum Layout {
+    static let deviceWithoutPhysicalHomeButton = UIDevice.current.hasHomeScreenIndicator
 }
 
 private extension Animation {
