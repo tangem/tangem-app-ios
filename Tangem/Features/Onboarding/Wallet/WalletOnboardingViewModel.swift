@@ -973,8 +973,8 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 }
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
-    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
-        let isWithPassphrase = !(passphrase ?? "").isEmpty
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        let isWithPassphrase = !passphrase.isEmpty
         createWalletOnPrimaryCard(
             using: mnemonic,
             mnemonicPassphrase: passphrase,
