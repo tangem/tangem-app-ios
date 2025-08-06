@@ -31,6 +31,10 @@ public final class CommonHotSdk: HotSdk {
 
         let userWalletId = UserWalletId(with: walletIdSeed)
 
+        guard !privateInfoStorageManager.hasPrivateInfoData(for: userWalletId) else {
+            throw HotWalletError.walletAlreadyExists
+        }
+
         try storePublicData(userWalletId, accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode)
 
         try privateInfoStorageManager.storeUnsecured(
@@ -69,6 +73,9 @@ public final class CommonHotSdk: HotSdk {
 
     public func delete(walletID: UserWalletId) throws {
         try privateInfoStorageManager.delete(walletID: walletID)
+
+        let publicDataStorage = EncryptedSecureStorage()
+        try publicDataStorage.deleteData(keyTag: walletID.publicInfoTag)
     }
 
     public func updateAccessCode(
@@ -140,7 +147,13 @@ public final class CommonHotSdk: HotSdk {
                 curve: masterKeyInfo.curve
             )
 
+            var derivedKeys = keyInfo.derivedKeys ?? [:]
+
             try derivationPaths.forEach { path in
+                guard derivedKeys[path] == nil else {
+                    // If the key for this path is already derived, skip it
+                    return
+                }
                 let derivedPublicKey = try DerivationUtil.deriveKeys(
                     entropy: privateInfo.entropy,
                     passphrase: privateInfo.passphrase,
@@ -148,11 +161,10 @@ public final class CommonHotSdk: HotSdk {
                     curve: masterKeyInfo.curve
                 )
 
-                var derivedKeys = keyInfo.derivedKeys
                 derivedKeys[path] = derivedPublicKey
-
-                keyInfo.derivedKeys = derivedKeys
             }
+
+            keyInfo.derivedKeys = derivedKeys
 
             result[keyInfo.publicKey] = keyInfo
         }

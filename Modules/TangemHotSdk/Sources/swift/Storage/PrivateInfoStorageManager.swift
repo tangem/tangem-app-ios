@@ -49,6 +49,10 @@ final class PrivateInfoStorageManager {
         return MobileWalletContext(walletID: walletID, authentication: auth)
     }
 
+    func hasPrivateInfoData(for walletID: UserWalletId) -> Bool {
+        privateInfoStorage.hasPrivateInfoData(for: walletID)
+    }
+
     func getPrivateInfoData(context: MobileWalletContext) throws -> Data {
         var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
 
