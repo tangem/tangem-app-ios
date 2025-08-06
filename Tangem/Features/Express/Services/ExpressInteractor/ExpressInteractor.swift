@@ -45,7 +45,7 @@ class ExpressInteractor {
     init(
         userWalletId: String,
         initialWallet: Source,
-        destinationWallet: Destination,
+        destinationWallet: Destination?,
         expressManager: ExpressManager,
         expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -601,11 +601,14 @@ private extension ExpressInteractor {
         do {
             try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
 
-            if _swappingPair.value.destination?.value == nil {
+            switch _swappingPair.value.destination {
+            case .none:
+                log("Destination loading is not needed")
+            case .loading, .failure:
                 _swappingPair.value.destination = .loading
                 let destination = try await expressDestinationService.getDestination(source: wallet)
                 update(destination: destination)
-            } else {
+            case .success:
                 swappingPairDidChange()
             }
 
@@ -759,6 +762,13 @@ extension ExpressInteractor {
                 return true
             case .idle, .loading, .restriction:
                 return false
+            }
+        }
+
+        var isRefreshRates: Bool {
+            switch self {
+            case .loading(.refreshRates): true
+            default: false
             }
         }
     }
