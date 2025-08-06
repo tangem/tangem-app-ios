@@ -13,8 +13,28 @@ enum XRPTrustlineUtils {
         trustlines.containsTrustline(for: currency, issuer: issuer)
     }
 
-    static func balance<T: Collection>(in trustlines: T, currency: String, issuer: String) -> String? where T.Element == XRPTrustLine {
+    static func containsTrustline(in trustlines: some Collection<XRPTrustLine>, for token: Token) -> Bool {
+        guard let (currency, issuer) = try? XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress) else {
+            return false
+        }
+
+        return trustlines.containsTrustline(for: currency, issuer: issuer)
+    }
+
+    static func balance(in trustlines: some Collection<XRPTrustLine>, currency: String, issuer: String) -> String? {
         trustlines.balance(for: currency, issuer: issuer)
+    }
+
+    static func firstMatchingTrustline(in trustlines: some Collection<XRPTrustLine>, for token: Token) -> XRPTrustLine? {
+        guard let (currency, issuer) = try? XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress) else {
+            return nil
+        }
+
+        return trustlines.first(where: { $0.matches(currency: currency, issuer: issuer) })
+    }
+
+    static func firstMatchingTrustline(in trustlines: some Collection<XRPTrustLine>, currency: String, issuer: String) -> XRPTrustLine? {
+        trustlines.first(where: { $0.matches(currency: currency, issuer: issuer) })
     }
 }
 
