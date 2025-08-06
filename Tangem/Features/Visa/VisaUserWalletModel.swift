@@ -504,7 +504,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userWalletId: UserWalletId { userWalletModel.userWalletId }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData { userWalletModel.tangemApiAuthData }
+    var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
     var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
 
