@@ -153,7 +153,7 @@ private extension NewAuthViewModel {
         runTask(in: self) { viewModel in
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
-                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+                let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
 
                 await runOnMain {
                     viewModel.openMain(with: userWalletModel)
@@ -169,9 +169,17 @@ private extension NewAuthViewModel {
         Analytics.beginLoggingCardScan(source: .auth)
 
         runTask(in: self) { viewModel in
-            let cardScanner = CardScannerFactory().makeDefaultScanner()
-            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
-            let result = await userWalletCardScanner.scanCard()
+
+            guard let userWalletModel = viewModel.userWalletRepository.models[userWalletId] else {
+                await runOnMain {
+                    viewModel.isScanning = false
+                }
+
+                return
+            }
+
+            let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+            let result = await unlocker.unlock()
 
             switch result {
             case .error(let error) where error.isCancellationError:
@@ -184,14 +192,6 @@ private extension NewAuthViewModel {
             case .error(let error):
                 await viewModel.handleUnlockWithCard(resultError: error)
 
-            case .onboarding(let input):
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openOnboarding(with: input)
-                }
-
             case .scanTroubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .introduction])
                 viewModel.incomingActionManager.discardIncomingAction()
@@ -201,9 +201,10 @@ private extension NewAuthViewModel {
                     viewModel.openTroubleshooting(userWalletId: userWalletId)
                 }
 
-            case .success(let cardInfo):
+            case .success(let userWalletId, let encryptionKey):
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
 
                     await runOnMain {
                         viewModel.isScanning = false
@@ -218,6 +219,12 @@ private extension NewAuthViewModel {
                         viewModel.error = error.alertBinder
                     }
                 }
+
+            case .bioSelected:
+                #warning("Implement")
+
+            case .userWalletNeedsToDelete:
+                #warning("Implement")
             }
         }
     }
