@@ -36,7 +36,7 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     }
 
     func captureValue() {
-        captureAmount = sourceTokenAmountInput?.amount
+        captureAmount = sourceTokenAmountInput?.sourceAmount.value
     }
 
     func cancelChanges() {
