@@ -98,6 +98,7 @@ private extension SendNewAmountCompactViewModel {
         case .swap(let receiveToken):
             let viewModel = SendNewAmountCompactTokenViewModel(receiveToken: receiveToken)
             viewModel.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
+            viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
 
             return viewModel
         }
