@@ -223,6 +223,7 @@
 "common_reject" = "Отклонить";
 "common_reload" = "Перезагрузить";
 "common_rename" = "Переименовать";
+"common_required" = "Required";
 "common_retry" = "Повторить";
 "common_save_changes" = "Сохранить изменения";
 "common_save" = "Сохранить";
@@ -324,6 +325,9 @@
 "details_send_feedback" = "Отправить отзыв";
 "details_title" = "Подробности";
 "disclaimer_title" = "Условия использования";
+"domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
+"domain_receive_assets_onboarding_network_name" = "%@ network";
+"domain_receive_assets_onboarding_title" = "Send funds using only";
 "error_wrong_wallet_tapped" = "Вы использовали карту или кольцо от другого кошелька. Приложите карту или кольцо, связанную с этим кошельком.";
 "eth_gas_required_exceeds_allowance" = "Недостаточно средств для совершения транзакции. Пожалуйста, пополните свой аккаунт.";
 "exchange_tokens_available_tokens_header" = "Мои токены";
@@ -379,6 +383,7 @@
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
+"express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно с %@";
 "express_provider_not_available" = "Недоступно для этой пары";
@@ -431,6 +436,8 @@
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
 "hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
+"hw_backup_alert_description" = "If you do, you'll need to start over.";
+"hw_backup_alert_title" = "Are you sure you want to exit the activation process?";
 "hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
@@ -1310,8 +1317,10 @@
 "wallet_promo_banner_title" = "Откройте Tangem Wallet";
 "wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
 "wallet_settings_access_code_title" = "Set/Change Access Code";
+"wallet_settings_change_access_code_title" = "Change Access Code";
 "wallet_settings_push_notifications_description" = "Получайте уведомления о входящих транзакциях в кошельке и обновлениях Tangem.";
 "wallet_settings_push_notifications_title" = "Уведомления о транзакциях";
+"wallet_settings_set_access_code_title" = "Set Access Code";
 "wallet_settings_title" = "Настройки кошелька";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту/кольцо, чтобы разблокировать доступ к вашему кошельку";
@@ -1406,7 +1415,7 @@
 "warning_testnet_card_title" = "Только для целей тестирования";
 "warning_token_required_min_coin_reserve" = "Недостаточно %1$@. Пополните свой счет %2$@ для выполнения ассоциации токена";
 "warning_token_trustline_button_title" = "Открыть Trustline";
-"warning_token_trustline_subtitle" = "Согласно правилам сети, чтобы пополнить этот токен, необходимо сначала открыть Trustline — это позволит вашему кошельку принимать и хранить этот актив.";
+"warning_token_trustline_subtitle" = "Чтобы получить этот токен, необходимо включить Trustline. Сеть требует резерв %1$@ %2$@.";
 "warning_token_trustline_title" = "Требуется трастлайн";
 "wc_alert_audit_malicious_domain" = "Вредоносный домен";
 "wc_alert_audit_unknown_domain" = "Неизвестный домен";
@@ -1430,6 +1439,7 @@
 "wc_alert_verified_domain_title" = "Верифицированный домен";
 "wc_alert_wrong_card_description" = "Выбрана не верная карта или кольцо";
 "wc_alert_wrong_card_title" = "Похоже, возникла проблема";
+"wc_all_dapps_disconnected" = "All dApps disconnected";
 "wc_allow_to_spend" = "Разрешение на использование";
 "wc_common_address" = "Адрес";
 "wc_common_connect" = "Подключение";
@@ -1438,7 +1448,9 @@
 "wc_common_networks" = "Сети";
 "wc_common_unlimited" = "Безлимитно";
 "wc_common_wallet" = "Кошелек";
+"wc_connected_app_title" = "Connected App";
 "wc_connected_networks" = "Подключенные сети";
+"wc_connected_to" = "Connected to %1$@";
 "wc_connection_reqeust_can_view_balance" = "Посмотреть баланс кошелька и его активность";
 "wc_connection_reqeust_cant_sign" = "Подписать транзакцию без вашего участия";
 "wc_connection_reqeust_request_approval" = "Запрос разрешения на транзакцию";
@@ -1449,6 +1461,7 @@
 "wc_contents" = "Вложение";
 "wc_copy_data_button_text" = "Копировать данные";
 "wc_custom_allowance_title" = "Настраиваемый лимит";
+"wc_dapp_disconnected" = "dApp disconnected";
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
 "wc_disconnect_all_alert_title" = "Отключить все dApp";
 "wc_disconnect_all" = "Отключить все";
@@ -1456,6 +1469,8 @@
 "wc_estimated_wallet_changes" = "Предварительные изменения";
 "wc_estimation_is_not_supported" = "Estimation is not supported for %@";
 "wc_fee_suggested" = "Suggested by %@";
+"wc_insufficient_warning_subtitle" = "Top up your balance to cover the network fee";
+"wc_insufficient_warning_title" = "Insufficient %1$@";
 "wc_malicious_transaction" = "Вредоносная транзакция";
 "wc_missing_required_network_description" = "Добавьте сеть %@ в ваш портфель для выбранного кошелька";
 "wc_missing_required_network_title" = "В кошельке не добавлены необходимые сети";
@@ -1468,6 +1483,9 @@
 "wc_request_from" = "Запрос от";
 "wc_send_anyway" = "Send anyway";
 "wc_signature_type" = "Тип подписи";
+"wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
+"wc_specify_networks_title" = "Specify selected networks";
+"wc_successfully_signed" = "Successfully signed";
 "wc_transaction_info_to_title" = "На";
 "wc_transaction_request_title" = "Запрос транзакции";
 "wc_transaction_request" = "Запрос транзакции";
