@@ -69,10 +69,6 @@ extension ScreenBase {
         app.collectionViews[element.accessibilityIdentifier].firstMatch.cells
     }
 
-    func staticTextByLabel(label: String) -> XCUIElement {
-        app.staticTexts.element(matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
-    }
-
     func cellContainsLabel(label: String) -> XCUIElementQuery {
         app.cells.containing(NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
     }
