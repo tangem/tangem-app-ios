@@ -106,15 +106,19 @@ private extension SendWithSwapModel {
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
 
-        Publishers
-            .CombineLatest(
-                _amount.removeDuplicates(),
-                _receivedToken.removeDuplicates()
-            )
-            .dropFirst()
-            .filter { $1.receiveToken != nil }
+        _amount
+            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { $0.swapManager.update(amount: $1.0?.crypto) }
+            .sink { $0.swapManager.update(amount: $1?.crypto) }
+            .store(in: &bag)
+
+        _selectedFee
+            .map { $0.option }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            // Filter that SwapManager has different option
+            .filter { $0.mapToSendFee(state: $0.swapManager.state).option != $1 }
+            .sink { $0.swapManager.update(feeOption: $1) }
             .store(in: &bag)
 
         Publishers
@@ -124,9 +128,11 @@ private extension SendWithSwapModel {
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { model, args in
-                let (token, destination) = args
-                model.swapManager.update(destination: token.receiveToken?.tokenItem, address: destination?.value.transactionAddress)
+            .sink {
+                $0.swapManager.update(
+                    destination: $1.0.receiveToken?.tokenItem,
+                    address: $1.1?.value.transactionAddress
+                )
             }
             .store(in: &bag)
     }
@@ -186,6 +192,9 @@ private extension SendWithSwapModel {
         // it means destination will be valid after change
         // Then we safely change the token
         case .swap(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+            reset()
+
+        case .same(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
             reset()
 
         case .swap:
@@ -526,15 +535,47 @@ extension SendWithSwapModel: SendSwapProvidersOutput {
 
 extension SendWithSwapModel: SendFeeInput {
     var selectedFee: SendFee {
-        _selectedFee.value
+        switch receiveToken {
+        case .same: _selectedFee.value
+        case .swap: mapToSendFee(state: swapManager.state)
+        }
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee, Never> {
-        _selectedFee.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, receiveToken in
+                switch receiveToken {
+                case .same:
+                    return model._selectedFee.eraseToAnyPublisher()
+                case .swap:
+                    return model.swapManager.statePublisher
+                        .filter { !$0.isRefreshRates }
+                        .map { model.mapToSendFee(state: $0) }
+                        .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var canChooseFeeOption: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasVariants
+    }
+
+    private func mapToSendFee(state: SwapManagerState) -> SendFee {
+        switch state {
+        case .loading:
+            return .init(option: state.fees.selected, value: .loading)
+        case .restriction(.requiredRefresh(let occurredError), _):
+            return .init(option: state.fees.selected, value: .failedToLoad(error: occurredError))
+        case let state:
+            do {
+                let fee = try state.fees.selectedFee()
+                return .init(option: state.fees.selected, value: .loaded(fee))
+            } catch {
+                return .init(option: state.fees.selected, value: .failedToLoad(error: error))
+            }
+        }
     }
 }
 
@@ -588,10 +629,9 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
         case .swap:
             return swapManager.statePublisher.map { state in
                 switch state {
-                // We don't disable main button when rates in refreshing
-                case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
+                case .loading, .permissionRequired, .readyToSwap, .previewCEX:
                     return true
-                case .idle, .loading, .restriction:
+                case .idle, .restriction:
                     return false
                 }
             }
