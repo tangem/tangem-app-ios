@@ -218,9 +218,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .fulfillRequirements(signer: userWalletModel.signer)
             .materialize()
             .failures()
-            .handleEvents(receiveCompletion: { [weak self] _ in
-                self?.isFulfillingAssetRequirements = false
-            })
             .withWeakCaptureOf(self)
             .map { viewModel, error in
                 let alertBuilder = AssetRequirementsAlertBuilder()
@@ -277,9 +274,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                     return viewModel.fulfillRequirementsPublisher()
                 }
             }
-            .handleEvents(receiveCompletion: { [weak self] _ in
-                self?.isFulfillingAssetRequirements = false
-            })
             .receiveOnMain()
             .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
