@@ -9,8 +9,11 @@
 import Foundation
 import TangemLocalization
 import struct TangemSdk.Mnemonic
+import TangemFoundation
+import TangemHotSdk
 
 final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var userWalletModel: UserWalletModel?
@@ -90,16 +93,40 @@ private extension HotOnboardingImportWalletFlowBuilder {
     func closeOnboarding() {
         coordinator?.closeOnboarding()
     }
+
+    @MainActor
+    private func handleWalletCreated(_ newUserWalletModel: UserWalletModel) throws {
+        userWalletModel = newUserWalletModel
+
+        next()
+    }
 }
 
 // MARK: - SeedPhraseImportDelegate
 
 extension HotOnboardingImportWalletFlowBuilder: SeedPhraseImportDelegate {
-    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
-        // [REDACTED_TODO_COMMENT]
-        // self.userWalletModel = userWalletModel
-        userWalletModel = UserWalletModelMock()
-        next()
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        runTask(in: self) { @MainActor builder in
+            do {
+                let initializer = MobileWalletInitializer()
+
+                let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
+
+                guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                    walletInfo: .mobileWallet(walletInfo),
+                    keys: .mobileWallet(keys: walletInfo.keys),
+                ) else {
+                    throw UserWalletRepositoryError.cantUnlockWallet
+                }
+
+                try builder.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                try builder.handleWalletCreated(newUserWalletModel)
+            } catch {
+                AppLogger.error("Failed to create wallet", error: error)
+                throw error
+            }
+        }
     }
 }
 
