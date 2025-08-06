@@ -27,7 +27,6 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private var loadableTask: Task<Void, Error>?
-    private let supportedBlockchains: Set<Blockchain>
 
     private weak var coordinator: TransactionNotificationsModalRoutable?
 
@@ -35,9 +34,6 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
 
     init(coordinator: TransactionNotificationsModalRoutable?) {
         self.coordinator = coordinator
-
-        supportedBlockchains = SupportedBlockchains(version: .v2).blockchains()
-
         setupUI()
         loadAndDisplayNetworkItems()
     }
@@ -53,11 +49,13 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
-
     private func setupUI() {
-        tokenItemViewModels = supportedBlockchains.map {
+        let imageProvider = NetworkImageProvider()
+        tokenItemViewModels = SupportedBlockchains.all.map { blockchain in
             TransactionNotificationsItemViewModel(
-                blockchainNetwork: .init($0, derivationPath: nil),
+                networkName: blockchain.displayName,
+                networkSymbol: blockchain.currencySymbol,
+                iconImageAsset: imageProvider.provide(by: blockchain, filled: true),
                 isLoading: true
             )
         }
