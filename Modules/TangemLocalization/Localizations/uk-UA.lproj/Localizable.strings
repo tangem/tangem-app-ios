@@ -12,9 +12,18 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_form_create_button" = "Add account";
+"account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
+"account_form_title_create" = "Add account";
+"account_form_title_edit" = "Edit account";
+"account_unsaved_dialog_action_first" = "Keep Editing";
+"account_unsaved_dialog_action_second" = "Discard";
+"account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
+"account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
+"account_unsaved_dialog_title" = "Unsaved Changes";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -214,6 +223,7 @@
 "common_reject" = "Відхилити";
 "common_reload" = "Оновити";
 "common_rename" = "Перейменувати";
+"common_required" = "Required";
 "common_retry" = "Повторити";
 "common_save_changes" = "Зберегти зміни";
 "common_save" = "Зберегти";
@@ -315,6 +325,9 @@
 "details_send_feedback" = "Надіслати відгук";
 "details_title" = "Деталі";
 "disclaimer_title" = "Умови використання";
+"domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
+"domain_receive_assets_onboarding_network_name" = "%@ network";
+"domain_receive_assets_onboarding_title" = "Send funds using only";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
 "eth_gas_required_exceeds_allowance" = "Недостатньо коштів для здійснення транзакції. Будь ласка, поповніть свій акаунт.";
 "exchange_tokens_available_tokens_header" = "Мої токени";
@@ -370,6 +383,7 @@
 "express_more_providers_soon" = "Незабаром з'являться нові провайдери.\nСлідкуйте за новинами!";
 "express_provider_best_rate" = "Найкращий курс";
 "express_provider_fca_warning_list" = "Список попереджень FCA";
+"express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Доступно до %@";
 "express_provider_min_amount" = "Доступно від %@";
 "express_provider_not_available" = "Недоступно для цієї пари";
@@ -422,6 +436,8 @@
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
 "hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
+"hw_backup_alert_description" = "If you do, you'll need to start over.";
+"hw_backup_alert_title" = "Are you sure you want to exit the activation process?";
 "hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
@@ -1082,6 +1098,7 @@
 "swapping_fee_estimation_error_text" = "Помилка при розрахунку комісії. Будь ласка, надішліть відгук до служби підтримки.";
 "swapping_from_title" = "Ви обмінюєте";
 "swapping_high_price_impact_description" = "Обмін цієї кількості обраних токенів призведе до значного впливу на ціну і зменшить вашу кінцеву суму.";
+"swapping_high_price_impact_title" = "High price impact";
 "swapping_insufficient_funds" = "Недостатньо коштів";
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
@@ -1300,8 +1317,10 @@
 "wallet_promo_banner_title" = "Відкрийте Tangem Wallet";
 "wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
 "wallet_settings_access_code_title" = "Set/Change Access Code";
+"wallet_settings_change_access_code_title" = "Change Access Code";
 "wallet_settings_push_notifications_description" = "Отримуйте сповіщення про вхідні транзакції в гаманці та оновлення Tangem.";
 "wallet_settings_push_notifications_title" = "Сповіщення про транзакції";
+"wallet_settings_set_access_code_title" = "Set Access Code";
 "wallet_settings_title" = "Налаштування гаманця";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Використовуйте %@ або відскануйте картку/кільце, щоб розблокувати доступ до вашого гаманця";
@@ -1396,7 +1415,7 @@
 "warning_testnet_card_title" = "Лише для цілей тестування";
 "warning_token_required_min_coin_reserve" = "Недостатньо %1$@. Поповніть свій рахунок %2$@, щоб прив’язати цей токен.";
 "warning_token_trustline_button_title" = "Відкрити Trustline";
-"warning_token_trustline_subtitle" = "Відповідно до правил мережі, щоб поповнити цей токен, спочатку потрібно відкрити Trustline — це дозволить вашому гаманцю приймати та зберігати цей актив.";
+"warning_token_trustline_subtitle" = "Щоб отримати цей токен, потрібно увімкнути Trustline. Мережа вимагає резерв %1$@ %2$@.";
 "warning_token_trustline_title" = "Відкрийте Trustline";
 "wc_alert_audit_malicious_domain" = "Malicious domain";
 "wc_alert_audit_unknown_domain" = "Unknown domain";
@@ -1420,6 +1439,7 @@
 "wc_alert_verified_domain_title" = "Verified domain";
 "wc_alert_wrong_card_description" = "Обрана не вірна картка або кільце";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
+"wc_all_dapps_disconnected" = "All dApps disconnected";
 "wc_allow_to_spend" = "Allow to spend";
 "wc_common_address" = "Адреса";
 "wc_common_connect" = "Підключення";
@@ -1428,7 +1448,9 @@
 "wc_common_networks" = "Networks";
 "wc_common_unlimited" = "Unlimited";
 "wc_common_wallet" = "Wallet";
+"wc_connected_app_title" = "Connected App";
 "wc_connected_networks" = "Connected networks";
+"wc_connected_to" = "Connected to %1$@";
 "wc_connection_reqeust_can_view_balance" = "Переглянути баланс гаманця та активність";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1439,6 +1461,7 @@
 "wc_contents" = "Вміст";
 "wc_copy_data_button_text" = "Копіювати дані";
 "wc_custom_allowance_title" = "Custom allowance";
+"wc_dapp_disconnected" = "dApp disconnected";
 "wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
 "wc_disconnect_all_alert_title" = "Disconect All dApps";
 "wc_disconnect_all" = "Disconnect all";
@@ -1446,6 +1469,8 @@
 "wc_estimated_wallet_changes" = "Estimated wallet changes";
 "wc_estimation_is_not_supported" = "Estimation is not supported for %@";
 "wc_fee_suggested" = "Suggested by %@";
+"wc_insufficient_warning_subtitle" = "Top up your balance to cover the network fee";
+"wc_insufficient_warning_title" = "Insufficient %1$@";
 "wc_malicious_transaction" = "Malicious transaction";
 "wc_missing_required_network_description" = "Add the %@ network to your portfolio for this wallet";
 "wc_missing_required_network_title" = "The wallet has no required networks";
@@ -1458,6 +1483,9 @@
 "wc_request_from" = "Запит від";
 "wc_send_anyway" = "Send anyway";
 "wc_signature_type" = "Тип підпису";
+"wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
+"wc_specify_networks_title" = "Specify selected networks";
+"wc_successfully_signed" = "Successfully signed";
 "wc_transaction_info_to_title" = "До";
 "wc_transaction_request_title" = "Запит транзакції";
 "wc_transaction_request" = "Запит транзакції";
