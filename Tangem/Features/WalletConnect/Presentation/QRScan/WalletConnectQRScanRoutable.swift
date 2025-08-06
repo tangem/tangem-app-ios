@@ -12,8 +12,7 @@ enum WalletConnectQRScanResult {
 }
 
 @MainActor
-protocol WalletConnectQRScanRoutable {
-    func openPhotoPicker()
-    func openSystemSettings()
+protocol WalletConnectQRScanRoutable: AnyObject {
     func dismiss(with result: WalletConnectQRScanResult?)
+    func display(error: some Error)
 }
