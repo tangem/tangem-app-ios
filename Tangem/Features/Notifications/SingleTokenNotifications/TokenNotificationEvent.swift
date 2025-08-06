@@ -238,8 +238,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.addHederaTokenAssociation)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(.retryKaspaTokenTransaction)
-        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
-            return .init(.addTokenTrustline, withLoader: true)
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config)):
+            return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
         case .staking:
             return .init(.stake)
         }
@@ -285,15 +285,7 @@ extension TokenNotificationEvent {
             let reserveCurrencySymbol: String
             let reserveAmount: String
             let icon: ImageType
-
-            static func == (lhs: Self, rhs: Self) -> Bool {
-                return lhs.reserveCurrencySymbol == rhs.reserveCurrencySymbol && lhs.reserveAmount == rhs.reserveAmount
-            }
-
-            func hash(into hasher: inout Hasher) {
-                hasher.combine(reserveCurrencySymbol)
-                hasher.combine(reserveAmount)
-            }
+            let trustlineOperationInProgress: Bool
         }
 
         /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
