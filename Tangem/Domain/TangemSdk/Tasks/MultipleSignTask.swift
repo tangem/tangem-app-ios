@@ -45,7 +45,7 @@ class MultipleSignTask: CardSessionRunnable {
         let signData = dataToSign[index]
 
         let signCommand = SignAndReadTask(
-            hashes: [signData.hash],
+            hashes: signData.hashes,
             seedKey: seedKey,
             pairWalletPublicKey: nil,
             hdKey: signData.derivationPath.map {
@@ -57,15 +57,16 @@ class MultipleSignTask: CardSessionRunnable {
             switch result {
             case .success(let signResponse):
                 var partialResult = partialResult
-                guard let signature = signResponse.signatures.first else {
+                guard signResponse.signatures.count == signData.hashes.count else {
                     completion(.failure(TangemSdkError.signHashesNotAvailable))
                     return
                 }
                 partialResult.append(
                     MultipleSignTaskResponse(
-                        signature: signature,
+                        signatures: signResponse.signatures,
                         card: signResponse.card,
-                        publicKey: signData.publicKey
+                        publicKey: signData.publicKey,
+                        hashes: signData.hashes
                     )
                 )
                 self.runSign(at: index + 1, session: session, partialResult: partialResult, completion: completion)
@@ -78,8 +79,9 @@ class MultipleSignTask: CardSessionRunnable {
 
 extension MultipleSignTask {
     struct MultipleSignTaskResponse {
-        let signature: Data
+        let signatures: [Data]
         let card: Card
         let publicKey: Data
+        let hashes: [Data]
     }
 }

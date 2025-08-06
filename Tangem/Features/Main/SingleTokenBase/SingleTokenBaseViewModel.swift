@@ -213,6 +213,39 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             }
     }
 
+    private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
+        walletModel
+            .fulfillRequirements(signer: userWalletModel.signer)
+            .materialize()
+            .failures()
+            .withWeakCaptureOf(self)
+            .map { viewModel, error in
+                let alertBuilder = AssetRequirementsAlertBuilder()
+                let networkName = viewModel.blockchain.displayName
+
+                viewModel.isFulfillingAssetRequirements = false
+                return alertBuilder.fulfillmentAssetRequirementsFailedAlert(error: error, networkName: networkName)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    /// If the user doesn't meet the requirements to proceed (e.g. insufficient base coin or token),
+    /// show an alert explaining the issue.
+    private func buildFulfillAssetRequirementsAlertIfNeeded(
+        for requirement: AssetRequirementsCondition?,
+        feeStatus: AssetRequirementFeeStatus
+    ) -> AlertBinder? {
+        guard let requirement else {
+            return nil
+        }
+
+        return AssetRequirementsAlertBuilder().fulfillAssetRequirementsAlert(
+            for: requirement,
+            feeTokenItem: walletModel.feeTokenItem,
+            feeStatus: feeStatus,
+        )
+    }
+
     private func fulfillAssetRequirements(with analyticsEvent: Analytics.Event) {
         func sendAnalytics(isSuccessful: Bool) {
             let status: Analytics.ParameterValue = isSuccessful ? .sent : .error
@@ -228,40 +261,20 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isFulfillingAssetRequirements = true
-        let alertBuilder = AssetRequirementsAlertBuilder()
         let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
 
-        // If the user doesn't meet the requirements to proceed (e.g. insufficient base coin or token),
-        // show an alert explaining the issue.
-        if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
-            for: requirementsCondition,
-            feeTokenItem: walletModel.feeTokenItem,
-            hasFeeCurrency: walletModel.assetRequirementsManager?.hasSufficientFeeBalance(
-                for: requirementsCondition,
-                on: walletModel.tokenItem.amountType
-            ) ?? false
-        ) {
-            sendAnalytics(isSuccessful: false)
-            isFulfillingAssetRequirements = false
-            alert = fulfillAssetRequirementsAlert
-
-            return
-        }
-
-        sendAnalytics(isSuccessful: true)
-
-        walletModel
-            .fulfillRequirements(signer: userWalletModel.signer)
-            .materialize()
-            .failures()
+        walletModel.assetRequirementsManager?.feeStatusForRequirement(asset: amountType)
             .withWeakCaptureOf(self)
-            .map { viewModel, error in
-                let alertBuilder = AssetRequirementsAlertBuilder()
-                let networkName = viewModel.blockchain.displayName
-
-                viewModel.isFulfillingAssetRequirements = false
-                return alertBuilder.fulfillmentAssetRequirementsFailedAlert(error: error, networkName: networkName)
+            .flatMap { viewModel, feeStatus -> AnyPublisher<AlertBinder?, Never> in
+                if let alert = viewModel.buildFulfillAssetRequirementsAlertIfNeeded(for: requirementsCondition, feeStatus: feeStatus) {
+                    sendAnalytics(isSuccessful: false)
+                    return Just(alert).eraseToAnyPublisher()
+                } else {
+                    sendAnalytics(isSuccessful: true)
+                    return viewModel.fulfillRequirementsPublisher()
+                }
             }
+            .receiveOnMain()
             .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
     }
@@ -512,7 +525,7 @@ extension SingleTokenBaseViewModel {
 extension SingleTokenBaseViewModel {
     func openReceive() {
         if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
-            for: tokenActionAvailabilityProvider.receiveAvailablity, blockchain: blockchain
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
         ) {
             alert = availabilityAlert
             return
@@ -662,7 +675,7 @@ extension SingleTokenBaseViewModel {
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .action: Analytics.ParameterValue.receive.rawValue,
-            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailablity).rawValue,
+            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailability).rawValue,
         ])
 
         openReceive()

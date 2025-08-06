@@ -54,7 +54,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var emailData: [EmailCollectedData] { [] }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())
     }
 
@@ -106,6 +106,4 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }
