@@ -201,7 +201,7 @@ final class UserWalletNotificationManager {
         userWalletModel.updatePublisher
             .filter { value in
                 switch value {
-                case .backupDidChange:
+                case .configurationChanged:
                     return true
                 case .nameDidChange:
                     return false
