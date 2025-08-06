@@ -9,5 +9,5 @@
 import Foundation
 
 protocol HotOnboardingCreateWalletDelegate: AnyObject {
-    func onCreateWallet()
+    func onCreateWallet(userWalletModel: UserWalletModel)
 }
