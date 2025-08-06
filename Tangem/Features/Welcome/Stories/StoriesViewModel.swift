@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemFoundation
 
 class StoriesViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -230,8 +231,13 @@ class StoriesViewModel: ObservableObject {
 
         timerSubscription = nil
 
-        withAnimation(.linear(duration: 0)) { [weak self] in
-            self?.currentProgress = progress
+        // UI тесты: отключаем анимацию
+        if AppEnvironment.current.isUITest {
+            currentProgress = progress
+        } else {
+            withAnimation(.linear(duration: 0)) { [weak self] in
+                self?.currentProgress = progress
+            }
         }
     }
 
@@ -246,8 +252,13 @@ class StoriesViewModel: ObservableObject {
 
         timerStartDate = Date() - TimeInterval(currentStoryTime)
 
-        withAnimation(.linear(duration: remainingStoryDuration)) { [weak self] in
-            self?.currentProgress = 1
+        // UI тесты: отключаем анимацию
+        if AppEnvironment.current.isUITest {
+            currentProgress = 1
+        } else {
+            withAnimation(.linear(duration: remainingStoryDuration)) { [weak self] in
+                self?.currentProgress = 1
+            }
         }
 
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)

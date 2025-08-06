@@ -28,6 +28,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
+            XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             tokensList.staticTextByLabel(label: label).waitAndTap()
             return TokenScreen(app)
         }

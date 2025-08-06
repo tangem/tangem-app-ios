@@ -9,6 +9,7 @@
 import struct Foundation.Data
 import struct Foundation.URL
 import enum TangemLocalization.Localization
+import TangemFoundation
 
 public enum TangemStory: Identifiable {
     case swap(SwapStoryData)
