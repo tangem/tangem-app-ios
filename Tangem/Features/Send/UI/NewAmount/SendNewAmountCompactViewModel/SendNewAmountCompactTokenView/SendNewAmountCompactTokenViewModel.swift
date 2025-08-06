@@ -68,7 +68,7 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
         amountTextFieldViewModel = .init(maximumFractionDigits: tokenItem.decimalCount)
     }
 
-    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never>) {
+    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
         amountPublisherSubscription = amountPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
@@ -102,13 +102,13 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
         alertPresenter.present(alert: .init(title: "", message: highPriceImpactWarning.infoMessage))
     }
 
-    private func updateAmount(from amount: LoadingResult<SendAmount?, Error>) {
+    private func updateAmount(from amount: LoadingResult<SendAmount, Error>) {
         switch amount {
-        case .loading, .failure, .success(.none):
+        case .loading, .failure:
             // Do nothing. Just leave a current amount on UI
             break
 
-        case .success(.some(let amount)):
+        case .success(let amount):
             switch amount.type {
             case .typical(let crypto, _):
                 amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
