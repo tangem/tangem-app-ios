@@ -2772,6 +2772,7 @@
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AB8BD3B2DBB60AE00D88677 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AB8BD3D2DBB7EFD00D88677 /* ReferralConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralConstants.swift; sourceTree = "<group>"; };
+		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
 		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
 		0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionFlowBaseBuilder.swift; sourceTree = "<group>"; };
@@ -5491,6 +5492,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A0F51922E43CB5B001F803E /* MobileWalletSdk */ = {
+			isa = PBXGroup;
+			children = (
+				0ABCEE662E3B954000662B9F /* WalletInitializer.swift */,
+			);
+			path = MobileWalletSdk;
+			sourceTree = "<group>";
+		};
 		0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -6496,7 +6505,7 @@
 				DC8F84F52E3158CF003F5A4E /* TangemSigner */,
 				DC8B13C62BA8B4FF00B3DB53 /* PendingBackup */,
 				DC742C322BC8666F00BECF09 /* CardScanner */,
-				DC742C2D2BC85E4200BECF09 /* CardInitializer */,
+				DC742C2D2BC85E4200BECF09 /* WalletInitializer */,
 				DC70C0132B95EDF1002205BA /* KeysDeriving */,
 				DC70C0122B95EDD6002205BA /* FactorySettingsResetting */,
 				DC70BFD32B91057C002205BA /* SecurityOptionChanging */,
@@ -11282,13 +11291,13 @@
 			path = Implementations;
 			sourceTree = "<group>";
 		};
-		DC742C2D2BC85E4200BECF09 /* CardInitializer */ = {
+		DC742C2D2BC85E4200BECF09 /* WalletInitializer */ = {
 			isa = PBXGroup;
 			children = (
 				DC742C2E2BC85E5E00BECF09 /* CardInitializer.swift */,
 				DC742C302BC863D400BECF09 /* CommonCardInitializer.swift */,
 			);
-			path = CardInitializer;
+			path = WalletInitializer;
 			sourceTree = "<group>";
 		};
 		DC742C322BC8666F00BECF09 /* CardScanner */ = {
@@ -11526,6 +11535,7 @@
 				DCBF4D262D8B497F002C2B8E /* BlockchainSdk */,
 				DC8C22F22D8A13BB005159FE /* Card */,
 				DCBF4D352D8B4AEF002C2B8E /* Error */,
+				0A0F51922E43CB5B001F803E /* MobileWalletSdk */,
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				EF75A3D02B06418D0023A60A /* TokenItem */,
 				DCBF4D3C2D8B52C7002C2B8E /* UserTokens */,
@@ -16223,6 +16233,7 @@
 				EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */,
 				B6BEF9DA2DB9C6D500B186C6 /* CommonNFTTokenIconInfoProvider.swift in Sources */,
 				2DB6488B2C3587D900DA100D /* WalletSelectorDataSource.swift in Sources */,
+				0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */,
 				DCB14B142DC61C460075F340 /* WalletConnectModuleFactory.swift in Sources */,
 				B0CF5A5B2C2D492100B197D4 /* MarketsTokenDetailsDataProvider.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
