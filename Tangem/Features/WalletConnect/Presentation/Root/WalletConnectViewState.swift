@@ -12,16 +12,21 @@ import enum TangemLocalization.Localization
 
 // [REDACTED_TODO_COMMENT]
 struct WalletConnectViewState: Equatable {
-    let navigationBar: NavigationBar
+    let navigationBar = NavigationBar()
     var contentState: ContentState
     var dialog: ModalDialog?
     var newConnectionButton: NewConnectionButton
 
-    static let initial = WalletConnectViewState(
-        navigationBar: NavigationBar(),
+    static let loading = WalletConnectViewState(
         contentState: .loading,
         dialog: nil,
         newConnectionButton: NewConnectionButton(isLoading: true)
+    )
+
+    static let empty = WalletConnectViewState(
+        contentState: .empty,
+        dialog: nil,
+        newConnectionButton: NewConnectionButton(isLoading: false)
     )
 }
 
@@ -157,28 +162,13 @@ extension WalletConnectViewState.ModalDialog {
         let subtitle: String
         let buttons: [DialogButton]
 
-        static func cameraAccessDenied(
-            openSystemSettingsAction: @escaping () -> Void,
-            establishConnectionFromClipboardURI: (() -> Void)?
-        ) -> Content {
-            var buttons = [
-                DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
-            ]
-
-            if let establishConnectionFromClipboardURI {
-                buttons.append(
-                    DialogButton(
-                        title: Localization.walletConnectPasteFromClipboard,
-                        role: nil,
-                        action: establishConnectionFromClipboardURI
-                    )
-                )
-            }
-
-            return Content(
+        static func cameraAccessDenied(openSystemSettingsAction: @escaping () -> Void) -> Content {
+            Content(
                 title: Localization.commonCameraDeniedAlertTitle,
                 subtitle: Localization.commonCameraDeniedAlertMessage,
-                buttons: buttons
+                buttons: [
+                    DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
+                ]
             )
         }
 
