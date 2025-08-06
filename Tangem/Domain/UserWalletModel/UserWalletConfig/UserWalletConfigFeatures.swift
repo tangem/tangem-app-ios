@@ -19,6 +19,7 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case mnemonicBackup
     case twinning
     case hdWallets
+    case userWalletAccessCode
 
     case send
     case receive

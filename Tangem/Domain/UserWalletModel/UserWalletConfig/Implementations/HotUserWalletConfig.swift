@@ -93,12 +93,7 @@ extension HotUserWalletConfig: UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
-        case .accessCode:
-            if hotWalletInfo.isAccessCodeSet {
-                return .disabled()
-            }
-
-            return .available
+        case .accessCode: return .hidden
         case .passcode: return .hidden
         case .longTap: return .hidden
         case .send: return .available
@@ -131,6 +126,12 @@ extension HotUserWalletConfig: UserWalletConfig {
             return .available
         case .mnemonicBackup:
             if hotWalletInfo.hasMnemonicBackup {
+                return .disabled()
+            }
+
+            return .available
+        case .userWalletAccessCode:
+            if hotWalletInfo.isAccessCodeSet {
                 return .disabled()
             }
 
