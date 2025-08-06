@@ -50,10 +50,12 @@ enum WalletConnectModuleFactory {
         return formatter
     }()
 
-    static func makeWalletConnectViewModel(coordinator: some WalletConnectRoutable) -> WalletConnectViewModel {
+    static func makeWalletConnectViewModel(
+        coordinator: some WalletConnectRoutable,
+        prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
+    ) -> WalletConnectViewModel {
         let establishDAppConnectionUseCase = WalletConnectEstablishDAppConnectionUseCase(
             userWalletRepository: userWalletRepository,
-            uriProvider: UIPasteBoardWalletConnectURIProvider(pasteboard: .general, parser: .init()),
             cameraAccessProvider: cameraAccessProvider,
             openSystemSettingsAction: openSystemSettingsAction
         )
@@ -75,7 +77,8 @@ enum WalletConnectModuleFactory {
             userWalletRepository: userWalletRepository,
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger,
-            coordinator: coordinator
+            coordinator: coordinator,
+            prefetchedConnectedDApps: prefetchedConnectedDApps
         )
     }
 
@@ -136,13 +139,11 @@ enum WalletConnectModuleFactory {
     }
 
     static func makeQRScanFlow(
-        clipboardURI: WalletConnectRequestURI?,
         dismissAction: @escaping (WalletConnectQRScanResult?) -> Void
     ) -> (WalletConnectQRScanCoordinator, WalletConnectQRScanCoordinator.Options) {
         let coordinator = WalletConnectQRScanCoordinator(dismissAction: dismissAction)
 
         let options = WalletConnectQRScanCoordinator.Options(
-            clipboardURI: clipboardURI,
             cameraAccessProvider: cameraAccessProvider,
             openSystemSettingsAction: openSystemSettingsAction
         )
