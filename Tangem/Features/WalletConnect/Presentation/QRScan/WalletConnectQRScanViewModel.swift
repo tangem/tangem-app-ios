@@ -13,6 +13,7 @@ final class WalletConnectQRScanViewModel: ObservableObject {
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
     private let openSystemSettingsAction: () -> Void
     private let coordinator: any WalletConnectQRScanRoutable
+    private let uriParser = WalletConnectURLParser()
 
     private var requestCameraAccessTask: Task<Void, Never>?
 
@@ -54,8 +55,8 @@ extension WalletConnectQRScanViewModel {
         case .navigationCloseButtonTapped:
             handleNavigationCloseButtonTapped()
 
-        case .pasteFromClipboardButtonTapped(let clipboardURI):
-            handlePasteFromClipboardButtonTapped(clipboardURI)
+        case .pasteFromClipboardButtonTapped(let rawClipboardString):
+            handlePasteFromClipboardButtonTapped(rawClipboardString)
 
         case .qrCodeParsed(let rawQRCode):
             handleQRCodeParsed(rawQRCode)
@@ -87,35 +88,30 @@ extension WalletConnectQRScanViewModel {
 
     private func handleQRCodeParsed(_ rawQRCode: String) {
         do {
-            let qrURI = try WalletConnectURLParser().parse(uriString: rawQRCode)
+            let qrURI = try uriParser.parse(uriString: rawQRCode)
             coordinator.dismiss(with: .fromQRCode(qrURI))
         } catch {
-            // [REDACTED_TODO_COMMENT]
+            coordinator.display(error: error)
         }
     }
 
-    private func handlePasteFromClipboardButtonTapped(_ clipboardURI: WalletConnectRequestURI) {
-        coordinator.dismiss(with: .fromClipboard(clipboardURI))
+    private func handlePasteFromClipboardButtonTapped(_ rawClipboardString: String?) {
+        guard let rawClipboardString else { return }
+
+        do {
+            let clipboardURI = try uriParser.parse(uriString: rawClipboardString)
+            coordinator.dismiss(with: .fromClipboard(clipboardURI))
+        } catch {
+            coordinator.display(error: error)
+        }
     }
 
     private func handleCameraAccessStatusChanged(_ accessGranted: Bool) {
         state.hasCameraAccess = accessGranted
+
         guard !accessGranted else { return }
 
-        let pasteFromClipboardAction: (() -> Void)?
-
-        if let clipboardURI = state.pasteFromClipboardButton?.clipboardURI {
-            pasteFromClipboardAction = { [coordinator] in
-                coordinator.dismiss(with: .fromClipboard(clipboardURI))
-            }
-        } else {
-            pasteFromClipboardAction = nil
-        }
-
-        state.confirmationDialog = .cameraAccessDenied(
-            openSystemSettingsAction: openSystemSettingsAction,
-            pasteFromClipboardAction: pasteFromClipboardAction
-        )
+        state.confirmationDialog = .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
     }
 
     private func handleCloseDialogButtonTapped() {
