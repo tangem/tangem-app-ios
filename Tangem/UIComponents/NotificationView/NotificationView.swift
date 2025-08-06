@@ -91,6 +91,7 @@ struct NotificationView: View {
                             icon: buttonInfo.actionType.icon,
                             style: buttonInfo.actionType.style,
                             size: .notification,
+                            isDisabled: buttonInfo.isDisabled,
                             action: {
                                 buttonInfo.action(settings.id, buttonInfo.actionType)
                             }
