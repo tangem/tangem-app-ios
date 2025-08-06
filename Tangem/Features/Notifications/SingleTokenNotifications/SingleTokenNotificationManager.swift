@@ -242,14 +242,15 @@ final class SingleTokenNotificationManager {
         }
 
         switch assetRequirementsManager.requirementsCondition(for: asset) {
-        case .requiresTrustline(let blockchain, let fee, let isProcessing):
+        case .requiresTrustline(let blockchain, let fee, let isProcessingTrustlineOperation):
             let configuration = makeUnfulfilledRequirementsConfiguration(
                 blockchain: blockchain,
                 transactionAmount: nil,
-                feeAmount: fee
+                feeAmount: fee,
+                isProcessingFulfillRequirementOperation: isProcessingTrustlineOperation
             )
 
-            return isProcessing ? [] : [.hasUnfulfilledRequirements(configuration: configuration)]
+            return [.hasUnfulfilledRequirements(configuration: configuration)]
 
         case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount):
             let configuration = makeUnfulfilledRequirementsConfiguration(
@@ -267,7 +268,8 @@ final class SingleTokenNotificationManager {
     private func makeUnfulfilledRequirementsConfiguration(
         blockchain: Blockchain,
         transactionAmount: Amount?,
-        feeAmount: Amount?
+        feeAmount: Amount?,
+        isProcessingFulfillRequirementOperation: Bool? = nil
     ) -> TokenNotificationEvent.UnfulfilledRequirementsConfiguration {
         switch blockchain {
         case .stellar, .xrp:
@@ -276,7 +278,8 @@ final class SingleTokenNotificationManager {
                 .init(
                     reserveCurrencySymbol: blockchain.currencySymbol,
                     reserveAmount: formattedReserve,
-                    icon: NetworkImageProvider().provide(by: blockchain, filled: true)
+                    icon: NetworkImageProvider().provide(by: blockchain, filled: true),
+                    trustlineOperationInProgress: isProcessingFulfillRequirementOperation ?? false
                 )
             )
 
