@@ -57,11 +57,11 @@ class ServicesManager {
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
         userTokensPushNotificationsService.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
