@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "bf9ec6f8dafa6979267365735406847f00fa0b48"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "1aeffca127fca65b509a1772a9edb5d112deeca7"),
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         // BSDK only deps:
