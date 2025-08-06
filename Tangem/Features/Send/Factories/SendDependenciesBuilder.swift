@@ -27,8 +27,8 @@ struct SendDependenciesBuilder {
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletModel: userWalletModel,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none,
+            initialWallet: walletModel.asExpressInteractorWallet,
+            destinationWallet: .none,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex]
         )
@@ -244,7 +244,7 @@ struct SendDependenciesBuilder {
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
-        let destination = sellParameters.map { SendAddress(value: $0.destination, source: .sellProvider) }
+        let destination = sellParameters.map { SendAddress(value: .plain($0.destination), source: .sellProvider) }
         let amount = sellParameters.map { sellParameters in
             let fiatValue = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 BalanceConverter().convertToFiat(sellParameters.amount, currencyId: currencyId)

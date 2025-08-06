@@ -64,7 +64,7 @@ final class AuthViewModel: ObservableObject {
         runTask(in: self) { viewModel in
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
-                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+                let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
 
                 await runOnMain {
                     viewModel.openMain(with: userWalletModel)
@@ -128,14 +128,38 @@ final class AuthViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
+                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                guard let userWalletId = UserWalletId(config: config),
+                      let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                    throw UserWalletRepositoryError.cantUnlockWallet
+                }
+
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    let userWalletModel = try await viewModel.userWalletRepository.unlock(
+                        with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    )
 
                     await runOnMain {
                         viewModel.isScanningCard = false
                         viewModel.openMain(with: userWalletModel)
                     }
 
+                } catch UserWalletRepositoryError.notFound {
+                    // new card scanned, add it
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        await runOnMain {
+                            viewModel.isScanningCard = false
+                            viewModel.openMain(with: newUserWalletModel)
+                        }
+                    } else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
                 } catch {
                     viewModel.incomingActionManager.discardIncomingAction()
 
