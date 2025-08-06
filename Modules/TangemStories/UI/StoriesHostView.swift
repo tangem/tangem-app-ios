@@ -28,7 +28,7 @@ public struct StoriesHostView: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .animation(.default, value: viewModel.visibleStoryIndex)
+        .conditionalAnimation(.default, value: viewModel.visibleStoryIndex)
         .allowsHitTesting(viewModel.allowsHitTesting)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
