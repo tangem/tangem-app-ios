@@ -31,6 +31,7 @@ protocol SwapManager {
     func update(amount: Decimal?)
     func update(destination: TokenItem?, address: String?)
     func update(provider: ExpressAvailableProvider)
+    func update(feeOption: FeeOption)
 
     func update()
     func updateFees()
