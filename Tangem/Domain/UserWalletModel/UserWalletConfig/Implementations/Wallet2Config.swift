@@ -430,6 +430,8 @@ extension Wallet2Config: UserWalletConfig {
             return .hidden
         case .mnemonicBackup:
             return .hidden
+        case .userWalletAccessCode:
+            return .hidden
         }
     }
 
