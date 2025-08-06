@@ -191,7 +191,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         let nextSelectionIndex = currentIndex > 0 ? (currentIndex - 1) : 0
 
-        userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
         encryptionKeyStorage.clear(userWalletIds: [userWalletId])
         globalServicesContext.cleanServicesForWallet(userWalletId: userWalletId)
 
@@ -202,6 +201,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models.removeAll { $0.userWalletId == userWalletId }
+        userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
         #warning("delete specific mobile wallet")
 
