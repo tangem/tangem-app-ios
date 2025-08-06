@@ -112,6 +112,13 @@ class ServicesManager {
             AppSettings.shared.termsOfServicesAccepted = []
         }
 
+        if let scene = UIApplication.shared.connectedScenes.first,
+           let windowSceneDelegate = scene.delegate as? UIWindowSceneDelegate,
+           let window = windowSceneDelegate.window {
+            // Disable Core Animations
+            window?.layer.speed = 0
+        }
+
         UIView.setAnimationsEnabled(false)
     }
 }
