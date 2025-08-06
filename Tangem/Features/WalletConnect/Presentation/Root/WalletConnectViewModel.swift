@@ -28,19 +28,26 @@ final class WalletConnectViewModel: ObservableObject {
     @Published private(set) var state: WalletConnectViewState
 
     init(
-        state: WalletConnectViewState = .initial,
         interactor: WalletConnectInteractor,
         userWalletRepository: some UserWalletRepository,
         analyticsLogger: some WalletConnectAnalyticsLogger,
         logger: TangemLogger.Logger,
-        coordinator: some WalletConnectRoutable
+        coordinator: some WalletConnectRoutable,
+        prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
     ) {
-        self.state = state
         self.interactor = interactor
         self.userWalletRepository = userWalletRepository
         self.analyticsLogger = analyticsLogger
         self.logger = logger
         self.coordinator = coordinator
+
+        if let prefetchedConnectedDApps {
+            state = Self.makeState(from: prefetchedConnectedDApps, userWalletRepository: userWalletRepository, logger: logger)
+            subscribeToConnectedDAppsUpdates()
+        } else {
+            state = .loading
+            fetchConnectedDApps()
+        }
     }
 
     deinit {
@@ -49,7 +56,7 @@ final class WalletConnectViewModel: ObservableObject {
         disconnectAllDAppsTask?.cancel()
     }
 
-    func fetchConnectedDApps() {
+    private func fetchConnectedDApps() {
         initialLoadingTask?.cancel()
 
         initialLoadingTask = Task { [interactor, logger, weak self] in
@@ -150,26 +157,13 @@ extension WalletConnectViewModel {
             let newDAppConnectionResult = try interactor.establishDAppConnection()
 
             switch newDAppConnectionResult {
-            case .cameraAccessDenied(let clipboardURI, let openSystemSettingsAction):
-                let establishConnectionFromClipboardAction: (() -> Void)?
-
-                if let clipboardURI {
-                    establishConnectionFromClipboardAction = { [weak self] in
-                        self?.coordinator?.openDAppConnectionProposal(forURI: clipboardURI, source: .clipboard)
-                    }
-                } else {
-                    establishConnectionFromClipboardAction = nil
-                }
-
+            case .cameraAccessDenied(let openSystemSettingsAction):
                 state.dialog = .confirmationDialog(
-                    .cameraAccessDenied(
-                        openSystemSettingsAction: openSystemSettingsAction,
-                        establishConnectionFromClipboardURI: establishConnectionFromClipboardAction
-                    )
+                    .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
                 )
 
-            case .canOpenQRScanner(let clipboardURI):
-                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [weak self] result in
+            case .canOpenQRScanner:
+                coordinator?.openQRScanner { [weak self] result in
                     let source: Analytics.WalletConnectSessionSource
                     let sessionURI: WalletConnectRequestURI
 
@@ -213,22 +207,7 @@ extension WalletConnectViewModel {
     }
 
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
-        guard !connectedDApps.isEmpty else {
-            state.contentState = .empty(.init())
-            state.newConnectionButton.isLoading = false
-            return
-        }
-
-        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps)
-
-        guard !walletsWithDApps.isEmpty else {
-            state.contentState = .empty(.init())
-            state.newConnectionButton.isLoading = false
-            return
-        }
-
-        state.contentState = .content(walletsWithDApps)
-        state.newConnectionButton.isLoading = false
+        state = Self.makeState(from: connectedDApps, userWalletRepository: userWalletRepository, logger: logger)
     }
 
     private func handleCloseDialogButtonTapped() {
@@ -239,8 +218,36 @@ extension WalletConnectViewModel {
 // MARK: - Factory methods and state mapping
 
 extension WalletConnectViewModel {
-    private func makeWalletsWithConnectedDApps(
-        from connectedDApps: [WalletConnectConnectedDApp]
+    private static func makeState(
+        from connectedDApps: [WalletConnectConnectedDApp],
+        userWalletRepository: some UserWalletRepository,
+        logger: TangemLogger.Logger
+    ) -> WalletConnectViewState {
+        guard !connectedDApps.isEmpty else {
+            return .empty
+        }
+
+        let walletsWithDApps = Self.makeWalletsWithConnectedDApps(
+            from: connectedDApps,
+            userWalletRepository: userWalletRepository,
+            logger: logger
+        )
+
+        guard !walletsWithDApps.isEmpty else {
+            return .empty
+        }
+
+        return WalletConnectViewState(
+            contentState: .content(walletsWithDApps),
+            dialog: nil,
+            newConnectionButton: WalletConnectViewState.NewConnectionButton(isLoading: false)
+        )
+    }
+
+    private static func makeWalletsWithConnectedDApps(
+        from connectedDApps: [WalletConnectConnectedDApp],
+        userWalletRepository: some UserWalletRepository,
+        logger: TangemLogger.Logger
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
         var userWalletIDToConnectedDApps = [String: [WalletConnectConnectedDApp]]()
         var orderedUserWalletIDs = [String]()

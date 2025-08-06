@@ -191,33 +191,33 @@ class AppCoordinator: CoordinatorObject {
             }
             .store(in: &bag)
 
-        let applicationIsActivePublisher = NotificationCenter.default
-            .publisher(for: UIApplication.didBecomeActiveNotification)
+        let cardSessionDidStartPublisher = NotificationCenter.default
+            .publisher(for: .cardSessionDidStart)
             .map { _ in true }
 
-        let applicationIsInactivePublisher = NotificationCenter.default
-            .publisher(for: UIApplication.willResignActiveNotification)
+        let cardSessionDidFinishPublisher = NotificationCenter.default
+            .publisher(for: .cardSessionDidFinish)
             .map { _ in false }
 
-        let applicationLifecyclePublisher = Publishers.Merge(applicationIsActivePublisher, applicationIsInactivePublisher)
+        let cardSessionIsActivePublisher = Publishers.Merge(cardSessionDidStartPublisher, cardSessionDidFinishPublisher)
             .removeDuplicates()
-            .prepend(true)
+            .prepend(false)
 
         $viewState
             .dropFirst()
             .combineLatest(
                 userWalletRepository.eventProvider,
                 AppSettings.shared.$marketsTooltipWasShown,
-                applicationLifecyclePublisher
+                cardSessionIsActivePublisher
             )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown, appIsActive in
+            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown, cardSessionIsActive in
                 MainActor.assumeIsolated {
                     self?.updateFloatingSheetPresenterState(
                         viewState: viewState,
                         userWalletRepositoryEvent: walletRepositoryEvent,
                         marketsTooltipWasShown: marketsTooltipWasShown,
-                        appIsActive: appIsActive
+                        cardSessionIsActive: cardSessionIsActive
                     )
                 }
             }
@@ -235,9 +235,9 @@ class AppCoordinator: CoordinatorObject {
         viewState: ViewState?,
         userWalletRepositoryEvent: UserWalletRepositoryEvent,
         marketsTooltipWasShown: Bool,
-        appIsActive: Bool
+        cardSessionIsActive: Bool
     ) {
-        guard appIsActive, marketsTooltipWasShown else {
+        guard !cardSessionIsActive, marketsTooltipWasShown else {
             floatingSheetPresenter.pauseSheetsDisplaying()
             return
         }

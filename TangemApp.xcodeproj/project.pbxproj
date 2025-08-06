@@ -2194,7 +2194,6 @@
 		C2075EFB2DE6231C009AD2F7 /* BlockaidSiteScanMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9213A2DD7AFF500ACE654 /* BlockaidSiteScanMapper.swift */; };
 		C2075EFC2DE62325009AD2F7 /* WalletConnectBlockchainMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFAA2DDBB60D00B1D97B /* WalletConnectBlockchainMapper.swift */; };
 		C2075EFE2DE62389009AD2F7 /* WalletConnectDAppDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E921292DD7A4E900ACE654 /* WalletConnectDAppDataService.swift */; };
-		C2075EFF2DE6238F009AD2F7 /* WalletConnectURIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0002822DC2090600305FB6 /* WalletConnectURIProvider.swift */; };
 		C2075F002DE6241A009AD2F7 /* WalletConnectSessionProposalMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFA72DDBB3F800B1D97B /* WalletConnectSessionProposalMapper.swift */; };
 		C207D5E02DE60CA200A5FB2E /* WalletConnectDAppDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C207D5DC2DE60CA200A5FB2E /* WalletConnectDAppDescriptionView.swift */; };
 		C207D5E12DE60CA200A5FB2E /* WalletConnectWarningNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C207D5DE2DE60CA200A5FB2E /* WalletConnectWarningNotificationView.swift */; };
@@ -2267,7 +2266,6 @@
 		C274DFBB2DDBFA3C00B1D97B /* WalletConnectDAppProposalApprovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFBA2DDBFA3A00B1D97B /* WalletConnectDAppProposalApprovalService.swift */; };
 		C274DFBF2DDC9B7800B1D97B /* WalletConnectDAppConnectionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFBE2DDC9B6B00B1D97B /* WalletConnectDAppConnectionRequestView.swift */; };
 		C274DFC92DDE37C600B1D97B /* AVWalletConnectCameraAccessProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFC72DDE37C600B1D97B /* AVWalletConnectCameraAccessProvider.swift */; };
-		C274DFCA2DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFC82DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift */; };
 		C274DFCC2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFCB2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift */; };
 		C27672CF2DE713970037F1FC /* WalletConnectDAppDomainVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27672CE2DE713880037F1FC /* WalletConnectDAppDomainVerificationView.swift */; };
 		C27672D32DE714B50037F1FC /* WalletConnectDAppDomainVerificationViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27672D22DE714A60037F1FC /* WalletConnectDAppDomainVerificationViewState.swift */; };
@@ -6173,7 +6171,6 @@
 		C274DFBA2DDBFA3A00B1D97B /* WalletConnectDAppProposalApprovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppProposalApprovalService.swift; sourceTree = "<group>"; };
 		C274DFBE2DDC9B6B00B1D97B /* WalletConnectDAppConnectionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionRequestView.swift; sourceTree = "<group>"; };
 		C274DFC72DDE37C600B1D97B /* AVWalletConnectCameraAccessProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVWalletConnectCameraAccessProvider.swift; sourceTree = "<group>"; };
-		C274DFC82DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPasteBoardWalletConnectURIProvider.swift; sourceTree = "<group>"; };
 		C274DFCB2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppProposalApprovalService.swift; sourceTree = "<group>"; };
 		C27672CE2DE713880037F1FC /* WalletConnectDAppDomainVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppDomainVerificationView.swift; sourceTree = "<group>"; };
 		C27672D22DE714A60037F1FC /* WalletConnectDAppDomainVerificationViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppDomainVerificationViewState.swift; sourceTree = "<group>"; };
@@ -6417,7 +6414,6 @@
 		DC0002702DC2090600305FB6 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		DC0002712DC2090600305FB6 /* CommonBlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBlockaidAPIService.swift; sourceTree = "<group>"; };
 		DC0002802DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCameraAccessProvider.swift; sourceTree = "<group>"; };
-		DC0002822DC2090600305FB6 /* WalletConnectURIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectURIProvider.swift; sourceTree = "<group>"; };
 		DC0002852DC2090600305FB6 /* OldWalletConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldWalletConnectView.swift; sourceTree = "<group>"; };
 		DC0002862DC2090600305FB6 /* OldWalletConnectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldWalletConnectViewModel.swift; sourceTree = "<group>"; };
 		DC00028A2DC2090600305FB6 /* WalletConnectSessionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionItemView.swift; sourceTree = "<group>"; };
@@ -14608,8 +14604,9 @@
 		C24A196A2DED8B3500B995E6 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
-				DCE6BE9D2E140ED7001DB530 /* WC+UniversalError.swift */,
 				C264357A2DF0AC0B00C1F8B5 /* DApp */,
+				DCE6BE9D2E140ED7001DB530 /* WC+UniversalError.swift */,
+				DC0002CA2DC2090600305FB6 /* WalletConnectV2Error.swift */,
 			);
 			path = Errors;
 			sourceTree = "<group>";
@@ -14746,7 +14743,6 @@
 				C274DFCB2DDE37D800B1D97B /* ReownWalletConnectDAppProposalApprovalService.swift */,
 				C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */,
 				C2E921332DD7AB7E00ACE654 /* ReownWalletConnectDAppDataService.swift */,
-				C274DFC82DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift */,
 				C2796A0E2E01CF0F0039CF2B /* WalletConnectSavedSessionMigrationService.swift */,
 			);
 			path = "Service implementations";
@@ -14812,7 +14808,6 @@
 				C2E921292DD7A4E900ACE654 /* WalletConnectDAppDataService.swift */,
 				C274DFBA2DDBFA3A00B1D97B /* WalletConnectDAppProposalApprovalService.swift */,
 				DC0002802DC2090600305FB6 /* WalletConnectCameraAccessProvider.swift */,
-				DC0002822DC2090600305FB6 /* WalletConnectURIProvider.swift */,
 				C2E9212B2DD7A6CA00ACE654 /* WalletConnectDAppVerificationService.swift */,
 			);
 			path = Services;
@@ -14833,7 +14828,6 @@
 				C274DFA42DDB81E900B1D97B /* DApp connection */,
 				C24A196A2DED8B3500B995E6 /* Errors */,
 				DCB14B102DC6175A0075F340 /* WalletConnectCameraAccess.swift */,
-				DC0002CA2DC2090600305FB6 /* WalletConnectV2Error.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -21232,7 +21226,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n    exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=$PATH:~/.mint/bin:$PATH\nelse\n    echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n    echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
+			shellScript = "#!/bin/bash\n\n-framework XCTest -lXCTestSwiftSupport\nexit 0\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n    exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=$PATH:~/.mint/bin:$PATH\nelse\n    echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n    echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -21617,7 +21611,6 @@
 				EFB23F3C2CBE914D005A6719 /* OnrampFlowBaseBuilder.swift in Sources */,
 				DCE814FB2DC90CBA00688DB1 /* TwinImageProvider.swift in Sources */,
 				C274DFC92DDE37C600B1D97B /* AVWalletConnectCameraAccessProvider.swift in Sources */,
-				C274DFCA2DDE37C600B1D97B /* UIPasteBoardWalletConnectURIProvider.swift in Sources */,
 				DA8C67332B0B451F00E1C9B8 /* AmountSummaryView.swift in Sources */,
 				B69F0EE32DD39A4D00997631 /* NFTSendAmountValidator.swift in Sources */,
 				2DB648862C35877000DA100D /* MarketsPickerView.swift in Sources */,
@@ -21830,7 +21823,6 @@
 				DC96325F2C5140CE009B250A /* ExpressRefundedTokenHandler.swift in Sources */,
 				B675C3762BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift in Sources */,
 				DA1010222CDA55D400EE0D05 /* OnrampCountryViewData.swift in Sources */,
-				C2075EFF2DE6238F009AD2F7 /* WalletConnectURIProvider.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
 				DA90396B2C520DEB002C1E6E /* CommonSendTransactionSummaryDescriptionBuilder.swift in Sources */,
 				B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */,
@@ -25287,6 +25279,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -25355,6 +25349,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -28094,6 +28090,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -28273,6 +28271,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -30403,6 +30403,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -30582,6 +30584,8 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
+					"-Xlinker",
+					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -30931,8 +30935,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
-				kind = exactVersion;
-				version = 3.23.1;
+				branch = 3.23.1_hotfix;
+				kind = branch;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
@@ -31083,8 +31087,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.6.5;
+				kind = exactVersion;
+				version = 1.6.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

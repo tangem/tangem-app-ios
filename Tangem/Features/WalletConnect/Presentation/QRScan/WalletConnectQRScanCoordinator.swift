@@ -7,6 +7,8 @@
 //
 
 import Combine
+import class TangemUI.Toast
+import struct TangemUI.WarningToast
 
 final class WalletConnectQRScanCoordinator: CoordinatorObject {
     let dismissAction: Action<WalletConnectQRScanResult?>
@@ -22,17 +24,8 @@ final class WalletConnectQRScanCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         Task { @MainActor in
-            let pasteFromClipboardButton: WalletConnectQRScanViewState.PasteFromClipboardButton?
-
-            if let clipboardURI = options.clipboardURI {
-                pasteFromClipboardButton = WalletConnectQRScanViewState.PasteFromClipboardButton(clipboardURI: clipboardURI)
-            } else {
-                pasteFromClipboardButton = nil
-            }
-
-            let state = WalletConnectQRScanViewState(pasteFromClipboardButton: pasteFromClipboardButton)
             viewModel = WalletConnectQRScanViewModel(
-                state: state,
+                state: WalletConnectQRScanViewState(),
                 cameraAccessProvider: options.cameraAccessProvider,
                 openSystemSettingsAction: options.openSystemSettingsAction,
                 coordinator: self
@@ -43,18 +36,22 @@ final class WalletConnectQRScanCoordinator: CoordinatorObject {
 
 extension WalletConnectQRScanCoordinator {
     struct Options {
-        let clipboardURI: WalletConnectRequestURI?
         let cameraAccessProvider: any WalletConnectCameraAccessProvider
         let openSystemSettingsAction: () -> Void
     }
 }
 
 extension WalletConnectQRScanCoordinator: WalletConnectQRScanRoutable {
-    func openPhotoPicker() {}
-
-    func openSystemSettings() {}
-
     func dismiss(with result: WalletConnectQRScanResult?) {
         dismissAction(result)
+    }
+
+    func display(error: some Error) {
+        guard let errorMessage = error.toUniversalError().errorDescription else {
+            return
+        }
+
+        Toast(view: WarningToast(text: errorMessage))
+            .present(layout: .top(padding: 20), type: .temporary())
     }
 }

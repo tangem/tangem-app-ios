@@ -183,10 +183,6 @@ extension WalletConnectConnectedDAppDetailsViewModel {
     }
 
     private static func connectedTime(for dApp: WalletConnectConnectedDApp, using dateFormatter: RelativeDateTimeFormatter) -> String {
-        let relativeDateString = dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
-        let delimiter = " • "
-        let timeString = dApp.connectionDate.formatted(.dateTime.hour().minute())
-
-        return relativeDateString + delimiter + timeString
+        dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
     }
 }
