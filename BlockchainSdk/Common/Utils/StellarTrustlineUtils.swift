@@ -9,15 +9,11 @@
 import Foundation
 
 enum StellarTrustlineUtils {
-    static func containsTrustline<T: Collection>(
-        in trustlines: T,
-        assetCode: String,
-        issuer: String
-    ) -> Bool where T.Element == StellarAssetResponse {
+    static func containsTrustline(in trustlines: some Collection<StellarAssetResponse>, assetCode: String, issuer: String) -> Bool {
         trustlines.containsTrustline(for: assetCode, issuer: issuer)
     }
 
-    static func containsTrustline<T: Collection>(in trustlines: T, for token: Token) -> Bool where T.Element == StellarAssetResponse {
+    static func containsTrustline(in trustlines: some Collection<StellarAssetResponse>, for token: Token) -> Bool {
         guard let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress) else {
             return false
         }
@@ -26,10 +22,7 @@ enum StellarTrustlineUtils {
         return contains
     }
 
-    static func firstMatchingTrustline<T: Collection>(
-        in trustlines: T,
-        for token: Token
-    ) -> StellarAssetResponse? where T.Element == StellarAssetResponse {
+    static func firstMatchingTrustline(in trustlines: some Collection<StellarAssetResponse>, for token: Token) -> StellarAssetResponse? {
         guard let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress) else {
             return nil
         }
@@ -38,11 +31,11 @@ enum StellarTrustlineUtils {
         return match
     }
 
-    static func firstMatchingTrustline<T: Collection>(
-        in trustlines: T,
+    static func firstMatchingTrustline(
+        in trustlines: some Collection<StellarAssetResponse>,
         assetCode: String,
         issuer: String
-    ) -> StellarAssetResponse? where T.Element == StellarAssetResponse {
+    ) -> StellarAssetResponse? {
         trustlines.first(where: { $0.matches(currency: assetCode, issuer: issuer) })
     }
 }
