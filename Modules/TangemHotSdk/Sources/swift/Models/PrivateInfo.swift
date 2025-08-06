@@ -12,7 +12,7 @@ public final class PrivateInfo {
     private(set) var entropy: Data
     let passphrase: String
 
-    public init(entropy: Data, passphrase: String) {
+    init(entropy: Data, passphrase: String) {
         self.entropy = entropy
         self.passphrase = passphrase
     }
