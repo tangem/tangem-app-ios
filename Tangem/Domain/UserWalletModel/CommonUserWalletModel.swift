@@ -143,7 +143,7 @@ extension CommonUserWalletModel: UserWalletModel {
         walletInfo.refcodeProvider
     }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         walletInfo.tangemApiAuthData
     }
 
