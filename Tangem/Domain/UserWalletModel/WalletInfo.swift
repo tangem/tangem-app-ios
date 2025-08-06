@@ -71,6 +71,13 @@ enum WalletInfo: Codable {
             return nil
         }
     }
+
+    var keys: WalletKeys {
+        switch self {
+        case .cardWallet(let cardInfo): .cardWallet(keys: cardInfo.card.wallets)
+        case .mobileWallet(let mobileWalletInfo): .mobileWallet(keys: mobileWalletInfo.keys)
+        }
+    }
 }
 
 struct HotWalletInfo: Codable {
