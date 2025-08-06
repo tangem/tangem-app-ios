@@ -47,6 +47,8 @@ class SendWithSwapModel {
     private let sendAlertBuilder: SendAlertBuilder
     private let swapManager: SwapManager
 
+    private let balanceConverter = BalanceConverter()
+
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -85,7 +87,7 @@ private extension SendWithSwapModel {
         Publishers
             .CombineLatest3(
                 _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value },
+                _destination.compactMap { $0?.value.transactionAddress },
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
@@ -104,15 +106,19 @@ private extension SendWithSwapModel {
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
 
-        Publishers
-            .CombineLatest(
-                _amount.removeDuplicates(),
-                _receivedToken.removeDuplicates()
-            )
-            .dropFirst()
-            .filter { $1.receiveToken != nil }
+        _amount
+            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { $0.swapManager.update(amount: $1.0?.crypto) }
+            .sink { $0.swapManager.update(amount: $1?.crypto) }
+            .store(in: &bag)
+
+        _selectedFee
+            .map { $0.option }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            // Filter that SwapManager has different option
+            .filter { $0.mapToSendFee(state: $0.swapManager.state).option != $1 }
+            .sink { $0.swapManager.update(feeOption: $1) }
             .store(in: &bag)
 
         Publishers
@@ -122,9 +128,11 @@ private extension SendWithSwapModel {
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { model, args in
-                let (token, destination) = args
-                model.swapManager.update(destination: token.receiveToken?.tokenItem, address: destination?.value)
+            .sink {
+                $0.swapManager.update(
+                    destination: $1.0.receiveToken?.tokenItem,
+                    address: $1.1?.value.transactionAddress
+                )
             }
             .store(in: &bag)
     }
@@ -170,7 +178,7 @@ private extension SendWithSwapModel {
     ) {
         func resetFlowAction() {
             reset()
-            externalDestinationUpdater.externalUpdate(address: .init(value: "", source: .textField))
+            externalDestinationUpdater.externalUpdate(address: .init(value: .plain(""), source: .textField))
             router?.resetFlow()
         }
 
@@ -184,6 +192,9 @@ private extension SendWithSwapModel {
         // it means destination will be valid after change
         // Then we safely change the token
         case .swap(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+            reset()
+
+        case .same(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
             reset()
 
         case .swap:
@@ -202,9 +213,10 @@ private extension SendWithSwapModel {
 // MARK: - Send
 
 private extension SendWithSwapModel {
+    /// 1. First we check the fee is actual
     private func sendIfInformationIsActual() async throws -> TransactionDispatcherResult {
         if informationRelevanceService.isActual {
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
 
         let result = try await informationRelevanceService.updateInformation().mapToResult().async()
@@ -214,10 +226,23 @@ private extension SendWithSwapModel {
         case .success(.feeWasIncreased):
             throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
         case .success(.ok):
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
     }
 
+    /// 2. Second we check the high price impact warning
+    private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
+        if let highPriceImpact = await highPriceImpact {
+            let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
+            router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+
+            return try await viewModel.process(send: send)
+        }
+
+        return try await send()
+    }
+
+    /// 3. Then at the end we start the send actions
     private func send() async throws -> TransactionDispatcherResult {
         switch receiveToken {
         case .same:
@@ -339,10 +364,20 @@ extension SendWithSwapModel: SendSourceTokenOutput {
 // MARK: - SendSourceTokenAmountInput
 
 extension SendWithSwapModel: SendSourceTokenAmountInput {
-    var sourceAmount: LoadingResult<SendAmount?, any Error> { .success(_amount.value) }
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
 
-    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
-        _amount.map { .success($0) }.eraseToAnyPublisher()
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
@@ -395,28 +430,86 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 // MARK: - SendReceiveTokenAmountInput
 
 extension SendWithSwapModel: SendReceiveTokenAmountInput {
-    var receiveAmount: LoadingResult<SendAmount?, any Error> {
+    var receiveAmount: LoadingResult<SendAmount, any Error> {
         mapToReceiveSendAmount(state: swapManager.state)
     }
 
-    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToReceiveSendAmount(state: $1) }
             .eraseToAnyPublisher()
     }
 
-    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
+    var highPriceImpact: HighPriceImpactCalculator.Result? {
+        get async {
+            try? await mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: sourceAmount.value,
+                receiveTokenAmount: receiveAmount.value,
+                provider: swapManager.selectedProvider?.provider
+            )
+        }
+    }
+
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        Publishers.CombineLatest3(
+            sourceAmountPublisher.compactMap { $0.value },
+            receiveAmountPublisher.compactMap { $0.value },
+            selectedExpressProviderPublisher.compactMap { $0?.provider }
+        )
+        .withWeakCaptureOf(self)
+        .setFailureType(to: Error.self)
+        .asyncTryMap {
+            try await $0.mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: $1.0,
+                receiveTokenAmount: $1.1,
+                provider: $1.2
+            )
+        }
+        .replaceError(with: nil)
+        .eraseToAnyPublisher()
+    }
+
+    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount, any Error> {
         switch state {
         case .restriction(.requiredRefresh(let error), _):
             return .failure(error)
         case .idle, .restriction, .permissionRequired, .readyToSwap:
-            return .success(.none)
+            return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
         case .previewCEX(_, let quote):
-            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: quote.expectAmount)))
+            let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
+            }
+            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
         }
+    }
+
+    private func mapToSendNewAmountCompactTokenViewModel(
+        sourceTokenAmount: SendAmount?,
+        receiveTokenAmount: SendAmount?,
+        provider: ExpressProvider?
+    ) async throws -> HighPriceImpactCalculator.Result? {
+        guard let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
+              let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
+              let provider = provider,
+              case .swap(let receiveToken) = receiveToken else {
+            return nil
+        }
+
+        let impactCalculator = HighPriceImpactCalculator(
+            source: sourceToken.tokenItem,
+            destination: receiveToken.tokenItem
+        )
+
+        let result = try await impactCalculator.isHighPriceImpact(
+            provider: provider,
+            sourceFiatAmount: sourceTokenFiatAmount,
+            destinationFiatAmount: receiveTokenFiatAmount
+        )
+
+        return result
     }
 }
 
@@ -452,15 +545,47 @@ extension SendWithSwapModel: SendSwapProvidersOutput {
 
 extension SendWithSwapModel: SendFeeInput {
     var selectedFee: SendFee {
-        _selectedFee.value
+        switch receiveToken {
+        case .same: _selectedFee.value
+        case .swap: mapToSendFee(state: swapManager.state)
+        }
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee, Never> {
-        _selectedFee.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, receiveToken in
+                switch receiveToken {
+                case .same:
+                    return model._selectedFee.eraseToAnyPublisher()
+                case .swap:
+                    return model.swapManager.statePublisher
+                        .filter { !$0.isRefreshRates }
+                        .map { model.mapToSendFee(state: $0) }
+                        .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var canChooseFeeOption: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasVariants
+    }
+
+    private func mapToSendFee(state: SwapManagerState) -> SendFee {
+        switch state {
+        case .loading:
+            return .init(option: state.fees.selected, value: .loading)
+        case .restriction(.requiredRefresh(let occurredError), _):
+            return .init(option: state.fees.selected, value: .failedToLoad(error: occurredError))
+        case let state:
+            do {
+                let fee = try state.fees.selectedFee()
+                return .init(option: state.fees.selected, value: .loaded(fee))
+            } catch {
+                return .init(option: state.fees.selected, value: .failedToLoad(error: error))
+            }
+        }
     }
 }
 
@@ -472,7 +597,7 @@ extension SendWithSwapModel: SendFeeProviderInput {
     }
 
     var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+        _destination.compactMap { $0?.value.transactionAddress }.eraseToAnyPublisher()
     }
 }
 
@@ -514,10 +639,9 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
         case .swap:
             return swapManager.statePublisher.map { state in
                 switch state {
-                // We don't disable main button when rates in refreshing
-                case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
+                case .loading, .permissionRequired, .readyToSwap, .previewCEX:
                     return true
-                case .idle, .loading, .restriction:
+                case .idle, .restriction:
                     return false
                 }
             }

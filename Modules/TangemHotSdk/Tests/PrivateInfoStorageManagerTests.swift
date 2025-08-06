@@ -22,7 +22,8 @@ struct PrivateInfoStorageManagerTests {
 
     private func makeStorage() -> PrivateInfoStorageManager {
         let mockedSecureStorage = MockedSecureStorage()
-        let mockedSecureEnclaveService = MockedSecureEnclaveService(config: .default)
+        let mockedSecureEnclaveService = MockedSecureEnclaveService()
+        let mockedBiometricsSecureEnclaveService = MockedBiometricsSecureEnclaveService()
         let mockedBiometricsStorage = MockedBiometricsStorage()
 
         return PrivateInfoStorageManager(
@@ -30,11 +31,11 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeySecureStorage: EncryptionKeySecureStorage(
+            encryptedSecureStorage: EncryptedSecureStorage(
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptionKeyBiometricsStorage: EncryptionKeyBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveServiceType: MockedSecureEnclaveService.self)
+            encryptedBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveService: mockedBiometricsSecureEnclaveService)
         )
     }
 
@@ -46,7 +47,9 @@ struct PrivateInfoStorageManagerTests {
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, auth: .none)
+        let context = try storage.validate(auth: .none, for: walletID)
+
+        let result = try storage.getPrivateInfoData(context: context)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -58,11 +61,18 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
 
-        try storage.updateAccessCode("newAccessCode", oldAuth: .accessCode("accessCode"), for: walletID)
+        let context1 = try storage.validate(auth: .none, for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, auth: .accessCode("newAccessCode"))
+        try storage.updateAccessCode("accessCode", context: context1)
+
+        let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
+
+        try storage.updateAccessCode("newAccessCode", context: context2)
+
+        let context3 = try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
+
+        let result = try storage.getPrivateInfoData(context: context3)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -74,10 +84,13 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
+
+        let context = try storage.validate(auth: .none, for: walletID)
+
+        try storage.updateAccessCode("accessCode", context: context)
 
         #expect(throws: Error.self, performing: {
-            try storage.updateAccessCode("newAccessCode", oldAuth: .accessCode("invalidAccessCode"), for: walletID)
+            try storage.validate(auth: .accessCode("newAccessCode"), for: walletID)
         })
     }
 
@@ -88,11 +101,18 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
 
-        try storage.enableBiometrics(for: walletID, accessCode: "accessCode", context: LAContext())
+        let context1 = try storage.validate(auth: .none, for: walletID)
 
-        let result = try storage.getPrivateInfoData(for: walletID, auth: .biometrics(context: LAContext()))
+        try storage.updateAccessCode("accessCode", context: context1)
+
+        let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
+
+        try storage.enableBiometrics(context: context2)
+
+        let context3 = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
+
+        let result = try storage.getPrivateInfoData(context: context3)
 
         #expect(result == encoded, "Stored data should match the original encoded data")
     }
@@ -104,10 +124,13 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.updateAccessCode("accessCode", oldAuth: .none, for: walletID)
+
+        let context = try storage.validate(auth: .none, for: walletID)
+
+        try storage.updateAccessCode("accessCode", context: context)
 
         #expect(throws: Error.self, performing: {
-            try storage.enableBiometrics(for: walletID, accessCode: "invalidAccessCode", context: LAContext())
+            _ = try storage.validate(auth: .accessCode("invalidAccessCode"), for: walletID)
         })
     }
 
@@ -118,10 +141,14 @@ struct PrivateInfoStorageManagerTests {
         let encoded = makePrivateInfo().encode()
 
         try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
-        try storage.delete(hotWalletID: walletID)
+        try storage.delete(walletID: walletID)
 
         #expect(throws: Error.self, performing: {
-            try storage.getPrivateInfoData(for: walletID, auth: .biometrics(context: LAContext()))
+            _ = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
+        })
+
+        #expect(throws: Error.self, performing: {
+            _ = try storage.validate(auth: .none, for: walletID)
         })
     }
 
@@ -130,7 +157,7 @@ struct PrivateInfoStorageManagerTests {
         let storage = makeStorage()
 
         #expect(throws: Error.self, performing: {
-            try storage.delete(hotWalletID: walletID)
+            try storage.delete(walletID: walletID)
         })
     }
 }
