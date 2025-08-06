@@ -54,7 +54,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var emailData: [EmailCollectedData] { [] }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())
     }
 

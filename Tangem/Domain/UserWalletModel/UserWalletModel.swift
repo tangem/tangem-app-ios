@@ -27,7 +27,7 @@ protocol UserWalletModel:
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
-    var tangemApiAuthData: TangemApiTarget.AuthData { get }
+    var tangemApiAuthData: TangemApiAuthorizationData? { get }
     var walletModelsManager: WalletModelsManager { get }
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
