@@ -18,7 +18,6 @@ class TransactionNotificationsItemViewModel: Identifiable, ObservableObject {
     let networkSymbol: String
     let iconImageAsset: ImageType
 
-
     // MARK: - Init
 
     init(
