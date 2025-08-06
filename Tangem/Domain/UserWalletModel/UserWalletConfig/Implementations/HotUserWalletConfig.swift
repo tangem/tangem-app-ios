@@ -31,6 +31,10 @@ extension HotUserWalletConfig: UserWalletConfig {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
     }
 
+    var derivationStyle: DerivationStyle? {
+        .v3
+    }
+
     var createWalletCurves: [EllipticCurve] {
         existingCurves
     }
