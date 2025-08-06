@@ -38,8 +38,7 @@ private extension HotOnboardingCreateWalletFlowBuilder {
 // MARK: - HotOnboardingCreateWalletDelegate
 
 extension HotOnboardingCreateWalletFlowBuilder: HotOnboardingCreateWalletDelegate {
-    func onCreateWallet() {
-        // [REDACTED_TODO_COMMENT]
-        // coordinator?.openMain(userWalletModel:)
+    func onCreateWallet(userWalletModel: UserWalletModel) {
+        coordinator?.openMain(userWalletModel: userWalletModel)
     }
 }
