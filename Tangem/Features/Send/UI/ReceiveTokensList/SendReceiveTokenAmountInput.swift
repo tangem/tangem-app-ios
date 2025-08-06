@@ -8,10 +8,11 @@
 
 import Combine
 import TangemFoundation
+import Foundation
 
 protocol SendReceiveTokenAmountInput: AnyObject {
-    var receiveAmount: LoadingResult<SendAmount?, any Error> { get }
-    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
+    var receiveAmount: LoadingResult<SendAmount, any Error> { get }
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
 }
