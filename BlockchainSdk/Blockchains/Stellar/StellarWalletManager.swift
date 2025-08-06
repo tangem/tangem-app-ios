@@ -74,15 +74,16 @@ class StellarWalletManager: BaseManager, WalletManager {
     var currentHost: String { networkService.host }
 
     /// Established trustlines fetched from the Stellar wallet response.
-    private var establishedTrustlines = [StellarAssetResponse]()
+    private var establishedTrustlines = Set<StellarAssetResponse>()
 
-    /// Assets that are currently undergoing the trustline creation process in the Stellar network.
-    /// This set holds asset identifiers (currency code + issuer) that have initiated the trustline setup
-    /// but are not yet confirmed.
+    /// The timestamp of the most recent attempt to open a trustline on the Stellar network.
+    /// This is used to track the timing of user-initiated trustline creation requests.
     ///
-    /// Since Stellar also uses a single wallet and manager for both the native coin and all tokens,
-    /// multiple tokens may be in the process of opening trustlines simultaneously.
-    private var tokensOpeningTrustline = Set<StellarAssetResponse>()
+    /// Since Stellar uses a unified wallet and manager for both the native coin and all tokens,
+    /// this timestamp helps avoid race conditions or duplicate operations during trustline setup.
+    ///
+    /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
+    private var lastTrustlineOpenAttemptDate: Date?
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = networkService
@@ -159,20 +160,10 @@ class StellarWalletManager: BaseManager, WalletManager {
                     hash: hash,
                     transactionXDR: transactionXDR
                 )
-                .handleEvents(receiveCompletion: { [weak manager] completion in
-                    guard case .failure = completion,
-                          let manager,
-                          let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress),
-                          let trustline = StellarTrustlineUtils.firstMatchingTrustline(
-                              in: manager.tokensOpeningTrustline,
-                              assetCode: code,
-                              issuer: issuer
-                          )
-                    else {
-                        return
+                .handleEvents(receiveCompletion: { [weak manager] in
+                    if case .failure = $0 {
+                        manager?.lastTrustlineOpenAttemptDate = nil
                     }
-
-                    manager.tokensOpeningTrustline.remove(trustline)
                 })
                 .mapToVoid()
                 .mapError { $0 as Error }
@@ -207,7 +198,7 @@ class StellarWalletManager: BaseManager, WalletManager {
             }
         }
 
-        establishedTrustlines = response.assetBalances
+        establishedTrustlines = response.assetBalances.toSet()
 
         // We believe that a transaction will be confirmed within 10 seconds
         let date = Date(timeIntervalSinceNow: -10)
@@ -310,17 +301,19 @@ extension StellarWalletManager: AssetRequirementsManager {
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
+        // If more than 10 seconds have passed, assume the trustline transaction has completed and clear the timestamp
+        if let startDate = lastTrustlineOpenAttemptDate, Date().timeIntervalSince(startDate) > 10 {
+            lastTrustlineOpenAttemptDate = nil
+        }
+
         switch asset {
         case .token(let token):
             guard !StellarTrustlineUtils.containsTrustline(in: establishedTrustlines, for: token) else {
-                if let trustline = StellarTrustlineUtils.firstMatchingTrustline(in: tokensOpeningTrustline, for: token) {
-                    tokensOpeningTrustline.remove(trustline)
-                }
-
                 return nil
             }
 
-            let isTrustlineOperationInProgress = StellarTrustlineUtils.containsTrustline(in: tokensOpeningTrustline, for: token)
+            // Used to determine whether to disable the "Open Trustline" button in the UI
+            let isTrustlineOperationInProgress = lastTrustlineOpenAttemptDate != nil || wallet.hasPendingTx
 
             // Base reserve calculation reference: https://developers.stellar.org/docs/learn/fundamentals/lumens#minimum-balance
             // We only show the base reserve here (0.5 XLM), because the account already exists,
@@ -339,14 +332,12 @@ extension StellarWalletManager: AssetRequirementsManager {
     }
 
     func fulfillRequirements(for asset: Asset, signer: any TransactionSigner) -> AnyPublisher<Void, Error> {
-        guard case .token(let token) = asset else {
+        guard case .token = asset else {
             assertionFailure("Asset must be `.token` to proceed with trustline operation.")
             return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
         }
 
-        if let (code, issuer) = try? StellarAssetIdParser().getAssetCodeAndIssuer(from: token.contractAddress) {
-            tokensOpeningTrustline.insert(.init(code: code, issuer: issuer, balance: .zero))
-        }
+        lastTrustlineOpenAttemptDate = Date()
 
         return networkService.getFee()
             .tryMap { fees -> Amount in
