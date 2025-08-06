@@ -52,6 +52,14 @@ extension CommonSwapManager: SwapManager {
         interactor.state
     }
 
+    var providers: [ExpressAvailableProvider] {
+        get async { await interactor.getAllProviders() }
+    }
+
+    var selectedProvider: ExpressAvailableProvider? {
+        get async { await interactor.getSelectedProvider() }
+    }
+
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         statePublisher
             // Skip rates loading to avoid UI jumping
@@ -88,6 +96,10 @@ extension CommonSwapManager: SwapManager {
 
     func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
+    }
+
+    func update(feeOption: FeeOption) {
+        interactor.updateFeeOption(option: feeOption)
     }
 
     func update() {
@@ -141,15 +153,6 @@ private extension CommonSwapManager {
 
             AppLogger.info("Timer call autoupdate")
             $0.interactor.refresh(type: .refreshRates)
-        }
-    }
-}
-
-private extension SwapManagerState {
-    var isRefreshRates: Bool {
-        switch self {
-        case .loading(.refreshRates): true
-        default: false
         }
     }
 }

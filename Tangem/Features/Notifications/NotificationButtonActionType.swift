@@ -14,10 +14,12 @@ import TangemUI
 struct NotificationButtonAction {
     let type: NotificationButtonActionType
     let withLoader: Bool
+    let isDisabled: Bool
 
-    init(_ type: NotificationButtonActionType, withLoader: Bool = false) {
+    init(_ type: NotificationButtonActionType, withLoader: Bool = false, isDisabled: Bool = false) {
         self.type = type
         self.withLoader = withLoader
+        self.isDisabled = isDisabled
     }
 }
 
