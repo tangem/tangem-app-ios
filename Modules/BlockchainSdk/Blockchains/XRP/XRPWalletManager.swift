@@ -20,13 +20,14 @@ class XRPWalletManager: BaseManager, WalletManager {
     /// Established trustlines fetched from the XRP wallet response.
     private var establishedTrustlines = Set<XRPTrustLine>()
 
-    /// Assets currently undergoing the trustline creation process.
-    /// This set tracks token identifiers (currency code + issuer) that have initiated trustline setup,
-    /// but have not yet completed it.
+    /// The timestamp of the most recent attempt to open a trustline on the Stellar network.
+    /// This is used to track the timing of user-initiated trustline creation requests.
     ///
-    /// Multiple tokens can be in this state simultaneously because XRP uses a single wallet and manager
-    /// for both the main coin and all tokens.
-    private var tokensOpeningTrustline = Set<String>()
+    /// Since XRP uses a unified wallet and manager for both the native coin and all tokens,
+    /// this timestamp helps avoid race conditions or duplicate operations during trustline setup.
+    ///
+    /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
+    private var lastTrustlineOpenAttemptDate: Date?
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = networkService
@@ -102,22 +103,6 @@ class XRPWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func buildIfSufficientFunds(transaction: Transaction, isAccountCreated: Bool) throws -> (XRPTransaction, Data) {
-        guard let walletReserve = wallet.amounts[.reserve] else {
-            throw XRPError.missingReserve
-        }
-
-        if !isAccountCreated, transaction.amount.value < walletReserve.value {
-            throw BlockchainSdkError.noAccount(
-                message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue),
-                amountToCreate: walletReserve.value
-            )
-        }
-
-        let buildResponse = try txBuilder.buildForSign(transaction: transaction)
-        return buildResponse
-    }
-
     private func signAndSend(
         transaction: Transaction,
         signer: TransactionSigner,
@@ -173,13 +158,11 @@ class XRPWalletManager: BaseManager, WalletManager {
                 let (xrpTransaction, hash) = txAndHash
                 let publisher = manager.signAndSend(transaction: transaction, signer: signer, xrpTransaction: xrpTransaction, hash: hash)
                 return publisher
-                    .handleEvents(
-                        receiveCompletion: { [weak manager] completion in
-                            if case .failure = completion {
-                                manager?.tokensOpeningTrustline.remove(token.contractAddress)
-                            }
+                    .handleEvents(receiveCompletion: { [weak manager] in
+                        if case .failure = $0 {
+                            manager?.lastTrustlineOpenAttemptDate = nil
                         }
-                    )
+                    })
                     .mapToVoid()
                     .mapError { $0 as Error }
             }
@@ -228,7 +211,7 @@ extension XRPWalletManager: TransactionSender {
         .tryMap { manager, results in
             let (isAccountCreated, sequence) = results
             let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-            let txBuiltForSign = try manager.buildIfSufficientFunds(transaction: enrichedTx, isAccountCreated: isAccountCreated)
+            let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
             return txBuiltForSign
         }
         .mapSendTxError()
@@ -294,23 +277,27 @@ extension XRPWalletManager: TransactionSender {
 extension XRPWalletManager: ThenProcessable {}
 
 extension XRPWalletManager: ReserveAmountRestrictable {
-    func validateReserveAmount(amount: Amount, addressType: ReserveAmountRestrictableAddressType) async throws {
-        guard let walletReserve = wallet.amounts[.reserve] else {
-            throw XRPError.missingReserve
-        }
+    func validateReserveAmount(amount: Amount, address: String) async throws {
+        let reserveAmount = Amount(with: wallet.blockchain, value: Constants.minAmountToCreateCoinAccount)
+        let addressDecoded = decodeAddress(address: address)
+        let isAccountCreated = try await networkService.checkAccountCreated(account: addressDecoded).async()
+        let trustlines = try await networkService.getAccountTrustlines(account: addressDecoded).async().get()
 
-        let isAccountCreated: Bool = try await {
-            switch addressType {
-            case .notCreated:
-                return false
-            case .address(let address):
-                let addressDecoded = decodeAddress(address: address)
-                return try await networkService.checkAccountCreated(account: addressDecoded).async()
+        switch amount.type {
+        case .coin where !isAccountCreated && amount.value < Constants.minAmountToCreateCoinAccount:
+            throw ValidationError.reserve(amount: reserveAmount)
+
+        case .token where !isAccountCreated:
+            throw ValidationError.reserve(amount: reserveAmount)
+
+        case .token(let token):
+            let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+            if !XRPTrustlineUtils.containsTrustline(in: trustlines, currency: currency, issuer: issuer) {
+                throw ValidationError.noTrustlineAtDestination
             }
-        }()
 
-        if !isAccountCreated, amount.value < walletReserve.value {
-            throw ValidationError.reserve(amount: walletReserve)
+        case .reserve, .feeResource, .coin:
+            break
         }
     }
 }
@@ -333,33 +320,52 @@ extension XRPWalletManager: RequiredMemoRestrictable {
 // MARK: - AssetRequirementsManager protocol conformance
 
 extension XRPWalletManager: AssetRequirementsManager {
-    func hasSufficientFeeBalance(for requirementsCondition: AssetRequirementsCondition?, on asset: Asset) -> Bool {
-        guard case .token = asset, case .requiresTrustline(_, let fee, _) = requirementsCondition else {
-            assertionFailure("Asset must be .token and condition must be .requiresTrustline to check XRP trustline fee.")
-            return false
-        }
+    func feeStatusForRequirement(asset: Asset) -> AnyPublisher<AssetRequirementFeeStatus, Never> {
+        networkService.getFee()
+            .replaceError(with: .init(min: .zero, normal: .zero, max: .zero))
+            .map {
+                $0.normal
+            }
+            .withWeakCaptureOf(self)
+            .map { manager, fee in
+                let feeBalance = manager.wallet.feeCurrencyBalance(amountType: .coin)
+                let feeInDrops = XRPAmountConverter(blockchain: manager.wallet.blockchain).convertFromDrops(fee)
+                let totalRequired = Self.Constants.ownerReserveIncrement + feeInDrops
 
-        let balance = wallet.feeCurrencyBalance(amountType: .coin)
-        return balance >= fee.value
+                if feeBalance > totalRequired {
+                    return .sufficient
+                } else {
+                    let missingAmount = (totalRequired - feeBalance)
+                        .rounded(blockchain: manager.wallet.blockchain)
+                        .decimalNumber
+                        .description(withLocale: Locale.posixEnUS)
+
+                    return .insufficient(missingAmount: missingAmount)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
+        // If more than 10 seconds have passed, assume the trustline transaction has completed and clear the timestamp
+        if let startDate = lastTrustlineOpenAttemptDate, Date().timeIntervalSince(startDate) > 10 {
+            lastTrustlineOpenAttemptDate = nil
+        }
+
         switch asset {
         case .token(let token):
-            guard let (currency, issuer) = try? XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress),
-                  !XRPTrustlineUtils.containsTrustline(in: establishedTrustlines, currency: currency, issuer: issuer)
-            else {
-                tokensOpeningTrustline.remove(token.contractAddress)
+            guard !XRPTrustlineUtils.containsTrustline(in: establishedTrustlines, for: token) else {
                 return nil
             }
 
-            let isTrustlineOperationInProgress = tokensOpeningTrustline.contains(token.contractAddress)
+            // Used to determine whether to disable the "Open Trustline" button in the UI
+            let isTrustlineOperationInProgress = lastTrustlineOpenAttemptDate != nil || wallet.hasPendingTx
 
             // The base reserve (1 XRP) and reserves for existing entries are already accounted for.
             // This value represents only the incremental reserve required for the new entry.
-            let feeAmount = Amount(with: wallet.blockchain, value: Constants.ownerReserveIncrement)
+            let reserveAmount = Amount(with: wallet.blockchain, value: Constants.ownerReserveIncrement)
 
-            return .requiresTrustline(blockchain: wallet.blockchain, fee: feeAmount, isProcessing: isTrustlineOperationInProgress)
+            return .requiresTrustline(blockchain: wallet.blockchain, trustlineReserve: reserveAmount, isProcessing: isTrustlineOperationInProgress)
         case .coin, .reserve, .feeResource:
             return nil
         }
@@ -371,7 +377,7 @@ extension XRPWalletManager: AssetRequirementsManager {
             return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
         }
 
-        tokensOpeningTrustline.insert(token.contractAddress)
+        lastTrustlineOpenAttemptDate = Date()
 
         return networkService.getFee()
             .tryMap { response -> Decimal in
@@ -392,5 +398,8 @@ extension XRPWalletManager {
         /// This amount (0.2 XRP) is added for each additional ledger entry owned by the account.
         /// https://xrpl.org/reserves.html
         static let ownerReserveIncrement: Decimal = .init(stringValue: "0.2")!
+
+        /// 1 XRP
+        static let minAmountToCreateCoinAccount: Decimal = 1
     }
 }
