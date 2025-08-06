@@ -517,6 +517,8 @@ extension ValidationError: UniversalError {
             102024018
         case .totalExceedsBalance:
             102024019
+        case .noTrustlineAtDestination:
+            102024020
         }
     }
 }

@@ -29,7 +29,7 @@ struct GeneralNotificationEventsFactory {
         return notifications
     }
 
-    func makeNotifications(for hotWallet: HotWallet) -> [GeneralNotificationEvent] {
+    func makeNotifications(for hotWallet: HotWalletInfo) -> [GeneralNotificationEvent] {
         // [REDACTED_TODO_COMMENT]
         []
     }

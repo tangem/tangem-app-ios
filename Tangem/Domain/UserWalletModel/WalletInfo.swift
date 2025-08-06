@@ -25,12 +25,12 @@ enum WalletInfo: Codable {
         }
     }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         switch self {
         case .cardWallet(let cardInfo):
-            TangemApiTarget.AuthData(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
+            return TangemApiAuthorizationData(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
         case .mobileWallet:
-            TangemApiTarget.AuthData(cardId: "", cardPublicKey: Data())
+            return nil
         }
     }
 
@@ -71,23 +71,13 @@ enum WalletInfo: Codable {
             return nil
         }
     }
-
-    var keysDerivingInteractor: KeysDeriving {
-        switch self {
-        case .cardWallet(let cardInfo):
-            return KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet(let hotWalletInfo):
-            let userWalletId = UserWalletId(with: hotWalletInfo.userWalletIdSeed)
-            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
-        }
-    }
 }
 
-/// All metadata about the wallet, except keys
 struct HotWalletInfo: Codable {
-    var isBackupCreated: Bool
+    var hasMnemonicBackup: Bool
+    var hasICloudBackup: Bool
     var isAccessCodeSet: Bool
-    let userWalletIdSeed: Data
+    var keys: [KeyInfo]
 }
 
 struct CardInfo: Codable {
