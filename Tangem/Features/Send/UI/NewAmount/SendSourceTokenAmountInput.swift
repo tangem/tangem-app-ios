@@ -10,18 +10,8 @@ import TangemFoundation
 import Combine
 
 protocol SendSourceTokenAmountInput: AnyObject {
-    var sourceAmount: LoadingResult<SendAmount?, any Error> { get }
-    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
-}
-
-extension SendSourceTokenAmountInput {
-    var amount: SendAmount? {
-        if case .success(let amount) = sourceAmount {
-            return amount
-        }
-
-        return nil
-    }
+    var sourceAmount: LoadingResult<SendAmount, any Error> { get }
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
 }
 
 protocol SendSourceTokenAmountOutput: AnyObject {
