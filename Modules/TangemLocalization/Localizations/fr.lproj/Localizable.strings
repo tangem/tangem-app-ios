@@ -223,6 +223,7 @@
 "common_reject" = "Rejeter";
 "common_reload" = "Recharger";
 "common_rename" = "Renommer";
+"common_required" = "Required";
 "common_retry" = "Réessayer";
 "common_save_changes" = "Sauvegarder les modifications";
 "common_save" = "Enregistrez";
@@ -324,6 +325,9 @@
 "details_send_feedback" = "Envoyer un commentaire";
 "details_title" = "Détails";
 "disclaimer_title" = "Conditions d'utilisation";
+"domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
+"domain_receive_assets_onboarding_network_name" = "%@ network";
+"domain_receive_assets_onboarding_title" = "Send funds using only";
 "error_wrong_wallet_tapped" = "Vous avez utilisé une carte d'un autre portefeuille. Appuyez sur la carte associée à ce portefeuille";
 "eth_gas_required_exceeds_allowance" = "Pas assez de fonds pour la transaction. Veuillez recharger votre compte.";
 "exchange_tokens_available_tokens_header" = "Mes jetons";
@@ -379,6 +383,7 @@
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
+"express_provider_in_fca_warning_list" = "Provider in FCA warning list";
 "express_provider_max_amount" = "Disponible jusqu'à %@";
 "express_provider_min_amount" = "Disponible à partir de %@";
 "express_provider_not_available" = "Indisponible pour cette paire";
@@ -431,6 +436,8 @@
 "hw_activation_need_finish" = "Finish Now";
 "hw_activation_need_title" = "Finish Wallet Activation";
 "hw_activation_need_warning_description" = "To complete setup, secure app access with Access Code.";
+"hw_backup_alert_description" = "If you do, you'll need to start over.";
+"hw_backup_alert_title" = "Are you sure you want to exit the activation process?";
 "hw_backup_google_drive_description" = "Recover an existing wallet stored in your Google Drive backup";
 "hw_backup_icloud_description" = "Recover an existing wallet stored in your iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
@@ -1310,8 +1317,10 @@
 "wallet_promo_banner_title" = "Découvrez le Portefeuille Tangem";
 "wallet_settings_access_code_description" = "Secret code to protect this wallet. Used for login and signatures.";
 "wallet_settings_access_code_title" = "Set/Change Access Code";
+"wallet_settings_change_access_code_title" = "Change Access Code";
 "wallet_settings_push_notifications_description" = "Recevez des notifications sur les transactions entrantes du portefeuille et les mises à jour de Tangem.";
 "wallet_settings_push_notifications_title" = "Notifications de transaction";
+"wallet_settings_set_access_code_title" = "Set Access Code";
 "wallet_settings_title" = "Paramètres du portefeuille";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Utilisez %@ ou scannez une carte/bague pour déverrouiller l'accès à votre portefeuille";
@@ -1430,6 +1439,7 @@
 "wc_alert_verified_domain_title" = "Verified domain";
 "wc_alert_wrong_card_description" = "Wrong card or ring selected in the App";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
+"wc_all_dapps_disconnected" = "All dApps disconnected";
 "wc_allow_to_spend" = "Autoriser à dépenser";
 "wc_common_address" = "Adresse";
 "wc_common_connect" = "Connect";
@@ -1438,7 +1448,9 @@
 "wc_common_networks" = "Networks";
 "wc_common_unlimited" = "Illimité";
 "wc_common_wallet" = "Wallet";
+"wc_connected_app_title" = "Connected App";
 "wc_connected_networks" = "Connected networks";
+"wc_connected_to" = "Connected to %1$@";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1449,6 +1461,7 @@
 "wc_contents" = "Contenu";
 "wc_copy_data_button_text" = "Copier les données";
 "wc_custom_allowance_title" = "Custom allowance";
+"wc_dapp_disconnected" = "dApp disconnected";
 "wc_disconnect_all_alert_desc" = "Texte sur la déconnexion de toutes les dApps";
 "wc_disconnect_all_alert_title" = "Déconnecter toutes les dApps";
 "wc_disconnect_all" = "Déconnecter tout";
@@ -1456,6 +1469,8 @@
 "wc_estimated_wallet_changes" = "Modifications estimées du portefeuille";
 "wc_estimation_is_not_supported" = "Estimation is not supported for %@";
 "wc_fee_suggested" = "Suggested by %@";
+"wc_insufficient_warning_subtitle" = "Top up your balance to cover the network fee";
+"wc_insufficient_warning_title" = "Insufficient %1$@";
 "wc_malicious_transaction" = "Transaction malveillante";
 "wc_missing_required_network_description" = "Add the %@ network to your portfolio for this wallet";
 "wc_missing_required_network_title" = "The wallet has no required networks";
@@ -1468,6 +1483,9 @@
 "wc_request_from" = "Demande de";
 "wc_send_anyway" = "Send anyway";
 "wc_signature_type" = "Type de signature";
+"wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
+"wc_specify_networks_title" = "Specify selected networks";
+"wc_successfully_signed" = "Successfully signed";
 "wc_transaction_info_to_title" = "À";
 "wc_transaction_request_title" = "Demande de transaction";
 "wc_transaction_request" = "Demande de transaction";
