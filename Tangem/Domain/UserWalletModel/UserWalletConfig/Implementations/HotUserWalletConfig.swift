@@ -45,7 +45,11 @@ extension HotUserWalletConfig: UserWalletConfig {
 
     var isWalletsCreated: Bool { true }
 
-    var supportedBlockchains: Set<Blockchain> { SupportedBlockchains(version: .v2).blockchains() }
+    var supportedBlockchains: Set<Blockchain> {
+        var blockchains = SupportedBlockchains(version: .v2).blockchains()
+        blockchains.remove(.hedera(curve: .ed25519_slip0010, testnet: false))
+        return blockchains
+    }
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
