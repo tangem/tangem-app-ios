@@ -37,10 +37,11 @@ struct FeeSelectorContentView: View {
                 .padding(.vertical, 16)
                 .padding(.horizontal, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.action
             configuration.sheetFrameUpdateAnimation = .easeInOut
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 }
