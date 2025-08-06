@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemFoundation
 
 @MainActor
 public final class StoryViewModel: ObservableObject {
@@ -104,6 +105,8 @@ public final class StoryViewModel: ObservableObject {
     // MARK: - Private methods
 
     private func startTimer() {
+        guard !AppEnvironment.current.isUITest else { return }
+
         timerCancellable = timer
             .sink { [weak self] _ in
                 guard let self else { return }

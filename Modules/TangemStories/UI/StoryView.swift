@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 public struct StoryView: View {
     @ObservedObject private var viewModel: StoryViewModel
