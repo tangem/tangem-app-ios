@@ -8,9 +8,10 @@
 
 import Foundation
 import TangemLocalization
+import TangemAssets
 
-protocol SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> String?
+protocol SendTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString?
 }
 
 struct CommonSendTransactionSummaryDescriptionBuilder {
@@ -26,7 +27,7 @@ struct CommonSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> String? {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString? {
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
         let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
 
@@ -46,7 +47,11 @@ extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
         let formatter = BalanceFormatter()
         let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
         let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
+        let attributedString = makeAttributedString(
+            Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted),
+            richTexts: [totalInFiatFormatted]
+        )
 
-        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
+        return attributedString
     }
 }
