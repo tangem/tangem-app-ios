@@ -18,6 +18,8 @@ struct InfoButtonView: View {
     private let size: Size
     private let tooltipText: String
 
+    private var color: Color = Colors.Icon.informative
+
     init(size: Size, tooltipText: String) {
         self.size = size
         self.tooltipText = tooltipText
@@ -28,10 +30,19 @@ struct InfoButtonView: View {
             size.icon.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(color)
                 .frame(size: size.iconSize)
         }
         .popover(tooltipText, isPresented: $isTooltipShowing)
+    }
+}
+
+// MARK: - Setupable
+
+@available(iOS 16.4, *)
+extension InfoButtonView: Setupable {
+    func color(_ color: Color) -> Self {
+        map { $0.color = color }
     }
 }
 

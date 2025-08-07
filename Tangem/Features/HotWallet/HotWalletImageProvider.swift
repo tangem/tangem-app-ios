@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct HotWalletImageProvider {}
 
@@ -17,7 +18,7 @@ extension HotWalletImageProvider: WalletImageProviding {
     }
 
     func loadSmallImage() async -> ImageValue {
-        ImageValue(image: Image(""))
+        ImageValue(image: Assets.MobileWallet.mobileWalletInFrame.image)
     }
 
     func loadLargeUIImage() async -> UIImage {
