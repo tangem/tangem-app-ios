@@ -97,7 +97,7 @@ final class VisaUserWalletModel {
         return tokens.authTokens
     }
 
-    private let userWalletModel: UserWalletModel
+    let userWalletModel: UserWalletModel
     private var cardWalletAddress: String?
     private var cardInfo: CardInfo
     private let transactionHistoryService: VisaTransactionHistoryService
@@ -117,8 +117,7 @@ final class VisaUserWalletModel {
         self.cardInfo = cardInfo
         transactionHistoryService = .init(cardId: cardInfo.card.cardId)
 
-        let appUtilities = VisaAppUtilities()
-        let cardWalletAddress = appUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
+        let cardWalletAddress = VisaUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
         self.cardWalletAddress = cardWalletAddress
 
         initialSetup()
@@ -129,7 +128,8 @@ final class VisaUserWalletModel {
             return nil
         }
 
-        let linkProvider = ExternalLinkProviderFactory().makeProvider(for: VisaUtilities().visaBlockchain)
+        let visaBlockchain = VisaUtilities.visaBlockchain
+        let linkProvider = ExternalLinkProviderFactory().makeProvider(for: visaBlockchain)
         return linkProvider.url(address: accountAddress, contractAddress: tokenItem?.token?.contractAddress)
     }
 
@@ -212,8 +212,7 @@ final class VisaUserWalletModel {
     private func setupPaymentAccountInteractorAsync() async {
         stateSubject.send(.loading)
 
-        let visaUtilities = VisaUtilities()
-        let blockchain = visaUtilities.visaBlockchain
+        let blockchain = VisaUtilities.visaBlockchain
         let factory = EVMSmartContractInteractorFactory(blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig, tangemProviderConfig: .ephemeralConfiguration)
 
         let smartContractInteractor: EVMSmartContractInteractor
@@ -232,17 +231,11 @@ final class VisaUserWalletModel {
         }
 
         do {
-            let customerCardInfoProviderBuilder = VisaCustomerCardInfoProviderBuilder(
-                apiType: await FeatureStorage.instance.visaAPIType,
-                isMockedAPIEnabled: await FeatureStorage.instance.isVisaAPIMocksEnabled,
-                isTestnet: blockchain.isTestnet,
-                cardId: cardId
-            )
-            let customerCardInfoProvider = customerCardInfoProviderBuilder.build(
-                authorizationTokensHandler: authorizationTokensHandler,
-                evmSmartContractInteractor: smartContractInteractor,
-                urlSessionConfiguration: .defaultConfiguration
-            )
+            let customerCardInfoProvider = VisaCustomerCardInfoProviderBuilder()
+                .build(
+                    authorizationTokensHandler: authorizationTokensHandler,
+                    evmSmartContractInteractor: smartContractInteractor
+                )
 
             let customerCardInfo = try await customerCardInfoProvider.loadPaymentAccount(
                 cardId: cardId,
@@ -250,20 +243,10 @@ final class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
-            #if ALPHA || BETA || DEBUG
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            try await KYCService.start(getToken: customerCardInfoProvider.loadKYCAccessToken)
-            #endif // ALPHA || BETA || DEBUG
-
             await reloadHistoryAsync()
-            let builder = await VisaPaymentAccountInteractorBuilder(
-                isTestnet: blockchain.isTestnet,
-                evmSmartContractInteractor: smartContractInteractor,
-                urlSessionConfiguration: .defaultConfiguration,
-                isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
-            )
-            let interactor = try await builder.build(customerCardInfo: customerCardInfo)
+            let interactor = try await VisaPaymentAccountInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
+                .build(customerCardInfo: customerCardInfo)
+
             visaPaymentAccountInteractor = interactor
 
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
@@ -357,16 +340,12 @@ extension VisaUserWalletModel {
             return
         }
 
-        let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
-        )
-        let authorizationTokensHandler = authorizationTokensHandlerBuilder.build(
-            cardId: cardId,
-            cardActivationStatus: .activated(authTokens: tokens),
-            refreshTokenSaver: self,
-            urlSessionConfiguration: .defaultConfiguration
-        )
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
+            .build(
+                cardId: cardId,
+                cardActivationStatus: .activated(authTokens: tokens),
+                refreshTokenSaver: self
+            )
 
         if await authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken
@@ -381,15 +360,8 @@ extension VisaUserWalletModel {
 
     func authorizeCard(completion: @escaping () -> Void) {
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-        let featureStorage = FeatureStorage.instance
-        let handler = VisaCardScanHandlerBuilder(
-            apiType: featureStorage.visaAPIType,
-            isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
-        ).build(
-            isTestnet: featureStorage.visaAPIType.isTestnet,
-            urlSessionConfiguration: .visaConfiguration,
-            refreshTokenRepository: visaRefreshTokenRepository
-        )
+        let handler = VisaCardScanHandlerBuilder()
+            .build(refreshTokenRepository: visaRefreshTokenRepository)
 
         tangemSdk.startSession(with: handler, cardId: cardId) { [weak self] result in
             guard let self else { return }
@@ -426,15 +398,8 @@ extension VisaUserWalletModel {
         productInstanceId: String,
         authorizationTokensHandler: VisaAuthorizationTokensHandler
     ) {
-        let apiService = VisaAPIServiceBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
-        )
-        .buildTransactionHistoryService(
-            authorizationTokensHandler: authorizationTokensHandler,
-            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet,
-            urlSessionConfiguration: .defaultConfiguration
-        )
+        let apiService = VisaAPIServiceBuilder()
+            .buildTransactionHistoryService(authorizationTokensHandler: authorizationTokensHandler)
 
         transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
     }
@@ -452,7 +417,7 @@ extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
     }
 
     var blockchainName: String {
-        VisaUtilities().visaBlockchain.displayName
+        VisaUtilities.visaBlockchain.displayName
     }
 
     private var fiatValue: Decimal? {
@@ -539,7 +504,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userWalletId: UserWalletId { userWalletModel.userWalletId }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData { userWalletModel.tangemApiAuthData }
+    var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
     var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
 
@@ -553,7 +518,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var signer: TangemSigner { userWalletModel.signer }
 
-    var updatePublisher: AnyPublisher<Void, Never> { userWalletModel.updatePublisher }
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { userWalletModel.updatePublisher }
 
     var backupInput: OnboardingInput? { nil }
 
@@ -562,8 +527,6 @@ extension VisaUserWalletModel: UserWalletModel {
     var name: String { userWalletModel.name }
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
-
-    var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
 
     var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
 
@@ -595,15 +558,11 @@ extension VisaUserWalletModel: UserWalletModel {
 
     func validate() -> Bool { userWalletModel.validate() }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
-
-    func updateWalletName(_ name: String) {
-        userWalletModel.updateWalletName(name)
+    func update(type: UpdateRequest) {
+        userWalletModel.update(type: type)
     }
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }
 
 extension VisaUserWalletModel: UserWalletSerializable {
@@ -624,5 +583,11 @@ extension VisaUserWalletModel: UserWalletSerializable {
 
     func serializePrivate() -> StoredUserWallet.SensitiveInfo {
         return .cardWallet(keys: cardInfo.card.wallets)
+    }
+}
+
+extension VisaUserWalletModel: AssociatedCardIdsProvider {
+    var associatedCardIds: Set<String> {
+        cardInfo.associatedCardIds
     }
 }
