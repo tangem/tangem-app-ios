@@ -956,6 +956,7 @@
 		B66913642C4179400016B0EE /* OverlayContentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66913632C4179400016B0EE /* OverlayContentContainer.swift */; };
 		B669136C2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B669136B2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift */; };
 		B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */; };
+		B66A7C022E44B1150081BEA3 /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
 		B66AB8B52BBC682A00C8F3E7 /* UserTokensReorderingSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B42BBC682A00C8F3E7 /* UserTokensReorderingSource.swift */; };
 		B66AB8B72BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B62BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift */; };
 		B66BBD8C2E18B4B200446329 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B66BBD8B2E18B4B200446329 /* BigInt */; };
@@ -16140,6 +16141,7 @@
 				DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */,
 				B06C084C2A73FB4D00D982BC /* MainCoordinator.swift in Sources */,
 				B0A0910C26D3628200F46DF5 /* AnimatableGradient.swift in Sources */,
+				B66A7C022E44B1150081BEA3 /* WalletInitializer.swift in Sources */,
 				DAF3D58D2B3AD9050047D65F /* SendCurrencyPicker.swift in Sources */,
 				B6961B202BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift in Sources */,
 				EFA4E37D2C3EEDF0008815AD /* StakingFlowBaseBuilder.swift in Sources */,
