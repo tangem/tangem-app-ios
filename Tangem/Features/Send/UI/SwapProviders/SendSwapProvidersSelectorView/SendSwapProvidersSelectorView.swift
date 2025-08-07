@@ -18,9 +18,16 @@ struct SendSwapProvidersSelectorView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.expressChooseProvider, trailing: {
-                RoundedButton(style: .icon(Assets.cross, color: Colors.Icon.secondary), action: viewModel.dismiss)
+                CircleButton.close(action: viewModel.dismiss)
             })
             .padding(.horizontal, 16)
+
+            if let ukNotificationInput = viewModel.ukNotificationInput {
+                NotificationView(input: ukNotificationInput)
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+            }
 
             SelectableSection(viewModel.providerViewModels) { data in
                 SendSwapProvidersSelectorProviderView(data: data, isSelected: viewModel.isSelected(data.id).asBinding)
@@ -34,5 +41,10 @@ struct SendSwapProvidersSelectorView: View {
         }
         .padding(.vertical, 4)
         .padding(.bottom, 16)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.action
+            configuration.sheetFrameUpdateAnimation = .easeInOut
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
     }
 }
