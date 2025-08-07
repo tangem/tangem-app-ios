@@ -22,7 +22,7 @@ struct VisaOnboardingViewModelBuilder {
             default:
                 logInvalidInput("Wrong Wallet Data provided in onboarding input. \(cardInfo.walletData) provided instead of Visa wallet data")
             }
-        case .userWalletModel(let userWalletModel):
+        case .userWalletModel(let userWalletModel, _):
             guard let config = userWalletModel.config as? VisaConfig else {
                 logInvalidInput("Wrong Config provided in onboarding input. \(userWalletModel.config) provided instead of Visa config")
                 break
