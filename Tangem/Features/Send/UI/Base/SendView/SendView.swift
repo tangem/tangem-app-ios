@@ -12,6 +12,80 @@ import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
 
+extension Notification {
+    var keyboardFrame: CGRect? {
+        guard let keyboardFrame = userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return nil
+        }
+
+        return keyboardFrame
+    }
+}
+
+struct ToolbarKeyboard<Toolbar: View>: ViewModifier {
+    private let toolbar: () -> Toolbar
+
+    @State private var toolbarHeight: CGFloat = .zero
+    @State private var keyboardHeight: CGFloat = .zero {
+        didSet {
+            print("keyboardHeight ->>", keyboardHeight)
+        }
+    }
+
+    private var isKeyboardVisible: Bool {
+        keyboardHeight > 0
+    }
+
+    init(toolbar: @escaping () -> Toolbar) {
+        self.toolbar = toolbar
+    }
+
+    func body(content: Content) -> some View {
+        ZStack(alignment: .bottom) {
+            content
+                .padding(.bottom, keyboardHeight)
+                .padding(.bottom, isKeyboardVisible ? toolbarHeight : 0)
+
+            if isKeyboardVisible {
+                toolbar()
+                    .readGeometry(\.frame.height, bindTo: $toolbarHeight)
+                    .transition(.opacity)
+            }
+        }
+        // Use padding instead because it works better
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .animation(.default, value: keyboardHeight)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+            guard let keyboardFrame = notification.keyboardFrame else {
+                return
+            }
+
+            keyboardHeight = keyboardFrame.height
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardHeight = .zero
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func keyboardToolbar<Toolbar: View>(toolbar: @escaping () -> Toolbar) -> some View {
+        modifier(ToolbarKeyboard<Toolbar>(toolbar: toolbar))
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func navigationBarHiddenCompat(_ hidden: Bool) -> some View {
+        if #available(iOS 16.0, *) {
+            self.toolbar(hidden ? .hidden : .automatic, for: .navigationBar)
+        } else {
+            navigationBarHidden(hidden)
+        }
+    }
+}
+
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
     let transitionService: SendTransitionService
@@ -34,29 +108,50 @@ struct SendView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            headerView
-
             ZStack(alignment: .bottom) {
                 currentPage
+                    .scrollDismissesKeyboardCompat(.immediately)
                     .focused($focused)
                     .allowsHitTesting(!viewModel.isUserInteractionDisabled)
 
                 bottomOverlay
             }
+//            .padding(.top, 10)
             .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
         }
+//        .keyboardToolbar(toolbar: {
+//            HStack {
+//                Spacer()
+//
+//                HideKeyboardButton(focused: $focused)
+//            }
+//            .background(Color.purple.opacity(0.5))
+//        })
         .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
             contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
         }
-        .toolbar {
+//        .navigationBarHiddenCompat(!shouldShowHeader)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(content: {
+            ToolbarItem(placement: .topBarLeading) {
+                leadingView
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                trailingView
+            }
+
+            ToolbarItem(placement: .principal) {
+                headerText
+            }
+
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
 
                 HideKeyboardButton(focused: $focused)
             }
-        }
+        })
         .background(backgroundColor.ignoresSafeArea())
-        .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom) {
             bottomContainer
         }
@@ -64,7 +159,6 @@ struct SendView: View {
             focused = isKeyboardActive
         })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
-        .navigationBarHidden(true)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
@@ -79,7 +173,6 @@ struct SendView: View {
                     Spacer()
 
                     trailingView
-                        .disabled(viewModel.trailingButtonDisabled)
                 }
 
                 headerText

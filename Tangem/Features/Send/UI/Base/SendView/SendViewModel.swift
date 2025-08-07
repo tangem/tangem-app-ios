@@ -323,11 +323,6 @@ private extension SendViewModel {
 
         interactor.actionInProcessing
             .receive(on: DispatchQueue.main)
-            .assign(to: \.trailingButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        interactor.actionInProcessing
-            .receive(on: DispatchQueue.main)
             .assign(to: \.isUserInteractionDisabled, on: self, ownership: .weak)
             .store(in: &bag)
 

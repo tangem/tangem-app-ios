@@ -260,7 +260,7 @@ final class OverlayContentContainerViewController: UIViewController {
         backgroundShadowView.alpha = minBackgroundShadowViewAlpha
         backgroundShadowView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         backgroundShadowView.isUserInteractionEnabled = false
-        contentViewController.view.addSubview(backgroundShadowView)
+//        contentViewController.view.addSubview(backgroundShadowView)
         updateBackgroundShadowViewBackgroundColor()
     }
 

@@ -19,6 +19,10 @@ public struct HideKeyboardButton: View {
     public var body: some View {
         Button {
             focused.wrappedValue = false
+
+            if #unavailable(iOS 17.0) {
+                UIApplication.shared.endEditing()
+            }
         } label: {
             Assets.hideKeyboard.image
                 .renderingMode(.template)
