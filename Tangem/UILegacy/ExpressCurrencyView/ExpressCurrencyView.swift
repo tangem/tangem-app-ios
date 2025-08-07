@@ -143,9 +143,9 @@ struct ExpressCurrencyView<Content: View>: View {
                 case .info:
                     infoButtonIcon
                         .foregroundColor(Colors.Icon.informative)
-                case .percent(let message):
+                case .percent(let percent, _):
                     HStack(spacing: 2) {
-                        Text(message)
+                        Text(percent)
                             .style(Fonts.Regular.footnote, color: Colors.Text.attention)
 
                         infoButtonIcon
@@ -241,7 +241,7 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             titleState: .text(Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
-            priceChangeState: .percent("-24.3 %"),
+            priceChangeState: .percent("-24.3 %", message: "Bla Bla Bla"),
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
             symbolState: .loaded(text: "USDT"),
             canChangeCurrency: true
