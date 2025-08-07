@@ -244,22 +244,12 @@ private extension SendWithSwapModel {
 
     /// 3. Then at the end we start the send actions
     private func send() async throws -> TransactionDispatcherResult {
-        switch receiveToken {
-        case .same:
-            return try await simpleSend()
-        case .swap:
-            return try await swapManager.send()
-        }
-    }
-
-    private func simpleSend() async throws -> TransactionDispatcherResult {
-        guard let transaction = _transaction.value?.value else {
-            throw TransactionDispatcherResult.Error.transactionNotFound
-        }
-
         do {
-            let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
-            proceed(transaction: transaction, result: result)
+            let result = switch receiveToken {
+            case .same: try await simpleSend()
+            case .swap: try await swapManager.send()
+            }
+            proceed(result: result)
             return result
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
@@ -271,9 +261,18 @@ private extension SendWithSwapModel {
         }
     }
 
-    private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
-        _transactionTime.send(Date())
+    private func simpleSend() async throws -> TransactionDispatcherResult {
+        guard let transaction = _transaction.value?.value else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
+        return result
+    }
+
+    private func proceed(result: TransactionDispatcherResult) {
+        _transactionTime.send(Date())
 
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
