@@ -146,21 +146,19 @@ private extension ImportWalletSelectorViewModel {
 
             case .success(let cardInfo):
                 do {
-                    let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
-                    guard let userWalletId = UserWalletId(config: config),
-                          let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                        await runOnMain {
+                            viewModel.isScanning = false
+                            viewModel.openMain(userWalletModel: newUserWalletModel)
+                        }
+                    } else {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
-
-                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.openMain(userWalletModel: userWalletModel)
-                    }
-
                 } catch {
                     viewModel.incomingActionManager.discardIncomingAction()
 

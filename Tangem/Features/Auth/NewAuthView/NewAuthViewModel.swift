@@ -17,7 +17,7 @@ import class TangemSdk.BiometricsUtil
 
 final class NewAuthViewModel: ObservableObject {
     @Published var state: State?
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var actionSheet: ActionSheetBinder?
     @Published var isScanning: Bool = false
 
@@ -38,7 +38,7 @@ final class NewAuthViewModel: ObservableObject {
 
 extension NewAuthViewModel {
     func onFirstAppear() {
-        state = calculateState()
+        setup(state: makeInitialState())
     }
 
     func onAppear() {
@@ -54,36 +54,24 @@ extension NewAuthViewModel {
 // MARK: - States
 
 private extension NewAuthViewModel {
-    func calculateState() -> State {
-        guard !haveOnlyUnsecureHotWallets() else {
-            // [REDACTED_TODO_COMMENT]
-            return makeDefaultState()
-        }
-
-        if unlockOnAppear {
-            DispatchQueue.main.async { [weak self] in
-                self?.unlockWithBiometry()
-            }
-            return makeLockedState()
-        } else {
-            if let singleWallet = singleSecureHotWallet() {
-                DispatchQueue.main.async { [weak self] in
-                    self?.openHotAccessCode(userWalletModel: singleWallet)
-                }
-            }
-            return makeUnlockedState()
-        }
+    func setup(state: State) {
+        self.state = state
     }
 
-    func makeDefaultState() -> State {
-        return .locked
+    func makeInitialState() -> State {
+        if unlockOnAppear {
+            unlockWithBiometry()
+            return makeLockedState()
+        } else {
+            return makeWalletsState()
+        }
     }
 
     func makeLockedState() -> State {
         return .locked
     }
 
-    func makeUnlockedState() -> State {
+    func makeWalletsState() -> State {
         let addWallet = AddWalletItem(
             title: Localization.authInfoAddWalletTitle,
             action: weakify(self, forFunction: NewAuthViewModel.openAddWallet)
@@ -94,7 +82,7 @@ private extension NewAuthViewModel {
             description: Localization.authInfoSubtitle
         )
 
-        let wallets = makeWalletsItems()
+        let wallets = userWalletRepository.models.map(makeWalletItem)
 
         let unlock: UnlockItem?
         if BiometricsUtil.isAvailable {
@@ -106,42 +94,98 @@ private extension NewAuthViewModel {
             unlock = nil
         }
 
-        let stateItem = UnlockedStateItem(
+        let stateItem = WalletsStateItem(
             addWallet: addWallet,
             info: info,
             wallets: wallets,
             unlock: unlock
         )
 
-        return .unlocked(stateItem)
+        return .wallets(stateItem)
     }
 
-    func makeWalletsItems() -> [WalletItem] {
-        // [REDACTED_TODO_COMMENT]
-        return []
-    }
-
-    /// Check if there are only unsecure hot wallets, meaning there are no secure hot wallets or any cold wallets.
-    func haveOnlyUnsecureHotWallets() -> Bool {
-        // [REDACTED_TODO_COMMENT]
-        return false
-    }
-
-    /// Check if there are only one secure hot wallet.
-    func singleSecureHotWallet() -> UserWalletModel? {
-        guard
-            userWalletRepository.models.count == 1,
-            let wallet = userWalletRepository.models.first
-        else {
-            return nil
-        }
-
-        // [REDACTED_TODO_COMMENT]
-        return nil
+    func makeWalletItem(userWalletModel: UserWalletModel) -> WalletItem {
+        let description = userWalletModel.config.cardSetLabel ?? .empty
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+        let isProtected = !unlocker.canUnlockAutomatically
+        return WalletItem(
+            title: userWalletModel.name,
+            description: description,
+            imageProvider: userWalletModel.walletImageProvider,
+            isProtected: isProtected,
+            action: { [weak self] in
+                self?.unlock(userWalletModel: userWalletModel)
+            }
+        )
     }
 }
 
 // MARK: - Unlocking
+
+private extension NewAuthViewModel {
+    func unlock(userWalletModel: UserWalletModel) {
+        runTask(in: self) { viewModel in
+            let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+            Analytics.beginLoggingCardScan(source: .auth)
+            let unlockResult = await unlocker.unlock()
+            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel)
+        }
+    }
+
+    func handleUnlock(result: UserWalletModelUnlockerResult, userWalletModel: UserWalletModel) async {
+        switch result {
+        case .success(let userWalletId, let encryptionKey):
+            do {
+                let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                await openMain(userWalletModel: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                await runOnMain {
+                    alert = error.alertBinder
+                }
+            }
+
+        case .bioSelected:
+            unlockWithBiometry()
+
+        case .scanTroubleshooting:
+            await openTroubleshooting(userWalletModel: userWalletModel)
+
+        case .userWalletNeedsToDelete:
+            userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
+            setup(state: makeWalletsState())
+
+        case .error(let error) where error.isCancellationError:
+            break
+
+        case .error(let error):
+            await runOnMain {
+                alert = error.alertBinder
+            }
+        }
+    }
+
+    /// Returns wallet if it is single hot protected wallet in repository.
+    func singleProtectedHotWallet() -> UserWalletModel? {
+        guard
+            userWalletRepository.models.count == 1,
+            let userWalletModel = userWalletRepository.models.first
+        else {
+            return nil
+        }
+
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+
+        guard unlocker.canShowUnlockUIAutomatically else {
+            return nil
+        }
+
+        return userWalletModel
+    }
+}
+
+// MARK: - Biometrics unlocking
 
 private extension NewAuthViewModel {
     func onUnlockWithBiometryTap() {
@@ -154,110 +198,50 @@ private extension NewAuthViewModel {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-
-                await runOnMain {
-                    viewModel.openMain(with: userWalletModel)
-                }
+                await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
                 viewModel.incomingActionManager.discardIncomingAction()
+                await viewModel.handleUnlockWithBiometryResult(error: error)
             }
         }
     }
 
-    func unlockWithCard(userWalletId: UserWalletId) {
-        isScanning = true
-        Analytics.beginLoggingCardScan(source: .auth)
-
-        runTask(in: self) { viewModel in
-
-            guard let userWalletModel = viewModel.userWalletRepository.models[userWalletId] else {
-                await runOnMain {
-                    viewModel.isScanning = false
-                }
-
-                return
-            }
-
-            let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
-            let result = await unlocker.unlock()
-
-            switch result {
-            case .error(let error) where error.isCancellationError:
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                }
-
-            case .error(let error):
-                await viewModel.handleUnlockWithCard(resultError: error)
-
-            case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
-                viewModel.incomingActionManager.discardIncomingAction()
-
-                await runOnMain {
-                    viewModel.isScanning = false
-                    viewModel.openTroubleshooting(userWalletId: userWalletId)
-                }
-
-            case .success(let userWalletId, let encryptionKey):
-                do {
-                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.openMain(with: userWalletModel)
-                    }
-
-                } catch {
-                    viewModel.incomingActionManager.discardIncomingAction()
-
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.error = error.alertBinder
-                    }
-                }
-
-            case .bioSelected:
-                #warning("Implement")
-
-            case .userWalletNeedsToDelete:
-                #warning("Implement")
-            }
-        }
-    }
-
-    @MainActor
-    func handleUnlockWithCard(resultError: Error) {
-        isScanning = false
-
-        Analytics.logScanError(resultError, source: .signIn)
-        Analytics.logVisaCardScanErrorIfNeeded(resultError, source: .signIn)
+    func handleUnlockWithBiometryResult(error: Error) async {
         incomingActionManager.discardIncomingAction()
 
-        switch state {
-        case .locked:
-            state = makeUnlockedState()
-        case .unlocked:
-            error = resultError.alertBinder
-        case .none:
-            break
+        await runOnMain {
+            isScanning = false
+
+            switch state {
+            case .locked:
+                setup(state: makeWalletsState())
+                if let userWalletModel = singleProtectedHotWallet() {
+                    unlock(userWalletModel: userWalletModel)
+                }
+            case .wallets:
+                alert = error.alertBinder
+            case .none:
+                break
+            }
         }
     }
+}
 
-    func unlockWithCardTryAgain(userWalletId: UserWalletId) {
+// MARK: - Card unlocking
+
+private extension NewAuthViewModel {
+    func unlockWithCardTryAgain(userWalletModel: UserWalletModel) {
         Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .signIn])
-        unlockWithCard(userWalletId: userWalletId)
+        unlock(userWalletModel: userWalletModel)
     }
 }
 
 // MARK: - Navigation
 
+@MainActor
 private extension NewAuthViewModel {
-    func openMain(with model: UserWalletModel) {
-        coordinator?.openMain(with: model)
+    func openMain(userWalletModel: UserWalletModel) {
+        coordinator?.openMain(with: userWalletModel)
     }
 
     func openAddWallet() {
@@ -296,15 +280,11 @@ private extension NewAuthViewModel {
         coordinator?.openShop()
     }
 
-    func openHotAccessCode(userWalletModel: UserWalletModel) {
-        coordinator?.openHotAccessCode(with: userWalletModel)
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         coordinator?.openOnboarding(with: input)
     }
 
-    func openTroubleshooting(userWalletId: UserWalletId) {
+    func openTroubleshooting(userWalletModel: UserWalletModel) {
         let sheet = ActionSheet(
             title: Text(Localization.alertTroubleshootingScanCardTitle),
             message: Text(Localization.alertTroubleshootingScanCardMessage),
@@ -312,7 +292,7 @@ private extension NewAuthViewModel {
                 .default(
                     Text(Localization.alertButtonTryAgain),
                     action: { [weak self] in
-                        self?.unlockWithCardTryAgain(userWalletId: userWalletId)
+                        self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
                     }
                 ),
                 .default(
@@ -360,18 +340,18 @@ extension NewAuthViewModel: IncomingActionResponder {
 extension NewAuthViewModel {
     enum State: Equatable {
         case locked
-        case unlocked(UnlockedStateItem)
+        case wallets(WalletsStateItem)
 
         static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
             case (.locked, .locked): true
-            case (.unlocked, .unlocked): true
+            case (.wallets, .wallets): true
             default: false
             }
         }
     }
 
-    struct UnlockedStateItem {
+    struct WalletsStateItem {
         let addWallet: AddWalletItem
         let info: InfoItem
         let wallets: [WalletItem]
@@ -380,10 +360,10 @@ extension NewAuthViewModel {
 
     struct WalletItem: Identifiable {
         let id = UUID()
-        let name: String
+        let title: String
         let description: String
-        let isSecured: Bool
-        let icon: ImageType
+        let imageProvider: WalletImageProviding
+        let isProtected: Bool
         let action: () -> Void
     }
 
