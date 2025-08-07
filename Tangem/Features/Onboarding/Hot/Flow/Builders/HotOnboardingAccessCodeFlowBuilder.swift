@@ -26,12 +26,12 @@ final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
     }
 
     override func setupFlow() {
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
+        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
             .configureNavBar(
                 title: Localization.accessCodeNavtitle,
                 leadingAction: navBarCloseAction
             )
-        flow.append(createAccessCodeStep)
+        append(step: createAccessCodeStep)
 
         let doneStep = HotOnboardingSuccessStep(
             type: .walletReady,
@@ -39,7 +39,7 @@ final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingAccessCodeFlowBuilder.closeOnboarding)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
-        flow.append(doneStep)
+        append(step: doneStep)
     }
 }
 
@@ -65,12 +65,6 @@ private extension HotOnboardingAccessCodeFlowBuilder {
     }
 }
 
-// MARK: - HotOnboardingAccessCodeCreateRoutable
-
-extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeCreateRoutable {
-    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {}
-}
-
 // MARK: - HotOnboardingAccessCodeDelegate
 
 extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeCreateDelegate {
@@ -87,8 +81,5 @@ extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeCreateDeleg
         openNext()
     }
 
-    func accessCodeSkipped() {
-        // [REDACTED_TODO_COMMENT]
-        openNext()
-    }
+    func accessCodeSkipped() {}
 }
