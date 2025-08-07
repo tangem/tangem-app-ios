@@ -19,6 +19,18 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
+    var shouldLockOnBackground: Bool {
+        if isLocked {
+            return false
+        }
+
+        let hasProtected = models
+            .map { UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: $0) }
+            .contains(where: { !$0.canUnlockAutomatically })
+
+        return hasProtected
+    }
+
     var isLocked: Bool {
         let hasUnlockedModels = models.contains(where: { !$0.isUserWalletLocked })
         return !hasUnlockedModels
@@ -62,6 +74,9 @@ class CommonUserWalletRepository: UserWalletRepository {
         let savedUserWallets = userWalletDataStorage.fetchPublicData()
         let models = savedUserWallets.map { LockedUserWalletModel(with: $0) }
         self.models = models
+
+        await unlockUnprotectedMobileWalletsIfNeeded()
+
         AppLogger.info(self)
     }
 
