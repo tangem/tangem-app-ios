@@ -17,7 +17,7 @@ struct HotOnboardingCreateWalletView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Assets.mobileWallet.image
+            Assets.MobileWallet.mobileWallet.image
 
             Text(viewModel.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)

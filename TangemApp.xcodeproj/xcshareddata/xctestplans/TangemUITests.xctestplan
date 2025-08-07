@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "93953B9A-B6E0-4F09-BAA7-9AE1F2FB31E6",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:TangemApp.xcodeproj",
+        "identifier" : "5D3F77E224BF56DC00E8695B",
+        "name" : "TangemUITests"
+      }
+    }
+  ],
+  "version" : 1
+} 
