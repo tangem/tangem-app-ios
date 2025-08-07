@@ -8,6 +8,7 @@
 
 import XCTest
 import TangemAccessibilityIdentifiers
+import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var buyTitle = staticText(.buyTitle)
@@ -15,6 +16,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var sellTitle = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
+    private lazy var detailsButton = button(.detailsButton)
 
     func validate() {
         XCTContext.runActivity(named: "Validate MainPage") { _ in
@@ -138,6 +140,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    func openDetails() -> DetailsScreen {
+        XCTContext.runActivity(named: "Open details screen") { _ in
+            detailsButton.waitAndTap()
+            return DetailsScreen(app)
+        }
+    }
+
     private func isGrouped() -> Bool {
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
@@ -156,6 +165,7 @@ enum MainScreenElement: String, UIElement {
     case sellTitle
     case tokensList
     case organizeTokensButton
+    case detailsButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -169,6 +179,8 @@ enum MainScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.tokensList
         case .organizeTokensButton:
             MainAccessibilityIdentifiers.organizeTokensButton
+        case .detailsButton:
+            MainAccessibilityIdentifiers.detailsButton
         }
     }
 }

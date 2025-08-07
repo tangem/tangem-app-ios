@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -126,6 +127,7 @@ private extension UserWalletSettingsViewModel {
             referralViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
+                    accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
         } else {
@@ -188,13 +190,17 @@ private extension UserWalletSettingsViewModel {
 
     func hotAccessCodeAction() {
         runTask(in: self) { viewModel in
-            let result = await viewModel.hotSettingsUtil.performAccessCodeAction()
+            let state = await viewModel.hotSettingsUtil.calculateAccessCodeState()
 
-            switch result {
-            case .backupNeeded:
-                viewModel.openHotBackupNeeded()
-            case .onboarding(let needsValidation):
-                viewModel.openHotAccessCodeOnboarding(needsValidation: needsValidation)
+            await runOnMain {
+                switch state {
+                case .needsBackup:
+                    viewModel.openHotBackupNeeded()
+                case .onboarding:
+                    viewModel.openHotAccessCodeOnboarding()
+                case .none:
+                    break
+                }
             }
         }
     }
@@ -307,16 +313,17 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openHotBackupNeeded() {
-        coordinator?.openHotBackupNeeded()
+        coordinator?.openHotBackupNeeded(userWalletModel: userWalletModel)
     }
 
-    func openHotAccessCodeOnboarding(needsValidation: Bool) {
-        let input = HotOnboardingInput(flow: .accessCodeChange(needAccessCodeValidation: needsValidation))
+    func openHotAccessCodeOnboarding() {
+        let flow = HotOnboardingFlow.accessCodeChange(userWalletModel: userWalletModel)
+        let input = HotOnboardingInput(flow: flow)
         openOnboarding(with: .hotInput(input))
     }
 
     func openHotBackupTypes() {
-        coordinator?.openHotBackupTypes()
+        coordinator?.openHotBackupTypes(userWalletModel: userWalletModel)
     }
 }
 

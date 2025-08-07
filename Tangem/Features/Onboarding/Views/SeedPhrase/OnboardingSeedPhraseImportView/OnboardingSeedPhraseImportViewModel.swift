@@ -14,7 +14,7 @@ import TangemSdk
 import struct TangemUIUtils.AlertBinder
 
 protocol SeedPhraseImportDelegate: AnyObject {
-    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?)
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String)
 }
 
 class OnboardingSeedPhraseImportViewModel: ObservableObject {
