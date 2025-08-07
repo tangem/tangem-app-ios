@@ -9,8 +9,8 @@
 import Foundation
 
 protocol HotOnboardingFlowRoutable: AnyObject {
+    func openMain()
     func openMain(userWalletModel: UserWalletModel)
-    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void)
     func openConfetti()
     func closeOnboarding()
 }
