@@ -11,11 +11,8 @@ import SwiftUI
 final class HotOnboardingCreateAccessCodeStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingAccessCodeCreateViewModel
 
-    init(
-        coordinator: HotOnboardingAccessCodeCreateRoutable,
-        delegate: HotOnboardingAccessCodeCreateDelegate
-    ) {
-        viewModel = HotOnboardingAccessCodeCreateViewModel(coordinator: coordinator, delegate: delegate)
+    init(delegate: HotOnboardingAccessCodeCreateDelegate) {
+        viewModel = HotOnboardingAccessCodeCreateViewModel(delegate: delegate)
     }
 
     override func build() -> any View {
