@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemFoundation
 
 class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -233,7 +234,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
-        guard let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId }),
+        guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -259,7 +260,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
     }
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
-        let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId })
+        let userWalletModel = walletDataProvider.userWalletModels[userWalletId]
         let walletModel = userWalletModel?.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
 
         guard let userWalletModel, let walletModel, let coordinator else {

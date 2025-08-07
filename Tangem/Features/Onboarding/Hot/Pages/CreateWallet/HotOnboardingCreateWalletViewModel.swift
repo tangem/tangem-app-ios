@@ -9,8 +9,12 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
+import TangemHotSdk
+import TangemFoundation
 
 final class HotOnboardingCreateWalletViewModel {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
 
@@ -27,7 +31,27 @@ final class HotOnboardingCreateWalletViewModel {
 
 extension HotOnboardingCreateWalletViewModel {
     func onCreateTap() {
-        delegate?.onCreateWallet()
+        runTask(in: self) { @MainActor viewModel in
+            do {
+                let initializer = MobileWalletInitializer()
+
+                let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+
+                guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                    walletInfo: .mobileWallet(walletInfo),
+                    keys: .mobileWallet(keys: walletInfo.keys),
+                ) else {
+                    throw UserWalletRepositoryError.cantUnlockWallet
+                }
+
+                try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                try viewModel.handleWalletCreated(newUserWalletModel)
+            } catch {
+                AppLogger.error("Failed to create wallet", error: error)
+                throw error
+            }
+        }
     }
 }
 
@@ -47,6 +71,11 @@ private extension HotOnboardingCreateWalletViewModel {
                 subtitle: Localization.hwCreateSeedDescription
             ),
         ]
+    }
+
+    @MainActor
+    private func handleWalletCreated(_ newUserWalletModel: UserWalletModel) throws {
+        delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
     }
 }
 

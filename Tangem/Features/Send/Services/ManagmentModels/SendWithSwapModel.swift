@@ -47,6 +47,8 @@ class SendWithSwapModel {
     private let sendAlertBuilder: SendAlertBuilder
     private let swapManager: SwapManager
 
+    private let balanceConverter = BalanceConverter()
+
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -85,7 +87,7 @@ private extension SendWithSwapModel {
         Publishers
             .CombineLatest3(
                 _amount.compactMap { $0?.crypto },
-                _destination.compactMap { $0?.value },
+                _destination.compactMap { $0?.value.transactionAddress },
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
@@ -104,15 +106,19 @@ private extension SendWithSwapModel {
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
 
-        Publishers
-            .CombineLatest(
-                _amount.removeDuplicates(),
-                _receivedToken.removeDuplicates()
-            )
-            .dropFirst()
-            .filter { $1.receiveToken != nil }
+        _amount
+            .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { $0.swapManager.update(amount: $1.0?.crypto) }
+            .sink { $0.swapManager.update(amount: $1?.crypto) }
+            .store(in: &bag)
+
+        _selectedFee
+            .map { $0.option }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            // Filter that SwapManager has different option
+            .filter { $0.mapToSendFee(state: $0.swapManager.state).option != $1 }
+            .sink { $0.swapManager.update(feeOption: $1) }
             .store(in: &bag)
 
         Publishers
@@ -122,9 +128,11 @@ private extension SendWithSwapModel {
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { model, args in
-                let (token, destination) = args
-                model.swapManager.update(destination: token.receiveToken?.tokenItem, address: destination?.value)
+            .sink {
+                $0.swapManager.update(
+                    destination: $1.0.receiveToken?.tokenItem,
+                    address: $1.1?.value.transactionAddress
+                )
             }
             .store(in: &bag)
     }
@@ -170,7 +178,7 @@ private extension SendWithSwapModel {
     ) {
         func resetFlowAction() {
             reset()
-            externalDestinationUpdater.externalUpdate(address: .init(value: "", source: .textField))
+            externalDestinationUpdater.externalUpdate(address: .init(value: .plain(""), source: .textField))
             router?.resetFlow()
         }
 
@@ -184,6 +192,9 @@ private extension SendWithSwapModel {
         // it means destination will be valid after change
         // Then we safely change the token
         case .swap(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
+            reset()
+
+        case .same(let token) where token.tokenItem.blockchain == receiveToken.tokenItem.blockchain:
             reset()
 
         case .swap:
@@ -202,9 +213,10 @@ private extension SendWithSwapModel {
 // MARK: - Send
 
 private extension SendWithSwapModel {
+    /// 1. First we check the fee is actual
     private func sendIfInformationIsActual() async throws -> TransactionDispatcherResult {
         if informationRelevanceService.isActual {
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
 
         let result = try await informationRelevanceService.updateInformation().mapToResult().async()
@@ -214,27 +226,30 @@ private extension SendWithSwapModel {
         case .success(.feeWasIncreased):
             throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
         case .success(.ok):
-            return try await send()
+            return try await sendIfHighPriceImpactWarningChecking()
         }
     }
 
+    /// 2. Second we check the high price impact warning
+    private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
+        if let highPriceImpact = await highPriceImpact {
+            let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
+            router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
+
+            return try await viewModel.process(send: send)
+        }
+
+        return try await send()
+    }
+
+    /// 3. Then at the end we start the send actions
     private func send() async throws -> TransactionDispatcherResult {
-        switch receiveToken {
-        case .same:
-            return try await simpleSend()
-        case .swap:
-            return try await swapManager.send()
-        }
-    }
-
-    private func simpleSend() async throws -> TransactionDispatcherResult {
-        guard let transaction = _transaction.value?.value else {
-            throw TransactionDispatcherResult.Error.transactionNotFound
-        }
-
         do {
-            let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
-            proceed(transaction: transaction, result: result)
+            let result = switch receiveToken {
+            case .same: try await simpleSend()
+            case .swap: try await swapManager.send()
+            }
+            proceed(result: result)
             return result
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
@@ -246,9 +261,18 @@ private extension SendWithSwapModel {
         }
     }
 
-    private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
-        _transactionTime.send(Date())
+    private func simpleSend() async throws -> TransactionDispatcherResult {
+        guard let transaction = _transaction.value?.value else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
+        return result
+    }
+
+    private func proceed(result: TransactionDispatcherResult) {
+        _transactionTime.send(Date())
 
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
@@ -339,10 +363,20 @@ extension SendWithSwapModel: SendSourceTokenOutput {
 // MARK: - SendSourceTokenAmountInput
 
 extension SendWithSwapModel: SendSourceTokenAmountInput {
-    var sourceAmount: LoadingResult<SendAmount?, any Error> { .success(_amount.value) }
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
+        switch _amount.value {
+        case .none: .failure(SendAmountError.noAmount)
+        case .some(let amount): .success(amount)
+        }
+    }
 
-    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
-        _amount.map { .success($0) }.eraseToAnyPublisher()
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        _amount.map { amount in
+            switch amount {
+            case .none: .failure(SendAmountError.noAmount)
+            case .some(let amount): .success(amount)
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
@@ -395,28 +429,86 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 // MARK: - SendReceiveTokenAmountInput
 
 extension SendWithSwapModel: SendReceiveTokenAmountInput {
-    var receiveAmount: LoadingResult<SendAmount?, any Error> {
+    var receiveAmount: LoadingResult<SendAmount, any Error> {
         mapToReceiveSendAmount(state: swapManager.state)
     }
 
-    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, any Error>, Never> {
+    var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToReceiveSendAmount(state: $1) }
             .eraseToAnyPublisher()
     }
 
-    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount?, any Error> {
+    var highPriceImpact: HighPriceImpactCalculator.Result? {
+        get async {
+            try? await mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: sourceAmount.value,
+                receiveTokenAmount: receiveAmount.value,
+                provider: swapManager.selectedProvider?.provider
+            )
+        }
+    }
+
+    var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
+        Publishers.CombineLatest3(
+            sourceAmountPublisher.compactMap { $0.value },
+            receiveAmountPublisher.compactMap { $0.value },
+            selectedExpressProviderPublisher.compactMap { $0?.provider }
+        )
+        .withWeakCaptureOf(self)
+        .setFailureType(to: Error.self)
+        .asyncTryMap {
+            try await $0.mapToSendNewAmountCompactTokenViewModel(
+                sourceTokenAmount: $1.0,
+                receiveTokenAmount: $1.1,
+                provider: $1.2
+            )
+        }
+        .replaceError(with: nil)
+        .eraseToAnyPublisher()
+    }
+
+    private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount, any Error> {
         switch state {
         case .restriction(.requiredRefresh(let error), _):
             return .failure(error)
         case .idle, .restriction, .permissionRequired, .readyToSwap:
-            return .success(.none)
+            return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
         case .previewCEX(_, let quote):
-            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: quote.expectAmount)))
+            let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
+            }
+            return .success(.init(type: .typical(crypto: quote.expectAmount, fiat: fiat)))
         }
+    }
+
+    private func mapToSendNewAmountCompactTokenViewModel(
+        sourceTokenAmount: SendAmount?,
+        receiveTokenAmount: SendAmount?,
+        provider: ExpressProvider?
+    ) async throws -> HighPriceImpactCalculator.Result? {
+        guard let sourceTokenFiatAmount = sourceTokenAmount?.fiat,
+              let receiveTokenFiatAmount = receiveTokenAmount?.fiat,
+              let provider = provider,
+              case .swap(let receiveToken) = receiveToken else {
+            return nil
+        }
+
+        let impactCalculator = HighPriceImpactCalculator(
+            source: sourceToken.tokenItem,
+            destination: receiveToken.tokenItem
+        )
+
+        let result = try await impactCalculator.isHighPriceImpact(
+            provider: provider,
+            sourceFiatAmount: sourceTokenFiatAmount,
+            destinationFiatAmount: receiveTokenFiatAmount
+        )
+
+        return result
     }
 }
 
@@ -452,15 +544,47 @@ extension SendWithSwapModel: SendSwapProvidersOutput {
 
 extension SendWithSwapModel: SendFeeInput {
     var selectedFee: SendFee {
-        _selectedFee.value
+        switch receiveToken {
+        case .same: _selectedFee.value
+        case .swap: mapToSendFee(state: swapManager.state)
+        }
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee, Never> {
-        _selectedFee.eraseToAnyPublisher()
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, receiveToken in
+                switch receiveToken {
+                case .same:
+                    return model._selectedFee.eraseToAnyPublisher()
+                case .swap:
+                    return model.swapManager.statePublisher
+                        .filter { !$0.isRefreshRates }
+                        .map { model.mapToSendFee(state: $0) }
+                        .eraseToAnyPublisher()
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var canChooseFeeOption: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasVariants
+    }
+
+    private func mapToSendFee(state: SwapManagerState) -> SendFee {
+        switch state {
+        case .loading:
+            return .init(option: state.fees.selected, value: .loading)
+        case .restriction(.requiredRefresh(let occurredError), _):
+            return .init(option: state.fees.selected, value: .failedToLoad(error: occurredError))
+        case let state:
+            do {
+                let fee = try state.fees.selectedFee()
+                return .init(option: state.fees.selected, value: .loaded(fee))
+            } catch {
+                return .init(option: state.fees.selected, value: .failedToLoad(error: error))
+            }
+        }
     }
 }
 
@@ -472,7 +596,7 @@ extension SendWithSwapModel: SendFeeProviderInput {
     }
 
     var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+        _destination.compactMap { $0?.value.transactionAddress }.eraseToAnyPublisher()
     }
 }
 
@@ -490,23 +614,7 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { model, token in
-                switch token {
-                case .same:
-                    return model._transaction.map { $0?.value != nil }.eraseToAnyPublisher()
-                case .swap:
-                    return model.swapManager.statePublisher.map { state in
-                        switch state {
-                        // We don't disable main button when rates in refreshing
-                        case .loading(.refreshRates), .permissionRequired, .readyToSwap, .previewCEX:
-                            return true
-                        case .idle, .loading, .restriction:
-                            return false
-                        }
-                    }
-                    .eraseToAnyPublisher()
-                }
-            }
+            .flatMapLatest { $0.isReadyToSend(token: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -517,12 +625,72 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        _transaction.map { transaction -> SendSummaryTransactionData? in
-            transaction?.value.map {
-                .send(amount: $0.amount.value, fee: $0.fee)
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.summaryTransactionData(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func isReadyToSend(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+        switch token {
+        case .same:
+            return _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
+        case .swap:
+            return swapManager.statePublisher.map { state in
+                switch state {
+                case .loading, .permissionRequired, .readyToSwap, .previewCEX:
+                    return true
+                case .idle, .restriction:
+                    return false
+                }
             }
+            .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+    }
+
+    private func summaryTransactionData(token: SendReceiveTokenType) -> AnyPublisher<SendSummaryTransactionData?, Never> {
+        switch token {
+        case .same:
+            return _transaction
+                .withWeakCaptureOf(self)
+                .map { model, transaction -> SendSummaryTransactionData? in
+                    guard let transaction = transaction?.value else {
+                        return nil
+                    }
+
+                    return .send(amount: transaction.amount.value, fee: transaction.fee)
+                }
+                .eraseToAnyPublisher()
+        case .swap:
+            return Publishers.CombineLatest(
+                swapManager.statePublisher,
+                swapManager.selectedProviderPublisher
+            )
+            .withWeakCaptureOf(self)
+            .flatMap {
+                model,
+                    args -> AnyPublisher<SendSummaryTransactionData?, Never> in
+                let (state, selectedProvider) = args
+                switch state {
+                case .loading(.refreshRates), .loading(.fee):
+                    return Empty().eraseToAnyPublisher()
+                case .idle, .loading(.full):
+                    return .just(output: .none)
+                case let state:
+                    guard let provider = selectedProvider?.provider else {
+                        return .just(output: .none)
+                    }
+
+                    let amount = state.quote?.fromAmount
+                    let fee = try? state.fees.selectedFee()
+
+                    return .just(
+                        output: .swap(amount: amount, fee: fee, provider: provider)
+                    )
+                }
+            }
+            .eraseToAnyPublisher()
+        }
     }
 }
 
@@ -538,16 +706,7 @@ extension SendWithSwapModel: SendFinishInput {
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
-        let refreshRatesPublisher = swapManager.statePublisher.map { state in
-            switch state {
-            case .loading(.refreshRates): true
-            default: false
-            }
-        }
-
-        return Publishers
-            .Merge(_isSending, refreshRatesPublisher)
-            .eraseToAnyPublisher()
+        _isSending.eraseToAnyPublisher()
     }
 
     func actualizeInformation() {
