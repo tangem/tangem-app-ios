@@ -28,6 +28,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let expressRepository: ExpressRepository
     private let expressInteractor: ExpressInteractor
+    private let userWalletModelConfig: UserWalletConfig
     private weak var coordinator: ExpressTokensListRoutable?
 
     // MARK: - Internal
@@ -45,13 +46,15 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         expressTokensListAdapter: ExpressTokensListAdapter,
         expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
-        coordinator: ExpressTokensListRoutable
+        coordinator: ExpressTokensListRoutable,
+        userWalletModelConfig: UserWalletConfig
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
         self.expressRepository = expressRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
+        self.userWalletModelConfig = userWalletModelConfig
 
         bind()
     }
@@ -140,13 +143,11 @@ private extension ExpressTokensListViewModel {
         walletModels
             .forEach { walletModel in
                 guard walletModel.id != swapDirection.wallet.id else { return }
-
+                let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
                 let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
-                let isNotCustom = !walletModel.isCustom
-                let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
+                let isSwapAvailable = availabilityProvider.isSwapAvailable
 
-                // requirementsCondition == nil means there are no unfulfilled requirements for this wallet model
-                if isAvailable, isNotCustom, requirementsCondition == nil {
+                if isAvailable, isSwapAvailable {
                     availableWalletModels.append(walletModel)
                 } else {
                     unavailableWalletModels.append(walletModel)

@@ -26,6 +26,14 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
     }
 
     func removeActiveSheet() {
+        guard !isPaused else {
+            if sheetsQueue.isNotEmpty {
+                sheetsQueue.removeFirst()
+            }
+
+            return
+        }
+
         activeSheet = sheetsQueue.isEmpty
             ? nil
             : sheetsQueue.removeFirst()
