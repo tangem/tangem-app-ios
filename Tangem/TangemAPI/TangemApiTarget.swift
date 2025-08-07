@@ -13,7 +13,6 @@ import TangemNetworkUtils
 
 struct TangemApiTarget: TargetType {
     let type: TargetType
-    let authData: AuthData?
 
     // MARK: - TargetType
 
@@ -256,20 +255,7 @@ struct TangemApiTarget: TargetType {
         }
     }
 
-    var headers: [String: String]? {
-        if case .rawData = type {
-            return nil
-        }
-
-        var headers: [String: String] = [:]
-
-        if let authData {
-            headers["card_id"] = authData.cardId
-            headers["card_public_key"] = authData.cardPublicKey.hexString
-        }
-
-        return headers
-    }
+    var headers: [String: String]? { nil }
 }
 
 extension TangemApiTarget {
@@ -332,11 +318,6 @@ extension TangemApiTarget {
         case getUserWallet(userWalletId: String)
         case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
         case createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request])
-    }
-
-    struct AuthData {
-        let cardId: String
-        let cardPublicKey: Data
     }
 }
 
