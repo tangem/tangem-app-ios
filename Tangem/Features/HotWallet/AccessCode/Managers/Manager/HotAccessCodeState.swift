@@ -7,19 +7,20 @@
 //
 
 import Foundation
+import TangemHotSdk
 
 enum HotAccessCodeState: Equatable {
     /// Access code is available for user input.
     case available(AvailableState)
     /// Access code is successfully validated.
-    case valid
+    case valid(MobileWalletContext)
     /// Access code input is locked for time interval.
     case locked(LockedState)
     /// Access code is unavailable for user input.
-    case unavailable
+    case unavailable(UnavailableState)
 
     enum AvailableState: Equatable {
-        /// Initial input.
+        /// Initial state.
         case normal
         /// Input attempts before transitioning to lock with timeout duration.
         case beforeLock(remaining: Int)
@@ -34,5 +35,10 @@ enum HotAccessCodeState: Equatable {
         case beforeWarning(remaining: Int, timeout: TimeInterval)
         /// Timeout waiting timer before delete.
         case beforeDelete(remaining: Int, timeout: TimeInterval)
+    }
+
+    enum UnavailableState: Equatable {
+        /// Wallet must be deleted.
+        case needsToDelete
     }
 }

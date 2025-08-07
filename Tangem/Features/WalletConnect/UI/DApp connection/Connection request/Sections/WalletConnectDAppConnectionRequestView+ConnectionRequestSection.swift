@@ -53,7 +53,7 @@ extension WalletConnectDAppConnectionRequestView {
                             .resizable()
                             .frame(width: 18, height: 24)
                             .foregroundStyle(Colors.Icon.informative)
-                            .rotationEffect(.degrees(contentState.isExpanded ? 90 : 0))
+                            .rotationEffect(.degrees(contentState.isExpanded ? 180 : 0))
                             .animation(titleRowArrowRotationAnimation, value: contentState.isExpanded)
                     }
                 }
