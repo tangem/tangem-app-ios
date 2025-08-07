@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNFT
+import TangemFoundation
 
 extension NFTCache {
     /// Convenience initializer that creates a new NFTCache for a user wallet with a given identifier.
