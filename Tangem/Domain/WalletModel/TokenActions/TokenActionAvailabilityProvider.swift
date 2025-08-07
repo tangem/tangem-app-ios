@@ -356,7 +356,7 @@ extension TokenActionAvailabilityProvider {
         if case .assetRequirement = receiveAvailability {
             return .missingAssetRequirement
         }
-        
+
         if FeatureProvider.isAvailable(.onramp) {
             let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
             let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
