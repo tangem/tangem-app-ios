@@ -12,7 +12,27 @@ import TangemExpress
 import UIKit
 
 struct ExpressProviderFormatter {
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     let balanceFormatter: BalanceFormatter
+
+    init(balanceFormatter: BalanceFormatter = .init()) {
+        self.balanceFormatter = balanceFormatter
+    }
+
+    func mapToBadge(availableProvider: ExpressAvailableProvider) async -> ProviderBadge? {
+        let state: ExpressProviderManagerState = await availableProvider.getState()
+
+        if ukGeoDefiner.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
+            return .fcaWarning
+        }
+
+        if state.isPermissionRequired {
+            return .permissionNeeded
+        }
+
+        return availableProvider.isBest ? .bestRate : .none
+    }
 
     func mapToRateSubtitle(
         state: ExpressProviderManagerState,
@@ -130,5 +150,11 @@ extension ExpressProviderFormatter {
 
         /// How many destination's tokens user will get at the end of swap
         case exchangeReceivedAmount
+    }
+
+    enum ProviderBadge {
+        case permissionNeeded
+        case fcaWarning
+        case bestRate
     }
 }
