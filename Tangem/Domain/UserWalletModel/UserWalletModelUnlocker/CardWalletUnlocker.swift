@@ -35,24 +35,18 @@ class CardWalletUnlocker: UserWalletModelUnlocker {
     func unlock() async -> UserWalletModelUnlockerResult {
         let scanResult = await scanner.scanCard()
         switch scanResult {
-        case .onboarding:
-            return .error(UserWalletRepositoryError.cardWithWrongUserWalletIdScanned)
-
         case .error(let error):
             return .error(error)
 
         case .scanTroubleshooting:
             return .scanTroubleshooting
 
-        case .success(let cardInfo):
+        case .success(let cardInfo), .onboarding(_, let cardInfo):
             let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
             guard let userWalletId = UserWalletId(config: config),
-                  let encryptionKey = UserWalletEncryptionKey(config: config) else {
-                return .error(UserWalletRepositoryError.cantUnlockWallet)
-            }
-
-            if userWalletId != self.userWalletId {
+                  let encryptionKey = UserWalletEncryptionKey(config: config),
+                  userWalletId == self.userWalletId else {
                 return .error(UserWalletRepositoryError.cardWithWrongUserWalletIdScanned)
             }
 
