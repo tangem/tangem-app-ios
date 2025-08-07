@@ -7,6 +7,10 @@
 //
 
 protocol WalletConnectConnectedDAppRepository {
+    /// Prefetched dApps if any.
+    /// - Note: Does not await except for the actors hopping.
+    var prefetchedDApps: [WalletConnectConnectedDApp]? { get async }
+
     func makeDAppsStream() async -> AsyncStream<[WalletConnectConnectedDApp]>
 
     func replacingExistingDApps(with dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError)
