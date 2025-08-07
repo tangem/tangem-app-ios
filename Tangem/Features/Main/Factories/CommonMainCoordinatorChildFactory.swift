@@ -23,7 +23,8 @@ extension CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         ActionButtonsSwapCoordinator(
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel,
-            dismissAction: dismissAction
+            dismissAction: dismissAction,
+            tokenSorter: SwapSourceTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
         )
     }
 
