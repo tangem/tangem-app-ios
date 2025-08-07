@@ -45,10 +45,10 @@ public protocol HotSdk {
     /// - Throws: An error if export fails or authentication is invalid.
     func exportBackup(context: MobileWalletContext) throws -> Data
 
-    /// Deletes a hot wallet from storage.
-    /// - Parameter walletID: The identifier of the wallet to delete.
-    /// - Throws: An error if deletion fails or the wallet is missing.
-    func delete(walletID: UserWalletId) throws
+    /// Deletes hot wallets from storage.
+    /// - Parameter walletID: The identifiers of the wallets to delete.
+    /// - Throws: An error if deleting fails, such as if the wallet is missing
+    func delete(walletIDs: [UserWalletId]) throws
 
     /// Updates the access code for a hot wallet.
     /// - Parameters:
@@ -62,6 +62,10 @@ public protocol HotSdk {
     ///   - context: The wallet context containing authentication information.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or authentication is incorrect.
     func enableBiometrics(context: MobileWalletContext) throws
+
+    /// This method will remove the biometric authentication data for the specified wallets.
+    /// - Parameter walletIDs: wallets to clear biometrics for.
+    func clearBiometrics(walletIDs: [UserWalletId])
 
     /// Derives master keys for a hot wallet.
     /// - Parameter context: The wallet context containing authentication information.
