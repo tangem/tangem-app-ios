@@ -522,7 +522,9 @@ struct SendDependenciesBuilder {
     }
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
-        CommonSwapTransactionSummaryDescriptionBuilder()
+        CommonSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
     }
 
     // MARK: - NFT support
