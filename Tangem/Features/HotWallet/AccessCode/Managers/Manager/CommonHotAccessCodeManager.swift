@@ -8,9 +8,12 @@
 
 import Foundation
 import Combine
+import TangemFoundation
+import TangemHotSdk
 
 final class CommonHotAccessCodeManager {
-    private let storageManager = CommonHotAccessCodeStorageManager()
+    @Injected(\.hotAccessCodeStorageManager) private var storageManager: HotAccessCodeStorageManager
+
     private let stateSubject = CurrentValueSubject<HotAccessCodeState, Never>(.available(.normal))
     private let stateCommandSubject = PassthroughSubject<StateCommand, Never>()
 
@@ -23,21 +26,17 @@ final class CommonHotAccessCodeManager {
         ProcessInfo.processInfo.systemUptime
     }
 
-    private let userWalletModel: UserWalletModel
+    private lazy var hotSdk: HotSdk = CommonHotSdk()
+
+    private let userWalletId: UserWalletId
     private let configuration: HotAccessCodeConfiguration
-    private weak var delegate: CommonHotAccessCodeManagerDelegate?
 
     private var bag: Set<AnyCancellable> = []
     private var timersBag: Set<AnyCancellable> = []
 
-    init(
-        userWalletModel: UserWalletModel,
-        configuration: HotAccessCodeConfiguration = .default,
-        delegate: CommonHotAccessCodeManagerDelegate
-    ) {
-        self.userWalletModel = userWalletModel
+    init(userWalletId: UserWalletId, configuration: HotAccessCodeConfiguration) {
+        self.userWalletId = userWalletId
         self.configuration = configuration
-        self.delegate = delegate
         bind()
         getInitialState()
     }
@@ -88,7 +87,7 @@ private extension CommonHotAccessCodeManager {
         }
 
         if failedAttemptsCount >= attemptsBeforeDeleteLimit {
-            return Just(.unavailable).eraseToAnyPublisher()
+            return Just(.unavailable(.needsToDelete)).eraseToAnyPublisher()
         } else if failedAttemptsCount >= attemptsBeforeWarningLimit {
             return makeBeforeDeleteStatePublisher(failedAttemptsLockIntervals: failedAttemptsLockIntervals)
         } else if failedAttemptsCount >= attemptsToLockLimit {
@@ -210,25 +209,20 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
         stateSubject.eraseToAnyPublisher()
     }
 
-    func validate(accessCode: String) throws {
+    func validate(accessCode: String) {
         switch stateSubject.value {
         case .available(let availableState):
-            let isValid = isValid(accessCode: accessCode)
-
             let command: StateCommand
-            if isValid {
-                handleAccessCodeSuccessful()
-                command = makeValidCommand()
-            } else {
-                storeWrongAccessCodeAttempt()
+            do {
+                let context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
+                command = makeValidCommand(context: context)
+            } catch {
+                storeWrongAccessCode()
                 command = makeInvalidCommand(availableState: availableState)
             }
             stateCommandSubject.send(command)
 
-        case .locked:
-            throw HotAccessCodeError.validationLocked
-
-        case .valid, .unavailable:
+        case .locked, .valid, .unavailable:
             break
         }
     }
@@ -275,8 +269,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
                     duration: lockedTimeout
                 )
             } else {
-                handleAccessCodeDelete()
-                return makeUnavailableCommand()
+                return makeUnavailableCommand(state: .needsToDelete)
             }
         }
     }
@@ -322,21 +315,12 @@ private extension CommonHotAccessCodeManager {
 
     // Other commands
 
-    func makeUnavailableCommand() -> StateCommand {
-        return .update(.unavailable)
+    func makeUnavailableCommand(state: HotAccessCodeState.UnavailableState) -> StateCommand {
+        return .update(.unavailable(state))
     }
 
-    func makeValidCommand() -> StateCommand {
-        return .update(.valid)
-    }
-}
-
-// MARK: - Validation
-
-extension CommonHotAccessCodeManager {
-    func isValid(accessCode: String) -> Bool {
-        // [REDACTED_TODO_COMMENT]
-        accessCode == "111111"
+    func makeValidCommand(context: MobileWalletContext) -> StateCommand {
+        return .update(.valid(context))
     }
 }
 
@@ -344,26 +328,12 @@ extension CommonHotAccessCodeManager {
 
 extension CommonHotAccessCodeManager {
     func getWrongAccessCodeStore() -> HotWrongAccessCodeStore {
-        storageManager.getWrongAccessCodeStore(userWalletModel: userWalletModel)
+        storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
     }
 
-    func storeWrongAccessCodeAttempt() {
+    func storeWrongAccessCode() {
         let lockInterval = currentUptime + lockedTimeout
-        storageManager.storeWrongAccessCode(userWalletModel: userWalletModel, lockInterval: lockInterval)
-    }
-}
-
-// MARK: - Handlers
-
-extension CommonHotAccessCodeManager {
-    func handleAccessCodeSuccessful() {
-        storageManager.clearWrongAccessCode(userWalletModel: userWalletModel)
-        delegate?.handleAccessCodeSuccessful(userWalletModel: userWalletModel)
-    }
-
-    func handleAccessCodeDelete() {
-        storageManager.clearWrongAccessCode(userWalletModel: userWalletModel)
-        delegate?.handleAccessCodeDelete(userWalletModel: userWalletModel)
+        storageManager.storeWrongAccessCode(userWalletId: userWalletId, lockInterval: lockInterval)
     }
 }
 
