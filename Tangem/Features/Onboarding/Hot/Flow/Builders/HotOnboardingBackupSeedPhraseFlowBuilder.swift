@@ -27,7 +27,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
                     self?.closeOnboarding()
                 })
             )
-        flow.append(seedPhraseIntroStep)
+        append(step: seedPhraseIntroStep)
 
         let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
 
@@ -39,7 +39,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
-        flow.append(seedPhraseRecoveryStep)
+        append(step: seedPhraseRecoveryStep)
 
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
             seedPhraseResolver: seedPhraseResolver,
@@ -49,7 +49,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
-        flow.append(seedPhraseValidationStep)
+        append(step: seedPhraseValidationStep)
 
         let doneStep = HotOnboardingSuccessStep(
             type: .seedPhaseBackupFinish,
@@ -57,7 +57,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.closeOnboarding)
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
-        flow.append(doneStep)
+        append(step: doneStep)
     }
 }
 
