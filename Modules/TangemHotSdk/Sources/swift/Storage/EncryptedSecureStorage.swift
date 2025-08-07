@@ -26,17 +26,22 @@ final class EncryptedSecureStorage {
         _ data: Data,
         keyTag: String,
         secureEnclaveKeyTag: String,
-        accessCode: String
+        accessCode: String?
     ) throws {
         let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
             data,
             keyTag: secureEnclaveKeyTag
         )
 
-        let encryptedAesKey = try AESEncoder.encryptWithPassword(
-            password: accessCode,
-            content: secureEnclaveEncryptedKey
-        )
+        let encryptedAesKey = switch accessCode {
+        case .some(let code):
+            try AESEncoder.encryptWithPassword(
+                password: code,
+                content: secureEnclaveEncryptedKey
+            )
+        case .none:
+            secureEnclaveEncryptedKey
+        }
 
         try secureStorage.store(encryptedAesKey, forKey: keyTag)
     }
@@ -44,16 +49,21 @@ final class EncryptedSecureStorage {
     func getData(
         keyTag: String,
         secureEnclaveKeyTag: String,
-        accessCode: String
+        accessCode: String?
     ) throws -> Data {
         guard let encryptedAesKey = try secureStorage.get(keyTag) else {
             throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
 
-        let secureEnclaveEncryptedKey = try AESEncoder.decryptWithPassword(
-            password: accessCode,
-            encryptedData: encryptedAesKey
-        )
+        let secureEnclaveEncryptedKey = switch accessCode {
+        case .some(let code):
+            try AESEncoder.decryptWithPassword(
+                password: code,
+                encryptedData: encryptedAesKey
+            )
+        case .none:
+            encryptedAesKey
+        }
 
         return try secureEnclaveService.decryptData(
             secureEnclaveEncryptedKey,
