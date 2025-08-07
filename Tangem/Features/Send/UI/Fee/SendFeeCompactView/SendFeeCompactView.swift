@@ -32,6 +32,7 @@ struct SendFeeCompactView: View {
                         namespace: namespace.id
                     )
                 )
+                .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
         } header: {
             DefaultHeaderView(Localization.commonNetworkFeeTitle)
                 .matchedGeometryEffect(id: namespace.names.feeTitle, in: namespace.id)
