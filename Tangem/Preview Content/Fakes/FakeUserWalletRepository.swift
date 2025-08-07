@@ -12,6 +12,8 @@ import BlockchainSdk
 import TangemFoundation
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var shouldLockOnBackground: Bool { true }
+
     var selectedUserWalletId: UserWalletId?
 
     var isLocked: Bool { false }
