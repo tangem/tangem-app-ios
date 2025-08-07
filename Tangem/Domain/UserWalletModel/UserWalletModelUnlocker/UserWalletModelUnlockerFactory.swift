@@ -36,7 +36,7 @@ struct CommonUserWalletModelUnlockerResolver: UserWalletModelUnlockerResolver {
 
             return CardWalletUnlocker(userWalletId: userWalletId, config: config)
         case .mobileWallet(let mobileWalletInfo):
-            return MobileWalletUnlocker(userWalletId: userWalletId, info: mobileWalletInfo)
+            return MobileWalletUnlocker(userWalletId: userWalletId, config: config, info: mobileWalletInfo)
         }
     }
 }
