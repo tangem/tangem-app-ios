@@ -139,6 +139,9 @@ var serviceModules: [PackageDescription.Target] {
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
+            cSettings: [
+                .unsafeFlags(["-Wno-shorten-64-to-32"]),
+            ],
         ),
     ]
 }
@@ -173,6 +176,20 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemLogger",
                 "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemAccounts",
+            dependencies: [
+                "TangemAssets",
+                "TangemLocalization",
+                "TangemUIUtils",
+                "TangemUI",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

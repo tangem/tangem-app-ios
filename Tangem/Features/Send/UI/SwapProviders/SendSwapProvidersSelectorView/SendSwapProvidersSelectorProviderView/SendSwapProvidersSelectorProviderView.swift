@@ -23,6 +23,8 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
                     size: CGSize(width: 36, height: 36),
                     forceKingfisher: true
                 )
+                .saturation(data.isDisabled ? 0 : 1)
+                .opacity(data.isDisabled ? 0.4 : 1)
 
                 VStack(alignment: .leading, spacing: 4) {
                     titleView
@@ -34,14 +36,14 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
         }
-        .disabled(!data.isTappable)
+        .disabled(data.isDisabled)
     }
 
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(data.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: data.isDisabled ? Colors.Text.secondary : Colors.Text.tertiary)
 
                 Text(data.providerType)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
@@ -74,22 +76,18 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
         switch data.badge {
         case .none:
             EmptyView()
-        case .permissionNeeded:
-            Text(Localization.expressProviderPermissionNeeded)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.informative)
+        case .plain(let text):
+            Text(text)
+                .style(
+                    Fonts.Bold.caption2,
+                    color: data.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
+                )
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
                 .background(Colors.Background.secondary)
                 .cornerRadiusContinuous(8)
-        case .fcaWarning:
-            Text(Localization.expressProviderFcaWarningList)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.informative)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Colors.Background.secondary)
-                .cornerRadiusContinuous(8)
-        case .bestRate:
-            Text(Localization.expressProviderBestRate)
+        case .accent(let text):
+            Text(text)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
