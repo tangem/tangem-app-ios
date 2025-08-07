@@ -10,8 +10,8 @@ import Foundation
 import TangemStaking
 import TangemLocalization
 
-protocol StakingTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: SendAmount, schedule: RewardScheduleType) -> String?
+protocol StakingTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
+    func makeDescription(amount: SendAmount, schedule: RewardScheduleType) -> AttributedString?
 }
 
 struct CommonStakingTransactionSummaryDescriptionBuilder {
@@ -26,7 +26,7 @@ struct CommonStakingTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonStakingTransactionSummaryDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: SendAmount, schedule: RewardScheduleType) -> String? {
+    func makeDescription(amount: SendAmount, schedule: RewardScheduleType) -> AttributedString? {
         guard let amountFiat = amount.fiat else {
             return nil
         }
@@ -39,8 +39,12 @@ extension CommonStakingTransactionSummaryDescriptionBuilder: StakingTransactionS
         )
 
         let amountInFiatFormatted = balanceFormatter.formatFiatBalance(amountFiat, formattingOptions: amountFormattingOptions)
-
         let scheduleFormatted = schedule.formatted().lowercased()
-        return Localization.stakingSummaryDescriptionText(amountInFiatFormatted, scheduleFormatted)
+
+        let attributedString = makeAttributedString(
+            Localization.stakingSummaryDescriptionText(amountInFiatFormatted, scheduleFormatted)
+        )
+
+        return attributedString
     }
 }
