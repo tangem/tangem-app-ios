@@ -28,7 +28,7 @@ class HotOnboardingFlowBuilder: ObservableObject {
         }
     }
 
-    let flow = LinkedList<Step>()
+    private let flow = LinkedList<Step>()
 
     @Published private var currentNode: Node?
 
@@ -101,6 +101,10 @@ extension HotOnboardingFlowBuilder {
 // MARK: - Helpers
 
 extension HotOnboardingFlowBuilder {
+    func append(step: Step) {
+        flow.append(step)
+    }
+
     var navBarBackAction: HotOnboardingFlowNavBarAction {
         HotOnboardingFlowNavBarAction.back(handler: { [weak self] in
             self?.back()
