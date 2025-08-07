@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemFoundation
 
 struct ResetToFactoryView: View {
     @ObservedObject private var viewModel: ResetToFactoryViewModel
