@@ -171,7 +171,8 @@ private extension ExpressModulesFactoryMock {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            supportedProviderTypes: .swap
         )
 
         let interactor = ExpressInteractor(
