@@ -177,8 +177,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func select(userWalletId: UserWalletId) {
-        guard selectedUserWalletId != userWalletId,
-              let model = models.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let model = models.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
