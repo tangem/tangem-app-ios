@@ -9,6 +9,7 @@
 #if ALPHA || BETA || DEBUG
 import Combine
 import SwiftUI
+import TangemAssets
 import IdensicMobileSDK
 
 enum KYCServiceError: Error {
@@ -18,7 +19,6 @@ enum KYCServiceError: Error {
 
 public final class KYCService {
     private let sdk: SNSMobileSDK
-    private let kycStepSubject = CurrentValueSubject<KYCStep?, Never>(nil)
 
     @MainActor
     @discardableResult
@@ -51,11 +51,6 @@ public final class KYCService {
             }
         }
 
-        sdk.onEvent { [weak kycStepSubject] _, event in
-            guard let step = event.kycStep else { return }
-            kycStepSubject?.send(step)
-        }
-
         sdk.verificationHandler { isApproved in
             // [REDACTED_TODO_COMMENT]
             // [REDACTED_INFO]
@@ -74,29 +69,48 @@ public final class KYCService {
     }
 
     private func configureSDKTheme() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-//        sdk.theme.fonts.headline1 = .systemFont(ofSize: 28, weight: .bold)
-//        sdk.theme.fonts.subtitle2 = .systemFont(ofSize: 15, weight: .regular)
-//        sdk.theme.fonts.subtitle1 = .systemFont(ofSize: 16, weight: .medium)
-//
-//        sdk.theme.colors.contentStrong = .hex("#1E1E1E")
-//        sdk.theme.colors.contentNeutral = .hex("#656565")
-//        sdk.theme.colors.primaryButtonContent = .hex("#FFFFFF")
-//        sdk.theme.colors.primaryButtonBackground = .hex("#1E1E1E")
+        sdk.theme.fonts.headline1 = UIFonts.Bold.title1 // Title
+        sdk.theme.fonts.headline2 = UIFonts.Bold.footnote // Section title (e.g. "Select country where your ID document was issued")
+        sdk.theme.fonts.subtitle2 = UIFonts.Regular.subheadline // Subtitle
+        sdk.theme.fonts.subtitle1 = UIFonts.Regular.callout // Action button
+        sdk.theme.fonts.caption = UIFonts.Regular.caption1
+        sdk.theme.fonts.body = UIFonts.Regular.subheadline
+
+        sdk.theme.colors.contentStrong = UIColor(Colors.Text.primary1) // Title
+        sdk.theme.colors.contentNeutral = UIColor(Colors.Text.secondary) // Subtitle
+        sdk.theme.colors.contentSuccess = UIColor(Colors.Button.positive).withAlphaComponent(0.33) // Status color when accepted
+        sdk.theme.colors.primaryButtonContent = UIColor(Colors.Text.primary2)
+        sdk.theme.colors.primaryButtonBackground = UIColor(Colors.Text.primary1)
+        sdk.theme.colors.primaryButtonBackgroundDisabled = UIColor(Colors.Text.primary1).withAlphaComponent(0.5)
+        sdk.theme.colors.primaryButtonBackgroundHighlighted = UIColor(Colors.Text.primary1).withAlphaComponent(0.8)
+        sdk.theme.colors.fieldBorder = UIColor(Colors.Button.positive)
+
+        sdk.theme.metrics.verificationStepCardStyle = .plain
+        sdk.theme.metrics.documentTypeCardStyle = .plain
+        sdk.theme.metrics.sectionHeaderAlignment = .natural
+        sdk.theme.metrics.buttonCornerRadius = 14
+
+        sdk.theme.images.verificationStepIcons = [
+            .applicantData: Assets.Kyc.profileDetails.uiImage,
+            .emailVerification: Assets.Kyc.emailVerification.uiImage,
+            .identity: Assets.Kyc.identityDocument.uiImage,
+            .identity2: Assets.Kyc.identityDocument.uiImage,
+            .identity3: Assets.Kyc.identityDocument.uiImage,
+            .identity4: Assets.Kyc.identityDocument.uiImage,
+            .phoneVerification: Assets.Kyc.phoneVerification.uiImage,
+            .proofOfResidence: Assets.Kyc.proofOfAddress.uiImage,
+            .proofOfResidence2: Assets.Kyc.proofOfAddress.uiImage,
+            .questionnaire: Assets.Kyc.questionnaire.uiImage,
+            .selfie: Assets.Kyc.selfie.uiImage,
+            .selfie2: Assets.Kyc.selfie.uiImage,
+        ]
     }
 }
 
 extension KYCService {
     private(set) static var shared: KYCService?
 
-    var kycStepPublisher: AnyPublisher<KYCStep, Never> {
-        kycStepSubject
-            .compactMap { $0 }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
+    @objc
     func dismiss() {
         sdk.dismiss()
     }
