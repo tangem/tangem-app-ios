@@ -21557,7 +21557,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\n\n-framework XCTest -lXCTestSwiftSupport\nexit 0\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n    exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=$PATH:~/.mint/bin:$PATH\nelse\n    echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n    echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
+			shellScript = "#!/bin/bash\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n    exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=$PATH:~/.mint/bin:$PATH\nelse\n    echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n    echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -25672,8 +25672,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -25742,8 +25740,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -28483,8 +28479,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -28664,8 +28658,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -30796,8 +30788,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
@@ -30977,8 +30967,6 @@
 					"\"CryptoKit\"",
 					"-weak_framework",
 					"\"SwiftUI\"",
-					"-Xlinker",
-					"-interposable",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_MODULE_NAME = Tangem;
