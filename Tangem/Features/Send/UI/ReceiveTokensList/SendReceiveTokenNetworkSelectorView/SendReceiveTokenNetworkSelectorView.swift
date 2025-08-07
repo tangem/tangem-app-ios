@@ -67,10 +67,12 @@ struct SendReceiveTokenNetworkSelectorView: View {
             BottomSheetErrorContentView(
                 title: viewModel.notSupportedTitle,
                 subtitle: error,
-                gotItButtonAction: viewModel.dismiss
+                secondaryButton: .init(
+                    title: Localization.commonGotIt,
+                    style: .secondary,
+                    action: viewModel.dismiss
+                )
             )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
     }
 }
