@@ -27,8 +27,10 @@ struct SendDependenciesBuilder {
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
             userWalletModel: userWalletModel,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+            initialWallet: walletModel.asExpressInteractorWallet,
+            destinationWallet: .none,
+            // We support only `CEX` in `Send With Swap` flow
+            supportedProviderTypes: [.cex]
         )
     }
 
@@ -242,7 +244,7 @@ struct SendDependenciesBuilder {
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
-        let destination = sellParameters.map { SendAddress(value: $0.destination, source: .sellProvider) }
+        let destination = sellParameters.map { SendAddress(value: .plain($0.destination), source: .sellProvider) }
         let amount = sellParameters.map { sellParameters in
             let fiatValue = walletModel.tokenItem.currencyId.flatMap { currencyId in
                 BalanceConverter().convertToFiat(sellParameters.amount, currencyId: currencyId)
@@ -345,19 +347,23 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        if case .nonFungible = walletModel.tokenItem.token?.metadata.kind {
+            return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: walletModel.feeTokenItem)
+        }
+
         switch walletModel.tokenItem.blockchain {
         case .koinos:
-            KoinosSendTransactionSummaryDescriptionBuilder(
+            return KoinosSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
         case .tron where walletModel.tokenItem.isToken:
-            TronSendTransactionSummaryDescriptionBuilder(
+            return TronSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
         default:
-            CommonSendTransactionSummaryDescriptionBuilder(
+            return CommonSendTransactionSummaryDescriptionBuilder(
                 tokenItem: walletModel.tokenItem,
                 feeTokenItem: walletModel.feeTokenItem
             )
@@ -515,6 +521,12 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
+        CommonSwapTransactionSummaryDescriptionBuilder(
+            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+    }
+
     // MARK: - NFT support
 
     func makeNFTSendAmountValidator() -> SendAmountValidator {
@@ -527,10 +539,6 @@ struct SendDependenciesBuilder {
         let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
 
         return NFTSendAmountModifier(amount: nftSendUtil.amountToSend)
-    }
-
-    func makeNFTSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
-        return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: walletModel.feeTokenItem)
     }
 
     // MARK: - Staking
@@ -650,8 +658,8 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeStakingTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
-        StakingTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem)
+    func makeStakingTransactionSummaryDescriptionBuilder() -> StakingTransactionSummaryDescriptionBuilder {
+        CommonStakingTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem)
     }
 
     func makeAllowanceService() -> AllowanceService {
