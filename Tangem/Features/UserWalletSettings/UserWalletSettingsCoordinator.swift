@@ -175,12 +175,13 @@ extension UserWalletSettingsCoordinator:
             let settingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
             let state = await settingsUtil.calculateSeedPhraseState()
 
-            switch state {
-            case .onboarding(let needsValidation):
-                coordinator.openHotOnboardingModal(
-                    userWalletModel: userWalletModel,
-                    needAccessCodeValidation: needsValidation
-                )
+            await runOnMain {
+                switch state {
+                case .onboarding:
+                    coordinator.openHotOnboardingModal(userWalletModel: userWalletModel)
+                case .none:
+                    break
+                }
             }
         }
     }
@@ -190,11 +191,8 @@ extension UserWalletSettingsCoordinator:
         openOnboardingModal(with: .hotInput(backupInput))
     }
 
-    func openHotOnboardingModal(userWalletModel: UserWalletModel, needAccessCodeValidation: Bool) {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseReveal(
-            userWalletModel: userWalletModel,
-            needAccessCodeValidation: needAccessCodeValidation
-        ))
+    func openHotOnboardingModal(userWalletModel: UserWalletModel) {
+        let backupInput = HotOnboardingInput(flow: .seedPhraseReveal(userWalletModel: userWalletModel))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 }
