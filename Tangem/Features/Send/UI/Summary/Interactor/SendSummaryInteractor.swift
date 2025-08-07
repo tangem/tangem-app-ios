@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 protocol SendSummaryInteractor: AnyObject {
-    var transactionDescription: AnyPublisher<String?, Never> { get }
+    var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
 }
 
@@ -36,7 +36,7 @@ class CommonSendSummaryInteractor {
 }
 
 extension CommonSendSummaryInteractor: SendSummaryInteractor {
-    var transactionDescription: AnyPublisher<String?, Never> {
+    var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
@@ -62,7 +62,7 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
 // MARK: - Private
 
 private extension CommonSendSummaryInteractor {
-    private func summaryDescription(data: SendSummaryTransactionData?) -> String? {
+    private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
         case .none, .swap:
             return nil
