@@ -12,24 +12,27 @@ import BlockchainSdk
 import TangemAssets
 import TangemHotSdk
 import TangemFoundation
+import TangemLocalization
 
 struct HotUserWalletConfig {
-    let hotWallet: HotWallet
-
-    var transactionSigner: TransactionSigner {
-        fatalError("Unimplemented")
-    }
+    let hotWalletInfo: HotWalletInfo
 }
 
 extension HotUserWalletConfig: UserWalletConfig {
     var cardsCount: Int { 0 }
 
-    var cardSetLabel: String? { nil }
+    var cardSetLabel: String? {
+        Localization.authWalletMobileDescription
+    }
 
-    var defaultName: String { "Hot Wallet" }
+    var defaultName: String { Localization.hwMobileWallet }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
+    }
+
+    var derivationStyle: DerivationStyle? {
+        .v3
     }
 
     var createWalletCurves: [EllipticCurve] {
@@ -37,16 +40,20 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        fatalError("Unimplemented")
+        MobileWalletSigner(hotWalletInfo: hotWalletInfo)
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
-        GeneralNotificationEventsFactory().makeNotifications(for: hotWallet)
+        GeneralNotificationEventsFactory().makeNotifications(for: hotWalletInfo)
     }
 
     var isWalletsCreated: Bool { true }
 
-    var supportedBlockchains: Set<Blockchain> { SupportedBlockchains(version: .v2).blockchains() }
+    var supportedBlockchains: Set<Blockchain> {
+        var blockchains = SupportedBlockchains(version: .v2).blockchains()
+        blockchains.remove(.hedera(curve: .ed25519_slip0010, testnet: false))
+        return blockchains
+    }
 
     var defaultBlockchains: [StorageEntry] {
         let isTestnet = AppEnvironment.current.isTestnet
@@ -74,11 +81,11 @@ extension HotUserWalletConfig: UserWalletConfig {
     var embeddedBlockchain: StorageEntry? { nil }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: hotWallet)
+        CardEmailDataFactory().makeEmailData(for: hotWalletInfo)
     }
 
     var userWalletIdSeed: Data? {
-        hotWallet.publicKey
+        hotWalletInfo.keys.first?.publicKey
     }
 
     var productType: Analytics.ProductType {
@@ -94,31 +101,49 @@ extension HotUserWalletConfig: UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
-        case .accessCode: .hidden
-        case .passcode: .hidden
-        case .longTap: .hidden
-        case .send: .available
-        case .longHashes: .available
-        case .signedHashesCounter: .hidden
-        case .backup: .hidden
-        case .twinning: .hidden
-        case .exchange: .available
-        case .walletConnect: .available
-        case .multiCurrency: .available
-        case .resetToFactory: .hidden
-        case .receive: .available
-        case .withdrawal: .available
-        case .hdWallets: .available
-        case .staking: .available
-        case .topup: .available
-        case .tokenSynchronization: .available
-        case .referralProgram: .hidden
-        case .swapping: .available
-        case .displayHashesCount: .available
-        case .transactionHistory: .hidden
-        case .accessCodeRecoverySettings: .hidden
-        case .promotion: .available
-        case .nft: .available
+        case .accessCode: return .hidden
+        case .passcode: return .hidden
+        case .longTap: return .hidden
+        case .send: return .available
+        case .longHashes: return .available
+        case .signedHashesCounter: return .hidden
+        case .backup: return .available
+        case .twinning: return .hidden
+        case .exchange: return .available
+        case .walletConnect: return .available
+        case .multiCurrency: return .available
+        case .resetToFactory: return .hidden
+        case .receive: return .available
+        case .withdrawal: return .available
+        case .hdWallets: return .available
+        case .staking: return .available
+        case .topup: return .available
+        case .tokenSynchronization: return .available
+        case .referralProgram: return .hidden
+        case .swapping: return .available
+        case .displayHashesCount: return .available
+        case .transactionHistory: return .hidden
+        case .accessCodeRecoverySettings: return .hidden
+        case .promotion: return .available
+        case .nft: return .available
+        case .iCloudBackup:
+            if hotWalletInfo.hasICloudBackup {
+                return .disabled()
+            }
+
+            return .available
+        case .mnemonicBackup:
+            if hotWalletInfo.hasMnemonicBackup {
+                return .disabled()
+            }
+
+            return .available
+        case .userWalletAccessCode:
+            if hotWalletInfo.isAccessCodeSet {
+                return .disabled()
+            }
+
+            return .available
         }
     }
 
