@@ -64,17 +64,19 @@ struct AuthorizationAPITarget: TargetType {
 
 extension AuthorizationAPITarget {
     struct GenerateNonceRequestDTO: Encodable {
-        let cardId: String
+        let cardId: String?
         let cardPublicKey: String?
         let cardWalletAddress: String?
+        let customerWalletAddress: String?
         let authType: VisaAuthorizationType
     }
 
     struct GetAuthorizationTokensRequestDTO: Encodable {
         let signature: String
-        let salt: String
+        let salt: String?
         let sessionId: String
         let authType: VisaAuthorizationType
+        let messageFormat: String?
     }
 
     struct RefreshAuthoriationTokensRequestDTO: Encodable {
