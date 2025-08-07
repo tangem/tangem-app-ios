@@ -100,7 +100,7 @@ class WelcomeViewModel: ObservableObject {
                     viewModel.error = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -118,14 +118,37 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .success(let cardInfo):
+                let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                guard let userWalletId = UserWalletId(config: config),
+                      let encryptionKey = UserWalletEncryptionKey(config: config) else {
+                    throw UserWalletRepositoryError.cantUnlockWallet
+                }
+
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
 
                     await runOnMain {
                         viewModel.isScanningCard.send(false)
                         viewModel.openMain(with: userWalletModel)
                     }
 
+                } catch UserWalletRepositoryError.notFound {
+                    // new card scanned, add it
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        await runOnMain {
+                            viewModel.isScanningCard.send(false)
+                            viewModel.openMain(with: newUserWalletModel)
+                        }
+                    } else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
                 } catch {
                     viewModel.incomingActionManager.discardIncomingAction()
 
@@ -174,11 +197,11 @@ extension WelcomeViewModel: StoriesDelegate {
     }
 
     func createWallet() {
-        coordinator?.openNewWalletSelector(with: .create)
+        coordinator?.openCreateWallet()
     }
 
     func importWallet() {
-        coordinator?.openNewWalletSelector(with: .import)
+        coordinator?.openImportWallet()
     }
 
     func openTokenList() {
