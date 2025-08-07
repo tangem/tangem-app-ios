@@ -94,8 +94,10 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
             default: false
             }
 
+            let isMemoSupport = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain) != nil
+
             // Filter source item
-            return !isSameAsSource
+            return !isSameAsSource && !isMemoSupport
         }
 
         guard !items.isEmpty else {
