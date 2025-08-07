@@ -120,7 +120,7 @@ class VisaOnboardingViewModel: ObservableObject {
             currentStep = .welcome
         }
 
-        if case .userWalletModel(let userWalletModel) = input.cardInput {
+        if case .userWalletModel(let userWalletModel, _) = input.cardInput {
             self.userWalletModel = userWalletModel
         }
 
@@ -385,12 +385,19 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
     }
 
     private func trySaveAccessCode() {
-        guard let cardId = userWalletModel?.tangemApiAuthData.cardId else {
-            return
+        let cardIdToSave: String
+
+        switch input.cardInput {
+        case .cardId(let cardId):
+            cardIdToSave = cardId
+        case .cardInfo(let cardInfo):
+            cardIdToSave = cardInfo.card.cardId
+        case .userWalletModel(_, let cardId):
+            cardIdToSave = cardId
         }
 
         let accessCode = accessCodeSetupViewModel.accessCode
-        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: [cardId])
+        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: [cardIdToSave])
     }
 }
 
@@ -484,7 +491,7 @@ private extension VisaOnboardingViewModel {
             return
         }
 
-        let searchUtility = VisaApprovePairSearchUtility(isTestnet: false)
+        let searchUtility = VisaApprovePairSearchUtility(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
 
         guard
             let approvePair = searchUtility.findApprovePair(
