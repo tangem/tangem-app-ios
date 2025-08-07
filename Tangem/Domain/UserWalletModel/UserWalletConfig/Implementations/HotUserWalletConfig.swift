@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemHotSdk
 import TangemFoundation
+import TangemLocalization
 
 struct HotUserWalletConfig {
     let hotWalletInfo: HotWalletInfo
@@ -21,11 +22,10 @@ extension HotUserWalletConfig: UserWalletConfig {
     var cardsCount: Int { 0 }
 
     var cardSetLabel: String? {
-        #warning("Add localization")
-        return nil
+        Localization.authWalletMobileDescription
     }
 
-    var defaultName: String { "Mobile Wallet" }
+    var defaultName: String { Localization.hwMobileWallet }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
