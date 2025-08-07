@@ -14,6 +14,7 @@ import TangemSdk
 import TangemVisa
 import TangemLocalization
 import TangemFoundation
+import TangemHotSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
@@ -55,6 +56,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
+    private let mobileWalletSdk = CommonHotSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
 
@@ -134,25 +136,25 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     /// Clean all biometric related data
     func onBiometricsChanged(enabled: Bool) {
-        #warning("hot wallet sdk")
         if enabled {
             models.forEach { model in
                 if let encryptionKey = UserWalletEncryptionKey(config: model.config) {
                     userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: model.userWalletId)
                 }
             }
+            // Biometrics on protected mobile wallets could be enabled only after the user has unlocked the wallet via passcode
         } else {
             accessCodeRepository.clear()
 
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
             visaRefreshTokenRepository.clearPersistent()
+            mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
 
     /// Clean all data except current user wallet
     func onSaveUserWalletsChanged(enabled: Bool) {
-        #warning("hot wallet sdk")
         if enabled {
             savePublicData()
 
@@ -160,6 +162,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 savePrivateData(userWalletModel: selectedModel, encryptionKey: encryptionKey)
                 encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
             }
+
+            // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
         } else {
             let selectedModel = selectedModel
 
@@ -168,6 +172,14 @@ class CommonUserWalletRepository: UserWalletRepository {
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear(userWalletIds: userWalletIds)
             encryptionKeyStorage.clear(userWalletIds: userWalletIds)
+
+            let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
+
+            do {
+                try mobileWalletSdk.delete(walletIDs: modelsToDelete)
+            } catch {
+                Log.error("Failed to delete hot sdk data: \(error.localizedDescription)")
+            }
 
             if let selectedModel {
                 models = [selectedModel]
@@ -187,8 +199,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func select(userWalletId: UserWalletId) {
-        guard selectedUserWalletId != userWalletId,
-              let model = models[userWalletId] else {
+        guard let model = models[userWalletId] else {
             return
         }
 
@@ -218,7 +229,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
-        #warning("delete specific mobile wallet")
+        try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
         if models.isEmpty {
             AppSettings.shared.startWalletUsageDate = nil

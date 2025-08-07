@@ -173,7 +173,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func rejectDAppProposal() {
         if let loadedDAppProposal {
-            Task { [rejectDAppProposal = interactor.rejectDAppProposal, analyticsLogger, logger] in
+            Task { [rejectDAppProposal = interactor.rejectDAppProposal, logger] in
                 do {
                     try await rejectDAppProposal(proposalID: loadedDAppProposal.sessionProposal.id)
                 } catch {

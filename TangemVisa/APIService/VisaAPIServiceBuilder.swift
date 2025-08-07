@@ -51,4 +51,16 @@ public struct VisaAPIServiceBuilder {
 
         return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
+
+    public func buildTangemPayAvailabilityService(
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
+    ) -> TangemPayAvailabilityService {
+        CommonTangemPayAvailabilityService(
+            apiType: apiType,
+            apiService: .init(
+                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                decoder: JSONDecoder()
+            )
+        )
+    }
 }
