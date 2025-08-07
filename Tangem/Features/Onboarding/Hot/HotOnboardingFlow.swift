@@ -11,7 +11,7 @@ enum HotOnboardingFlow {
     case walletImport
     case walletActivate(userWalletModel: UserWalletModel)
     case accessCodeCreate(userWalletModel: UserWalletModel)
-    case accessCodeChange(userWalletModel: UserWalletModel, needAccessCodeValidation: Bool)
+    case accessCodeChange(userWalletModel: UserWalletModel)
     case seedPhraseBackup(userWalletModel: UserWalletModel)
-    case seedPhraseReveal(userWalletModel: UserWalletModel, needAccessCodeValidation: Bool)
+    case seedPhraseReveal(userWalletModel: UserWalletModel)
 }

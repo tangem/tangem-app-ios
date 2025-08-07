@@ -12,31 +12,37 @@ import TangemLocalization
 final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    private let statusUtil: HotStatusUtil
+    private var isBackupNeeded: Bool {
+        !userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
+
+    private var isAccessCodeNeeded: Bool {
+        userWalletModel.config.hasFeature(.userWalletAccessCode)
+    }
+
     private let userWalletModel: UserWalletModel
     private weak var coordinator: HotOnboardingFlowRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: HotOnboardingFlowRoutable) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
         super.init()
     }
 
     override func setupFlow() {
-        if statusUtil.isBackupNeeded {
-            setupBackupFlow()
+        if isBackupNeeded {
+            setupSeedPhraseBackupFlow()
         }
 
-        if statusUtil.isAccessCodeNeeded {
-            setupAccessCodeFlow()
+        if isAccessCodeNeeded {
+            setupAccessCodeBackupFlow()
         }
 
         let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
+        let availabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
 
         if availabilityProvider.isAvailable {
-            let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
+            let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
             let pushNotificationsStep = HotOnboardingPushNotificationsStep(
                 permissionManager: permissionManager,
                 delegate: self
@@ -60,7 +66,7 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
 // MARK: - Flows
 
 private extension HotOnboardingActivateWalletFlowBuilder {
-    func setupBackupFlow() {
+    func setupSeedPhraseBackupFlow() {
         let seedPhraseIntroStep = HotOnboardingSeedPhraseIntroStep(delegate: self)
             .configureNavBar(
                 title: Localization.commonBackup,
@@ -101,7 +107,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
         flow.append(doneStep)
     }
 
-    func setupAccessCodeFlow() {
+    func setupAccessCodeBackupFlow() {
         let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
         createAccessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
         flow.append(createAccessCodeStep)

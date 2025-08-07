@@ -18,7 +18,7 @@ struct NewAuthView: View {
     var body: some View {
         stateView
             .animation(.default, value: viewModel.state)
-            .alert(item: $viewModel.error, content: { $0.alert })
+            .alert(item: $viewModel.alert, content: { $0.alert })
             .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
             .background(Colors.Background.primary.ignoresSafeArea())
             .ignoresSafeArea(.keyboard)
@@ -37,8 +37,8 @@ private extension NewAuthView {
             case .locked:
                 LockView(usesNamespace: false)
                     .transition(.opacity)
-            case .unlocked(let item):
-                unlockedView(item: item)
+            case .wallets(let item):
+                walletsView(item: item)
                     .transition(.opacity)
             case .none:
                 EmptyView()
@@ -46,7 +46,7 @@ private extension NewAuthView {
         }
     }
 
-    func unlockedView(item: ViewModel.UnlockedStateItem) -> some View {
+    func walletsView(item: ViewModel.WalletsStateItem) -> some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 32) {
                 topBar(item: item.addWallet)
@@ -106,43 +106,9 @@ private extension NewAuthView {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 8) {
                 ForEach(items) {
-                    walletView(item: $0)
+                    NewAuthWalletView(item: $0)
                 }
             }
-        }
-    }
-
-    func walletView(item: ViewModel.WalletItem) -> some View {
-        Button(action: item.action) {
-            HStack(spacing: 12) {
-                item.icon.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 36, height: 36)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(item.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                    HStack(spacing: 4) {
-                        Text(item.description)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
-                        if item.isSecured {
-                            Assets.stakingLockIcon.image
-                                .resizable()
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.informative)
-                                .frame(width: 12, height: 12)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 14)
-            .background(Colors.Field.primary)
-            .cornerRadius(14, corners: .allCorners)
         }
     }
 
