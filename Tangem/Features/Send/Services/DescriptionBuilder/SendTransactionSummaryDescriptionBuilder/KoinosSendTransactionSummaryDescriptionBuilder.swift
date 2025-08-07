@@ -22,7 +22,7 @@ struct KoinosSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> String? {
+    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString? {
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
 
         let formattingOptions = BalanceFormattingOptions(
@@ -35,9 +35,13 @@ extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
         let formatter = BalanceFormatter()
         let feeFormatter = CommonFeeFormatter(balanceFormatter: formatter, balanceConverter: .init())
 
-        return Localization.sendSummaryTransactionDescriptionNoFiatFee(
-            formatter.formatFiatBalance(amountInFiat, formattingOptions: formattingOptions),
-            feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
+        let totalInFiatFormatted = formatter.formatFiatBalance(amountInFiat, formattingOptions: formattingOptions)
+        let feeInFiatFormatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
+        let attributedString = makeAttributedString(
+            Localization.sendSummaryTransactionDescriptionNoFiatFee(totalInFiatFormatted, feeInFiatFormatted),
+            richTexts: [totalInFiatFormatted]
         )
+
+        return attributedString
     }
 }
