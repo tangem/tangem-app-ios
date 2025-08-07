@@ -26,7 +26,7 @@ extension CommonAppLockController: AppLockController {
     }
 
     func sceneDidEnterBackground() {
-        if !userWalletRepository.isLocked {
+        if userWalletRepository.shouldLockOnBackground {
             minimizedAppTimer.start()
         }
     }
