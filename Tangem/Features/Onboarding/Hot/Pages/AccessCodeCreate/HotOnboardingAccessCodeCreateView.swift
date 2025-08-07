@@ -23,6 +23,7 @@ struct HotOnboardingAccessCodeCreateView: View {
             .ifLet(viewModel.trailingBavBarItem) { view, item in
                 view.flowNavBar(trailingItem: item.view)
             }
+            .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
             .animation(.default, value: viewModel.state)
     }
 }
