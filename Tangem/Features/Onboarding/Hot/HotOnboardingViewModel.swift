@@ -47,23 +47,20 @@ private extension HotOnboardingViewModel {
         case .accessCodeCreate(let userWalletModel):
             HotOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
-                needAccessCodeValidation: false,
                 needRequestBiometrics: true,
                 coordinator: self
             )
-        case .accessCodeChange(let userWalletModel, let needAccessCodeValidation):
+        case .accessCodeChange(let userWalletModel):
             HotOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
-                needAccessCodeValidation: needAccessCodeValidation,
                 needRequestBiometrics: false,
                 coordinator: self
             )
         case .seedPhraseBackup(let userWalletModel):
             HotOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
-        case .seedPhraseReveal(let userWalletModel, let needAccessCodeValidation):
+        case .seedPhraseReveal(let userWalletModel):
             HotOnboardingRevealSeedPhraseFlowBuilder(
                 userWalletModel: userWalletModel,
-                needAccessCodeValidation: needAccessCodeValidation,
                 coordinator: self
             )
         }
@@ -88,6 +85,10 @@ private extension HotOnboardingViewModel {
 // MARK: - HotOnboardingFlowRoutable
 
 extension HotOnboardingViewModel: HotOnboardingFlowRoutable {
+    func openMain() {
+        coordinator?.onboardingDidFinish(userWalletModel: nil)
+    }
+
     func openMain(userWalletModel: UserWalletModel) {
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }
