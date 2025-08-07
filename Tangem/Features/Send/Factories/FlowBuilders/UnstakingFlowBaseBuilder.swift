@@ -54,7 +54,6 @@ struct UnstakingFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: io,
             actionType: actionType,
-            descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,
             amountEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,

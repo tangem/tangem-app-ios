@@ -224,6 +224,12 @@ extension SendCoordinator: SendRoutable {
         coordinator.start(with: .default)
         sendReceiveTokenCoordinator = coordinator
     }
+
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - OnrampRoutable

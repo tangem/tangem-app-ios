@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 struct UserWalletIdPreflightReadFilter: PreflightReadFilter {
     private let expectedUserWalletId: UserWalletId

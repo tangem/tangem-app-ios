@@ -11,10 +11,10 @@ import TangemSdk
 import BlockchainSdk
 
 public struct VisaWalletPublicKeyUtility {
-    private let visaUtilities: VisaUtilities
+    private let isTestnet: Bool
 
     public init(isTestnet: Bool) {
-        visaUtilities = .init(isTestnet: isTestnet)
+        self.isTestnet = isTestnet
     }
 
     public func findKeyWithoutDerivation(targetAddress: String, on card: Card) throws(SearchError) -> Data {
@@ -38,14 +38,9 @@ public struct VisaWalletPublicKeyUtility {
     }
 
     public func validatePublicKey(targetAddress: String, publicKey: Data) throws(SearchError) {
-        let addressService = visaUtilities.addressService
-
         let createdAddress: Address
         do {
-            createdAddress = try addressService.makeAddress(
-                for: Wallet.PublicKey(seedKey: publicKey, derivationType: .none),
-                with: AddressType.default
-            )
+            createdAddress = try VisaUtilities.makeAddress(walletPublicKey: publicKey, isTestnet: isTestnet)
         } catch {
             throw .failedToGenerateAddress(error)
         }
@@ -58,7 +53,7 @@ public struct VisaWalletPublicKeyUtility {
         extendedPublicKey: ExtendedPublicKey,
         derivationPath: DerivationPath
     ) throws(SearchError) {
-        let addressService = visaUtilities.addressService
+        let addressService = VisaUtilities.makeAddressService(isTestnet: isTestnet)
 
         let createdAddress: Address
         do {
@@ -86,7 +81,7 @@ public struct VisaWalletPublicKeyUtility {
     }
 
     private func findWalletOnVisaCurve(on card: Card) throws(SearchError) -> Card.Wallet {
-        guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.visaBlockchain.curve }) else {
+        guard let wallet = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
             throw .missingWalletOnTargetCurve
         }
 
