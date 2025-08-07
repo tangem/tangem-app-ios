@@ -35,7 +35,7 @@ public final class CommonHotSdk: HotSdk {
             throw HotWalletError.walletAlreadyExists
         }
 
-        try storePublicData(userWalletId, accessCode: PrivateInfoStorageManager.Constants.defaultAccessCode)
+        try storePublicData(for: userWalletId, seedKey: walletIdSeed, accessCode: nil)
 
         try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
@@ -71,11 +71,28 @@ public final class CommonHotSdk: HotSdk {
         return Data()
     }
 
-    public func delete(walletID: UserWalletId) throws {
-        try privateInfoStorageManager.delete(walletID: walletID)
+    public func delete(walletIDs: [UserWalletId]) throws {
+        var errors = [Error]()
 
-        let publicDataStorage = EncryptedSecureStorage()
-        try publicDataStorage.deleteData(keyTag: walletID.publicInfoTag)
+        walletIDs.forEach { walletID in
+            do {
+                try privateInfoStorageManager.delete(walletID: walletID)
+            } catch {
+                errors.append(error)
+            }
+
+            let publicDataStorage = EncryptedSecureStorage()
+
+            do {
+                try publicDataStorage.deleteData(keyTag: walletID.publicInfoTag)
+            } catch {
+                errors.append(error)
+            }
+        }
+
+        if !errors.isEmpty {
+            throw CompoundMobileWalletError(underlying: errors)
+        }
     }
 
     public func updateAccessCode(
@@ -84,8 +101,11 @@ public final class CommonHotSdk: HotSdk {
     ) throws {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
 
+        let seedKey = try publicData(for: context)
+
         try storePublicData(
-            context.walletID,
+            for: context.walletID,
+            seedKey: seedKey,
             accessCode: newAccessCode
         )
     }
@@ -94,6 +114,10 @@ public final class CommonHotSdk: HotSdk {
         context: MobileWalletContext
     ) throws {
         try privateInfoStorageManager.enableBiometrics(context: context)
+    }
+
+    public func clearBiometrics(walletIDs: [UserWalletId]) {
+        privateInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
     }
 
     public func deriveMasterKeys(context: MobileWalletContext) throws -> HotWallet {
@@ -173,17 +197,9 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
-        guard case .accessCode(let accessCode) = context.authentication else {
-            throw HotWalletError.accessCodeIsRequired
-        }
-        let publicDataStorage = EncryptedSecureStorage()
-        let userWalletIdSeed = try publicDataStorage.getData(
-            keyTag: context.walletID.publicInfoTag,
-            secureEnclaveKeyTag: context.walletID.publicInfoSecureEnclaveTag,
-            accessCode: accessCode
-        )
+        let seedKey = try publicData(for: context)
 
-        return UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed)
+        return UserWalletEncryptionKey(userWalletIdSeed: seedKey)
     }
 
     public func sign(
@@ -229,12 +245,27 @@ public final class CommonHotSdk: HotSdk {
 }
 
 private extension CommonHotSdk {
-    func storePublicData(_ userWalletId: UserWalletId, accessCode: String) throws {
+    func storePublicData(for userWalletId: UserWalletId, seedKey: Data, accessCode: String?) throws {
         let publicDataStorage = EncryptedSecureStorage()
         try publicDataStorage.storeData(
-            userWalletId.value,
+            seedKey,
             keyTag: userWalletId.publicInfoTag,
             secureEnclaveKeyTag: userWalletId.publicInfoSecureEnclaveTag,
+            accessCode: accessCode
+        )
+    }
+
+    func publicData(for context: MobileWalletContext) throws -> Data {
+        let accessCode: String? = switch context.authentication {
+        case .accessCode(let code): code
+        case .none: nil
+        case .biometrics: throw HotWalletError.accessCodeIsRequired
+        }
+        let publicDataStorage = EncryptedSecureStorage()
+
+        return try publicDataStorage.getData(
+            keyTag: context.walletID.publicInfoTag,
+            secureEnclaveKeyTag: context.walletID.publicInfoSecureEnclaveTag,
             accessCode: accessCode
         )
     }

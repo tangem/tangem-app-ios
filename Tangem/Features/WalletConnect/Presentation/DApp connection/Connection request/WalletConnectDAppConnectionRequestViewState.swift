@@ -40,7 +40,7 @@ extension WalletConnectDAppConnectionRequestViewState {
         struct ContentState: Equatable {
             let iconAsset = Assets.Glyphs.connectNew
             let label = Localization.wcConnectionRequest
-            let trailingIconAsset = Assets.Glyphs.chevronRightNew
+            let trailingIconAsset = Assets.Glyphs.chevronDownNew
             var isExpanded: Bool
 
             let wouldLikeToGroup = BulletGroup(

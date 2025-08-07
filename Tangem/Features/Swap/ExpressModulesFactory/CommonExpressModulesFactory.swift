@@ -61,7 +61,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressTokensListAdapter: expressTokensListAdapter,
             expressRepository: expressRepository,
             expressInteractor: expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            userWalletModelConfig: userWalletModel.config
         )
     }
 
