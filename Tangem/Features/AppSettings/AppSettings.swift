@@ -114,6 +114,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
     var isSendWithSwapOnboardNotificationHidden: Bool = false
 
+    @AppStorageCompat(StorageType.userWalletIdsWithSkippedAccessCode)
+    var userWalletIdsWithSkippedAccessCode: [String] = []
+
     static let shared: AppSettings = .init()
 
     private init() {}
