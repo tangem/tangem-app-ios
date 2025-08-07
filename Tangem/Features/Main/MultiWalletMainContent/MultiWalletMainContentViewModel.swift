@@ -463,7 +463,7 @@ extension MultiWalletMainContentViewModel {
 
     private func openHotFinishActivation() {
         // [REDACTED_TODO_COMMENT]
-        coordinator?.openHotFinishActivation()
+        coordinator?.openHotFinishActivation(userWalletModel: userWalletModel)
     }
 }
 
