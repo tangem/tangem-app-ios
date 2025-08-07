@@ -667,19 +667,26 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
                 swapManager.selectedProviderPublisher
             )
             .withWeakCaptureOf(self)
-            .flatMap { model, args -> AnyPublisher<SendSummaryTransactionData?, Never> in
+            .flatMap {
+                model,
+                    args -> AnyPublisher<SendSummaryTransactionData?, Never> in
                 let (state, selectedProvider) = args
                 switch state {
                 case .loading(.refreshRates), .loading(.fee):
                     return Empty().eraseToAnyPublisher()
                 case .idle, .loading(.full):
                     return .just(output: .none)
-                case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
+                case let state:
                     guard let provider = selectedProvider?.provider else {
                         return .just(output: .none)
                     }
 
-                    return .just(output: .swap(provider: provider))
+                    let amount = state.quote?.fromAmount
+                    let fee = try? state.fees.selectedFee()
+
+                    return .just(
+                        output: .swap(amount: amount, fee: fee, provider: provider)
+                    )
                 }
             }
             .eraseToAnyPublisher()

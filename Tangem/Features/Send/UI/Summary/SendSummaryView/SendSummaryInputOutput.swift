@@ -30,5 +30,5 @@ protocol SendSummaryOutput: AnyObject {}
 enum SendSummaryTransactionData {
     case send(amount: Decimal, fee: Fee)
     case staking(amount: SendAmount, schedule: RewardScheduleType)
-    case swap(provider: ExpressProvider)
+    case swap(amount: Decimal?, fee: Fee?, provider: ExpressProvider)
 }
