@@ -19,6 +19,7 @@ actor CommonExpressManager {
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
     private let analyticsLogger: ExpressAnalyticsLogger
+    private let supportedProviderTypes: [ExpressProviderType]
 
     // MARK: - State
 
@@ -38,12 +39,14 @@ actor CommonExpressManager {
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
-        analyticsLogger: ExpressAnalyticsLogger
+        analyticsLogger: ExpressAnalyticsLogger,
+        supportedProviderTypes: [ExpressProviderType]
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.analyticsLogger = analyticsLogger
+        self.supportedProviderTypes = supportedProviderTypes
     }
 }
 
@@ -90,7 +93,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
-            ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
+            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
         }
 
@@ -103,7 +106,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerState {
         guard _feeOption != feeOption else {
-            ExpressLogger.info(self, "ExpressFeeOption already is \(feeOption)")
+            ExpressLogger.warning(self, "ExpressFeeOption already is \(feeOption)")
             return try await selectedProviderState()
         }
 
@@ -187,7 +190,7 @@ private extension CommonExpressManager {
 
         // Setup providers manager only once
         if availableProviders.isEmpty {
-            let providers = try await expressRepository.providers()
+            let providers = try await expressRepository.providers().filter { supportedProviderTypes.contains($0.type) }
             allProviders = providers.compactMap { provider in
                 guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider) else {
                     return nil
