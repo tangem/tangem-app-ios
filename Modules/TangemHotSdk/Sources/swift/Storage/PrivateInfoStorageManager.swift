@@ -39,7 +39,7 @@ final class PrivateInfoStorageManager {
             aesEncryptionKey,
             keyTag: walletID.encryptionKeyTag,
             secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
-            accessCode: Constants.defaultAccessCode
+            accessCode: nil
         )
     }
 
@@ -77,7 +77,7 @@ final class PrivateInfoStorageManager {
         )
     }
 
-    public func enableBiometrics(
+    func enableBiometrics(
         context: MobileWalletContext
     ) throws {
         let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
@@ -89,12 +89,33 @@ final class PrivateInfoStorageManager {
         )
     }
 
+    func clearBiometrics(walletIDs: [UserWalletId]) {
+        walletIDs.forEach { walletID in
+            try? encryptedBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
+        }
+    }
+
     func delete(walletID: UserWalletId) throws {
-        try privateInfoStorage.deletePrivateInfoData(for: walletID)
+        var errors = [Error]()
 
-        try encryptedSecureStorage.deleteData(keyTag: walletID.encryptionKeyTag)
+        do {
+            try privateInfoStorage.deletePrivateInfoData(for: walletID)
+        } catch {
+            errors.append(error)
+        }
 
+        do {
+            try encryptedSecureStorage.deleteData(keyTag: walletID.encryptionKeyTag)
+        } catch {
+            errors.append(error)
+        }
+
+        // biometrics storage is optional, so we don't throw an error if it fails to delete
         try? encryptedBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
+
+        if !errors.isEmpty {
+            throw CompoundMobileWalletError(underlying: errors)
+        }
     }
 }
 
@@ -118,7 +139,7 @@ private extension PrivateInfoStorageManager {
             try encryptedSecureStorage.getData(
                 keyTag: walletID.encryptionKeyTag,
                 secureEnclaveKeyTag: walletID.encryptionKeySecureEnclaveTag,
-                accessCode: Constants.defaultAccessCode
+                accessCode: nil
             )
         }
     }
@@ -135,7 +156,6 @@ extension PrivateInfoStorageManager {
         static let publicInfoPrefix = "hotsdk_public_info_"
         static let publicInfoSecureEnclavePrefix = "hotsdk_public_info_secure_enclave_"
         static let aesKeySize = 32
-        static let defaultAccessCode = "0000"
     }
 }
 
