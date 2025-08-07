@@ -23,7 +23,7 @@ final class HotOnboardingCreateWalletFlowBuilder: HotOnboardingFlowBuilder {
                     self?.closeOnboarding()
                 })
             )
-        flow.append(createWalletStep)
+        append(step: createWalletStep)
     }
 }
 
