@@ -127,7 +127,7 @@ private extension ImportWalletSelectorViewModel {
                     viewModel.error = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {

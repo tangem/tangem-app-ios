@@ -402,7 +402,7 @@ private extension DetailsViewModel {
                     viewModel.alert = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 await runOnMain {
                     viewModel.isScanning = false
                     viewModel.openOnboarding(with: input)
