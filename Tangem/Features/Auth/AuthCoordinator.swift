@@ -32,7 +32,6 @@ class AuthCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
-    @Published var hotAccessCodeViewModel: HotAccessCodeViewModel?
 
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
@@ -84,17 +83,6 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
-    func openHotAccessCode(with userWalletModel: UserWalletModel) {
-        let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
-        let unlockItem = HotAccessCodeViewModel.BiometryUnlockModeItem(
-            openMain: weakify(self, forFunction: AuthCoordinator.openMain)
-        )
-        hotAccessCodeViewModel = HotAccessCodeViewModel(
-            manager: manager,
-            unlockMode: .biometry(unlockItem)
-        )
-    }
-
     func openCreateWallet() {
         let dismissAction: Action<CreateWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -125,17 +113,5 @@ extension AuthCoordinator: NewAuthRoutable {
 
     func openShop() {
         safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
-    }
-}
-
-// MARK: - CommonHotAccessCodeManagerDelegate
-
-extension AuthCoordinator: CommonHotAccessCodeManagerDelegate {
-    func handleAccessCodeSuccessful(userWalletModel: UserWalletModel) {
-        openMain(with: userWalletModel)
-    }
-
-    func handleAccessCodeDelete(userWalletModel: UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
     }
 }
