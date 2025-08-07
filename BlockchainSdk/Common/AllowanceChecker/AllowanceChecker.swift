@@ -35,7 +35,7 @@ public struct AllowanceChecker {
         }
 
         var allowance = try await getAllowance(owner: walletAddress, to: spender, contract: contract)
-        allowance /= blockchain.decimalValue
+        allowance /= try decimalValue()
         BSDKLogger.info("\(amountType.token?.name as Any) allowance - \(allowance)")
 
         // If we don't have enough allowance
@@ -72,7 +72,7 @@ public struct AllowanceChecker {
         }
 
         let approveAmount: Decimal = switch policy {
-        case .specified: amount * blockchain.decimalValue
+        case .specified: try amount * decimalValue()
         case .unlimited: .greatestFiniteMagnitude
         }
 
@@ -90,6 +90,14 @@ public struct AllowanceChecker {
 
         return .init(txData: data, spender: spender, toContractAddress: contract, fee: fee)
     }
+
+    private func decimalValue() throws -> Decimal {
+        switch amountType {
+        case .coin: blockchain.decimalValue
+        case .token(let token): token.decimalValue
+        case .feeResource, .reserve: throw AllowanceCheckerError.wrongAmountType
+        }
+    }
 }
 
 public enum AllowanceCheckerError: String, Hashable, LocalizedError {
@@ -97,6 +105,7 @@ public enum AllowanceCheckerError: String, Hashable, LocalizedError {
     case ethereumNetworkProviderNotFound
     case ethereumTransactionDataBuilderNotFound
     case approveFeeNotFound
+    case wrongAmountType
 
     public var errorDescription: String? {
         switch self {
@@ -104,6 +113,7 @@ public enum AllowanceCheckerError: String, Hashable, LocalizedError {
         case .ethereumNetworkProviderNotFound: "Ethereum network provider not found."
         case .ethereumTransactionDataBuilderNotFound: "Ethereum transaction data builder not found."
         case .approveFeeNotFound: "Approve fee not found."
+        case .wrongAmountType: "Wrong amount type."
         }
     }
 }
