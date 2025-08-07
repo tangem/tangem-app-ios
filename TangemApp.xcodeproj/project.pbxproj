@@ -90,7 +90,6 @@
 		0F27862D2E2AEAC500742D0F /* HotOnboardingImportWalletStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27862C2E2AEAC500742D0F /* HotOnboardingImportWalletStep.swift */; };
 		0F27862F2E2AED7C00742D0F /* HotOnboardingSuccessStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27862E2E2AED7C00742D0F /* HotOnboardingSuccessStep.swift */; };
 		0F2786312E2B754400742D0F /* HotOnboardingCreateAccessCodeStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786302E2B754400742D0F /* HotOnboardingCreateAccessCodeStep.swift */; };
-		0F2786332E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786322E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift */; };
 		0F2786352E2B86EA00742D0F /* HotOnboardingPushNotificationsStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786342E2B86EA00742D0F /* HotOnboardingPushNotificationsStep.swift */; };
 		0F2786372E2B8A6F00742D0F /* HotOnboardingActivateWalletFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786362E2B8A6F00742D0F /* HotOnboardingActivateWalletFlowBuilder.swift */; };
 		0F2786392E2B8B0200742D0F /* HotOnboardingSeedPhraseIntroStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786382E2B8B0200742D0F /* HotOnboardingSeedPhraseIntroStep.swift */; };
@@ -4093,7 +4092,6 @@
 		0F27862C2E2AEAC500742D0F /* HotOnboardingImportWalletStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingImportWalletStep.swift; sourceTree = "<group>"; };
 		0F27862E2E2AED7C00742D0F /* HotOnboardingSuccessStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSuccessStep.swift; sourceTree = "<group>"; };
 		0F2786302E2B754400742D0F /* HotOnboardingCreateAccessCodeStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingCreateAccessCodeStep.swift; sourceTree = "<group>"; };
-		0F2786322E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingAccessCodeCreateRoutable.swift; sourceTree = "<group>"; };
 		0F2786342E2B86EA00742D0F /* HotOnboardingPushNotificationsStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingPushNotificationsStep.swift; sourceTree = "<group>"; };
 		0F2786362E2B8A6F00742D0F /* HotOnboardingActivateWalletFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingActivateWalletFlowBuilder.swift; sourceTree = "<group>"; };
 		0F2786382E2B8B0200742D0F /* HotOnboardingSeedPhraseIntroStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingSeedPhraseIntroStep.swift; sourceTree = "<group>"; };
@@ -8338,7 +8336,6 @@
 			children = (
 				0FFA350B2E058FD400ACB48F /* HotOnboardingAccessCodeCreateView.swift */,
 				0FFA350C2E058FD400ACB48F /* HotOnboardingAccessCodeCreateViewModel.swift */,
-				0F2786322E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift */,
 				0FFA350A2E058FD400ACB48F /* HotOnboardingAccessCodeCreateDelegate.swift */,
 			);
 			path = AccessCodeCreate;
@@ -22216,7 +22213,6 @@
 				EF4C045B2DEF2A740059D7AA /* FeeSelectorContentView.swift in Sources */,
 				EF4C045C2DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift in Sources */,
 				C207D60D2DE60F2500A5FB2E /* WalletConnectResolveAvailableBlockchainsUseCase.swift in Sources */,
-				0F2786332E2B7D5C00742D0F /* HotOnboardingAccessCodeCreateRoutable.swift in Sources */,
 				C207D60E2DE60F2500A5FB2E /* WalletConnectGetDAppConnectionProposalUseCase.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				EFC84B0E2C37FAB500546882 /* SendSummaryStepBuilder.swift in Sources */,
