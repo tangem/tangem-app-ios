@@ -10,5 +10,5 @@ import Combine
 
 protocol HotAccessCodeManager {
     var statePublisher: AnyPublisher<HotAccessCodeState, Never> { get }
-    func validate(accessCode: String) throws
+    func validate(accessCode: String)
 }

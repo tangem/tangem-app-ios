@@ -8,16 +8,32 @@
 
 import Foundation
 import TangemLocalization
+import TangemFoundation
+import TangemHotSdk
 import class TangemSdk.BiometricsUtil
 
-struct HotSettingsUtil {
-    private let statusUtil: HotStatusUtil
+final class HotSettingsUtil {
+    private var isAccessCodeFeatureAvailable: Bool {
+        userWalletConfig.isFeatureVisible(.userWalletAccessCode)
+    }
 
-    private let userWalletModel: UserWalletModel
+    private var isBackupFeatureAvailable: Bool {
+        userWalletConfig.isFeatureVisible(.backup)
+    }
+
+    private var isBackupNeeded: Bool {
+        !userWalletConfig.hasFeature(.mnemonicBackup)
+    }
+
+    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletId, config: userWalletConfig)
+
+    private let userWalletId: UserWalletId
+    private let userWalletConfig: UserWalletConfig
 
     init(userWalletModel: UserWalletModel) {
-        self.userWalletModel = userWalletModel
-        statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
+        userWalletId = userWalletModel.userWalletId
+        userWalletConfig = userWalletModel.config
     }
 }
 
@@ -27,56 +43,90 @@ extension HotSettingsUtil {
     var walletSettings: [WalletSetting] {
         var settings: [WalletSetting] = []
 
-        if statusUtil.isAccessCodeFeatureAvailable {
+        if isAccessCodeFeatureAvailable {
             settings.append(.accessCode)
         }
 
-        if statusUtil.isBackupFeatureAvailable {
-            settings.append(.backup(hasBackup: !statusUtil.isBackupNeeded))
+        if isBackupFeatureAvailable {
+            settings.append(.backup(hasBackup: !isBackupNeeded))
         }
 
         return settings
     }
 
-    func calculateAccessCodeState() async -> AccessCodeState {
-        if statusUtil.isBackupNeeded {
-            return .backupNeeded
+    func calculateAccessCodeState() async -> AccessCodeState? {
+        if isBackupNeeded {
+            return .needsBackup
         }
 
-        if !statusUtil.isAccessCodeCreated {
-            return .onboarding(needsValidation: false)
+        switch await unlock() {
+        case .successful:
+            return .onboarding
+        case .canceled, .failed:
+            return .none
         }
-
-        if statusUtil.isAccessCodeRequired {
-            return .onboarding(needsValidation: true)
-        }
-
-        let isBiometricsSuccessful = await isBiometricsSuccessful()
-
-        return .onboarding(needsValidation: !isBiometricsSuccessful)
     }
 
-    func calculateSeedPhraseState() async -> SeedPhraseState {
-        guard statusUtil.isAccessCodeCreated else {
-            return .onboarding(needsValidation: false)
-        }
-
-        if statusUtil.isAccessCodeRequired {
-            return .onboarding(needsValidation: true)
-        } else {
-            let isBiometricsSuccessful = await isBiometricsSuccessful()
-            return .onboarding(needsValidation: !isBiometricsSuccessful)
+    func calculateSeedPhraseState() async -> SeedPhraseState? {
+        switch await unlock() {
+        case .successful:
+            return .onboarding
+        case .canceled, .failed:
+            return .none
         }
     }
 }
 
-// MARK: - Private methods
+// MARK: - Unlocking
 
 private extension HotSettingsUtil {
-    // [REDACTED_TODO_COMMENT]
-    func isBiometricsSuccessful() async -> Bool {
-        let context = try? await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-        return context != nil
+    func unlock() async -> UnlockResult {
+        do {
+            let result = try await accessCodeUtil.unlock(method: .default(useBiometrics: false))
+
+            switch result {
+            case .accessCode(let context):
+                let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+
+                guard
+                    let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
+                    encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
+                else {
+                    return .failed
+                }
+
+                return .successful
+
+            case .biometricsRequired:
+                let context = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+                let storageEncryptionKeys = try UserWalletEncryptionKeyStorage().fetch(userWalletIds: [userWalletId], context: context)
+
+                guard
+                    let storageEncryptionKey = storageEncryptionKeys[userWalletId],
+                    let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
+                    storageEncryptionKey == configEncryptionKey
+                else {
+                    return .failed
+                }
+
+                return .successful
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                return .failed
+            }
+
+        } catch {
+            return .failed
+        }
+    }
+
+    enum UnlockResult {
+        case successful
+        case canceled
+        case failed
     }
 }
 
@@ -89,11 +139,11 @@ extension HotSettingsUtil {
     }
 
     enum AccessCodeState {
-        case backupNeeded
-        case onboarding(needsValidation: Bool)
+        case needsBackup
+        case onboarding
     }
 
     enum SeedPhraseState {
-        case onboarding(needsValidation: Bool)
+        case onboarding
     }
 }
