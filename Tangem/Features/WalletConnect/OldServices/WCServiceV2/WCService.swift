@@ -13,7 +13,6 @@ protocol WCService {
     var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> { get }
 
     func initialize()
-    func reset()
 
     func openSession(with uri: WalletConnectRequestURI) async throws -> (Session.Proposal, VerifyContext?)
 
