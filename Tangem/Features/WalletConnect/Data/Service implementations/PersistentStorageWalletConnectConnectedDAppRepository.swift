@@ -9,18 +9,25 @@
 actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnectedDAppRepository {
     private let persistentStorage: any PersistentStorageProtocol
     private var inMemoryCache: [WalletConnectConnectedDApp]
+    private var isWarmedUp = false
 
     private var continuation: AsyncStream<[WalletConnectConnectedDApp]>.Continuation?
+
+    var prefetchedDApps: [WalletConnectConnectedDApp]? {
+        guard isWarmedUp else {
+            return nil
+        }
+        return inMemoryCache
+    }
 
     init(persistentStorage: some PersistentStorageProtocol) {
         self.persistentStorage = persistentStorage
         inMemoryCache = []
     }
 
-    func makeDAppsStream() async -> AsyncStream<[WalletConnectConnectedDApp]> {
+    func makeDAppsStream() -> AsyncStream<[WalletConnectConnectedDApp]> {
         AsyncStream { continuation in
             self.continuation = continuation
-            continuation.yield(inMemoryCache)
         }
     }
 
@@ -45,17 +52,11 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     }
 
     func getAllDApps() async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
-        let dAppDTOs: [WalletConnectConnectedDAppPersistentDTO]?
-
-        do {
-            dAppDTOs = try persistentStorage.value(for: .walletConnectSessions)
-        } catch {
-            throw WalletConnectDAppPersistenceError.retrievingFailed
+        if let prefetchedDApps {
+            return prefetchedDApps
         }
 
-        let dApps = dAppDTOs?.map(WalletConnectConnectedDAppMapper.mapToDomain) ?? []
-
-        inMemoryCache = dApps
+        inMemoryCache = try await fetch()
         continuation?.yield(inMemoryCache)
 
         return inMemoryCache
@@ -81,6 +82,17 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         continuation?.yield(inMemoryCache)
 
         return inMemoryCache
+    }
+
+    private func fetch() async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
+        do {
+            let dAppDTOs: [WalletConnectConnectedDAppPersistentDTO]? = try persistentStorage.value(for: .walletConnectSessions)
+            let dApps = dAppDTOs?.map(WalletConnectConnectedDAppMapper.mapToDomain) ?? []
+            isWarmedUp = true
+            return dApps
+        } catch {
+            throw WalletConnectDAppPersistenceError.retrievingFailed
+        }
     }
 
     private func persist(_ allDApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError) {

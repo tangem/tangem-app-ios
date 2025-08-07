@@ -268,6 +268,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .flatMap { viewModel, feeStatus -> AnyPublisher<AlertBinder?, Never> in
                 if let alert = viewModel.buildFulfillAssetRequirementsAlertIfNeeded(for: requirementsCondition, feeStatus: feeStatus) {
                     sendAnalytics(isSuccessful: false)
+                    viewModel.isFulfillingAssetRequirements = false
                     return Just(alert).eraseToAnyPublisher()
                 } else {
                     sendAnalytics(isSuccessful: true)
