@@ -15,13 +15,8 @@ protocol SendNewSummaryInteractor: AnyObject {
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
-    var transactionDescription: AnyPublisher<SummaryDescriptionType?, Never> { get }
+    var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
-}
-
-enum SummaryDescriptionType {
-    case string(String)
-    case attributed(AttributedString)
 }
 
 class CommonSendNewSummaryInteractor {
@@ -62,7 +57,7 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
         }
     }
 
-    var transactionDescription: AnyPublisher<SummaryDescriptionType?, Never> {
+    var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
@@ -109,16 +104,16 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
 // MARK: - Private
 
 private extension CommonSendNewSummaryInteractor {
-    private func summaryDescription(data: SendSummaryTransactionData?) -> SummaryDescriptionType? {
+    private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
         case .none, .staking:
             return nil
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
-            return description.map { .string($0) }
-        case .swap(let provider):
-            let description = swapDescriptionBuilder.makeDescription(provider: provider)
-            return description.map { .attributed($0) }
+            return description
+        case .swap(let amount, let fee, let provider):
+            let description = swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+            return description
         }
     }
 }
