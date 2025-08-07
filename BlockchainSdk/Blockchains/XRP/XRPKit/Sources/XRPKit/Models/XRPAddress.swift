@@ -28,10 +28,10 @@ struct XRPAddress {
         guard let data = XRPBase58.getData(from: xAddress) else {
             throw XRPError.invalidAddress
         }
-        let check = data.suffix(4).bytes
-        let prefix = data.prefix(2).bytes
+        let check: [UInt8] = data.suffix(4).bytes
+        let prefix: [UInt8] = data.prefix(2).bytes
         let withoutCheksum = data.dropLast(4)
-        let tagBytes = withoutCheksum.suffix(8).bytes
+        let tagBytes: [UInt8] = withoutCheksum.suffix(8).bytes
         let flags = withoutCheksum.dropLast(8).suffix(1).first
         let accountId = withoutCheksum.dropLast(9).dropFirst(2)
 
