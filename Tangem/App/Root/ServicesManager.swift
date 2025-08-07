@@ -25,6 +25,7 @@ class ServicesManager {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.wcService) private var wcService: any WCService
+    @Injected(\.hotAccessCodeStorageManager) private var hotAccessCodeStorageManager: HotAccessCodeStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -58,15 +59,15 @@ class ServicesManager {
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
         userTokensPushNotificationsService.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
-
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.initialize()
         }
+        hotAccessCodeStorageManager.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
