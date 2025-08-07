@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 struct Start2CoinConfig: CardContainer {
     let card: CardDTO
@@ -143,6 +144,12 @@ extension Start2CoinConfig: UserWalletConfig {
         case .promotion:
             return .hidden
         case .nft:
+            return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
             return .hidden
         }
     }

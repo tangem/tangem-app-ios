@@ -16,41 +16,49 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var icon: LoadingValue<ImageValue> = .loading
     @Published var cardsCount: String
     @Published var tokensCount: Int
+    @Published var isUserWalletBackupNeeded: Bool = false
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     let tapAction: () -> Void
 
     let isUserWalletLocked: Bool
-    private let userWalletNamePublisher: AnyPublisher<String, Never>
+    private let userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
+    private let isUserWalletBackupNeededPublisher: AnyPublisher<Bool, Never>
     private let walletImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
         self.init(
+            name: userWallet.name,
             cardsCount: userWallet.cardsCount,
             tokensCount: userWallet.userTokenListManager.userTokens.count,
             isUserWalletLocked: userWallet.isUserWalletLocked,
-            userWalletNamePublisher: userWallet.userWalletNamePublisher,
+            userWalletUpdatePublisher: userWallet.updatePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
+            isUserWalletBackupNeededPublisher: Empty().eraseToAnyPublisher(), // [REDACTED_TODO_COMMENT]
             walletImageProvider: userWallet.walletImageProvider,
             tapAction: tapAction
         )
     }
 
     init(
+        name: String,
         cardsCount: Int,
         tokensCount: Int = 0,
         isUserWalletLocked: Bool,
-        userWalletNamePublisher: AnyPublisher<String, Never>,
+        userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
+        isUserWalletBackupNeededPublisher: AnyPublisher<Bool, Never>,
         walletImageProvider: WalletImageProviding,
         tapAction: @escaping () -> Void
     ) {
+        self.name = name
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
         self.tokensCount = tokensCount
         self.isUserWalletLocked = isUserWalletLocked
-        self.userWalletNamePublisher = userWalletNamePublisher
+        self.userWalletUpdatePublisher = userWalletUpdatePublisher
         self.totalBalancePublisher = totalBalancePublisher
+        self.isUserWalletBackupNeededPublisher = isUserWalletBackupNeededPublisher
         self.walletImageProvider = walletImageProvider
         self.tapAction = tapAction
         bind()
@@ -71,7 +79,8 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     }
 
     func bind() {
-        userWalletNamePublisher
+        userWalletUpdatePublisher
+            .compactMap(\.newName)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, name in
@@ -83,6 +92,14 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { $0.setupBalanceState(state: $1) }
+            .store(in: &bag)
+
+        isUserWalletBackupNeededPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isBackupNeeded in
+                viewModel.isUserWalletBackupNeeded = isBackupNeeded
+            }
             .store(in: &bag)
     }
 

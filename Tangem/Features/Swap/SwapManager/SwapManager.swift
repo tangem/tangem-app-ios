@@ -22,12 +22,16 @@ protocol SwapManager {
     var state: SwapManagerState { get }
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
+    var providers: [ExpressAvailableProvider] { get async }
+    var selectedProvider: ExpressAvailableProvider? { get async }
+
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
     func update(amount: Decimal?)
     func update(destination: TokenItem?, address: String?)
     func update(provider: ExpressAvailableProvider)
+    func update(feeOption: FeeOption)
 
     func update()
     func updateFees()

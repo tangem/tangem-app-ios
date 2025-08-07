@@ -20,7 +20,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationButtonIsLoading = false
 
-    @Published var transactionDescription: String?
+    @Published var transactionDescription: AttributedString?
     @Published var transactionDescriptionIsVisible: Bool = false
 
     var destinationCompactViewType: SendCompactViewEditableType {
@@ -39,32 +39,28 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private let tokenItem: TokenItem
+    private let interactor: SendNewSummaryInteractor
     private let destinationEditableType: EditableType
     private let amountEditableType: EditableType
-    private let interactor: SendSummaryInteractor
     private let notificationManager: NotificationManager
-    private let actionType: SendFlowActionType
 
     weak var router: SendSummaryStepsRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        settings: Settings,
-        interactor: SendSummaryInteractor,
+        interactor: SendNewSummaryInteractor,
+        destinationEditableType: EditableType,
+        amountEditableType: EditableType,
         notificationManager: NotificationManager,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) {
-        destinationEditableType = settings.destinationEditableType
-        amountEditableType = settings.amountEditableType
-        tokenItem = settings.tokenItem
-        actionType = settings.actionType
-
         self.interactor = interactor
+        self.destinationEditableType = destinationEditableType
+        self.amountEditableType = amountEditableType
         self.notificationManager = notificationManager
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
@@ -128,24 +124,18 @@ private extension SendNewSummaryViewModel {
     func bind() {
         interactor
             .transactionDescription
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.transactionDescription, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$transactionDescription)
 
         interactor
             .isNotificationButtonIsLoading
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationButtonIsLoading, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$notificationButtonIsLoading)
 
         notificationManager
             .notificationPublisher
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, notificationInputs in
-                viewModel.notificationInputs = notificationInputs
-            }
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$notificationInputs)
     }
 }
 
@@ -156,6 +146,5 @@ extension SendNewSummaryViewModel: SendStepViewAnimatable {
 }
 
 extension SendNewSummaryViewModel {
-    typealias Settings = SendSummaryViewModel.Settings
     typealias EditableType = SendSummaryViewModel.EditableType
 }
