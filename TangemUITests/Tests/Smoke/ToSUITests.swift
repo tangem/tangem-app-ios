@@ -11,7 +11,7 @@ final class ToSUITests: BaseTestCase {
     lazy var tosPage = ToSScreen(app)
 
     func testAcceptToSAndScanWallet_ShouldShowMainScreen() {
-        id(3573)
+        setAllureId(3573)
         launchApp(tangemApiType: .mock, skipToS: false)
 
         tosPage
