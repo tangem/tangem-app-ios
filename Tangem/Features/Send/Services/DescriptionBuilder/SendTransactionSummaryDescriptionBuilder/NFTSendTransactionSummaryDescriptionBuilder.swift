@@ -20,11 +20,16 @@ struct NFTSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder protocol conformance
 
 extension NFTSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount _: Decimal, fee: BSDKFee) -> String? {
+    func makeDescription(amount _: Decimal, fee: BSDKFee) -> AttributedString? {
         let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
         let feeFormatter = BalanceFormatter()
         let feeInFiatFormatted = feeFormatter.formatFiatBalance(feeInFiat, formattingOptions: .defaultFiatFormattingOptions)
 
-        return Localization.sendSummaryTransactionDescription(Localization.commonNft, feeInFiatFormatted)
+        let attributedString = makeAttributedString(
+            Localization.sendSummaryTransactionDescription(Localization.commonNft, feeInFiatFormatted),
+            richTexts: [Localization.commonNft]
+        )
+
+        return attributedString
     }
 }
