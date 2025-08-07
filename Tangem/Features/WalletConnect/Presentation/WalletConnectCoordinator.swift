@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import protocol TangemUI.FloatingSheetContentViewModel
 
 final class WalletConnectCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -36,11 +35,13 @@ final class WalletConnectCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: WalletConnectCoordinator.Options) {
+    func start(with options: Options) {
         Task { @MainActor in
             if FeatureProvider.isAvailable(.walletConnectUI) {
-                viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(coordinator: self)
-                viewModel?.fetchConnectedDApps()
+                viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(
+                    coordinator: self,
+                    prefetchedConnectedDApps: options.prefetchedConnectedDApps
+                )
             } else {
                 legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
             }
@@ -51,6 +52,7 @@ final class WalletConnectCoordinator: CoordinatorObject {
 extension WalletConnectCoordinator {
     struct Options {
         let disabledLocalizedReason: String?
+        let prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
     }
 }
 
@@ -65,9 +67,8 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
     }
 
-    func openQRScanner(clipboardURI: WalletConnectRequestURI?, completion: @escaping (WalletConnectQRScanResult) -> Void) {
+    func openQRScanner(completion: @escaping (WalletConnectQRScanResult) -> Void) {
         let (coordinator, options) = WalletConnectModuleFactory.makeQRScanFlow(
-            clipboardURI: clipboardURI,
             dismissAction: { [weak self] qrScanResult in
                 if let qrScanResult {
                     completion(qrScanResult)
