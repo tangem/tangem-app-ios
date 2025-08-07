@@ -11,31 +11,21 @@ import TangemLocalization
 
 final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
-    private let needAccessCodeValidation: Bool
     private let needRequestBiometrics: Bool
     private weak var coordinator: HotOnboardingFlowRoutable?
 
     init(
         userWalletModel: UserWalletModel,
-        needAccessCodeValidation: Bool,
         needRequestBiometrics: Bool,
         coordinator: HotOnboardingFlowRoutable
     ) {
         self.userWalletModel = userWalletModel
-        self.needAccessCodeValidation = needAccessCodeValidation
         self.needRequestBiometrics = needRequestBiometrics
         self.coordinator = coordinator
         super.init()
     }
 
     override func setupFlow() {
-        if needAccessCodeValidation {
-            let manager = CommonHotAccessCodeManager(userWalletModel: userWalletModel, delegate: self)
-            let validateAccessCodeStep = HotOnboardingValidateAccessCodeStep(manager: manager)
-                .configureNavBar(leadingAction: navBarCloseAction)
-            flow.append(validateAccessCodeStep)
-        }
-
         let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
             .configureNavBar(
                 title: Localization.accessCodeNavtitle,
@@ -72,18 +62,6 @@ private extension HotOnboardingAccessCodeFlowBuilder {
         HotOnboardingFlowNavBarAction.close(handler: { [weak self] in
             self?.closeOnboarding()
         })
-    }
-}
-
-// MARK: - CommonHotAccessCodeManagerDelegate
-
-extension HotOnboardingAccessCodeFlowBuilder: CommonHotAccessCodeManagerDelegate {
-    func handleAccessCodeSuccessful(userWalletModel: UserWalletModel) {
-        openNext()
-    }
-
-    func handleAccessCodeDelete(userWalletModel: UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
     }
 }
 
