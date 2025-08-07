@@ -117,7 +117,7 @@ private extension SendNewAmountCompactViewModel {
             let badge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
-                isBest: badge == .bestRate
+                badge: badge
             )
 
             return .init(provider: .success(data))
