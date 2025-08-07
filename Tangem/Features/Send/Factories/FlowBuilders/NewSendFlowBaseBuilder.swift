@@ -70,12 +70,12 @@ struct NewSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
-            notificationManager: notificationManager,
+            receiveTokenInput: sendModel,
+            receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
             amountEditableType: .editable,
+            notificationManager: notificationManager,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,

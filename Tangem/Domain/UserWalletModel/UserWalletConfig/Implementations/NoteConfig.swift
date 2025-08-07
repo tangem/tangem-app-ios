@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 struct NoteConfig: CardContainer {
     let card: CardDTO
@@ -145,6 +146,12 @@ extension NoteConfig: UserWalletConfig {
         case .promotion:
             return .hidden
         case .nft:
+            return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
             return .hidden
         }
     }
