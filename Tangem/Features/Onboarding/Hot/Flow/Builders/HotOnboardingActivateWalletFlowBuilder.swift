@@ -12,37 +12,43 @@ import TangemLocalization
 final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
-    private let statusUtil: HotStatusUtil
+    private var isBackupNeeded: Bool {
+        !userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
+
+    private var isAccessCodeNeeded: Bool {
+        userWalletModel.config.hasFeature(.userWalletAccessCode)
+    }
+
     private let userWalletModel: UserWalletModel
     private weak var coordinator: HotOnboardingFlowRoutable?
 
     init(userWalletModel: UserWalletModel, coordinator: HotOnboardingFlowRoutable) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
-        statusUtil = HotStatusUtil(userWalletModel: userWalletModel)
         super.init()
     }
 
     override func setupFlow() {
-        if statusUtil.isBackupNeeded {
-            setupBackupFlow()
+        if isBackupNeeded {
+            setupSeedPhraseBackupFlow()
         }
 
-        if statusUtil.isAccessCodeNeeded {
+        if isAccessCodeNeeded {
             setupAccessCodeFlow()
         }
 
         let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
+        let availabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
 
         if availabilityProvider.isAvailable {
-            let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
+            let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
             let pushNotificationsStep = HotOnboardingPushNotificationsStep(
                 permissionManager: permissionManager,
                 delegate: self
             )
             pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
-            flow.append(pushNotificationsStep)
+            append(step: pushNotificationsStep)
         }
 
         let doneStep = HotOnboardingSuccessStep(
@@ -51,7 +57,7 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingActivateWalletFlowBuilder.closeOnboarding)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
-        flow.append(doneStep)
+        append(step: doneStep)
 
         setupProgress()
     }
@@ -60,7 +66,7 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
 // MARK: - Flows
 
 private extension HotOnboardingActivateWalletFlowBuilder {
-    func setupBackupFlow() {
+    func setupSeedPhraseBackupFlow() {
         let seedPhraseIntroStep = HotOnboardingSeedPhraseIntroStep(delegate: self)
             .configureNavBar(
                 title: Localization.commonBackup,
@@ -68,7 +74,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
                     self?.closeOnboarding()
                 })
             )
-        flow.append(seedPhraseIntroStep)
+        append(step: seedPhraseIntroStep)
 
         let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
 
@@ -80,7 +86,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
-        flow.append(seedPhraseRecoveryStep)
+        append(step: seedPhraseRecoveryStep)
 
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
             seedPhraseResolver: seedPhraseResolver,
@@ -90,7 +96,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
-        flow.append(seedPhraseValidationStep)
+        append(step: seedPhraseValidationStep)
 
         let doneStep = HotOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
@@ -98,13 +104,13 @@ private extension HotOnboardingActivateWalletFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingActivateWalletFlowBuilder.openNext)
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
-        flow.append(doneStep)
+        append(step: doneStep)
     }
 
     func setupAccessCodeFlow() {
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
+        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
         createAccessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
-        flow.append(createAccessCodeStep)
+        append(step: createAccessCodeStep)
     }
 }
 
@@ -161,16 +167,9 @@ extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingAccessCodeCreateD
     }
 
     func accessCodeSkipped() {
-        // [REDACTED_TODO_COMMENT]
+        let userWalletIdString = userWalletModel.userWalletId.stringValue
+        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletIdString)
         openNext()
-    }
-}
-
-// MARK: - HotOnboardingAccessCodeCreateRoutable
-
-extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingAccessCodeCreateRoutable {
-    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {
-        coordinator?.openAccesCodeSkipAlert(onSkip: onSkip)
     }
 }
 
