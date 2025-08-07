@@ -29,7 +29,7 @@ final class HotOnboardingRevealSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
                 title: Localization.commonBackup,
                 leadingAction: navBarCloseAction
             )
-        flow.append(seedPhraseRevealStep)
+        append(step: seedPhraseRevealStep)
     }
 }
 
