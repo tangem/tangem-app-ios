@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemAssets
 
 struct HotAccessCodeView: View {
@@ -16,15 +17,19 @@ struct HotAccessCodeView: View {
 
     var body: some View {
         content
+            .onDisappear(perform: viewModel.onDisappear)
     }
 }
 
 // MARK: - Subviews
 
 private extension HotAccessCodeView {
-    @ViewBuilder
     var content: some View {
         VStack(spacing: 40) {
+            CloseButton(dismiss: viewModel.onCloseTap)
+                .padding(.leading, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             Text(viewModel.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
