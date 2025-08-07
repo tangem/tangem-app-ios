@@ -24,6 +24,7 @@ class ServicesManager {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+    @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.hotAccessCodeStorageManager) private var hotAccessCodeStorageManager: HotAccessCodeStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
@@ -62,6 +63,9 @@ class ServicesManager {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        }
         hotAccessCodeStorageManager.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
     }
