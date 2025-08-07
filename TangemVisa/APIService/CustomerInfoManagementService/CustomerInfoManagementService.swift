@@ -9,7 +9,7 @@
 import Foundation
 import Moya
 
-protocol CustomerInfoManagementService {
+public protocol CustomerInfoManagementService {
     func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 }

@@ -12,6 +12,7 @@ import Moya
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse
     func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse
+    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse
     func getAccessTokensForCardAuth(
         signedChallenge: String,
         salt: String,
@@ -21,7 +22,12 @@ public protocol VisaAuthorizationService {
         signedChallenge: String,
         salt: String,
         sessionId: String
-    ) async throws -> VisaAuthorizationTokens?
+    ) async throws -> VisaAuthorizationTokens
+    func getAccessTokensForCustomerWalletAuth(
+        sessionId: String,
+        signedChallenge: String,
+        messageFormat: String
+    ) async throws -> VisaAuthorizationTokens
 }
 
 public protocol VisaAuthorizationTokenRefreshService {
@@ -48,6 +54,7 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
                 cardId: cardId,
                 cardPublicKey: cardPublicKey,
                 cardWalletAddress: nil,
+                customerWalletAddress: nil,
                 authType: .cardId
             )),
             apiType: apiType
@@ -60,7 +67,21 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
                 cardId: cardId,
                 cardPublicKey: nil,
                 cardWalletAddress: walletPublicKey,
+                customerWalletAddress: nil,
                 authType: .cardWallet
+            )),
+            apiType: apiType
+        ))
+    }
+
+    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse {
+        try await apiService.request(.init(
+            target: .generateNonce(request: .init(
+                cardId: nil,
+                cardPublicKey: nil,
+                cardWalletAddress: nil,
+                customerWalletAddress: customerWalletAddress,
+                authType: .customerWallet
             )),
             apiType: apiType
         ))
@@ -76,7 +97,8 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
                 signature: signedChallenge,
                 salt: salt,
                 sessionId: sessionId,
-                authType: .cardId
+                authType: .cardId,
+                messageFormat: nil
             )),
             apiType: apiType
         ))
@@ -88,18 +110,38 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         signedChallenge: String,
         salt: String,
         sessionId: String
-    ) async throws -> VisaAuthorizationTokens? {
+    ) async throws -> VisaAuthorizationTokens {
         let dto: AuthorizationTokenDTO = try await apiService.request(.init(
             target: .getAuthorizationTokens(request: .init(
                 signature: signedChallenge,
                 salt: salt,
                 sessionId: sessionId,
-                authType: .cardWallet
+                authType: .cardWallet,
+                messageFormat: nil
             )),
             apiType: apiType
         ))
 
         return .init(dto: dto, authorizationType: .cardWallet)
+    }
+
+    func getAccessTokensForCustomerWalletAuth(
+        sessionId: String,
+        signedChallenge: String,
+        messageFormat: String
+    ) async throws -> VisaAuthorizationTokens {
+        let dto: AuthorizationTokenDTO = try await apiService.request(.init(
+            target: .getAuthorizationTokens(request: .init(
+                signature: signedChallenge,
+                salt: nil,
+                sessionId: sessionId,
+                authType: .customerWallet,
+                messageFormat: messageFormat
+            )),
+            apiType: apiType
+        ))
+
+        return .init(dto: dto, authorizationType: .customerWallet)
     }
 }
 
