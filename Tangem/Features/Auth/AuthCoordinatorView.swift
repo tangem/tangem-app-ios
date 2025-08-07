@@ -61,9 +61,6 @@ struct AuthCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.importWalletSelectorCoordinator) {
                 ImportWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.hotAccessCodeViewModel) {
-                HotAccessCodeView(viewModel: $0)
-            }
     }
 }
 
