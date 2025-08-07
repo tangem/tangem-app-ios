@@ -33,7 +33,7 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
                     self?.closeOnboarding()
                 })
             )
-        flow.append(importWalletStep)
+        append(step: importWalletStep)
 
         let importCompletedStep = HotOnboardingSuccessStep(
             type: .walletImported,
@@ -41,11 +41,11 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingImportWalletFlowBuilder.openNext)
         )
         importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
-        flow.append(importCompletedStep)
+        append(step: importCompletedStep)
 
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(coordinator: self, delegate: self)
+        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
             .configureNavBar(title: Localization.accessCodeNavtitle)
-        flow.append(createAccessCodeStep)
+        append(step: createAccessCodeStep)
 
         let factory = PushNotificationsHelpersFactory()
         let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
@@ -57,7 +57,7 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
                 delegate: self
             )
             pushNotificationsStep.configureNavBar(title: Localization.onboardingTitleNotifications)
-            flow.append(pushNotificationsStep)
+            append(step: pushNotificationsStep)
         }
 
         let doneStep = HotOnboardingSuccessStep(
@@ -66,7 +66,7 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
             onComplete: weakify(self, forFunction: HotOnboardingImportWalletFlowBuilder.openMain)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
-        flow.append(doneStep)
+        append(step: doneStep)
 
         setupProgress()
     }
@@ -153,16 +153,9 @@ extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeCreateDel
         guard let userWalletModel else {
             return
         }
-        // [REDACTED_TODO_COMMENT]
+        let userWalletIdString = userWalletModel.userWalletId.stringValue
+        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletIdString)
         next()
-    }
-}
-
-// MARK: - HotOnboardingAccessCodeCreateRoutable
-
-extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeCreateRoutable {
-    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {
-        coordinator?.openAccesCodeSkipAlert(onSkip: onSkip)
     }
 }
 

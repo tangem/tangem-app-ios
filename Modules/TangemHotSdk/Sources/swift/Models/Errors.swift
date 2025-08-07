@@ -40,3 +40,7 @@ enum HotWalletError: Error, Equatable {
         }
     }
 }
+
+struct CompoundMobileWalletError: Error {
+    let underlying: [Error]
+}
