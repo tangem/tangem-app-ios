@@ -9,14 +9,21 @@
 import Combine
 import UIKit
 import ReownWalletKit
+import TangemFoundation
 import TangemUIUtils
 
 final class CommonWCService {
+    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    private let dAppSessionsExtender: WalletConnectDAppSessionsExtender
 
     private let v2Service: WCServiceV2
+    private let dAppSessionsExtender: WalletConnectDAppSessionsExtender
+
+    private var userWalletRepositoryEventsCancelable: AnyCancellable?
+
+    @MainActor
+    private var hasInitialized = false
 
     init(v2Service: WCServiceV2, dAppSessionsExtender: WalletConnectDAppSessionsExtender) {
         self.v2Service = v2Service
@@ -30,15 +37,34 @@ extension CommonWCService: WCService {
     }
 
     func initialize() {
-        incomingActionManager.becomeFirstResponder(self)
+        userWalletRepositoryEventsCancelable = userWalletRepository
+            .eventProvider
+            .receiveOnMain()
+            .sink { [weak self, userWalletRepository, incomingActionManager, dAppSessionsExtender] walletRepositoryEvent in
+                MainActor.assumeIsolated {
+                    guard
+                        let self,
+                        !self.hasInitialized,
+                        userWalletRepository.models.isNotEmpty
+                    else {
+                        return
+                    }
 
-        Task {
-            await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
-        }
-    }
+                    switch walletRepositoryEvent {
+                    case .locked:
+                        // do nothing for locked event
+                        break
 
-    func reset() {
-        incomingActionManager.resignFirstResponder(self)
+                    case .unlockedBiometrics, .inserted, .unlocked, .deleted, .selected:
+                        self.hasInitialized = true
+                        incomingActionManager.becomeFirstResponder(self)
+
+                        Task {
+                            await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
+                        }
+                    }
+                }
+            }
     }
 
     func openSession(with uri: WalletConnectRequestURI) async throws -> (Session.Proposal, VerifyContext?) {
