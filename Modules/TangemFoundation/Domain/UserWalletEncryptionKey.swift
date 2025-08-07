@@ -29,6 +29,12 @@ public extension UserWalletEncryptionKey {
     }
 }
 
+extension UserWalletEncryptionKey: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.symmetricKey == rhs.symmetricKey
+    }
+}
+
 public extension UserWalletEncryptionKey {
     enum Constants {
         static let messageForTokensKey = "TokensSymmetricKey"
