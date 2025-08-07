@@ -7,6 +7,8 @@
 //
 
 import Combine
+import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 
@@ -29,7 +31,35 @@ final class HotOnboardingViewModel: ObservableObject {
 
 extension HotOnboardingViewModel {
     func onDismissalAttempt() {
-        // [REDACTED_TODO_COMMENT]
+        switch input.flow {
+        case .walletActivate(let userWalletModel):
+            // [REDACTED_TODO_COMMENT]
+            guard userWalletModel.config.hasFeature(.backup) else {
+                alert = makeBackupNeedsAlert()
+                return
+            }
+
+            guard userWalletModel.config.hasFeature(.accessCode) else {
+                alert = makeAccessCodeNeedsAlert(userWalletId: userWalletModel.userWalletId)
+                return
+            }
+
+        case .accessCodeCreate(let userWalletModel):
+            guard userWalletModel.config.hasFeature(.accessCode) else {
+                alert = makeAccessCodeNeedsAlert(userWalletId: userWalletModel.userWalletId)
+                return
+            }
+
+        case .seedPhraseBackup(let userWalletModel):
+            // [REDACTED_TODO_COMMENT]
+            guard userWalletModel.config.hasFeature(.backup) else {
+                alert = makeBackupNeedsAlert()
+                return
+            }
+
+        default:
+            break
+        }
     }
 }
 
@@ -67,18 +97,41 @@ private extension HotOnboardingViewModel {
     }
 }
 
-// MARK: - Private methods
+// MARK: - Alert makers
 
 private extension HotOnboardingViewModel {
-    func makeAccessCodeCreateSkipAlert(onSkip: @escaping () -> Void) -> AlertBinder? {
+    func makeBackupNeedsAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.hwBackupAlertTitle,
+            message: Localization.hwActivationNeedWarningDescription,
+            primaryButton: .cancel(Text(Localization.commonNo)),
+            secondaryButton: .destructive(
+                Text(Localization.commonYes),
+                action: weakify(self, forFunction: HotOnboardingViewModel.onBackupNeedsAlertClose)
+            )
+        )
+    }
+
+    func makeAccessCodeNeedsAlert(userWalletId: UserWalletId) -> AlertBinder {
         AlertBuilder.makeAlert(
             title: Localization.accessCodeAlertSkipTitle,
             message: Localization.accessCodeAlertSkipDescription,
             with: .withPrimaryCancelButton(
-                secondaryTitle: Localization.accessCodeAlertSkipOk,
-                secondaryAction: onSkip
+                secondaryTitle: Localization.commonClose,
+                secondaryAction: { [weak self] in
+                    self?.onAccessCodeNeedsAlertSkip(userWalletId: userWalletId)
+                }
             )
         )
+    }
+
+    func onAccessCodeNeedsAlertSkip(userWalletId: UserWalletId) {
+        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletId.stringValue)
+        closeOnboarding()
+    }
+
+    func onBackupNeedsAlertClose() {
+        closeOnboarding()
     }
 }
 
@@ -91,10 +144,6 @@ extension HotOnboardingViewModel: HotOnboardingFlowRoutable {
 
     func openMain(userWalletModel: UserWalletModel) {
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
-    }
-
-    func openAccesCodeSkipAlert(onSkip: @escaping () -> Void) {
-        alert = makeAccessCodeCreateSkipAlert(onSkip: onSkip)
     }
 
     func openConfetti() {
