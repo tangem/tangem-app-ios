@@ -14,10 +14,11 @@ import TangemFoundation
 protocol SendNewAmountInteractor {
     var isReceiveTokenSelectionAvailable: Bool { get }
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
-    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> { get }
+    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
 
     func update(amount: Decimal?) throws -> SendAmount?
     func update(type: SendAmountCalculationType) throws -> SendAmount?
@@ -69,7 +70,7 @@ class CommonSendNewAmountInteractor {
         self.saver = saver
         self.type = type
 
-        _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.amount)
+        _cachedAmount = CurrentValueSubject(sourceTokenAmountInput.sourceAmount.value)
 
         bind()
     }
@@ -156,8 +157,8 @@ class CommonSendNewAmountInteractor {
 
     private func convertToCrypto(fiatValue: Decimal?) throws -> Decimal? {
         // If already have the converted the `crypto` amount associated with current `fiat` amount
-        if sourceTokenAmountInput?.amount?.fiat == fiatValue {
-            return sourceTokenAmountInput?.amount?.crypto
+        if sourceTokenAmountInput?.sourceAmount.value?.fiat == fiatValue {
+            return sourceTokenAmountInput?.sourceAmount.value?.crypto
         }
 
         return try SendAmountConverter().convertToCrypto(fiatValue, tokenItem: source().tokenItem)
@@ -165,11 +166,29 @@ class CommonSendNewAmountInteractor {
 
     private func convertToFiat(cryptoValue: Decimal?) throws -> Decimal? {
         // If already have the converted the `fiat` amount associated with current `crypto` amount
-        if sourceTokenAmountInput?.amount?.crypto == cryptoValue {
-            return sourceTokenAmountInput?.amount?.fiat
+        if sourceTokenAmountInput?.sourceAmount.value?.crypto == cryptoValue {
+            return sourceTokenAmountInput?.sourceAmount.value?.fiat
         }
 
         return try SendAmountConverter().convertToFiat(cryptoValue, tokenItem: source().tokenItem)
+    }
+
+    private func receivedTokenAmountValidPublisher() -> AnyPublisher<Bool, Never> {
+        guard let receiveTokenInput, let receiveTokenAmountInput else {
+            return .just(output: true)
+        }
+
+        return Publishers.CombineLatest(
+            receiveTokenInput.receiveTokenPublisher,
+            receiveTokenAmountInput.receiveAmountPublisher
+        ).map { token, amount in
+            switch (token, amount) {
+            case (.same, _): true
+            case (.swap, .success), (.swap, .loading): true
+            case (.swap, .failure): false
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
@@ -192,14 +211,15 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
         .eraseToAnyPublisher()
     }
 
-    var isValidPublisher: AnyPublisher<Bool, Never> {
-        let emptyNotifications = notificationService?
-            .notificationMessagePublisher
-            .map { $0 == nil }
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        receivedTokenAmountPublisher
+            .map { $0.isLoading }
             .eraseToAnyPublisher()
+    }
 
-        return _isValid
-            .combineLatest(emptyNotifications ?? .just(output: true))
+    var isValidPublisher: AnyPublisher<Bool, Never> {
+        Publishers
+            .CombineLatest(_isValid, receivedTokenAmountValidPublisher())
             .map { $0 && $1 }
             .eraseToAnyPublisher()
     }
@@ -212,7 +232,7 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
         return receiveTokenInput.receiveTokenPublisher
     }
 
-    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never> {
+    var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> {
         guard let receiveTokenAmountInput else {
             return Empty().eraseToAnyPublisher()
         }
@@ -244,7 +264,7 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
 
     func update(type: SendAmountCalculationType) throws -> SendAmount? {
         guard self.type != type else {
-            return sourceTokenAmountInput?.amount
+            return sourceTokenAmountInput?.sourceAmount.value
         }
 
         self.type = type

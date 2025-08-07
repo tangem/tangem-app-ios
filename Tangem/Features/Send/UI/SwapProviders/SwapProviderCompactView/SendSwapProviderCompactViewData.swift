@@ -11,5 +11,16 @@ import TangemExpress
 import TangemFoundation
 
 struct SendSwapProviderCompactViewData {
-    let provider: LoadingResult<ExpressProvider, String>
+    let provider: LoadingResult<ProviderData, String>
+
+    var isTappable: Bool { provider.value != nil }
+    var isBest: Bool { provider.value?.badge == .bestRate }
+    var isFCAWarningList: Bool { provider.value?.badge == .fcaWarning }
+}
+
+extension SendSwapProviderCompactViewData {
+    struct ProviderData {
+        let provider: ExpressProvider
+        let badge: ExpressProviderFormatter.ProviderBadge?
+    }
 }
