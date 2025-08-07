@@ -17,7 +17,7 @@ extension ExpressProvider {
 
         func makeBaseAttributedString(for text: String) -> AttributedString {
             var attributedString = AttributedString(text)
-            attributedString.font = Fonts.Regular.footnote
+            attributedString.font = Fonts.Regular.caption1
             attributedString.foregroundColor = Colors.Text.tertiary
             return attributedString
         }
