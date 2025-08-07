@@ -11,12 +11,15 @@ import SwiftUI
 import TangemSdk
 import TangemAssets
 import TangemLocalization
+import TangemUIUtils
 
 final class HotOnboardingAccessCodeCreateViewModel: ObservableObject {
     @Published private(set) var state: State = .accessCode
 
     @Published private var accessCode: String = ""
     @Published private var confirmAccessCode: String = ""
+
+    @Published var alert: AlertBinder?
 
     let codeLength: Int = 6
 
@@ -84,16 +87,11 @@ final class HotOnboardingAccessCodeCreateViewModel: ObservableObject {
         }
     }
 
-    private weak var coordinator: HotOnboardingAccessCodeCreateRoutable?
     private weak var delegate: HotOnboardingAccessCodeCreateDelegate?
 
     private var bag = Set<AnyCancellable>()
 
-    init(
-        coordinator: HotOnboardingAccessCodeCreateRoutable,
-        delegate: HotOnboardingAccessCodeCreateDelegate
-    ) {
-        self.coordinator = coordinator
+    init(delegate: HotOnboardingAccessCodeCreateDelegate) {
         self.delegate = delegate
         bind()
     }
@@ -173,20 +171,34 @@ private extension HotOnboardingAccessCodeCreateViewModel {
         guard delegate?.isAccessCodeCanSkipped() == true else {
             return nil
         }
+        return .skip(handler: weakify(self, forFunction: HotOnboardingAccessCodeCreateViewModel.onSkipTap))
+    }
 
-        let skipHandler: () -> Void = { [weak self] in
-            self?.coordinator?.openAccesCodeSkipAlert(
-                onSkip: {
-                    self?.delegate?.accessCodeSkipped()
-                }
-            )
-        }
-
-        return .skip(handler: skipHandler)
+    func onSkipTap() {
+        alert = makeSkipAlert()
     }
 
     func onBackTap() {
         resetState()
+    }
+}
+
+// MARK: - Alert makers
+
+private extension HotOnboardingAccessCodeCreateViewModel {
+    func makeSkipAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.accessCodeAlertSkipTitle,
+            message: Localization.accessCodeAlertSkipDescription,
+            with: .withPrimaryCancelButton(
+                secondaryTitle: Localization.accessCodeAlertSkipOk,
+                secondaryAction: weakify(self, forFunction: HotOnboardingAccessCodeCreateViewModel.onSkipOkTap)
+            )
+        )
+    }
+
+    func onSkipOkTap() {
+        delegate?.accessCodeSkipped()
     }
 }
 
