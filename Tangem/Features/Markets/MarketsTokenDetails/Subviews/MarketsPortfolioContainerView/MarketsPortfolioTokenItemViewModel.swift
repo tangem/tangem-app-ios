@@ -12,6 +12,7 @@ import Combine
 import SwiftUI
 import TangemAssets
 import TangemStories
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
