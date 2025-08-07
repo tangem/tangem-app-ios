@@ -9,7 +9,7 @@
 enum WalletConnectQRScanViewEvent {
     case viewDidAppear
     case navigationCloseButtonTapped
-    case pasteFromClipboardButtonTapped(WalletConnectRequestURI)
+    case pasteFromClipboardButtonTapped(String?)
     case qrCodeParsed(String)
     case cameraAccessStatusChanged(Bool)
     case closeDialogButtonTapped
