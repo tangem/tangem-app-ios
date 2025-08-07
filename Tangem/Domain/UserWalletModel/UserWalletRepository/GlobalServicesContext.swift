@@ -47,11 +47,11 @@ class CommonGlobalServicesContext: GlobalServicesContext {
     func initializeServices(userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
 
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        } else {
-            walletConnectService.initialize(with: userWalletModel)
+        guard !FeatureProvider.isAvailable(.walletConnectUI) else {
+            return
         }
+
+        walletConnectService.initialize(with: userWalletModel)
     }
 
     /// we can initialize it right after scan for more accurate analytics
