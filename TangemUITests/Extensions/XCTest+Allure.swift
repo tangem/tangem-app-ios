@@ -9,7 +9,7 @@
 import XCTest
 
 extension XCTest {
-    func id(_ value: Int) {
+    func setAllureId(_ value: Int) {
         XCTContext.runActivity(named: "allure.id:\(value)") { _ in }
     }
 }
