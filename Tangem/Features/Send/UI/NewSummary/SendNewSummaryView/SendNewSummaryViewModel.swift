@@ -43,6 +43,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     private let destinationEditableType: EditableType
     private let amountEditableType: EditableType
     private let notificationManager: NotificationManager
+    private let analyticsLogger: SendSummaryAnalyticsLogger
 
     weak var router: SendSummaryStepsRoutable?
 
@@ -53,6 +54,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         destinationEditableType: EditableType,
         amountEditableType: EditableType,
         notificationManager: NotificationManager,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
@@ -62,6 +64,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         self.destinationEditableType = destinationEditableType
         self.amountEditableType = amountEditableType
         self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
@@ -85,6 +88,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapValidator() {
         didTapSummary()
+        analyticsLogger.logUserDidTapOnValidator()
         router?.summaryStepRequestEditValidators()
     }
 
@@ -109,6 +113,7 @@ extension SendNewSummaryViewModel: SendNewAmountCompactRoutable {
 
     func userDidTapSwapProvider() {
         didTapSummary()
+        analyticsLogger.logUserDidTapOnProvider()
         router?.summaryStepRequestEditProviders()
     }
 }
