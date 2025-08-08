@@ -102,8 +102,10 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Destination
 
-        destinationAddressViewModel.addressPublisher()
+        destinationAddressViewModel
+            .addressPublisher()
             .dropFirst()
+            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
@@ -133,7 +135,8 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Transaction History
 
-        Publishers.CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
+        Publishers
+            .CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, args in
