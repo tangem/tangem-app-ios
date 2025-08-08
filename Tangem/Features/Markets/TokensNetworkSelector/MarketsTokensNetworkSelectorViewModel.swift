@@ -143,8 +143,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         }
 
         walletSelectorViewModel = MarketsWalletSelectorViewModel(
-            userWalletNamePublisher: userWalletModel.userWalletNamePublisher,
-            walletImageProvider: userWalletModel.walletImageProvider
+            infoProvider: userWalletModel
         )
     }
 
