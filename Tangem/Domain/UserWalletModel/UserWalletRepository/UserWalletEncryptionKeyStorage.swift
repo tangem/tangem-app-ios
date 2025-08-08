@@ -10,6 +10,7 @@ import Foundation
 import CryptoKit
 import LocalAuthentication
 import TangemSdk
+import TangemFoundation
 
 class UserWalletEncryptionKeyStorage {
     private let secureStorage = SecureStorage()
@@ -21,7 +22,7 @@ class UserWalletEncryptionKeyStorage {
         for userWalletId in userWalletIds {
             let storageKey = encryptionKeyStorageKey(for: userWalletId)
             let encryptionKeyData = try biometricsStorage.get(storageKey, context: context)
-            if let encryptionKeyData = encryptionKeyData {
+            if let encryptionKeyData {
                 keys[userWalletId] = UserWalletEncryptionKey(symmetricKey: SymmetricKey(data: encryptionKeyData))
             }
         }
@@ -30,8 +31,15 @@ class UserWalletEncryptionKeyStorage {
     }
 
     func add(_ userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) {
-        guard AppSettings.shared.saveUserWallets else {
-            return
+        if FeatureProvider.isAvailable(.hotWallet) {
+            guard AppSettings.shared.saveUserWallets,
+                  BiometricsUtil.isAvailable else {
+                return
+            }
+        } else {
+            guard AppSettings.shared.saveUserWallets else {
+                return
+            }
         }
 
         do {
@@ -54,8 +62,15 @@ class UserWalletEncryptionKeyStorage {
     }
 
     func refreshEncryptionKey(_ key: UserWalletEncryptionKey, for userWalletId: UserWalletId) {
-        guard AppSettings.shared.saveUserWallets else {
-            return
+        if FeatureProvider.isAvailable(.hotWallet) {
+            guard AppSettings.shared.saveUserWallets,
+                  BiometricsUtil.isAvailable else {
+                return
+            }
+        } else {
+            guard AppSettings.shared.saveUserWallets else {
+                return
+            }
         }
 
         do {

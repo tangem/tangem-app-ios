@@ -8,6 +8,7 @@
 
 import Combine
 import TangemSdk
+import TangemFoundation
 
 class UserWalletCardScanner {
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -67,7 +68,7 @@ class UserWalletCardScanner {
         if let onboardingInput = factory.makeOnboardingInput(cardInfo: cardInfo) {
             globalServicesContext.resetServices()
             globalServicesContext.initializeAnalyticsContext(cardInfo: cardInfo)
-            return .onboarding(onboardingInput)
+            return .onboarding(onboardingInput: onboardingInput, cardInfo: cardInfo)
         }
 
         return .success(cardInfo)
@@ -78,7 +79,7 @@ extension UserWalletCardScanner {
     enum Result {
         case success(CardInfo)
         case error(Error)
-        case onboarding(OnboardingInput)
+        case onboarding(onboardingInput: OnboardingInput, cardInfo: CardInfo)
         case scanTroubleshooting
     }
 }

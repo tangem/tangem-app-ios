@@ -9,8 +9,11 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var shouldLockOnBackground: Bool { true }
+
     var selectedUserWalletId: UserWalletId?
 
     var isLocked: Bool { false }
@@ -29,15 +32,14 @@ class FakeUserWalletRepository: UserWalletRepository {
         self.models = models
     }
 
-    func unlock(with method: UserWalletRepositoryUnlockMethod) throws -> UserWalletModel {
+    func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
         guard let firstModel = models.first else {
-            throw UserWalletRepositoryError.cantUnlockWithCard
+            throw UserWalletRepositoryError.cantUnlockWallet
         }
 
         return firstModel
     }
 
-    func unlock(userWalletId: UserWalletId, method: UserWalletRepositoryUnlockMethod) throws {}
     func select(userWalletId: UserWalletId) {}
     func updateSelection() {}
     func lock() {}
@@ -49,4 +51,5 @@ class FakeUserWalletRepository: UserWalletRepository {
     func savePublicData() {}
     func save(userWalletModel: any UserWalletModel) {}
     func onSaveUserWalletsChanged(enabled: Bool) {}
+    func onBiometricsChanged(enabled: Bool) {}
 }

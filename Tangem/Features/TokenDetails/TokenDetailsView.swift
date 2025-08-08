@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemFoundation
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
