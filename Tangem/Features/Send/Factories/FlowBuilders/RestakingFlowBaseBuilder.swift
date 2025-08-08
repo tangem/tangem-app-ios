@@ -52,7 +52,6 @@ struct RestakingFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: restakingModel, output: restakingModel),
             actionType: actionType,
-            descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .noEditable,
             amountEditableType: .noEditable,
