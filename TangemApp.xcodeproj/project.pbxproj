@@ -2901,6 +2901,8 @@
 		DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
 		DC7E3CC22C651BFC00DEAAF4 /* StakingMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7E3CC12C651BFC00DEAAF4 /* StakingMapper.swift */; };
+		DC8139D22E41EE6700F7A1E4 /* WCNewTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8139D12E41EE6700F7A1E4 /* WCNewTransactionBuilder.swift */; };
+		DC8139D62E41FC9A00F7A1E4 /* WCSendableTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8139D52E41FC9A00F7A1E4 /* WCSendableTransaction.swift */; };
 		DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */; };
 		DC8B13C52BA8B2ED00B3DB53 /* PendingBackupData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B13C42BA8B2ED00B3DB53 /* PendingBackupData.swift */; };
 		DC8B13C82BA8B51700B3DB53 /* PendingBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B13C72BA8B51700B3DB53 /* PendingBackupManager.swift */; };
@@ -2920,7 +2922,6 @@
 		DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */; };
 		DC8F7BD12E0C919F00B3F5DB /* WCFeeSelectorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BC52E0C919F00B3F5DB /* WCFeeSelectorFactory.swift */; };
 		DC8F7BD32E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BCB2E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift */; };
-		DC8F7BD52E0C919F00B3F5DB /* WCTransactionFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BCC2E0C919F00B3F5DB /* WCTransactionFeeRowView.swift */; };
 		DC8F7BDB2E0C9C2400B3F5DB /* WCApprovalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BDA2E0C9C2400B3F5DB /* WCApprovalHelpers.swift */; };
 		DC8F7BDC2E0C9C2400B3F5DB /* WCApprovalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BD92E0C9C2400B3F5DB /* WCApprovalAnalyzer.swift */; };
 		DC8F7BDF2E0CBC3F00B3F5DB /* WCCustomAllowanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7BDD2E0CBC3F00B3F5DB /* WCCustomAllowanceView.swift */; };
@@ -6888,6 +6889,8 @@
 		DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
 		DC7E3CC12C651BFC00DEAAF4 /* StakingMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMapper.swift; sourceTree = "<group>"; };
+		DC8139D12E41EE6700F7A1E4 /* WCNewTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCNewTransactionBuilder.swift; sourceTree = "<group>"; };
+		DC8139D52E41FC9A00F7A1E4 /* WCSendableTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSendableTransaction.swift; sourceTree = "<group>"; };
 		DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEmailDataFactory.swift; sourceTree = "<group>"; };
 		DC8B13C42BA8B2ED00B3DB53 /* PendingBackupData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingBackupData.swift; sourceTree = "<group>"; };
 		DC8B13C72BA8B51700B3DB53 /* PendingBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingBackupManager.swift; sourceTree = "<group>"; };
@@ -6907,7 +6910,6 @@
 		DC8E03242DE18938008967D8 /* WCRequestDetailsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCRequestDetailsBuilder.swift; sourceTree = "<group>"; };
 		DC8F7BC52E0C919F00B3F5DB /* WCFeeSelectorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCFeeSelectorFactory.swift; sourceTree = "<group>"; };
 		DC8F7BCB2E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCEthTransactionDetailsView.swift; sourceTree = "<group>"; };
-		DC8F7BCC2E0C919F00B3F5DB /* WCTransactionFeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionFeeRowView.swift; sourceTree = "<group>"; };
 		DC8F7BD92E0C9C2400B3F5DB /* WCApprovalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCApprovalAnalyzer.swift; sourceTree = "<group>"; };
 		DC8F7BDA2E0C9C2400B3F5DB /* WCApprovalHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCApprovalHelpers.swift; sourceTree = "<group>"; };
 		DC8F7BDD2E0CBC3F00B3F5DB /* WCCustomAllowanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCCustomAllowanceView.swift; sourceTree = "<group>"; };
@@ -15824,6 +15826,7 @@
 				DC0002A52DC2090600305FB6 /* WalletConnectUIDelegate.swift */,
 				DC0002A62DC2090600305FB6 /* WalletConnectURLParser.swift */,
 				DC0002A72DC2090600305FB6 /* WalletConnectWalletModelProvider.swift */,
+				DC8139D12E41EE6700F7A1E4 /* WCNewTransactionBuilder.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -16394,6 +16397,7 @@
 			children = (
 				DC145B622E2E4BC100E04F5C /* WCTransactionDisplayModel.swift */,
 				DC145B672E2E4E2900E04F5C /* WCTransactionViewStates.swift */,
+				DC8139D52E41FC9A00F7A1E4 /* WCSendableTransaction.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -17408,7 +17412,6 @@
 			isa = PBXGroup;
 			children = (
 				DC8F7BCB2E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift */,
-				DC8F7BCC2E0C919F00B3F5DB /* WCTransactionFeeRowView.swift */,
 				DC60913B2E3A3A8D00A842EE /* WCFeeRowView.swift */,
 				DC60913C2E3A3A8D00A842EE /* WCFeeRowViewModel.swift */,
 			);
@@ -22726,6 +22729,7 @@
 				EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
 				B0FAD27B2CA5386D00DD54EA /* MarketsTokenDetailsListedOnExchangesView.swift in Sources */,
+				DC8139D22E41EE6700F7A1E4 /* WCNewTransactionBuilder.swift in Sources */,
 				EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B67445F82C9835E700780722 /* SwiftUIGestureConflictResolver.swift in Sources */,
@@ -23134,6 +23138,7 @@
 				2D1BB3A42C08B494008392F7 /* AwardToken.swift in Sources */,
 				0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */,
 				2D1BB36A2C074534008392F7 /* MarketsDTO.swift in Sources */,
+				DC8139D62E41FC9A00F7A1E4 /* WCSendableTransaction.swift in Sources */,
 				C2CDA54B2E328D640014C890 /* WalletConnectExtendConnectedDAppsUseCase.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
 				B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */,
@@ -23485,7 +23490,6 @@
 				EF0E1D9C2CE37DA4003D47AA /* OnrampProvidersViewModel.swift in Sources */,
 				DC8F7BD12E0C919F00B3F5DB /* WCFeeSelectorFactory.swift in Sources */,
 				DC8F7BD32E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift in Sources */,
-				DC8F7BD52E0C919F00B3F5DB /* WCTransactionFeeRowView.swift in Sources */,
 				EF0E1D9D2CE37DA4003D47AA /* OnrampProvidersCompactProviderViewData.swift in Sources */,
 				EF0E1D9E2CE37DA4003D47AA /* OnrampProvidersInteractor.swift in Sources */,
 				C2075EFB2DE6231C009AD2F7 /* BlockaidSiteScanMapper.swift in Sources */,
