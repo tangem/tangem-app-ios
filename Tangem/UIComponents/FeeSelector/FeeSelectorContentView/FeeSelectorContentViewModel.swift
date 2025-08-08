@@ -15,6 +15,8 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
     @Published private(set) var selectedFeeOption: FeeOption = .market
     @Published private(set) var feesRowData: [FeeSelectorContentRowViewModel] = []
 
+    let dismissButtonType: FeeSelectorDismissButtonType
+
     private let input: FeeSelectorContentViewModelInput
     private let output: FeeSelectorContentViewModelOutput
     private let analytics: FeeSelectorContentViewModelAnalytics
@@ -32,12 +34,14 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
         analytics: FeeSelectorContentViewModelAnalytics,
         customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder,
         feeTokenItem: TokenItem,
+        dismissButtonType: FeeSelectorDismissButtonType = .close
     ) {
         self.input = input
         self.output = output
         self.analytics = analytics
         self.customFieldsBuilder = customFieldsBuilder
         self.feeTokenItem = feeTokenItem
+        self.dismissButtonType = dismissButtonType
 
         bind(input: input)
     }

@@ -19,7 +19,7 @@ enum WCTransactionSecurityAlertFactory {
         case .malicious, .warning:
             state = .init(
                 title: Localization.securityAlertTitle,
-                subtitle: input.validationDescription ?? input.validationStatus.rawValue,
+                subtitle: input.validationDescription ?? "",
                 icon: .init(
                     asset: Assets.Glyphs.knightShield,
                     color: input.validationStatus == .malicious ? Colors.Icon.warning : Colors.Icon.attention
