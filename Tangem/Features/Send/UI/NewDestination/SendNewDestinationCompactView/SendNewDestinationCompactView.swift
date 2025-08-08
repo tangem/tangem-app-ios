@@ -46,7 +46,7 @@ struct SendNewDestinationCompactView: View {
                 }
             }
 
-            Spacer()
+            Spacer(minLength: 24)
 
             AddressIconView(viewModel: AddressIconViewModel(address: viewModel.address))
         }
