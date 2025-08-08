@@ -78,12 +78,17 @@ class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
-    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { CommonUserTokensPushNotificationsManager(
-        userWalletId: userWalletId,
-        walletModelsManager: walletModelsManager,
-        derivationManager: nil,
-        userTokenListManager: userTokenListManager
-    )
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: nil,
+            userTokenListManager: userTokenListManager
+        )
+    }
+
+    var accountModelsManager: AccountModelsManager {
+        DummyCommonAccountModelsManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
