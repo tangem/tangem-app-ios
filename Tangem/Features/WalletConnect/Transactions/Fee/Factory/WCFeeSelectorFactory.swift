@@ -11,10 +11,14 @@ import BlockchainSdk
 import TangemFoundation
 
 struct SimpleCustomFeeFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder {
-    let buildFields: () -> [FeeSelectorCustomFeeRowViewModel]
+    let customFeeService: CustomFeeService?
 
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
-        return buildFields()
+        guard let customFeeService else {
+            return []
+        }
+
+        return customFeeService.selectorCustomFeeRowViewModels()
     }
 }
 
@@ -36,16 +40,13 @@ final class WCFeeSelectorFactory {
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor
     ) -> FeeSelectorContentViewModel {
-        let customFieldsBuilder = SimpleCustomFeeFieldsBuilder(
-            buildFields: { customFeeService.selectorCustomFeeRowViewModels() }
-        )
-
-        return FeeSelectorContentViewModel(
+        FeeSelectorContentViewModel(
             input: feeInteractor,
             output: feeInteractor,
             analytics: SimpleAnalytics(),
-            customFieldsBuilder: customFieldsBuilder,
-            feeTokenItem: walletModel.feeTokenItem
+            customFieldsBuilder: SimpleCustomFeeFieldsBuilder(customFeeService: customFeeService),
+            feeTokenItem: walletModel.feeTokenItem,
+            dismissButtonType: .back
         )
     }
 }
