@@ -14,7 +14,7 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
     var simulationState: TransactionSimulationState { get }
     var feeValidationInputs: [NotificationViewInput] { get }
     var selectedFee: WCFee? { get }
-    var currentTransaction: WalletConnectEthTransaction? { get }
+    var sendableTransaction: WCSendableTransaction? { get }
     var feeInteractor: (any WCFeeInteractorType)? { get }
     var feeManager: WCTransactionFeeManager { get }
 
@@ -79,6 +79,14 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var isActionButtonBlocked: Bool {
+        if case .failedToLoad = viewModel?.selectedFee?.value {
+            return true
+        }
+        
+        if case .loading = viewModel?.selectedFee?.value {
+            return true
+        }
+
         return viewModel?.feeValidationInputs.contains { input in
             guard let event = input.settings.event as? WCNotificationEvent else { return false }
 
@@ -109,7 +117,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
 
         return simulationManager.createDisplayModel(
             from: viewModel.simulationState,
-            originalTransaction: viewModel.currentTransaction,
+            originalTransaction: viewModel.sendableTransaction,
             userWalletModel: transactionData.userWalletModel,
             onApprovalEdit: { [weak viewModel] approvalInfo, asset in
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))

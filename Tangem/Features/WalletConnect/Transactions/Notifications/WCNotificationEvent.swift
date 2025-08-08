@@ -15,7 +15,7 @@ enum WCNotificationEvent: Equatable {
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
     case insufficientBalance
-    case insufficientBalanceForFee
+    case insufficientBalanceForFee(blockchainName: String)
     case networkFeeUnreachable
     case suspiciousTransaction(description: String?)
     case maliciousTransaction(description: String?)
@@ -58,14 +58,14 @@ extension WCNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionDelayTitle)
         case .insufficientBalance:
             return .string(Localization.sendNotificationExceedBalanceTitle)
-        case .insufficientBalanceForFee:
-            return .string(Localization.warningSendBlockedFundsForFeeTitle(""))
+        case .insufficientBalanceForFee(let blockchainName):
+            return .string(Localization.warningSendBlockedFundsForFeeTitle(blockchainName))
         case .networkFeeUnreachable:
             return .string(Localization.sendFeeUnreachableErrorTitle)
         case .suspiciousTransaction:
-            return .string(BlockaidChainScanResult.ValidationStatus.warning.rawValue)
+            return .string(Localization.wcWarningTransaction)
         case .maliciousTransaction:
-            return .string(BlockaidChainScanResult.ValidationStatus.malicious.rawValue)
+            return .string(Localization.wcMaliciousTransaction)
         }
     }
 
@@ -82,9 +82,9 @@ extension WCNotificationEvent: NotificationEvent {
         case .networkFeeUnreachable:
             return Localization.sendFeeUnreachableErrorText
         case .suspiciousTransaction(let description):
-            return description ?? "Suspicious transaction detected"
+            return description
         case .maliciousTransaction(let description):
-            return description ?? "Malicious transaction detected"
+            return description
         }
     }
 
