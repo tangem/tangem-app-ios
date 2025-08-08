@@ -22,4 +22,5 @@ protocol SendRoutable: SendFeeRoutable, SendDestinationRoutable, OnrampRoutable,
     func openFeeSelector(viewModel: FeeSelectorContentViewModel)
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
 }
