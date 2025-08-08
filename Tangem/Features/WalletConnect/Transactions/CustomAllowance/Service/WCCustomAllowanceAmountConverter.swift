@@ -22,7 +22,7 @@ struct WCCustomAllowanceAmountConverter {
             return nil
         }
 
-        guard let decimal = Decimal(string: input) else {
+        guard let decimal = Decimal(string: input, locale: Locale.current) else {
             return nil
         }
 
@@ -47,6 +47,7 @@ struct WCCustomAllowanceAmountConverter {
         }
 
         let formatter = NumberFormatter()
+        formatter.locale = Locale.current
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = min(tokenInfo.decimals, 8)
         formatter.minimumFractionDigits = 0
@@ -61,6 +62,7 @@ struct WCCustomAllowanceAmountConverter {
         let weiDecimal = decimal * multiplier
 
         let formatter = NumberFormatter()
+        formatter.locale = Locale.current
         formatter.numberStyle = .none
         formatter.maximumFractionDigits = 0
         formatter.minimumFractionDigits = 0
@@ -85,6 +87,7 @@ struct WCCustomAllowanceAmountConverter {
 
     private func formatDecimalForInput(_ decimal: Decimal) -> String {
         let formatter = NumberFormatter()
+        formatter.locale = Locale.current
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = min(tokenInfo.decimals, 8)
         formatter.minimumFractionDigits = 0
