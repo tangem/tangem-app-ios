@@ -15,6 +15,7 @@ protocol SendNewDestinationInteractor {
     var suggestedWalletsPublisher: AnyPublisher<[SendSuggestedDestinationWallet], Never> { get }
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
 
+    var willResolveAddress: Bool { get }
     var destinationResolvedAddress: AnyPublisher<String?, Never> { get }
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
     var canEmbedAdditionalField: AnyPublisher<Bool, Never> { get }
@@ -135,9 +136,6 @@ class CommonSendNewDestinationInteractor {
         defer { _isValidatingDestination.send(false) }
         _isValidatingDestination.send(true)
 
-        // Add some debounce to send the request
-        try await Task.sleep(seconds: 0.2)
-
         let resolved = try await addressResolver.resolve(address)
         return .init(value: .resolved(address: address, resolved: resolved), source: source)
     }
@@ -146,8 +144,8 @@ class CommonSendNewDestinationInteractor {
 // MARK: - SendDestinationInteractor
 
 extension CommonSendNewDestinationInteractor: SendNewDestinationInteractor {
-    var hasError: Bool {
-        _destinationError.value != nil || _destinationAdditionalFieldError.value != nil
+    var willResolveAddress: Bool {
+        dependenciesBuilder.addressResolver != nil
     }
 
     var tokenItemPublisher: AnyPublisher<TokenItem, Never> {
