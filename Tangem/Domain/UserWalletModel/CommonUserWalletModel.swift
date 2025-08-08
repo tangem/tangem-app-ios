@@ -28,8 +28,13 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
+
+    @available(*, deprecated, message: "Use account-specific 'walletModelsManager' instead")
     let walletImageProvider: WalletImageProviding
+
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+
+    let accountModelsManager: AccountModelsManager
 
     private let walletManagersRepository: WalletManagersRepository
 
@@ -60,7 +65,8 @@ class CommonUserWalletModel {
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
         totalBalanceProvider: TotalBalanceProviding,
-        userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+        userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        accountModelsManager: AccountModelsManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -75,6 +81,7 @@ class CommonUserWalletModel {
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.accountModelsManager = accountModelsManager
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
