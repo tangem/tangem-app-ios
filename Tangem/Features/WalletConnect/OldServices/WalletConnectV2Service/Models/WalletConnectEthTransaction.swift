@@ -12,12 +12,14 @@ struct WalletConnectEthTransaction: Codable {
     let from: String // Required
     let to: String // Required
     let value: String? // Required
-    let data: String // Required
+    let data: String? // Required
     let gas: String?
     let gasPrice: String?
     let nonce: String?
 
     var description: String {
+        let data = data ?? ""
+
         return """
         to: \(to),
         value: \(value ?? "0"),
