@@ -16,7 +16,7 @@ import struct TangemUIUtils.AlertBinder
 class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
-    let walletNameTitle: String
+    let title: String
     let tokenIconInfo: TokenIconInfo
 
     var tokenCurrencySymbol: String { tokenItem.currencySymbol }
@@ -38,7 +38,7 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     convenience init(receiveToken: SendReceiveToken) {
         self.init(
-            wallet: receiveToken.wallet,
+            title: Localization.sendWithSwapRecipientAmountTitle,
             tokenIconInfo: receiveToken.tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
             fiatItem: receiveToken.fiatItem
@@ -47,15 +47,15 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     convenience init(sourceToken: SendSourceToken) {
         self.init(
-            wallet: sourceToken.wallet,
+            title: Localization.sendFromWallet(sourceToken.wallet),
             tokenIconInfo: sourceToken.tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
             fiatItem: sourceToken.fiatItem
         )
     }
 
-    init(wallet: String, tokenIconInfo: TokenIconInfo, tokenItem: TokenItem, fiatItem: FiatItem) {
-        walletNameTitle = wallet
+    init(title: String, tokenIconInfo: TokenIconInfo, tokenItem: TokenItem, fiatItem: FiatItem) {
+        self.title = title
         self.tokenIconInfo = tokenIconInfo
         self.tokenItem = tokenItem
         self.fiatItem = fiatItem
@@ -82,7 +82,10 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, type in
-                viewModel.balance = viewModel.loadableTokenBalanceViewStateBuilder.build(type: type)
+                viewModel.balance = viewModel.loadableTokenBalanceViewStateBuilder.build(
+                    type: type,
+                    textBuilder: Localization.commonBalance
+                )
             }
     }
 
