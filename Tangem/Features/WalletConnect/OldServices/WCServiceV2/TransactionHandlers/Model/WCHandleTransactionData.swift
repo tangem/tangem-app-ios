@@ -23,8 +23,8 @@ struct WCHandleTransactionData {
 
     weak var updatableHandler: WCTransactionUpdatable?
 
-    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
-        updatableHandler?.updateTransaction(updatedTransaction)
+    func updateSendableTransaction(_ sendableTransaction: WCSendableTransaction) {
+        updatableHandler?.updateSendableTransaction(sendableTransaction)
     }
 }
 

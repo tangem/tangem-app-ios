@@ -14,7 +14,7 @@ protocol WCCustomAllowanceInputFactory {
     func createCustomAllowanceInput(
         approvalInfo: ApprovalInfo,
         asset: BlockaidChainScanResult.Asset,
-        currentTransaction: WalletConnectEthTransaction?,
+        currentTransaction: WCSendableTransaction?,
         transactionData: WCHandleTransactionData,
         simulationResult: BlockaidChainScanResult?,
         updateAction: @MainActor @escaping (BigUInt) async -> Void,
@@ -26,7 +26,7 @@ final class CommonWCCustomAllowanceInputFactory: WCCustomAllowanceInputFactory {
     func createCustomAllowanceInput(
         approvalInfo: ApprovalInfo,
         asset: BlockaidChainScanResult.Asset,
-        currentTransaction: WalletConnectEthTransaction?,
+        currentTransaction: WCSendableTransaction?,
         transactionData: WCHandleTransactionData,
         simulationResult: BlockaidChainScanResult?,
         updateAction: @MainActor @escaping (BigUInt) async -> Void,
@@ -52,7 +52,7 @@ final class CommonWCCustomAllowanceInputFactory: WCCustomAllowanceInputFactory {
 
     private func determineTokenInfoForApproval(
         approvalInfo: ApprovalInfo,
-        currentTransaction: WalletConnectEthTransaction?,
+        currentTransaction: WCSendableTransaction?,
         transactionData: WCHandleTransactionData,
         simulationResult: BlockaidChainScanResult?
     ) -> WCApprovalHelpers.TokenInfo? {
