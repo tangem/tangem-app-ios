@@ -248,9 +248,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use su tarjeta o anillo para obtener una dirección para la red</string>
+        <string>Use su tarjeta o anillo para obtener una dirección para la red %li</string>
         <key>other</key>
-        <string>Use su tarjeta o anillo para obtener direcciónes para la red</string>
+        <string>Use su tarjeta o anillo para obtener direcciónes para las redes %li</string>
       </dict>
     </dict>
   </dict>
