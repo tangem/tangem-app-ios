@@ -9,12 +9,12 @@
 import Foundation
 import TangemNFT
 import TangemHotSdk
+import TangemFoundation
 
 struct CommonUserWalletModelFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func makeModel(publicData: StoredUserWallet, sensitiveData: StoredUserWallet.SensitiveInfo) -> UserWalletModel? {
-        // CardInfo has to contain wallets due to UserWalletConfig
         switch (publicData.walletInfo, sensitiveData) {
         case (.cardWallet(let cardInfo), .cardWallet(let keys)):
             var mutableCardInfo = cardInfo
@@ -25,12 +25,17 @@ struct CommonUserWalletModelFactory {
                 keys: sensitiveData.asWalletKeys,
                 name: publicData.name
             )
-        default:
+        case (.mobileWallet(let info), .mobileWallet(let keys)):
+            var mutableInfo = info
+            mutableInfo.keys = keys
+
             return makeModel(
-                walletInfo: publicData.walletInfo,
+                walletInfo: .mobileWallet(mutableInfo),
                 keys: sensitiveData.asWalletKeys,
                 name: publicData.name
             )
+        default:
+            return nil
         }
     }
 
@@ -41,12 +46,14 @@ struct CommonUserWalletModelFactory {
     ) -> UserWalletModel? {
         let config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
 
-        guard let userWalletId = UserWalletId(config: config),
-              let dependencies = CommonUserWalletModelDependencies(
-                  userWalletId: userWalletId,
-                  config: config,
-                  keys: keys
-              ) else {
+        guard
+            let userWalletId = UserWalletId(config: config),
+            let dependencies = CommonUserWalletModelDependencies(
+                userWalletId: userWalletId,
+                config: config,
+                keys: keys
+            )
+        else {
             return nil
         }
 
@@ -63,7 +70,8 @@ struct CommonUserWalletModelFactory {
             keysRepository: dependencies.keysRepository,
             derivationManager: dependencies.derivationManager,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
+            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
+            accountModelsManager: dependencies.accountModelsManager
         )
 
         dependencies.update(from: commonModel)
@@ -108,6 +116,7 @@ private struct CommonUserWalletModelDependencies {
     let userTokensManager: CommonUserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let accountModelsManager: AccountModelsManager
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
         guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
@@ -186,8 +195,11 @@ private struct CommonUserWalletModelDependencies {
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
+
+        accountModelsManager = FeatureProvider.isAvailable(.accounts)
+            ? CommonAccountModelsManager()
+            : DummyCommonAccountModelsManager()
     }
 
     func update(from model: UserWalletModel) {
