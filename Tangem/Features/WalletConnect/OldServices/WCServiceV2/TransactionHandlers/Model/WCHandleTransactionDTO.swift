@@ -11,7 +11,7 @@ import ReownWalletKit
 import BlockchainSdk
 
 protocol WCTransactionUpdatable: AnyObject {
-    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction)
+    func updateSendableTransaction(_ sendableTransaction: WCSendableTransaction)
 }
 
 struct WCHandleTransactionDTO {
