@@ -32,6 +32,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
     private let networks: [TokenItem]
     private let expressRepository: ExpressRepository
     private let receiveTokenBuilder: SendReceiveTokenBuilder
+    private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
 
     private weak var router: SendReceiveTokenNetworkSelectorViewRoutable?
 
@@ -43,6 +44,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         networks: [TokenItem],
         expressRepository: ExpressRepository,
         receiveTokenBuilder: SendReceiveTokenBuilder,
+        analyticsLogger: SendReceiveTokensListAnalyticsLogger,
         router: SendReceiveTokenNetworkSelectorViewRoutable
     ) {
         self.sourceTokenInput = sourceTokenInput
@@ -50,6 +52,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.networks = networks
         self.expressRepository = expressRepository
         self.receiveTokenBuilder = receiveTokenBuilder
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         load()
@@ -143,6 +146,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         receiveTokenOutput?.userDidRequestSelect(
             receiveToken: receiveTokenBuilder.makeSendReceiveToken(tokenItem: tokenItem)
         ) { [weak self] selected in
+            self?.analyticsLogger.logTokenChosen(token: tokenItem)
             self?.router?.dismissNetworkSelector(isSelected: selected)
         }
     }
