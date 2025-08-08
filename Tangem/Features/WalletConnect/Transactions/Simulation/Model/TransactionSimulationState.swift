@@ -9,7 +9,6 @@
 import Foundation
 
 enum TransactionSimulationState: Equatable {
-    case notStarted
     case loading
     case simulationNotSupported(method: String)
     case simulationFailed(error: String)
