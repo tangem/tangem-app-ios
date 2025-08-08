@@ -46,12 +46,14 @@ struct CommonUserWalletModelFactory {
     ) -> UserWalletModel? {
         let config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
 
-        guard let userWalletId = UserWalletId(config: config),
-              let dependencies = CommonUserWalletModelDependencies(
-                  userWalletId: userWalletId,
-                  config: config,
-                  keys: keys
-              ) else {
+        guard
+            let userWalletId = UserWalletId(config: config),
+            let dependencies = CommonUserWalletModelDependencies(
+                userWalletId: userWalletId,
+                config: config,
+                keys: keys
+            )
+        else {
             return nil
         }
 
@@ -68,7 +70,8 @@ struct CommonUserWalletModelFactory {
             keysRepository: dependencies.keysRepository,
             derivationManager: dependencies.derivationManager,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager
+            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
+            accountModelsManager: dependencies.accountModelsManager
         )
 
         dependencies.update(from: commonModel)
@@ -113,6 +116,7 @@ private struct CommonUserWalletModelDependencies {
     let userTokensManager: CommonUserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let accountModelsManager: AccountModelsManager
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
         guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
@@ -191,8 +195,11 @@ private struct CommonUserWalletModelDependencies {
         )
 
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
+
+        accountModelsManager = FeatureProvider.isAvailable(.accounts)
+            ? CommonAccountModelsManager()
+            : DummyCommonAccountModelsManager()
     }
 
     func update(from model: UserWalletModel) {

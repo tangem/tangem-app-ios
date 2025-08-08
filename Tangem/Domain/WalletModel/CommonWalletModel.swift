@@ -44,6 +44,8 @@ class CommonWalletModel {
         }
     }
 
+    private unowned var _account: CryptoAccountModel!
+
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
@@ -234,6 +236,8 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var account: CryptoAccountModel { _account }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
