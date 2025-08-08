@@ -26,7 +26,7 @@ struct WCEthPersonalSignTransactionView: View {
             }
 
             WCTransactionNetworkRow(blockchain: .ethereum(testnet: false))
-                .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
+                .padding(.init(top: isWalletRowVisible ? 0 : 12, leading: 16, bottom: 12, trailing: 16))
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
