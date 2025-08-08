@@ -27,13 +27,20 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
     }
 
     private weak var sourceTokenInput: SendSourceTokenInput?
+    private let analyticsLogger: SendReceiveTokensListAnalyticsLogger
+
     private weak var router: SendReceiveTokensListViewRoutable?
 
     private lazy var loader = TokensListDataLoader(supportedBlockchains: SupportedBlockchains.all)
     private var bag: Set<AnyCancellable> = []
 
-    init(sourceTokenInput: SendSourceTokenInput, router: SendReceiveTokensListViewRoutable) {
+    init(
+        sourceTokenInput: SendSourceTokenInput,
+        analyticsLogger: SendReceiveTokensListAnalyticsLogger,
+        router: SendReceiveTokensListViewRoutable
+    ) {
         self.sourceTokenInput = sourceTokenInput
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         bind()
@@ -46,6 +53,12 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
 
     func fetchMore() {
         loader.fetchMore()
+    }
+
+    func focusChangedInSearchBar(_ focused: Bool) {
+        if focused {
+            analyticsLogger.logSearchClicked()
+        }
     }
 
     private func setupNotification() {
@@ -110,11 +123,12 @@ class SendReceiveTokensListViewModel: ObservableObject, Identifiable {
             name: coin.name,
             symbol: coin.symbol
         ) { [weak self] in
-            self?.openNetworkSelector(items: items)
+            self?.openNetworkSelector(coin: coin, items: items)
         }
     }
 
-    private func openNetworkSelector(items: [TokenItem]) {
+    private func openNetworkSelector(coin: CoinModel, items: [TokenItem]) {
+        analyticsLogger.logTokenSearched(coin: coin, searchText: searchText.nilIfEmpty)
         isFocused = false
         router?.openNetworkSelector(networks: items)
     }
