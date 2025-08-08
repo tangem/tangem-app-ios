@@ -28,9 +28,6 @@ protocol UserWalletModel:
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
-    var walletModelsManager: WalletModelsManager { get }
-    var userTokensManager: UserTokensManager { get }
-    var userTokenListManager: UserTokenListManager { get }
     var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
@@ -38,12 +35,24 @@ protocol UserWalletModel:
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var walletImageProvider: WalletImageProviding { get }
+    var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
     func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
+
+    // MARK: - Properties and methods to be deleted after migration to Accounts is complete
+
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'walletModelsManager' instead")
+    var walletModelsManager: WalletModelsManager { get }
+
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokensManager' instead")
+    var userTokensManager: UserTokensManager { get }
+
+    @available(iOS, deprecated: 100000.0, message: "Use account-specific 'userTokenListManager' instead")
+    var userTokenListManager: UserTokenListManager { get }
 }
 
 enum UpdateRequest {
