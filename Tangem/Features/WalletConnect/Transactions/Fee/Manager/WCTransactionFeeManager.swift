@@ -15,33 +15,30 @@ protocol WCTransactionFeeManager {
     var feeRepository: any WCTransactionFeePreferencesRepository { get }
 
     func setupFeeManagement(
-        for transaction: WalletConnectEthTransaction,
+        for transaction: WCSendableTransaction,
         walletModel: any WalletModel,
         validationService: WCTransactionValidationService,
         notificationManager: WCNotificationManager,
         onValidationUpdate: @escaping ([NotificationViewInput]) -> Void,
-        onFeeChanged: @escaping (WCFee) -> Void,
         output: WCFeeInteractorOutput?
     ) async -> any WCFeeInteractorType
 
     func createFeeSelector(
-        for transaction: WalletConnectEthTransaction,
         walletModel: any WalletModel,
-        validationService: WCTransactionValidationService,
-        notificationManager: WCNotificationManager,
         feeInteractor: WCFeeInteractor,
-        onValidationUpdate: @escaping ([NotificationViewInput]) -> Void,
         output: WCFeeInteractorOutput?
     ) -> FeeSelectorContentViewModel
 
     func updateTransactionWithFee(
         _ fee: WCFee,
-        currentTransaction: WalletConnectEthTransaction
-    ) -> WalletConnectEthTransaction?
+        currentTransaction: WCSendableTransaction
+    ) -> WCSendableTransaction?
+
+    // MARK: - New WCSendableTransaction overloads
 
     func validateFeeAndBalance(
         fee: Fee,
-        transaction: WalletConnectEthTransaction,
+        transaction: WCSendableTransaction,
         walletModel: any WalletModel,
         validationService: WCTransactionValidationService,
         feeInteractor: any WCFeeInteractorType,
@@ -65,19 +62,20 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
     }
 
     func setupFeeManagement(
-        for transaction: WalletConnectEthTransaction,
+        for transaction: WCSendableTransaction,
         walletModel: any WalletModel,
         validationService: WCTransactionValidationService,
         notificationManager: WCNotificationManager,
         onValidationUpdate: @escaping ([NotificationViewInput]) -> Void,
-        onFeeChanged: @escaping (WCFee) -> Void,
         output: WCFeeInteractorOutput?
     ) async -> any WCFeeInteractorType {
-        let networkId = walletModel.tokenItem.blockchain.networkId
+        let networkId = walletModel.feeTokenItem.blockchain.networkId
 
         let lastSelectedOption = await feeRepository.getLastSelectedFeeOption(for: networkId)
-        let lastCustomValues = await feeRepository.getLastCustomFeeValues(for: networkId)
-        let hasSuggestedFee = await feeRepository.getSuggestedFeeFromDApp(for: networkId) != nil
+        let suggestedFee = await feeRepository.getSuggestedFeeFromDApp(
+            for: networkId,
+            blockchain: walletModel.feeTokenItem.blockchain
+        )
 
         let customFeeService = WCCustomEvmFeeService(
             sourceTokenItem: walletModel.tokenItem,
@@ -86,13 +84,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
             walletModel: walletModel,
             validationService: validationService,
             notificationManager: notificationManager,
-            savedCustomValues: lastCustomValues,
-            onValidationUpdate: onValidationUpdate,
-            onCustomValueSaved: { [weak self] feeValue, gasPrice in
-                Task {
-                    await self?.feeRepository.saveCustomFeeValues((feeValue: feeValue, gasPrice: gasPrice), for: networkId)
-                }
-            }
+            onValidationUpdate: onValidationUpdate
         )
 
         let wcFeeInteractor = WCFeeInteractor(
@@ -101,7 +93,8 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
             customFeeService: customFeeService,
             initialFeeOption: lastSelectedOption,
             feeRepository: feeRepository,
-            hasSuggestedFee: hasSuggestedFee,
+            suggestedFee: suggestedFee,
+
             output: output
         )
 
@@ -109,12 +102,8 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
     }
 
     func createFeeSelector(
-        for transaction: WalletConnectEthTransaction,
         walletModel: any WalletModel,
-        validationService: WCTransactionValidationService,
-        notificationManager: WCNotificationManager,
         feeInteractor: WCFeeInteractor,
-        onValidationUpdate: @escaping ([NotificationViewInput]) -> Void,
         output: WCFeeInteractorOutput?
     ) -> FeeSelectorContentViewModel {
         return feeSelectorFactory.createFeeSelector(
@@ -126,34 +115,37 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
 
     func updateTransactionWithFee(
         _ fee: WCFee,
-        currentTransaction: WalletConnectEthTransaction
-    ) -> WalletConnectEthTransaction? {
-        guard let feeValue = fee.value.value,
-              let feeParameters = feeValue.parameters as? EthereumFeeParameters else {
+        currentTransaction: WCSendableTransaction
+    ) -> WCSendableTransaction? {
+        guard let feeValue = fee.value.value, let feeParameters = feeValue.parameters as? EthereumFeeParameters else {
             return nil
         }
 
-        var updatedTransaction = currentTransaction
+        var updatedTransaction: WCSendableTransaction
 
         switch feeParameters.parametersType {
         case .eip1559(let params):
-            updatedTransaction = WalletConnectEthTransaction(
+            updatedTransaction = WCSendableTransaction(
                 from: currentTransaction.from,
                 to: currentTransaction.to,
                 value: currentTransaction.value,
                 data: currentTransaction.data,
                 gas: String(params.gasLimit, radix: 16).addHexPrefix(),
-                gasPrice: String(params.maxFeePerGas, radix: 16).addHexPrefix(),
+                gasPrice: nil,
+                maxFeePerGas: String(params.maxFeePerGas, radix: 16).addHexPrefix(),
+                maxPriorityFeePerGas: String(params.priorityFee, radix: 16).addHexPrefix(),
                 nonce: currentTransaction.nonce
             )
         case .legacy(let params):
-            updatedTransaction = WalletConnectEthTransaction(
+            updatedTransaction = WCSendableTransaction(
                 from: currentTransaction.from,
                 to: currentTransaction.to,
                 value: currentTransaction.value,
                 data: currentTransaction.data,
                 gas: String(params.gasLimit, radix: 16).addHexPrefix(),
                 gasPrice: String(params.gasPrice, radix: 16).addHexPrefix(),
+                maxFeePerGas: nil,
+                maxPriorityFeePerGas: nil,
                 nonce: currentTransaction.nonce
             )
         }
@@ -163,7 +155,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
 
     func validateFeeAndBalance(
         fee: Fee,
-        transaction: WalletConnectEthTransaction,
+        transaction: WCSendableTransaction,
         walletModel: any WalletModel,
         validationService: WCTransactionValidationService,
         feeInteractor: any WCFeeInteractorType,
@@ -173,14 +165,8 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
 
         let transactionAmount: Decimal
         if let valueString = transaction.value, !valueString.isEmpty, valueString != "0x0" {
-            let cleanValue = valueString.hasPrefix("0x") ? String(valueString.dropFirst(2)) : valueString
-            if let intValue = Int(cleanValue, radix: 16) {
-                let weiAmount = Decimal(intValue)
-                let divisor = Decimal(sign: .plus, exponent: -18, significand: 1)
-                transactionAmount = weiAmount * divisor
-            } else {
-                transactionAmount = 0
-            }
+            let blockchain = walletModel.tokenItem.blockchain
+            transactionAmount = EthereumUtils.parseEthereumDecimal(valueString, decimalsCount: blockchain.decimalCount) ?? 0
         } else {
             transactionAmount = 0
         }
@@ -188,22 +174,25 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
         let balanceEvents = validationService.validateBalance(
             transactionAmount: transactionAmount,
             fee: fee,
-            availableBalance: walletModel.availableBalanceProvider.balanceType.value ?? 0
+            availableBalance: walletModel.availableBalanceProvider.balanceType.value ?? 0,
+            blockchainName: walletModel.name
         )
         events.append(contentsOf: balanceEvents)
 
+        let lowFeeEvents = validationService.validateCustomFeeTooLow(
+            fee,
+            against: feeInteractor.fees.first(where: { $0.option == .slow })?.value.value
+        )
+        events.append(contentsOf: lowFeeEvents)
+
         let highFeeEvents = validationService.validateCustomFeeTooHigh(
             fee,
-            against: getHighestNetworkFee(from: feeInteractor)
+            against: feeInteractor.fees.first(where: { $0.option == .fast })?.value.value
         )
         events.append(contentsOf: highFeeEvents)
 
-        if selectedFeeOption == .custom {
-            let lowFeeEvents = validationService.validateCustomFeeTooLow(
-                fee,
-                against: getHighestNetworkFee(from: feeInteractor)
-            )
-            events.append(contentsOf: lowFeeEvents)
+        if case .failedToLoad = feeInteractor.selectedFee.value {
+            events.append(.networkFeeUnreachable)
         }
 
         return events
