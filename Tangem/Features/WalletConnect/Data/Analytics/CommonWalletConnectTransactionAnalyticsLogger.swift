@@ -14,7 +14,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
         let emulationStatus: Analytics.ParameterValue
 
         switch simulationState {
-        case .notStarted, .loading:
+        case .loading:
             assertionFailure("Invalid simulation state. Developer mistake.")
             return
         case .simulationNotSupported:
