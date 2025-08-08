@@ -76,9 +76,11 @@ struct DefaultRowView: View {
             if sensitive {
                 SensitiveText(string)
                     .style(appearance.font, color: appearance.detailsColor)
+                    .accessibilityIdentifier(viewModel.accessibilityIdentifier)
             } else {
                 Text(string)
                     .style(appearance.font, color: appearance.detailsColor)
+                    .accessibilityIdentifier(viewModel.accessibilityIdentifier)
             }
         case .loadable(let state):
             LoadableTextView(
