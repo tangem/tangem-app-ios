@@ -25,6 +25,7 @@ private final class WalletConnectEnvironment {
         messageComposer: messageComposer,
         uiDelegate: alertUIDelegate,
         ethTransactionBuilder: CommonWalletConnectEthTransactionBuilder(),
+        newEthTransactionBuilder: CommonWCNewEthTransactionBuilder(),
         walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 
