@@ -16,7 +16,7 @@ protocol WCTransactionValidationService {
 
     func validateCustomFeeTooLow(_ customFee: Fee?, against highestNetworkFee: Fee?) -> [WCNotificationEvent]
 
-    func validateBalance(transactionAmount: Decimal, fee: Fee?, availableBalance: Decimal) -> [WCNotificationEvent]
+    func validateBalance(transactionAmount: Decimal, fee: Fee?, availableBalance: Decimal, blockchainName: String) -> [WCNotificationEvent]
 
     func validateSimulationResult(_ state: TransactionSimulationState) -> [WCNotificationEvent]
 
@@ -70,7 +70,7 @@ final class CommonWCTransactionValidationService: WCTransactionValidationService
         return []
     }
 
-    func validateBalance(transactionAmount: Decimal, fee: Fee?, availableBalance: Decimal) -> [WCNotificationEvent] {
+    func validateBalance(transactionAmount: Decimal, fee: Fee?, availableBalance: Decimal, blockchainName: String) -> [WCNotificationEvent] {
         let feeAmount = fee?.amount.value ?? 0
         let totalRequired = transactionAmount + feeAmount
 
@@ -78,7 +78,7 @@ final class CommonWCTransactionValidationService: WCTransactionValidationService
             if transactionAmount > availableBalance {
                 return [.insufficientBalance]
             } else {
-                return [.insufficientBalanceForFee]
+                return [.insufficientBalanceForFee(blockchainName: blockchainName)]
             }
         }
 

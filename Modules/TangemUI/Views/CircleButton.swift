@@ -188,4 +188,8 @@ public extension CircleButton {
     static func close(action: @escaping () -> Void) -> CircleButton {
         CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
     }
+
+    static func back(action: @escaping () -> Void) -> CircleButton {
+        CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
+    }
 }
