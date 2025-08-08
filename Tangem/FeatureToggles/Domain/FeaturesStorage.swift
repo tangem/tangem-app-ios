@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemVisa
+import TangemStaking
 
 // MARK: - Provider
 
@@ -47,6 +48,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
     var tangemAPIType = TangemAPIType.prod
 
+    @AppStorageCompat(FeatureStorageKeys.stakingAPIType)
+    var stakingAPIType = StakingAPIType.prod
+
     private init() {}
 }
 
@@ -65,4 +69,5 @@ private enum FeatureStorageKeys: String {
     case useVisaAPIMocks = "use_visa_api_mocks"
     case visaAPIType = "visa_api_type"
     case tangemAPIType = "tangem_api_type"
+    case stakingAPIType = "staking_api_type"
 }
