@@ -70,6 +70,10 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
+    var accountModelsManager: AccountModelsManager {
+        AccountModelsManagerMock()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
