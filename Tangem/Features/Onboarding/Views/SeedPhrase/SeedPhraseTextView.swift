@@ -11,28 +11,72 @@ import SwiftUI
 import Combine
 import TangemUIUtils
 
-struct SeedPhraseTextView: UIViewControllerRepresentable {
+struct SeedPhraseTextView: UIViewRepresentable {
     private unowned var inputProcessor: SeedPhraseInputProcessor
-    private let shouldBecomeFirstResponderOnDidAppear: Bool
+    private let isResponder: Bool
 
-    init(inputProcessor: SeedPhraseInputProcessor, shouldBecomeFirstResponderOnDidAppear: Bool) {
+    init(inputProcessor: SeedPhraseInputProcessor, isResponder: Bool) {
         self.inputProcessor = inputProcessor
-        self.shouldBecomeFirstResponderOnDidAppear = shouldBecomeFirstResponderOnDidAppear
+        self.isResponder = isResponder
     }
 
-    func makeUIViewController(context: Context) -> UIViewController {
-        return ViewController(
-            inputProcessor: inputProcessor,
-            coordinator: context.coordinator,
-            shouldBecomeFirstResponderOnDidAppear: shouldBecomeFirstResponderOnDidAppear
-        )
+    func makeUIView(context: UIViewRepresentableContext<SeedPhraseTextView>) -> UITextView {
+        let textView = UITextView()
+
+        // Security hardening settings
+        let configurator = UITextInputSecurityHardeningConfigurator(isSecured: false)
+        configurator.configure(textView)
+
+        textView.backgroundColor = nil
+        textView.autocapitalizationType = .none
+        textView.delegate = context.coordinator
+        textView.allowsEditingTextAttributes = false
+        textView.enablesReturnKeyAutomatically = false
+        textView.isEditable = true
+        textView.returnKeyType = .next
+        textView.textColor = inputProcessor.defaultTextColor
+        textView.font = inputProcessor.defaultTextFont
+        textView.keyboardType = .asciiCapable // We currently only support the BIP39 English word list
+        context.coordinator.setupTextView(textView)
+
+        var toolbarItems = [UIBarButtonItem]()
+        toolbarItems = [
+            UIBarButtonItem(
+                barButtonSystemItem: .flexibleSpace,
+                target: nil,
+                action: nil
+            ),
+            UIBarButtonItem(
+                image: UIImage(systemName: "keyboard.chevron.compact.down"),
+                style: .plain,
+                target: context.coordinator,
+                action: #selector(context.coordinator.hideKeyboard)
+            ),
+        ]
+
+        if !toolbarItems.isEmpty {
+            let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+            toolbar.items = toolbarItems
+            toolbar.tintColor = UIColor.inputAccessoryViewTintColor
+            textView.inputAccessoryView = toolbar
+        }
+
+        return textView
     }
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(inputProcessor: inputProcessor)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    func updateUIView(_ textView: UITextView, context: UIViewRepresentableContext<SeedPhraseTextView>) {
+        DispatchQueue.main.async {
+            if isResponder {
+                textView.becomeFirstResponder()
+            } else {
+                textView.resignFirstResponder()
+            }
+        }
+    }
 }
 
 extension SeedPhraseTextView {
@@ -52,7 +96,7 @@ extension SeedPhraseTextView {
 
         @objc
         func hideKeyboard() {
-            UIApplication.shared.endEditing()
+            textView?.resignFirstResponder()
         }
 
         func setupTextView(_ textView: UITextView) {
@@ -209,103 +253,6 @@ extension SeedPhraseTextView {
             let preparedText = inputProcessor.validate(newInput: newText)
             textView.attributedText = preparedText
             textView.selectedRange = NSRange(location: range.lowerBound + word.count + 1, length: 0)
-        }
-    }
-}
-
-// MARK: - ViewController
-
-private extension SeedPhraseTextView {
-    class ViewController: UIViewController {
-        private weak var inputProcessor: SeedPhraseInputProcessor?
-        private weak var coordinator: Coordinator?
-        private let shouldBecomeFirstResponderOnDidAppear: Bool
-
-        private var textView: UITextView?
-
-        init(
-            inputProcessor: SeedPhraseInputProcessor,
-            coordinator: Coordinator,
-            shouldBecomeFirstResponderOnDidAppear: Bool
-        ) {
-            self.inputProcessor = inputProcessor
-            self.coordinator = coordinator
-            self.shouldBecomeFirstResponderOnDidAppear = shouldBecomeFirstResponderOnDidAppear
-            super.init(nibName: nil, bundle: nil)
-        }
-
-        @available(*, unavailable, message: "init(coder:) has not been implemented")
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        override func viewDidLoad() {
-            super.viewDidLoad()
-
-            let textView = makeTextView()
-            textView.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(textView)
-
-            NSLayoutConstraint.activate([
-                textView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                textView.topAnchor.constraint(equalTo: view.topAnchor),
-                textView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            ])
-
-            self.textView = textView
-        }
-
-        override func viewDidAppear(_ animated: Bool) {
-            super.viewDidAppear(animated)
-
-            if shouldBecomeFirstResponderOnDidAppear {
-                textView?.becomeFirstResponder()
-            }
-        }
-
-        private func makeTextView() -> UITextView {
-            let textView = UITextView()
-
-            // Security hardening settings
-            let configurator = UITextInputSecurityHardeningConfigurator(isSecured: false)
-            configurator.configure(textView)
-
-            textView.backgroundColor = nil
-            textView.autocapitalizationType = .none
-            textView.delegate = coordinator
-            textView.allowsEditingTextAttributes = false
-            textView.enablesReturnKeyAutomatically = false
-            textView.isEditable = true
-            textView.returnKeyType = .next
-            textView.textColor = inputProcessor?.defaultTextColor
-            textView.font = inputProcessor?.defaultTextFont
-            textView.keyboardType = .asciiCapable // We currently only support the BIP39 English word list
-            coordinator?.setupTextView(textView)
-
-            var toolbarItems = [UIBarButtonItem]()
-            toolbarItems = [
-                UIBarButtonItem(
-                    barButtonSystemItem: .flexibleSpace,
-                    target: nil,
-                    action: nil
-                ),
-                UIBarButtonItem(
-                    image: UIImage(systemName: "keyboard.chevron.compact.down"),
-                    style: .plain,
-                    target: coordinator,
-                    action: #selector(coordinator?.hideKeyboard)
-                ),
-            ]
-
-            if !toolbarItems.isEmpty {
-                let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
-                toolbar.items = toolbarItems
-                toolbar.tintColor = UIColor.inputAccessoryViewTintColor
-                textView.inputAccessoryView = toolbar
-            }
-
-            return textView
         }
     }
 }
