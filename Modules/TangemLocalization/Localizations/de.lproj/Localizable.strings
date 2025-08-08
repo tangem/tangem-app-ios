@@ -62,10 +62,13 @@
 "alert_negative_app_rate_sent_title" = "Deine Vorschläge wurden übermittelt";
 "alert_troubleshooting_scan_card_message" = "Bitte versuche, die Karte oder Ring genau wie in der Animation gezeigt anzutippen, oder lese unsere einfache Anleitung, oder forder Support an. Wenn das Problem weiterhin besteht, wende dich bitte an den Support.";
 "alert_troubleshooting_scan_card_title" = "Hast du Probleme beim Scannen deiner Karte oder Ring?";
+"app_settings_biometrics_footer" = "Use %1$@ to quickly and securely unlock your wallet and authorize all sensitive actions, such as signing transactions. For hardware wallets, you will still need a card to sign.";
 "app_settings_default_fee_footer" = "Aktiviere die Option Standardgebühr, um die Transaktionsgebühren automatisch festzulegen und die Gebührenseite beim Senden von Geldern zu überspringen. Du kannst bei Bedarf jederzeit zu dieser Seite zurückkehren.";
 "app_settings_default_fee" = "Standardgebühr";
 "app_settings_off_saved_access_code_alert_message" = "Dadurch werden alle gespeicherten Zugangscodes für die Wallet gelöscht. Jede weitere Operation mit der Wallet erfordert die Übermittlung des Zugangscodes.";
 "app_settings_off_saved_wallet_alert_message" = "Durch das Entfernen der gespeicherten Geräte werden alle gespeicherten Wallets und deren Zugangscodes aus der App gelöscht.";
+"app_settings_require_access_code_footer" = "This option disables biometric authentication for sensitive actions. You will be required to enter your access code every time, such as when signing a transaction.";
+"app_settings_require_access_code" = "Require Access Code";
 "app_settings_saved_access_codes_footer" = "Bei Interaktionen mit deiner Karte oder Ring wird anstelle des Zugangscodes eine biometrische Authentifizierung abgefragt.";
 "app_settings_saved_access_codes" = "Zugangscode speichern";
 "app_settings_saved_wallet_footer" = "Aktiviere die Verknüpfung aller Wallets mit der Tangem-App. Die biometrische Authentifizierung ist zum Entsperren der App erforderlich. Das Signieren von Transaktionen erfordert das Antippen deiner Tangem-Karte oder Ring.";
@@ -170,6 +173,7 @@
 "common_crypto_fiat_format" = "%1$@ (%2$@)";
 "common_custom" = "Eigen";
 "common_delete" = "Entfernen";
+"common_disable" = "Disable";
 "common_disabled" = "Deaktiviert";
 "common_disconnect" = "Trennen";
 "common_done" = "Erledigt";
@@ -325,6 +329,7 @@
 "details_send_feedback" = "Gib uns eine Rückmeldung";
 "details_title" = "Details";
 "disclaimer_title" = "Nutzungsbedingungen";
+"domain_receive_assets_navigation_title" = "Receive assets";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
@@ -1478,14 +1483,15 @@
 "wc_no_sessions_desc" = "Verbinde Deine Wallet mit einer anderen dApp";
 "wc_no_sessions_title" = "Keine Sitzungen";
 "wc_no_wallet_changes_detected" = "No wallet changes detected";
-"wc_notification_security_risk_subtitle" = "Diese Domain wird von mehreren Sicherheitsanbietern als unsicher eingestuft. Verlasse diese umgehend, um Dein Vermögen zu schützen.";
+"wc_notification_security_risk_subtitle" = "Es wurden potenzielle Risiken oder bösartiges Verhalten erkannt. Das Verbinden oder Signieren von Transaktionen kann zum Verlust von Geldern führen.";
 "wc_notification_security_risk_title" = "Bekanntes Sicherheitsrisiko";
 "wc_request_from" = "Anfrage von";
-"wc_send_anyway" = "Send anyway";
+"wc_send_anyway" = "Sign anyway";
 "wc_signature_type" = "Art der Signatur";
 "wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
 "wc_specify_networks_title" = "Specify selected networks";
 "wc_successfully_signed" = "Successfully signed";
+"wc_transaction_flow_title" = "Wallet connect";
 "wc_transaction_info_to_title" = "An";
 "wc_transaction_request_title" = "Transaktionsanfrage";
 "wc_transaction_request" = "Transaktionsanfrage";
