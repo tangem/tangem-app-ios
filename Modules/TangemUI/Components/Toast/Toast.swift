@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import class TangemUIUtils.PassThroughWindow
 
 public final class Toast<V: View> {
     private var timer: Timer?
@@ -36,7 +36,10 @@ public final class Toast<V: View> {
         type: PresentationTime,
         animated: Bool = true
     ) {
-        guard let window = UIApplication.mainWindow else {
+        let overlayWindow = UIApplication.shared.windows.last { $0 is PassThroughWindow }
+        let mainWindow = UIApplication.mainWindow
+
+        guard let window = overlayWindow ?? mainWindow else {
             return
         }
 
