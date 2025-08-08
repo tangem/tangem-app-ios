@@ -10,5 +10,5 @@ import Foundation
 
 protocol HotFinishActivationNeededRoutable: AnyObject {
     func dismissHotFinishActivationNeeded()
-    func openHotBackupOnboarding()
+    func openHotBackupOnboarding(userWalletModel: UserWalletModel)
 }
