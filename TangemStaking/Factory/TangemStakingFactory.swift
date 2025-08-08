@@ -30,10 +30,11 @@ public struct TangemStakingFactory {
     public func makeStakingAPIProvider(
         credential: StakingAPICredential,
         configuration: URLSessionConfiguration,
-        plugins: [PluginType]
+        plugins: [PluginType],
+        apiType: StakingAPIType = .prod
     ) -> StakingAPIProvider {
         let provider = TangemProvider<StakeKitTarget>(plugins: plugins, sessionConfiguration: configuration)
-        let service = StakeKitStakingAPIService(provider: provider, credential: credential)
+        let service = StakeKitStakingAPIService(provider: provider, credential: credential, apiType: apiType)
         let mapper = StakeKitMapper()
         return CommonStakingAPIProvider(service: service, mapper: mapper)
     }
