@@ -14,7 +14,8 @@ protocol WelcomeRoutable: AnyObject {
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openShop()
     func openOnboarding(with input: OnboardingInput)
-    func openNewWalletSelector(with input: NewWalletSelectorInput)
+    func openCreateWallet()
+    func openImportWallet()
     func openMain(with userWalletModel: UserWalletModel)
     func openScanCardManual()
 }
