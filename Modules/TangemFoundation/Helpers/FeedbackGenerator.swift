@@ -14,7 +14,7 @@ public enum FeedbackGenerator {
     }
 
     public static func selectionChanged() {
-        UISelectionFeedbackGenerator().selectionChanged()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     public static func error() {
