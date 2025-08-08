@@ -27,9 +27,11 @@ struct SendSwapProviderCompactView: View {
 
             if data.isFCAWarningList {
                 HStack(spacing: 4) {
-                    if #available(iOS 16.4, *) {
-                        InfoButtonView(size: .small, tooltipText: "")
-                    }
+                    Assets.infoCircle20.image
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundStyle(Colors.Text.tertiary)
+                        .frame(width: 20, height: 20)
 
                     Text(Localization.expressProviderInFcaWarningList)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
