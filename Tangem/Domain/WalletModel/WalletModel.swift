@@ -34,6 +34,7 @@ protocol WalletModel:
     var shouldShowFeeSelector: Bool { get }
     var isCustom: Bool { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }
     var qrReceiveMessage: String { get }
     var balanceState: WalletModelBalanceState? { get }
     var isDemo: Bool { get }
@@ -50,6 +51,11 @@ protocol WalletModel:
 }
 
 extension WalletModel {
+    // Default implementation provided because not all wallet models support fulfilling asset requirements
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+    
     func exploreURL(for index: Int) -> URL? {
         return exploreURL(for: index, token: nil)
     }
