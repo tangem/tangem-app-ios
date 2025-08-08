@@ -114,6 +114,13 @@ extension Analytics {
         case sendNoticeTransactionDelaysArePossible = "[Token / Send] Notice - Transaction Delays Are Possible"
         case sendErrorTransactionRejected = "[Token / Send] Error - Transaction Rejected"
         case sendButtonClose = "[Token / Send] Button - Close"
+        case sendButtonConvertToken = "[Token / Send] Button - Convert Token"
+        case sendTokenSearched = "[Token / Send] Token Searched"
+        case sendTokenSearchedClicked = "[Token / Send] Token Search Clicked"
+        case sendTokenChosen = "[Token / Send] Token chosen"
+        case sendProviderClicked = "[Token / Send] Provider Clicked"
+        case sendProviderChosen = "[Token / Send] Provider Chosen"
+        case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"

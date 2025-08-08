@@ -475,13 +475,15 @@ struct SendDependenciesBuilder {
 
     func makeSendReceiveTokensListBuilder(
         sendSourceTokenInput: SendSourceTokenInput,
-        receiveTokenOutput: SendReceiveTokenOutput
+        receiveTokenOutput: SendReceiveTokenOutput,
+        analyticsLogger: any SendReceiveTokensListAnalyticsLogger
     ) -> SendReceiveTokensListBuilder {
         SendReceiveTokensListBuilder(
             sourceTokenInput: sendSourceTokenInput,
             receiveTokenOutput: receiveTokenOutput,
             expressRepository: expressDependenciesFactory.expressRepository,
-            receiveTokenBuilder: makeSendReceiveTokenBuilder()
+            receiveTokenBuilder: makeSendReceiveTokenBuilder(),
+            analyticsLogger: analyticsLogger
         )
     }
 
