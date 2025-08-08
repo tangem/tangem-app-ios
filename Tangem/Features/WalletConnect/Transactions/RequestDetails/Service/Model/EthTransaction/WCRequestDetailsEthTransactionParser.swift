@@ -50,8 +50,8 @@ enum WCRequestDetailsEthTransactionParser {
     private static func createAdvancedDetailsSection(transaction: WalletConnectEthTransaction) -> WCTransactionDetailsSection? {
         var advancedItems: [WCTransactionDetailsSection.WCTransactionDetailsItem] = []
 
-        if !transaction.data.isEmpty, transaction.data != "0x" {
-            advancedItems.append(.init(title: "Data", value: formatData(transaction.data)))
+        if let data = transaction.data, data.isNotEmpty {
+            advancedItems.append(.init(title: "Data", value: formatData(data)))
         }
 
         if let gasPrice = transaction.gasPrice {
