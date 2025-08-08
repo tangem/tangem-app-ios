@@ -59,6 +59,7 @@ struct SendNewAmountTokenView: View {
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
         }
+        .padding(.vertical, 14)
     }
 
     @ViewBuilder
