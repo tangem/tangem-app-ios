@@ -92,7 +92,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
         reproducedBag.removeAll()
 
         userWalletRepository.models.map {
-            $0.userWalletNamePublisher.dropFirst()
+            $0.updatePublisher.compactMap(\.newName)
         }
         .merge()
         .withWeakCaptureOf(self)
@@ -291,7 +291,7 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        userWalletModel.updateWalletName(name)
+        userWalletModel.update(type: .newName(name))
     }
 
     func createAndConnectWallet(entries: [ApplicationWalletEntry]) {
@@ -345,7 +345,7 @@ extension CommonUserTokensPushNotificationsService {
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         runTask(in: self) { service in
-            // Skip when service did not initilized
+            // Skip when service is not initialized
             guard await service.isInitialized else {
                 return
             }
