@@ -523,8 +523,16 @@ extension SendWithSwapModel: SendReceiveTokenAmountOutput {
 // MARK: - SendSwapProvidersInput
 
 extension SendWithSwapModel: SendSwapProvidersInput {
+    var expressProviders: [ExpressAvailableProvider] {
+        get async { await swapManager.providers }
+    }
+
     var expressProvidersPublisher: AnyPublisher<[TangemExpress.ExpressAvailableProvider], Never> {
         swapManager.providersPublisher
+    }
+
+    var selectedExpressProvider: ExpressAvailableProvider? {
+        get async { await swapManager.selectedProvider }
     }
 
     var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
