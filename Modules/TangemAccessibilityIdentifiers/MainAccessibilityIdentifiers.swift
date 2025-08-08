@@ -15,4 +15,5 @@ public enum MainAccessibilityIdentifiers {
     public static let tokensList = "mainTokensList"
     public static let organizeTokensButton = "mainOrganizeTokensButton"
     public static let tokenTitle = "mainTokenTitle"
+    public static let detailsButton = "mainDetailsButton"
 }

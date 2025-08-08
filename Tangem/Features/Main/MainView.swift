@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -80,6 +81,7 @@ struct MainView: View {
         .buttonStyle(PlainButtonStyle())
         .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
         .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 
     @ViewBuilder
