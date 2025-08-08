@@ -69,8 +69,8 @@ extension CommonExpressManager: ExpressManager {
         return allProviders
     }
 
-    func update(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
-        assert(pair.source.currency != pair.destination.currency, "Pair has equal currencies")
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
+        pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
 
         // Clear for reselected the best quote
@@ -137,8 +137,8 @@ private extension CommonExpressManager {
     /// Return the state which checking the all properties
     func updateState(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
         guard let pair = _pair else {
-            ExpressLogger.error(self, error: "ExpressManagerSwappingPair not found")
-            throw ExpressManagerError.pairNotFound
+            ExpressLogger.warning("Pair isn't set. Return .idle state")
+            return .idle
         }
 
         // Just update availableProviders for this pair
