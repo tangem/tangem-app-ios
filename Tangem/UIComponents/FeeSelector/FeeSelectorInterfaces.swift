@@ -11,6 +11,11 @@ import Foundation
 import TangemFoundation
 import TangemUI
 
+enum FeeSelectorDismissButtonType {
+    case back
+    case close
+}
+
 struct FeeSelectorFee {
     let option: FeeOption
     let value: Decimal
