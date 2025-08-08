@@ -11,21 +11,31 @@ import TangemAssets
 import TangemUIUtils
 
 @available(iOS 16.4, *)
-struct InfoButtonView: View {
+public struct InfoButtonView: View {
     @State private var isTooltipShowing: Bool = false
     @State private var tooltipSize: CGSize = .zero
 
     private let size: Size
-    private let tooltipText: String
+    private let tooltipText: PopoverModifier.TextType
 
     private var color: Color = Colors.Icon.informative
 
-    init(size: Size, tooltipText: String) {
+    public init(size: Size, tooltipText: String) {
+        self.size = size
+        self.tooltipText = .rich(text: tooltipText)
+    }
+
+    public init(size: Size, tooltipText: AttributedString) {
+        self.size = size
+        self.tooltipText = .attributed(text: tooltipText)
+    }
+
+    public init(size: Size, tooltipText: PopoverModifier.TextType) {
         self.size = size
         self.tooltipText = tooltipText
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: { isTooltipShowing = true }) {
             size.icon.image
                 .resizable()
@@ -41,13 +51,13 @@ struct InfoButtonView: View {
 
 @available(iOS 16.4, *)
 extension InfoButtonView: Setupable {
-    func color(_ color: Color) -> Self {
+    public func color(_ color: Color) -> Self {
         map { $0.color = color }
     }
 }
 
 @available(iOS 16.4, *)
-extension InfoButtonView {
+public extension InfoButtonView {
     enum Size {
         case small
         case medium
