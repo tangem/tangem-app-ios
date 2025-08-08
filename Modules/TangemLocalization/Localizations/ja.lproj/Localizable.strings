@@ -65,6 +65,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to quickly and securely unlock your wallet and authorize all sensitive actions, such as signing transactions. For hardware wallets, you will still need a card to sign.";
 "app_settings_default_fee_footer" = "デフォルト手数料を有効にすると、取引手数料が自動的に設定され、送金時に手数料ページを表示する必要がなくなります。必要に応じて、いつでもこのページに戻ることができます。";
 "app_settings_default_fee" = "デフォルト手数料";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_saved_access_code_alert_message" = "これにより、保存されているウォレットアクセスコードがすべて削除されます。ウォレットでの今後の操作には、アクセスコードの送信が必要になります。";
 "app_settings_off_saved_wallet_alert_message" = "保存したデバイスを削除すると、保存されているすべてのウォレットとそのアクセスコードがアプリから削除されます。";
 "app_settings_require_access_code_footer" = "This option disables biometric authentication for sensitive actions. You will be required to enter your access code every time, such as when signing a transaction.";
