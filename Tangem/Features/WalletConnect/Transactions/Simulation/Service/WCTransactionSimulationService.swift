@@ -120,7 +120,7 @@ final class CommonWCTransactionSimulationService: WCTransactionSimulationService
             let transactionParams = BlockaidDTO.EvmScan.Request.TransactionParams(
                 from: transaction.from,
                 to: transaction.to,
-                data: transaction.data,
+                data: transaction.data ?? "0x",
                 value: transaction.value ?? "0x0"
             )
 
