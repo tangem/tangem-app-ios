@@ -25,7 +25,7 @@ struct WCEthTransactionDetailsView: View {
             }
 
             WCTransactionNetworkRow(blockchain: viewModel.transactionData.blockchain)
-                .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
+                .padding(.init(top: viewModel.isWalletRowVisible ? 0 : 12, leading: 16, bottom: 12, trailing: 16))
 
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.init(top: 0, leading: 16, bottom: 10, trailing: 16))
