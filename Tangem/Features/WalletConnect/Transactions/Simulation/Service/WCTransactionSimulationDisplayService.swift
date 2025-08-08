@@ -13,27 +13,24 @@ import TangemLocalization
 struct WCTransactionSimulationDisplayService {
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel? {
         switch simulationState {
-        case .notStarted, .loading:
+        case .simulationNotSupported:
+            nil
+
+        case .loading:
             WCTransactionSimulationDisplayModel(
                 cardTitle: Localization.wcEstimatedWalletChanges,
                 content: .loading
             )
 
-        case .simulationNotSupported(let method):
+        case .simulationFailed:
             WCTransactionSimulationDisplayModel(
                 cardTitle: Localization.wcEstimatedWalletChanges,
-                content: .failed(message: Localization.wcEstimationIsNotSupported(method))
-            )
-
-        case .simulationFailed(let error):
-            WCTransactionSimulationDisplayModel(
-                cardTitle: Localization.wcEstimatedWalletChanges,
-                content: .failed(message: error.localizedDescription)
+                content: .failed(message: Localization.wcEstimatedWalletChangesNotSimulated)
             )
 
         case .simulationSucceeded(let result):
@@ -48,7 +45,7 @@ struct WCTransactionSimulationDisplayService {
 
     private func createSuccessDisplayModel(
         from result: BlockaidChainScanResult,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel {
@@ -73,7 +70,7 @@ struct WCTransactionSimulationDisplayService {
 
     private func createSections(
         from result: BlockaidChainScanResult,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> [WCTransactionSimulationDisplayModel.Section] {
@@ -125,7 +122,7 @@ struct WCTransactionSimulationDisplayService {
 
     private func createApprovalsSection(
         from approvals: [BlockaidChainScanResult.Asset],
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?,
         simulationResult: BlockaidChainScanResult
@@ -145,7 +142,7 @@ struct WCTransactionSimulationDisplayService {
 
     private func createApprovalItem(
         from asset: BlockaidChainScanResult.Asset,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?,
         simulationResult: BlockaidChainScanResult?
@@ -201,7 +198,7 @@ struct WCTransactionSimulationDisplayService {
         asset: BlockaidChainScanResult.Asset,
         userWalletModel: UserWalletModel,
         simulationResult: BlockaidChainScanResult?,
-        originalTransaction: WalletConnectEthTransaction?
+        originalTransaction: WCSendableTransaction?
     ) -> String {
         if approvalInfo.isUnlimited {
             return "Unlimited \(asset.symbol ?? asset.name ?? "")"
