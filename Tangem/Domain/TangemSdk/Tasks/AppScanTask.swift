@@ -76,8 +76,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        let visaUtils = VisaUtilities(isTestnet: false)
-        if visaUtils.isVisaCard(card) {
+        if VisaUtilities.isVisaCard(card) {
             guard FeatureProvider.isAvailable(.visa) else {
                 completion(.failure(.notSupportedFirmwareVersion))
                 return
@@ -234,15 +233,9 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readVisaCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let featureStorage = FeatureStorage.instance
-        let handler = VisaCardScanHandlerBuilder(
-            apiType: featureStorage.visaAPIType,
-            isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
-        ).build(
-            isTestnet: featureStorage.visaAPIType.isTestnet,
-            urlSessionConfiguration: .visaConfiguration,
-            refreshTokenRepository: visaRefreshTokenRepository
-        )
+        let handler = VisaCardScanHandlerBuilder()
+            .build(refreshTokenRepository: visaRefreshTokenRepository)
+
         handler.run(in: session) { result in
             switch result {
             case .success(let success):

@@ -254,10 +254,7 @@ private class DummySigner: TransactionSigner {
         fatalError()
     }
 
-    func sign(
-        dataToSign: [SignData],
-        seedKey: Data
-    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+    func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
         fatalError()
     }
 }
