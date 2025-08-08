@@ -31,8 +31,8 @@ struct SendNewAmountCompactTokenView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: .zero) {
-            Text(.init(viewModel.walletNameTitle))
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            Text(.init(viewModel.title))
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
 
