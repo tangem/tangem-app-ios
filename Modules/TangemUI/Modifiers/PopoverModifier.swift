@@ -12,23 +12,22 @@ import TangemUIUtils
 
 /// The `PopoverModifier` which will be able to show a bubble with some text
 @available(iOS 16.4, *)
-struct PopoverModifier: ViewModifier {
-    private let text: String
+public struct PopoverModifier: ViewModifier {
+    private let text: TextType
     @Binding private var isPresented: Bool
 
     /// Strange hack but it's important for a multiline text. More then 3 lines
     @State private var textSize: CGSize = .zero
 
-    init(text: String, isPresented: Binding<Bool>) {
+    public init(text: TextType, isPresented: Binding<Bool>) {
         self.text = text
         _isPresented = isPresented
     }
 
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .popover(isPresented: $isPresented, content: {
-                Text(text)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                textView
                     .lineLimit(nil)
                     .readGeometry(\.frame.size, bindTo: $textSize)
                     .fixedSize(horizontal: false, vertical: true)
@@ -42,11 +41,40 @@ struct PopoverModifier: ViewModifier {
                     .presentationBackground(Colors.Icon.secondary)
             })
     }
+
+    @ViewBuilder
+    private var textView: some View {
+        switch text {
+        case .rich(let text):
+            Text(.init(text))
+                .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+        case .attributed(let text):
+            Text(text)
+        }
+    }
+}
+
+@available(iOS 16.4, *)
+public extension PopoverModifier {
+    enum TextType {
+        case rich(text: String)
+        case attributed(text: AttributedString)
+    }
 }
 
 public extension View {
     @available(iOS 16.4, *)
     func popover(_ text: String, isPresented: Binding<Bool>) -> some View {
+        modifier(PopoverModifier(text: .rich(text: text), isPresented: isPresented))
+    }
+
+    @available(iOS 16.4, *)
+    func popover(_ text: AttributedString, isPresented: Binding<Bool>) -> some View {
+        modifier(PopoverModifier(text: .attributed(text: text), isPresented: isPresented))
+    }
+
+    @available(iOS 16.4, *)
+    func popover(_ text: PopoverModifier.TextType, isPresented: Binding<Bool>) -> some View {
         modifier(PopoverModifier(text: text, isPresented: isPresented))
     }
 
@@ -63,7 +91,7 @@ public extension View {
     @ViewBuilder
     func popoverBackport(_ text: String, isPresented: Binding<Bool>) -> some View {
         if #available(iOS 16.4, *) {
-            modifier(PopoverModifier(text: text, isPresented: isPresented))
+            modifier(PopoverModifier(text: .rich(text: text), isPresented: isPresented))
         } else {
             self
         }
