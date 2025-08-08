@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 protocol WalletSelectorDataSource: AnyObject {
     /// Published value selected UserWalletModel
