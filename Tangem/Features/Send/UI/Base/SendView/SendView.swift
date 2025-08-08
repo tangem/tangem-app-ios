@@ -140,7 +140,7 @@ struct SendView: View {
                 Text(title)
                     .multilineTextAlignment(.center)
                     .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.title)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
 
                 if let subtitle = viewModel.subtitle {
                     Text(subtitle)
@@ -285,6 +285,7 @@ struct SendView: View {
                     isDisabled: !viewModel.actionIsAvailable,
                     action: viewModel.userDidTapActionButton
                 )
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.showBackButton)
         }
