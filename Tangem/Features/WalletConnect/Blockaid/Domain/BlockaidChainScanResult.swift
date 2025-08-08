@@ -15,10 +15,10 @@ struct BlockaidChainScanResult: Equatable {
     let assetsDiff: AssetDiff?
     let approvals: [Asset]?
 
-    enum ValidationStatus: String {
-        case malicious = "Malicious"
-        case warning = "Warning"
-        case benign = "Benign"
+    enum ValidationStatus {
+        case malicious
+        case warning
+        case benign
     }
 
     struct AssetDiff: Equatable {
