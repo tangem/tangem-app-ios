@@ -531,7 +531,8 @@ private extension ExpressInteractor {
     func swappingPairDidChange() {
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
-                return .restriction(.noDestinationTokens, quote: .none)
+                let state = try await interactor.expressManager.update(pair: .none)
+                return try await interactor.mapState(state: state)
             }
 
             // If we have an amount to we will start the full update
