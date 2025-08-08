@@ -29,7 +29,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     lazy var tokenWithAmountViewData: SendNewAmountTokenViewData = .init(
         tokenIconInfo: tokenIconInfo,
         title: tokenItem.name,
-        subtitle: balanceFormatted,
+        subtitle: Localization.commonBalance(balanceFormatted),
         detailsType: .max { [weak self] in
             self?.userDidTapMaxAmount()
         }
