@@ -31,7 +31,7 @@ struct WCTransactionView: View {
                     .transition(topEdgeTransition)
             case .customAllowance(let input):
                 WCCustomAllowanceView(input: input)
-                    .transition(topEdgeTransition)
+                    .transition(bottomEdgeTransition)
             case .securityAlert(let state, let input):
                 WCTransactionSecurityAlertView(state: state, input: input)
                     .transition(bottomEdgeTransition)
@@ -100,14 +100,12 @@ private extension WCTransactionView {
             VStack(spacing: 14) {
                 dappInfoSection
 
-                if viewModel.simulationState != .notStarted {
-                    ForEach(viewModel.simulationValidationInputs) {
-                        NotificationView(input: $0)
-                    }
-
-                    simulationResultSection
-                        .transition(bottomEdgeTransition)
+                ForEach(viewModel.simulationValidationInputs) {
+                    NotificationView(input: $0)
                 }
+
+                simulationResultSection
+                    .transition(bottomEdgeTransition)
 
                 transactionDetailsContent
 
@@ -171,18 +169,13 @@ private extension WCTransactionView {
     @ViewBuilder
     var transactionDetailsContent: some View {
         switch viewModel.transactionData.method {
-        case .personalSign:
+        case .personalSign, .signTypedData, .signTypedDataV4:
             WCEthPersonalSignTransactionView(
                 walletName: viewModel.userWalletName,
                 isWalletRowVisible: viewModel.isWalletRowVisible
             )
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
-                walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible
-            )
-        case .signTypedData, .signTypedDataV4:
-            WCEthPersonalSignTransactionView(
                 walletName: viewModel.userWalletName,
                 isWalletRowVisible: viewModel.isWalletRowVisible
             )

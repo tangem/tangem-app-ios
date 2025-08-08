@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-struct WCFee {
+struct WCFee: Hashable {
     let option: FeeOption
     let value: LoadingValue<Fee>
 

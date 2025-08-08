@@ -308,6 +308,11 @@ extension SingleTokenBaseViewModel {
     }
 
     private func bind() {
+        walletModel.isAssetRequirementsTaskInProgressPublisher
+            .receiveOnMain()
+            .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)
+            .store(in: &bag)
+        
         walletModel.totalTokenBalanceProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)

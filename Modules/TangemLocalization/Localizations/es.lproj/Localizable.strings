@@ -65,6 +65,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to quickly and securely unlock your wallet and authorize all sensitive actions, such as signing transactions. For hardware wallets, you will still need a card to sign.";
 "app_settings_default_fee_footer" = "Habilite las Tarifas predeterminadas para establecer automáticamente las tarifas de transacción y omitir la página de Tarifas al enviar fondos. Siempre puede volver a esta página si es necesario.";
 "app_settings_default_fee" = "Tarifa por defecto";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_saved_access_code_alert_message" = "Esto eliminará todos los códigos de acceso guardados de la billetera. Cualquier operación posterior con la billetera requerirá introducir el código de acceso.";
 "app_settings_off_saved_wallet_alert_message" = "Eliminar la tarjeta guardada borra todos las billeteras guardadas y sus códigos de acceso de la app.";
 "app_settings_require_access_code_footer" = "This option disables biometric authentication for sensitive actions. You will be required to enter your access code every time, such as when signing a transaction.";
