@@ -43,7 +43,6 @@ final class CardActivationTask: CardSessionRunnable {
     private let activationInput: VisaCardActivationInput
     private let isTestnet: Bool
     private let authorizationChallengeToSign: String?
-    private let visaUtilities: VisaUtilities
 
     private var taskCancellationError: TangemSdkError?
 
@@ -64,7 +63,6 @@ final class CardActivationTask: CardSessionRunnable {
         self.activationInput = activationInput
         self.isTestnet = isTestnet
         self.authorizationChallengeToSign = authorizationChallengeToSign
-        visaUtilities = .init(isTestnet: isTestnet)
         isAuthorizedInBFFPublisher = .init(authorizationChallengeToSign == nil)
         orderPublisher.send(nil)
 
@@ -120,14 +118,14 @@ private extension CardActivationTask {
             return
         }
 
-        if card.wallets.contains(where: { $0.curve == visaUtilities.mandatoryCurve }) {
+        if card.wallets.contains(where: { $0.curve == VisaUtilities.mandatoryCurve }) {
             VisaLogger.info("Wallet already created. Moving to OTP creation")
             deriveKey(in: session, completion: completion)
             return
         }
 
         VisaLogger.info("Wallet not created. Creating wallet")
-        let createWallet = CreateWalletTask(curve: visaUtilities.mandatoryCurve)
+        let createWallet = CreateWalletTask(curve: VisaUtilities.mandatoryCurve)
         createWallet.run(in: session) { result in
             switch result {
             case .success:
@@ -140,7 +138,7 @@ private extension CardActivationTask {
 
     func deriveKey(in session: CardSession, completion: @escaping CompletionHandler) {
         guard
-            let wallet = session.environment.card?.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve })
+            let wallet = session.environment.card?.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve })
         else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
@@ -263,7 +261,7 @@ private extension CardActivationTask {
 
 private extension CardActivationTask {
     func signOrder(orderToSign: VisaCardAcceptanceOrderInfo, in session: CardSession, completion: @escaping CompletionHandler) {
-        let signOrderTask = SignActivationOrderTask(orderToSign: orderToSign, isTestnet: isTestnet)
+        let signOrderTask = SignActivationOrderTask(orderToSign: orderToSign)
 
         VisaLogger.info("Starting activation order sign task")
         signOrderTask.run(in: session, completion: { result in
@@ -312,7 +310,7 @@ private extension CardActivationTask {
         completion: @escaping CompletionHandler
     ) {
         do {
-            let address = try visaUtilities.makeAddress(walletPublicKey: wallet.publicKey)
+            let address = try VisaUtilities.makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet)
             awaitBFFAuthorization(walletAddress: address.value)
             createOTP(in: session, completion: completion)
         } catch {
