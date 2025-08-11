@@ -269,7 +269,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         ])
     }
 
-    private func handleUnlock(context: LAContext) throws -> UserWalletModel {
+    private func _handleUnlock(context: LAContext) throws -> Int {
         let userWalletIds = models.map { $0.userWalletId }
         let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
@@ -291,41 +291,50 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         models = unlockedModels
+        return models.count
+    }
 
-        if selectedUserWalletId == nil {
-            selectedUserWalletId = models.first.map { $0.userWalletId }
+    private func handleUnlock(context: LAContext) throws -> UserWalletModel {
+        _ = try _handleUnlock(context: context)
+
+        guard let userWalletIdToSelect = selectedUserWalletId ?? models.first.map({ $0.userWalletId }) else {
+            throw UserWalletRepositoryError.cantSelectWallet
         }
 
-        initializeServicesForSelectedModel()
+        sendEvent(.unlockedBiometrics)
+        select(userWalletId: userWalletIdToSelect)
 
         guard let selectedModel else {
             throw UserWalletRepositoryError.cantSelectWallet
         }
 
-        sendEvent(.unlockedBiometrics)
         return selectedModel
     }
 
     private func handleUnlock(userWalletId: UserWalletId, context: LAContext) async throws -> UserWalletModel {
-        let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: [userWalletId], context: context)
-        guard let sensitiveInfo = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)[userWalletId] else {
-            throw UserWalletRepositoryError.biometricsChanged
-        }
+        let unlockedModelsCount = try _handleUnlock(context: context)
 
-        guard let existingLockedModel = models[userWalletId],
-              let publicData = existingLockedModel.serializePublic(),
-              let unlockedModel = CommonUserWalletModelFactory().makeModel(
-                  publicData: publicData,
-                  sensitiveData: sensitiveInfo
-              ) else {
+        guard let targetUnlockedModel = models[userWalletId] else {
             throw UserWalletRepositoryError.cantUnlockWallet
         }
 
-        models[userWalletId] = unlockedModel
-        globalServicesContext.initializeServices(userWalletModel: unlockedModel)
-        await unlockUnprotectedMobileWalletsIfNeeded()
-        sendEvent(.unlocked(userWalletId: userWalletId))
-        return unlockedModel
+        guard !targetUnlockedModel.isUserWalletLocked else {
+            throw UserWalletRepositoryError.biometricsChanged
+        }
+
+        if unlockedModelsCount > 1 {
+            sendEvent(.unlockedBiometrics)
+        } else {
+            sendEvent(.unlocked(userWalletId: userWalletId))
+        }
+
+        select(userWalletId: userWalletId)
+
+        guard let selectedModel else {
+            throw UserWalletRepositoryError.cantSelectWallet
+        }
+
+        return selectedModel
     }
 
     private func handleUnlock(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) async throws -> UserWalletModel {

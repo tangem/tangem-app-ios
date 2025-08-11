@@ -58,11 +58,11 @@ protocol WalletModel:
 }
 
 extension WalletModel {
-    // Default implementation provided because not all wallet models support fulfilling asset requirements
+    /// Default implementation provided because not all wallet models support fulfilling asset requirements
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         Just(false).eraseToAnyPublisher()
     }
-    
+
     func exploreURL(for index: Int) -> URL? {
         return exploreURL(for: index, token: nil)
     }
