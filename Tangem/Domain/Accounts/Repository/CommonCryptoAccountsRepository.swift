@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 final class CommonCryptoAccountsRepository {
     // [REDACTED_TODO_COMMENT]
@@ -20,6 +21,15 @@ final class CommonCryptoAccountsRepository {
 // MARK: - CryptoAccountsRepository protocol conformance
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
+    var totalCryptoAccountsCount: Int {
+        return 1    // [REDACTED_TODO_COMMENT]
+    }
+
+    var cryptoAccountModelsPublisher: AnyPublisher<[CryptoAccountModel], Never> {
+        // [REDACTED_TODO_COMMENT]
+        fatalError()
+    }
+
     func getAccounts() -> [StoredCryptoAccount] {
         // [REDACTED_TODO_COMMENT]
         return [
@@ -34,14 +44,19 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             ),
         ]
     }
+
+    func addCryptoAccount(_ cryptoAccountModel: CryptoAccountModel) {
+        // [REDACTED_TODO_COMMENT]
+    }
 }
 
 // MARK: - Constants
 
-private extension CommonCryptoAccountsRepository {
+// [REDACTED_TODO_COMMENT]
+/*private*/ extension CommonCryptoAccountsRepository {
     enum Constants {
         static let mainAccountDerivationIndex = 0
-        static let mainAccountName = "Main" // [REDACTED_TODO_COMMENT]
+        static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
         static let mainAccountIconName = AccountModel.Icon.Name.star.rawValue
         static let mainAccountIconColor = AccountModel.Icon.Color.brightBlue.rawValue
     }
