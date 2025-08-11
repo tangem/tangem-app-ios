@@ -28,6 +28,7 @@ public extension UIApplication {
 
     static func dismissTop(animated: Bool = true, completion: (() -> Void)? = nil) {
         guard let top = topViewController else {
+            assertionFailure("Top view controller not found")
             return
         }
 
@@ -35,7 +36,10 @@ public extension UIApplication {
     }
 
     static func modalFromTop(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
-        guard let top = topViewController else { return }
+        guard let top = topViewController else {
+            assertionFailure("Top view controller not found")
+            return
+        }
 
         if top.isBeingDismissed || top.isBeingPresented {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
