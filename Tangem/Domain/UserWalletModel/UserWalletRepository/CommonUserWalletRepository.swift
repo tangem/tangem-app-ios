@@ -181,11 +181,12 @@ class CommonUserWalletRepository: UserWalletRepository {
                 Log.error("Failed to delete hot sdk data: \(error.localizedDescription)")
             }
 
+            let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
+
             if let selectedModel {
                 models = [selectedModel]
             }
 
-            let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
             sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
         }
     }
