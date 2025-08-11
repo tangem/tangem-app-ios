@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -138,7 +139,7 @@ struct SendNewAmountView: View {
                     }
 
                     viewModel.useFiatCalculation.toggle()
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    FeedbackGenerator.success()
                 }) {
                     alternativeView
                 }
