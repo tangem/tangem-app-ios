@@ -31,7 +31,7 @@ extension CryptoAccounts {
     init(accounts: [CryptoAccountModel]) {
         switch accounts.count {
         case 0:
-            preconditionFailure("CryptoAccount must be initialized with at least one CryptoAccountModel")
+            preconditionFailure("CryptoAccounts must be initialized with at least one CryptoAccountModel")
         case 1:
             self = .single(accounts[0])
         default:
