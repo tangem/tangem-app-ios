@@ -82,7 +82,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
         if case .failedToLoad = viewModel?.selectedFee?.value {
             return true
         }
-        
+
         if case .loading = viewModel?.selectedFee?.value {
             return true
         }
