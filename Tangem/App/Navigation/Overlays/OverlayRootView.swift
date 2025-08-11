@@ -15,7 +15,8 @@ struct OverlayRootView: View {
     @ObservedObject var alertPresenterViewModel: AlertPresenterViewModel
 
     var body: some View {
-        EmptyView()
+        Color.orange.opacity(0.1)
+            .allowsHitTesting(false)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .floatingSheet(
                 viewModel: floatingSheetViewModel.activeSheet,
