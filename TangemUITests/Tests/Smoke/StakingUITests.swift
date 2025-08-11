@@ -17,9 +17,15 @@ final class StakingUITests: BaseTestCase {
 
         let tokenValue = "1"
 
+        let stakeScenario = ScenarioConfig(
+            name: "staking_eth_pol",
+            initialState: "Started"
+        )
+
         launchApp(
             tangemApiType: .mock,
-            stakingApiType: .mock
+            stakingApiType: .mock,
+            scenarios: [stakeScenario]
         )
 
         StoriesScreen(app)
