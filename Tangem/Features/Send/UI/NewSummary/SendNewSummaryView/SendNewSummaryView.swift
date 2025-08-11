@@ -59,11 +59,11 @@ struct SendNewSummaryView: View {
     @ViewBuilder
     private var feeSectionView: some View {
         if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
-            if feeCompactViewModel.canEditFee {
-                Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
-            } else {
-                SendNewFeeCompactView(viewModel: feeCompactViewModel)
-            }
+//            if feeCompactViewModel.canEditFee {
+            Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+//            } else {
+//                SendNewFeeCompactView(viewModel: feeCompactViewModel)
+//            }
         }
     }
 
