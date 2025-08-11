@@ -8,17 +8,16 @@
 
 import Foundation
 import BigInt
+import BlockchainSdk
 
-protocol WCTransactionFeePreferencesRepository: Actor {
+protocol WCTransactionFeePreferencesRepository {
     nonisolated var dappName: String { get }
 
-    func getLastSelectedFeeOption(for networkId: String) -> FeeOption
-    func saveSelectedFeeOption(_ option: FeeOption, for networkId: String)
-    func getLastCustomFeeValues(for networkId: String) -> (feeValue: Decimal, gasPrice: Decimal)?
-    func saveCustomFeeValues(_ values: (feeValue: Decimal, gasPrice: Decimal), for networkId: String)
+    func getLastSelectedFeeOption(for networkId: String) async -> FeeOption
+    func saveSelectedFeeOption(_ option: FeeOption, for networkId: String) async
 
-    func getSuggestedFeeFromDApp(for networkId: String) -> (gasLimit: BigUInt, gasPrice: BigUInt)?
-    func saveSuggestedFeeFromDApp(gasLimit: BigUInt, gasPrice: BigUInt, for networkId: String)
+    func getSuggestedFeeFromDApp(for networkId: String, blockchain: Blockchain) async -> Fee?
+    func saveSuggestedFeeFromDApp(gasLimit: BigUInt, gasPrice: BigUInt, for networkId: String) async
 }
 
 actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRepository {
@@ -46,16 +45,16 @@ actor CommonWCTransactionFeePreferencesRepository: WCTransactionFeePreferencesRe
         lastSelectedFeeOptions[networkId] = option
     }
 
-    func getLastCustomFeeValues(for networkId: String) -> (feeValue: Decimal, gasPrice: Decimal)? {
-        lastCustomFeeValues[networkId]
-    }
+    func getSuggestedFeeFromDApp(for networkId: String, blockchain: Blockchain) -> Fee? {
+        if let suggestedFeeData = suggestedFeesFromDApp[networkId] {
+            let legacyFeeParameters = EthereumLegacyFeeParameters(gasLimit: suggestedFeeData.gasLimit, gasPrice: suggestedFeeData.gasPrice)
+            let feeValue = legacyFeeParameters.calculateFee(decimalValue: blockchain.decimalValue)
+            let amount = Amount(with: blockchain, value: feeValue)
 
-    func saveCustomFeeValues(_ values: (feeValue: Decimal, gasPrice: Decimal), for networkId: String) {
-        lastCustomFeeValues[networkId] = values
-    }
+            return Fee(amount, parameters: legacyFeeParameters)
+        }
 
-    func getSuggestedFeeFromDApp(for networkId: String) -> (gasLimit: BigUInt, gasPrice: BigUInt)? {
-        suggestedFeesFromDApp[networkId]
+        return nil
     }
 
     func saveSuggestedFeeFromDApp(gasLimit: BigUInt, gasPrice: BigUInt, for networkId: String) {
