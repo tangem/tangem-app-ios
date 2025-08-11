@@ -9,7 +9,7 @@
 import UIKit
 import TangemAssets
 
-@UIApplicationMain
+/// [REDACTED_USERNAME]
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 

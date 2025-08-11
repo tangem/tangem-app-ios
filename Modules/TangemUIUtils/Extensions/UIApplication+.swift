@@ -15,7 +15,7 @@ public extension UIApplication {
     }
 
     static var mainWindow: UIWindow? {
-        UIApplication.shared.windows.last { $0 is MainWindow }
+        UIApplication.shared.windows.last // { $0 is MainWindow }
     }
 
     func endEditing() {

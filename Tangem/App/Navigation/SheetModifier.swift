@@ -116,3 +116,54 @@ public extension View {
         }
     }
 }
+
+extension View {
+    @ViewBuilder
+    func scrollViewResetableSheet<Item, Content>(
+        item: Binding<Item?>,
+        onDismiss: (() -> Void)? = nil,
+        @ViewBuilder content: @escaping (Item) -> Content
+    ) -> some View where Item: Identifiable, Content: View {
+        if #available(iOS 16, *) {
+            modifier(ScrollViewResatableModifier(item: item, contentView: content))
+        } else {
+            sheet(item: item, onDismiss: onDismiss, content: content)
+        }
+    }
+}
+
+protocol ScrollViewResatableView {
+    var id: UUID { get set }
+
+    func resetID()
+}
+
+// extension ScrollViewResatableView {
+//    func resetID() { id = .init() }
+// }
+
+struct ScrollViewResatableModifier<Item: Identifiable, ContentView: View>: ViewModifier {
+    private let item: Binding<Item?>
+    private var contentView: (Item) -> ContentView
+
+    @State private var id: UUID = .init()
+
+    init(item: Binding<Item?>, contentView: @escaping (Item) -> ContentView) {
+        self.item = item
+        self.contentView = contentView
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .id(id)
+            .onChange(of: item.wrappedValue?.id) { resetID(item: $0) }
+            .sheet(item: item, content: contentView)
+    }
+
+    func resetID(item: Item.ID?) {
+        // After dismiss
+        if item == nil {
+            id = .init()
+        }
+    }
+}
