@@ -1,26 +1,23 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemLocalization
 
 protocol WCTransactionSimulationManager {
-    var simulationState: CurrentValueSubject<TransactionSimulationState, Never> { get }
-
     func startSimulation(
         for transactionData: WCHandleTransactionData,
         userWalletModel: UserWalletModel
-    ) async
+    ) async -> TransactionSimulationState
 
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel?
 }
 
 final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager {
-    let simulationState = CurrentValueSubject<TransactionSimulationState, Never>(.notStarted)
-
     private let simulationService: WCTransactionSimulationService
     private let displayService: WCTransactionSimulationDisplayService
 
@@ -35,29 +32,25 @@ final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager
     func startSimulation(
         for transactionData: WCHandleTransactionData,
         userWalletModel: UserWalletModel
-    ) async {
-        simulationState.send(.loading)
-
+    ) async -> TransactionSimulationState {
         guard let address = userWalletModel.walletModelsManager.walletModels.first(where: {
             $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
         })?.defaultAddressString else {
-            return
+            return .simulationFailed(error: Localization.wcEstimatedWalletChangesNotSimulated)
         }
 
-        let result = await simulationService.simulateTransaction(
+        return await simulationService.simulateTransaction(
             for: transactionData.method,
             address: address,
             blockchain: transactionData.blockchain,
             requestData: transactionData.requestData,
             domain: transactionData.dAppData.domain
         )
-
-        simulationState.send(result)
     }
 
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
-        originalTransaction: WalletConnectEthTransaction?,
+        originalTransaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel? {
