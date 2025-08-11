@@ -254,6 +254,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
+        return .available
         switch walletModel.sendingRestrictions {
         case .oldCard:
             return .oldCard

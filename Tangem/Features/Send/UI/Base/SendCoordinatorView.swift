@@ -63,6 +63,8 @@ struct SendCoordinatorView: CoordinatorView {
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
             }
+
+        NavHolder()
             .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
                 FeeSelectorContentView(viewModel: $0)
             }
@@ -72,12 +74,13 @@ struct SendCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: HighPriceImpactWarningSheetViewModel.self) {
                 HighPriceImpactWarningSheetView(viewModel: $0)
             }
+
+        NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
-                QRScanViewCoordinatorView(coordinator: $0)
-                    .edgesIgnoringSafeArea(.all)
+                QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
             }
             .sheet(item: $coordinator.onrampProvidersCoordinator) {
                 OnrampProvidersCoordinatorView(coordinator: $0)
@@ -88,7 +91,7 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
             }
-            .sheet(item: $coordinator.sendReceiveTokenCoordinator) {
+            .fullScreenCover(item: $coordinator.sendReceiveTokenCoordinator) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
             }
     }
