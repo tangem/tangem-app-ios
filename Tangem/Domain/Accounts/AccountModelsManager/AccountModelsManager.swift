@@ -16,7 +16,7 @@ protocol AccountModelsManager {
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
     /// - Returns: The created account model.
     @discardableResult
-    func addCryptoAccount() async throws -> CryptoAccountModel
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> CryptoAccountModel
 
     /// - Returns: The archived account model.
     @discardableResult

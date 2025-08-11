@@ -34,7 +34,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount() async throws -> CryptoAccountModel {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
         let existingAccounts = cryptoAccounts.accounts
         let newAccount = CryptoAccountModelMock(isMainAccount: false)
         cryptoAccounts = .init(accounts: existingAccounts + [newAccount])
