@@ -63,6 +63,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.feeOption.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
 
             Text(viewModel.feeComponents.formatted)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
