@@ -224,7 +224,16 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        try? userWalletRepository.add(userWalletModel: userWalletModel)
+        if AppSettings.shared.saveUserWallets {
+            try? userWalletRepository.add(userWalletModel: userWalletModel)
+        } else {
+            let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
+            try? userWalletRepository.add(userWalletModel: userWalletModel)
+
+            if let currentUserWalletId {
+                userWalletRepository.delete(userWalletId: currentUserWalletId)
+            }
+        }
     }
 
     func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
