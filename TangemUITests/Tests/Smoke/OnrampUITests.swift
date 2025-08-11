@@ -24,6 +24,7 @@ final class OnrampUITests: BaseTestCase {
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
+            .validateActionButtonsAvailable()
             .tapBuyButton()
             .tapCurrencySelector()
             .selectCurrency("EUR")
