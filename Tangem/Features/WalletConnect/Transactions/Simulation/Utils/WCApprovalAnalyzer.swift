@@ -16,7 +16,7 @@ enum WCApprovalAnalyzer {
     private static let expectedDataLengthWithPrefix = 138
     private static let expectedDataLengthBytes = 68
 
-    static func analyzeApproval(transaction: WalletConnectEthTransaction) -> ApprovalInfo? {
+    static func analyzeApproval(transaction: WCSendableTransaction) -> ApprovalInfo? {
         guard isApprovalTransaction(transaction) else {
             return nil
         }
@@ -34,30 +34,33 @@ enum WCApprovalAnalyzer {
     }
 
     static func createUpdatedApproval(
-        originalTransaction: WalletConnectEthTransaction,
+        originalTransaction: WCSendableTransaction,
         newAmount: BigUInt
-    ) -> WalletConnectEthTransaction? {
+    ) -> WCSendableTransaction? {
         guard isApprovalTransaction(originalTransaction) else { return nil }
 
         guard let (spender, _) = extractApprovalData(from: originalTransaction.data) else { return nil }
 
         let newData = createApprovalData(spender: spender, amount: newAmount)
 
-        return WalletConnectEthTransaction(
-            from: originalTransaction.from,
-            to: originalTransaction.to,
-            value: originalTransaction.value,
-            data: newData,
-            gas: originalTransaction.gas,
-            gasPrice: originalTransaction.gasPrice,
-            nonce: originalTransaction.nonce
-        )
+        return originalTransaction.withUpdatedData(newData)
     }
 
-    private static func isApprovalTransaction(_ transaction: WalletConnectEthTransaction) -> Bool {
-        guard transaction.data.isNotEmpty, transaction.to.isNotEmpty else { return false }
+    static func createApprovalData(spender: String, amount: BigUInt) -> String {
+        let cleanSpender = spender.removeHexPrefix()
 
-        return isValidApprovalData(transaction.data)
+        let paddedSpender = cleanSpender.padLeft(toLength: 64, withPad: "0")
+
+        let amountHex = String(amount, radix: 16)
+        let paddedAmount = amountHex.padLeft(toLength: 64, withPad: "0")
+
+        return approvalFunctionSelector + paddedSpender + paddedAmount
+    }
+
+    private static func isApprovalTransaction(_ transaction: WCSendableTransaction) -> Bool {
+        guard let data = transaction.data, data.isNotEmpty, transaction.to.isNotEmpty else { return false }
+
+        return isValidApprovalData(data)
     }
 
     private static func isValidApprovalData(_ data: String) -> Bool {
@@ -94,29 +97,19 @@ enum WCApprovalAnalyzer {
         return (spender: spender, amount: amount)
     }
 
-    private static func checkEditable(transaction: WalletConnectEthTransaction, spender: String) -> Bool {
+    private static func checkEditable(transaction: WCSendableTransaction, spender: String) -> Bool {
         guard
-            transaction.data.hasPrefix(approvalFunctionSelector),
-            transaction.data.dropFirst(approvalFunctionSelector.count).hasPrefix(
+            let data = transaction.data,
+            data.hasPrefix(approvalFunctionSelector),
+            data.dropFirst(approvalFunctionSelector.count).hasPrefix(
                 spender.removeHexPrefix().padLeft(toLength: 64, withPad: "0")
             ),
-            transaction.data.count == expectedDataLengthWithPrefix
+            data.count == expectedDataLengthWithPrefix
         else {
             return false
         }
 
         return true
-    }
-
-    private static func createApprovalData(spender: String, amount: BigUInt) -> String {
-        let cleanSpender = spender.removeHexPrefix()
-
-        let paddedSpender = cleanSpender.padLeft(toLength: 64, withPad: "0")
-
-        let amountHex = String(amount, radix: 16)
-        let paddedAmount = amountHex.padLeft(toLength: 64, withPad: "0")
-
-        return approvalFunctionSelector + paddedSpender + paddedAmount
     }
 }
 
