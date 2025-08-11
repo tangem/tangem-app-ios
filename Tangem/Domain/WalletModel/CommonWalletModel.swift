@@ -54,10 +54,10 @@ class CommonWalletModel {
     private var updateTimer: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
-    
+
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
-    
+
     private let amountType: Amount.AmountType
     private let blockchainNetwork: BlockchainNetwork
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
@@ -67,7 +67,7 @@ class CommonWalletModel {
     private lazy var formatter = BalanceFormatter()
 
     private var bag = Set<AnyCancellable>()
-    
+
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
         isAssetRequirementsTaskInProgressSubject.eraseToAnyPublisher()
     }
@@ -490,13 +490,13 @@ extension CommonWalletModel: WalletModelHelpers {
 
         return wallet.getExploreURL(for: hash)
     }
-    
+
     /// A convenience wrapper for `AssetRequirementsManager.fulfillRequirements(for:signer:)`
     /// that automatically triggers the update of the internal state of this wallet model.
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> {
         let subject = PassthroughSubject<Void, Error>()
         isAssetRequirementsTaskInProgressSubject.send(true)
-        
+
         assetRequirementsTaskCancellable?.cancel()
         assetRequirementsTaskCancellable = assetRequirementsManager
             .publisher
@@ -509,7 +509,7 @@ extension CommonWalletModel: WalletModelHelpers {
             .sink(
                 receiveCompletion: { [weak self] completion in
                     subject.send(completion: completion)
-                    
+
                     if case .failure = completion {
                         self?.isAssetRequirementsTaskInProgressSubject.send(false)
                     }
@@ -518,7 +518,7 @@ extension CommonWalletModel: WalletModelHelpers {
                     self?.updateAfterSendingTransaction()
                 }
             )
-        
+
         return subject.eraseToAnyPublisher()
     }
 }
