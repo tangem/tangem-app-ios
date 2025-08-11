@@ -12,12 +12,14 @@ import BlockchainSdk
 import Combine
 import TangemSdk
 import TangemFoundation
+import TangemLocalization
 
 final class MobileWalletSigner {
-    let hotWalletInfo: HotWalletInfo
+    let userWalletConfig: UserWalletConfig
+    let hotSdk = CommonHotSdk()
 
-    init(hotWalletInfo: HotWalletInfo) {
-        self.hotWalletInfo = hotWalletInfo
+    init(userWalletConfig: UserWalletConfig) {
+        self.userWalletConfig = userWalletConfig
     }
 }
 
@@ -45,34 +47,86 @@ extension MobileWalletSigner: TangemSigner {
         dataToSign: [SignData],
         walletPublicKey: Wallet.PublicKey
     ) -> AnyPublisher<[SignatureInfo], any Error> {
-        do {
-            guard let userWalletIdSeed = hotWalletInfo.keys.first?.publicKey else {
-                return Fail(error: MobileWalletError.seedKeyNotFound).eraseToAnyPublisher()
+        guard let userWalletIdSeed = userWalletConfig.userWalletIdSeed else {
+            return Fail(error: MobileWalletError.seedKeyNotFound).eraseToAnyPublisher()
+        }
+
+        let userWalletId = UserWalletId(with: userWalletIdSeed)
+
+        let userWalletIdPublisher: AnyPublisher<UserWalletId, Error> = .justWithError(output: userWalletId)
+
+        let mobileWalletContextPublisher: AnyPublisher<MobileWalletContext, Error> = userWalletIdPublisher
+            .asyncTryMap { [weak self] userWalletId in
+                guard let self else {
+                    throw CancellationError()
+                }
+
+                return try await unlock(userWalletId: userWalletId)
+            }
+            .eraseToAnyPublisher()
+
+        let signedDataPublisher = mobileWalletContextPublisher
+            .tryMap { [hotSdk] context in
+                try hotSdk.sign(
+                    dataToSign: dataToSign,
+                    seedKey: walletPublicKey.seedKey,
+                    context: context
+                )
             }
 
-            let sdk = CommonHotSdk()
-
-            let context = try sdk.validate(auth: .none, for: UserWalletId(with: userWalletIdSeed))
-
-            // [REDACTED_TODO_COMMENT]
-            let signedHashesInfo = try sdk.sign(
-                dataToSign: dataToSign,
-                seedKey: walletPublicKey.seedKey,
-                context: context
-            )
-
-            let result = dataToSign
-                .compactMap { dataToSign -> [SignatureInfo]? in
-                    guard let signedHashes = signedHashesInfo[dataToSign.publicKey] else { return nil }
-                    return zip(signedHashes, dataToSign.hashes).map { signedHash, hashToSign in
-                        return SignatureInfo(signature: signedHash, publicKey: dataToSign.publicKey, hash: hashToSign)
+        return signedDataPublisher
+            .map { signedHashesInfo in
+                return dataToSign
+                    .compactMap { dataToSign -> [SignatureInfo]? in
+                        guard let signedHashes = signedHashesInfo[dataToSign.publicKey] else { return nil }
+                        return zip(signedHashes, dataToSign.hashes).map { signedHash, hashToSign in
+                            return SignatureInfo(signature: signedHash, publicKey: dataToSign.publicKey, hash: hashToSign)
+                        }
                     }
-                }
-                .flatMap { $0 }
+                    .flatMap { $0 }
+            }
+            .eraseToAnyPublisher()
+    }
+}
 
-            return .justWithError(output: result)
+private extension MobileWalletSigner {
+    func unlock(userWalletId: UserWalletId) async throws -> MobileWalletContext {
+        let accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletId, config: userWalletConfig)
+        let unlockMethod = try await accessCodeUtil.unlock(method: .default(useBiometrics: true))
+
+        return try await handleUnlockResult(unlockMethod, userWalletId: userWalletId, accessCodeUtil: accessCodeUtil)
+    }
+
+    func handleUnlockResult(
+        _ result: HotAccessCodeUtil.Result,
+        userWalletId: UserWalletId,
+        accessCodeUtil: HotAccessCodeUtil
+    ) async throws -> MobileWalletContext {
+        switch result {
+        case .accessCode(let context):
+            return context
+        case .biometricsRequired:
+            return try await handleBiometricsRequired(
+                userWalletId: userWalletId,
+                accessCodeUtil: accessCodeUtil
+            )
+        case .canceled, .userWalletNeedsToDelete:
+            throw CancellationError()
+        }
+    }
+
+    func handleBiometricsRequired(
+        userWalletId: UserWalletId,
+        accessCodeUtil: HotAccessCodeUtil
+    ) async throws -> MobileWalletContext {
+        do {
+            let context = try await BiometricsUtil.requestAccess(
+                localizedReason: Localization.biometryTouchIdReason
+            )
+            return try hotSdk.validate(auth: .biometrics(context: context), for: userWalletId)
         } catch {
-            return Fail(error: error).eraseToAnyPublisher()
+            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
+            return try await handleUnlockResult(result, userWalletId: userWalletId, accessCodeUtil: accessCodeUtil)
         }
     }
 }
