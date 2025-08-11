@@ -127,7 +127,6 @@ private extension NewAppSettingsViewModel {
                 updateView()
                 completion(false)
             } else {
-                userWalletRepository.onSaveUserWalletsChanged(enabled: true)
                 completion(true)
             }
         }
@@ -243,13 +242,14 @@ private extension NewAppSettingsViewModel {
     }
 
     func setUseBiometricAuthentication(_ useBiometricAuthentication: Bool) {
+        userWalletRepository.onBiometricsChanged(enabled: useBiometricAuthentication)
+        self.useBiometricAuthentication = useBiometricAuthentication
+        
         // If saved wallets is turn off we should delete access codes too
         if !useBiometricAuthentication {
             setRequireAccessCodes(true)
-            userWalletRepository.onSaveUserWalletsChanged(enabled: false)
         }
 
-        self.useBiometricAuthentication = useBiometricAuthentication
         updateView()
     }
 
@@ -266,7 +266,7 @@ private extension NewAppSettingsViewModel {
             } else {
                 // Otherwise useBiometricAuthentication should be on after biometry authorization
                 unlockWithBiometry { [weak self] success in
-                    self?.useBiometricAuthentication = true
+                    self?.setUseBiometricAuthentication(success)
                     self?.requireAccessCodes = false
                 }
             }
