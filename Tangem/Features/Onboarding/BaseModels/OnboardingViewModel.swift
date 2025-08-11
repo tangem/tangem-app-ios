@@ -242,7 +242,19 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
         } else {
-            try? userWalletRepository.add(userWalletModel: userWalletModel)
+            // add model
+            if AppSettings.shared.saveUserWallets {
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+            } else {
+                // replace model
+                let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+
+                if let currentUserWalletId {
+                    userWalletRepository.delete(userWalletId: currentUserWalletId)
+                }
+            }
+
             DispatchQueue.main.async {
                 self.onboardingDidFinish()
             }
