@@ -87,10 +87,10 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
         Assets.Accounts.safe,
         Assets.Accounts.shirt,
         Assets.Accounts.shoppingBasket,
-        Assets.Accounts.star,
+        Assets.Accounts.starAccounts,
         Assets.Accounts.startUp,
         Assets.Accounts.user,
-        Assets.Accounts.wallet,
+        Assets.Accounts.walletAccounts,
     ].map {
         let kind: GridItemImageKind = $0 == Assets.Accounts.letter ? .letter($0) : .image($0)
         return GridItemImage(kind)
