@@ -23,28 +23,26 @@ struct WCTransactionSimulationView: View {
 
     var body: some View {
         if let displayModel {
-            VStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(displayModel.cardTitle)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(displayModel.cardTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                    switch displayModel.content {
-                    case .loading:
-                        loadingRow
-                            .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
-                    case .failed(let message):
-                        failedView(message: message)
-                            .transition(topEdgeTransition)
-                    case .success(let successContent):
-                        content(for: successContent)
-                            .transition(topEdgeTransition)
-                    }
+                switch displayModel.content {
+                case .loading:
+                    loadingRow
+                        .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
+                case .failed(let message):
+                    failedView(message: message)
+                        .transition(topEdgeTransition)
+                case .success(let successContent):
+                    content(for: successContent)
+                        .transition(topEdgeTransition)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
-                .background(Colors.Background.action)
-                .cornerRadius(14)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.init(top: 12, leading: 14, bottom: 0, trailing: 14))
+            .background(Colors.Background.action)
+            .cornerRadius(14)
             .onAppear {
                 connectionRequestIconIsRotating = true
             }
@@ -86,7 +84,7 @@ struct WCTransactionSimulationView: View {
     }
 
     private func assetChangesSection(_ assetChanges: WCTransactionSimulationDisplayModel.AssetChangesSection) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             if !assetChanges.sendItems.isEmpty {
                 ForEach(Array(assetChanges.sendItems.enumerated()), id: \.offset) { index, item in
                     assetItemRow(item)
@@ -166,7 +164,7 @@ struct WCTransactionSimulationView: View {
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .multilineTextAlignment(.trailing)
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 

@@ -1,42 +1,27 @@
-//
-//  CommonWalletConnectEthTransactionBuilder.swift
-//  Tangem
-//
-//  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
-//
-
 import Foundation
 import BlockchainSdk
 import BigInt
 
-protocol WalletConnectEthTransactionBuilder {
-    func buildTx(from transaction: WalletConnectEthTransaction, for walletModel: any WalletModel) async throws -> Transaction
+protocol WCNewEthTransactionBuilder {
+    func buildTx(from transaction: WCSendableTransaction, for walletModel: any WalletModel) async throws -> Transaction
 }
 
-struct CommonWalletConnectEthTransactionBuilder {
+struct CommonWCNewEthTransactionBuilder {
     private let zeroString = "0x0"
 
     private func getGasLimit(
-        for tx: WalletConnectEthTransaction,
+        for tx: WCSendableTransaction,
         with amount: Amount,
         using ethereumNetworkProvider: EthereumNetworkProvider,
         blockchain: Blockchain
     ) async throws -> BigUInt {
         if let dappGasLimit = tx.gas?.hexToInteger {
-            // This is a workaround for sending a Mantle transaction.
-            // Unfortunately, Mantle's current implementation does not conform to our existing fee calculation rules.
-            // [REDACTED_INFO]
             if case .mantle = blockchain {
                 return MantleUtils.multiplyGasLimit(dappGasLimit, with: MantleUtils.feeGasLimitMultiplier)
             }
             return BigUInt(dappGasLimit)
         }
 
-        // If amount is zero it is better to use default zero string `0x0`, because some dApps (app.thorswap.finance) can send
-        // weird values such as `0x00`, `0x00000` and JSON-RPC node won't be able to handle this info
-        // and will return an error. `EthereumUtils` can correctly parse weird values, but it is still better
-        // to send value from dApp instead of creating it yourself. [REDACTED_INFO]
         let valueString = amount.value.isZero ? zeroString : tx.value
 
         let gasLimitBigInt = try await ethereumNetworkProvider.getGasLimit(
@@ -49,7 +34,7 @@ struct CommonWalletConnectEthTransactionBuilder {
     }
 
     private func getFee(
-        for tx: WalletConnectEthTransaction,
+        for tx: WCSendableTransaction,
         with amount: Amount,
         blockchain: Blockchain,
         using ethereumNetworkProvider: EthereumNetworkProvider
@@ -61,8 +46,22 @@ struct CommonWalletConnectEthTransactionBuilder {
             blockchain: blockchain
         )
 
-        let gasPrice = tx.gasPrice?.hexToInteger.map { BigUInt($0) }
-        let feeParameters = try await ethereumNetworkProvider.getFee(gasLimit: gasLimit, supportsEIP1559: blockchain.supportsEIP1559, gasPrice: gasPrice)
+        let feeParameters: EthereumFeeParameters
+
+        if let maxFeePerGasString = tx.maxFeePerGas,
+           let maxPriorityFeeString = tx.maxPriorityFeePerGas,
+           let maxFeePerGas = BigUInt(maxFeePerGasString.removeHexPrefix(), radix: 16),
+           let priorityFee = BigUInt(maxPriorityFeeString.removeHexPrefix(), radix: 16) {
+            feeParameters = EthereumEIP1559FeeParameters(
+                gasLimit: try await gasLimit,
+                maxFeePerGas: maxFeePerGas,
+                priorityFee: priorityFee
+            )
+        } else {
+            let gasPrice = tx.gasPrice?.hexToInteger.map { BigUInt($0) }
+            feeParameters = try await ethereumNetworkProvider.getFee(gasLimit: gasLimit, supportsEIP1559: blockchain.supportsEIP1559, gasPrice: gasPrice)
+        }
+
         let feeValue = feeParameters.calculateFee(decimalValue: blockchain.decimalValue)
         let gasAmount = Amount(with: blockchain, value: feeValue)
 
@@ -71,8 +70,8 @@ struct CommonWalletConnectEthTransactionBuilder {
     }
 }
 
-extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
-    func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: any WalletModel) async throws -> Transaction {
+extension CommonWCNewEthTransactionBuilder: WCNewEthTransactionBuilder {
+    func buildTx(from wcTransaction: WCSendableTransaction, for walletModel: any WalletModel) async throws -> Transaction {
         guard let ethereumNetworkProvider = walletModel.ethereumNetworkProvider else {
             let error = WalletConnectV2Error.missingGasLoader
             WCLogger.error(error: error)
@@ -81,6 +80,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
 
         let blockchain = walletModel.tokenItem.blockchain
         let rawValue = wcTransaction.value ?? zeroString
+
         guard let value = EthereumUtils.parseEthereumDecimal(rawValue, decimalsCount: blockchain.decimalCount) else {
             let error = ETHError.failedToParseBalance(value: rawValue, address: "", decimals: blockchain.decimalCount)
             WCLogger.error(error: error)
@@ -99,7 +99,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
             destinationAddress: wcTransaction.to
         )
 
-        let contractDataString = wcTransaction.data?.removeHexPrefix() ?? "0x"
+        let contractDataString = wcTransaction.data?.removeHexPrefix() ?? ""
         let wcTxData = Data(hexString: String(contractDataString))
 
         transaction.params = EthereumTransactionParams(
