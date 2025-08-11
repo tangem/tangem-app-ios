@@ -11,6 +11,10 @@ import TangemSdk
 
 enum SettingsMigrator {
     static func migrateIfNeeded() {
+        guard FeatureProvider.isAvailable(.hotWallet) else {
+            return
+        }
+
         if !AppSettings.shared.useBiometricAuthentication,
            AppSettings.shared.saveUserWallets,
            BiometricsUtil.isAvailable {
