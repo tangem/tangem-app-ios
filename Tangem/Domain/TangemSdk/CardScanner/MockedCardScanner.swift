@@ -12,10 +12,14 @@ import class UIKit.UIAlertController
 import class UIKit.UIAlertAction
 import Combine
 import TangemSdk
+import SwiftUI
 
 private typealias SelectionHandler = (Result<MockedCardScanner.Option, TangemSdkError>) -> Void
 
 class MockedCardScanner {
+    @Injected(\.alertPresenter)
+    private var alertPresenter: any AlertPresenter
+
     private let scanner: CardScanner
 
     init(scanner: CardScanner = CommonCardScanner()) {
@@ -60,7 +64,20 @@ class MockedCardScanner {
                 handler: { _ in handler(.failure(TangemSdkError.userCancelled)) }
             ))
 
-        AppPresenter.shared.show(vc)
+        let buttons = CardMock.allCases.map { mock in
+            ActionSheet.Button.default(Text(mock.rawValue)) {
+                handler(.success(.cardMock(mock)))
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text("Select option"),
+            message: Text("Session filtering is not supported in mocked mode"),
+            buttons: buttons
+        )
+
+        alertPresenter.present(actionSheet: .init(sheet: sheet))
+//        AppPresenter.shared.show(vc)
     }
 
     private func promptJSON(_ handler: @escaping SelectionHandler) {
@@ -88,8 +105,6 @@ class MockedCardScanner {
                 style: .cancel,
                 handler: { _ in handler(.failure(TangemSdkError.userCancelled)) }
             ))
-
-        AppPresenter.shared.show(vc)
     }
 
     private func scan(_ handler: @escaping SelectionHandler) {
