@@ -40,7 +40,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     )
 
     @Published private(set) var presentationState: PresentationState = .transactionDetails
-    @Published private(set) var simulationState: TransactionSimulationState = .notStarted
+    @Published private(set) var simulationState: TransactionSimulationState = .loading
 
     @Published private(set) var selectedFee: WCFee?
     @Published private(set) var feeRowViewModel: WCFeeRowViewModel?
@@ -48,7 +48,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     @Published private(set) var feeValidationInputs: [NotificationViewInput] = []
     @Published private(set) var simulationValidationInputs: [NotificationViewInput] = []
 
-    private(set) var currentTransaction: WalletConnectEthTransaction?
+    private(set) var sendableTransaction: WCSendableTransaction?
 
     private(set) var feeInteractor: (any WCFeeInteractorType)?
     private var bag = Set<AnyCancellable>()
@@ -87,10 +87,9 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
                 connectedDAppRepository: connectedDAppRepository
             )) ?? false
 
-            currentTransaction = parseEthTransaction()
+            sendableTransaction = parseEthTransaction()
 
-            bindSimulationState()
-            bindSimulationStateToNotifications()
+            bind()
 
             await saveSuggestedDappGas()
             await setupFeeManagement()
@@ -100,8 +99,8 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     private func saveSuggestedDappGas() async {
         guard
-            let gasString = currentTransaction?.gas,
-            let gasPriceString = currentTransaction?.gasPrice,
+            let gasString = sendableTransaction?.gas,
+            let gasPriceString = sendableTransaction?.gasPrice,
             let gasLimit = BigUInt(gasString.removeHexPrefix(), radix: 16),
             let gasPrice = BigUInt(gasPriceString.removeHexPrefix(), radix: 16)
         else {
@@ -136,7 +135,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     }
 
     func getWalletModelForTransaction() -> (any WalletModel)? {
-        guard let ethTransaction = currentTransaction else {
+        guard let ethTransaction = sendableTransaction else {
             return nil
         }
 
@@ -148,8 +147,11 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 }
 
 private extension WCTransactionViewModel {
+    @MainActor
     func startTransactionSimulation() async {
-        await simulationManager.startSimulation(
+        simulationState = .loading
+
+        simulationState = await simulationManager.startSimulation(
             for: transactionData,
             userWalletModel: transactionData.userWalletModel
         )
@@ -158,17 +160,6 @@ private extension WCTransactionViewModel {
             transactionData: transactionData,
             simulationState: simulationState
         )
-    }
-
-    func bindSimulationState() {
-        simulationManager.simulationState
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                Task { @MainActor in
-                    self?.simulationState = state
-                }
-            }
-            .store(in: &bag)
     }
 }
 
@@ -182,16 +173,15 @@ private extension WCTransactionViewModel {
         }
     }
 
-    func parseEthTransaction() -> WalletConnectEthTransaction? {
+    func parseEthTransaction() -> WCSendableTransaction? {
         guard let transaction = try? JSONDecoder().decode(WalletConnectEthTransaction.self, from: transactionData.requestData) else {
             return nil
         }
-        return transaction
+        return WCSendableTransaction(from: transaction)
     }
 
     func showFeeSelector() {
         guard
-            let ethTransaction = currentTransaction,
             let walletModel = getWalletModelForTransaction(),
             let feeInteractor = feeInteractor as? WCFeeInteractor
         else {
@@ -199,17 +189,8 @@ private extension WCTransactionViewModel {
         }
 
         let feeSelectorViewModel = feeManager.createFeeSelector(
-            for: ethTransaction,
             walletModel: walletModel,
-            validationService: validationService,
-            notificationManager: notificationManager,
             feeInteractor: feeInteractor,
-            onValidationUpdate: { [weak self] inputs in
-                Task { @MainActor in
-                    guard let self = self, self.displayModel.isDataReady else { return }
-                    self.feeValidationInputs = inputs
-                }
-            },
             output: self
         )
 
@@ -219,13 +200,13 @@ private extension WCTransactionViewModel {
     func setupFeeManagement() async {
         guard
             shouldShowFeeSelector(),
-            let ethTransaction = currentTransaction,
+            let ethTransaction = sendableTransaction,
             let walletModel = getWalletModelForTransaction()
         else {
             return
         }
 
-        let wcFeeInteractor = await feeManager.setupFeeManagement(
+        feeInteractor = await feeManager.setupFeeManagement(
             for: ethTransaction,
             walletModel: walletModel,
             validationService: validationService,
@@ -236,31 +217,17 @@ private extension WCTransactionViewModel {
                     self.feeValidationInputs = inputs
                 }
             },
-            onFeeChanged: { [weak self] fee in
-                Task { @MainActor in
-                    self?.feeDidChanged(fee:)
-                }
-            },
             output: self
         )
 
-        feeInteractor = wcFeeInteractor
-
-        wcFeeInteractor.selectedFeePublisher
-            .sink { [weak self] newSelectedFee in
-                Task { @MainActor in
-                    self?.selectedFee = newSelectedFee
-                    self?.updateFeeRowViewModel()
-                    self?.handleFeeLoadingError(newSelectedFee)
-                }
-            }
-            .store(in: &bag)
+        updateFeeRowViewModel()
     }
 }
 
 private extension WCTransactionViewModel {
     func showCustomAllowanceEditor(approvalInfo: ApprovalInfo, asset: BlockaidChainScanResult.Asset) {
         let simulationResult: BlockaidChainScanResult?
+
         if case .simulationSucceeded(let result) = simulationState {
             simulationResult = result
         } else {
@@ -270,7 +237,7 @@ private extension WCTransactionViewModel {
         guard let input = customAllowanceManager.createCustomAllowanceInput(
             approvalInfo: approvalInfo,
             asset: asset,
-            currentTransaction: currentTransaction,
+            currentTransaction: sendableTransaction,
             transactionData: transactionData,
             simulationResult: simulationResult,
             updateAction: { [weak self] newAmount in
@@ -288,23 +255,20 @@ private extension WCTransactionViewModel {
     }
 
     func updateApprovalTransaction(approvalInfo: ApprovalInfo, newAmount: BigUInt) async {
-        guard let originalTransaction = currentTransaction else { return }
-
-        guard let updatedTransaction = customAllowanceManager.updateApprovalTransaction(
-            originalTransaction: originalTransaction,
-            newAmount: newAmount
-        ) else {
-            await MainActor.run {
-                presentationState = .transactionDetails
-            }
+        guard let transaction = sendableTransaction else {
             return
         }
 
-        await MainActor.run {
-            currentTransaction = updatedTransaction
-            transactionData.updateTransaction(updatedTransaction)
-            presentationState = .transactionDetails
-        }
+        let newData = WCApprovalAnalyzer.createApprovalData(
+            spender: approvalInfo.spender,
+            amount: newAmount
+        )
+
+        let updatedTransaction = transaction.withUpdatedData(newData)
+
+        sendableTransaction = updatedTransaction
+        transactionData.updateSendableTransaction(updatedTransaction)
+        presentationState = .transactionDetails
     }
 }
 
@@ -322,16 +286,17 @@ extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
     }
 
     private func updateTransactionWithFee(fee: WCFee) {
-        guard let currentTx = currentTransaction else { return }
+        guard let currentTx = sendableTransaction else {
+            return
+        }
 
-        guard let updatedTx = feeManager.updateTransactionWithFee(fee, currentTransaction: currentTx) else { return }
+        if let updatedTx = feeManager.updateTransactionWithFee(fee, currentTransaction: currentTx) {
+            sendableTransaction = updatedTx
+            transactionData.updateSendableTransaction(updatedTx)
+        }
 
-        currentTransaction = updatedTx
-        transactionData.updateTransaction(updatedTx)
-
-        if let feeValue = fee.value.value,
-           let walletModel = getWalletModelForTransaction() {
-            validateFeeNotifications(fee: feeValue, transaction: updatedTx, walletModel: walletModel)
+        if let feeValue = fee.value.value, let walletModel = getWalletModelForTransaction() {
+            validateFeeNotifications(fee: feeValue, transaction: currentTx, walletModel: walletModel)
         }
     }
 }
@@ -369,7 +334,7 @@ private extension WCTransactionViewModel {
         await signTransaction(onComplete: returnToTransactionDetails)
     }
 
-    private func validateFeeNotifications(fee: Fee, transaction: WalletConnectEthTransaction, walletModel: any WalletModel) {
+    private func validateFeeNotifications(fee: Fee, transaction: WCSendableTransaction, walletModel: any WalletModel) {
         guard displayModel.isDataReady, let feeInteractor else { return }
 
         let selectedFee = feeInteractor.selectedFee
@@ -388,13 +353,23 @@ private extension WCTransactionViewModel {
         })
     }
 
-    private func bindSimulationStateToNotifications() {
+    private func bind() {
         $simulationState
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                guard let self else { return }
-                let events = validationService.validateSimulationResult(state)
-                simulationValidationInputs = notificationManager.updateSimulationValidationNotifications(events)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, state in
+                let events = viewModel.validationService.validateSimulationResult(state)
+                viewModel.simulationValidationInputs = viewModel.notificationManager.updateSimulationValidationNotifications(events)
+            }
+            .store(in: &bag)
+
+        $selectedFee
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, fee in
+                if case .failedToLoad = fee?.value, let fee {
+                    viewModel.handleFeeLoadingError(fee)
+                }
             }
             .store(in: &bag)
     }
@@ -480,8 +455,7 @@ private extension WCTransactionViewModel {
     }
 
     private func updateFeeRowViewModel() {
-        guard let selectedFee = selectedFee,
-              let feeTokenItem = getFeeTokenItem() else {
+        guard let selectedFee = selectedFee, let feeTokenItem = getFeeTokenItem() else {
             feeRowViewModel = nil
             return
         }

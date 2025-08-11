@@ -18,7 +18,6 @@ struct SUITextView: View {
     @Binding private var text: String
     @State private var width: CGFloat = 10
 
-    private let placeholder: String = Localization.sendEnterAddressField
     private let font: UIFont
     private let color: UIColor
 
@@ -32,8 +31,9 @@ struct SUITextView: View {
     var body: some View {
         ZStack(alignment: .leading) {
             if text.isEmpty {
-                Text(placeholder)
+                Text(viewModel.placeholder)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.disabled)
+                    .lineLimit(1)
             }
 
             TextViewWrapper(text: $text, currentHeight: $viewModel.height, width: $width, font: font, color: color)
