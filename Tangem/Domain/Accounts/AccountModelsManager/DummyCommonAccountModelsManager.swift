@@ -19,7 +19,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         return AnyPublisher.just(output: [])
     }
 
-    func addCryptoAccount() async throws -> CryptoAccountModel {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
         throw CommonError.notImplemented
     }
 
