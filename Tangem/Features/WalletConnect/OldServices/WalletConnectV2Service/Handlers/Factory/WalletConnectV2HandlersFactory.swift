@@ -23,17 +23,20 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let ethTransactionBuilder: WalletConnectEthTransactionBuilder
+    private let newEthTransactionBuilder: WCNewEthTransactionBuilder
     private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
 
     init(
         messageComposer: WalletConnectV2MessageComposable,
         uiDelegate: WalletConnectUIDelegate,
         ethTransactionBuilder: WalletConnectEthTransactionBuilder,
+        newEthTransactionBuilder: WCNewEthTransactionBuilder,
         walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
     ) {
         self.messageComposer = messageComposer
         self.uiDelegate = uiDelegate
         self.ethTransactionBuilder = ethTransactionBuilder
+        self.newEthTransactionBuilder = newEthTransactionBuilder
         self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
     }
 
@@ -66,6 +69,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 requestParams: params,
                 blockchainId: blockchainId,
                 transactionBuilder: ethTransactionBuilder,
+                newTransactionBuilder: newEthTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
                 walletModelProvider: walletModelProvider
@@ -75,6 +79,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 requestParams: params,
                 blockchainId: blockchainId,
                 transactionBuilder: ethTransactionBuilder,
+                newEthTransactionBuilder: newEthTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
                 walletModelProvider: walletModelProvider,
