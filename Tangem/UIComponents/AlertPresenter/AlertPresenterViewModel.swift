@@ -9,9 +9,11 @@
 import Foundation
 import Combine
 import struct TangemUIUtils.AlertBinder
+import struct TangemUIUtils.ActionSheetBinder
 
 final class AlertPresenterViewModel: ObservableObject {
     @Published var alert: AlertBinder?
+    @Published var actionSheet: ActionSheetBinder?
 
     init() {}
 }
@@ -20,14 +22,17 @@ final class AlertPresenterViewModel: ObservableObject {
 
 extension AlertPresenterViewModel: AlertPresenter {
     func present(alert: AlertBinder) {
-        Task { @MainActor in
-            self.alert = alert
-        }
+        Task { @MainActor in self.alert = alert }
+    }
+
+    func present(actionSheet: ActionSheetBinder) {
+        Task { @MainActor in self.actionSheet = actionSheet }
     }
 
     func hideAlert() {
         Task { @MainActor in
             self.alert = nil
+            self.actionSheet = nil
         }
     }
 }

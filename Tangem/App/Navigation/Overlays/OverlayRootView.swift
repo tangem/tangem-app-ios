@@ -22,5 +22,6 @@ struct OverlayRootView: View {
                 dismissSheetAction: floatingSheetViewModel.removeActiveSheet
             )
             .alert(item: $alertPresenterViewModel.alert) { $0.alert }
+            .actionSheet(item: $alertPresenterViewModel.actionSheet) { $0.sheet }
     }
 }
