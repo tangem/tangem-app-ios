@@ -12,17 +12,15 @@ import SwiftUI
 import TangemAssets
 import IdensicMobileSDK
 
-enum KYCServiceError: Error {
-    case sdkIsNotReady
-    case alreadyPresent
-}
-
 public final class KYCService {
     private let sdk: SNSMobileSDK
 
     @MainActor
     @discardableResult
-    private init(getToken: @escaping () async throws -> VisaKYCAccessTokenResponse) async throws {
+    private init(
+        getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
+        verificationHandler: @escaping (Bool) -> Void
+    ) async throws {
         guard Self.shared == nil else {
             throw KYCServiceError.alreadyPresent
         }
@@ -117,8 +115,21 @@ extension KYCService {
 }
 
 public extension KYCService {
-    static func start(getToken: @escaping () async throws -> VisaKYCAccessTokenResponse) async throws {
-        try await KYCService(getToken: getToken)
+    static func start(
+        getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
+        verificationHandler: @escaping (Bool) -> Void
+    ) async throws {
+        try await KYCService(
+            getToken: getToken,
+            verificationHandler: verificationHandler
+        )
+    }
+}
+
+public extension KYCService {
+    enum KYCServiceError: Error {
+        case sdkIsNotReady
+        case alreadyPresent
     }
 }
 #endif // ALPHA || BETA || DEBUG
