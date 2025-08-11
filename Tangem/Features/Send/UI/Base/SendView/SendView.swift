@@ -45,24 +45,22 @@ struct SendView: View {
             }
             .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
         }
-        .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
-            contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-
-                HideKeyboardButton(focused: $focused)
-            }
-        }
+//        .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
+//            contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
+//        }
+//        .toolbar {
+//            ToolbarItemGroup(placement: .keyboard) {
+//                Spacer()
+//
+//                HideKeyboardButton(focused: $focused)
+//            }
+//        }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom) {
             bottomContainer
         }
-        .onReceive(viewModel.$isKeyboardActive, perform: { isKeyboardActive in
-            focused = isKeyboardActive
-        })
+        .onChange(of: viewModel.isKeyboardActive) { focused = $0 }
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
         .navigationBarHidden(true)
         .onAppear(perform: viewModel.onAppear)
