@@ -14,8 +14,10 @@ import enum JSONRPC.RPCResult
 
 class WalletConnectV2SendTransactionHandler {
     private var wcTransaction: WalletConnectEthTransaction
+    private var sendableTransaction: WCSendableTransaction?
     private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
+    private let newEthTransactionBuilder: WCNewEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let transactionDispatcher: TransactionDispatcher
@@ -28,6 +30,7 @@ class WalletConnectV2SendTransactionHandler {
         requestParams: AnyCodable,
         blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
+        newEthTransactionBuilder: WCNewEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
@@ -49,6 +52,7 @@ class WalletConnectV2SendTransactionHandler {
 
         self.messageComposer = messageComposer
         self.transactionBuilder = transactionBuilder
+        self.newEthTransactionBuilder = newEthTransactionBuilder
         self.uiDelegate = uiDelegate
         transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         request = requestParams
@@ -78,10 +82,10 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
 
     func handle() async throws -> RPCResult {
         if FeatureProvider.isAvailable(.walletConnectUI) {
-            let transaction = try await transactionBuilder.buildTx(from: wcTransaction, for: walletModel)
+            let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
+            let transaction = try await newEthTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
             transactionToSend = transaction
         }
-
         guard let transaction = transactionToSend else {
             throw WalletConnectV2Error.missingTransaction
         }
@@ -107,5 +111,9 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
     func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
         wcTransaction = updatedTransaction
         transactionToSend = nil
+    }
+
+    func updateSendableTransaction(_ updatedSendableTransaction: WCSendableTransaction) {
+        sendableTransaction = updatedSendableTransaction
     }
 }
