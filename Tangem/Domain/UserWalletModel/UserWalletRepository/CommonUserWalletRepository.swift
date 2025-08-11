@@ -153,7 +153,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear(userWalletIds: userWalletIds)
             encryptionKeyStorage.clear(userWalletIds: userWalletIds)
-
+            AccessCodeRepository().clear()
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
 
             for model in otherUserWallets {
