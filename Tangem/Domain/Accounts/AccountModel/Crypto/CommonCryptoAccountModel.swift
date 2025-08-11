@@ -9,14 +9,19 @@
 import Foundation
 import Combine
 
-final class CommonCryptoAccountModel {}
+final class CommonCryptoAccountModel {
+    private let derivationIndex: Int
+
+    init(derivationIndex: Int) {
+        self.derivationIndex = derivationIndex
+    }
+}
 
 // MARK: - CryptoAccountModel protocol conformance
 
 extension CommonCryptoAccountModel: CryptoAccountModel {
     var isMainAccount: Bool {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
     }
 
     var name: String {

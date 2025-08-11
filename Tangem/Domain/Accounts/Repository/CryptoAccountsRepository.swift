@@ -7,8 +7,14 @@
 //
 
 import Foundation
+import Combine
 
 // [REDACTED_TODO_COMMENT]
 protocol CryptoAccountsRepository {
-    func getAccounts() -> [StoredCryptoAccount]
+    /// Includes all crypto accounts, including archived ones.
+    var totalCryptoAccountsCount: Int { get }
+    var cryptoAccountModelsPublisher: AnyPublisher<[CryptoAccountModel], Never> { get }
+
+    func getAccounts() -> [StoredCryptoAccount] // [REDACTED_TODO_COMMENT]
+    func addCryptoAccount(_ cryptoAccountModel: CryptoAccountModel)
 }
