@@ -97,11 +97,11 @@ extension CommonAccountModelsManager {
         self.init(
             userWalletId: userWalletId,
             cryptoAccountsRepository:
-                CommonCryptoAccountsRepository(
-                    tokenItemsRepository: CommonTokenItemsRepository(
-                        key: userWalletId.stringValue
-                    )
+            CommonCryptoAccountsRepository(
+                tokenItemsRepository: CommonTokenItemsRepository(
+                    key: userWalletId.stringValue
                 )
+            )
         )
     }
 }
