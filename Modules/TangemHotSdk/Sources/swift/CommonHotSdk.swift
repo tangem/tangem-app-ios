@@ -219,7 +219,7 @@ public final class CommonHotSdk: HotSdk {
 
         let curves: [Data: EllipticCurve] = dataToSign.reduce(into: [:]) { partialResult, signData in
             let curve = DerivationUtil.curve(
-                for: signData.publicKey,
+                for: seedKey,
                 entropy: privateInfo.entropy,
                 passphrase: privateInfo.passphrase
             )
