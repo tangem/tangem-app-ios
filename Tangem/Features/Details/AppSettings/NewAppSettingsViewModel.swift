@@ -244,10 +244,10 @@ private extension NewAppSettingsViewModel {
     func setUseBiometricAuthentication(_ useBiometricAuthentication: Bool) {
         userWalletRepository.onBiometricsChanged(enabled: useBiometricAuthentication)
         self.useBiometricAuthentication = useBiometricAuthentication
-        
+
         // If saved wallets is turn off we should delete access codes too
         if !useBiometricAuthentication {
-            setRequireAccessCodes(true)
+            self.requireAccessCodes = true
         }
 
         updateView()
