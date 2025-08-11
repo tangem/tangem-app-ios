@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
-import TangemFoundation
 import SwiftUI
+import TangemLocalization
+import TangemFoundation
 
 extension SendNewDestinationViewModel {
     enum DestinationAddressSectionType: Identifiable {
@@ -85,6 +85,13 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
+
+        switch tokenItem.blockchain {
+        case .ethereum:
+            destinationAddressViewModel.textViewModel.placeholder = Localization.sendEnterAddressFieldEns
+        default:
+            destinationAddressViewModel.textViewModel.placeholder = Localization.sendEnterAddressField
+        }
 
         additionalFieldViewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
             .init(title: additionalFieldType.name)
