@@ -151,8 +151,8 @@ extension PrivateInfoStorageManager {
         static let privateInfoSecureEnclavePrefix = "hotsdk_private_info_secure_enclave_"
         static let encryptionKeyPrefix = "hotsdk_encryption_key_"
         static let encryptionKeySecureEnclavePrefix = "hotsdk_encryption_key_secure_enclave_"
-        static let encryptionKeyBiometricsPrefix = "hotsdk_encryption_key_"
-        static let encryptionKeyBiometricsSecureEnclavePrefix = "hotsdk_encryption_key_secure_enclave_"
+        static let encryptionKeyBiometricsPrefix = "hotsdk_encryption_key_biometrics_"
+        static let encryptionKeyBiometricsSecureEnclavePrefix = "hotsdk_encryption_key_biometrics_secure_enclave_"
         static let publicInfoPrefix = "hotsdk_public_info_"
         static let publicInfoSecureEnclavePrefix = "hotsdk_public_info_secure_enclave_"
         static let aesKeySize = 32
