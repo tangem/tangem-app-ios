@@ -14,7 +14,7 @@ protocol WCCustomAllowanceManager {
     func createCustomAllowanceInput(
         approvalInfo: ApprovalInfo,
         asset: BlockaidChainScanResult.Asset,
-        currentTransaction: WalletConnectEthTransaction?,
+        currentTransaction: WCSendableTransaction?,
         transactionData: WCHandleTransactionData,
         simulationResult: BlockaidChainScanResult?,
         updateAction: @MainActor @escaping (BigUInt) async -> Void,
@@ -22,13 +22,13 @@ protocol WCCustomAllowanceManager {
     ) -> WCCustomAllowanceInput?
 
     func updateApprovalTransaction(
-        originalTransaction: WalletConnectEthTransaction,
+        originalTransaction: WCSendableTransaction,
         newAmount: BigUInt
-    ) -> WalletConnectEthTransaction?
+    ) -> WCSendableTransaction?
 
     func determineTokenInfoForApproval(
         approvalInfo: ApprovalInfo,
-        transaction: WalletConnectEthTransaction?,
+        transaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         simulationResult: BlockaidChainScanResult?
     ) -> WCApprovalHelpers.TokenInfo?
@@ -44,7 +44,7 @@ final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
     func createCustomAllowanceInput(
         approvalInfo: ApprovalInfo,
         asset: BlockaidChainScanResult.Asset,
-        currentTransaction: WalletConnectEthTransaction?,
+        currentTransaction: WCSendableTransaction?,
         transactionData: WCHandleTransactionData,
         simulationResult: BlockaidChainScanResult?,
         updateAction: @MainActor @escaping (BigUInt) async -> Void,
@@ -62,9 +62,9 @@ final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
     }
 
     func updateApprovalTransaction(
-        originalTransaction: WalletConnectEthTransaction,
+        originalTransaction: WCSendableTransaction,
         newAmount: BigUInt
-    ) -> WalletConnectEthTransaction? {
+    ) -> WCSendableTransaction? {
         return WCApprovalAnalyzer.createUpdatedApproval(
             originalTransaction: originalTransaction,
             newAmount: newAmount
@@ -73,7 +73,7 @@ final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
 
     func determineTokenInfoForApproval(
         approvalInfo: ApprovalInfo,
-        transaction: WalletConnectEthTransaction?,
+        transaction: WCSendableTransaction?,
         userWalletModel: UserWalletModel,
         simulationResult: BlockaidChainScanResult?
     ) -> WCApprovalHelpers.TokenInfo? {

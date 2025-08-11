@@ -51,6 +51,7 @@ struct WCFeeRowView: View {
         case .loading:
             SkeletonView()
                 .frame(width: 70, height: 15)
+                .cornerRadius(4, corners: .allCorners)
         case .loaded(let components):
             trailingView(for: components)
         case .failedToLoad:
