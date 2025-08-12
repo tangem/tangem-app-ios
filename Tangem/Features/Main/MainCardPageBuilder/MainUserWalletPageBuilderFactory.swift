@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemNFT
+import TangemFoundation
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(
@@ -70,14 +71,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let referralNotificationController = CommonReferralNotificationController(userWalletModel: model)
-        let hotNotificationsManager = CommonHotNotificationsManager(userWalletModel: model)
 
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
             rateAppController: rateAppController,
             contextDataProvider: model,
-            referralNotificationController: referralNotificationController,
-            hotNotificationsManager: hotNotificationsManager
+            referralNotificationController: referralNotificationController
         )
 
         if model.isUserWalletLocked {
