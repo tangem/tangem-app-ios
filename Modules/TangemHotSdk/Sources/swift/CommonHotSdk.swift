@@ -45,7 +45,7 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func generateWallet() throws -> UserWalletId {
-        let entropy = try CryptoUtils.generateRandomBytes(count: 32) // 256 bits of entropy
+        let entropy = try CryptoUtils.generateRandomBytes(count: 16) // 128 bits of entropy
 
         return try importWallet(entropy: entropy, passphrase: "")
     }
