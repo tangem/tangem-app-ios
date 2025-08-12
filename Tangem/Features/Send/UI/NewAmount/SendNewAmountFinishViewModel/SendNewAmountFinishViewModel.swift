@@ -40,7 +40,7 @@ class SendNewAmountFinishViewModel: ObservableObject, Identifiable {
         amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
             cryptoCurrencyCode: sourceTokenInput.sourceToken.tokenItem.currencySymbol
         )
-        alternativeAmount = sourceTokenAmountInput.sourceAmount.value??.formatAlternative(
+        alternativeAmount = sourceTokenAmountInput.sourceAmount.value?.formatAlternative(
             currencySymbol: sourceTokenInput.sourceToken.tokenItem.currencySymbol,
             decimalCount: sourceTokenInput.sourceToken.tokenItem.decimalCount
         )
@@ -118,15 +118,15 @@ private extension SendNewAmountFinishViewModel {
         .store(in: &bag)
     }
 
-    private func updateView(sourceToken: SendSourceToken, sourceAmount: LoadingResult<SendAmount?, any Error>) {
+    private func updateView(sourceToken: SendSourceToken, sourceAmount: LoadingResult<SendAmount, any Error>) {
         tokenIconInfo = sourceToken.tokenIconInfo
         amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
-        alternativeAmount = sourceAmount.value??.formatAlternative(
+        alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
             decimalCount: sourceToken.tokenItem.decimalCount
         )
 
-        switch sourceAmount.value??.type {
+        switch sourceAmount.value?.type {
         case .typical(let crypto, _):
             amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
                 cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol
@@ -142,7 +142,7 @@ private extension SendNewAmountFinishViewModel {
         }
     }
 
-    private func updateView(receiveToken: SendReceiveTokenType, receiveAmount: LoadingResult<SendAmount?, any Error>) {
+    private func updateView(receiveToken: SendReceiveTokenType, receiveAmount: LoadingResult<SendAmount, any Error>) {
         switch receiveToken {
         case .same:
             receiveSmallAmountViewModel = nil
@@ -150,7 +150,7 @@ private extension SendNewAmountFinishViewModel {
             let textField = DecimalNumberTextField.ViewModel(
                 maximumFractionDigits: token.tokenItem.decimalCount
             )
-            textField.update(value: receiveAmount.value??.crypto)
+            textField.update(value: receiveAmount.value?.crypto)
 
             receiveSmallAmountViewModel = .init(
                 title: token.wallet,
@@ -159,7 +159,7 @@ private extension SendNewAmountFinishViewModel {
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
                     cryptoCurrencyCode: token.tokenItem.currencySymbol
                 ),
-                alternativeAmount: receiveAmount.value??.formatAlternative(
+                alternativeAmount: receiveAmount.value?.formatAlternative(
                     currencySymbol: token.tokenItem.currencySymbol,
                     decimalCount: token.tokenItem.decimalCount
                 )

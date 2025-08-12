@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct StakingDetailsView: View {
     @ObservedObject var viewModel: StakingDetailsViewModel
@@ -61,6 +62,7 @@ struct StakingDetailsView: View {
         .background(Colors.Background.secondary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier(StakingAccessibilityIdentifiers.title)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
@@ -143,6 +145,7 @@ struct StakingDetailsView: View {
                 viewModel.userDidTapActionButton()
             }
             .padding(.bottom, 8)
+            .accessibilityIdentifier(StakingAccessibilityIdentifiers.stakeButton)
         }
     }
 }
