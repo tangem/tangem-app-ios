@@ -220,7 +220,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func handleUserWalletOnFinish() {
+        // resumed backup
         guard let userWalletModel else {
+            DispatchQueue.main.async {
+                self.onboardingDidFinish()
+            }
+
+            onOnboardingFinished(for: input.primaryCardId)
             return
         }
 
