@@ -224,15 +224,42 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        if AppSettings.shared.saveUserWallets {
-            try? userWalletRepository.add(userWalletModel: userWalletModel)
-        } else {
-            let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
-            try? userWalletRepository.add(userWalletModel: userWalletModel)
+        if let existingModel = userWalletRepository.models[userWalletModel.userWalletId],
+           existingModel.isUserWalletLocked {
+            runTask(in: self) { viewModel in
+                // this card was onboarded previously but the onboarding have shown again, e.g. for pushes.
+                let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+                let unlockResult = await unlocker.unlock()
 
-            if let currentUserWalletId {
-                userWalletRepository.delete(userWalletId: currentUserWalletId)
+                if case .success(let userWalletId, let encryptionKey) = unlockResult {
+                    let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    _ = try? await viewModel.userWalletRepository.unlock(with: method)
+                }
+
+                await runOnMain {
+                    viewModel.onboardingDidFinish()
+                    viewModel.onOnboardingFinished(for: viewModel.input.primaryCardId)
+                }
             }
+        } else {
+            // add model
+            if AppSettings.shared.saveUserWallets {
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+            } else {
+                // replace model
+                let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+
+                if let currentUserWalletId {
+                    userWalletRepository.delete(userWalletId: currentUserWalletId)
+                }
+            }
+
+            DispatchQueue.main.async {
+                self.onboardingDidFinish()
+            }
+
+            onOnboardingFinished(for: input.primaryCardId)
         }
     }
 
@@ -288,13 +315,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func goToNextStep() {
         if isOnboardingFinished {
             handleUserWalletOnFinish()
-
-            DispatchQueue.main.async {
-                self.onboardingDidFinish()
-            }
-
-            onOnboardingFinished(for: input.primaryCardId)
-
             return
         }
 
