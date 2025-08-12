@@ -7,31 +7,33 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
+import TangemHotSdk
 
 final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
-    private let needRequestBiometrics: Bool
+    private let context: MobileWalletContext
     private weak var coordinator: HotOnboardingFlowRoutable?
 
     init(
         userWalletModel: UserWalletModel,
-        needRequestBiometrics: Bool,
+        context: MobileWalletContext,
         coordinator: HotOnboardingFlowRoutable
     ) {
         self.userWalletModel = userWalletModel
-        self.needRequestBiometrics = needRequestBiometrics
+        self.context = context
         self.coordinator = coordinator
         super.init()
     }
 
     override func setupFlow() {
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
+        let accessCodeStep = HotOnboardingAccessCodeStep(context: context, delegate: self)
             .configureNavBar(
                 title: Localization.accessCodeNavtitle,
                 leadingAction: navBarCloseAction
             )
-        append(step: createAccessCodeStep)
+        append(step: accessCodeStep)
 
         let doneStep = HotOnboardingSuccessStep(
             type: .walletReady,
@@ -67,19 +69,12 @@ private extension HotOnboardingAccessCodeFlowBuilder {
 
 // MARK: - HotOnboardingAccessCodeDelegate
 
-extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeCreateDelegate {
-    func isRequestBiometricsNeeded() -> Bool {
-        needRequestBiometrics
+extension HotOnboardingAccessCodeFlowBuilder: HotOnboardingAccessCodeDelegate {
+    func getUserWalletModel() -> UserWalletModel? {
+        userWalletModel
     }
 
-    func isAccessCodeCanSkipped() -> Bool {
-        false
-    }
-
-    func accessCodeComplete(accessCode: String) {
-        // [REDACTED_TODO_COMMENT]
+    func didCompleteAccessCode() {
         openNext()
     }
-
-    func accessCodeSkipped() {}
 }
