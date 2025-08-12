@@ -9,8 +9,8 @@
 import Foundation
 import TangemFoundation
 
-protocol HotAccessCodeStorageManager: Initializable {
+protocol HotAccessCodeStorageManager {
     func getWrongAccessCodeStore(userWalletId: UserWalletId) -> HotWrongAccessCodeStore
     func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval)
-    func cleanWrongAccessCode(userWalletId: UserWalletId)
+    func removeWrongAccessCode(userWalletId: UserWalletId)
 }
