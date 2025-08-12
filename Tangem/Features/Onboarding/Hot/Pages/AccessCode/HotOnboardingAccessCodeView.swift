@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct HotOnboardingAccessCodeView: View {
     typealias ViewModel = HotOnboardingAccessCodeViewModel
@@ -16,6 +17,13 @@ struct HotOnboardingAccessCodeView: View {
 
     var body: some View {
         content
+            .ifLet(viewModel.leadingBavBarItem) { view, item in
+                view.flowNavBar(leadingItem: item.view)
+            }
+            .ifLet(viewModel.trailingBavBarItem) { view, item in
+                view.flowNavBar(trailingItem: item.view)
+            }
+            .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
             .animation(.default, value: viewModel.state)
     }
 }
