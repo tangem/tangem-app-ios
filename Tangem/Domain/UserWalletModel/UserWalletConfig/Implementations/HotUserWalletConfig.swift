@@ -40,7 +40,7 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        MobileWalletSigner(hotWalletInfo: hotWalletInfo)
+        MobileWalletSigner(userWalletConfig: self)
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
