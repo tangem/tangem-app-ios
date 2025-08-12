@@ -43,7 +43,7 @@ class SendNewDestinationStep {
 // MARK: - SendStep
 
 extension SendNewDestinationStep: SendStep {
-    var title: String? { Localization.sendRecipientLabel }
+    var title: String? { Localization.wcCommonAddress }
 
     var type: SendStepType { .newDestination(viewModel) }
     var navigationLeadingViewType: SendStepNavigationLeadingViewType? { isEditMode ? .none : .backButton }
