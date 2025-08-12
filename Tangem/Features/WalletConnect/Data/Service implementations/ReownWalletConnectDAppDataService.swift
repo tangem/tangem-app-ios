@@ -25,7 +25,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     func getDAppDataAndProposal(
         for uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (WalletConnectDAppData, WalletConnectDAppSessionProposal) {
-        let (reownSessionProposal, reownVerifyContext) = try await openSession(uri: uri)
+        let (reownSessionProposal, reownVerifyContext) = try await openSessionWithForcedTimeout(uri: uri)
 
         try Self.validateDomainIsSupported(from: reownSessionProposal)
 
@@ -107,19 +107,17 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
 
     // [REDACTED_TODO_COMMENT]
     private func openSessionWithForcedTimeout(
-        uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource
+        uri: WalletConnectRequestURI
     ) async throws(WalletConnectDAppProposalLoadingError) -> (Session.Proposal, VerifyContext?) {
         try await withCheckedContinuation { continuation in
             Task {
-                await self.innerOpenSessionWithForcedTimeout(uri: uri, source: source, continuation: continuation)
+                await self.innerOpenSessionWithForcedTimeout(uri: uri, continuation: continuation)
             }
         }.get()
     }
 
     private func innerOpenSessionWithForcedTimeout(
         uri: WalletConnectRequestURI,
-        source: Analytics.WalletConnectSessionSource,
         continuation: CheckedContinuation<Result<(Session.Proposal, VerifyContext?), WalletConnectDAppProposalLoadingError>, Never>
     ) async {
         let gate = LockGate()
