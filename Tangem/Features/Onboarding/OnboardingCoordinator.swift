@@ -48,11 +48,9 @@ final class OnboardingCoordinator: CoordinatorObject {
         self.options = options
         switch options {
         case .input(let onboardingInputput):
-            process(input: onboardingInputput)
+            handle(input: onboardingInputput)
         case .hotInput(let hotOnboardingInput):
-            let model = HotOnboardingViewModel(input: hotOnboardingInput, coordinator: self)
-            onDismissalAttempt = model.onDismissalAttempt
-            viewState = .hot(model)
+            handle(input: hotOnboardingInput)
         }
 
         Analytics.log(.onboardingStarted)
@@ -153,10 +151,10 @@ extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
 extension OnboardingCoordinator: HotOnboardingRoutable {}
 
-// MARK: - Private methods
+// MARK: - Input handlers
 
 private extension OnboardingCoordinator {
-    func process(input: OnboardingInput) {
+    func handle(input: OnboardingInput) {
         switch input.steps {
         case .singleWallet:
             let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
@@ -178,6 +176,12 @@ private extension OnboardingCoordinator {
             onDismissalAttempt = model.backButtonAction
             viewState = .visa(model)
         }
+    }
+
+    func handle(input: HotOnboardingInput) {
+        let model = HotOnboardingViewModel(input: input, coordinator: self)
+        onDismissalAttempt = model.onDismissalAttempt
+        viewState = .hot(model)
     }
 }
 
