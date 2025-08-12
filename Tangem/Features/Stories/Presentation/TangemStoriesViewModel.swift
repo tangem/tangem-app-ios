@@ -48,13 +48,11 @@ final class TangemStoriesViewModel: ObservableObject {
 
     @MainActor
     func present(story: TangemStory, analyticsSource: Analytics.StoriesSource, presentCompletion: @escaping () -> Void) {
-        // UI-тесты: истории вовсе не отображаем
         guard !AppEnvironment.current.isUITest else {
             presentCompletion()
             return
         }
 
-        // прежняя проверка на доступность истории
         guard checkStoryAvailabilityUseCase(story.id) else {
             presentCompletion()
             return
