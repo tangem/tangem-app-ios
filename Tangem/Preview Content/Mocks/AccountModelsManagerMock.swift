@@ -42,7 +42,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         return newAccount
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> CryptoAccountModel {
+    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
         guard let account = cryptoAccounts.accounts[safe: index] else {
             throw CommonError.noData
         }
@@ -58,7 +58,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
 // MARK: - Convenience extensions
 
 private extension CryptoAccounts {
-    var accounts: [CryptoAccountModel] {
+    var accounts: [any CryptoAccountModel] {
         switch self {
         case .single(let account):
             return [account]

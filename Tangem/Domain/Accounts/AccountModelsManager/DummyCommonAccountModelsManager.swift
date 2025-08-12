@@ -23,7 +23,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw CommonError.notImplemented
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> CryptoAccountModel {
+    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
         throw CommonError.notImplemented
     }
 }

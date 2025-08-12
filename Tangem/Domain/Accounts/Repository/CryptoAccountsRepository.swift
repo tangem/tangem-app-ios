@@ -16,5 +16,5 @@ protocol CryptoAccountsRepository {
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
 
     func getAccounts() -> [StoredCryptoAccount] // [REDACTED_TODO_COMMENT]
-    func addCryptoAccount(_ cryptoAccountModel: CryptoAccountModel)
+    func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel)
 }
