@@ -343,7 +343,8 @@
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
-"email_subject_wc_error" = "Wallet Connect error";
+"email_preface_wc_error" = "Bonjour équipe de support, j’ai rencontré une erreur avec le code : %@";
+"email_subject_wc_error" = "Erreur WalletConnect";
 "error_wrong_wallet_tapped" = "Vous avez utilisé une carte d'un autre portefeuille. Appuyez sur la carte associée à ce portefeuille";
 "eth_gas_required_exceeds_allowance" = "Pas assez de fonds pour la transaction. Veuillez recharger votre compte.";
 "exchange_tokens_available_tokens_header" = "Mes jetons";
@@ -1485,12 +1486,12 @@
 "wc_disconnect_all_alert_desc" = "Texte sur la déconnexion de toutes les dApps";
 "wc_disconnect_all_alert_title" = "Déconnecter toutes les dApps";
 "wc_disconnect_all" = "Déconnecter tout";
-"wc_errors_invalid_domain_subtitle" = "Try pairing again with a fresh URI";
-"wc_errors_invalid_domain_title" = "Invalid dApp domain";
-"wc_errors_no_blockchains_subtitle" = "%@ does not specify any blockchains — neither required nor optional.\nPlease ensure you used the correct URI";
-"wc_errors_no_blockchains_title" = "No networks";
-"wc_errors_proposal_expired_subtitle" = "Please, generate a new URI and attempt connecting again";
-"wc_errors_proposal_expired_title" = "Connection proposal expired";
+"wc_errors_invalid_domain_subtitle" = "Essayez de jumeler à nouveau avec un nouvel URI";
+"wc_errors_invalid_domain_title" = "Domaine dApp invalide";
+"wc_errors_no_blockchains_subtitle" = "%@ ne spécifie aucune blockchain — ni requise ni optionnelle.\nVeuillez vous assurer que vous avez utilisé l’URI correct";
+"wc_errors_no_blockchains_title" = "Aucun réseau";
+"wc_errors_proposal_expired_subtitle" = "Veuillez générer un nouvel URI et essayer de vous connecter à nouveau";
+"wc_errors_proposal_expired_title" = "La proposition de connexion a expiré";
 "wc_estimated_wallet_changes_not_simulated" = "La transaction n'a pas pu être simulée. Veuillez procéder avec prudence.";
 "wc_estimated_wallet_changes" = "Modifications estimées du portefeuille";
 "wc_estimation_is_not_supported" = "Estimation is not supported for %@";
@@ -1513,7 +1514,7 @@
 "wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
 "wc_specify_networks_title" = "Specify selected networks";
 "wc_successfully_signed" = "Successfully signed";
-"wc_transaction_flow_title" = "Wallet connect";
+"wc_transaction_flow_title" = "WalletConnect";
 "wc_transaction_info_to_title" = "À";
 "wc_transaction_request_title" = "Demande de transaction";
 "wc_transaction_request" = "Demande de transaction";
