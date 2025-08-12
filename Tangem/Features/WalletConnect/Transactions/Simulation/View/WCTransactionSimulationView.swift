@@ -229,7 +229,7 @@ struct WCTransactionSimulationView: View {
     }
 
     private func noChangesView() -> some View {
-        Text("No wallet changes detected")
+        Text(Localization.wcNoWalletChangesDetected)
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
     }
 

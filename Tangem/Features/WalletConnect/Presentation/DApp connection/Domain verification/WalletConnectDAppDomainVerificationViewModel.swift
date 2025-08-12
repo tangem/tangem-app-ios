@@ -47,7 +47,6 @@ final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
 
 // MARK: - View events handling
 
-// [REDACTED_TODO_COMMENT]
 extension WalletConnectDAppDomainVerificationViewModel {
     func handle(viewEvent: WalletConnectDAppDomainVerificationViewEvent) {
         switch viewEvent {
