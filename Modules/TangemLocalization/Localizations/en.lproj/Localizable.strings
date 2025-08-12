@@ -343,7 +343,8 @@
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
-"email_subject_wc_error" = "Wallet Connect error";
+"email_preface_wc_error" = "Hi support team, I've encountered an error with code: %@";
+"email_subject_wc_error" = "WalletConnect error";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
 "eth_gas_required_exceeds_allowance" = "Not enough funds for the transaction. Please top up your account.";
 "exchange_tokens_available_tokens_header" = "My tokens";
@@ -1513,7 +1514,7 @@
 "wc_specify_networks_subtitle" = "At least one network is required for dApp connection";
 "wc_specify_networks_title" = "Specify selected networks";
 "wc_successfully_signed" = "Successfully signed";
-"wc_transaction_flow_title" = "Wallet connect";
+"wc_transaction_flow_title" = "WalletConnect";
 "wc_transaction_info_to_title" = "To";
 "wc_transaction_request_title" = "Transaction request";
 "wc_transaction_request" = "Transaction request";
