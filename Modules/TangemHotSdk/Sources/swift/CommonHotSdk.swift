@@ -18,7 +18,7 @@ public final class CommonHotSdk: HotSdk {
     public init() {
         let encryptedSecureStorage = EncryptedSecureStorage()
         let encryptedBiometricsStorage = EncryptedBiometricsStorage()
-        
+
         privateInfoStorageManager = PrivateInfoStorageManager(
             privateInfoStorage: PrivateInfoStorage(),
             encryptedSecureStorage: encryptedSecureStorage,
@@ -204,7 +204,7 @@ public final class CommonHotSdk: HotSdk {
         if case .biometrics = context.authentication {
             throw HotWalletError.publicDataIsNotAvailableViaBiometrics
         }
-        
+
         let seedKey = try publicInfoStorageManager.publicData(for: context)
 
         return UserWalletEncryptionKey(userWalletIdSeed: seedKey)

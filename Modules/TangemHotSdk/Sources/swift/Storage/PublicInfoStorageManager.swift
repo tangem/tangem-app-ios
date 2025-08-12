@@ -18,7 +18,7 @@ final class PublicInfoStorageManager {
         self.encryptedSecureStorage = encryptedSecureStorage
         self.encryptedBiometricsStorage = encryptedBiometricsStorage
     }
-    
+
     func storePublicData(_ data: Data, context: MobileWalletContext) throws {
         switch context.authentication {
         case .none:
@@ -43,7 +43,7 @@ final class PublicInfoStorageManager {
             )
         }
     }
-    
+
     func publicData(for context: MobileWalletContext) throws -> Data {
         switch context.authentication {
         case .none:
@@ -66,7 +66,7 @@ final class PublicInfoStorageManager {
             )
         }
     }
-    
+
     func updateAccessCode(
         _ newAccessCode: String,
         context: MobileWalletContext
@@ -92,14 +92,13 @@ final class PublicInfoStorageManager {
             secureEnclaveKeyTag: context.walletID.publicInfoBiometricsSecureEnclaveTag
         )
     }
-    
-    
+
     func clearBiometrics(walletIDs: [UserWalletId]) {
         walletIDs.forEach { walletID in
             try? encryptedBiometricsStorage.deleteData(keyTag: walletID.publicInfoBiometricsTag)
         }
     }
-    
+
     func deletePublicData(walletID: UserWalletId) throws {
         var errors = [Error]()
 
