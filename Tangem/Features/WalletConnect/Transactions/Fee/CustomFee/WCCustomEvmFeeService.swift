@@ -241,7 +241,7 @@ final class WCCustomEvmFeeService {
 
         let balance = walletModel.availableBalanceProvider.balanceType.value
         let transactionValue = EthereumUtils.parseEthereumDecimal(transaction.value ?? "0x0", decimalsCount: walletModel.feeTokenItem.decimalCount)
-        
+
         if let balance, let transactionValue {
             let balanceEvents = validationService.validateBalance(
                 transactionAmount: transactionValue,
