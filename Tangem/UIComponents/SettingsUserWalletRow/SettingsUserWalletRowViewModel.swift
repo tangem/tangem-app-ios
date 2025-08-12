@@ -80,11 +80,15 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
 
     func bind() {
         userWalletUpdatePublisher
-            .compactMap(\.newName)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { viewModel, name in
-                viewModel.name = name
+            .sink { viewModel, event in
+                switch event {
+                case .nameDidChange(let name):
+                    viewModel.name = name
+                case .configurationChanged(let model):
+                    viewModel.cardsCount = Localization.cardLabelCardCount(model.cardsCount)
+                }
             }
             .store(in: &bag)
 
