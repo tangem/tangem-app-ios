@@ -155,6 +155,8 @@ extension PrivateInfoStorageManager {
         static let encryptionKeyBiometricsSecureEnclavePrefix = "hotsdk_encryption_key_biometrics_secure_enclave_"
         static let publicInfoPrefix = "hotsdk_public_info_"
         static let publicInfoSecureEnclavePrefix = "hotsdk_public_info_secure_enclave_"
+        static let publicInfoBiometricsPrefix = "hotsdk_public_info_biometrics_"
+        static let publicInfoBiometricsSecureEnclavePrefix = "hotsdk_public_info_biometrics_secure_enclave_"
         static let aesKeySize = 32
     }
 }
@@ -190,6 +192,14 @@ extension UserWalletId {
 
     var publicInfoSecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.publicInfoSecureEnclavePrefix + stringValue
+    }
+    
+    var publicInfoBiometricsTag: String {
+        PrivateInfoStorageManager.Constants.publicInfoBiometricsPrefix + stringValue
+    }
+
+    var publicInfoBiometricsSecureEnclaveTag: String {
+        PrivateInfoStorageManager.Constants.publicInfoBiometricsSecureEnclavePrefix + stringValue
     }
 }
 
