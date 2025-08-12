@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "user-id-verification.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

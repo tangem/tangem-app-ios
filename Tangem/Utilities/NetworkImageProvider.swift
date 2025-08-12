@@ -11,8 +11,8 @@ import TangemAssets
 import TangemNFT
 
 struct NetworkImageProvider: NFTChainIconProvider {
-    func provide(by blockcain: Blockchain, filled: Bool) -> ImageType {
-        switch blockcain {
+    func provide(by blockchain: Blockchain, filled: Bool) -> ImageType {
+        switch blockchain {
         case .bitcoin:
             filled ? Tokens.bitcoinFill : Tokens.bitcoin
         case .litecoin:

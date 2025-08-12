@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol HotOnboardingSeedPhraseRecoveryDelegate: HotOnboardingSeedPhraseRevealDelegate {
+protocol HotOnboardingSeedPhraseRecoveryDelegate: AnyObject {
     func seedPhraseRecoveryContinue()
 }
