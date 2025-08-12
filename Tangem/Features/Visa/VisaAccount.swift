@@ -32,7 +32,12 @@ struct VisaAccount {
         let customerInfoManagementService = VisaCustomerCardInfoProviderBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
 
-        try await KYCService.start(getToken: customerInfoManagementService.loadKYCAccessToken)
+        try await KYCService.start(
+            getToken: customerInfoManagementService.loadKYCAccessToken,
+            verificationHandler: { success in
+                // [REDACTED_TODO_COMMENT]
+            }
+        )
     }
     #endif // ALPHA || BETA || DEBUG
 
