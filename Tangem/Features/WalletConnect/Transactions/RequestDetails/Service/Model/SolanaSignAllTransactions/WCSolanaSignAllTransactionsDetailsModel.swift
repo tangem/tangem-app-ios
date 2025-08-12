@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct WCSolanaSignAllTransactionsDetailsModel {
     let data: [WCTransactionDetailsSection]
@@ -27,7 +28,7 @@ struct WCSolanaSignAllTransactionsDetailsModel {
             .init(
                 sectionTitle: nil,
                 items: { () -> [WCTransactionDetailsSection.WCTransactionDetailsItem] in
-                    [.init(title: "Signature Type", value: method.rawValue)] + transactionItems
+                    [.init(title: Localization.wcSignatureType, value: method.rawValue)] + transactionItems
                 }()
             ),
         ]
