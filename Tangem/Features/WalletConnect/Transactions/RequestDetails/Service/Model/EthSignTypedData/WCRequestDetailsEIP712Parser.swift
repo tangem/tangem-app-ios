@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 enum WCRequestDetailsEIP712Parser {
     static func parse(typedData: EIP712TypedData, method: WalletConnectMethod) -> [WCTransactionDetailsSection] {
         var sections: [WCTransactionDetailsSection] = []
@@ -25,7 +27,7 @@ enum WCRequestDetailsEIP712Parser {
 
     private static func createBasicSections(typedData: EIP712TypedData, method: WalletConnectMethod) -> [WCTransactionDetailsSection] {
         return [
-            .init(sectionTitle: nil, items: [.init(title: "Signature Type", value: method.rawValue)]),
+            .init(sectionTitle: nil, items: [.init(title: Localization.wcSignatureType, value: method.rawValue)]),
             .init(sectionTitle: nil, items: [.init(title: "Primary Type", value: typedData.primaryType)]),
         ]
     }
