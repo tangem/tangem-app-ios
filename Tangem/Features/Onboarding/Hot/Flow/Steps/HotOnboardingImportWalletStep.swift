@@ -9,16 +9,13 @@
 import SwiftUI
 
 final class HotOnboardingImportWalletStep: HotOnboardingFlowStep {
-    private let viewModel: OnboardingSeedPhraseImportViewModel
+    private let viewModel: HotOnboardingSeedPhraseImportViewModel
 
-    init(delegate: SeedPhraseImportDelegate) {
-        viewModel = OnboardingSeedPhraseImportViewModel(
-            inputProcessor: SeedPhraseInputProcessor(),
-            delegate: delegate
-        )
+    init(delegate: HotOnboardingSeedPhraseImportDelegate) {
+        viewModel = HotOnboardingSeedPhraseImportViewModel(delegate: delegate)
     }
 
     override func build() -> any View {
-        OnboardingSeedPhraseImportView(viewModel: viewModel)
+        HotOnboardingSeedPhraseImportView(viewModel: viewModel)
     }
 }
