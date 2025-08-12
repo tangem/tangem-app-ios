@@ -12,7 +12,6 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectDAppConnectionRequestViewState: Equatable {
     let navigationTitle = Localization.wcWalletConnect
 
@@ -34,7 +33,7 @@ extension WalletConnectDAppConnectionRequestViewState {
     enum ConnectionRequestSection: Equatable {
         struct LoadingState: Equatable {
             let iconAsset = Assets.Glyphs.load
-            let label = "Connecting"
+            let label = Localization.commonConnecting
         }
 
         struct ContentState: Equatable {
