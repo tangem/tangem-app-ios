@@ -11,6 +11,7 @@ import CryptoKit
 import TangemSdk
 import TangemHotSdk
 import LocalAuthentication
+import TangemFoundation
 
 class UserWalletDataStorage {
     private let fileManager: FileManager = .default
@@ -18,9 +19,12 @@ class UserWalletDataStorage {
     private let decoder = JSONDecoder.tangemSdkDecoder
     private let secureStorage = SecureStorage()
 
-    private lazy var userWalletDirectoryUrl: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
+    private lazy var userWalletDirectoryUrl: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("user_wallets", isDirectory: true)
 
     // MARK: - Common
+
+    // MARK: - Clear
 
     func clear(userWalletIds: [UserWalletId]) {
         do {
