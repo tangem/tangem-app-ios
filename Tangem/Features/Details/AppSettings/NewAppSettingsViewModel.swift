@@ -247,7 +247,7 @@ private extension NewAppSettingsViewModel {
 
         // If saved wallets is turn off we should delete access codes too
         if !useBiometricAuthentication {
-            self.requireAccessCodes = true
+            requireAccessCodes = true
         }
 
         updateView()
