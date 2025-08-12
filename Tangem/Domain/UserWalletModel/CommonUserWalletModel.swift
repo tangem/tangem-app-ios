@@ -121,7 +121,7 @@ class CommonUserWalletModel {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         userWalletRepository.savePublicData()
-        _updatePublisher.send(.configurationChanged)
+        _updatePublisher.send(.configurationChanged(model: self))
     }
 }
 
@@ -202,7 +202,7 @@ extension CommonUserWalletModel: UserWalletModel {
 
         case .backupCompleted:
             // we have to read an actual status from backup validator
-            _updatePublisher.send(.configurationChanged)
+            _updatePublisher.send(.configurationChanged(model: self))
 
         case .backupStarted(let card):
             switch walletInfo {
