@@ -10,7 +10,6 @@ import struct Foundation.URL
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 enum WalletConnectConnectedDAppDetailsViewState: Equatable {
     case dAppDetails(DAppDetails)
     case verifiedDomain(WalletConnectDAppDomainVerificationViewModel)
@@ -42,7 +41,7 @@ extension WalletConnectConnectedDAppDetailsViewState {
 
 extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
     struct NavigationBar: Equatable {
-        let title = "Connected App"
+        let title = Localization.wcConnectedAppTitle
         var connectedTime: String
     }
 
@@ -53,7 +52,7 @@ extension WalletConnectConnectedDAppDetailsViewState.DAppDetails {
     }
 
     struct ConnectedNetworksSection: Equatable {
-        let headerTitle = "Connected networks"
+        let headerTitle = Localization.wcConnectedNetworks
         let blockchains: [BlockchainRowItem]
 
         init?(blockchains: [BlockchainRowItem]) {
