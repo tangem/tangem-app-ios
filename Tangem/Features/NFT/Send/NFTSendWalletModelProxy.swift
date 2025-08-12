@@ -344,6 +344,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var account: CryptoAccountModel {
+        mainTokenWalletModel.account
+    }
+
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
         lhs.id == rhs.id
     }
