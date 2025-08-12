@@ -160,7 +160,6 @@ struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>: View 
                 }
             )
         }
-        .frame(width: 384)
         .padding(.horizontal, 16)
     }
 }
