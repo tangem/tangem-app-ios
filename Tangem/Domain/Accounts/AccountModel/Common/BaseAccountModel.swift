@@ -10,8 +10,7 @@ import Foundation
 import Combine
 
 // [REDACTED_TODO_COMMENT]
-// [REDACTED_TODO_COMMENT]
-protocol BaseAccountModel {
+protocol BaseAccountModel: Identifiable {
     var name: String { get }
     var icon: AccountModel.Icon { get }
     var didChangePublisher: any Publisher<Void, Never> { get }
