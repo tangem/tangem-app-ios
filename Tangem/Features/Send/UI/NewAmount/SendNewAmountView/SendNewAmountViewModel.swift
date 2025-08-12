@@ -29,7 +29,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     lazy var tokenWithAmountViewData: SendNewAmountTokenViewData = .init(
         tokenIconInfo: tokenIconInfo,
         title: tokenItem.name,
-        subtitle: balanceFormatted,
+        subtitle: Localization.commonBalance(balanceFormatted),
         detailsType: .max { [weak self] in
             self?.userDidTapMaxAmount()
         }
@@ -199,7 +199,7 @@ private extension SendNewAmountViewModel {
 // MARK: - Express
 
 extension SendNewAmountViewModel {
-    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount?, Error>?) {
+    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount, Error>?) {
         guard FeatureProvider.isAvailable(.sendViaSwap) else {
             receivedTokenViewType = .none
             return
@@ -226,11 +226,11 @@ extension SendNewAmountViewModel {
         }
     }
 
-    func mapToSendNewAmountTokenViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> SendNewAmountTokenViewData.DetailsType? {
+    func mapToSendNewAmountTokenViewDataDetailsType(amount: LoadingResult<SendAmount, Error>?) -> SendNewAmountTokenViewData.DetailsType? {
         switch amount {
         case .success(let success):
             // The `individualAction` should be use when the fixed rate will available
-            return .select(amount: success?.crypto?.stringValue, individualAction: nil)
+            return .select(amount: success.crypto?.stringValue, individualAction: nil)
         case .none, .failure:
             return nil
         case .loading:
