@@ -11,12 +11,10 @@ import BlockchainSdk
 import TangemVisa
 
 struct VisaApprovePairSearchUtility {
-    let visaUtilities: VisaUtilities
     let visaWalletPublicKeyUtility: VisaWalletPublicKeyUtility
 
     init(isTestnet: Bool) {
-        visaUtilities = .init(isTestnet: isTestnet)
-        visaWalletPublicKeyUtility = .init(isTestnet: isTestnet)
+        visaWalletPublicKeyUtility = VisaWalletPublicKeyUtility(isTestnet: isTestnet)
     }
 
     func findApprovePair(for targetAddress: String, userWalletModels: [UserWalletModel]) -> VisaOnboardingTangemWalletDeployApproveViewModel.ApprovePair? {
@@ -28,7 +26,7 @@ struct VisaApprovePairSearchUtility {
             let config = userWalletModel.config
             let sessionFilter = config.cardSessionFilter
             guard
-                let wallet = userWalletModel.keysRepository.keys.first(where: { $0.curve == visaUtilities.mandatoryCurve })
+                let wallet = userWalletModel.keysRepository.keys.first(where: { $0.curve == VisaUtilities.mandatoryCurve })
             else {
                 continue
             }
@@ -36,7 +34,7 @@ struct VisaApprovePairSearchUtility {
             do {
                 var derivationPath: DerivationPath?
                 if let derivationStyle = config.derivationStyle,
-                   let path = visaUtilities.visaBlockchain.derivationPath(for: derivationStyle) {
+                   let path = VisaUtilities.visaDerivationPath(style: derivationStyle) {
                     derivationPath = path
                 }
 
