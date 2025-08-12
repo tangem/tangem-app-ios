@@ -13,29 +13,40 @@ import TangemFoundation
 
 public final class CommonHotSdk: HotSdk {
     private let privateInfoStorageManager: PrivateInfoStorageManager
+    private let publicInfoStorageManager: PublicInfoStorageManager
 
     public init() {
+        let encryptedSecureStorage = EncryptedSecureStorage()
+        let encryptedBiometricsStorage = EncryptedBiometricsStorage()
+        
         privateInfoStorageManager = PrivateInfoStorageManager(
             privateInfoStorage: PrivateInfoStorage(),
-            encryptedSecureStorage: EncryptedSecureStorage(),
-            encryptedBiometricsStorage: EncryptedBiometricsStorage()
+            encryptedSecureStorage: encryptedSecureStorage,
+            encryptedBiometricsStorage: encryptedBiometricsStorage
+        )
+        publicInfoStorageManager = PublicInfoStorageManager(
+            encryptedSecureStorage: encryptedSecureStorage,
+            encryptedBiometricsStorage: encryptedBiometricsStorage
         )
     }
 
     public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
         let masterKeys = try deriveMasterKeys(entropy: entropy, passphrase: passphrase)
 
-        guard let walletIdSeed = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
+        guard let seedKey = masterKeys.first(where: { $0.curve == .secp256k1 })?.publicKey else {
             throw HotWalletError.failedToDeriveKey
         }
 
-        let userWalletId = UserWalletId(with: walletIdSeed)
+        let userWalletId = UserWalletId(with: seedKey)
 
         guard !privateInfoStorageManager.hasPrivateInfoData(for: userWalletId) else {
             throw HotWalletError.walletAlreadyExists
         }
 
-        try storePublicData(for: userWalletId, seedKey: walletIdSeed, accessCode: nil)
+        try publicInfoStorageManager.storePublicData(
+            seedKey,
+            context: MobileWalletContext(walletID: userWalletId, authentication: .none)
+        )
 
         try privateInfoStorageManager.storeUnsecured(
             privateInfoData: PrivateInfo(entropy: entropy, passphrase: passphrase).encode(),
@@ -81,10 +92,8 @@ public final class CommonHotSdk: HotSdk {
                 errors.append(error)
             }
 
-            let publicDataStorage = EncryptedSecureStorage()
-
             do {
-                try publicDataStorage.deleteData(keyTag: walletID.publicInfoTag)
+                try publicInfoStorageManager.deletePublicData(walletID: walletID)
             } catch {
                 errors.append(error)
             }
@@ -100,24 +109,19 @@ public final class CommonHotSdk: HotSdk {
         context: MobileWalletContext
     ) throws {
         try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
-
-        let seedKey = try publicData(for: context)
-
-        try storePublicData(
-            for: context.walletID,
-            seedKey: seedKey,
-            accessCode: newAccessCode
-        )
+        try publicInfoStorageManager.updateAccessCode(newAccessCode, context: context)
     }
 
     public func enableBiometrics(
         context: MobileWalletContext
     ) throws {
         try privateInfoStorageManager.enableBiometrics(context: context)
+        try publicInfoStorageManager.enableBiometrics(context: context)
     }
 
     public func clearBiometrics(walletIDs: [UserWalletId]) {
         privateInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
+        publicInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
     }
 
     public func deriveMasterKeys(context: MobileWalletContext) throws -> HotWallet {
@@ -171,7 +175,7 @@ public final class CommonHotSdk: HotSdk {
                 curve: masterKeyInfo.curve
             )
 
-            var derivedKeys = keyInfo.derivedKeys ?? [:]
+            var derivedKeys = keyInfo.derivedKeys
 
             try derivationPaths.forEach { path in
                 guard derivedKeys[path] == nil else {
@@ -197,7 +201,11 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
-        let seedKey = try publicData(for: context)
+        if case .biometrics = context.authentication {
+            throw HotWalletError.publicDataIsNotAvailableViaBiometrics
+        }
+        
+        let seedKey = try publicInfoStorageManager.publicData(for: context)
 
         return UserWalletEncryptionKey(userWalletIdSeed: seedKey)
     }
@@ -245,31 +253,6 @@ public final class CommonHotSdk: HotSdk {
 }
 
 private extension CommonHotSdk {
-    func storePublicData(for userWalletId: UserWalletId, seedKey: Data, accessCode: String?) throws {
-        let publicDataStorage = EncryptedSecureStorage()
-        try publicDataStorage.storeData(
-            seedKey,
-            keyTag: userWalletId.publicInfoTag,
-            secureEnclaveKeyTag: userWalletId.publicInfoSecureEnclaveTag,
-            accessCode: accessCode
-        )
-    }
-
-    func publicData(for context: MobileWalletContext) throws -> Data {
-        let accessCode: String? = switch context.authentication {
-        case .accessCode(let code): code
-        case .none: nil
-        case .biometrics: throw HotWalletError.accessCodeIsRequired
-        }
-        let publicDataStorage = EncryptedSecureStorage()
-
-        return try publicDataStorage.getData(
-            keyTag: context.walletID.publicInfoTag,
-            secureEnclaveKeyTag: context.walletID.publicInfoSecureEnclaveTag,
-            accessCode: accessCode
-        )
-    }
-
     func deriveMasterKeys(
         entropy: Data,
         passphrase: String,
