@@ -36,7 +36,9 @@ struct SendNewAmountStepBuilder {
     ) -> ReturnValue {
         let interactorSaver = CommonSendNewAmountInteractorSaver(
             sourceTokenAmountInput: sourceAmountIO.input,
-            sourceTokenAmountOutput: sourceAmountIO.output
+            sourceTokenAmountOutput: sourceAmountIO.output,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenOutput: receiveIO.output
         )
 
         let interactor = CommonSendNewAmountInteractor(
