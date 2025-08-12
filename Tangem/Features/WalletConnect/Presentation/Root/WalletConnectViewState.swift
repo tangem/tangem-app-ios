@@ -10,7 +10,6 @@ import Foundation
 import TangemAssets
 import enum TangemLocalization.Localization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectViewState: Equatable {
     let navigationBar = NavigationBar()
     var contentState: ContentState
@@ -32,7 +31,7 @@ struct WalletConnectViewState: Equatable {
 
 extension WalletConnectViewState {
     struct NavigationBar: Equatable {
-        let title = "Connections"
+        let title = Localization.wcConnections
         let trailingButtonAsset = Assets.verticalDots
         let disconnectAllMenuTitle = Localization.wcDisconnectAll
     }
@@ -111,8 +110,8 @@ extension WalletConnectViewState {
 
 extension WalletConnectViewState.ContentState {
     struct EmptyContentState: Equatable {
-        let title = "No sessions"
-        let subtitle = "Connect your wallet to a different dApps"
+        let title = Localization.wcNoSessionsTitle
+        let subtitle = Localization.wcNoSessionsDesc
         let asset = Assets.walletConnect
     }
 
