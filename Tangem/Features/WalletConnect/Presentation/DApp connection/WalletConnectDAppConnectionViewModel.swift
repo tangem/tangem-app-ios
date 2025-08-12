@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemUI
 
 @MainActor
@@ -128,7 +129,7 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
     }
 
     func displaySuccessfulDAppConnection(with dAppName: String) {
-        WalletConnectModuleFactory.makeSuccessToast(with: "\(dAppName) has been connected")
+        WalletConnectModuleFactory.makeSuccessToast(with: Localization.wcConnectedTo(dAppName))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 
