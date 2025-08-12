@@ -67,6 +67,7 @@ final class SendViewModel: ObservableObject {
 
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
+    private var isUpdatingSubscription: AnyCancellable?
     private var isValidContinueSubscription: AnyCancellable?
 
     init(
@@ -308,6 +309,10 @@ private extension SendViewModel {
         isValidSubscription = step.isValidPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.actionIsAvailable, on: self, ownership: .weak)
+
+        isUpdatingSubscription = step.isUpdatingPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
     }
 
     func bind() {
@@ -344,6 +349,10 @@ extension SendViewModel: SendModelRoutable {
         }
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
+
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
+        coordinator?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
     }
 
     func resetFlow() {

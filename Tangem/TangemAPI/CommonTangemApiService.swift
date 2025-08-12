@@ -24,8 +24,6 @@ class CommonTangemApiService {
         TangemApiAuthorizationPlugin(),
     ])
 
-    private var authData: TangemApiTarget.AuthData?
-
     private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
     private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
 
@@ -41,7 +39,7 @@ class CommonTangemApiService {
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
-        let target = TangemApiTarget(type: type, authData: authData)
+        let target = TangemApiTarget(type: type)
         let response = try await provider.asyncRequest(target)
 
         do {
@@ -59,7 +57,7 @@ class CommonTangemApiService {
     }
 
     private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
-        let target = TangemApiTarget(type: type, authData: authData)
+        let target = TangemApiTarget(type: type)
         return try await provider.asyncRequest(target).data
     }
 }
@@ -73,7 +71,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadGeo() -> AnyPublisher<String, any Error> {
         provider
-            .requestPublisher(TangemApiTarget(type: .geo, authData: authData))
+            .requestPublisher(TangemApiTarget(type: .geo))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
             .map(\.code)
@@ -82,7 +80,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
-        let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
+        let target = TangemApiTarget(type: .getUserWalletTokens(key: key))
 
         return provider
             .requestPublisher(target)
@@ -104,7 +102,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
-        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
 
         return provider
             .requestPublisher(target)
@@ -116,7 +114,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
         let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
-        let target = TangemApiTarget(type: .createAccount(parameters), authData: authData)
+        let target = TangemApiTarget(type: .createAccount(parameters))
 
         return provider
             .requestPublisher(target)
@@ -128,7 +126,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadCoins(requestModel: CoinsList.Request) -> AnyPublisher<[CoinModel], Error> {
         provider
-            .requestPublisher(TangemApiTarget(type: .coins(requestModel), authData: authData))
+            .requestPublisher(TangemApiTarget(type: .coins(requestModel)))
             .filterSuccessfulStatusCodes()
             .map(CoinsList.Response.self)
             .eraseError()
@@ -166,7 +164,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> {
-        let target = TangemApiTarget(type: .quotes(requestModel), authData: authData)
+        let target = TangemApiTarget(type: .quotes(requestModel))
 
         return provider
             .requestPublisher(target)
@@ -181,7 +179,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error> {
         provider
-            .requestPublisher(TangemApiTarget(type: .currencies, authData: authData))
+            .requestPublisher(TangemApiTarget(type: .currencies))
             .filterSuccessfulStatusCodes()
             .map(CurrenciesResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name }) }
@@ -192,8 +190,7 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo {
         let target = TangemApiTarget(
-            type: .loadReferralProgramInfo(userWalletId: userWalletId, expectedAwardsLimit: expectedAwardsLimit),
-            authData: authData
+            type: .loadReferralProgramInfo(userWalletId: userWalletId, expectedAwardsLimit: expectedAwardsLimit)
         )
         let response = try await provider.asyncRequest(target)
         let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
@@ -212,8 +209,7 @@ extension CommonTangemApiService: TangemApiService {
             address: address
         )
         let target = TangemApiTarget(
-            type: .participateInReferralProgram(userInfo: userInfo),
-            authData: authData
+            type: .participateInReferralProgram(userInfo: userInfo)
         )
         let response = try await provider.asyncRequest(target)
         let filteredResponse = try response.filterSuccessfulStatusAndRedirectCodes()
@@ -308,17 +304,17 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatus(userWalletId: userWalletId, status: status), authData: authData)
+        let target = TangemApiTarget(type: .seedNotifySetStatus(userWalletId: userWalletId, status: status))
         _ = try await provider.asyncRequest(target)
     }
 
     func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
-        let target = TangemApiTarget(type: .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status), authData: authData)
+        let target = TangemApiTarget(type: .seedNotifySetStatusConfirmed(userWalletId: userWalletId, status: status))
         _ = try await provider.asyncRequest(target)
     }
 
     func setWalletInitialized(userWalletId: String) async throws {
-        let target = TangemApiTarget(type: .walletInitialized(userWalletId: userWalletId), authData: authData)
+        let target = TangemApiTarget(type: .walletInitialized(userWalletId: userWalletId))
         _ = try await provider.asyncRequest(target)
     }
 
@@ -355,12 +351,6 @@ extension CommonTangemApiService: TangemApiService {
 
     func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO {
         try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
-    }
-
-    // MARK: - Init
-
-    func setAuthData(_ authData: TangemApiTarget.AuthData) {
-        self.authData = authData
     }
 }
 
