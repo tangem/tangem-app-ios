@@ -74,7 +74,11 @@ extension HotAccessCodeUtil {
 private extension HotAccessCodeUtil {
     func unlock(useBiometrics: Bool) async throws -> Result {
         do {
-            let manager = CommonHotAccessCodeManager(userWalletId: userWalletId, configuration: .default)
+            let manager = CommonHotAccessCodeManager(
+                userWalletId: userWalletId,
+                configuration: .default,
+                storageManager: CommonHotAccessCodeStorageManager()
+            )
             let viewModel = HotAccessCodeViewModel(manager: manager, useBiometrics: useBiometrics)
             let view = HotAccessCodeView(viewModel: viewModel)
 

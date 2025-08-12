@@ -7,13 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
-import struct TangemSdk.Mnemonic
 import TangemFoundation
-import TangemHotSdk
+import TangemLocalization
 
 final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var userWalletModel: UserWalletModel?
@@ -43,9 +40,9 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
         importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         append(step: importCompletedStep)
 
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
+        let accessCodeStep = HotOnboardingAccessCodeStep(context: nil, delegate: self)
             .configureNavBar(title: Localization.accessCodeNavtitle)
-        append(step: createAccessCodeStep)
+        append(step: accessCodeStep)
 
         let factory = PushNotificationsHelpersFactory()
         let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
@@ -93,68 +90,25 @@ private extension HotOnboardingImportWalletFlowBuilder {
     func closeOnboarding() {
         coordinator?.closeOnboarding()
     }
-
-    @MainActor
-    private func handleWalletCreated(_ newUserWalletModel: UserWalletModel) throws {
-        userWalletModel = newUserWalletModel
-
-        next()
-    }
 }
 
-// MARK: - SeedPhraseImportDelegate
+// MARK: - HotOnboardingSeedPhraseImportDelegate
 
-extension HotOnboardingImportWalletFlowBuilder: SeedPhraseImportDelegate {
-    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
-        runTask(in: self) { @MainActor builder in
-            do {
-                let initializer = MobileWalletInitializer()
-
-                let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
-
-                guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                    walletInfo: .mobileWallet(walletInfo),
-                    keys: .mobileWallet(keys: walletInfo.keys),
-                ) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
-
-                try builder.userWalletRepository.add(userWalletModel: newUserWalletModel)
-
-                try builder.handleWalletCreated(newUserWalletModel)
-            } catch {
-                AppLogger.error("Failed to create wallet", error: error)
-                throw error
-            }
-        }
+extension HotOnboardingImportWalletFlowBuilder: HotOnboardingSeedPhraseImportDelegate {
+    func didImportSeedPhrase(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
+        next()
     }
 }
 
 // MARK: - HotOnboardingAccessCodeDelegate
 
-extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeCreateDelegate {
-    func isRequestBiometricsNeeded() -> Bool {
-        true
+extension HotOnboardingImportWalletFlowBuilder: HotOnboardingAccessCodeDelegate {
+    func getUserWalletModel() -> UserWalletModel? {
+        userWalletModel
     }
 
-    func isAccessCodeCanSkipped() -> Bool {
-        true
-    }
-
-    func accessCodeComplete(accessCode: String) {
-        guard let userWalletModel else {
-            return
-        }
-        // [REDACTED_TODO_COMMENT]
-        next()
-    }
-
-    func accessCodeSkipped() {
-        guard let userWalletModel else {
-            return
-        }
-        let userWalletIdString = userWalletModel.userWalletId.stringValue
-        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletIdString)
+    func didCompleteAccessCode() {
         next()
     }
 }
