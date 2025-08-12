@@ -65,7 +65,7 @@ enum UpdateRequest {
 }
 
 enum UpdateResult {
-    case configurationChanged
+    case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
 
     var newName: String? {
