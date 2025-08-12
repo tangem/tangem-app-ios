@@ -38,6 +38,8 @@ class ServicesManager {
     }
 
     func initialize() {
+        SettingsMigrator.migrateIfNeeded()
+
         handleUITestingArguments()
 
         TangemLoggerConfigurator().initialize()
