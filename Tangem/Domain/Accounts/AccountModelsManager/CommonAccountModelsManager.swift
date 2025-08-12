@@ -18,8 +18,7 @@ actor CommonAccountModelsManager {
         executor.asUnownedSerialExecutor()
     }
 
-    private let newCryptoAccountSubject: PassthroughSubject<CryptoAccountModel, Never>
-    private let cryptoAccountsRepository: CryptoAccountsRepository
+    private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
 
@@ -30,7 +29,6 @@ actor CommonAccountModelsManager {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         executor = Executor(label: userWalletId.stringValue)
-        newCryptoAccountSubject = .init()
     }
 
     private func initialize() {
@@ -57,7 +55,7 @@ actor CommonAccountModelsManager {
     private func makeCryptoAccountModels(
         from cryptoAccounts: [StoredCryptoAccount],
         cache: inout Cache
-    ) -> [CryptoAccountModel] {
+    ) -> [any CryptoAccountModel] {
         // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
 
@@ -101,7 +99,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         _accountModelsPublisher
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> CryptoAccountModel {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
         let newCryptoAccount = CommonCryptoAccountModel(
@@ -113,7 +111,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         return newCryptoAccount
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> CryptoAccountModel {
+    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
         // [REDACTED_TODO_COMMENT]
         fatalError()
     }

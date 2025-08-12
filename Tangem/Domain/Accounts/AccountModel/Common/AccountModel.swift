@@ -13,10 +13,10 @@ enum AccountModel {
     case standard(CryptoAccounts)
 
     @available(*, unavailable, message: "This account type is not implemented yet")
-    case smart(SmartAccountModel)
+    case smart(any SmartAccountModel)
 
     @available(*, unavailable, message: "This account type is not implemented yet")
-    case visa(VisaAccountModel)
+    case visa(any VisaAccountModel)
 }
 
 // MARK: - Inner types
