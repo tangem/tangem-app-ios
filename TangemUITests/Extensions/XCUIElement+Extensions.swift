@@ -14,11 +14,23 @@ import Foundation
 extension XCUIElement {
     @discardableResult
     func waitAndTap(timeout: TimeInterval = .robustUIUpdate) -> Bool {
+        // Ждем существования элемента
         guard waitForExistence(timeout: timeout) else {
             XCTFail("Element '\(self)' did not exist after waiting \(timeout) seconds")
             return false
         }
-
+        
+        // Ждем, пока элемент станет доступным для взаимодействия
+        guard waitForState(state: .hittable, for: timeout) else {
+            return false
+        }
+        
+        // Финальная проверка перед тапом
+        guard exists && isHittable && isEnabled else {
+            XCTFail("Element '\(self)' is not ready for interaction: exists=\(exists), isHittable=\(isHittable), isEnabled=\(isEnabled)")
+            return false
+        }
+        
         tap()
         return true
     }
