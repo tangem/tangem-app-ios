@@ -25,9 +25,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         return 1 // [REDACTED_TODO_COMMENT]
     }
 
-    var cryptoAccountModelsPublisher: AnyPublisher<[CryptoAccountModel], Never> {
+    var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         // [REDACTED_TODO_COMMENT]
-        fatalError()
+        return .just(output: getAccounts())
     }
 
     func getAccounts() -> [StoredCryptoAccount] {
