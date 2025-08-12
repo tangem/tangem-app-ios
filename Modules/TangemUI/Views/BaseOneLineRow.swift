@@ -8,20 +8,26 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
-public struct BaseOneLineRow<TrailingView: View>: View {
+public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View {
     private let icon: ImageType
     private let title: String
-    private let infoButtonAction: (() -> Void)?
+    private let secondLeadingView: () -> SecondLeadingView
     private let trailingView: () -> TrailingView
 
     private var isTappable: Bool = true
 
-    public init(icon: ImageType, title: String, infoButtonAction: (() -> Void)? = nil, trailingView: @escaping () -> TrailingView) {
+    public init(
+        icon: ImageType,
+        title: String,
+        @ViewBuilder secondLeadingView: @escaping () -> SecondLeadingView = EmptyView.init,
+        @ViewBuilder trailingView: @escaping () -> TrailingView
+    ) {
         self.icon = icon
         self.title = title
-        self.infoButtonAction = infoButtonAction
+        self.secondLeadingView = secondLeadingView
         self.trailingView = trailingView
     }
 
@@ -42,12 +48,14 @@ public struct BaseOneLineRow<TrailingView: View>: View {
     }
 
     var leadingView: some View {
-        HStack(alignment: .center, spacing: 4) {
-            leadingIcon
+        HStack(alignment: .center, spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
+                leadingIcon
 
-            leadingTitle
+                leadingTitle
+            }
 
-            infoButton
+            secondLeadingView()
         }
     }
 
@@ -63,19 +71,6 @@ public struct BaseOneLineRow<TrailingView: View>: View {
         Text(title)
             .style(Fonts.Regular.body, color: Colors.Text.primary1)
             .lineLimit(1)
-    }
-
-    @ViewBuilder
-    var infoButton: some View {
-        if let infoButtonAction {
-            Button(action: infoButtonAction) {
-                Assets.infoCircle20.image
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
-                    .frame(width: 20, height: 20)
-            }
-        }
     }
 
     @ViewBuilder
