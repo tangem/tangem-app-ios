@@ -27,6 +27,7 @@ import TangemSdk
 /// `010` - Payment account token Info loader
 /// `011` - PIN validator
 /// `012` - VisaWalletPublicKeyUtility.SearchError
+/// `013` - KYC
 /// `100` - BFF API
 extension VisaAuthorizationTokensHandlerError: VisaError {
     public var errorCode: Int {
@@ -180,5 +181,16 @@ extension VisaAPIError: VisaError {
         }
 
         return 104_000_000 + code
+    }
+}
+
+extension KYCService.KYCServiceError: VisaError {
+    public var errorCode: Int {
+        switch self {
+        case .sdkIsNotReady:
+            104013000
+        case .alreadyPresent:
+            104013001
+        }
     }
 }
