@@ -13,7 +13,7 @@ import TangemUI
 struct HotOnboardingCreateWalletView: View {
     typealias ViewModel = HotOnboardingCreateWalletViewModel
 
-    let viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,6 +38,7 @@ struct HotOnboardingCreateWalletView: View {
                 action: viewModel.onCreateTap
             )
         }
+        .flowLoadingOverlay(isPresented: viewModel.isCreating)
         .padding(.top, 64)
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
