@@ -97,7 +97,6 @@ public final class StoriesHostViewModel: ObservableObject {
         allowsHitTesting = false
         visibleStoryIndex = index
 
-        // UI тесты: отключаем задержку анимации
         guard !AppEnvironment.current.isUITest else {
             allowsHitTesting = true
             return
