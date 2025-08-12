@@ -45,7 +45,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         ]
     }
 
-    func addCryptoAccount(_ cryptoAccountModel: CryptoAccountModel) {
+    func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
         // [REDACTED_TODO_COMMENT]
     }
 }

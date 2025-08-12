@@ -54,7 +54,7 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
-    var account: CryptoAccountModel { get }
+    var account: any CryptoAccountModel { get }
 }
 
 extension WalletModel {
