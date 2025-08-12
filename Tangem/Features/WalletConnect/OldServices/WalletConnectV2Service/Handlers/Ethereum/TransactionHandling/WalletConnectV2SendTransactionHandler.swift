@@ -94,6 +94,8 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceWalletConnect.rawValue,
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
         ])
 
