@@ -167,7 +167,7 @@ enum WalletConnectModuleFactory {
                 floatingSheetPresenter?.removeActiveSheet()
             },
             onDisconnect: {
-                makeSuccessToast(with: "dApp disconnected")
+                makeSuccessToast(with: Localization.wcDappDisconnected)
                     .present(layout: .top(padding: 20), type: .temporary())
             }
         )
@@ -185,17 +185,12 @@ enum WalletConnectModuleFactory {
 
     // MARK: - Errors factory methods
 
-    // [REDACTED_TODO_COMMENT]
-
     static func makeDAppProposalLoadingErrorToast(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) -> Toast<WarningToast>? {
         let errorMessage: String
 
         switch proposalLoadingError {
         case .pairingFailed:
-            errorMessage = """
-            An error occurred. Code: \(formattedErrorCode(from: proposalLoadingError))
-            If the problem persists — feel free to contact our support.
-            """
+            errorMessage = Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: proposalLoadingError))
 
         case .uriAlreadyUsed,
              .invalidDomainURL,
@@ -215,10 +210,7 @@ enum WalletConnectModuleFactory {
 
         switch proposalApprovalError {
         case .approvalFailed:
-            errorMessage = """
-            Connection failed. Code: \(formattedErrorCode(from: proposalApprovalError))
-            If the problem persists — feel free to contact our support.
-            """
+            errorMessage = Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: proposalApprovalError))
 
         case .invalidConnectionRequest,
              .proposalExpired,
@@ -231,8 +223,7 @@ enum WalletConnectModuleFactory {
     }
 
     static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> Toast<WarningToast> {
-        // [REDACTED_TODO_COMMENT]
-        return Toast(view: WarningToast(text: ""))
+        return Toast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
     }
 
     static func makeDAppProposalLoadingErrorViewModel(
@@ -245,24 +236,24 @@ enum WalletConnectModuleFactory {
         case .uriAlreadyUsed:
             viewState = WalletConnectErrorViewState(
                 icon: .walletConnect,
-                title: "URI already used",
-                subtitle: "Ensure that each pairing attempt uses a fresh and unique URI",
+                title: Localization.wcUriAlreadyUsedTitle,
+                subtitle: Localization.wcUriAlreadyUsedDescription,
                 buttonStyle: .primary
             )
 
         case .invalidDomainURL:
             viewState = WalletConnectErrorViewState(
                 icon: .walletConnect,
-                title: "Invalid dApp domain",
-                subtitle: "Try pairing again with a fresh URI",
+                title: Localization.wcErrorsInvalidDomainTitle,
+                subtitle: Localization.wcErrorsInvalidDomainSubtitle,
                 buttonStyle: .primary
             )
 
         case .unsupportedDomain(let unsupportedDomainError):
             viewState = WalletConnectErrorViewState(
                 icon: .walletConnect,
-                title: "Unsupported dApp",
-                subtitle: "\(unsupportedDomainError.dAppName) is not supported by Tangem",
+                title: Localization.wcAlertUnsupportedDappsTitle,
+                subtitle: Localization.wcAlertUnsupportedDappsDescription(unsupportedDomainError.dAppName),
                 buttonStyle: .primary
             )
 
@@ -277,11 +268,8 @@ enum WalletConnectModuleFactory {
         case .noBlockchainsProvidedByDApp(let noBlockchainsProvidedByDAppError):
             viewState = WalletConnectErrorViewState(
                 icon: .blockchain,
-                title: "No networks",
-                subtitle: """
-                \(noBlockchainsProvidedByDAppError.dAppName) does not specify any blockchains — neither required nor optional.
-                Please ensure you used the correct URI
-                """,
+                title: Localization.wcErrorsNoBlockchainsTitle,
+                subtitle: Localization.wcErrorsNoBlockchainsSubtitle(noBlockchainsProvidedByDAppError.dAppName),
                 buttonStyle: .primary
             )
 
@@ -312,11 +300,7 @@ enum WalletConnectModuleFactory {
 
         switch proposalApprovalError {
         case .invalidConnectionRequest:
-            let subtitle =
-                """
-                Error code: \(formattedErrorCode(from: proposalApprovalError)).
-                If the problem persists \(AppConstants.emDashSign) feel free [to contact our support.](\(Self.supportURLStub))
-                """
+            let subtitle = Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: proposalApprovalError))
 
             viewState = WalletConnectErrorViewState(
                 icon: .warning,
@@ -328,8 +312,8 @@ enum WalletConnectModuleFactory {
         case .proposalExpired:
             viewState = WalletConnectErrorViewState(
                 icon: .blockchain,
-                title: "Connection proposal expired",
-                subtitle: "Please, generate a new URI and attempt connecting again",
+                title: Localization.wcErrorsProposalExpiredTitle,
+                subtitle: Localization.wcErrorsProposalExpiredSubtitle,
                 buttonStyle: .primary
             )
 
