@@ -60,8 +60,8 @@ extension HotSettingsUtil {
         }
 
         switch await unlock() {
-        case .successful:
-            return .onboarding
+        case .successful(let context):
+            return .onboarding(context: context)
         case .canceled, .failed:
             return .none
         }
@@ -95,21 +95,12 @@ private extension HotSettingsUtil {
                     return .failed
                 }
 
-                return .successful
+                return .successful(context: context)
 
             case .biometricsRequired:
-                let context = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-                let storageEncryptionKeys = try UserWalletEncryptionKeyStorage().fetch(userWalletIds: [userWalletId], context: context)
-
-                guard
-                    let storageEncryptionKey = storageEncryptionKeys[userWalletId],
-                    let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
-                    storageEncryptionKey == configEncryptionKey
-                else {
-                    return .failed
-                }
-
-                return .successful
+                let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+                let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
+                return .successful(context: context)
 
             case .canceled:
                 return .canceled
@@ -124,7 +115,7 @@ private extension HotSettingsUtil {
     }
 
     enum UnlockResult {
-        case successful
+        case successful(context: MobileWalletContext)
         case canceled
         case failed
     }
@@ -140,7 +131,7 @@ extension HotSettingsUtil {
 
     enum AccessCodeState {
         case needsBackup
-        case onboarding
+        case onboarding(context: MobileWalletContext)
     }
 
     enum SeedPhraseState {
