@@ -44,7 +44,7 @@ extension HotOnboardingViewModel {
                 return
             }
 
-        case .accessCodeCreate(let userWalletModel):
+        case .accessCode(let userWalletModel, _):
             guard userWalletModel.config.hasFeature(.accessCode) else {
                 alert = makeAccessCodeNeedsAlert(userWalletId: userWalletModel.userWalletId)
                 return
@@ -74,16 +74,10 @@ private extension HotOnboardingViewModel {
             HotOnboardingImportWalletFlowBuilder(coordinator: self)
         case .walletActivate(let userWalletModel):
             HotOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
-        case .accessCodeCreate(let userWalletModel):
+        case .accessCode(let userWalletModel, let context):
             HotOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
-                needRequestBiometrics: true,
-                coordinator: self
-            )
-        case .accessCodeChange(let userWalletModel):
-            HotOnboardingAccessCodeFlowBuilder(
-                userWalletModel: userWalletModel,
-                needRequestBiometrics: false,
+                context: context,
                 coordinator: self
             )
         case .seedPhraseBackup(let userWalletModel):
@@ -126,7 +120,7 @@ private extension HotOnboardingViewModel {
     }
 
     func onAccessCodeNeedsAlertSkip(userWalletId: UserWalletId) {
-        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletId.stringValue)
+        HotAccessCodeSkipHelper.append(userWalletId: userWalletId)
         closeOnboarding()
     }
 
