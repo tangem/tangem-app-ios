@@ -10,7 +10,6 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemUI
-import TangemFoundation
 
 public struct SwapStoryPageView: View {
     private static let iOS18Available: Bool = if #available(iOS 18.0, *) { true } else { false }
