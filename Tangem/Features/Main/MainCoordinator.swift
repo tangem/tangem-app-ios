@@ -623,6 +623,7 @@ extension MainCoordinator: NFTEntrypointRoutable {
 extension MainCoordinator: WCTransactionRoutable {
     func showWCTransactionRequest(with data: WCHandleTransactionData) {
         Task { @MainActor in
+            UIApplication.mainWindow?.endEditing(true)
             floatingSheetPresenter.enqueue(
                 sheet: WCTransactionViewModel(
                     transactionData: data,
