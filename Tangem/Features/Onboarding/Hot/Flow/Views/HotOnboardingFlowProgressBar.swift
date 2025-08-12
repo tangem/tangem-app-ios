@@ -27,7 +27,7 @@ private struct HotOnboardingFlowProgressBarViewModifier: ViewModifier {
         content
             .background {
                 Color.clear.preference(
-                    key: HotOnboardingFlowflowProgressBarValueKey.self,
+                    key: HotOnboardingFlowProgressBarValueKey.self,
                     value: preferenceValue
                 )
             }
@@ -47,7 +47,7 @@ extension HotOnboardingFlowProgressBarItem: Equatable {
     }
 }
 
-struct HotOnboardingFlowflowProgressBarValueKey: PreferenceKey {
+struct HotOnboardingFlowProgressBarValueKey: PreferenceKey {
     static var defaultValue: HotOnboardingFlowProgressBarItem? = nil
 
     static func reduce(value: inout Value, nextValue: () -> Value) {
