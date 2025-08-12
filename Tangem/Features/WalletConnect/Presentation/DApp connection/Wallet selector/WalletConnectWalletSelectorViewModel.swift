@@ -159,7 +159,6 @@ extension WalletConnectWalletSelectorViewModel {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
 private extension WalletConnectWalletSelectorViewState {
     static func loading(userWallets: [any UserWalletModel], selectedWallet: some UserWalletModel) -> WalletConnectWalletSelectorViewState {
         WalletConnectWalletSelectorViewState(
@@ -168,7 +167,7 @@ private extension WalletConnectWalletSelectorViewState {
                     domainModel: userWallet,
                     imageState: .loading,
                     description: .init(
-                        tokensCount: "\(userWallet.userTokenListManager.userTokensList.entries.count) tokens",
+                        tokensCount: Localization.commonTokensCount(userWallet.userTokenListManager.userTokensList.entries.count),
                         balanceState: .loading(cached: nil)
                     ),
                     isSelected: userWallet.userWalletId == selectedWallet.userWalletId
