@@ -59,10 +59,11 @@ struct SendNewSummaryView: View {
     @ViewBuilder
     private var feeSectionView: some View {
         if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
-            Button(action: viewModel.userDidTapFee) {
+            if feeCompactViewModel.canEditFee {
+                Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+            } else {
                 SendNewFeeCompactView(viewModel: feeCompactViewModel)
             }
-            .disabled(!feeCompactViewModel.canEditFee)
         }
     }
 
@@ -81,8 +82,7 @@ struct SendNewSummaryView: View {
     @ViewBuilder
     private var descriptionView: some View {
         if let transactionDescription = viewModel.transactionDescription {
-            Text(.init(transactionDescription))
-                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+            Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
                 .visible(viewModel.transactionDescriptionIsVisible)
