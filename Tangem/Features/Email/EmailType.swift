@@ -9,7 +9,6 @@
 import Foundation
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 enum EmailType {
     case negativeRateAppFeedback
     case failedToScanCard
@@ -34,7 +33,7 @@ enum EmailType {
         case .visaFeedback(let subject):
             return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
         case .walletConnectUntypedError:
-            return "WalletConnect error"
+            return Localization.emailSubjectWcError
         }
     }
 
@@ -50,7 +49,7 @@ enum EmailType {
              .visaFeedback:
             return Localization.feedbackPrefaceSupport
         case .walletConnectUntypedError(let formattedErrorCode):
-            return Localization.feedbackPrefaceSupport + " I've encountered an error with code: \(formattedErrorCode)."
+            return Localization.emailPrefaceWcError(formattedErrorCode)
         }
     }
 

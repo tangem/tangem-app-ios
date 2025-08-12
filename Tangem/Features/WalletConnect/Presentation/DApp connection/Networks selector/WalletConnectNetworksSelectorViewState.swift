@@ -10,9 +10,8 @@ import enum BlockchainSdk.Blockchain
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectNetworksSelectorViewState {
-    let navigationBarTitle = "Choose network"
+    let navigationBarTitle = Localization.commonChooseNetwork
 
     var requiredNetworksAreUnavailableSection: RequiredNetworksAreUnavailableSection?
     var availableSection: AvailableSection
@@ -36,7 +35,7 @@ extension WalletConnectNetworksSelectorViewState {
     struct RequiredNetworksAreUnavailableSection {
         let notificationViewModel: WalletConnectWarningNotificationViewModel
         let blockchains: [BlockchainViewState]
-        let requiredLabel = "Required"
+        let requiredLabel = Localization.commonRequired
     }
 }
 
@@ -44,7 +43,7 @@ extension WalletConnectNetworksSelectorViewState {
 
 extension WalletConnectNetworksSelectorViewState {
     struct AvailableSection {
-        let headerTitle = "Available networks"
+        let headerTitle = Localization.commonAvailableNetworks
         var blockchains: [AvailableBlockchain]
     }
 }
@@ -99,7 +98,7 @@ extension WalletConnectNetworksSelectorViewState.AvailableSection {
 
 extension WalletConnectNetworksSelectorViewState {
     struct NotAddedSection {
-        let headerTitle = "Not Added"
+        let headerTitle = Localization.commonNotAdded
         var blockchains: [BlockchainViewState]
     }
 }
