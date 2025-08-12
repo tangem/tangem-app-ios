@@ -29,6 +29,7 @@
 		0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */; };
 		0A713CEE2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A713CED2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift */; };
 		0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */; };
+		0A74F7382E44D8200069344F /* SettingsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A74F7372E44D8200069344F /* SettingsMigrator.swift */; };
 		0A7FF63D2C888D380072C2E8 /* StakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */; };
 		0A81B3732BB2D24A0008F21C /* BlockchainURLSchemesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */; };
 		0A83F56C2DD3609400ADB321 /* MarketsNotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */; };
@@ -55,6 +56,8 @@
 		0AE3EE0F2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */; };
 		0AE600F62D81A95600F39047 /* RestakingAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE600F52D81A95600F39047 /* RestakingAmountValidator.swift */; };
 		0AEA96BB2CEF8D9700395617 /* ReceiveNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEA96BA2CEF8D9700395617 /* ReceiveNotificationEvent.swift */; };
+		0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */; };
+		0AF14E7A2E435D0400D9B40F /* NewAppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */; };
 		0F2784FD2E2809A300742D0F /* HotOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* HotOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* HotSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* HotSettingsUtil.swift */; };
 		0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786172E2AD9CE00742D0F /* LinkedList.swift */; };
@@ -2792,6 +2795,7 @@
 		0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicKeyProvider.swift; sourceTree = "<group>"; };
 		0A713CED2CAA73BF0042FC27 /* RestakingFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRestakingStepsManager.swift; sourceTree = "<group>"; };
+		0A74F7372E44D8200069344F /* SettingsMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrator.swift; sourceTree = "<group>"; };
 		0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
 		0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNotificationsManager.swift; sourceTree = "<group>"; };
@@ -2818,6 +2822,8 @@
 		0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+MarketsTokenDetails.swift"; sourceTree = "<group>"; };
 		0AE600F52D81A95600F39047 /* RestakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestakingAmountValidator.swift; sourceTree = "<group>"; };
 		0AEA96BA2CEF8D9700395617 /* ReceiveNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveNotificationEvent.swift; sourceTree = "<group>"; };
+		0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsViewModel.swift; sourceTree = "<group>"; };
+		0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsView.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* HotOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* HotSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotSettingsUtil.swift; sourceTree = "<group>"; };
 		0F2786172E2AD9CE00742D0F /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
@@ -7341,6 +7347,7 @@
 				B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */,
 				DC4020F02CB039DB00002902 /* RingUtil.swift */,
 				DAE4BB152CD7A0D30020CE3F /* SearchUtil.swift */,
+				0A74F7372E44D8200069344F /* SettingsMigrator.swift */,
 				B0323F2B258C041D005C7CD5 /* SignerUtils.swift */,
 				DA19EF602B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift */,
 				B0E0AF5C2996488100E52F7B /* TransactionHistoryMapper.swift */,
@@ -14187,6 +14194,8 @@
 				EF0F99A9289028F8008B01DF /* AppSettingsRoutable.swift */,
 				EF0F99A8289028F8008B01DF /* AppSettingsView.swift */,
 				EF0F99A7289028F8008B01DF /* AppSettingsViewModel.swift */,
+				0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */,
+				0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */,
 			);
 			path = AppSettings;
 			sourceTree = "<group>";
@@ -15864,7 +15873,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n    exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=$PATH:~/.mint/bin:$PATH\nelse\n    echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n    echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
+			shellScript = "#!/bin/bash\n\nset -eo pipefail\n\nif [[ \"${CI}\" == \"true\" || \"${ENABLE_PREVIEWS}\" == \"YES\" ]]; then\n exit 0\nfi\n\nPATH=$PATH:/opt/homebrew/bin\nSWIFT_FORMAT_VERSION=\"0.55.5\"\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n echo \"Adding ~/.mint/bin to PATH\"\n export PATH=$PATH:~/.mint/bin:$PATH\nelse\n echo \"warning: ~/.mint/bin folder is missing\"\nfi\n\nif mint run swiftformat@$SWIFT_FORMAT_VERSION --version >/dev/null 2>&1; then\n echo \"🚀 Running SwiftFormat\"\n mint run swiftformat@$SWIFT_FORMAT_VERSION . --config .swiftformat\nelse\n echo \"warning: Mint or SwiftFormat are not installed, run bootstrap script\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -16367,6 +16376,7 @@
 				B0EA18AD2C465D860023B72A /* DescriptionBottomSheetView.swift in Sources */,
 				DC075F912DE1A4600092457A /* WCSolanaDefaultTransactionDetailsView.swift in Sources */,
 				B0F8E87C2D097EEC00458246 /* VisaOnboardingViewModelBuilder.swift in Sources */,
+				0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */,
 				0F27861C2E2ADAAB00742D0F /* HotOnboardingFlowStep.swift in Sources */,
 				DC0BA52A2CA2E112009D9233 /* CommonUserWalletModelFactory.swift in Sources */,
 				B04719012B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift in Sources */,
@@ -17477,6 +17487,7 @@
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
 				2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */,
 				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift in Sources */,
+				0AF14E7A2E435D0400D9B40F /* NewAppSettingsView.swift in Sources */,
 				2D1BB36C2C0745ED008392F7 /* MarketsListOrderType.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				DC9C0A492DE2E46700E1E786 /* WCSolanaSignAllTransactionsDetailsModel.swift in Sources */,
@@ -17585,6 +17596,7 @@
 				0FF19C922E3CBCC700008D8E /* NewAuthWalletView.swift in Sources */,
 				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				EFADE79C2E0EF42E00CA7916 /* SendSourceTokenAmountInput.swift in Sources */,
+				0A74F7382E44D8200069344F /* SettingsMigrator.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */,

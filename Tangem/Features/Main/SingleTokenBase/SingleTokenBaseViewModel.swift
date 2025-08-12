@@ -312,7 +312,7 @@ extension SingleTokenBaseViewModel {
             .receiveOnMain()
             .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)
             .store(in: &bag)
-        
+
         walletModel.totalTokenBalanceProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
