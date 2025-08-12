@@ -20,7 +20,7 @@ public final class PassThroughWindow: UIWindow {
         }
 
         // [REDACTED_USERNAME], if hitTestView is rootViewController.view, it means that no SwiftUI.View responded to touch.
-        let noSwiftUIViewRespondedToTouchEvent = hitTestView == rootViewController?.view
+        let noSwiftUIViewRespondedToTouchEvent = hitTestView?.description == rootViewController?.view.description
 
         // for such a case we want to pass the touch event down to application main window, by returning nil here.
         return noSwiftUIViewRespondedToTouchEvent ? nil : superHitTestView
