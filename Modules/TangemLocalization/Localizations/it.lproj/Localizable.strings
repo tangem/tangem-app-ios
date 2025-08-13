@@ -18,6 +18,7 @@
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_title" = "Account";
+"account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
@@ -940,6 +941,8 @@
 "send_with_swap_confirm_title" = "Swap and send";
 "send_with_swap_convert_token_alert_message" = "Proceed with conversion? This will clear your previous data.";
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
+"send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
+"send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
 "send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "To recipient";
