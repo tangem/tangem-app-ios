@@ -72,7 +72,7 @@ extension TokenActionAvailabilityProvider {
 
         actions.append(contentsOf: [.receive, .send])
 
-        if userWalletConfig.isFeatureVisible(.swapping) {
+        if userWalletConfig.isFeatureVisible(.swapping), !isSwapHidden {
             actions.append(.exchange)
         }
 
@@ -167,6 +167,7 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum SwapActionAvailabilityStatus {
         case available
+        case hidden
         case unavailable(tokenName: String)
         case customToken
         case blockchainLoading
@@ -181,6 +182,14 @@ extension TokenActionAvailabilityProvider {
 
     var isSwapAvailable: Bool {
         if case .available = swapAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var isSwapHidden: Bool {
+        if case .hidden = swapAvailability {
             return true
         }
 
@@ -205,11 +214,14 @@ extension TokenActionAvailabilityProvider {
             return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
-        case .zeroWalletBalance,
-             .hasPendingTransaction,
+        case .hasPendingTransaction,
              .oldCard,
              .zeroFeeCurrencyBalance,
              .none:
+            break
+        case .zeroWalletBalance where userWalletConfig.isFeatureVisible(.isBalanceRestrictionActive):
+            return .hidden
+        case .zeroWalletBalance:
             break
         }
 

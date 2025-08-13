@@ -32,6 +32,7 @@
 		0A3E3E402DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E3E3F2DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift */; };
 		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
 		0A4799D12D930DE900C2D425 /* HederaFeeParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */; };
+		0A49539A2E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */; };
 		0A4C217F2DF1AFF200B8B1BD /* HotUserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */; };
 		0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */; };
 		0A5544C62DF6FD0E00BF409C /* KeyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */; };
@@ -4062,6 +4063,7 @@
 		0A3C78762D8956F20031170E /* HederaTokenCustomFeesInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaTokenCustomFeesInfo.swift; sourceTree = "<group>"; };
 		0A3E3E3F2DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysDerivingHotWalletInteractor.swift; sourceTree = "<group>"; };
 		0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaFeeParams.swift; sourceTree = "<group>"; };
+		0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRestrictionFeatureAvailabilityProvider.swift; sourceTree = "<group>"; };
 		0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotUserWalletConfig.swift; sourceTree = "<group>"; };
 		0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionConstraint.swift; sourceTree = "<group>"; };
 		0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyInfo.swift; sourceTree = "<group>"; };
@@ -17268,6 +17270,7 @@
 				EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */,
 				DC0BA5292CA2E112009D9233 /* CommonUserWalletModelFactory.swift */,
 				DA64DAC72C08BE71000CBC1E /* UserWalletNameIndexationHelper.swift */,
+				0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */,
 				5DFCCB7724C389740014A293 /* CommonUserWalletModel.swift */,
 				DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */,
 				DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */,
@@ -23225,6 +23228,7 @@
 				B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */,
 				B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */,
 				DC19BBF72BC98A500087B36D /* CardScannerParameters.swift in Sources */,
+				0A49539A2E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift in Sources */,
 				B60F98D22E3BCA0D00141CA5 /* VisaAccountModel.swift in Sources */,
 				C274DFB42DDBDEE500B1D97B /* WalletConnectDAppConnectionRoutable.swift in Sources */,
 				DA559C412B0261F400F59584 /* SendDestinationViewModel.swift in Sources */,
