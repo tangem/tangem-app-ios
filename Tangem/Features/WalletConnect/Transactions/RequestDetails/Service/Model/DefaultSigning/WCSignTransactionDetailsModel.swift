@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct WCSignTransactionDetailsModel {
     let data: [WCTransactionDetailsSection]
@@ -19,11 +20,11 @@ struct WCSignTransactionDetailsModel {
                 sectionTitle: nil,
                 items: [
                     .init(
-                        title: "Signature Type",
+                        title: Localization.wcSignatureType,
                         value: method.rawValue
                     ),
                     .init(
-                        title: "Contents",
+                        title: Localization.wcContents,
                         value: message
                     ),
                 ]

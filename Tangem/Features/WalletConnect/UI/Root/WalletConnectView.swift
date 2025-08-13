@@ -18,7 +18,7 @@ struct WalletConnectView: View {
 
     var body: some View {
         GeometryReader { geometryProxy in
-            ScrollView {
+            ScrollView(scrollViewAxis) {
                 stateView(geometryProxy)
                     .padding(.horizontal, 16)
             }
@@ -262,6 +262,15 @@ struct WalletConnectView: View {
 
         let topMargin: CGFloat = 114
         return -proxy.size.height / 2 + topMargin
+    }
+
+    private var scrollViewAxis: Axis.Set {
+        switch viewModel.state.contentState {
+        case .empty, .loading:
+            []
+        case .content:
+            .vertical
+        }
     }
 }
 
