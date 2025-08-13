@@ -13,7 +13,7 @@ import BlockchainSdk
 
 struct SendNewFeeStepBuilder {
     typealias IO = (input: SendFeeInput, output: SendFeeOutput)
-    typealias ReturnValue = (feeSelector: FeeSelectorContentViewModel, compact: SendNewFeeCompactViewModel, finish: SendFeeCompactViewModel)
+    typealias ReturnValue = (feeSelector: FeeSelectorContentViewModel, compact: SendNewFeeCompactViewModel, finish: SendFeeFinishViewModel)
 
     private let feeTokenItem: TokenItem
     private let builder: SendDependenciesBuilder
@@ -38,25 +38,17 @@ struct SendNewFeeStepBuilder {
             feeTokenItem: feeTokenItem
         )
         let compact = makeSendNewFeeCompactViewModel(input: io.input)
-        let finish = makeSendFeeCompactViewModel(input: io.input)
+        let finish = makeSendFeeFinishViewModel(input: io.input)
 
         return (feeSelector: feeSelector, compact: compact, finish: finish)
     }
 
     func makeSendNewFeeCompactViewModel(input: SendFeeInput) -> SendNewFeeCompactViewModel {
-        SendNewFeeCompactViewModel(
-            input: input,
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: builder.isFeeApproximate()
-        )
+        SendNewFeeCompactViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
     }
 
-    func makeSendFeeCompactViewModel(input: SendFeeInput) -> SendFeeCompactViewModel {
-        SendFeeCompactViewModel(
-            input: input,
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: builder.isFeeApproximate()
-        )
+    func makeSendFeeFinishViewModel(input: SendFeeInput) -> SendFeeFinishViewModel {
+        SendFeeFinishViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
     }
 
     private func makeSendFeeInteractor(io: IO, feeProvider: SendFeeProvider, customFeeService: CustomFeeService?) -> CommonSendFeeInteractor {
