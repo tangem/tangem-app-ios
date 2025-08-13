@@ -268,9 +268,12 @@ private extension HotOnboardingAccessCodeViewModel {
         AlertBuilder.makeAlert(
             title: Localization.accessCodeAlertSkipTitle,
             message: Localization.accessCodeAlertSkipDescription,
-            with: .withPrimaryCancelButton(
-                secondaryTitle: Localization.accessCodeAlertSkipOk,
-                secondaryAction: weakify(self, forFunction: HotOnboardingAccessCodeViewModel.onSkipOkTap)
+            with: .init(
+                primaryButton: .default(
+                    Text(Localization.accessCodeAlertSkipOk),
+                    action: weakify(self, forFunction: HotOnboardingAccessCodeViewModel.onSkipOkTap)
+                ),
+                secondaryButton: .cancel()
             )
         )
     }
@@ -280,6 +283,8 @@ private extension HotOnboardingAccessCodeViewModel {
             return
         }
         HotAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
+        // Workaround to manually trigger update event for userWalletModel publisher
+        userWalletModel.update(type: .backupCompleted)
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }
