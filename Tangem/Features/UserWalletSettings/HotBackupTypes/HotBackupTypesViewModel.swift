@@ -10,9 +10,13 @@ import Foundation
 import TangemLocalization
 
 final class HotBackupTypesViewModel {
+    @Published var backupTypes: [BackupType] = []
+
     let navTitle = Localization.commonBackup
 
-    lazy var backupTypes = makeBackupTypes()
+    private var isBackupNeeded: Bool {
+        userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
 
     private let userWalletModel: UserWalletModel
     private weak var routable: HotBackupTypesRoutable?
@@ -20,6 +24,15 @@ final class HotBackupTypesViewModel {
     init(userWalletModel: UserWalletModel, routable: HotBackupTypesRoutable) {
         self.userWalletModel = userWalletModel
         self.routable = routable
+        backupTypes = makeBackupTypes()
+    }
+}
+
+// MARK: - Internal methods
+
+extension HotBackupTypesViewModel {
+    func onAppear() {
+        backupTypes = makeBackupTypes()
     }
 }
 
@@ -34,8 +47,7 @@ private extension HotBackupTypesViewModel {
         let badge: BadgeView.Item
         let action: () -> Void
 
-        // [REDACTED_TODO_COMMENT]
-        if false {
+        if isBackupNeeded {
             badge = .done
             action = { [weak routable] in
                 routable?.openHotBackupRevealSeedPhrase(userWalletModel: userWalletModel)

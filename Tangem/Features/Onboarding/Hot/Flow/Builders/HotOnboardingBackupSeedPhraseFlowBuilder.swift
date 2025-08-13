@@ -43,7 +43,7 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
 
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
             seedPhraseResolver: seedPhraseResolver,
-            onCreateWallet: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.openNext)
+            onSuccessfullyValidated: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.onSeedPhraseValidated)
         )
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
@@ -58,6 +58,11 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
+    }
+
+    func onSeedPhraseValidated() {
+        userWalletModel.update(type: .mnemonicBackupCompleted)
+        openNext()
     }
 }
 
