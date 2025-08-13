@@ -151,6 +151,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .userWalletAccessCode:
             return .hidden
+        case .userWalletBackup:
+            return .hidden
         case .isBalanceRestrictionActive:
             return .hidden
         }
