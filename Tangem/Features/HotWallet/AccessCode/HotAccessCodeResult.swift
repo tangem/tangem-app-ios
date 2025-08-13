@@ -11,7 +11,7 @@ import TangemHotSdk
 
 enum HotAccessCodeResult {
     /// Access code was successfully entered.
-    case accessCodeSuccessfull(MobileWalletContext)
+    case accessCodeSuccessful(MobileWalletContext)
     /// Sent a request for biometrics.
     case biometricsRequest
     /// User tapped "Close" on the access code screen.
