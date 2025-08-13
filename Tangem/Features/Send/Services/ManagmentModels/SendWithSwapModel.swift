@@ -232,7 +232,7 @@ private extension SendWithSwapModel {
 
     /// 2. Second we check the high price impact warning
     private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
-        if let highPriceImpact = await highPriceImpact {
+        if let highPriceImpact = await highPriceImpact, highPriceImpact.isHighPriceImpact {
             let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
             router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
