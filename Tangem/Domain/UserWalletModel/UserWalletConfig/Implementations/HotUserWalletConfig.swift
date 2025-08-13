@@ -144,6 +144,7 @@ extension HotUserWalletConfig: UserWalletConfig {
             }
 
             return .available
+        case .isBalanceRestrictionActive: return .available
         }
     }
 
