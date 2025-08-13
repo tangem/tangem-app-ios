@@ -81,12 +81,20 @@ final class WalletConnectSavedSessionMigrationService {
             icon: await dAppIcon
         )
 
+        let dAppBlockchains = Set(legacySession.connectedBlockchains)
+            .sorted(by: \.displayName)
+            .map {
+                // [REDACTED_USERNAME], since we do not have information whether a certain blockchain was required,
+                // it is safer to assume that all legacy session blockchains are required.
+                WalletConnectDAppBlockchain(blockchain: $0, isRequired: true)
+            }
+
         return WalletConnectConnectedDApp(
             session: WalletConnectDAppSession(topic: legacySession.topic, expiryDate: Date()),
             userWalletID: userWalletModel.userWalletId.stringValue,
             dAppData: dAppData,
             verificationStatus: await verificationStatus,
-            blockchains: Set(legacySession.connectedBlockchains).sorted(by: \.displayName),
+            dAppBlockchains: dAppBlockchains,
             connectionDate: Date()
         )
     }
