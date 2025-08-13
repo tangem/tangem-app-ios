@@ -20,6 +20,7 @@ struct HotBackupTypesView: View {
             .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
+            .onAppear(perform: viewModel.onAppear)
     }
 }
 
