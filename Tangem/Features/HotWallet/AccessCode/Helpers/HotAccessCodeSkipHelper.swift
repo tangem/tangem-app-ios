@@ -9,6 +9,11 @@
 import TangemFoundation
 
 enum HotAccessCodeSkipHelper {
+    static func has(userWalletId: UserWalletId) -> Bool {
+        let id = userWalletId.stringValue
+        return AppSettings.shared.userWalletIdsWithSkippedAccessCode.contains(id)
+    }
+
     static func append(userWalletId: UserWalletId) {
         let id = userWalletId.stringValue
         AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(id)

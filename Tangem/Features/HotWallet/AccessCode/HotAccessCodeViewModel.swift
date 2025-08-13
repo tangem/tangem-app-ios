@@ -172,7 +172,7 @@ private extension HotAccessCodeViewModel {
         isAccessCodeAvailable = false
         isSuccessful = true
         infoState = nil
-        onResult(.accessCodeSuccessfull(context))
+        onResult(.accessCodeSuccessful(context))
     }
 
     func handleUnavailableState(_ state: HotAccessCodeState.UnavailableState) {
