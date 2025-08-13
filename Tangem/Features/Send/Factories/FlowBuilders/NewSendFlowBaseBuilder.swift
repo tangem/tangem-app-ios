@@ -88,7 +88,7 @@ struct NewSendFlowBaseBuilder {
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
-            sendFeeCompactViewModel: fee.finish,
+            sendFeeFinishViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
