@@ -9,10 +9,9 @@
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectQRScanViewState {
     let navigationBar = NavigationBar()
-    let hint = "Open Web3 app and chose WalletConnect option"
+    let hint = Localization.wcQrScanHint
     var hasCameraAccess = false
     var confirmationDialog: ConfirmationDialog?
 }
