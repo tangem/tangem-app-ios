@@ -22,7 +22,8 @@ final class CommonCryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int {
-        return 1 // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        return 1
     }
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
