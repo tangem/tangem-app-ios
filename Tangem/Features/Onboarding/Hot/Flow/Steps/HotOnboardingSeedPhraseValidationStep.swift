@@ -11,13 +11,13 @@ import SwiftUI
 final class HotOnboardingSeedPhraseValidationStep: HotOnboardingFlowStep {
     private let viewModel: OnboardingSeedPhraseUserValidationViewModel
 
-    init(seedPhraseResolver: HotOnboardingSeedPhraseResolver, onCreateWallet: @escaping () -> Void) {
+    init(seedPhraseResolver: HotOnboardingSeedPhraseResolver, onSuccessfullyValidated: @escaping () -> Void) {
         let words = seedPhraseResolver.validationWords
         viewModel = OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
             secondWord: words.second,
             seventhWord: words.seventh,
             eleventhWord: words.eleventh,
-            createWalletAction: onCreateWallet
+            createWalletAction: onSuccessfullyValidated
         ))
     }
 
