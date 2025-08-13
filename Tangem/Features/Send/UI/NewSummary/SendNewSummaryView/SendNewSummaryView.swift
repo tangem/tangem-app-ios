@@ -16,19 +16,18 @@ struct SendNewSummaryView: View {
     let transitionService: SendTransitionService
 
     var body: some View {
-        VStack(alignment: .center, spacing: 14) {
-            GroupedScrollView(spacing: 14) {
-                amountSectionView
+        GroupedScrollView(spacing: 14) {
+            amountSectionView
 
-                destinationSectionView
+            destinationSectionView
 
-                feeSectionView
+            feeSectionView
 
-                notificationsView
-            }
-
-            descriptionView
+            notificationsView
         }
+        .safeAreaInset(edge: .bottom, content: {
+            descriptionView
+        })
         .transition(transitionService.newSummaryViewTransition())
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -85,6 +84,9 @@ struct SendNewSummaryView: View {
             Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .infinityFrame(axis: .horizontal)
+                .background(Colors.Background.tertiary)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }
