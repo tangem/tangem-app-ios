@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum WalletConnectDAppVerificationStatus: Equatable {
+enum WalletConnectDAppVerificationStatus: Hashable {
     case verified
     case unknownDomain
     case malicious
