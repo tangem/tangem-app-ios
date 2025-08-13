@@ -12,11 +12,13 @@ import TangemLocalization
 import TangemHotSdk
 import TangemFoundation
 
-final class HotOnboardingCreateWalletViewModel {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+final class HotOnboardingCreateWalletViewModel: ObservableObject {
+    @Published var isCreating: Bool = false
 
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
@@ -31,7 +33,9 @@ final class HotOnboardingCreateWalletViewModel {
 
 extension HotOnboardingCreateWalletViewModel {
     func onCreateTap() {
-        runTask(in: self) { @MainActor viewModel in
+        isCreating = true
+
+        runTask(in: self) { viewModel in
             do {
                 let initializer = MobileWalletInitializer()
 
@@ -46,10 +50,15 @@ extension HotOnboardingCreateWalletViewModel {
 
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
-                try viewModel.handleWalletCreated(newUserWalletModel)
+                await runOnMain {
+                    viewModel.isCreating = false
+                    viewModel.handleWalletCreated(newUserWalletModel)
+                }
             } catch {
                 AppLogger.error("Failed to create wallet", error: error)
-                throw error
+                await runOnMain {
+                    viewModel.isCreating = false
+                }
             }
         }
     }
@@ -73,8 +82,7 @@ private extension HotOnboardingCreateWalletViewModel {
         ]
     }
 
-    @MainActor
-    private func handleWalletCreated(_ newUserWalletModel: UserWalletModel) throws {
+    func handleWalletCreated(_ newUserWalletModel: UserWalletModel) {
         delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
     }
 }
