@@ -12,8 +12,6 @@ import TangemFoundation
 import TangemHotSdk
 
 final class CommonHotAccessCodeManager {
-    @Injected(\.hotAccessCodeStorageManager) private var storageManager: HotAccessCodeStorageManager
-
     private let stateSubject = CurrentValueSubject<HotAccessCodeState, Never>(.available(.normal))
     private let stateCommandSubject = PassthroughSubject<StateCommand, Never>()
 
@@ -30,13 +28,19 @@ final class CommonHotAccessCodeManager {
 
     private let userWalletId: UserWalletId
     private let configuration: HotAccessCodeConfiguration
+    private let storageManager: HotAccessCodeStorageManager
 
     private var bag: Set<AnyCancellable> = []
     private var timersBag: Set<AnyCancellable> = []
 
-    init(userWalletId: UserWalletId, configuration: HotAccessCodeConfiguration) {
+    init(
+        userWalletId: UserWalletId,
+        configuration: HotAccessCodeConfiguration,
+        storageManager: HotAccessCodeStorageManager
+    ) {
         self.userWalletId = userWalletId
         self.configuration = configuration
+        self.storageManager = storageManager
         bind()
         getInitialState()
     }
