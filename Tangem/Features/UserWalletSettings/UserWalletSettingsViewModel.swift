@@ -11,6 +11,7 @@ import SwiftUI
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import TangemHotSdk
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -196,8 +197,8 @@ private extension UserWalletSettingsViewModel {
                 switch state {
                 case .needsBackup:
                     viewModel.openHotBackupNeeded()
-                case .onboarding:
-                    viewModel.openHotAccessCodeOnboarding()
+                case .onboarding(let context):
+                    viewModel.openHotAccessCodeOnboarding(context: context)
                 case .none:
                     break
                 }
@@ -316,8 +317,8 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openHotBackupNeeded(userWalletModel: userWalletModel)
     }
 
-    func openHotAccessCodeOnboarding() {
-        let flow = HotOnboardingFlow.accessCodeChange(userWalletModel: userWalletModel)
+    func openHotAccessCodeOnboarding(context: MobileWalletContext) {
+        let flow = HotOnboardingFlow.accessCode(userWalletModel: userWalletModel, context: context)
         let input = HotOnboardingInput(flow: flow)
         openOnboarding(with: .hotInput(input))
     }

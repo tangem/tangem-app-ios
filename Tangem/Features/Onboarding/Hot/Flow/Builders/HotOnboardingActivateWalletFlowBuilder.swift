@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 
 final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
@@ -108,9 +109,9 @@ private extension HotOnboardingActivateWalletFlowBuilder {
     }
 
     func setupAccessCodeFlow() {
-        let createAccessCodeStep = HotOnboardingCreateAccessCodeStep(delegate: self)
-        createAccessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
-        append(step: createAccessCodeStep)
+        let accessCodeStep = HotOnboardingAccessCodeStep(context: nil, delegate: self)
+        accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
+        append(step: accessCodeStep)
     }
 }
 
@@ -152,23 +153,12 @@ extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingSeedPhraseRecover
 
 // MARK: - HotOnboardingAccessCodeDelegate
 
-extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingAccessCodeCreateDelegate {
-    func isRequestBiometricsNeeded() -> Bool {
-        true
+extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingAccessCodeDelegate {
+    func getUserWalletModel() -> UserWalletModel? {
+        userWalletModel
     }
 
-    func isAccessCodeCanSkipped() -> Bool {
-        true
-    }
-
-    func accessCodeComplete(accessCode: String) {
-        // [REDACTED_TODO_COMMENT]
-        openNext()
-    }
-
-    func accessCodeSkipped() {
-        let userWalletIdString = userWalletModel.userWalletId.stringValue
-        AppSettings.shared.userWalletIdsWithSkippedAccessCode.appendIfNotContains(userWalletIdString)
+    func didCompleteAccessCode() {
         openNext()
     }
 }
