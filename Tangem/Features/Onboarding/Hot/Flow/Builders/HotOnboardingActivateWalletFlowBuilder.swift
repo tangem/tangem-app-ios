@@ -14,11 +14,11 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var isBackupNeeded: Bool {
-        !userWalletModel.config.hasFeature(.mnemonicBackup)
+        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
     }
 
     private var isAccessCodeNeeded: Bool {
-        userWalletModel.config.hasFeature(.userWalletAccessCode)
+        userWalletModel.config.hasFeature(.userWalletAccessCode) && !HotAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
     }
 
     private let userWalletModel: UserWalletModel
@@ -91,7 +91,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
 
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
             seedPhraseResolver: seedPhraseResolver,
-            onCreateWallet: weakify(self, forFunction: HotOnboardingActivateWalletFlowBuilder.openNext)
+            onSuccessfullyValidated: weakify(self, forFunction: HotOnboardingActivateWalletFlowBuilder.onSeedPhraseValidated)
         )
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
@@ -106,6 +106,11 @@ private extension HotOnboardingActivateWalletFlowBuilder {
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
+    }
+
+    func onSeedPhraseValidated() {
+        userWalletModel.update(type: .mnemonicBackupCompleted)
+        openNext()
     }
 
     func setupAccessCodeFlow() {
