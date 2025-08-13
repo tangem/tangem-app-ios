@@ -48,10 +48,6 @@ extension SendNewAmountStep: SendStep {
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        interactor.isUpdatingPublisher
-    }
-
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.isValidPublisher
     }

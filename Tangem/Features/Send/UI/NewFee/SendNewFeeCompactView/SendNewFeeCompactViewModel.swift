@@ -41,11 +41,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
         balanceConverter: BalanceConverter()
     )
 
-    init(
-        input: SendFeeInput,
-        feeTokenItem: TokenItem,
-        isFeeApproximate: Bool
-    ) {
+    init(feeTokenItem: TokenItem, isFeeApproximate: Bool) {
         self.feeTokenItem = feeTokenItem
         self.isFeeApproximate = isFeeApproximate
     }
