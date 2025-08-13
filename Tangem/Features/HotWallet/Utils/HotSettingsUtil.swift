@@ -18,11 +18,11 @@ final class HotSettingsUtil {
     }
 
     private var isBackupFeatureAvailable: Bool {
-        userWalletConfig.isFeatureVisible(.backup)
+        userWalletConfig.isFeatureVisible(.userWalletBackup)
     }
 
     private var isBackupNeeded: Bool {
-        !userWalletConfig.hasFeature(.mnemonicBackup)
+        userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
     }
 
     private lazy var hotSdk: HotSdk = CommonHotSdk()
@@ -86,21 +86,10 @@ private extension HotSettingsUtil {
 
             switch result {
             case .accessCode(let context):
-                let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
-
-                guard
-                    let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
-                    encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
-                else {
-                    return .failed
-                }
-
-                return .successful(context: context)
+                return try handleAccessCodeUnlockResult(context: context)
 
             case .biometricsRequired:
-                let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-                let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
-                return .successful(context: context)
+                return await unlockWithBiometrics()
 
             case .canceled:
                 return .canceled
@@ -112,6 +101,53 @@ private extension HotSettingsUtil {
         } catch {
             return .failed
         }
+    }
+
+    func unlockWithBiometrics() async -> UnlockResult {
+        do {
+            let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+            let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
+            return .successful(context: context)
+        } catch {
+            return await unlockWithAccessCode()
+        }
+    }
+
+    func unlockWithAccessCode() async -> UnlockResult {
+        do {
+            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
+
+            switch result {
+            case .accessCode(let context):
+                return try handleAccessCodeUnlockResult(context: context)
+
+            case .biometricsRequired:
+                assertionFailure("Case \(result): should never occur in unlock with access-code flow.")
+                return .failed
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                return .failed
+            }
+
+        } catch {
+            return .failed
+        }
+    }
+
+    func handleAccessCodeUnlockResult(context: MobileWalletContext) throws -> UnlockResult {
+        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+
+        guard
+            let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
+            encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
+        else {
+            return .failed
+        }
+
+        return .successful(context: context)
     }
 
     enum UnlockResult {
