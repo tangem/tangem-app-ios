@@ -25,16 +25,17 @@ class ServicesManager {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.wcService) private var wcService: any WCService
-    @Injected(\.hotAccessCodeStorageManager) private var hotAccessCodeStorageManager: HotAccessCodeStorageManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
+    private let hotAccessCodeCleaner: HotAccessCodeCleaner
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
+        hotAccessCodeCleaner = HotAccessCodeCleaner(manager: CommonHotAccessCodeStorageManager())
     }
 
     func initialize() {
@@ -68,7 +69,7 @@ class ServicesManager {
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.initialize()
         }
-        hotAccessCodeStorageManager.initialize()
+        hotAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
