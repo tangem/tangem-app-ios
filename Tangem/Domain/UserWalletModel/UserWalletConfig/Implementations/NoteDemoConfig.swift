@@ -156,6 +156,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .userWalletAccessCode:
             return .hidden
+        case .isBalanceRestrictionActive:
+            return .hidden
         }
     }
 
