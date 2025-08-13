@@ -7,14 +7,35 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemLocalization
+import TangemAssets
 import protocol TangemUI.FloatingSheetContentViewModel
 
 final class HotFinishActivationNeededViewModel {
+    var description: String {
+        isBackupNeeded ? Localization.hwActivationNeedDescription : Localization.hwActivationNeedWarningDescription
+    }
+
+    var iconType: ImageType {
+        hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
+    }
+
+    var iconBgColor: Color {
+        hasPositiveBalance ? Colors.Icon.warning : Colors.Icon.attention
+    }
+
     let title = Localization.hwActivationNeedTitle
-    let description = Localization.hwActivationNeedDescription
     let laterTitle = Localization.commonLater
     let backupTitle = Localization.hwActivationNeedBackup
+
+    private var isBackupNeeded: Bool {
+        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+    }
+
+    private var hasPositiveBalance: Bool {
+        userWalletModel.totalBalance.hasPositiveBalance
+    }
 
     private let userWalletModel: UserWalletModel
     private weak var routable: HotFinishActivationNeededRoutable?
