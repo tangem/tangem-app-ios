@@ -32,6 +32,7 @@
 		0A3E3E402DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E3E3F2DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift */; };
 		0A40A8802E2FCB28006411E5 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A40A87F2E2FCB28006411E5 /* Lottie */; };
 		0A4799D12D930DE900C2D425 /* HederaFeeParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */; };
+		0A49539A2E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */; };
 		0A4C217F2DF1AFF200B8B1BD /* HotUserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */; };
 		0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */; };
 		0A5544C62DF6FD0E00BF409C /* KeyInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */; };
@@ -3117,6 +3118,8 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
+		EF066AA42E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF066AA32E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift */; };
+		EF066AA62E4C8C2F0026CEF8 /* SendFeeFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF066AA52E4C8C2F0026CEF8 /* SendFeeFinishView.swift */; };
 		EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082B2A16474F0072AA0E /* FeeFormatter.swift */; };
 		EF07082F2A16476F0072AA0E /* CommonFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
@@ -4064,6 +4067,7 @@
 		0A3C78762D8956F20031170E /* HederaTokenCustomFeesInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaTokenCustomFeesInfo.swift; sourceTree = "<group>"; };
 		0A3E3E3F2DF86F17008143E1 /* KeysDerivingHotWalletInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysDerivingHotWalletInteractor.swift; sourceTree = "<group>"; };
 		0A4799D02D930DE900C2D425 /* HederaFeeParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaFeeParams.swift; sourceTree = "<group>"; };
+		0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRestrictionFeatureAvailabilityProvider.swift; sourceTree = "<group>"; };
 		0A4C217E2DF1AFF200B8B1BD /* HotUserWalletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotUserWalletConfig.swift; sourceTree = "<group>"; };
 		0A553D652D70BD8A00D65C6A /* StakingPendingActionConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionConstraint.swift; sourceTree = "<group>"; };
 		0A5544C52DF6FD0E00BF409C /* KeyInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyInfo.swift; sourceTree = "<group>"; };
@@ -7116,6 +7120,8 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
+		EF066AA32E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeFinishViewModel.swift; sourceTree = "<group>"; };
+		EF066AA52E4C8C2F0026CEF8 /* SendFeeFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeFinishView.swift; sourceTree = "<group>"; };
 		EF07082B2A16474F0072AA0E /* FeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeFormatter.swift; sourceTree = "<group>"; };
 		EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeFormatter.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
@@ -17284,6 +17290,7 @@
 				EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */,
 				DC0BA5292CA2E112009D9233 /* CommonUserWalletModelFactory.swift */,
 				DA64DAC72C08BE71000CBC1E /* UserWalletNameIndexationHelper.swift */,
+				0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */,
 				5DFCCB7724C389740014A293 /* CommonUserWalletModel.swift */,
 				DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */,
 				DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */,
@@ -18241,6 +18248,15 @@
 			path = DefaultSelectableRowView;
 			sourceTree = "<group>";
 		};
+		EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */ = {
+			isa = PBXGroup;
+			children = (
+				EF066AA52E4C8C2F0026CEF8 /* SendFeeFinishView.swift */,
+				EF066AA32E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift */,
+			);
+			path = SendFeeFinishView;
+			sourceTree = "<group>";
+		};
 		EF07082D2A1647560072AA0E /* FeeFormatter */ = {
 			isa = PBXGroup;
 			children = (
@@ -19002,6 +19018,7 @@
 			isa = PBXGroup;
 			children = (
 				EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */,
+				EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */,
 				EF4C04612DEF2ACC0059D7AA /* SendFeeSelectorCustomFeeFieldsBuilder.swift */,
 			);
 			path = NewFee;
@@ -22562,6 +22579,7 @@
 				0FDAC19D2E39E1CA0063811E /* HotAccessCodeResult.swift in Sources */,
 				B00371C22A8A5F8800D77A4B /* FakeDerivationManager.swift in Sources */,
 				DC57CE6E2D3F930D00EBECD3 /* ActionButtonsTokenSelectItemViewModel.swift in Sources */,
+				EF066AA62E4C8C2F0026CEF8 /* SendFeeFinishView.swift in Sources */,
 				EFD32AEB29EE7F390026353E /* Feature.swift in Sources */,
 				DC9A4A2D2AB4ADD30031C7C2 /* UserCodeRecovering.swift in Sources */,
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
@@ -23234,6 +23252,7 @@
 				B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */,
 				B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */,
 				DC19BBF72BC98A500087B36D /* CardScannerParameters.swift in Sources */,
+				0A49539A2E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift in Sources */,
 				B60F98D22E3BCA0D00141CA5 /* VisaAccountModel.swift in Sources */,
 				C274DFB42DDBDEE500B1D97B /* WalletConnectDAppConnectionRoutable.swift in Sources */,
 				DA559C412B0261F400F59584 /* SendDestinationViewModel.swift in Sources */,
@@ -23798,6 +23817,7 @@
 				DC00031D2DC2090600305FB6 /* WalletConnectV2Utils+BlockchainMeta.swift in Sources */,
 				DC00031F2DC2090600305FB6 /* WebSocket.swift in Sources */,
 				DC0003202DC2090600305FB6 /* SolanaScan.swift in Sources */,
+				EF066AA42E4C8BCE0026CEF8 /* SendFeeFinishViewModel.swift in Sources */,
 				EF530D542DD4F00A00AE67EA /* CommonNewSendStepsManager.swift in Sources */,
 				DC0003212DC2090600305FB6 /* WCServiceV2+LoggerStrings.swift in Sources */,
 				DC0003222DC2090600305FB6 /* BlockaidFactory.swift in Sources */,
