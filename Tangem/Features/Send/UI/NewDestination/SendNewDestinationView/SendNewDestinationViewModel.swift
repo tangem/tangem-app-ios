@@ -85,17 +85,32 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
+        destinationAddressViewModel.textViewModel.placeholder = makePlaceholder(tokenItem: tokenItem)
+        additionalFieldViewModel = makeAdditionalFieldViewModel(tokenItem: tokenItem)
+    }
 
+    private func makePlaceholder(tokenItem: TokenItem) -> String {
         switch tokenItem.blockchain {
-        case .ethereum:
-            destinationAddressViewModel.textViewModel.placeholder = Localization.sendEnterAddressFieldEns
-        default:
-            destinationAddressViewModel.textViewModel.placeholder = Localization.sendEnterAddressField
+        case .ethereum: Localization.sendEnterAddressFieldEns
+        default: Localization.sendEnterAddressField
+        }
+    }
+
+    private func makeAdditionalFieldViewModel(tokenItem: TokenItem) -> SendNewDestinationAdditionalFieldViewModel? {
+        let viewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
+            SendNewDestinationAdditionalFieldViewModel(title: additionalFieldType.name)
         }
 
-        additionalFieldViewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
-            .init(title: additionalFieldType.name)
-        }
+        viewModel?.textPublisher()
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, field in
+                viewModel.interactor.update(additionalField: field)
+            }
+            .store(in: &bag)
+
+        return viewModel
     }
 
     private func bind() {
@@ -198,20 +213,12 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        interactor.destinationAdditionalFieldError
+        interactor
+            .destinationAdditionalFieldError
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.additionalFieldViewModel?.update(error: error)
-            }
-            .store(in: &bag)
-
-        additionalFieldViewModel?.textPublisher()
-            .dropFirst()
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, field in
-                viewModel.interactor.update(additionalField: field)
             }
             .store(in: &bag)
     }
