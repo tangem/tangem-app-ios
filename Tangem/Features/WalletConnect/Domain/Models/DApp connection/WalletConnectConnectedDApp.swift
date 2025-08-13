@@ -9,11 +9,11 @@
 import struct Foundation.Date
 import enum BlockchainSdk.Blockchain
 
-struct WalletConnectConnectedDApp: Equatable {
+struct WalletConnectConnectedDApp: Hashable {
     let session: WalletConnectDAppSession
     let userWalletID: String
     let dAppData: WalletConnectDAppData
     let verificationStatus: WalletConnectDAppVerificationStatus
-    let blockchains: [Blockchain]
+    let dAppBlockchains: [WalletConnectDAppBlockchain]
     let connectionDate: Date
 }
