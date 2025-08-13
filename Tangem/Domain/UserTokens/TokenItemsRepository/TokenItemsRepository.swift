@@ -16,7 +16,7 @@ protocol TokenItemsRepository {
     func update(_ list: StoredUserTokenList)
     func append(_ entries: [StoredUserTokenList.Entry])
 
-    func remove(_ blockchainNetworks: [BlockchainNetwork])
+    func remove(_ blockchainNetworks: [BlockchainNetwork], completion: (() -> Void)?)
     func remove(_ entries: [StoredUserTokenList.Entry])
     func removeAll()
 
