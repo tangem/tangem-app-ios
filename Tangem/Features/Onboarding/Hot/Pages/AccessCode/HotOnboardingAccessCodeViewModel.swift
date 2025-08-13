@@ -114,7 +114,7 @@ private extension HotOnboardingAccessCodeViewModel {
     func bind() {
         $accessCode
             .dropFirst()
-            .debounce(for: .seconds(0.1), scheduler: RunLoop.main)
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
             .sink { [weak self] code in
                 self?.check(accessCode: code)
             }
