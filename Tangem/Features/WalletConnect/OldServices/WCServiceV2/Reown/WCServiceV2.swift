@@ -8,11 +8,12 @@
 
 import Combine
 import ReownWalletKit
-import BlockchainSdk
+import enum BlockchainSdk.Blockchain
 import TangemFoundation
 
 final class WCServiceV2 {
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
 
     private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
 
@@ -113,7 +114,7 @@ private extension WCServiceV2 {
                         let validatedRequest = try await self.wcHandlersService.validate(request)
                         let transactionDTO = try await self.wcHandlersService.makeHandleTransactionDTO(
                             from: validatedRequest,
-                            connectedBlockchains: connectedDApp.blockchains
+                            connectedBlockchains: connectedDApp.dAppBlockchains.map(\.blockchain)
                         )
 
                         self.transactionRequestSubject.send(
@@ -153,7 +154,7 @@ extension WCServiceV2 {
                             try await walletKitClient.disconnect(topic: dApp.session.topic)
                             self.logDAppDisconnected(dApp)
                         } catch {
-                            WCLogger.error(LoggerStrings.failedDisconnectSessions(userWalletId), error: error)
+                            WCLogger.error(LoggerStrings.failedToDisconnectSession(dApp.session.topic), error: error)
                         }
                     }
                 }
@@ -168,6 +169,52 @@ extension WCServiceV2 {
         } catch {
             WCLogger.error(LoggerStrings.failedDisconnectDelete(topic), error: error)
             throw error
+        }
+    }
+
+    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain) {
+        guard let selectedUserWallet = userWalletRepository.selectedModel else { return }
+
+        Task { [connectedDAppRepository] in
+            let connectedDApps = (try? await connectedDAppRepository.getDApps(for: selectedUserWallet.userWalletId.stringValue)) ?? []
+
+            let dAppsToDisconnect = connectedDApps.filter { dApp in
+                let hasOnlyOneHiddenBlockchain = dApp.dAppBlockchains.count == 1
+                    && dApp.dAppBlockchains[0].blockchain.networkId == blockchain.networkId
+
+                let hasRequiredHiddenBlockchain = dApp.dAppBlockchains
+                    .filter(\.isRequired)
+                    .contains(where: { $0.blockchain.networkId == blockchain.networkId })
+
+                return hasOnlyOneHiddenBlockchain || hasRequiredHiddenBlockchain
+            }
+
+            guard dAppsToDisconnect.isNotEmpty else {
+                return
+            }
+
+            let dAppsToDisconnectNames = dAppsToDisconnect.map(\.dAppData.name).joined(separator: ", ")
+
+            WCLogger.info("\(blockchain.displayName) blockchain causes \(dAppsToDisconnectNames) dApps to be disconnected.")
+
+            async let repositoryTask: Void = connectedDAppRepository.delete(dApps: dAppsToDisconnect)
+
+            async let walletKitTask: Void = withTaskGroup(of: Void.self) { [weak self] taskGroup in
+                for dApp in dAppsToDisconnect {
+                    taskGroup.addTask {
+                        try? await self?.disconnectSession(withTopic: dApp.session.topic)
+                    }
+                }
+            }
+
+            do {
+                try await repositoryTask
+            } catch {
+                WCLogger.error("Persistence update failed caused by hiding \(blockchain.displayName) blockchain.", error: error)
+            }
+
+            await walletKitTask
+            WCLogger.info("\(dAppsToDisconnectNames) dApps disconnect caused by hiding \(blockchain.displayName) blockchain finished.")
         }
     }
 }
