@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 
 struct HotOnboardingFlowView: View {
     @ObservedObject var builder: HotOnboardingFlowBuilder
@@ -16,6 +17,7 @@ struct HotOnboardingFlowView: View {
     @State private var navBarLeadingItem: HotOnboardingFlowNavBarItem?
     @State private var navBarTrailingItem: HotOnboardingFlowNavBarItem?
     @State private var progressBarItem: HotOnboardingFlowProgressBarItem?
+    @State private var isLoading: Bool = false
 
     private let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     private let progressBarHeight = OnboardingLayoutConstants.progressBarHeight
@@ -27,7 +29,9 @@ struct HotOnboardingFlowView: View {
             .onPreferenceChange(HotOnboardingFlowNavBarTitleKey.self) { navBarTitle = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarLeadingItemKey.self) { navBarLeadingItem = $0 }
             .onPreferenceChange(HotOnboardingFlowNavBarTrailingItemKey.self) { navBarTrailingItem = $0 }
-            .onPreferenceChange(HotOnboardingFlowflowProgressBarValueKey.self) { progressBarItem = $0 }
+            .onPreferenceChange(HotOnboardingFlowProgressBarValueKey.self) { progressBarItem = $0 }
+            .onPreferenceChange(FlowLoadingOverlayKey.self) { isLoading = $0 }
+            .overlay(loadingOverlay)
     }
 }
 
@@ -50,6 +54,17 @@ private extension HotOnboardingFlowView {
             if builder.hasProgressBar {
                 progressBar
                     .padding(.horizontal, progressBarPadding)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var loadingOverlay: some View {
+        if isLoading {
+            ZStack {
+                Colors.Overlays.overlayPrimary
+                    .ignoresSafeArea()
+                ActivityIndicatorView()
             }
         }
     }
