@@ -612,7 +612,7 @@ extension DateComponentsFormatter {
 
 extension StakingDetailsViewModel {
     enum Constants {
-        static let tosURL = URL(string: "https://docs.stakek.it/docs/terms-of-use")!
-        static let privacyPolicyURL = URL(string: "https://docs.stakek.it/docs/privacy-policy")!
+        static let tosURL = URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")!
+        static let privacyPolicyURL = URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")!
     }
 }
