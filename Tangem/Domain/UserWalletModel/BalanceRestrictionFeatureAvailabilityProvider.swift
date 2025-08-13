@@ -26,7 +26,7 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
 
         let isBalanceRestrictionActive = userWalletConfig.hasFeature(.isBalanceRestrictionActive)
 
-        self.isSwapAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
+        isSwapAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
 
         if isBalanceRestrictionActive {
             bind()
