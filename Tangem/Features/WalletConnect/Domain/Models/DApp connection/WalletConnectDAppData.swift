@@ -8,7 +8,7 @@
 
 import struct Foundation.URL
 
-struct WalletConnectDAppData: Equatable {
+struct WalletConnectDAppData: Hashable {
     let name: String
     let domain: URL
     let icon: URL?
