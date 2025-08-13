@@ -12,6 +12,8 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_archived_recover" = "Recover";
+"account_archived_title" = "Archived";
 "account_details_archive_action" = "Archivo";
 "account_details_archive_description" = "Estás archivando esta cuenta, pero siempre puedes recuperarla.";
 "account_details_archive" = "Archivar cuenta";
@@ -942,6 +944,7 @@
 "send_with_swap_recipient_amount_success_title" = "El destinatario recibirá";
 "send_with_swap_recipient_amount_text" = "Al destinatario";
 "send_with_swap_recipient_amount_title" = "Cantidad a recibir";
+"send_with_swap_recipient_get_amount" = "Recipient get %@";
 "send_with_swap_remove_convert_alert_message" = "¿Seguro que desea cancelar la conversión? Se borrarán sus datos anteriores.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
 "send_with_swap_title" = "Enviar con swap";
