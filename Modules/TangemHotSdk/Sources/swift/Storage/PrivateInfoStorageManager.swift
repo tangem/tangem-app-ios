@@ -193,7 +193,7 @@ extension UserWalletId {
     var publicInfoSecureEnclaveTag: String {
         PrivateInfoStorageManager.Constants.publicInfoSecureEnclavePrefix + stringValue
     }
-    
+
     var publicInfoBiometricsTag: String {
         PrivateInfoStorageManager.Constants.publicInfoBiometricsPrefix + stringValue
     }
