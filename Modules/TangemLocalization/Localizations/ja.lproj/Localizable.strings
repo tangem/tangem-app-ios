@@ -18,6 +18,7 @@
 "account_details_archive_description" = "このアカウントをアーカイブしますが、いつでも復元できます。";
 "account_details_archive" = "アカウントをアーカイブする";
 "account_details_title" = "アカウント";
+"account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "アカウントを追加";
 "account_form_edit_button" = "保存";
 "account_form_name" = "アカウント名";
@@ -940,6 +941,8 @@
 "send_with_swap_confirm_title" = "スワップして送信";
 "send_with_swap_convert_token_alert_message" = "変換を続行しますか? これにより以前のデータは消去されます。";
 "send_with_swap_convert_token_alert_title" = "変換を確定";
+"send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
+"send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
 "send_with_swap_notification_text" = "トークンを送信すれば、送信中に変換されます。受信者は必要なものをシームレスに受け取ります。";
 "send_with_swap_recipient_amount_success_title" = "受信者は受け取ります";
 "send_with_swap_recipient_amount_text" = "受取人へ";
