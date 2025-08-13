@@ -19,7 +19,7 @@ final class WalletConnectPersistConnectedDAppUseCase {
     func callAsFunction(
         connectionProposal: WalletConnectDAppConnectionProposal,
         dAppSession: WalletConnectDAppSession,
-        blockchains: [Blockchain],
+        dAppBlockchains: [WalletConnectDAppBlockchain],
         userWallet: some UserWalletModel
     ) async throws(WalletConnectDAppPersistenceError) {
         let connectedDApp = WalletConnectConnectedDApp(
@@ -27,7 +27,7 @@ final class WalletConnectPersistConnectedDAppUseCase {
             userWalletID: userWallet.userWalletId.stringValue,
             dAppData: connectionProposal.dAppData,
             verificationStatus: connectionProposal.verificationStatus,
-            blockchains: blockchains,
+            dAppBlockchains: dAppBlockchains,
             connectionDate: Date.now
         )
 
