@@ -50,6 +50,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case promotion
 
     case nft
+
+    case isBalanceRestrictionActive
 }
 
 extension UserWalletFeature {
