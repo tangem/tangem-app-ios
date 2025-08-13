@@ -57,6 +57,12 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         return dApp
     }
 
+    func getDApps(for userWalletID: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
+        try fetchIfNeeded()
+
+        return inMemoryCache.filter { $0.userWalletID == userWalletID }
+    }
+
     func getAllDApps() throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         if let prefetchedDApps {
             return prefetchedDApps
@@ -72,6 +78,17 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         try fetchIfNeeded()
 
         inMemoryCache.removeAll(where: { $0.session.topic == sessionTopic })
+        try persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
+    }
+
+    func delete(dApps: [WalletConnectConnectedDApp]) throws(WalletConnectDAppPersistenceError) {
+        try fetchIfNeeded()
+
+        let dAppsToRemove = Set(dApps)
+        let filteredDApps = inMemoryCache.filter { !dAppsToRemove.contains($0) }
+
+        inMemoryCache = filteredDApps
         try persist(inMemoryCache)
         continuation?.yield(inMemoryCache)
     }
