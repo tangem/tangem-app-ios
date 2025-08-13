@@ -81,7 +81,7 @@ actor CommonAccountModelsManager {
         return addedAccountIds.map { accountId in
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
-                derivationIndex: newDerivationIndices[accountId]!   // Force unwrapping is safe here since the dict is already populated
+                derivationIndex: newDerivationIndices[accountId]! // Force unwrapping is safe here since the dict is already populated
             )
             // Updating `cache` within the `map` loop here to reduce the number of iterations
             cache[accountId] = cryptoAccount
