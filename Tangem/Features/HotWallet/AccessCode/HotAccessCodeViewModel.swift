@@ -74,7 +74,7 @@ private extension HotAccessCodeViewModel {
     func bind() {
         $accessCode
             .dropFirst()
-            .debounce(for: .seconds(0.1), scheduler: RunLoop.main)
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, accessCode in
                 viewModel.validate(accessCode: accessCode)
@@ -82,7 +82,7 @@ private extension HotAccessCodeViewModel {
             .store(in: &bag)
 
         manager.statePublisher
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
                 viewModel.handle(state: state)
