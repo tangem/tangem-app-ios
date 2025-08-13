@@ -82,7 +82,7 @@ private extension HotAccessCodeUtil {
             let viewModel = HotAccessCodeViewModel(manager: manager, useBiometrics: useBiometrics)
             let view = HotAccessCodeView(viewModel: viewModel)
 
-            await presentAcessCode(view: view)
+            await presentAccessCode(view: view)
             let accessCodeResult = try await viewModel.resultPublisher.async()
             await dismissAccessCode()
             return makeUnlockResult(from: accessCodeResult)
@@ -99,7 +99,7 @@ private extension HotAccessCodeUtil {
 private extension HotAccessCodeUtil {
     func makeUnlockResult(from result: HotAccessCodeResult) -> Result {
         switch result {
-        case .accessCodeSuccessfull(let context):
+        case .accessCodeSuccessful(let context):
             return .accessCode(context)
         case .biometricsRequest:
             return .biometricsRequired
@@ -115,7 +115,7 @@ private extension HotAccessCodeUtil {
 
 @MainActor
 private extension HotAccessCodeUtil {
-    func presentAcessCode<T: View>(view: T) {
+    func presentAccessCode<T: View>(view: T) {
         let hostingVC = UIHostingController(rootView: view)
         presentedAccessCodeController = hostingVC
         AppPresenter.shared.show(hostingVC)
