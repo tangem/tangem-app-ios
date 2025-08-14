@@ -95,6 +95,7 @@ private extension HotSettingsUtil {
                 return .canceled
 
             case .userWalletNeedsToDelete:
+                // [REDACTED_TODO_COMMENT]
                 return .failed
             }
 
@@ -129,10 +130,12 @@ private extension HotSettingsUtil {
                 return .canceled
 
             case .userWalletNeedsToDelete:
+                // [REDACTED_TODO_COMMENT]
                 return .failed
             }
 
         } catch {
+            AppLogger.error("Unlock with AccessCode failed:", error: error)
             return .failed
         }
     }
@@ -144,7 +147,7 @@ private extension HotSettingsUtil {
             let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
             encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
         else {
-            return .failed
+            throw MobileWalletError.encryptionKeyMismatched
         }
 
         return .successful(context: context)
