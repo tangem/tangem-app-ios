@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "65e588eb590a2cb045b5d172dc64d81cbf09d637"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.23.5")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -139,6 +139,9 @@ var serviceModules: [PackageDescription.Target] {
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
+            cSettings: [
+                .unsafeFlags(["-Wno-shorten-64-to-32"]),
+            ],
         ),
     ]
 }
@@ -173,6 +176,20 @@ var featureModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemLogger",
                 "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
+            name: "TangemAccounts",
+            dependencies: [
+                "TangemAssets",
+                "TangemLocalization",
+                "TangemUIUtils",
+                "TangemUI",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
