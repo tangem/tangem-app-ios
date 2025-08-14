@@ -16,7 +16,7 @@ struct WalletConnectConnectedDAppPersistentDTO: Codable {
     let dAppDomainURL: URL
     let dAppIconURL: URL?
     let verificationStatus: VerificationStatus
-    let blockchains: [Blockchain]
+    let dAppBlockchains: [DAppBlockchain]
     let expiryDate: Date
     let connectionDate: Date
 }
@@ -26,5 +26,10 @@ extension WalletConnectConnectedDAppPersistentDTO {
         case verified
         case unknownDomain
         case malicious
+    }
+
+    struct DAppBlockchain: Codable {
+        let blockchain: Blockchain
+        let isRequired: Bool
     }
 }
