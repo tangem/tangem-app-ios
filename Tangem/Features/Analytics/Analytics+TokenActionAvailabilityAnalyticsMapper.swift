@@ -9,7 +9,7 @@
 struct TokenActionAvailabilityAnalyticsMapper {
     func mapToParameterValue(_ status: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus) -> Analytics.ParameterValue {
         switch status {
-        case .available:
+        case .available, .hidden:
             return Analytics.ParameterValue.available
         case .unavailable:
             return Analytics.ParameterValue.unavailable
