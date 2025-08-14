@@ -14,6 +14,7 @@ import TangemLocalization
 
 struct SendNewAmountCompactView: View {
     @ObservedObject var viewModel: SendNewAmountCompactViewModel
+    @State private var separatorSize: CGSize = .zero
 
     var body: some View {
         VStack(spacing: .zero) {
@@ -22,12 +23,15 @@ struct SendNewAmountCompactView: View {
             }
 
             if let receiveTokenViewModel = viewModel.sendReceiveTokenCompactViewModel {
+                FixedSpacer(length: 8)
+
                 Button(action: viewModel.userDidTapReceiveTokenAmount) {
                     SendNewAmountCompactTokenView(viewModel: receiveTokenViewModel)
                 }
                 .overlay(alignment: .top) {
                     SendNewAmountCompactViewSeparator(style: viewModel.amountsSeparator)
-                        .offset(y: -14)
+                        .readGeometry(\.frame.size, bindTo: $separatorSize)
+                        .offset(y: -separatorSize.height / 2)
                 }
             }
 
