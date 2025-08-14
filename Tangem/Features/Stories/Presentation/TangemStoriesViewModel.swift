@@ -48,7 +48,7 @@ final class TangemStoriesViewModel: ObservableObject {
 
     @MainActor
     func present(story: TangemStory, analyticsSource: Analytics.StoriesSource, presentCompletion: @escaping () -> Void) {
-        guard !AppEnvironment.current.isUITest else {
+        if AppEnvironment.current.isUITest {
             presentCompletion()
             return
         }

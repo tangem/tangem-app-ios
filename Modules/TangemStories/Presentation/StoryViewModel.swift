@@ -105,7 +105,7 @@ public final class StoryViewModel: ObservableObject {
     // MARK: - Private methods
 
     private func startTimer() {
-        guard !AppEnvironment.current.isUITest else { return }
+        if AppEnvironment.current.isUITest { return }
 
         timerCancellable = timer
             .sink { [weak self] _ in

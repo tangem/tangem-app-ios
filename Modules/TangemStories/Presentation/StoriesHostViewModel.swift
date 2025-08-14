@@ -97,7 +97,7 @@ public final class StoriesHostViewModel: ObservableObject {
         allowsHitTesting = false
         visibleStoryIndex = index
 
-        guard !AppEnvironment.current.isUITest else {
+        if AppEnvironment.current.isUITest {
             allowsHitTesting = true
             return
         }
