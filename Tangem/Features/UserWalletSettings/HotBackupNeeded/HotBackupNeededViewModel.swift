@@ -33,7 +33,8 @@ extension HotBackupNeededViewModel {
 
     func onBackupTap() {
         routable?.dismissHotBackupNeeded()
-        routable?.openHotBackupOnboarding(userWalletModel: userWalletModel)
+        let input = HotOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+        routable?.openHotOnboarding(input: input)
     }
 }
 

@@ -33,26 +33,24 @@ extension HotOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
         case .walletActivate(let userWalletModel):
-            // [REDACTED_TODO_COMMENT]
-            guard userWalletModel.config.hasFeature(.backup) else {
+            guard isBackupNotNeeded(for: userWalletModel) else {
                 alert = makeBackupNeedsAlert()
                 return
             }
 
-            guard userWalletModel.config.hasFeature(.accessCode) else {
-                alert = makeAccessCodeNeedsAlert(userWalletId: userWalletModel.userWalletId)
+            guard isAccessCodeNotNeeded(for: userWalletModel) else {
+                alert = makeAccessCodeNeedsAlert(userWalletModel: userWalletModel)
                 return
             }
 
         case .accessCode(let userWalletModel, _):
-            guard userWalletModel.config.hasFeature(.accessCode) else {
-                alert = makeAccessCodeNeedsAlert(userWalletId: userWalletModel.userWalletId)
+            guard isAccessCodeNotNeeded(for: userWalletModel) else {
+                alert = makeAccessCodeCreationAlert()
                 return
             }
 
         case .seedPhraseBackup(let userWalletModel):
-            // [REDACTED_TODO_COMMENT]
-            guard userWalletModel.config.hasFeature(.backup) else {
+            guard isBackupNotNeeded(for: userWalletModel) else {
                 alert = makeBackupNeedsAlert()
                 return
             }
@@ -82,12 +80,21 @@ private extension HotOnboardingViewModel {
             )
         case .seedPhraseBackup(let userWalletModel):
             HotOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
-        case .seedPhraseReveal(let userWalletModel):
-            HotOnboardingRevealSeedPhraseFlowBuilder(
-                userWalletModel: userWalletModel,
-                coordinator: self
-            )
+        case .seedPhraseReveal(let context):
+            HotOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
         }
+    }
+}
+
+// MARK: - Helpers
+
+private extension HotOnboardingViewModel {
+    func isBackupNotNeeded(for userWalletModel: UserWalletModel) -> Bool {
+        !userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
+
+    func isAccessCodeNotNeeded(for userWalletModel: UserWalletModel) -> Bool {
+        !userWalletModel.config.hasFeature(.userWalletAccessCode)
     }
 }
 
@@ -97,7 +104,7 @@ private extension HotOnboardingViewModel {
     func makeBackupNeedsAlert() -> AlertBinder {
         AlertBuilder.makeAlert(
             title: Localization.hwBackupAlertTitle,
-            message: Localization.hwActivationNeedWarningDescription,
+            message: Localization.hwBackupCloseDescription,
             primaryButton: .cancel(Text(Localization.commonNo)),
             secondaryButton: .destructive(
                 Text(Localization.commonYes),
@@ -106,25 +113,46 @@ private extension HotOnboardingViewModel {
         )
     }
 
-    func makeAccessCodeNeedsAlert(userWalletId: UserWalletId) -> AlertBinder {
+    func makeAccessCodeNeedsAlert(userWalletModel: UserWalletModel) -> AlertBinder {
         AlertBuilder.makeAlert(
             title: Localization.accessCodeAlertSkipTitle,
             message: Localization.accessCodeAlertSkipDescription,
-            with: .withPrimaryCancelButton(
-                secondaryTitle: Localization.commonClose,
-                secondaryAction: { [weak self] in
-                    self?.onAccessCodeNeedsAlertSkip(userWalletId: userWalletId)
-                }
+            with: .init(
+                primaryButton: .default(
+                    Text(Localization.accessCodeAlertSkipOk),
+                    action: { [weak self] in
+                        self?.onAccessCodeNeedsAlertSkip(userWalletModel: userWalletModel)
+                    }
+                ),
+                secondaryButton: .cancel()
             )
         )
     }
 
-    func onAccessCodeNeedsAlertSkip(userWalletId: UserWalletId) {
-        HotAccessCodeSkipHelper.append(userWalletId: userWalletId)
+    func makeAccessCodeCreationAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.hwAccessCodeCreateAlertTitle,
+            message: Localization.hwBackupCloseDescription,
+            primaryButton: .cancel(Text(Localization.commonClose)),
+            secondaryButton: .destructive(
+                Text(Localization.commonYes),
+                action: weakify(self, forFunction: HotOnboardingViewModel.onBackupCreationAlertClose)
+            )
+        )
+    }
+
+    func onAccessCodeNeedsAlertSkip(userWalletModel: UserWalletModel) {
+        HotAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
+        // Workaround to manually trigger update event for userWalletModel publisher
+        userWalletModel.update(type: .backupCompleted)
         closeOnboarding()
     }
 
     func onBackupNeedsAlertClose() {
+        closeOnboarding()
+    }
+
+    func onBackupCreationAlertClose() {
         closeOnboarding()
     }
 }

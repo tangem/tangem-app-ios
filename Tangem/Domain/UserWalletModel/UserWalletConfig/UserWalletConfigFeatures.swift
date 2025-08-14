@@ -20,6 +20,7 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case twinning
     case hdWallets
     case userWalletAccessCode
+    case userWalletBackup
 
     case send
     case receive
@@ -50,6 +51,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case promotion
 
     case nft
+
+    case isBalanceRestrictionActive
 }
 
 extension UserWalletFeature {

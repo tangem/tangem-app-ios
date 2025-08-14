@@ -16,6 +16,7 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 }
 
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Published var notification: NotificationViewInput?
     @Published var state: LoadingResult<[SendReceiveTokenNetworkSelectorNetworkViewData], String> = .loading
 
     var notSupportedTitle: String {
@@ -56,11 +57,18 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
         self.router = router
 
         load()
+        setupNotification()
     }
 
     func dismiss() {
         loadTask?.cancel()
         router?.dismissNetworkSelector(isSelected: false)
+    }
+
+    private func setupNotification() {
+        notification = NotificationsFactory().buildNotificationInput(
+            for: SendReceiveTokensListNotification.irreversibleLossNotification
+        )
     }
 
     private func load() {
@@ -136,7 +144,8 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             id: tokenItem.blockchain.networkId,
             iconURL: IconURLBuilder().tokenIconURL(id: tokenItem.blockchain.coinId, size: .large),
             name: tokenItem.blockchain.displayName,
-            symbol: tokenItem.blockchain.currencySymbol
+            network: tokenItem.contractName,
+            isMainNetwork: tokenItem.isBlockchain
         ) { [weak self] in
             self?.userDidSelect(tokenItem: tokenItem)
         }
