@@ -61,7 +61,7 @@ public protocol HotSdk {
     /// - Parameters:
     ///   - context: The wallet context containing authentication information.
     /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or authentication is incorrect.
-    func enableBiometrics(context: MobileWalletContext) throws
+    func refreshBiometrics(context: MobileWalletContext) throws
 
     /// This method will remove the biometric authentication data for the specified wallets.
     /// - Parameter walletIDs: wallets to clear biometrics for.
