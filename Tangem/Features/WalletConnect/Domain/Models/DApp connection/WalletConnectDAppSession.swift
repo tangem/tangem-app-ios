@@ -9,7 +9,7 @@
 import struct Foundation.Date
 import enum BlockchainSdk.Blockchain
 
-struct WalletConnectDAppSession: Equatable {
+struct WalletConnectDAppSession: Hashable {
     let topic: String
     let expiryDate: Date
 }
