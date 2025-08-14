@@ -19,7 +19,7 @@ class TransactionSignerMock: TransactionSigner {
         .anyFail(error: "Error")
     }
 
-    func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+    func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
         .anyFail(error: "Error")
     }
 }
