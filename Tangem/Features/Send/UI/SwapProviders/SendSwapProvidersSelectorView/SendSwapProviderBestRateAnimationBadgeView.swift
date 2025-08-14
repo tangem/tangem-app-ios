@@ -42,7 +42,7 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
                         .stroke(Colors.Background.action, lineWidth: lineWidth)
                 )
         )
-        .animation(.linear(duration: duration), value: isOpen)
+        .animation(.easeOut(duration: duration), value: isOpen)
         .onAppear(perform: animate)
         .onDisappear {
             animateTask?.cancel()
@@ -67,12 +67,12 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
                 try await Task.sleep(seconds: 1)
                 try Task.checkCancellation()
 
-                withAnimation { isOpen = true }
+                isOpen = true
                 shouldAnimate = false
                 try await Task.sleep(seconds: 1.5)
-                withAnimation { isOpen = false }
+                isOpen = false
             } catch {
-                withAnimation { isOpen = false }
+                isOpen = false
             }
         }
     }
