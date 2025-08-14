@@ -31,4 +31,5 @@ class SendRoutableMock: SendRoutable {
     func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
 }
