@@ -21,6 +21,8 @@ struct SendNewSummaryView: View {
 
             destinationSectionView
 
+            nftSectionView
+
             feeSectionView
 
             notificationsView
@@ -39,6 +41,15 @@ struct SendNewSummaryView: View {
     private var amountSectionView: some View {
         if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
             SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+        }
+    }
+
+    // MARK: - NFT
+
+    @ViewBuilder
+    private var nftSectionView: some View {
+        if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+            NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
         }
     }
 
