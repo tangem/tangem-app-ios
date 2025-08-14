@@ -31,7 +31,7 @@ struct SendNewAmountCompactTokenView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: .zero) {
-            Text(.init(viewModel.title))
+            Text(viewModel.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
@@ -49,21 +49,25 @@ struct SendNewAmountCompactTokenView: View {
     @ViewBuilder
     private var amountView: some View {
         VStack(alignment: .leading, spacing: 2) {
-            SendDecimalNumberTextField(viewModel: viewModel.amountTextFieldViewModel)
-                .alignment(.leading)
-                .prefixSuffixOptions(viewModel.amountFieldOptions)
-                .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                .appearance(.init(font: Fonts.Regular.title1))
-                .allowsHitTesting(false) // This text field is read-only
+            ZStack {
+                // We use hidden `Text` here to calculate constant height without `minimumScaleFactor`
+                Text(viewModel.amountText)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .hidden(true)
+
+                Text(viewModel.amountText)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
+            }
 
             HStack(spacing: 8) {
                 Text(viewModel.alternativeAmount ?? " ")
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                    .lineLimit(1)
 
                 highPriceImpactWarningView
             }
         }
+        .lineLimit(1)
     }
 
     private var tokenIcon: some View {
