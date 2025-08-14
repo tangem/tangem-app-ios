@@ -54,7 +54,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupport2No
     case unlock
     case openReferralProgram
-    case openHotFinishActivation(isWarning: Bool)
+    case openHotFinishActivation(needsAttention: Bool)
 
     var id: Int { hashValue }
 
@@ -186,8 +186,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openReferralProgram,
              .addTokenTrustline:
             return .secondary
-        case .openHotFinishActivation(let isWarning):
-            return isWarning ? .primary : .secondary
+        case .openHotFinishActivation(let needsAttention):
+            return needsAttention ? .primary : .secondary
         }
     }
 }

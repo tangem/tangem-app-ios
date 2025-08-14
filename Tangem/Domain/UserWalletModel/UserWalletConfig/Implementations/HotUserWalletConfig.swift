@@ -44,7 +44,7 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
-        GeneralNotificationEventsFactory().makeNotifications(for: hotWalletInfo)
+        []
     }
 
     var isWalletsCreated: Bool { true }
@@ -107,7 +107,7 @@ extension HotUserWalletConfig: UserWalletConfig {
         case .send: return .available
         case .longHashes: return .available
         case .signedHashesCounter: return .hidden
-        case .backup: return .available
+        case .backup: return .hidden
         case .twinning: return .hidden
         case .exchange: return .available
         case .walletConnect: return .available
@@ -143,6 +143,10 @@ extension HotUserWalletConfig: UserWalletConfig {
                 return .disabled()
             }
 
+            return .available
+        case .userWalletBackup:
+            return .available
+        case .isBalanceRestrictionActive:
             return .available
         }
     }
