@@ -48,13 +48,6 @@ struct SendView: View {
         .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
             contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-
-                HideKeyboardButton(focused: $focused)
-            }
-        }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom) {

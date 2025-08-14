@@ -29,22 +29,16 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             )
         append(step: seedPhraseIntroStep)
 
-        let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
+        let userWalletId = userWalletModel.userWalletId
 
-        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(
-            seedPhraseResolver: seedPhraseResolver,
-            delegate: self
-        )
-        .configureNavBar(
+        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
+        seedPhraseRecoveryStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
         append(step: seedPhraseRecoveryStep)
 
-        let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
-            seedPhraseResolver: seedPhraseResolver,
-            onCreateWallet: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.openNext)
-        )
+        let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(userWalletId: userWalletId, delegate: self)
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
@@ -89,6 +83,15 @@ extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseIntro
 
 extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseRecoveryDelegate {
     func seedPhraseRecoveryContinue() {
+        openNext()
+    }
+}
+
+// MARK: - HotOnboardingSeedPhraseValidationDelegate
+
+extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseValidationDelegate {
+    func didValidateSeedPhrase() {
+        userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
     }
 }
