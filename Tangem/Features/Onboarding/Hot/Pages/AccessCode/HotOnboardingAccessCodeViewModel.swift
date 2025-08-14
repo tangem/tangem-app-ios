@@ -151,20 +151,22 @@ private extension HotOnboardingAccessCodeViewModel {
             return
         }
 
+        let userWalletId = userWalletModel.userWalletId
+
         runTask(in: self) { viewModel in
             do {
                 let context = switch viewModel.mode {
                 case .create:
-                    try viewModel.hotSdk.validate(auth: .none, for: userWalletModel.userWalletId)
+                    try viewModel.hotSdk.validate(auth: .none, for: userWalletId)
                 case .change(let context):
                     context
                 }
 
-                try viewModel.hotSdk.updateAccessCode(viewModel.accessCode, context: context)
+                try viewModel.hotSdk.updateAccessCode(accessCode, context: context)
                 userWalletModel.update(type: .accessCodeDidSet)
                 AppLogger.info("AccessCode update was successful")
 
-                await viewModel.requestBiometricsIfNeeded(userWalletId: userWalletModel.userWalletId, accessCode: accessCode)
+                await viewModel.requestBiometricsIfNeeded(userWalletId: userWalletId, accessCode: accessCode)
                 await viewModel.onAccessCodeComplete()
 
             } catch {
