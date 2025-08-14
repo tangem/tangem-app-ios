@@ -35,8 +35,6 @@ class CommonUserWalletModel {
 
     let accountModelsManager: AccountModelsManager
 
-    private let walletManagersRepository: WalletManagersRepository
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
@@ -56,7 +54,6 @@ class CommonUserWalletModel {
         name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletManagersRepository: WalletManagersRepository,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
         userTokenListManager: UserTokenListManager,
@@ -71,7 +68,6 @@ class CommonUserWalletModel {
         self.config = config
         self.userWalletId = userWalletId
         self.name = name
-        self.walletManagersRepository = walletManagersRepository
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.userTokenListManager = userTokenListManager
