@@ -36,8 +36,12 @@ struct SendNewAmountCompactView: View {
                     .padding(.horizontal, 14)
 
                 Button(action: viewModel.userDidTapProvider) {
-                    SendSwapProviderCompactView(data: sendSwapProviderCompactViewData)
+                    SendSwapProviderCompactView(
+                        data: sendSwapProviderCompactViewData,
+                        shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
+                    )
                 }
+                .disabled(!sendSwapProviderCompactViewData.isTappable)
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
