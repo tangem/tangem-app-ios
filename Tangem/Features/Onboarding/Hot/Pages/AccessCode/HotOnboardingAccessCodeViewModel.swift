@@ -190,7 +190,7 @@ private extension HotOnboardingAccessCodeViewModel {
                     context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
                 }
 
-                try hotSdk.enableBiometrics(context: context)
+                try hotSdk.refreshBiometrics(context: context)
                 AppLogger.info("AccessCode enable biometrics was successful")
 
             } catch {
