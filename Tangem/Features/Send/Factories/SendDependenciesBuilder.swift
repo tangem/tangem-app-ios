@@ -451,6 +451,7 @@ struct SendDependenciesBuilder {
             feeTokenItem: walletModel.feeTokenItem,
             tokenIconInfo: makeTokenIconInfo(),
             fiatItem: makeFiatItem(),
+            possibleToConvertToFiat: possibleToChangeAmountType(),
             availableBalanceProvider: walletModel.availableBalanceProvider,
             fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
             transactionValidator: walletModel.transactionValidator,
