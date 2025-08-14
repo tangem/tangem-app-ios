@@ -430,11 +430,9 @@ struct SendDependenciesBuilder {
     func makeSendWithSwapModel(
         swapManager: SwapManager,
         analyticsLogger: any SendAnalyticsLogger,
-        predefinedSellParameters: PredefinedSellParameters? = .none
+        predefinedValues: SendWithSwapModel.PredefinedValues = .init()
     ) -> SendWithSwapModel {
-        let predefinedValues = mapToPredefinedValues(sellParameters: predefinedSellParameters)
-
-        return SendWithSwapModel(
+        SendWithSwapModel(
             userToken: makeSourceToken(),
             transactionSigner: userWalletModel.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
@@ -541,6 +539,14 @@ struct SendDependenciesBuilder {
         let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
 
         return NFTSendAmountModifier(amount: nftSendUtil.amountToSend)
+    }
+
+    func makePredefinedNFTValues() -> SendModel.PredefinedValues {
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        return .init(
+            amount: .init(type: .typical(crypto: nftSendUtil.amountToSend, fiat: .none))
+        )
     }
 
     // MARK: - Staking
