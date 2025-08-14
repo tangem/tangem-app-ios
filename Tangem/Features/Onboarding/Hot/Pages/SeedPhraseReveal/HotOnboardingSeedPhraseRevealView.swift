@@ -13,30 +13,39 @@ import TangemUI
 struct HotOnboardingSeedPhraseRevealView: View {
     typealias ViewModel = HotOnboardingSeedPhraseRevealViewModel
 
-    let viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel
 
     private let wordsVerticalSpacing: CGFloat = 18
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 32) {
-                infoView(item: viewModel.infoItem)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 24)
-
-                phraseView(item: viewModel.phraseItem)
-                    .padding(.horizontal, 36)
-            }
+        switch viewModel.state {
+        case .item(let item):
+            state(item: item)
+        case .none:
+            EmptyView()
         }
-        .padding(.top, 32)
-        .padding(.horizontal, 16)
     }
 }
 
 // MARK: - Subviews
 
 private extension HotOnboardingSeedPhraseRevealView {
+    func state(item: ViewModel.StateItem) -> some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 32) {
+                infoView(item: item.info)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 24)
+
+                phraseView(item: item.phrase)
+                    .padding(.horizontal, 36)
+            }
+        }
+        .padding(.top, 32)
+        .padding(.horizontal, 16)
+    }
+
     func infoView(item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
