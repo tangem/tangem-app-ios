@@ -15,10 +15,8 @@ enum SignUtil {
         passphrase: String = "",
         hashes: [Data],
         curve: EllipticCurve,
-        derivationPath: String
+        derivationPath: DerivationPath?
     ) throws -> [Data] {
-        let derivationPath = try DerivationPath(rawPath: derivationPath)
-
         var node = try HDNodeUtil.makeHDNode(
             entropy: entropy,
             passphrase: passphrase,
