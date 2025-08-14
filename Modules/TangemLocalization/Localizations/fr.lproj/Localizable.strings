@@ -12,10 +12,13 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_archived_recover" = "Recover";
+"account_archived_title" = "Archived";
 "account_details_archive_action" = "Archive";
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_title" = "Account";
+"account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
@@ -938,10 +941,13 @@
 "send_with_swap_confirm_title" = "Échanger et envoyer";
 "send_with_swap_convert_token_alert_message" = "Proceed with conversion? This will clear your previous data.";
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
+"send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
+"send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
 "send_with_swap_notification_text" = "Envoyez n'importe quel jeton et nous le convertirons en cours de route. Votre destinataire reçoit exactement ce dont il a besoin, en toute simplicité.";
 "send_with_swap_recipient_amount_success_title" = "Le destinataire recevra";
 "send_with_swap_recipient_amount_text" = "Un destinataire sera envoyé";
 "send_with_swap_recipient_amount_title" = "Montant à recevoir";
+"send_with_swap_recipient_get_amount" = "Recipient get %@";
 "send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
 "send_with_swap_remove_convert_alert_title" = "Remove Conversion";
 "send_with_swap_title" = "Envoyer avec swap";

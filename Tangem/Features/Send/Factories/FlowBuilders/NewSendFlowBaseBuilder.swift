@@ -70,12 +70,13 @@ struct NewSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
-            notificationManager: notificationManager,
+            receiveTokenInput: sendModel,
+            receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
             amountEditableType: .editable,
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
@@ -87,7 +88,7 @@ struct NewSendFlowBaseBuilder {
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
             sendDestinationCompactViewModel: destination.compact,
-            sendFeeCompactViewModel: fee.finish,
+            sendFeeFinishViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
@@ -100,6 +101,11 @@ struct NewSendFlowBaseBuilder {
 
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
+
+        analyticsLogger.setup(sendFeeInput: sendModel)
+        analyticsLogger.setup(sendSourceTokenInput: sendModel)
+        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
+        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
@@ -119,7 +125,8 @@ struct NewSendFlowBaseBuilder {
 
         let sendReceiveTokensListBuilder = builder.makeSendReceiveTokensListBuilder(
             sendSourceTokenInput: sendModel,
-            receiveTokenOutput: sendModel
+            receiveTokenOutput: sendModel,
+            analyticsLogger: analyticsLogger,
         )
 
         let dataBuilder = builder.makeSendBaseDataBuilder(
