@@ -224,7 +224,7 @@ struct WCTransactionSimulationDisplayService {
 
     private func formatAssetAmount(_ asset: BlockaidChainScanResult.Asset) -> String {
         guard let amount = asset.amount, amount != 0 else {
-            return asset.name ?? ""
+            return ""
         }
 
         let formatter = NumberFormatter()
