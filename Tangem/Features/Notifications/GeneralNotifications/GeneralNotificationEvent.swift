@@ -31,7 +31,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case seedSupport
     case seedSupport2
     case referralProgram
-    case hotFinishActivation(isWarning: Bool)
+    case hotFinishActivation(needsAttention: Bool, hasBackup: Bool)
 }
 
 /// For Notifications
@@ -82,9 +82,9 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .referralProgram:
             return .string(Localization.notificationReferralPromoTitle)
-        case .hotFinishActivation(let isWarning):
+        case .hotFinishActivation(let needsAttention, _):
             let text = Localization.hwActivationNeedTitle
-            if isWarning {
+            if needsAttention {
                 var string = AttributedString(text)
                 string.foregroundColor = Colors.Text.warning
                 string.font = Fonts.Bold.footnote
@@ -138,8 +138,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseContactedSupport
         case .referralProgram:
             return Localization.notificationReferralPromoText
-        case .hotFinishActivation(let isWarning):
-            return isWarning ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
+        case .hotFinishActivation(_, let hasBackup):
+            return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         }
     }
 
@@ -180,8 +180,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
         case .referralProgram:
             return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
-        case .hotFinishActivation(let isWarning):
-            let imageType = isWarning ? Assets.criticalAttentionShield : Assets.attentionShield
+        case .hotFinishActivation(let needsAttention, _):
+            let imageType = needsAttention ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         }
     }
@@ -299,14 +299,14 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
             ])
-        case .hotFinishActivation(let isWarning):
+        case .hotFinishActivation(let needsAttention, _):
             guard let buttonAction else {
                 break
             }
             return .withButtons([
                 .init(
                     action: buttonAction,
-                    actionType: .openHotFinishActivation(isWarning: isWarning),
+                    actionType: .openHotFinishActivation(needsAttention: needsAttention),
                     isWithLoader: false
                 ),
             ])
