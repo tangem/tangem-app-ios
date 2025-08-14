@@ -19,8 +19,8 @@ enum WalletConnectConnectedDAppMapper {
             session: session,
             userWalletID: connectedDAppDTO.userWalletID,
             dAppData: dAppData,
-            verificationStatus: Self.mapVerificationStatus(toDomain: connectedDAppDTO.verificationStatus),
-            blockchains: connectedDAppDTO.blockchains,
+            verificationStatus: mapVerificationStatus(toDomain: connectedDAppDTO.verificationStatus),
+            dAppBlockchains: connectedDAppDTO.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
             connectionDate: connectedDAppDTO.connectionDate
         )
     }
@@ -33,7 +33,7 @@ enum WalletConnectConnectedDAppMapper {
             dAppDomainURL: connectedDApp.dAppData.domain,
             dAppIconURL: connectedDApp.dAppData.icon,
             verificationStatus: mapVerificationStatus(fromDomain: connectedDApp.verificationStatus),
-            blockchains: connectedDApp.blockchains,
+            dAppBlockchains: connectedDApp.dAppBlockchains.map(mapDAppBlockchain(fromDomain:)),
             expiryDate: connectedDApp.session.expiryDate,
             connectionDate: connectedDApp.connectionDate
         )
@@ -65,5 +65,17 @@ enum WalletConnectConnectedDAppMapper {
         case .malicious:
             return .malicious
         }
+    }
+
+    private static func mapDAppBlockchain(
+        toDomain dAppBlockchainDTO: WalletConnectConnectedDAppPersistentDTO.DAppBlockchain
+    ) -> WalletConnectDAppBlockchain {
+        WalletConnectDAppBlockchain(blockchain: dAppBlockchainDTO.blockchain, isRequired: dAppBlockchainDTO.isRequired)
+    }
+
+    private static func mapDAppBlockchain(
+        fromDomain dAppBlockchain: WalletConnectDAppBlockchain
+    ) -> WalletConnectConnectedDAppPersistentDTO.DAppBlockchain {
+        WalletConnectConnectedDAppPersistentDTO.DAppBlockchain(blockchain: dAppBlockchain.blockchain, isRequired: dAppBlockchain.isRequired)
     }
 }

@@ -7,47 +7,82 @@
 //
 
 import Foundation
+import Combine
+import TangemFoundation
 import TangemLocalization
+import TangemUIUtils
+import TangemHotSdk
+import class TangemSdk.BiometricsUtil
 
-final class HotBackupTypesViewModel {
+final class HotBackupTypesViewModel: ObservableObject {
+    @Published var backupItems: [BackupItem] = []
+    @Published var alert: AlertBinder?
+
     let navTitle = Localization.commonBackup
 
-    lazy var backupTypes = makeBackupTypes()
+    private var isBackupNeeded: Bool {
+        userWalletModel.config.hasFeature(.mnemonicBackup)
+    }
+
+    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
 
     private let userWalletModel: UserWalletModel
     private weak var routable: HotBackupTypesRoutable?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(userWalletModel: UserWalletModel, routable: HotBackupTypesRoutable) {
         self.userWalletModel = userWalletModel
         self.routable = routable
+        setup()
+        bind()
     }
 }
 
 // MARK: - Private methods
 
 private extension HotBackupTypesViewModel {
-    func makeBackupTypes() -> [BackupType] {
-        [makeSeedBackupType(userWalletModel: userWalletModel), makeICloudBackupType()]
+    func setup() {
+        backupItems = makeBackupItems()
     }
 
-    func makeSeedBackupType(userWalletModel: UserWalletModel) -> BackupType {
-        let badge: BadgeView.Item
-        let action: () -> Void
+    func bind() {
+        userWalletModel.updatePublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                viewModel.handleUpdate(result: result)
+            }
+            .store(in: &bag)
+    }
 
-        // [REDACTED_TODO_COMMENT]
-        if false {
-            badge = .done
-            action = { [weak routable] in
-                routable?.openHotBackupRevealSeedPhrase(userWalletModel: userWalletModel)
-            }
+    func handleUpdate(result: UpdateResult) {
+        switch result {
+        case .configurationChanged:
+            setup()
+        case .nameDidChange:
+            break
+        }
+    }
+}
+
+// MARK: - Helpers
+
+private extension HotBackupTypesViewModel {
+    func makeBackupItems() -> [BackupItem] {
+        [makeSeedPhraseBackupItem(), makeICloudBackupItem()]
+    }
+
+    func makeSeedPhraseBackupItem() -> BackupItem {
+        let badge: BadgeView.Item = if isBackupNeeded {
+            .noBackup
         } else {
-            badge = .noBackup
-            action = { [weak routable] in
-                routable?.openHotBackupOnboardingSeedPhrase(userWalletModel: userWalletModel)
-            }
+            .done
         }
 
-        return BackupType(
+        let action = weakify(self, forFunction: HotBackupTypesViewModel.onSeedPhraseBackupTap)
+
+        return BackupItem(
             title: Localization.hwBackupSeedTitle,
             description: Localization.hwBackupSeedDescription,
             badge: badge,
@@ -56,9 +91,9 @@ private extension HotBackupTypesViewModel {
         )
     }
 
-    func makeICloudBackupType() -> BackupType {
+    func makeICloudBackupItem() -> BackupItem {
         let badge = BadgeView.Item(title: Localization.commonComingSoon, style: .secondary)
-        return BackupType(
+        return BackupItem(
             title: Localization.hwBackupIcloudTitle,
             description: Localization.hwBackupIcloudDescription,
             badge: badge,
@@ -66,12 +101,118 @@ private extension HotBackupTypesViewModel {
             action: {}
         )
     }
+
+    func onSeedPhraseBackupTap() {
+        if isBackupNeeded {
+            openSeedPhraseBackup()
+        } else {
+            runTask(in: self) { viewModel in
+                await viewModel.unlock()
+            }
+        }
+    }
+}
+
+// MARK: - Unlocking
+
+private extension HotBackupTypesViewModel {
+    func unlock() async {
+        do {
+            let result = try await accessCodeUtil.unlock(method: .default(useBiometrics: false))
+
+            switch result {
+            case .accessCode(let context):
+                try await handleAccessCodeUnlockResult(context: context)
+
+            case .biometricsRequired:
+                await unlockWithBiometrics()
+
+            case .canceled:
+                return
+
+            case .userWalletNeedsToDelete:
+                // [REDACTED_TODO_COMMENT]
+                return
+            }
+        } catch {
+            AppLogger.error("Unlock with AccessCode failed:", error: error)
+            await runOnMain {
+                alert = error.alertBinder
+            }
+        }
+    }
+
+    func unlockWithBiometrics() async {
+        do {
+            let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+            let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletModel.userWalletId)
+            await openSeedPhraseReveal(context: context)
+        } catch {
+            await unlockWithAccessCode()
+        }
+    }
+
+    func unlockWithAccessCode() async {
+        do {
+            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
+
+            switch result {
+            case .accessCode(let context):
+                try await handleAccessCodeUnlockResult(context: context)
+
+            case .biometricsRequired:
+                assertionFailure("Case \(result): should never occur in unlock with access-code flow.")
+                return
+
+            case .canceled:
+                return
+
+            case .userWalletNeedsToDelete:
+                // [REDACTED_TODO_COMMENT]
+                return
+            }
+
+        } catch {
+            AppLogger.error("Unlock with AccessCode failed:", error: error)
+            await runOnMain {
+                alert = error.alertBinder
+            }
+        }
+    }
+
+    func handleAccessCodeUnlockResult(context: MobileWalletContext) async throws {
+        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+
+        guard
+            let configEncryptionKey = UserWalletEncryptionKey(config: userWalletModel.config),
+            encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
+        else {
+            throw MobileWalletError.encryptionKeyMismatched
+        }
+
+        await openSeedPhraseReveal(context: context)
+    }
+}
+
+// MARK: - Navigation
+
+private extension HotBackupTypesViewModel {
+    func openSeedPhraseBackup() {
+        let input = HotOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+        routable?.openOnboarding(input: input)
+    }
+
+    @MainActor
+    func openSeedPhraseReveal(context: MobileWalletContext) {
+        let input = HotOnboardingInput(flow: .seedPhraseReveal(context: context))
+        routable?.openOnboarding(input: input)
+    }
 }
 
 // MARK: - Types
 
 extension HotBackupTypesViewModel {
-    struct BackupType: Identifiable {
+    struct BackupItem: Identifiable {
         let id = UUID()
         let title: String
         let description: String
