@@ -771,7 +771,7 @@ private extension ExpressViewModel {
     func startTimer() {
         ExpressLogger.info("Start timer")
         refreshDataTimer = Just(())
-            .delay(for: 10, scheduler: RunLoop.main)
+            .delay(for: 10, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 ExpressLogger.info("Timer call autoupdate")
                 self?.interactor.refresh(type: .refreshRates)
