@@ -471,5 +471,15 @@ extension SendModel {
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
+
+        init(
+            destination: SendAddress? = nil,
+            tag: SendDestinationAdditionalField = .notSupported,
+            amount: SendAmount? = nil
+        ) {
+            self.destination = destination
+            self.tag = tag
+            self.amount = amount
+        }
     }
 }
