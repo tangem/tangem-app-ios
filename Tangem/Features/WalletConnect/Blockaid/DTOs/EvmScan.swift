@@ -19,7 +19,6 @@ extension BlockaidDTO {
 
             let chain: BlockaidDTO.Chain
             let data: Data
-            let block: String?
 
             struct Metadata: Encodable {
                 let domain: String
@@ -42,7 +41,6 @@ extension BlockaidDTO {
         struct Response: Decodable {
             let validation: Validation?
             let simulation: Simulation?
-            let block: String
             let chain: String
             let accountAddress: String?
         }
@@ -76,8 +74,28 @@ extension BlockaidDTO {
         }
 
         struct BalanceChanges: Decodable {
-            let before: AssetBalance
-            let after: AssetBalance
+            let before: AssetBalance?
+            let after: AssetBalance?
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+
+                if let dict = try? container.decode([String: AssetBalance].self) {
+                    before = dict["before"]
+                    after = dict["after"]
+                    return
+                }
+
+                if let array = try? container.decode([[String: AssetBalance]].self),
+                   let first = array.first {
+                    before = first["before"]
+                    after = first["after"]
+                    return
+                }
+
+                before = nil
+                after = nil
+            }
         }
 
         struct UsdDiff: Decodable {
