@@ -7,18 +7,13 @@
 //
 
 import SwiftUI
+import TangemFoundation
 
 final class HotOnboardingSeedPhraseRecoveryStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingSeedPhraseRecoveryViewModel
 
-    init(
-        seedPhraseResolver: HotOnboardingSeedPhraseResolver,
-        delegate: HotOnboardingSeedPhraseRecoveryDelegate
-    ) {
-        viewModel = HotOnboardingSeedPhraseRecoveryViewModel(
-            seedPhraseResolver: seedPhraseResolver,
-            delegate: delegate
-        )
+    init(userWalletId: UserWalletId, delegate: HotOnboardingSeedPhraseRecoveryDelegate) {
+        viewModel = HotOnboardingSeedPhraseRecoveryViewModel(userWalletId: userWalletId, delegate: delegate)
     }
 
     override func build() -> any View {
