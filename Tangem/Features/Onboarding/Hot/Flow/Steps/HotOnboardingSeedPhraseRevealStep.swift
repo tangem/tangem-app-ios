@@ -7,12 +7,13 @@
 //
 
 import SwiftUI
+import TangemHotSdk
 
 final class HotOnboardingSeedPhraseRevealStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingSeedPhraseRevealViewModel
 
-    init(seedPhraseResolver: HotOnboardingSeedPhraseResolver) {
-        viewModel = HotOnboardingSeedPhraseRevealViewModel(seedPhraseResolver: seedPhraseResolver)
+    init(context: MobileWalletContext) {
+        viewModel = HotOnboardingSeedPhraseRevealViewModel(context: context)
     }
 
     override func build() -> any View {
