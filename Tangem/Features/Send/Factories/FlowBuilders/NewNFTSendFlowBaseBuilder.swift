@@ -1,5 +1,5 @@
 //
-//  NewSendFlowBaseBuilder.swift
+//  NewNFTSendFlowBaseBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,44 +8,31 @@
 
 import Foundation
 
-struct NewSendFlowBaseBuilder {
+struct NewNFTSendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
-    let sendAmountStepBuilder: SendNewAmountStepBuilder
+    let nftAssetStepBuilder: NFTAssetStepBuilder
     let sendDestinationStepBuilder: SendNewDestinationStepBuilder
     let sendFeeStepBuilder: SendNewFeeStepBuilder
-    let swapProvidersBuilder: SendSwapProvidersBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendNewFinishStepBuilder
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
-        let sendQRCodeService = builder.makeSendQRCodeService()
-        let swapManager: SwapManager = builder.makeSwapManager()
+        let notificationManager = builder.makeSendNotificationManager()
         let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
-        let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
-        let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
+        let sendQRCodeService = builder.makeSendQRCodeService()
+        let swapManager = builder.makeSwapManager()
+        let predefinedValues = builder.makePredefinedNFTValues()
+        let sendModel = builder.makeSendWithSwapModel(
+            swapManager: swapManager,
+            analyticsLogger: analyticsLogger,
+            predefinedValues: predefinedValues
+        )
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
-
-        let sendFeeProvider = builder.makeSendWithSwapFeeProvider(
-            receiveTokenInput: sendModel,
-            sendFeeProvider: builder.makeSendFeeProvider(input: sendModel),
-            swapFeeProvider: builder.makeSwapFeeProvider(swapManager: swapManager)
-        )
-
-        let amount = sendAmountStepBuilder.makeSendNewAmountStep(
-            sourceIO: (input: sendModel, output: sendModel),
-            sourceAmountIO: (input: sendModel, output: sendModel),
-            receiveIO: (input: sendModel, output: sendModel),
-            receiveAmountIO: (input: sendModel, output: sendModel),
-            swapProvidersInput: sendModel,
-            actionType: .send,
-            sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
-            amountModifier: .none,
-            notificationService: notificationManager as? SendAmountNotificationService,
-            analyticsLogger: analyticsLogger
-        )
+        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel()
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
@@ -62,40 +49,33 @@ struct NewSendFlowBaseBuilder {
             customFeeService: customFeeService
         )
 
-        let providers = swapProvidersBuilder.makeSwapProviders(
-            io: (input: sendModel, output: sendModel),
-            receiveTokenInput: sendModel,
-            analyticsLogger: analyticsLogger
-        )
-
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
             receiveTokenInput: sendModel,
             receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
-            amountEditableType: .editable,
+            // Amount is fixed for NFTs
+            amountEditableType: .noEditable,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
-            sendAmountCompactViewModel: amount.compact,
-            nftAssetCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: nil,
+            sendAmountCompactViewModel: .none,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
+            stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: fee.compact
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
-            sendAmountFinishViewModel: amount.finish,
-            nftAssetCompactViewModel: .none,
+            sendAmountFinishViewModel: .none,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: destination.compact,
-            sendFeeFinishViewModel: fee.finish,
+            sendFeeFinishViewModel: fee.finish
         )
 
         // We have to set dependencies here after all setups is completed
-        sendModel.externalAmountUpdater = amount.amountUpdater
-        sendModel.externalDestinationUpdater = destination.externalUpdater
         sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
             input: sendModel, output: sendModel, provider: sendFeeProvider
@@ -105,36 +85,20 @@ struct NewSendFlowBaseBuilder {
         notificationManager.setupManager(with: sendModel)
 
         analyticsLogger.setup(sendFeeInput: sendModel)
-        analyticsLogger.setup(sendSourceTokenInput: sendModel)
-        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
-        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
         fee.finish.bind(input: sendModel)
 
-        let stepsManager = CommonNewSendStepsManager(
-            amountStep: amount.step,
+        let stepsManager = NewNFTSendStepsManager(
             destinationStep: destination.step,
-            summaryStep: summary,
-            finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers
+            summaryStep: summary,
+            finishStep: finish
         )
 
         summary.set(router: stepsManager)
         destination.step.set(stepRouter: stepsManager)
-
-        let sendReceiveTokensListBuilder = builder.makeSendReceiveTokensListBuilder(
-            sendSourceTokenInput: sendModel,
-            receiveTokenOutput: sendModel,
-            analyticsLogger: analyticsLogger,
-        )
-
-        let dataBuilder = builder.makeSendBaseDataBuilder(
-            input: sendModel,
-            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
-        )
 
         let interactor = CommonSendBaseInteractor(input: sendModel, output: sendModel)
 
@@ -143,7 +107,7 @@ struct NewSendFlowBaseBuilder {
             stepsManager: stepsManager,
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: dataBuilder,
+            dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
@@ -155,11 +119,6 @@ struct NewSendFlowBaseBuilder {
         stepsManager.router = router
 
         sendModel.router = viewModel
-        sendModel.alertPresenter = viewModel
-
-        // [REDACTED_TODO_COMMENT]
-        // fee.step.set(alertPresenter: viewModel)
-        amount.step.set(router: viewModel)
 
         return viewModel
     }
