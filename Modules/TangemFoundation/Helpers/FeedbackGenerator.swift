@@ -9,6 +9,10 @@
 import UIKit
 
 public enum FeedbackGenerator {
+    public static func heavy() {
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+    }
+
     public static func success() {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
