@@ -177,7 +177,7 @@ private extension WalletConnectConnectedDApp {
             userWalletID: userWalletID,
             dAppData: dAppData,
             verificationStatus: verificationStatus,
-            blockchains: blockchains,
+            dAppBlockchains: dAppBlockchains,
             connectionDate: connectionDate
         )
     }

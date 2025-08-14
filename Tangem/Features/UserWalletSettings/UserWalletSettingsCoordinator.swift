@@ -168,31 +168,13 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
+    func openHotOnboarding(input: HotOnboardingInput) {
+        openOnboardingModal(with: .hotInput(input))
+    }
+
     // MARK: - HotBackupTypesRoutable
 
-    func openHotBackupRevealSeedPhrase(userWalletModel: UserWalletModel) {
-        runTask(in: self) { coordinator in
-            let settingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
-            let state = await settingsUtil.calculateSeedPhraseState()
-
-            await runOnMain {
-                switch state {
-                case .onboarding:
-                    coordinator.openHotOnboardingModal(userWalletModel: userWalletModel)
-                case .none:
-                    break
-                }
-            }
-        }
-    }
-
-    func openHotBackupOnboardingSeedPhrase(userWalletModel: UserWalletModel) {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .hotInput(backupInput))
-    }
-
-    func openHotOnboardingModal(userWalletModel: UserWalletModel) {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseReveal(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .hotInput(backupInput))
+    func openOnboarding(input: HotOnboardingInput) {
+        openOnboardingModal(with: .hotInput(input))
     }
 }

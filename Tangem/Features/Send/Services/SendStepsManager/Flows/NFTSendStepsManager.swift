@@ -129,7 +129,7 @@ extension NFTSendStepsManager: SendStepsManager {
     }
 
     func performBack() {
-        assertionFailure("There's no back action in this flow")
+        back()
     }
 
     func performNext() {
