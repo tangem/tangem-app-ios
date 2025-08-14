@@ -19,7 +19,6 @@ import TangemUIUtils
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel & WCTransactionViewModelDisplayData {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
     private let analyticsLogger: any WalletConnectTransactionAnalyticsLogger
@@ -33,7 +32,6 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
     lazy var displayModel: WCTransactionDisplayModel = CommonWCTransactionDisplayModel(
         transactionData: transactionData,
-        userWalletRepository: userWalletRepository,
         simulationManager: simulationManager,
         securityManager: securityManager,
         viewModel: self
@@ -147,7 +145,6 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 }
 
 private extension WCTransactionViewModel {
-    @MainActor
     func startTransactionSimulation() async {
         simulationState = .loading
 
@@ -328,7 +325,6 @@ private extension WCTransactionViewModel {
         }
     }
 
-    @MainActor
     private func validateAndSignTransaction() async {
         presentationState = .signing
         await signTransaction(onComplete: returnToTransactionDetails)

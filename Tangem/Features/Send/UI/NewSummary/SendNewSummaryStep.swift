@@ -37,7 +37,7 @@ extension SendNewSummaryStep: SendStep {
 
     var type: SendStepType { .newSummary(viewModel) }
 
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .backButton }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
