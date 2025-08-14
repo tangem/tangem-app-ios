@@ -13,10 +13,18 @@ struct WalletConnectDAppBlockchainsAvailabilityResult {
     let availableBlockchains: [AvailableBlockchain]
     let notAddedBlockchains: [Blockchain]
 
-    func retrieveSelectedBlockchains() -> [Blockchain] {
+    func retrieveSelectedBlockchains() -> [WalletConnectDAppBlockchain] {
         availableBlockchains
-            .filter(\.isSelected)
-            .map(\.blockchain)
+            .compactMap { availableBlockchain in
+                switch availableBlockchain {
+                case .required(let blockchain):
+                    return WalletConnectDAppBlockchain(blockchain: blockchain, isRequired: true)
+                case .optional(let optionalBlockchain) where optionalBlockchain.isSelected:
+                    return WalletConnectDAppBlockchain(blockchain: optionalBlockchain.blockchain, isRequired: false)
+                case .optional:
+                    return nil
+                }
+            }
     }
 }
 

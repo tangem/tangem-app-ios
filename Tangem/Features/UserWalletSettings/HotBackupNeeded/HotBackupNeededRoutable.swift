@@ -8,6 +8,7 @@
 
 import Foundation
 
-protocol HotBackupNeededRoutable: HotBackupOnboardingRoutable {
+protocol HotBackupNeededRoutable: AnyObject {
     func dismissHotBackupNeeded()
+    func openHotOnboarding(input: HotOnboardingInput)
 }

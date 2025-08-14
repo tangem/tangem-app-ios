@@ -16,19 +16,20 @@ struct SendNewSummaryView: View {
     let transitionService: SendTransitionService
 
     var body: some View {
-        VStack(alignment: .center, spacing: 14) {
-            GroupedScrollView(spacing: 14) {
-                amountSectionView
+        GroupedScrollView(spacing: 14) {
+            amountSectionView
 
-                destinationSectionView
+            destinationSectionView
 
-                feeSectionView
+            nftSectionView
 
-                notificationsView
-            }
+            feeSectionView
 
-            descriptionView
+            notificationsView
         }
+        .safeAreaInset(edge: .bottom, content: {
+            descriptionView
+        })
         .transition(transitionService.newSummaryViewTransition())
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -40,6 +41,15 @@ struct SendNewSummaryView: View {
     private var amountSectionView: some View {
         if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
             SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+        }
+    }
+
+    // MARK: - NFT
+
+    @ViewBuilder
+    private var nftSectionView: some View {
+        if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+            NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
         }
     }
 
@@ -85,6 +95,9 @@ struct SendNewSummaryView: View {
             Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .infinityFrame(axis: .horizontal)
+                .background(Colors.Background.tertiary)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }
