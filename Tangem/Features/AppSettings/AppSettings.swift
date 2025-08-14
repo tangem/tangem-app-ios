@@ -27,6 +27,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var termsOfServicesAccepted: [String] = []
 
+    @AppStorageCompat(StorageType.useBiometricAuthentication)
+    var useBiometricAuthentication: Bool = false
+
     @AppStorageCompat(StorageType.askedToSaveUserWallets)
     var askedToSaveUserWallets: Bool = false
 
@@ -38,6 +41,11 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.saveAccessCodes)
     var saveAccessCodes: Bool = false
+
+    var requireAccessCodes: Bool {
+        get { !saveAccessCodes }
+        set { saveAccessCodes = !newValue }
+    }
 
     @AppStorageCompat(StorageType.systemDeprecationWarningDismissDate)
     var systemDeprecationWarningDismissalDate: Date? = nil
@@ -113,6 +121,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
     var isSendWithSwapOnboardNotificationHidden: Bool = false
+
+    @AppStorageCompat(StorageType.userWalletIdsWithSkippedAccessCode)
+    var userWalletIdsWithSkippedAccessCode: [String] = []
 
     static let shared: AppSettings = .init()
 

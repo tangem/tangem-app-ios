@@ -29,6 +29,10 @@ public extension View {
         modifier(DidAppearModifier(callback: perform))
     }
 
+    func onFirstAppear(perform: @escaping () -> Void) -> some View {
+        modifier(FirstAppearModifier(callback: perform))
+    }
+
     /// Consider using this method if you're using two and more life cycle callbacks for the same view.
     /// Using this method is more efficient than using multiple individual lifecycle callbacks.
     func on(
@@ -165,6 +169,22 @@ private struct DidAppearModifier: ViewModifier {
                 onWillDisappear: nil,
                 onDidDisappear: nil
             ))
+    }
+}
+
+private struct FirstAppearModifier: ViewModifier {
+    let callback: () -> Void
+
+    @State private var isFirstTimeAppeared = true
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                if isFirstTimeAppeared {
+                    isFirstTimeAppeared = false
+                    callback()
+                }
+            }
     }
 }
 

@@ -12,10 +12,13 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_archived_recover" = "Recover";
+"account_archived_title" = "Archived";
 "account_details_archive_action" = "Archive";
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_title" = "Account";
+"account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
 "account_form_name" = "Account name";
@@ -938,10 +941,13 @@
 "send_with_swap_confirm_title" = "Обмен и отправка";
 "send_with_swap_convert_token_alert_message" = "Продолжить с конвертацией? Это действие удалит предыдущие данные";
 "send_with_swap_convert_token_alert_title" = "Подтвердить конвертацию";
+"send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
+"send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
 "send_with_swap_notification_text" = "Отправьте любой токен, и мы конвертируем его по пути. Адресат получит именно то, что нужно — без лишних действий.";
 "send_with_swap_recipient_amount_success_title" = "Будет получено";
 "send_with_swap_recipient_amount_text" = "Получателю";
 "send_with_swap_recipient_amount_title" = "Сумма к получению";
+"send_with_swap_recipient_get_amount" = "Recipient get %@";
 "send_with_swap_remove_convert_alert_message" = "Вы уверены, что хотите отменить конвертацию? Ваши предыдущие данные будут удалены.";
 "send_with_swap_remove_convert_alert_title" = "Убрать конвертацию";
 "send_with_swap_title" = "Отправка с обменом";
@@ -1440,7 +1446,7 @@
 "warning_token_trustline_title" = "Требуется трастлайн";
 "wc_alert_audit_malicious_domain" = "Вредоносный домен";
 "wc_alert_audit_unknown_domain" = "Неизвестный домен";
-"wc_alert_connect_anyway" = "Подключиться всё равно";
+"wc_alert_connect_anyway" = "Всё равно подключиться";
 "wc_alert_connection_timeout_description" = "Ошибка тайм-аута. Пожалуйста, попробуйте позже.";
 "wc_alert_connection_timeout_title" = "Не удалось подключиться через Wallet Connect";
 "wc_alert_domain_issues_description" = "Этот домен не может быть верифицирован. Внимательно проверьте запрос перед одобрением.";
