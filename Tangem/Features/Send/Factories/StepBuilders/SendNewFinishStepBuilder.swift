@@ -15,12 +15,14 @@ struct SendNewFinishStepBuilder {
         input: SendFinishInput,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
         sendAmountFinishViewModel: SendNewAmountFinishViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
     ) -> ReturnValue {
         let viewModel = SendNewFinishViewModel(
             input: input,
             sendAmountFinishViewModel: sendAmountFinishViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
