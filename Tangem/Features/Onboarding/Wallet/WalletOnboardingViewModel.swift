@@ -763,11 +763,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
                             pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == backupService.primaryCard?.cardId {
                                 userWalletModel?.update(type: .backupStarted(card: updatedCard))
                             }
+
+                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
