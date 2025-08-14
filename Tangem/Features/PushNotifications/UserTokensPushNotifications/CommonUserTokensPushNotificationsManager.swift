@@ -61,8 +61,11 @@ class CommonUserTokensPushNotificationsManager {
         userTokensPushNotificationsService
             .entriesPublisher
             .removeDuplicates()
+            .combineLatest(userTokenListManager.initializedPublisher)
             .withWeakCaptureOf(self)
-            .sink { manager, entries in
+            .sink { manager, args in
+                let (entries, _) = args
+
                 // Need cancel update status when entries did update
                 manager.updateTask?.cancel()
 
@@ -78,7 +81,8 @@ class CommonUserTokensPushNotificationsManager {
             .hasPendingDerivations
             .dropFirst() // We synchronize only state changes and send them only when they change.
             .removeDuplicates()
-            .filter { !$0 }
+            .combineLatest(userTokenListManager.initializedPublisher)
+            .filter { !$0.0 }
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 manager.syncRemoteStatus()
@@ -87,6 +91,7 @@ class CommonUserTokensPushNotificationsManager {
 
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
+            .combineLatest(userTokenListManager.initializedPublisher)
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 guard let currentEntry = manager.currentEntry else {
@@ -100,8 +105,11 @@ class CommonUserTokensPushNotificationsManager {
         // It is used for existing versions in order to automatically show a notification to the user about transactions.
         pushNotificationsInteractor
             .permissionRequestPublisher
+            .combineLatest(userTokenListManager.initializedPublisher)
             .withWeakCaptureOf(self)
-            .sink { manager, request in
+            .sink { manager, args in
+                let (request, _) = args
+
                 guard case .allow(.afterLogin) = request else {
                     return
                 }
@@ -156,6 +164,10 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
+        guard userTokenListManager.initialized else {
+            return
+        }
+
         userTokenListManager.upload()
     }
 }
