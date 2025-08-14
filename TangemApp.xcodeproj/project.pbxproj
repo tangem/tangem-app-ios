@@ -2003,6 +2003,7 @@
 		B63DFC4C2CD4EA1C00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4B2CD4EA1C00720D9F /* TangemModules */; };
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
 		B63EB7F42DE5B26A00E2E1A7 /* SendDismissReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63EB7F32DE5B26A00E2E1A7 /* SendDismissReason.swift */; };
+		B63F2B412E4E3F7500AFC60C /* WalletManagersRepositoryAccountsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63F2B402E4E3F7500AFC60C /* WalletManagersRepositoryAccountsAdapter.swift */; };
 		B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */; };
 		B6421A8D2C9272800053DD8B /* MainBottomSheetHeaderViewModelDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6421A8C2C9272800053DD8B /* MainBottomSheetHeaderViewModelDelegate.swift */; };
 		B6438A0E2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */; };
@@ -6040,6 +6041,7 @@
 		B63B72882AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsSourcePublisherFactory.swift; sourceTree = "<group>"; };
 		B63D4CAC2B2B8C6200DB2420 /* MutableCollection+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MutableCollection+.swift"; sourceTree = "<group>"; };
 		B63EB7F32DE5B26A00E2E1A7 /* SendDismissReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDismissReason.swift; sourceTree = "<group>"; };
+		B63F2B402E4E3F7500AFC60C /* WalletManagersRepositoryAccountsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagersRepositoryAccountsAdapter.swift; sourceTree = "<group>"; };
 		B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerFlexibleFooterView.swift; sourceTree = "<group>"; };
 		B6421A8C2C9272800053DD8B /* MainBottomSheetHeaderViewModelDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetHeaderViewModelDelegate.swift; sourceTree = "<group>"; };
 		B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAnalyticsEventConverter.swift; sourceTree = "<group>"; };
@@ -14380,6 +14382,14 @@
 			path = ListFooter;
 			sourceTree = "<group>";
 		};
+		B63F2B3F2E4E3F6800AFC60C /* Interop */ = {
+			isa = PBXGroup;
+			children = (
+				B63F2B402E4E3F7500AFC60C /* WalletManagersRepositoryAccountsAdapter.swift */,
+			);
+			path = Interop;
+			sourceTree = "<group>";
+		};
 		B64505482A1E2A32002B10B6 /* CardsInfo */ = {
 			isa = PBXGroup;
 			children = (
@@ -14477,6 +14487,7 @@
 			isa = PBXGroup;
 			children = (
 				B6DC54B62E4E8F7F005C8EB9 /* Common */,
+				B63F2B3F2E4E3F6800AFC60C /* Interop */,
 				B6CAC2192E46C5FD002DFA82 /* Repository */,
 				B6B436932E3C2A3500006FA7 /* AccountModelsManager */,
 				B6B436942E3C2A3500006FA7 /* AccountModel */,
@@ -22042,6 +22053,7 @@
 				B69F0EDB2DD3992400997631 /* StakingAmountModifier.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				EFA4E3792C3EEB33008815AD /* StakingValidatorsStep.swift in Sources */,
+				B63F2B412E4E3F7500AFC60C /* WalletManagersRepositoryAccountsAdapter.swift in Sources */,
 				DA81CF2F2B060A5D008877F1 /* SendSuggestedDestinationView.swift in Sources */,
 				B06C9B862A3AE65A00875852 /* ExchangeCryptoUtility.swift in Sources */,
 				DC3DCAED2A49C6D900F72554 /* WalletManagersRepository.swift in Sources */,
