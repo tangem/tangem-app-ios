@@ -12,6 +12,7 @@ import Combine
 
 class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactViewModel?
+    @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -56,6 +57,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         notificationManager: NotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -66,6 +68,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         self.notificationManager = notificationManager
         self.analyticsLogger = analyticsLogger
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
+        self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
