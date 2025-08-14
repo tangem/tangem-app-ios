@@ -41,11 +41,13 @@ public class ExpressAvailableProvider {
             return .high(rate: state.quote.rate)
         case .ready(let state):
             return .high(rate: state.quote.rate)
-        case .idle, .restriction(.tooSmallAmount, _):
-            return .medium
+        case .restriction(.tooSmallAmount(let amount), _):
+            // HACK: We need to use a negative value here because
+            // sorting by priority works from higher to lower.
+            return .medium(minimumAmount: -amount)
         case .restriction:
             return .low
-        case .error:
+        case .idle, .error:
             return .lowest
         }
     }
@@ -55,7 +57,7 @@ public extension ExpressAvailableProvider {
     enum Priority: Comparable {
         case lowest
         case low
-        case medium
+        case medium(minimumAmount: Decimal)
         case high(rate: Decimal)
         case highest
     }
