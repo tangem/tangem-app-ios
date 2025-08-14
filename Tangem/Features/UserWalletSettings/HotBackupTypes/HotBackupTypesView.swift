@@ -13,14 +13,14 @@ import TangemAssets
 struct HotBackupTypesView: View {
     typealias ViewModel = HotBackupTypesViewModel
 
-    let viewModel: ViewModel
+    @ObservedObject var viewModel: ViewModel
 
     var body: some View {
         content
             .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
-            .onAppear(perform: viewModel.onAppear)
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
@@ -30,15 +30,15 @@ private extension HotBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 8) {
-                ForEach(viewModel.backupTypes) {
-                    backupTypeView($0)
+                ForEach(viewModel.backupItems) {
+                    backupItemView($0)
                 }
             }
             .padding(.top, 16)
         }
     }
 
-    func backupTypeView(_ item: ViewModel.BackupType) -> some View {
+    func backupItemView(_ item: ViewModel.BackupItem) -> some View {
         Button(action: item.action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
