@@ -9,6 +9,7 @@
 import Combine
 import UIKit
 import ReownWalletKit
+import enum BlockchainSdk.Blockchain
 import TangemFoundation
 import TangemUIUtils
 
@@ -88,6 +89,10 @@ extension CommonWCService: WCService {
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
         v2Service.disconnectAllSessionsForUserWallet(with: userWalletId)
+    }
+
+    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain) {
+        v2Service.handleHiddenBlockchainFromCurrentUserWallet(blockchain)
     }
 }
 
