@@ -29,22 +29,16 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
             )
         append(step: seedPhraseIntroStep)
 
-        let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
+        let userWalletId = userWalletModel.userWalletId
 
-        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(
-            seedPhraseResolver: seedPhraseResolver,
-            delegate: self
-        )
-        .configureNavBar(
+        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
+        seedPhraseRecoveryStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
         append(step: seedPhraseRecoveryStep)
 
-        let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
-            seedPhraseResolver: seedPhraseResolver,
-            onSuccessfullyValidated: weakify(self, forFunction: HotOnboardingBackupSeedPhraseFlowBuilder.onSeedPhraseValidated)
-        )
+        let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(userWalletId: userWalletId, delegate: self)
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
@@ -58,11 +52,6 @@ final class HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
-    }
-
-    func onSeedPhraseValidated() {
-        userWalletModel.update(type: .mnemonicBackupCompleted)
-        openNext()
     }
 }
 
@@ -94,6 +83,15 @@ extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseIntro
 
 extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseRecoveryDelegate {
     func seedPhraseRecoveryContinue() {
+        openNext()
+    }
+}
+
+// MARK: - HotOnboardingSeedPhraseValidationDelegate
+
+extension HotOnboardingBackupSeedPhraseFlowBuilder: HotOnboardingSeedPhraseValidationDelegate {
+    func didValidateSeedPhrase() {
+        userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
     }
 }
