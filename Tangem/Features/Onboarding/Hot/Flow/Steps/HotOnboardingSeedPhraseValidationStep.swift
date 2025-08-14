@@ -7,21 +7,17 @@
 //
 
 import SwiftUI
+import TangemFoundation
+import TangemHotSdk
 
 final class HotOnboardingSeedPhraseValidationStep: HotOnboardingFlowStep {
-    private let viewModel: OnboardingSeedPhraseUserValidationViewModel
+    private let viewModel: HotOnboardingSeedPhraseValidationViewModel
 
-    init(seedPhraseResolver: HotOnboardingSeedPhraseResolver, onCreateWallet: @escaping () -> Void) {
-        let words = seedPhraseResolver.validationWords
-        viewModel = OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
-            secondWord: words.second,
-            seventhWord: words.seventh,
-            eleventhWord: words.eleventh,
-            createWalletAction: onCreateWallet
-        ))
+    init(userWalletId: UserWalletId, delegate: HotOnboardingSeedPhraseValidationDelegate) {
+        viewModel = HotOnboardingSeedPhraseValidationViewModel(userWalletId: userWalletId, delegate: delegate)
     }
 
     override func build() -> any View {
-        OnboardingSeedPhraseUserValidationView(viewModel: viewModel)
+        HotOnboardingSeedPhraseValidationView(viewModel: viewModel)
     }
 }

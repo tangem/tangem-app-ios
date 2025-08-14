@@ -59,10 +59,10 @@ private extension HotFinishActivationNeededView {
     var attentionIcon: some View {
         ZStack {
             Circle()
-                .fill(Colors.Icon.warning.opacity(0.1))
+                .fill(viewModel.iconBgColor.opacity(0.1))
                 .frame(width: 56, height: 56)
 
-            Assets.criticalAttentionShield.image
+            viewModel.iconType.image
                 .resizable()
                 .renderingMode(.original)
                 .frame(width: 26, height: 29)
