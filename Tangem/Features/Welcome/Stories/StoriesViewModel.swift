@@ -213,7 +213,7 @@ class StoriesViewModel: ObservableObject {
     }
 
     private func restartTimer() {
-        guard !AppEnvironment.current.isUITest else {
+        if AppEnvironment.current.isUITest {
             currentProgress = 0
             return
         }
