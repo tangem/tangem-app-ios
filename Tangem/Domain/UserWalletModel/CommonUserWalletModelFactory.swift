@@ -62,7 +62,6 @@ struct CommonUserWalletModelFactory {
             name: name ?? fallbackName(config: config),
             config: config,
             userWalletId: userWalletId,
-            walletManagersRepository: dependencies.walletManagersRepository,
             walletModelsManager: dependencies.walletModelsManager,
             userTokensManager: dependencies.userTokensManager,
             userTokenListManager: dependencies.userTokenListManager,
@@ -108,8 +107,6 @@ struct CommonUserWalletModelFactory {
 private struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     let userTokenListManager: UserTokenListManager
-    let walletManagersRepository: WalletManagersRepository
-
     let walletModelsManager: WalletModelsManager
     let derivationManager: CommonDerivationManager?
     let totalBalanceProvider: TotalBalanceProvider
@@ -142,7 +139,7 @@ private struct CommonUserWalletModelDependencies {
 
         self.userTokenListManager = userTokenListManager
 
-        walletManagersRepository = CommonWalletManagersRepository(
+        let walletManagersRepository = CommonWalletManagersRepository(
             keysProvider: self.keysRepository,
             userTokenListManager: userTokenListManager,
             walletManagerFactory: walletManagerFactory
