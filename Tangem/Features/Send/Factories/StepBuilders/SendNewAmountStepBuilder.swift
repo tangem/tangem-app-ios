@@ -55,8 +55,7 @@ struct SendNewAmountStepBuilder {
         )
 
         let viewModel = SendNewAmountViewModel(
-            sourceTokenInput: sourceIO.input,
-            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
+            sourceToken: sourceIO.input.sourceToken,
             interactor: interactor,
             analyticsLogger: analyticsLogger
         )
