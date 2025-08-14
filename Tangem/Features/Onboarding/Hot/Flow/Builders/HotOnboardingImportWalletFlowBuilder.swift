@@ -40,7 +40,7 @@ final class HotOnboardingImportWalletFlowBuilder: HotOnboardingFlowBuilder {
         importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         append(step: importCompletedStep)
 
-        let accessCodeStep = HotOnboardingAccessCodeStep(context: nil, delegate: self)
+        let accessCodeStep = HotOnboardingAccessCodeStep(delegate: self)
             .configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
 
