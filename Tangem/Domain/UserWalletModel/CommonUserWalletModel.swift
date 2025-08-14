@@ -222,9 +222,16 @@ extension CommonUserWalletModel: UserWalletModel {
                 if userWalletRepository.models[userWalletId] != nil {
                     userWalletRepository.save(userWalletModel: self)
                 }
-            case .mobileWallet:
-                // [REDACTED_TODO_COMMENT]
-                break
+            case .mobileWallet(let info):
+                var mutableCardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = info.keys[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
+                _cardHeaderImagePublisher.send(config.cardHeaderImage)
             }
 
         case .accessCodeDidSet:
