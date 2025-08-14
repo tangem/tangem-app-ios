@@ -48,8 +48,7 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
             accountAddress: address,
             metadata: .init(domain: domain.absoluteString),
             chain: blockchain,
-            data: .init(params: params, method: method),
-            block: nil
+            data: .init(params: params, method: method)
         )
 
         return try await request(target: .scanEvm(request: scanRequest))
