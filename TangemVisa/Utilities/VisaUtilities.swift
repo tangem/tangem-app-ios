@@ -10,34 +10,22 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-public struct VisaUtilities {
-    private let isTestnet: Bool
+public enum VisaUtilities {}
 
+public extension VisaUtilities {
     // [REDACTED_TODO_COMMENT]
     // Right now dApp is not ready, so we don't have actual page
-    public let walletConnectURL = URL(string: "https://tangem.com/pay")!
+    static let walletConnectURL = URL(string: "https://tangem.com/pay")!
 
-    public init(isTestnet: Bool) {
-        self.isTestnet = isTestnet
-    }
-
-    public var mandatoryCurve: EllipticCurve {
+    static var mandatoryCurve: EllipticCurve {
         .secp256k1
     }
 
-    public var tokenId: String {
+    static var tokenId: String {
         "tether"
     }
 
-    public var visaDefaultDerivationStyle: DerivationStyle {
-        .v3
-    }
-
-    public var visaDefaultDerivationPath: DerivationPath? {
-        visaBlockchain.derivationPath(for: visaDefaultDerivationStyle)
-    }
-
-    public var mockToken: Token {
+    static var mockToken: Token {
         .init(
             name: "Tether",
             symbol: "USDT",
@@ -47,65 +35,85 @@ public struct VisaUtilities {
         )
     }
 
-    public var visaBlockchain: Blockchain {
-        .polygon(testnet: isTestnet)
-    }
+    static var visaBatchPrefix: String { "AE" }
 
-    public var addressService: AddressService {
-        AddressServiceFactory(blockchain: visaBlockchain).makeAddressService()
-    }
-
-    var visaBatchPrefix: String { "AE" }
-
-    var visaAdditionalBatches: [String] {
+    static var visaAdditionalBatches: [String] {
         [
             "FFFC",
         ]
     }
 
-    public func visaDerivationPath(style: DerivationStyle) -> DerivationPath? {
-        visaBlockchain.derivationPath(for: style)
+    static func visaBlockchain(isTestnet: Bool) -> Blockchain {
+        .polygon(testnet: isTestnet)
     }
 
-    public func isVisaCard(_ card: Card) -> Bool {
+    static func makeCustomerWalletSigningRequestMessage(nonce: String) -> String {
+        // This message format is defined by backend
+        "Tangem Pay wants to sign in with your account. Nonce: \(nonce)"
+    }
+
+    static func makeEIP191Message(content: String) -> String {
+        "\u{19}Ethereum Signed Message:\n\(content.count)\(content)"
+    }
+
+    static func isVisaCard(_ card: Card) -> Bool {
         return isVisaCard(firmwareVersion: card.firmwareVersion, batchId: card.batchId)
     }
 
-    public func isVisaCard(firmwareVersion: FirmwareVersion, batchId: String) -> Bool {
+    static func isVisaCard(firmwareVersion: FirmwareVersion, batchId: String) -> Bool {
         return FirmwareVersion.visaRange.contains(firmwareVersion.doubleValue)
             && (batchId.starts(with: visaBatchPrefix) || visaAdditionalBatches.contains(batchId))
     }
+}
 
-    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaUtilitiesError) -> Address {
-        guard let visaDefaultDerivationPath else {
-            throw VisaUtilitiesError.failedToCreateDerivation
-        }
-
-        do {
-            let hdKey = Wallet.PublicKey.HDKey(path: visaDefaultDerivationPath, extendedPublicKey: extendedKey)
-            let publicKey = Wallet.PublicKey(seedKey: seedKey, derivationType: .plain(hdKey))
-            let walletAddress = try addressService.makeAddress(for: publicKey, with: .default)
-            return walletAddress
-        } catch {
-            throw .failedToCreateAddress(error)
-        }
+public extension VisaUtilities {
+    static func makeAddressService(isTestnet: Bool) -> AddressService {
+        AddressServiceFactory(
+            blockchain: VisaUtilities.visaBlockchain(isTestnet: isTestnet)
+        )
+        .makeAddressService()
     }
 
-    public func makeAddress(walletPublicKey: Data) throws(VisaUtilitiesError) -> Address {
+    static func makeAddress(walletPublicKey: Data, isTestnet: Bool) throws(VisaUtilitiesError) -> Address {
         do {
             let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: nil)
-            let walletAddress = try addressService.makeAddress(for: publicKey, with: .default)
+            let walletAddress = try makeAddressService(isTestnet: isTestnet).makeAddress(for: publicKey, with: .default)
             return walletAddress
         } catch {
             throw .failedToCreateAddress(error)
         }
     }
 
-    public func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
+    static func makeAddress(publicKey: Wallet.PublicKey, isTestnet: Bool) throws(VisaUtilitiesError) -> Address {
+        do {
+            let walletAddress = try makeAddressService(isTestnet: isTestnet).makeAddress(for: publicKey, with: .default)
+            return walletAddress
+        } catch {
+            throw .failedToCreateAddress(error)
+        }
+    }
+
+    static func makeAddress(using cardActivationResponse: CardActivationResponse, isTestnet: Bool) throws -> Address {
         guard let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }) else {
             throw VisaActivationError.missingWallet
         }
 
-        return try makeAddress(walletPublicKey: wallet.publicKey)
+        return try makeAddress(walletPublicKey: wallet.publicKey, isTestnet: isTestnet)
+    }
+}
+
+/// - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
+/// that didn't work properly, and for Visa we must generate derive keys using polygon derivation
+public extension VisaUtilities {
+    static var visaDefaultDerivationStyle: DerivationStyle {
+        .v3
+    }
+
+    static var visaDefaultDerivationPath: DerivationPath? {
+        VisaUtilities.visaBlockchain(isTestnet: false).derivationPath(for: visaDefaultDerivationStyle)
+    }
+
+    static func visaDerivationPath(style: DerivationStyle) -> DerivationPath? {
+        VisaUtilities.visaBlockchain(isTestnet: false).derivationPath(for: style)
     }
 }

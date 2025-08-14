@@ -52,8 +52,18 @@ extension CommonSwapManager: SwapManager {
         interactor.state
     }
 
+    var providers: [ExpressAvailableProvider] {
+        get async { await interactor.getAllProviders() }
+    }
+
+    var selectedProvider: ExpressAvailableProvider? {
+        get async { await interactor.getSelectedProvider() }
+    }
+
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         statePublisher
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
             .withWeakCaptureOf(self)
             .asyncMap { manager, _ in
                 await manager.interactor.getAllProviders()
@@ -63,6 +73,8 @@ extension CommonSwapManager: SwapManager {
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
         statePublisher
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
             .withWeakCaptureOf(self)
             .asyncMap { manager, _ in
                 await manager.interactor.getSelectedProvider()
@@ -86,6 +98,10 @@ extension CommonSwapManager: SwapManager {
         interactor.updateProvider(provider: provider)
     }
 
+    func update(feeOption: FeeOption) {
+        interactor.updateFeeOption(option: feeOption)
+    }
+
     func update() {
         interactor.refresh(type: .full)
     }
@@ -95,7 +111,14 @@ extension CommonSwapManager: SwapManager {
     }
 
     func send() async throws -> TransactionDispatcherResult {
-        try await interactor.send().result
+        do {
+            let result = try await interactor.send().result
+            // Stop timer after send
+            stopTimer()
+            return result
+        } catch {
+            throw error
+        }
     }
 }
 

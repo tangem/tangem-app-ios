@@ -33,10 +33,20 @@ struct SendNewDestinationCompactView: View {
 
     private var address: some View {
         HStack(alignment: .center, spacing: .zero) {
-            SUITextView(viewModel: .init(), text: .constant(viewModel.address), font: UIFonts.Regular.subheadline, color: UIColor.textPrimary1)
-                .disabled(true)
+            VStack(alignment: .leading, spacing: 2) {
+                SUITextView(viewModel: .init(), text: .constant(viewModel.address), font: UIFonts.Regular.subheadline, color: UIColor.textPrimary1)
+                    .disabled(true)
 
-            Spacer()
+                if let resolved = viewModel.resolved {
+                    Text(resolved)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.leading)
+                        .truncationMode(.middle)
+                }
+            }
+
+            Spacer(minLength: 24)
 
             AddressIconView(viewModel: AddressIconViewModel(address: viewModel.address))
         }
