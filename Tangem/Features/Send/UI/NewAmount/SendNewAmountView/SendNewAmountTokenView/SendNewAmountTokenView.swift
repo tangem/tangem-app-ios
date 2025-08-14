@@ -17,7 +17,7 @@ struct SendNewAmountTokenView: View {
     var body: some View {
         HStack(spacing: 14) {
             switch (data.action, data.detailsType) {
-            case (.some(let leadingAction), .select(_, individualAction: .some(let individualAction))):
+            case (.some(let leadingAction), .select(individualAction: .some(let individualAction))):
                 Button(action: leadingAction) {
                     leadingView
 
@@ -55,8 +55,21 @@ struct SendNewAmountTokenView: View {
                 Text(data.title)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                Text(data.subtitle)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                switch data.subtitle {
+                case .balance(let state):
+                    LoadableTokenBalanceView(
+                        state: state,
+                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        loader: .init(size: CGSize(width: 130, height: 15))
+                    )
+                case .receive(let state):
+                    LoadableTextView(
+                        state: state,
+                        font: Fonts.Regular.caption1,
+                        textColor: Colors.Text.tertiary,
+                        loaderSize: CGSize(width: 130, height: 15)
+                    )
+                }
             }
         }
         .padding(.vertical, 14)
@@ -67,24 +80,15 @@ struct SendNewAmountTokenView: View {
         switch data.detailsType {
         case .none:
             EmptyView()
-        case .loading:
-            ProgressView()
         case .max(let action):
             RoundedButton(title: Localization.sendMaxAmount, action: action)
-        case .select(.some(let amount), _):
-            HStack(spacing: 4) {
-                Text(amount)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                Assets.Glyphs.selectIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(Colors.Text.tertiary)
-                    .frame(width: 18, height: 24)
-            }
-        case .select(.none, .none):
+        case .select(.none):
             Assets.Glyphs.selectIcon.image
-        case .select(.none, .some):
+                .renderingMode(.template)
+                .resizable()
+                .foregroundStyle(Colors.Text.tertiary)
+                .frame(width: 18, height: 24)
+        case .select(.some):
             HStack(spacing: 8) {
                 // Expand tappable area
                 FixedSpacer(width: 20)
@@ -108,7 +112,7 @@ struct SendNewAmountTokenView: View {
                 isCustom: false
             ),
             title: "Polygon",
-            subtitle: "Will be send to recepient",
+            subtitle: .receive(state: .loaded(text: "Will be send to recepient")),
             detailsType: .none,
             action: {}
         )
