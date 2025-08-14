@@ -13,10 +13,11 @@ import enum BlockchainSdk.Blockchain
 import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
-class CommonUserTokenListManager {
+final class CommonUserTokenListManager {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.wcService) private var wcService: any WCService
 
     weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
@@ -111,7 +112,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
             let storedUserTokens = converter.convertToStoredUserTokens(entries)
             tokenItemsRepository.append(storedUserTokens)
         case .removeBlockchain(let blockchainNetwork):
-            tokenItemsRepository.remove([blockchainNetwork])
+            tokenItemsRepository.remove(
+                [blockchainNetwork],
+                completion: { [wcService] in
+                    wcService.handleHiddenBlockchainFromCurrentUserWallet(blockchainNetwork.blockchain)
+                }
+            )
         case .removeToken(let token, let blockchainNetwork):
             let storedUserToken = converter.convertToStoredUserToken(token, in: blockchainNetwork)
             tokenItemsRepository.remove([storedUserToken])
@@ -295,6 +301,6 @@ private extension CommonUserTokenListManager {
         }
 
         let blockchainNetwork = badEntries.map { $0.blockchainNetwork }
-        tokenItemsRepository.remove(blockchainNetwork)
+        tokenItemsRepository.remove(blockchainNetwork, completion: nil)
     }
 }
