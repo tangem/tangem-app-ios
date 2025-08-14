@@ -8,15 +8,31 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
+import TangemAssets
+import TangemLocalization
 
 class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
     @Published var selectedFeeComponents: LoadableTextView.State = .initialized
     @Published var canEditFee: Bool = false
 
+    var infoButtonString: AttributedString {
+        let readMore = Localization.commonReadMore
+        var attributed = AttributedString(Localization.commonFeeSelectorFooter(readMore))
+        attributed.foregroundColor = Colors.Text.primary2
+        attributed.font = Fonts.Regular.caption1
+
+        if let range = attributed.range(of: readMore) {
+            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].link = TangemBlogUrlBuilder().url(post: .fee)
+        }
+
+        return attributed
+    }
+
     private let feeTokenItem: TokenItem
     private let isFeeApproximate: Bool
 
+    private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
     private var selectedFeeSubscription: AnyCancellable?
     private var canEditFeeSubscription: AnyCancellable?
 
@@ -25,11 +41,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
         balanceConverter: BalanceConverter()
     )
 
-    init(
-        input: SendFeeInput,
-        feeTokenItem: TokenItem,
-        isFeeApproximate: Bool
-    ) {
+    init(feeTokenItem: TokenItem, isFeeApproximate: Bool) {
         self.feeTokenItem = feeTokenItem
         self.isFeeApproximate = isFeeApproximate
     }

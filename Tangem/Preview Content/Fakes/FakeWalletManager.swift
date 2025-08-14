@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemVisa
+import TangemFoundation
 
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
@@ -167,7 +168,7 @@ extension FakeWalletManager {
     static let visaWalletManager: FakeWalletManager = {
         var wallet = Wallet.polygonWalletStub
         wallet.add(coinValue: 0)
-        wallet.add(tokenValue: 354.123, for: VisaUtilities().mockToken)
+        wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
 }
