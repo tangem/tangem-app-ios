@@ -15,6 +15,7 @@ struct SendSourceToken {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let fiatItem: FiatItem
+    let possibleToConvertToFiat: Bool
 
     let availableBalanceProvider: TokenBalanceProvider
     let fiatAvailableBalanceProvider: TokenBalanceProvider
