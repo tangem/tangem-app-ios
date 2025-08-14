@@ -26,6 +26,7 @@ struct SendNewSummaryStepBuilder {
         analyticsLogger: any SendSummaryAnalyticsLogger,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
@@ -42,6 +43,7 @@ struct SendNewSummaryStepBuilder {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
