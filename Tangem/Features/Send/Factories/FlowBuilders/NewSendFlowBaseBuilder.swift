@@ -79,6 +79,7 @@ struct NewSendFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            nftAssetCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -87,6 +88,7 @@ struct NewSendFlowBaseBuilder {
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
+            nftAssetCompactViewModel: .none,
             sendDestinationCompactViewModel: destination.compact,
             sendFeeFinishViewModel: fee.finish,
         )
