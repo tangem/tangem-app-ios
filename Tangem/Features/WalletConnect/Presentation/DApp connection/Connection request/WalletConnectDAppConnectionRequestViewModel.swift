@@ -62,7 +62,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         guard let loadedDAppProposal else { return }
 
         let previousBlockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
-        let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains()
+        let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains().map(\.blockchain)
             ?? Array(loadedDAppProposal.sessionProposal.optionalBlockchains)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
@@ -133,7 +133,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 // MARK: - DApp proposal connect / cancel
 
 extension WalletConnectDAppConnectionRequestViewModel {
-    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [Blockchain]) async {
+    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
         analyticsLogger.logConnectButtonTapped()
 
         let dAppSession: WalletConnectDAppSession
@@ -141,7 +141,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
         do {
             dAppSession = try await interactor.approveDAppProposal(
                 sessionProposal: proposal.sessionProposal,
-                selectedBlockchains: selectedBlockchains,
+                selectedBlockchains: selectedBlockchains.map(\.blockchain),
                 selectedUserWallet: selectedUserWallet
             )
         } catch {
@@ -155,7 +155,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             try await interactor.persistConnectedDApp(
                 connectionProposal: proposal,
                 dAppSession: dAppSession,
-                blockchains: selectedBlockchains,
+                dAppBlockchains: selectedBlockchains,
                 userWallet: selectedUserWallet
             )
         } catch {
@@ -361,7 +361,7 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
         }
 
         let availableSelectionMode = AvailableSelectionMode(
-            blockchains: blockchainsAvailabilityResult.retrieveSelectedBlockchains()
+            blockchains: blockchainsAvailabilityResult.retrieveSelectedBlockchains().map(\.blockchain)
         )
         let contentState = ContentState(selectionMode: .available(availableSelectionMode))
         self.init(state: .content(contentState))
