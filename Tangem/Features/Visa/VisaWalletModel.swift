@@ -312,6 +312,10 @@ extension VisaWalletModel: WalletModel {
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }
+
+    var account: CryptoAccountModel {
+        preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
+    }
 }
 
 extension VisaWalletModel: Equatable {
