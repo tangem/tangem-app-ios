@@ -112,7 +112,7 @@ struct SendView: View {
             EmptyView()
 
         case .closeButton:
-            CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: viewModel.dismiss)
+            CircleButton.close(action: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
 
         case .qrCodeButton(let action):
@@ -140,7 +140,7 @@ struct SendView: View {
                 Text(title)
                     .multilineTextAlignment(.center)
                     .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.title)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
 
                 if let subtitle = viewModel.subtitle {
                     Text(subtitle)
@@ -236,8 +236,7 @@ struct SendView: View {
         case .newFinish(let sendFinishViewModel):
             SendNewFinishView(
                 viewModel: sendFinishViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
+                transitionService: transitionService
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
@@ -285,6 +284,7 @@ struct SendView: View {
                     isDisabled: !viewModel.actionIsAvailable,
                     action: viewModel.userDidTapActionButton
                 )
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
             .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.showBackButton)
         }

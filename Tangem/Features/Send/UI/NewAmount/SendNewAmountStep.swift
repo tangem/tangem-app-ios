@@ -49,7 +49,7 @@ extension SendNewAmountStep: SendStep {
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        interactor.isValidPublisher.eraseToAnyPublisher()
+        interactor.isValidPublisher
     }
 
     func initialAppear() {
