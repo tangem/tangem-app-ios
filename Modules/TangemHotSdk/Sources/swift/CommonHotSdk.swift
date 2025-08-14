@@ -112,9 +112,12 @@ public final class CommonHotSdk: HotSdk {
         try publicInfoStorageManager.updateAccessCode(newAccessCode, context: context)
     }
 
-    public func enableBiometrics(
+    public func refreshBiometrics(
         context: MobileWalletContext
     ) throws {
+        try? privateInfoStorageManager.clearBiometrics(walletIDs: [context.walletID])
+        try? publicInfoStorageManager.clearBiometrics(walletIDs: [context.walletID])
+
         try privateInfoStorageManager.enableBiometrics(context: context)
         try publicInfoStorageManager.enableBiometrics(context: context)
     }
@@ -201,10 +204,6 @@ public final class CommonHotSdk: HotSdk {
     }
 
     public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
-        if case .biometrics = context.authentication {
-            throw HotWalletError.publicDataIsNotAvailableViaBiometrics
-        }
-
         let seedKey = try publicInfoStorageManager.publicData(for: context)
 
         return UserWalletEncryptionKey(userWalletIdSeed: seedKey)
