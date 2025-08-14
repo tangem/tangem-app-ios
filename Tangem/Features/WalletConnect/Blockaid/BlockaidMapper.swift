@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 
 enum BlockaidMapper {
     static func mapBlockchainScan(_ response: BlockaidDTO.EvmScan.Response) throws -> BlockaidChainScanResult {
@@ -106,6 +107,18 @@ private extension BlockaidMapper {
                     )
                 }
 
+                if let approvalValue = BigInt(detail.approval?.removeHexPrefix() ?? "", radix: 16) {
+                    return makeApprovalAsset(
+                        assetType: exposure.assetType,
+                        name: exposure.asset.name,
+                        symbol: exposure.asset.symbol,
+                        amount: approvalValue.decimal,
+                        logoURL: exposure.asset.logoUrl,
+                        decimals: exposure.asset.decimals,
+                        contractAddress: exposure.asset.address
+                    )
+                }
+
                 return nil
             } ?? []
         }
@@ -115,6 +128,7 @@ private extension BlockaidMapper {
         assetType: String,
         name: String?,
         symbol: String?,
+        amount: Decimal? = nil,
         logoURL: String?,
         decimals: Int?,
         contractAddress: String?
@@ -122,7 +136,7 @@ private extension BlockaidMapper {
         BlockaidChainScanResult.Asset(
             name: name,
             assetType: assetType,
-            amount: nil,
+            amount: amount,
             symbol: symbol,
             logoURL: logoURL.flatMap(URL.init(string:)),
             decimals: decimals,
