@@ -30,9 +30,11 @@ struct WCTransactionSimulationView: View {
                 switch displayModel.content {
                 case .loading:
                     loadingRow
+                        .padding(.bottom, 12)
                         .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
                 case .failed(let message):
                     failedView(message: message)
+                        .padding(.bottom, 12)
                         .transition(topEdgeTransition)
                 case .success(let successContent):
                     content(for: successContent)
@@ -77,8 +79,10 @@ struct WCTransactionSimulationView: View {
                 assetChangesSection(assetChanges)
             case .approvals(let approvals):
                 approvalsSection(approvals)
+                    .padding(.bottom, 12)
             case .noChanges:
                 noChangesView()
+                    .padding(.bottom, 12)
             }
         }
     }
@@ -160,9 +164,14 @@ struct WCTransactionSimulationView: View {
 
             Spacer()
 
-            Text("\(directionSign(for: item.direction))\(item.formattedAmount) \(item.symbol)")
+            let direction = item.asset.isNFT ? "" : directionSign(for: item.direction)
+
+            Text("\(direction) \(item.formattedAmount) \(item.symbol)")
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                .multilineTextAlignment(.trailing)
+
+            if item.asset.isNFT, let iconURL = item.iconURL {
+                IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, placeholder: { EmptyView() })
+            }
         }
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -185,7 +194,7 @@ struct WCTransactionSimulationView: View {
     private func leftContentView(for content: WCTransactionSimulationDisplayModel.ApprovalItem.LeftContent) -> some View {
         HStack(spacing: 8) {
             switch content {
-            case .editable(let iconURL, let formattedAmount, let asset):
+            case .editable(_, let formattedAmount, _):
                 Text(formattedAmount)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
             case .nonEditable:
@@ -204,8 +213,13 @@ struct WCTransactionSimulationView: View {
         HStack(spacing: 8) {
             switch content {
             case .tokenInfo(let formattedAmount, let iconURL, let asset):
-                Text(formattedAmount)
+                Text(asset.isNFT ? (asset.symbol ?? formattedAmount) : formattedAmount)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+
+                if asset.isNFT, let iconURL {
+                    IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, placeholder: { EmptyView() })
+                }
             case .empty:
                 EmptyView()
             }
