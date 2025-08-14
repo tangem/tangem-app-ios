@@ -55,7 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .hotWallet: return .unspecified
         case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
-        case .wcSolanaALT: return .unspecified
+        case .wcSolanaALT: return .version("5.27") // [REDACTED_TODO_COMMENT]
         }
     }
 }
