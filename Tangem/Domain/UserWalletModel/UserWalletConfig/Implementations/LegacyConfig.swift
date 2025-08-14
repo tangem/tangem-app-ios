@@ -223,6 +223,16 @@ extension LegacyConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
+            return .hidden
         }
     }
 

@@ -276,16 +276,16 @@ extension CardanoWalletManager: StakeKitTransactionSender, StakeKitTransactionsB
             transactionHashes[transaction] = hashToSign
 
             dataToSign.append(
-                SignData(derivationPath: firstDerivationPath, hash: hashToSign, publicKey: firstPublicKey)
+                SignData(derivationPath: firstDerivationPath, hashes: [hashToSign], publicKey: firstPublicKey)
             )
             dataToSign.append(
-                SignData(derivationPath: secondDerivationPath, hash: hashToSign, publicKey: secondPublicKey)
+                SignData(derivationPath: secondDerivationPath, hashes: [hashToSign], publicKey: secondPublicKey)
             )
         }
 
         let signatures: [SignatureInfo] = try await signer.sign(
             dataToSign: dataToSign,
-            seedKey: publicKey.seedKey
+            walletPublicKey: publicKey
         ).async()
 
         return try transactions.compactMap { transaction -> Data? in
