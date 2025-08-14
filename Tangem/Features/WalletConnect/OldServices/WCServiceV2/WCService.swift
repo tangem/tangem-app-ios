@@ -8,6 +8,7 @@
 
 import Combine
 import ReownWalletKit
+import enum BlockchainSdk.Blockchain
 
 protocol WCService {
     var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> { get }
@@ -21,4 +22,5 @@ protocol WCService {
     func disconnectSession(withTopic topic: String) async throws
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
+    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain)
 }
