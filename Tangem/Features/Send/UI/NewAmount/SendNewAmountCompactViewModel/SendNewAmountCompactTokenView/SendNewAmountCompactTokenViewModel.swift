@@ -21,17 +21,16 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
     var tokenCurrencySymbol: String { tokenItem.currencySymbol }
 
-    @Published private(set) var amountTextFieldViewModel: DecimalNumberTextField.ViewModel
-    @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    @Published private(set) var amountText: String = ""
     @Published private(set) var alternativeAmount: String?
     @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
 
     @Published private(set) var balance: LoadableTokenBalanceView.State?
 
+    private let isApproximateAmount: Bool
     private let tokenItem: TokenItem
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
-    private let prefixSuffixOptionsFactory: SendDecimalNumberTextField.PrefixSuffixOptionsFactory
     private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private var amountPublisherSubscription: AnyCancellable?
     private var balancePublisherSubscription: AnyCancellable?
@@ -41,31 +40,36 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
             title: Localization.sendWithSwapRecipientAmountTitle,
             tokenIconInfo: receiveToken.tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
-            fiatItem: receiveToken.fiatItem
+            fiatItem: receiveToken.fiatItem,
+            isApproximateAmount: true
         )
     }
 
     convenience init(sourceToken: SendSourceToken) {
         self.init(
-            title: Localization.sendFromWallet(sourceToken.wallet),
+            title: Localization.sendFromWalletName(sourceToken.wallet),
             tokenIconInfo: sourceToken.tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem
+            fiatItem: sourceToken.fiatItem,
+            isApproximateAmount: false
         )
     }
 
-    init(title: String, tokenIconInfo: TokenIconInfo, tokenItem: TokenItem, fiatItem: FiatItem) {
+    init(
+        title: String,
+        tokenIconInfo: TokenIconInfo,
+        tokenItem: TokenItem,
+        fiatItem: FiatItem,
+        isApproximateAmount: Bool
+    ) {
         self.title = title
         self.tokenIconInfo = tokenIconInfo
         self.tokenItem = tokenItem
         self.fiatItem = fiatItem
+        self.isApproximateAmount = isApproximateAmount
 
         sendAmountFormatter = .init(tokenItem: tokenItem, fiatItem: fiatItem)
         loadableTokenBalanceViewStateBuilder = .init()
-        prefixSuffixOptionsFactory = .init()
-
-        amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
-        amountTextFieldViewModel = .init(maximumFractionDigits: tokenItem.decimalCount)
     }
 
     func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
@@ -82,10 +86,7 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, type in
-                viewModel.balance = viewModel.loadableTokenBalanceViewStateBuilder.build(
-                    type: type,
-                    textBuilder: Localization.commonBalance
-                )
+                viewModel.balance = viewModel.loadableTokenBalanceViewStateBuilder.build(type: type)
             }
     }
 
@@ -114,17 +115,25 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
         case .success(let amount):
             switch amount.type {
             case .typical(let crypto, _):
-                amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
-                amountTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
-                amountTextFieldViewModel.update(value: crypto)
+                amountText = formatAmountText(amount: crypto)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
             case .alternative(let fiat, _):
-                amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
-                amountTextFieldViewModel.update(maximumFractionDigits: fiatItem.fractionDigits)
-                amountTextFieldViewModel.update(value: fiat)
+                amountText = formatAmountText(amount: fiat)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             }
         }
+    }
+
+    private func formatAmountText(amount: Decimal?) -> String {
+        guard let amount else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        if isApproximateAmount {
+            return "\(AppConstants.tildeSign) \(amount.stringValue)"
+        }
+
+        return amount.stringValue
     }
 }
 
