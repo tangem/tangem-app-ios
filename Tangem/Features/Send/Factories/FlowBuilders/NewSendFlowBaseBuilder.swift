@@ -79,6 +79,7 @@ struct NewSendFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            nftAssetCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -87,8 +88,9 @@ struct NewSendFlowBaseBuilder {
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
+            nftAssetCompactViewModel: .none,
             sendDestinationCompactViewModel: destination.compact,
-            sendFeeCompactViewModel: fee.finish,
+            sendFeeFinishViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
