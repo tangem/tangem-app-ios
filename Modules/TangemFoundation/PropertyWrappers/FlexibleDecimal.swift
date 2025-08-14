@@ -8,34 +8,35 @@
 
 import Foundation
 
-/// Unfortunately some APIs (e.g. Blockaid) could put both String and Number types inside the same JSON field
-/// This allows parsing Decimal from both types
 @propertyWrapper
 public struct FlexibleDecimal: Decodable {
     public var wrappedValue: Decimal?
 
-    /// Allow usage like `@FlexibleDecimal var x: Decimal?`
     public init(wrappedValue: Decimal?) {
         self.wrappedValue = wrappedValue
     }
 
-    /// Decode from JSON (number, string, or nil) — never throws on bad shape.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let value: Decimal?
 
         if container.decodeNil() {
-            value = nil
-        } else if let dec = try? container.decode(Decimal.self) {
-            value = dec
-        } else if let str = try? container.decode(String.self),
-                  let dec = Decimal(string: str) {
-            value = dec
-        } else {
-            value = nil
+            self.init(wrappedValue: nil)
+            return
         }
 
-        // MUST call your own init(wrappedValue:) here:
-        self.init(wrappedValue: value)
+        if let number = try? container.decode(Decimal.self) {
+            self.init(wrappedValue: number)
+            return
+        }
+
+        if let string = try? container.decode(String.self) {
+            let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let decimal = Decimal(string: trimmed) {
+                self.init(wrappedValue: decimal)
+                return
+            }
+        }
+
+        self.init(wrappedValue: nil)
     }
 }
