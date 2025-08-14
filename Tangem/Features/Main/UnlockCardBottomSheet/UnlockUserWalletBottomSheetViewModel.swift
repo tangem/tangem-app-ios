@@ -40,10 +40,8 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
         runTask(in: self) { viewModel in
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
-                try viewModel.userWalletRepository.unlock(
-                    userWalletId: viewModel.userWalletModel.userWalletId,
-                    method: .biometrics(context)
-                )
+                let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: viewModel.userWalletModel.userWalletId, context: context)
+                _ = try await viewModel.userWalletRepository.unlock(with: method)
             } catch where error.isCancellationError {
                 return
             } catch {
@@ -59,9 +57,8 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
         isScannerBusy = true
 
         runTask(in: self) { viewModel in
-            let cardScanner = CardScannerFactory().makeDefaultScanner()
-            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
-            let result = await userWalletCardScanner.scanCard()
+            let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: viewModel.userWalletModel)
+            let result = await unlocker.unlock()
 
             switch result {
             case .error(let error) where error.isCancellationError:
@@ -85,17 +82,10 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                     viewModel.openTroubleshooting()
                 }
 
-            case .success(let cardInfo):
+            case .success(let userWalletId, let encryptionKey):
                 do {
-                    guard let userWalletId = UserWalletId(cardInfo: cardInfo),
-                          userWalletId == viewModel.userWalletModel.userWalletId else {
-                        throw UserWalletRepositoryError.cardWithWrongUserWalletIdScanned
-                    }
-
-                    try viewModel.userWalletRepository.unlock(
-                        userWalletId: viewModel.userWalletModel.userWalletId,
-                        method: .card(cardInfo)
-                    )
+                    let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    _ = try await viewModel.userWalletRepository.unlock(with: method)
 
                     await runOnMain {
                         viewModel.isScannerBusy = false
@@ -108,7 +98,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                     }
                 }
 
-            default:
+            case .userWalletNeedsToDelete, .bioSelected:
                 await runOnMain {
                     viewModel.isScannerBusy = false
                 }
