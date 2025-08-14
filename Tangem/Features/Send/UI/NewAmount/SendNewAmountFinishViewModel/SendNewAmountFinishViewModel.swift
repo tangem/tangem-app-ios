@@ -143,14 +143,14 @@ private extension SendNewAmountFinishViewModel {
     }
 
     private func updateView(receiveToken: SendReceiveTokenType, receiveAmount: LoadingResult<SendAmount, any Error>) {
-        switch receiveToken {
-        case .same:
+        switch (receiveToken, receiveAmount) {
+        case (.same, _):
             receiveSmallAmountViewModel = nil
-        case .swap(let token):
+        case (.swap(let token), .success(let receiveAmount)):
             let textField = DecimalNumberTextField.ViewModel(
                 maximumFractionDigits: token.tokenItem.decimalCount
             )
-            textField.update(value: receiveAmount.value?.crypto)
+            textField.update(value: receiveAmount.crypto)
 
             receiveSmallAmountViewModel = .init(
                 title: token.wallet,
@@ -159,11 +159,14 @@ private extension SendNewAmountFinishViewModel {
                 amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
                     cryptoCurrencyCode: token.tokenItem.currencySymbol
                 ),
-                alternativeAmount: receiveAmount.value?.formatAlternative(
+                alternativeAmount: receiveAmount.formatAlternative(
                     currencySymbol: token.tokenItem.currencySymbol,
                     decimalCount: token.tokenItem.decimalCount
                 )
             )
+        case (.swap(let token), .failure), (.swap(let token), .loading):
+            // Do nothing to avoid incorrect view state
+            break
         }
     }
 

@@ -14,8 +14,9 @@ import TangemFoundation
 protocol SendNewAmountInteractor {
     var isReceiveTokenSelectionAvailable: Bool { get }
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> { get }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
@@ -183,9 +184,8 @@ class CommonSendNewAmountInteractor {
             receiveTokenAmountInput.receiveAmountPublisher
         ).map { token, amount in
             switch (token, amount) {
-            case (.same, _): true
-            case (.swap, .success), (.swap, .loading): true
-            case (.swap, .failure): false
+            case (.same, _), (.swap, .success): true
+            case (.swap, .loading), (.swap, .failure): false
             }
         }
         .eraseToAnyPublisher()
@@ -211,17 +211,19 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
         .eraseToAnyPublisher()
     }
 
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        receivedTokenAmountPublisher
-            .map { $0.isLoading }
-            .eraseToAnyPublisher()
-    }
-
     var isValidPublisher: AnyPublisher<Bool, Never> {
         Publishers
             .CombineLatest(_isValid, receivedTokenAmountValidPublisher())
             .map { $0 && $1 }
             .eraseToAnyPublisher()
+    }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        guard let sourceTokenInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return sourceTokenInput.sourceTokenPublisher
     }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
