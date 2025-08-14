@@ -29,14 +29,18 @@ class ServicesManager {
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
+    private let hotAccessCodeCleaner: HotAccessCodeCleaner
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
+        hotAccessCodeCleaner = HotAccessCodeCleaner(manager: CommonHotAccessCodeStorageManager())
     }
 
     func initialize() {
+        SettingsMigrator.migrateIfNeeded()
+
         handleUITestingArguments()
 
         TangemLoggerConfigurator().initialize()
@@ -58,15 +62,15 @@ class ServicesManager {
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
         userTokensPushNotificationsService.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
-
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.initialize()
         }
+        hotAccessCodeCleaner.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
