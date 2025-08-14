@@ -8,23 +8,20 @@
 
 import Foundation
 import TangemLocalization
+import TangemHotSdk
 
 final class HotOnboardingRevealSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
-    private let userWalletModel: UserWalletModel
+    private let context: MobileWalletContext
     private weak var coordinator: HotOnboardingFlowRoutable?
 
-    init(
-        userWalletModel: UserWalletModel,
-        coordinator: HotOnboardingFlowRoutable
-    ) {
-        self.userWalletModel = userWalletModel
+    init(context: MobileWalletContext, coordinator: HotOnboardingFlowRoutable) {
+        self.context = context
         self.coordinator = coordinator
         super.init()
     }
 
     override func setupFlow() {
-        let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
-        let seedPhraseRevealStep = HotOnboardingSeedPhraseRevealStep(seedPhraseResolver: seedPhraseResolver)
+        let seedPhraseRevealStep = HotOnboardingSeedPhraseRevealStep(context: context)
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: navBarCloseAction
