@@ -219,6 +219,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
             let command: StateCommand
             do {
                 let context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
+                cleanWrongAccessCodeStore()
                 command = makeValidCommand(context: context)
             } catch {
                 storeWrongAccessCode()
@@ -338,6 +339,10 @@ extension CommonHotAccessCodeManager {
     func storeWrongAccessCode() {
         let lockInterval = currentUptime + lockedTimeout
         storageManager.storeWrongAccessCode(userWalletId: userWalletId, lockInterval: lockInterval)
+    }
+
+    func cleanWrongAccessCodeStore() {
+        storageManager.removeWrongAccessCode(userWalletId: userWalletId)
     }
 }
 
