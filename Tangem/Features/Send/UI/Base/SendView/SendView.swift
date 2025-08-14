@@ -48,13 +48,6 @@ struct SendView: View {
         .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
             contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-
-                HideKeyboardButton(focused: $focused)
-            }
-        }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom) {
@@ -236,8 +229,7 @@ struct SendView: View {
         case .newFinish(let sendFinishViewModel):
             SendNewFinishView(
                 viewModel: sendFinishViewModel,
-                transitionService: transitionService,
-                namespace: .init(id: namespace, names: SendGeometryEffectNames())
+                transitionService: transitionService
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
