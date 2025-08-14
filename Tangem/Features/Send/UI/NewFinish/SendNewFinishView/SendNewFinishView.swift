@@ -25,6 +25,10 @@ struct SendNewFinishView: View {
                 SendNewAmountFinishView(viewModel: sendAmountFinishViewModel)
             }
 
+            if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+                NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
+            }
+
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
                 SendNewDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
