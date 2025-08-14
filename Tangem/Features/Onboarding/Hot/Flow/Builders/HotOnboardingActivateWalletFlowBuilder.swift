@@ -14,11 +14,11 @@ final class HotOnboardingActivateWalletFlowBuilder: HotOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var isBackupNeeded: Bool {
-        !userWalletModel.config.hasFeature(.mnemonicBackup)
+        userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
     }
 
     private var isAccessCodeNeeded: Bool {
-        userWalletModel.config.hasFeature(.userWalletAccessCode)
+        userWalletModel.config.hasFeature(.userWalletAccessCode) && !HotAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
     }
 
     private let userWalletModel: UserWalletModel
@@ -77,21 +77,18 @@ private extension HotOnboardingActivateWalletFlowBuilder {
             )
         append(step: seedPhraseIntroStep)
 
-        let seedPhraseResolver = CommonHotOnboardingSeedPhraseResolver(userWalletModel: userWalletModel)
+        let userWalletId = userWalletModel.userWalletId
 
-        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(
-            seedPhraseResolver: seedPhraseResolver,
-            delegate: self
-        )
-        .configureNavBar(
+        let seedPhraseRecoveryStep = HotOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
+        seedPhraseRecoveryStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
         append(step: seedPhraseRecoveryStep)
 
         let seedPhraseValidationStep = HotOnboardingSeedPhraseValidationStep(
-            seedPhraseResolver: seedPhraseResolver,
-            onCreateWallet: weakify(self, forFunction: HotOnboardingActivateWalletFlowBuilder.openNext)
+            userWalletId: userWalletModel.userWalletId,
+            delegate: self
         )
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
@@ -109,7 +106,7 @@ private extension HotOnboardingActivateWalletFlowBuilder {
     }
 
     func setupAccessCodeFlow() {
-        let accessCodeStep = HotOnboardingAccessCodeStep(context: nil, delegate: self)
+        let accessCodeStep = HotOnboardingAccessCodeStep(delegate: self)
         accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
     }
@@ -147,6 +144,15 @@ extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingSeedPhraseIntroDe
 
 extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingSeedPhraseRecoveryDelegate {
     func seedPhraseRecoveryContinue() {
+        openNext()
+    }
+}
+
+// MARK: - HotOnboardingSeedPhraseValidationDelegate
+
+extension HotOnboardingActivateWalletFlowBuilder: HotOnboardingSeedPhraseValidationDelegate {
+    func didValidateSeedPhrase() {
+        userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
     }
 }

@@ -10,4 +10,5 @@ import Foundation
 
 enum MobileWalletError: Error {
     case seedKeyNotFound
+    case encryptionKeyMismatched
 }

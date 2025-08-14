@@ -20,7 +20,6 @@ enum HotWalletError: Error, Equatable {
     case failedToExportMnemonic
     case accessCodeIsRequired
     case walletAlreadyExists
-    case publicDataIsNotAvailableViaBiometrics
 
     case tangemSdk(TangemSdkError)
 
@@ -34,7 +33,6 @@ enum HotWalletError: Error, Equatable {
              (.failedToSignHash, .failedToSignHash),
              (.accessCodeIsRequired, .accessCodeIsRequired),
              (.walletAlreadyExists, .walletAlreadyExists),
-             (.publicDataIsNotAvailableViaBiometrics, .publicDataIsNotAvailableViaBiometrics),
              (.failedToExportMnemonic, .failedToExportMnemonic): true
         case (.invalidCurve(let left), .invalidCurve(let right)) where left == right: true
         case (.tangemSdk(let left), .tangemSdk(let right)) where left.code == right.code: true

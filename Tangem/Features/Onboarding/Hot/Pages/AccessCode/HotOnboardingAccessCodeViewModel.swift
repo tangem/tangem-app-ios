@@ -151,20 +151,22 @@ private extension HotOnboardingAccessCodeViewModel {
             return
         }
 
+        let userWalletId = userWalletModel.userWalletId
+
         runTask(in: self) { viewModel in
             do {
                 let context = switch viewModel.mode {
                 case .create:
-                    try viewModel.hotSdk.validate(auth: .none, for: userWalletModel.userWalletId)
+                    try viewModel.hotSdk.validate(auth: .none, for: userWalletId)
                 case .change(let context):
                     context
                 }
 
-                try viewModel.hotSdk.updateAccessCode(viewModel.accessCode, context: context)
+                try viewModel.hotSdk.updateAccessCode(accessCode, context: context)
                 userWalletModel.update(type: .accessCodeDidSet)
                 AppLogger.info("AccessCode update was successful")
 
-                await viewModel.requestBiometricsIfNeeded(userWalletId: userWalletModel.userWalletId, accessCode: accessCode)
+                await viewModel.requestBiometricsIfNeeded(userWalletId: userWalletId, accessCode: accessCode)
                 await viewModel.onAccessCodeComplete()
 
             } catch {
@@ -190,7 +192,7 @@ private extension HotOnboardingAccessCodeViewModel {
                     context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
                 }
 
-                try hotSdk.enableBiometrics(context: context)
+                try hotSdk.refreshBiometrics(context: context)
                 AppLogger.info("AccessCode enable biometrics was successful")
 
             } catch {
@@ -268,9 +270,12 @@ private extension HotOnboardingAccessCodeViewModel {
         AlertBuilder.makeAlert(
             title: Localization.accessCodeAlertSkipTitle,
             message: Localization.accessCodeAlertSkipDescription,
-            with: .withPrimaryCancelButton(
-                secondaryTitle: Localization.accessCodeAlertSkipOk,
-                secondaryAction: weakify(self, forFunction: HotOnboardingAccessCodeViewModel.onSkipOkTap)
+            with: .init(
+                primaryButton: .default(
+                    Text(Localization.accessCodeAlertSkipOk),
+                    action: weakify(self, forFunction: HotOnboardingAccessCodeViewModel.onSkipOkTap)
+                ),
+                secondaryButton: .cancel()
             )
         )
     }
@@ -280,6 +285,8 @@ private extension HotOnboardingAccessCodeViewModel {
             return
         }
         HotAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
+        // Workaround to manually trigger update event for userWalletModel publisher
+        userWalletModel.update(type: .backupCompleted)
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }
