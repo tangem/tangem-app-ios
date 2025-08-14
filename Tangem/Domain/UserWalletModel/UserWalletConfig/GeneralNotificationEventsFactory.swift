@@ -28,8 +28,4 @@ struct GeneralNotificationEventsFactory {
 
         return notifications
     }
-
-    func makeNotifications(for hotWallet: HotWallet) -> [GeneralNotificationEvent] {
-        []
-    }
 }
