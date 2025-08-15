@@ -29,7 +29,6 @@ class CommonUserWalletModel {
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
 
-    @available(*, deprecated, message: "Use account-specific 'walletModelsManager' instead")
     let walletImageProvider: WalletImageProviding
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
