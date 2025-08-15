@@ -31,7 +31,7 @@ struct SendNewAmountCompactView: View {
                 .overlay(alignment: .top) {
                     SendNewAmountCompactViewSeparator(style: viewModel.amountsSeparator)
                         .readGeometry(\.frame.size, bindTo: $separatorSize)
-                        .offset(y: -separatorSize.height / 2)
+                        .offset(y: -separatorSize.height / 2 - 4) // Half spacer length
                 }
             }
 
