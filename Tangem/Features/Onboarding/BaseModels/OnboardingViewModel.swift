@@ -205,6 +205,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
+        guard userWalletModel == nil else {
+            return
+        }
+
         guard let userWallet = CommonUserWalletModelFactory().makeModel(
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)
