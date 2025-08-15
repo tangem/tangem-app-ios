@@ -30,22 +30,17 @@ enum TwinsOnboardingStep: Equatable {
     case first
     case second
     case third
-    case topup
     case done
     case saveUserWallet
     case success
     case alert
 
     static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "2"), .topup, .done]
+        [.intro(pairNumber: "2"), .done]
     }
 
     static var twinningProcessSteps: [TwinsOnboardingStep] {
         [.first, .second, .third]
-    }
-
-    static var topupSteps: [TwinsOnboardingStep] {
-        [.topup, .done]
     }
 
     static var twinningSteps: [TwinsOnboardingStep] {
@@ -88,27 +83,9 @@ enum TwinsOnboardingStep: Equatable {
 
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
-        case .topup, .done:
-            return defaultBackgroundFrameSize(in: container)
+        case .done:
+            return .init(width: container.width * 0.787, height: 0.487 * container.height)
         default: return .init(width: 10, height: 10)
-        }
-    }
-
-    func backgroundCornerRadius(in container: CGSize) -> CGFloat {
-        switch self {
-        case .topup, .done: return defaultBackgroundCornerRadius
-        default: return backgroundFrame(in: container).height / 2
-        }
-    }
-
-    func backgroundOffset(in container: CGSize) -> CGSize {
-        defaultBackgroundOffset(in: container)
-    }
-
-    var backgroundOpacity: Double {
-        switch self {
-        case .topup, .done: return 1
-        default: return 0
         }
     }
 }
@@ -138,8 +115,6 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
     }
 }
 
-extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
-
 extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
@@ -148,7 +123,6 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .intro: return Localization.twinsOnboardingSubtitle
         case .first, .third: return Localization.twinsRecreateTitleFormat("1")
         case .second: return Localization.twinsRecreateTitleFormat("2")
-        case .topup: return Localization.onboardingTopupTitle
         case .done: return Localization.onboardingDoneHeader
         case .saveUserWallet, .pushNotifications: return nil
         case .success: return successTitle
@@ -160,7 +134,6 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         switch self {
         case .intro(let pairNumber): return Localization.twinsOnboardingDescriptionFormat(pairNumber)
         case .first, .second, .third: return Localization.onboardingTwinsInterruptWarning
-        case .topup: return Localization.onboardingTopUpBody
         case .saveUserWallet, .pushNotifications: return nil
         case .done, .success: return Localization.onboardingDoneBody
         case .alert: return Localization.twinsRecreateWarning
@@ -177,9 +150,10 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
 extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .topup: return Localization.onboardingTopUpButtonButCrypto
-        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
-        default: return ""
+        case .saveUserWallet:
+            return BiometricAuthorizationUtils.allowButtonTitle
+        default:
+            return ""
         }
     }
 
@@ -194,7 +168,6 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
 
     var supplementButtonTitle: String {
         switch self {
-        case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
         case .first, .third: return Localization.twinsRecreateButtonFormat("1")
         case .second: return Localization.twinsRecreateButtonFormat("2")
         case .success: return successButtonTitle
@@ -212,12 +185,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var isSupplementButtonVisible: Bool {
-        switch self {
-        case .topup: return true
-        default: return false
-        }
-    }
+    var isSupplementButtonVisible: Bool { false }
 
     var isContainSupplementButton: Bool { true }
 
