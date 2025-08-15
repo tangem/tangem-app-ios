@@ -200,7 +200,10 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
+        )
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
