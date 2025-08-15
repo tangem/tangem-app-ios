@@ -123,6 +123,7 @@ extension SendCoordinator {
         case markets
         case actionButtons
         case nft
+        case onboarding
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -132,6 +133,7 @@ extension SendCoordinator {
             case .markets: .markets
             case .actionButtons: .main
             case .nft: .nft
+            case .onboarding: .onboarding
             }
         }
     }
