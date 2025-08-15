@@ -56,6 +56,9 @@ struct OnboardingCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
 
         NavHolder()
             .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewModel, backgroundColor: bottomSheetBackground) {
