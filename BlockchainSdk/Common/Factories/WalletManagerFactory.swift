@@ -82,7 +82,7 @@ private extension WalletManagerFactory {
 public extension WalletManagerFactory {
     /// Use this method only Test and Debug [Addresses, Fees, etc.]
     /// - Parameters:
-    ///   - blockhain Card native blockchain will be used
+    ///   - blockchain Card native blockchain will be used
     ///   - walletPublicKey: Wallet public key or dummy input
     ///   - addresses: Dummy input addresses
     /// - Returns: WalletManager model
