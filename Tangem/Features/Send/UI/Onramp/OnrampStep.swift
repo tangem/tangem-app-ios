@@ -26,6 +26,10 @@ class OnrampStep {
         self.interactor = interactor
     }
 
+    func openOnrampSettingsView() {
+        viewModel.openOnrampSettingsView()
+    }
+
     func set(router: OnrampSummaryRoutable) {
         viewModel.router = router
     }
@@ -34,20 +38,9 @@ class OnrampStep {
 // MARK: - SendStep
 
 extension OnrampStep: SendStep {
-    var title: String? { "\(Localization.commonBuy) \(tokenItem.name)" }
-
     var shouldShowBottomOverlay: Bool { false }
-
     var type: SendStepType { .onramp(viewModel) }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
-        .dotsButton { [weak self] in
-            self?.viewModel.openOnrampSettingsView()
-        }
-    }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.isValidPublisher
