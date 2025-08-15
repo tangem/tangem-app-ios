@@ -34,8 +34,9 @@ protocol WCTransactionDisplayModel {
 
 @MainActor
 final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let transactionData: WCHandleTransactionData
-    private let userWalletRepository: UserWalletRepository
     private let simulationManager: WCTransactionSimulationManager
     private let securityManager: WCTransactionSecurityManager
 
@@ -43,13 +44,11 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
 
     init(
         transactionData: WCHandleTransactionData,
-        userWalletRepository: UserWalletRepository,
         simulationManager: WCTransactionSimulationManager,
         securityManager: WCTransactionSecurityManager = CommonWCTransactionSecurityManager(),
         viewModel: WCTransactionViewModelDisplayData
     ) {
         self.transactionData = transactionData
-        self.userWalletRepository = userWalletRepository
         self.simulationManager = simulationManager
         self.securityManager = securityManager
         self.viewModel = viewModel
