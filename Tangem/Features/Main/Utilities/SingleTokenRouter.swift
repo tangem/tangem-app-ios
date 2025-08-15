@@ -13,7 +13,6 @@ import TangemExpress
 
 protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
-    func openBuy(walletModel: any WalletModel)
     func openSend(walletModel: any WalletModel)
     func openExchange(walletModel: any WalletModel)
     func openStaking(walletModel: any WalletModel)
@@ -51,22 +50,6 @@ final class SingleTokenRouter: SingleTokenRoutable {
         )
     }
 
-    func openBuy(walletModel: any WalletModel) {
-        assert(!FeatureProvider.isAvailable(.onramp), "Use open openOnramp(for:) instead")
-
-        let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
-
-        guard let url = exchangeUtility.buyURL else { return }
-
-        coordinator?.openBuyCrypto(at: url) { [weak self] in
-            self?.sendAnalyticsEvent(.tokenBought, for: walletModel)
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                walletModel.update(silent: true)
-            }
-        }
-    }
-
     func openOnramp(walletModel: any WalletModel) {
         coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
     }
@@ -99,13 +82,13 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSell(for walletModel: any WalletModel) {
-        let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
-        guard let url = exchangeUtility.sellURL else {
+        let sellUtility = buildSellCryptoUtility(for: walletModel)
+        guard let url = sellUtility.sellURL else {
             return
         }
 
         coordinator?.openSellCrypto(at: url) { [weak self] response in
-            if let request = exchangeUtility.extractSellCryptoRequest(from: response) {
+            if let request = sellUtility.extractSellCryptoRequest(from: response) {
                 self?.openSendToSell(with: request, for: walletModel)
             }
         }
@@ -176,8 +159,8 @@ extension SingleTokenRouter {
         Analytics.log(event: event, params: [.token: walletModel.tokenItem.currencySymbol])
     }
 
-    private func buildExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
-        return ExchangeCryptoUtility(
+    private func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
+        SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddressString,
             amountType: walletModel.tokenItem.amountType

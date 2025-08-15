@@ -56,36 +56,6 @@ struct SendDependenciesBuilder {
         }
     }
 
-    func summaryTitle(action: SendFlowActionType) -> String {
-        switch action {
-        case .send:
-            let assetName: String = switch walletModel.tokenItem.token?.metadata.kind {
-            case .nonFungible: Localization.commonNft
-            default: walletModel.tokenItem.currencySymbol
-            }
-            return Localization.sendSummaryTitle(assetName)
-        case .approve, .stake:
-            return "\(Localization.commonStake) \(walletModel.tokenItem.currencySymbol)"
-        case .claimUnstaked:
-            return SendFlowActionType.withdraw.title
-        default:
-            return action.title
-        }
-    }
-
-    func summarySubtitle(action: SendFlowActionType) -> String? {
-        switch action {
-        case .send: walletName()
-        case .approve, .stake, .restake: walletName()
-        case .unstake: nil
-        case .withdraw: nil
-        case .claimRewards: nil
-        case .restakeRewards: nil
-        case .unlockLocked: nil
-        default: nil
-        }
-    }
-
     func walletHeaderText(for actionType: SendFlowActionType) -> String {
         switch actionType {
         case .unstake: Localization.stakingStakedAmount
@@ -425,6 +395,16 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeSendSummaryTitleProvider() -> SendSummaryTitleProvider {
+        CommonSendSummaryTitleProvider(tokenItem: walletModel.tokenItem, walletName: walletName())
+    }
+
+    // MARK: - Sell
+
+    func makeSellSendSummaryTitleProvider() -> SendSummaryTitleProvider {
+        SellSendSummaryTitleProvider()
+    }
+
     // MARK: - Send via swap
 
     func makeSendWithSwapModel(
@@ -526,6 +506,10 @@ struct SendDependenciesBuilder {
         CommonSwapTransactionSummaryDescriptionBuilder(
             sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
         )
+    }
+
+    func makeSendWithSwapSummaryTitleProvider(receiveTokenInput: SendReceiveTokenInput) -> SendSummaryTitleProvider {
+        SendWithSwapSummaryTitleProvider(receiveTokenInput: receiveTokenInput)
     }
 
     // MARK: - NFT support
@@ -714,6 +698,10 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeStakingSummaryTitleProvider(actionType: SendFlowActionType) -> SendSummaryTitleProvider {
+        StakingSendSummaryTitleProvider(actionType: actionType, tokenItem: walletModel.tokenItem, walletName: walletName())
+    }
+
     // MARK: - Onramp
 
     func makeOnrampModel(
@@ -796,5 +784,9 @@ struct SendDependenciesBuilder {
 
     func makeOnrampSendAnalyticsLogger(source: SendCoordinator.Source) -> OnrampSendAnalyticsLogger {
         CommonOnrampSendAnalyticsLogger(tokenItem: walletModel.tokenItem, source: source)
+    }
+
+    func makeOnrampSummaryTitleProvider() -> SendSummaryTitleProvider {
+        OnrampSendSummaryTitleProvider(tokenItem: walletModel.tokenItem)
     }
 }
