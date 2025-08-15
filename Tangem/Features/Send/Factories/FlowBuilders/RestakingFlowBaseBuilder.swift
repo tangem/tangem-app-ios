@@ -77,6 +77,7 @@ struct RestakingFlowBaseBuilder {
             validatorsStep: validators,
             summaryStep: summary.step,
             finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: actionType),
             actionType: actionType
         )
 
