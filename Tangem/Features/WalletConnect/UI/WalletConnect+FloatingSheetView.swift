@@ -10,20 +10,20 @@ import SwiftUI
 import Kingfisher
 import TangemUI
 
-extension View {
-    private var kingfisherImageCache: ImageCache {
-        InjectedValues[\.walletConnectKingfisherImageCache]
-    }
+extension FloatingSheetRegistry {
+    func registerWalletConnectFloatingSheets() {
+        let kingfisherImageCache: ImageCache = InjectedValues[\.walletConnectKingfisherImageCache]
 
-    func registerWalletConnectFloatingSheets() -> some View {
-        floatingSheetContent(for: WalletConnectDAppConnectionViewModel.self) {
-            WalletConnectDAppConnectionView(viewModel: $0, kingfisherImageCache: kingfisherImageCache)
+        register(WalletConnectDAppConnectionViewModel.self) { viewModel in
+            WalletConnectDAppConnectionView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
         }
-        .floatingSheetContent(for: WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
+
+        register(WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
             WalletConnectConnectedDAppDetailsView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
         }
-        .floatingSheetContent(for: WCTransactionViewModel.self) {
-            WCTransactionView(viewModel: $0)
+
+        register(WCTransactionViewModel.self) { viewModel in
+            WCTransactionView(viewModel: viewModel)
         }
     }
 }
