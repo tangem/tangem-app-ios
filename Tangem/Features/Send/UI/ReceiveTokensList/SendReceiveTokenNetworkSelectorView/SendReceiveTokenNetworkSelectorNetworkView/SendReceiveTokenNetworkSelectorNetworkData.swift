@@ -12,6 +12,7 @@ struct SendReceiveTokenNetworkSelectorNetworkViewData: Identifiable {
     let id: String
     let iconURL: URL
     let name: String
-    let symbol: String
+    let network: String?
+    let isMainNetwork: Bool
     let tapAction: () -> Void
 }
