@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class NewNFTSendStepsManager {
     private let destinationStep: SendNewDestinationStep
     private let feeSelector: FeeSelectorContentViewModel
     private let summaryStep: SendNewSummaryStep
     private let finishStep: SendNewFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
     weak var router: SendRoutable?
@@ -26,37 +28,28 @@ final class NewNFTSendStepsManager {
         destinationStep: SendNewDestinationStep,
         feeSelector: FeeSelectorContentViewModel,
         summaryStep: SendNewSummaryStep,
-        finishStep: SendNewFinishStep
+        finishStep: SendNewFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider
     ) {
         self.destinationStep = destinationStep
         self.feeSelector = feeSelector
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
 
         stack = [destinationStep]
     }
 
     private func currentStep() -> SendStep {
         let last = stack.last
-        return last ?? initialState.step
+        return last ?? initialStep
     }
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
         case .newDestination:
             return summaryStep
-        case .amount,
-             .newAmount,
-             .destination:
-            assertionFailure("Invalid step for this flow: '\(currentStep().type)'")
-            return summaryStep
-        case .fee,
-             .validators,
-             .summary,
-             .newSummary,
-             .finish,
-             .onramp,
-             .newFinish:
+        default:
             assertionFailure("There is no next step")
             return nil
         }
@@ -64,28 +57,7 @@ final class NewNFTSendStepsManager {
 
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .newSummary:
-            output?.update(state: .init(step: step, action: .action))
-        case .newFinish:
-            output?.update(state: .init(step: step, action: .close))
-        case .newDestination where isEditAction,
-             .fee where isEditAction:
-            output?.update(state: .init(step: step, action: .continue))
-        case .newDestination:
-            output?.update(state: .init(step: step, action: .next, backButtonVisible: true))
-        case .amount,
-             .newAmount,
-             .destination,
-             .summary,
-             .finish:
-            assertionFailure("Invalid step for this flow: '\(step.type)'")
-        case .fee,
-             .validators,
-             .onramp:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -95,14 +67,7 @@ final class NewNFTSendStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .newSummary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            output?.update(state: .init(step: step, action: .next))
-        }
+        output?.update(step: currentStep())
     }
 }
 
@@ -110,12 +75,8 @@ final class NewNFTSendStepsManager {
 
 extension NewNFTSendStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { false }
-
     var initialFlowActionType: SendFlowActionType { .send }
-
-    var initialState: SendStepsManagerViewState {
-        .init(step: destinationStep, action: .next, backButtonVisible: false)
-    }
+    var initialStep: any SendStep { destinationStep }
 
     var shouldShowDismissAlert: Bool {
         if currentStep().type.isFinish {
@@ -123,6 +84,33 @@ extension NewNFTSendStepsManager: SendStepsManager {
         }
 
         return stack.contains(where: { $0.type.isSummary })
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .newDestination:
+            return .init(title: Localization.wcCommonAddress, trailingViewType: .closeButton)
+        case .newSummary:
+            return .init(
+                title: summaryTitleProvider.title,
+                leadingViewType: .backButton,
+                trailingViewType: .closeButton
+            )
+        case .newFinish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        switch currentStep().type {
+        case .newDestination where isEditAction: .init(action: .continue)
+        case .newDestination: .init(action: .next)
+        case .newSummary: .init(action: .action)
+        case .newFinish: .init(action: .close)
+        default: .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -167,12 +155,8 @@ extension NewNFTSendStepsManager: SendStepsManager {
 // MARK: - SendSummaryStepsRoutable
 
 extension NewNFTSendStepsManager: SendSummaryStepsRoutable {
-    func summaryStepRequestEditValidators() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
     func summaryStepRequestEditDestination() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
@@ -180,12 +164,8 @@ extension NewNFTSendStepsManager: SendSummaryStepsRoutable {
         next(step: destinationStep)
     }
 
-    func summaryStepRequestEditAmount() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
     func summaryStepRequestEditFee() {
-        guard case .newSummary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
