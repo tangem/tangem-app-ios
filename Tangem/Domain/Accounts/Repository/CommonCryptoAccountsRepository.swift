@@ -54,7 +54,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 // MARK: - Constants
 
 // [REDACTED_TODO_COMMENT]
-/**private */ extension CommonCryptoAccountsRepository {
+/** private */ extension CommonCryptoAccountsRepository {
     enum Constants {
         static let mainAccountDerivationIndex = 0
         static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
