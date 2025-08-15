@@ -13,14 +13,14 @@ struct SendNewAmountTokenViewData: Identifiable {
 
     let tokenIconInfo: TokenIconInfo
     let title: String
-    let subtitle: String
+    let subtitle: SubtitleType
     let detailsType: DetailsType?
     let action: (() -> Void)?
 
     init(
         tokenIconInfo: TokenIconInfo,
         title: String,
-        subtitle: String,
+        subtitle: SubtitleType,
         detailsType: DetailsType? = .none,
         action: (() -> Void)? = nil
     ) {
@@ -46,16 +46,20 @@ extension SendNewAmountTokenViewData: Hashable {
 }
 
 extension SendNewAmountTokenViewData {
+    enum SubtitleType: Hashable {
+        case balance(state: LoadableTokenBalanceView.State)
+        case receive(state: LoadableTextView.State)
+    }
+
     enum DetailsType: Hashable {
-        case loading
         case max(action: () -> Void)
-        case select(amount: String? = .none, individualAction: (() -> Void)? = .none)
+        case select(individualAction: (() -> Void)? = .none)
 
         var individualAction: (() -> Void)? {
             switch self {
-            case .loading, .max:
+            case .max:
                 return nil
-            case .select(_, individualAction: let individualAction):
+            case .select(individualAction: let individualAction):
                 return individualAction
             }
         }
@@ -66,9 +70,8 @@ extension SendNewAmountTokenViewData {
 
         func hash(into hasher: inout Hasher) {
             switch self {
-            case .loading: hasher.combine("loading")
             case .max: hasher.combine("max")
-            case .select(let amount, _): hasher.combine(amount)
+            case .select: hasher.combine("select")
             }
         }
     }
