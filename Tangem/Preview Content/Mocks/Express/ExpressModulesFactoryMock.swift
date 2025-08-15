@@ -162,7 +162,8 @@ private extension ExpressModulesFactoryMock {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(
-            userWalletModel: userWalletModel
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
         )
     }
 
