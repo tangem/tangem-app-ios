@@ -11,7 +11,6 @@ import Foundation
 enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
-    case onramp
     case visa // [REDACTED_TODO_COMMENT]
     case nft
     case walletConnectUI
@@ -29,7 +28,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
-        case .onramp: return "Onramp"
         case .visa: return "Visa"
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
@@ -49,7 +47,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .onramp: return .version("5.24.2")
         case .visa: return .unspecified
         case .nft: return .version("5.25")
         case .walletConnectUI: return .version("5.27")
