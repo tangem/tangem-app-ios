@@ -1,5 +1,5 @@
 //
-//  WalletManagersRepositoryAccountsAdapter.swift
+//  AccountWalletManagersRepositoryAdapter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemSdk
 
 @available(*, deprecated, message: "Test only for interop/development purposes, doesn't work correctly with main account, will be removed in the future")
-final class WalletManagersRepositoryAccountsAdapter {
+final class AccountWalletManagersRepositoryAdapter {
     private let derivationIndex: Int
     private let walletManagersRepository: WalletManagersRepository
 
@@ -46,7 +46,7 @@ final class WalletManagersRepositoryAccountsAdapter {
 
 // MARK: - WalletManagersRepository protocol conformance
 
-extension WalletManagersRepositoryAccountsAdapter: WalletManagersRepository {
+extension AccountWalletManagersRepositoryAdapter: WalletManagersRepository {
     var walletManagersPublisher: AnyPublisher<[BlockchainNetwork: WalletManager], Never> {
         return walletManagersRepository
             .walletManagersPublisher
@@ -60,7 +60,7 @@ extension WalletManagersRepositoryAccountsAdapter: WalletManagersRepository {
 
 // MARK: - Constants
 
-private extension WalletManagersRepositoryAccountsAdapter {
+private extension AccountWalletManagersRepositoryAdapter {
     enum Constants {
         static let utxoDerivationNodeIndex = 3
         static let nonUTXODerivationNodeIndex = 5
