@@ -36,7 +36,6 @@ enum PreviewData {
                 .first,
                 .second,
                 .third,
-                .topup,
                 .done,
             ]),
             cardInput: .userWalletModel(PreviewCard.twin.userWalletModel, cardId: ""),
