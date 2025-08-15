@@ -12,6 +12,7 @@ import Combine
 
 extension CommonWalletModel {
     static let mockETH = CommonWalletModel(
+        userWalletId: .init(with: Data()),
         walletManager: EthereumWalletManagerMock(),
         stakingManager: StakingManagerMock(),
         featureManager: WalletModelFeaturesManagerMock(),

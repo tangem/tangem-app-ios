@@ -21,6 +21,7 @@ class CommonWalletModel {
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
@@ -75,6 +76,7 @@ class CommonWalletModel {
     }
 
     init(
+        userWalletId: UserWalletId,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
@@ -85,6 +87,7 @@ class CommonWalletModel {
         shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
+        self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
         _stakingManager = stakingManager
