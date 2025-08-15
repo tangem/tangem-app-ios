@@ -64,6 +64,7 @@ struct StakingSingleActionFlowBaseBuilder {
         let stepsManager = CommonStakingSingleActionStepsManager(
             summaryStep: summary.step,
             finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: actionType),
             action: action
         )
 

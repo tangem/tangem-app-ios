@@ -14,19 +14,21 @@ struct SendReceiveTokenCoordinatorView: CoordinatorView {
 
     var body: some View {
         NavigationView {
-            if let rootViewModel = coordinator.rootViewModel {
-                SendReceiveTokensListView(viewModel: rootViewModel)
-                    .navigationLinks(links)
+            ZStack {
+                if let rootViewModel = coordinator.rootViewModel {
+                    SendReceiveTokensListView(viewModel: rootViewModel)
+                }
+
+                sheets
             }
         }
     }
 
     @ViewBuilder
-    private var links: some View {
+    private var sheets: some View {
         NavHolder()
             .floatingSheetContent(for: SendReceiveTokenNetworkSelectorViewModel.self) {
                 SendReceiveTokenNetworkSelectorView(viewModel: $0)
             }
-            .emptyNavigationLink()
     }
 }

@@ -17,8 +17,8 @@ typealias ActionButtonsRoutable = ActionButtonsBuyFlowRoutable & ActionButtonsSe
 final class ActionButtonsViewModel: ObservableObject {
     // MARK: Dependencies
 
-    @Injected(\.exchangeService)
-    private var exchangeService: ExchangeService & CombinedExchangeService
+    @Injected(\.sellService)
+    private var sellService: SellService
 
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -45,8 +45,7 @@ final class ActionButtonsViewModel: ObservableObject {
 
     private let lastButtonTapped = PassthroughSubject<ActionButtonModel, Never>()
 
-    private var lastSellInitializeState: ExchangeServiceState?
-    private var lastBuyInitializeState: ExchangeServiceState?
+    private var lastSellInitializeState: SellServiceState?
 
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
@@ -86,7 +85,7 @@ final class ActionButtonsViewModel: ObservableObject {
     func refresh() {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
-        exchangeService.initialize()
+        sellService.initialize()
     }
 
     func makeBuyButtonViewModel() {
@@ -137,17 +136,10 @@ private extension ActionButtonsViewModel {
     private func restoreButtonsState() {
         let lastExpressUpdatingState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
         updateSwapButtonState(lastExpressUpdatingState)
-
-        if FeatureProvider.isAvailable(.onramp) {
-            updateBuyButtonStateWithExpress(lastExpressUpdatingState)
-        }
+        updateBuyButtonStateWithExpress(lastExpressUpdatingState)
 
         if let lastSellInitializeState {
             updateSellButtonState(lastSellInitializeState)
-        }
-
-        if let lastBuyInitializeState, !FeatureProvider.isAvailable(.onramp) {
-            updateBuyButtonStateWithMercuryo(lastBuyInitializeState)
         }
     }
 }
@@ -160,35 +152,9 @@ private extension ActionButtonsViewModel {
             .expressAvailabilityUpdateState
             .withWeakCaptureOf(self)
             .sink { viewModel, expressUpdateState in
-                if FeatureProvider.isAvailable(.onramp) {
-                    viewModel.updateBuyButtonStateWithExpress(expressUpdateState)
-                }
+                viewModel.updateBuyButtonStateWithExpress(expressUpdateState)
             }
             .store(in: &bag)
-
-        exchangeService
-            .buyInitializationPublisher
-            .withWeakCaptureOf(self)
-            .sink { viewModel, buyUpdateState in
-                if !FeatureProvider.isAvailable(.onramp) {
-                    viewModel.updateBuyButtonStateWithMercuryo(buyUpdateState)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    func updateBuyButtonStateWithMercuryo(_ exchangeServiceState: ExchangeServiceState) {
-        runTask(in: self) { @MainActor viewModel in
-            viewModel.lastBuyInitializeState = exchangeServiceState
-
-            switch exchangeServiceState {
-            case .initializing: viewModel.handleBuyUpdatingState()
-            case .initialized: viewModel.buyActionButtonViewModel?.updateState(to: .idle)
-            case .failed(let error): viewModel.buyActionButtonViewModel?.updateState(
-                    to: .restricted(reason: error.localizedDescription)
-                )
-            }
-        }
     }
 
     func updateBuyButtonStateWithExpress(_ expressUpdateState: ExpressAvailabilityUpdateState) {
@@ -335,20 +301,20 @@ private extension ActionButtonsViewModel {
 
 private extension ActionButtonsViewModel {
     func bindSellAvailability() {
-        exchangeService
-            .sellInitializationPublisher
+        sellService
+            .initializationPublisher
             .withWeakCaptureOf(self)
-            .sink { viewModel, exchangeServiceState in
-                viewModel.updateSellButtonState(exchangeServiceState)
+            .sink { viewModel, sellServiceState in
+                viewModel.updateSellButtonState(sellServiceState)
             }
             .store(in: &bag)
     }
 
-    func updateSellButtonState(_ exchangeServiceState: ExchangeServiceState) {
+    func updateSellButtonState(_ sellServiceState: SellServiceState) {
         runTask(in: self) { @MainActor viewModel in
-            viewModel.lastSellInitializeState = exchangeServiceState
+            viewModel.lastSellInitializeState = sellServiceState
 
-            switch exchangeServiceState {
+            switch sellServiceState {
             case .initializing: viewModel.handleSellUpdatingState()
             case .initialized: viewModel.handleSellUpdatedState()
             case .failed(let error): viewModel.handleFailedSellState(error)
@@ -374,7 +340,7 @@ private extension ActionButtonsViewModel {
     }
 
     @MainActor
-    func handleFailedSellState(_ error: ExchangeServiceState.ExchangeServiceError) {
+    func handleFailedSellState(_ error: SellServiceState.SellServiceError) {
         switch error {
         case .networkError:
             sellActionButtonViewModel.updateState(
