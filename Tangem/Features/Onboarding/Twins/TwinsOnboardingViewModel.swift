@@ -141,7 +141,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private let twinsService: TwinsWalletCreationUtil
     private let imageProvider = TwinImageProvider()
 
-    private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
+    private var canBuy: Bool {
+        guard let userWalletModel,
+              let walletModel = userWalletModel.walletModelsManager.walletModels.first else {
+            return false
+        }
+
+        let provider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
+        return provider.isBuyAvailable
+    }
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         let twinData = input.twinData!
