@@ -146,7 +146,6 @@ private struct CommonUserWalletModelDependencies {
             walletManagerFactory: walletManagerFactory
         )
 
-        walletModelsManager = _WalletModelsManager()
         walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
             walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
@@ -204,15 +203,4 @@ private struct CommonUserWalletModelDependencies {
     func update(from model: UserWalletModel) {
         userTokensManager.keysDerivingProvider = model
     }
-}
-
-@available(*, deprecated, message: "Test only")
-private final class _WalletModelsManager: WalletModelsManager {
-    var isInitialized: Bool { true }
-
-    var walletModels: [any WalletModel] { [] }
-
-    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { AnyPublisher.just(output: walletModels) }
-
-    func updateAll(silent: Bool, completion: @escaping () -> Void) {}
 }
