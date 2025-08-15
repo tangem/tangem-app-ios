@@ -98,7 +98,8 @@ struct SendFlowBaseBuilder {
             amountStep: amount.step,
             feeStep: fee.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeSendSummaryTitleProvider()
         )
 
         summary.step.set(router: stepsManager)

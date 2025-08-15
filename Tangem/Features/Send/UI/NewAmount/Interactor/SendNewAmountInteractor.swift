@@ -16,6 +16,8 @@ protocol SendNewAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
 
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> { get }
+
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> { get }
     var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { get }
 
@@ -214,6 +216,14 @@ extension CommonSendNewAmountInteractor: SendNewAmountInteractor {
             .CombineLatest(_isValid, receivedTokenAmountValidPublisher())
             .map { $0 && $1 }
             .eraseToAnyPublisher()
+    }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        guard let sourceTokenInput else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return sourceTokenInput.sourceTokenPublisher
     }
 
     var receivedTokenPublisher: AnyPublisher<SendReceiveTokenType, Never> {
