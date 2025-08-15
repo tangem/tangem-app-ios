@@ -29,6 +29,10 @@ final class OnboardingCoordinator: CoordinatorObject {
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
 
+    // MARK: - Child coordinators
+
+    @Published var sendCoordinator: SendCoordinator?
+
     // MARK: - Helpers
 
     /// For non-dismissable presentation
@@ -96,6 +100,22 @@ extension OnboardingCoordinator: OnboardingBrowserRoutable {
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewModel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+    }
+
+    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.sendCoordinator = nil
+        }
+
+        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let options = SendCoordinator.Options(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            type: .onramp,
+            source: .onboarding
+        )
+        coordinator.start(with: options)
+        sendCoordinator = coordinator
     }
 }
 
