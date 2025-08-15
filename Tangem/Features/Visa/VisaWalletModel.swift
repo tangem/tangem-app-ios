@@ -313,7 +313,7 @@ extension VisaWalletModel: WalletModel {
 
     var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? { nil }
 
-    var account: CryptoAccountModel {
+    var account: any CryptoAccountModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 }
