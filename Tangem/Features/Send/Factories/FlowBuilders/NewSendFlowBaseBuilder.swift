@@ -70,7 +70,6 @@ struct NewSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            receiveTokenInput: sendModel,
             receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
@@ -119,7 +118,8 @@ struct NewSendFlowBaseBuilder {
             summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers
+            providersSelector: providers,
+            summaryTitleProvider: builder.makeSendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel)
         )
 
         summary.set(router: stepsManager)
