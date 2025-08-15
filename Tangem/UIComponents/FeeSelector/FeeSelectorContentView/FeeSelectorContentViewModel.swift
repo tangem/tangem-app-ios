@@ -58,6 +58,8 @@ class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewMod
     }
 
     func onAppear() {
+        analytics.logFeeStepOpened()
+
         if let currentSelectedFee = input.selectedSelectorFee,
            currentSelectedFee.option != selectedFeeOption {
             selectedFeeOption = currentSelectedFee.option
