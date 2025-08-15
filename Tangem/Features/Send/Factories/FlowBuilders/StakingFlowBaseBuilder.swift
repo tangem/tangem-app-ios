@@ -78,7 +78,8 @@ struct StakingFlowBaseBuilder {
             amountStep: amount.step,
             validatorsStep: validators.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: .stake)
         )
 
         summary.step.set(router: stepsManager)
