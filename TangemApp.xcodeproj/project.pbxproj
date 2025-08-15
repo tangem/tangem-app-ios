@@ -3672,6 +3672,7 @@
 		EFB541CA2D1076A100330B5B /* ProviderItemSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */; };
 		EFB5925C2E3FE2B80099A8E0 /* HighPriceImpactWarningSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB5925B2E3FE2B60099A8E0 /* HighPriceImpactWarningSheetView.swift */; };
 		EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6800D2B29BD4B00842BE3 /* SheetModifier.swift */; };
+		EFB6FF162E4F20930036731A /* SendSummaryTitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */; };
 		EFB7521B2C985F1100CB614C /* CommonFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */; };
 		EFB7521D2C985F2600CB614C /* StakingFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */; };
 		EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB932022C3EAF7900C999E9 /* SendStepType.swift */; };
@@ -7681,6 +7682,7 @@
 		EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderItemSorter.swift; sourceTree = "<group>"; };
 		EFB5925B2E3FE2B60099A8E0 /* HighPriceImpactWarningSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighPriceImpactWarningSheetView.swift; sourceTree = "<group>"; };
 		EFB6800D2B29BD4B00842BE3 /* SheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetModifier.swift; sourceTree = "<group>"; };
+		EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryTitleProvider.swift; sourceTree = "<group>"; };
 		EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EFB932022C3EAF7900C999E9 /* SendStepType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepType.swift; sourceTree = "<group>"; };
@@ -19197,6 +19199,7 @@
 		EF665E3B2CBD231300F79B87 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EFB6FF172E4F20990036731A /* SendSummaryTitleProvider */,
 				EF665E3C2CBD233600F79B87 /* ManagmentModels */,
 				EFD6782D2E27BF170065AD50 /* SendAnalyticsLogger */,
 				EF6CCBE92C91D7B30002D2B4 /* SendAlertBuilder */,
@@ -20399,6 +20402,14 @@
 				EF3DBFCB2E40B46600AAE298 /* HighPriceImpactWarningSheetViewModel.swift */,
 			);
 			path = HighPriceImpactWarningSheet;
+			sourceTree = "<group>";
+		};
+		EFB6FF172E4F20990036731A /* SendSummaryTitleProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */,
+			);
+			path = SendSummaryTitleProvider;
 			sourceTree = "<group>";
 		};
 		EFB752192C985F0B00CB614C /* FeeIncludedCalculator */ = {
@@ -24007,6 +24018,7 @@
 				B03662652B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift in Sources */,
 				2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */,
 				EF8DBD472C073134009072CF /* AverageRewardingViewData.swift in Sources */,
+				EFB6FF162E4F20930036731A /* SendSummaryTitleProvider.swift in Sources */,
 				EFD143832CC550C000B5BA57 /* SendBaseDataBuilder.swift in Sources */,
 				B660157D2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift in Sources */,
 				2DC5676A2B0DFFAF00B0244F /* MarketsCoordinator.swift in Sources */,

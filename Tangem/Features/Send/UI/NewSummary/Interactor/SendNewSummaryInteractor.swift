@@ -11,8 +11,6 @@ import Combine
 import TangemLocalization
 
 protocol SendNewSummaryInteractor: AnyObject {
-    var title: String? { get }
-
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
@@ -22,7 +20,6 @@ protocol SendNewSummaryInteractor: AnyObject {
 class CommonSendNewSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
-    private weak var receiveTokenInput: SendReceiveTokenInput?
     private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
@@ -31,14 +28,12 @@ class CommonSendNewSummaryInteractor {
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
-        self.receiveTokenInput = receiveTokenInput
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.swapDescriptionBuilder = swapDescriptionBuilder
@@ -46,17 +41,6 @@ class CommonSendNewSummaryInteractor {
 }
 
 extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
-    var title: String? {
-        switch receiveTokenInput?.receiveToken {
-        case .same:
-            return Localization.commonSend
-        case .swap:
-            return Localization.sendWithSwapTitle
-        case .none:
-            return nil
-        }
-    }
-
     var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
