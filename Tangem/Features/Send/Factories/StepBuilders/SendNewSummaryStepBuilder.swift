@@ -17,7 +17,6 @@ struct SendNewSummaryStepBuilder {
 
     func makeSendSummaryStep(
         io: IO,
-        receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput,
         sendFeeProvider: SendFeeProvider,
         destinationEditableType: SendSummaryViewModel.EditableType,
@@ -26,12 +25,12 @@ struct SendNewSummaryStepBuilder {
         analyticsLogger: any SendSummaryAnalyticsLogger,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = makeSendNewSummaryInteractor(
             io: io,
-            receiveTokenInput: receiveTokenInput,
             receiveTokenAmountInput: receiveTokenAmountInput
         )
 
@@ -42,6 +41,7 @@ struct SendNewSummaryStepBuilder {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
@@ -50,6 +50,7 @@ struct SendNewSummaryStepBuilder {
         let step = SendNewSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
+            analyticsLogger: analyticsLogger,
             sendFeeProvider: sendFeeProvider
         )
 
@@ -62,13 +63,11 @@ struct SendNewSummaryStepBuilder {
 private extension SendNewSummaryStepBuilder {
     func makeSendNewSummaryInteractor(
         io: IO,
-        receiveTokenInput: any SendReceiveTokenInput,
         receiveTokenAmountInput: any SendReceiveTokenAmountInput
     ) -> SendNewSummaryInteractor {
         CommonSendNewSummaryInteractor(
             input: io.input,
             output: io.output,
-            receiveTokenInput: receiveTokenInput,
             receiveTokenAmountInput: receiveTokenAmountInput,
             sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             swapDescriptionBuilder: builder.makeSwapTransactionSummaryDescriptionBuilder()
