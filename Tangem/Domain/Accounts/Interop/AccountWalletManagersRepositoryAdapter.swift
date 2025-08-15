@@ -16,6 +16,10 @@ final class AccountWalletManagersRepositoryAdapter {
     private let derivationIndex: Int
     private let walletManagersRepository: WalletManagersRepository
 
+    private var isMainAccountAdapter: Bool {
+        derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+    }
+
     init(
         derivationIndex: Int,
         walletManagersRepository: WalletManagersRepository
@@ -32,11 +36,16 @@ final class AccountWalletManagersRepositoryAdapter {
                 // [REDACTED_TODO_COMMENT]
                 guard let derivationPath = key.derivationPaths().first else {
                     // The absence of derivation paths means that this wallet manager belongs to the main account
-                    return derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
+                    return isMainAccountAdapter
                 }
 
                 let extractor = AccountDerivationNodeExtractor(blockchain: key.blockchain)
-                let derivationNode = extractor.extract(from: derivationPath)
+
+                guard let derivationNode = extractor.extract(from: derivationPath) else {
+                    // The absence of a derivation node at the particular index in the paths means
+                    // that this wallet manager has default derivation and belongs to the main account
+                    return isMainAccountAdapter
+                }
 
                 // [REDACTED_TODO_COMMENT]
                 return derivationNode.rawIndex == UInt32(derivationIndex)
