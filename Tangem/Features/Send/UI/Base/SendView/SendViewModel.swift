@@ -27,9 +27,7 @@ final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var step: SendStep
-    @Published var mainButtonType: SendMainButtonType
     @Published var flowActionType: SendFlowActionType
-    @Published var showBackButton = false
     @Published var isKeyboardActive: Bool = false
 
     @Published var transactionURL: URL?
@@ -40,9 +38,9 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonLoading: Bool = false
     @Published var actionIsAvailable: Bool = false
 
-    var title: String? { step.title }
-    var subtitle: String? { step.subtitle }
+    var navigationBarSettings: SendStepNavigationBarSettings { stepsManager.navigationBarSettings }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
+    var bottomBarSettings: SendStepBottomBarSettings { stepsManager.bottomBarSettings }
 
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
@@ -93,15 +91,14 @@ final class SendViewModel: ObservableObject {
         self.source = source
         self.coordinator = coordinator
 
-        step = stepsManager.initialState.step
-        mainButtonType = stepsManager.initialState.action
+        step = stepsManager.initialStep
         flowActionType = stepsManager.initialFlowActionType
         isKeyboardActive = stepsManager.initialKeyboardState
 
         bind()
-        bind(step: stepsManager.initialState.step)
+        bind(step: stepsManager.initialStep)
 
-        stepsManager.initialState.step.initialAppear()
+        stepsManager.initialStep.initialAppear()
     }
 
     func onAppear() {
@@ -111,6 +108,7 @@ final class SendViewModel: ObservableObject {
     func onDisappear() {}
 
     func userDidTapActionButton() {
+        let mainButtonType = bottomBarSettings.action
         analyticsLogger.logMainActionButton(type: mainButtonType, flow: flowActionType)
 
         switch mainButtonType {
@@ -160,6 +158,7 @@ final class SendViewModel: ObservableObject {
 
     func dismiss() {
         analyticsLogger.logCloseButton(stepType: step.type, isAvailableToAction: actionIsAvailable)
+        let mainButtonType = bottomBarSettings.action
 
         switch mainButtonType {
         case .continue:
@@ -459,24 +458,21 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
-    func update(state: SendStepsManagerViewState) {
-        step.willDisappear(next: state.step)
+    func update(step newStep: any SendStep) {
+        step.willDisappear(next: newStep)
         step.sendStepViewAnimatable.viewDidChangeVisibilityState(
-            .disappearing(nextStep: state.step.type)
+            .disappearing(nextStep: newStep.type)
         )
 
-        state.step.willAppear(previous: step)
-        state.step.sendStepViewAnimatable.viewDidChangeVisibilityState(
+        newStep.willAppear(previous: step)
+        newStep.sendStepViewAnimatable.viewDidChangeVisibilityState(
             .appearing(previousStep: step.type)
         )
 
-        mainButtonType = state.action
-        showBackButton = state.backButtonVisible
-
         // Give some time to update `transitions`
         DispatchQueue.main.async {
-            self.step = state.step
-            self.bind(step: state.step)
+            self.step = newStep
+            self.bind(step: newStep)
         }
     }
 
