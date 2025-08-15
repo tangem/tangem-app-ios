@@ -79,6 +79,7 @@ struct UnstakingFlowBaseBuilder {
             amountStep: amount.step,
             summaryStep: summary.step,
             finishStep: finish,
+            summaryTitleProvider: builder.makeStakingSummaryTitleProvider(actionType: actionType),
             action: action,
             isPartialUnstakeAllowed: isPartialUnstakeAllowed
         )
