@@ -10,4 +10,5 @@ import Foundation
 
 protocol OnboardingTopupRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
     func openQR(shareAddress: String, address: String, qrNotice: String)
+    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel)
 }
