@@ -115,25 +115,16 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
         case .success(let amount):
             switch amount.type {
             case .typical(let crypto, _):
-                amountText = formatAmountText(amount: crypto)
+                amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+            case .alternative(let fiat, _) where isApproximateAmount:
+                amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
+                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             case .alternative(let fiat, _):
-                amountText = formatAmountText(amount: fiat)
+                amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             }
         }
-    }
-
-    private func formatAmountText(amount: Decimal?) -> String {
-        guard let amount else {
-            return BalanceFormatter.defaultEmptyBalanceString
-        }
-
-        if isApproximateAmount {
-            return "\(AppConstants.tildeSign) \(amount.stringValue)"
-        }
-
-        return amount.stringValue
     }
 }
 
