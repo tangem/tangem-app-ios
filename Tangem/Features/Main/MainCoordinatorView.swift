@@ -127,7 +127,6 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: HotFinishActivationNeededViewModel.self) {
                 HotFinishActivationNeededView(viewModel: $0)
             }
-            .registerWalletConnectFloatingSheets()
 
         NavHolder()
             .bottomSheet(
