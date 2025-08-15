@@ -52,6 +52,7 @@ struct SendNewSummaryStepBuilder {
         let step = SendNewSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
+            analyticsLogger: analyticsLogger,
             sendFeeProvider: sendFeeProvider
         )
 
