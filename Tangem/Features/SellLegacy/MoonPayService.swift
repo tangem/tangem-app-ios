@@ -76,7 +76,7 @@ private struct MoonpaySupportedCurrency: Hashable {
 class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
 
-    @Published private var initializeState: ExchangeServiceState = .initializing
+    @Published private var initializeState: SellServiceState = .initializing
 
     // [REDACTED_TODO_COMMENT]
     private var keys: MoonPayKeys { keysManager.moonPayKeys }
@@ -89,7 +89,6 @@ class MoonPayService {
         UITraitCollection.isDarkMode
     }
 
-    private(set) var canBuyCrypto = true
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
     private let darkThemeName = "dark"
@@ -116,22 +115,14 @@ class MoonPayService {
     }
 }
 
-extension MoonPayService: ExchangeService {
+extension MoonPayService: SellService {
     private typealias Currencies = Set<MoonpaySupportedCurrency>
 
-    var initializationPublisher: Published<ExchangeServiceState>.Publisher { $initializeState }
+    var initializationPublisher: Published<SellServiceState>.Publisher { $initializeState }
 
     var successCloseUrl: String { "https://success.tangem.com" }
 
     var sellRequestUrl: String { SellActionURLHelper().buildURL(scheme: .universalLink).absoluteString }
-
-    func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        guard canBuyCrypto else {
-            return false
-        }
-
-        return getCryptoCurrency(amountType: amountType, blockchain: blockchain, fromCurrencies: availableToBuy) != nil
-    }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         guard canSellCrypto else {
@@ -164,35 +155,6 @@ extension MoonPayService: ExchangeService {
         })
 
         return cryptoCurrency
-    }
-
-    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard let currency = getCryptoCurrency(amountType: amountType, blockchain: blockchain, fromCurrencies: availableToBuy) else {
-            return nil
-        }
-
-        var urlComponents = URLComponents()
-        urlComponents.scheme = "https"
-        urlComponents.host = "buy.moonpay.io"
-
-        var queryItems = [URLQueryItem]()
-        queryItems.append(.init(key: .apiKey, value: keys.apiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .currencyCode, value: currency.currencyCode.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .walletAddress, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .redirectURL, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
-        queryItems.append(.init(key: .baseCurrencyCode, value: "USD".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-
-        if useDarkTheme {
-            queryItems.append(.init(key: .theme, value: darkThemeName))
-        }
-
-        urlComponents.percentEncodedQueryItems = queryItems
-        let signatureItem = makeSignature(for: urlComponents)
-        queryItems.append(signatureItem)
-        urlComponents.percentEncodedQueryItems = queryItems
-
-        let url = urlComponents.url
-        return url
     }
 
     func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
@@ -291,7 +253,6 @@ extension MoonPayService: ExchangeService {
         do {
             let decoder = JSONDecoder()
             let decodedResponse = try decoder.decode(IpCheckResponse.self, from: ipOutput)
-            canBuyCrypto = decodedResponse.isBuyAllowed
             canSellCrypto = decodedResponse.isSellAllowed
 
             return (decodedResponse.countryCode, decodedResponse.stateCode)
