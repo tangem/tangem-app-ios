@@ -10,13 +10,9 @@ import Foundation
 import Combine
 
 protocol SendStep {
-    var title: String? { get }
-    var subtitle: String? { get }
     var shouldShowBottomOverlay: Bool { get }
 
     var type: SendStepType { get }
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { get }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { get }
     var sendStepViewAnimatable: any SendStepViewAnimatable { get }
 
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
@@ -30,7 +26,6 @@ protocol SendStep {
 }
 
 extension SendStep {
-    var subtitle: String? { .none }
     var shouldShowBottomOverlay: Bool { true }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { .just(output: false) }

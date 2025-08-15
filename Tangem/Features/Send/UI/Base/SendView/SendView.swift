@@ -28,79 +28,56 @@ struct SendView: View {
     private let backgroundColor = Colors.Background.tertiary
     private let bottomGradientHeight: CGFloat = 150
 
-    private var shouldShowHeader: Bool {
-        viewModel.title != nil || viewModel.step.navigationLeadingViewType != nil || viewModel.step.navigationTrailingViewType != nil
-    }
-
     var body: some View {
-        VStack(spacing: 10) {
-            headerView
+        ZStack(alignment: .bottom) {
+            currentPage
+                .focused($focused)
+                .allowsHitTesting(!viewModel.isUserInteractionDisabled)
 
-            ZStack(alignment: .bottom) {
-                currentPage
-                    .focused($focused)
-                    .allowsHitTesting(!viewModel.isUserInteractionDisabled)
-
-                bottomOverlay
-            }
-            .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
+            bottomOverlay
         }
+        .navigationBarBackButtonHidden()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) { leadingView }
+            ToolbarItem(placement: .principal) { principalView }
+            ToolbarItem(placement: .topBarTrailing) { trailingView }
+            ToolbarItem(placement: .keyboard) { keyboardToolbarView }
+        }
+        .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
+        .animation(.none, value: viewModel.navigationBarSettings)
+        .animation(.none, value: viewModel.bottomBarSettings)
         .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
             contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
         }
         .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
-        .safeAreaInset(edge: .bottom) {
-            bottomContainer
-        }
-        .onReceive(viewModel.$isKeyboardActive, perform: { isKeyboardActive in
-            focused = isKeyboardActive
-        })
+        .safeAreaInset(edge: .bottom) { bottomContainer }
+        .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
-        .navigationBarHidden(true)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
     }
 
     @ViewBuilder
-    private var headerView: some View {
-        if shouldShowHeader {
-            ZStack(alignment: .center) {
-                HStack {
-                    leadingView
-
-                    Spacer()
-
-                    trailingView
-                        .disabled(viewModel.trailingButtonDisabled)
-                }
-
-                headerText
-            }
-            .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.navigationTrailingViewType)
-            .frame(height: 44)
-            .padding(.top, 8)
-            .padding(.horizontal, 16)
-        }
-    }
-
-    @ViewBuilder
     private var leadingView: some View {
-        switch viewModel.step.navigationLeadingViewType {
+        switch viewModel.navigationBarSettings.leadingViewType {
         case .none:
             EmptyView()
+
         case .closeButton:
             CloseButton(dismiss: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
+
         case .backButton:
-            CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: viewModel.userDidTapBackButton)
+            CircleButton.back(action: viewModel.userDidTapBackButton)
         }
     }
 
     @ViewBuilder
     private var trailingView: some View {
-        switch viewModel.step.navigationTrailingViewType {
+        switch viewModel.navigationBarSettings.trailingViewType {
         case .none:
             EmptyView()
 
@@ -124,8 +101,8 @@ struct SendView: View {
     }
 
     @ViewBuilder
-    private var headerText: some View {
-        switch viewModel.title {
+    private var principalView: some View {
+        switch viewModel.navigationBarSettings.title {
         case .none:
             EmptyView()
         case .some(let title):
@@ -135,14 +112,25 @@ struct SendView: View {
                     .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
 
-                if let subtitle = viewModel.subtitle {
+                if let subtitle = viewModel.navigationBarSettings.subtitle {
                     Text(subtitle)
                         .style(Fonts.RegularStatic.caption1, color: Colors.Text.tertiary)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .lineLimit(1)
-            .infinityFrame(axis: .horizontal, alignment: .center)
+        }
+    }
+
+    @ViewBuilder
+    private var keyboardToolbarView: some View {
+        if viewModel.bottomBarSettings.keyboardHiddenToolbarButtonVisible {
+            HStack(spacing: .zero) {
+                Spacer()
+
+                HideKeyboardButton(focused: $focused)
+            }
+            .infinityFrame(axis: .horizontal)
         }
     }
 
@@ -258,7 +246,7 @@ struct SendView: View {
             }
 
             HStack(spacing: 8) {
-                if viewModel.showBackButton {
+                if viewModel.bottomBarSettings.backButtonVisible {
                     SendViewBackButton(
                         backgroundColor: backButtonStyle.background(isDisabled: false),
                         cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
@@ -269,8 +257,8 @@ struct SendView: View {
                 }
 
                 MainButton(
-                    title: viewModel.mainButtonType.title(action: viewModel.flowActionType),
-                    icon: viewModel.mainButtonType.icon(action: viewModel.flowActionType),
+                    title: viewModel.bottomBarSettings.action.title(action: viewModel.flowActionType),
+                    icon: viewModel.bottomBarSettings.action.icon(action: viewModel.flowActionType),
                     style: .primary,
                     size: .default,
                     isLoading: viewModel.mainButtonLoading,
@@ -279,7 +267,7 @@ struct SendView: View {
                 )
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             }
-            .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.showBackButton)
+            .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.bottomBarSettings.backButtonVisible)
         }
         .padding(.top, 8)
         .padding(.bottom, 14)
