@@ -101,8 +101,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let window = MainWindow(windowScene: windowScene)
+
+        sheetRegistry.registerWalletConnectFloatingSheets()
+
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
+
         let factory = RootViewControllerFactory()
         let rootViewController = factory.makeRootViewController(
             for: appCoordinatorView,
