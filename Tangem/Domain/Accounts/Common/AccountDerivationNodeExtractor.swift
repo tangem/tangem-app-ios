@@ -31,7 +31,7 @@ struct AccountDerivationNodeExtractor {
 
 private extension AccountDerivationNodeExtractor {
     enum Constants {
-        static let utxoDerivationNodeIndex = 3
-        static let nonUTXODerivationNodeIndex = 5
+        static let utxoDerivationNodeIndex = 2
+        static let nonUTXODerivationNodeIndex = 4
     }
 }
