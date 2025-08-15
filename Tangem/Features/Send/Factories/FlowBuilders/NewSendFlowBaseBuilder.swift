@@ -70,7 +70,6 @@ struct NewSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            receiveTokenInput: sendModel,
             receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
@@ -79,6 +78,7 @@ struct NewSendFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            nftAssetCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -87,6 +87,7 @@ struct NewSendFlowBaseBuilder {
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
+            nftAssetCompactViewModel: .none,
             sendDestinationCompactViewModel: destination.compact,
             sendFeeFinishViewModel: fee.finish,
         )
@@ -117,7 +118,8 @@ struct NewSendFlowBaseBuilder {
             summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers
+            providersSelector: providers,
+            summaryTitleProvider: builder.makeSendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel)
         )
 
         summary.set(router: stepsManager)

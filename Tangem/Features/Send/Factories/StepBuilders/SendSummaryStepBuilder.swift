@@ -45,9 +45,7 @@ struct SendSummaryStepBuilder {
         let step = SendSummaryStep(
             viewModel: viewModel,
             input: io.input,
-            analyticsLogger: analyticsLogger,
-            title: builder.summaryTitle(action: actionType),
-            subtitle: builder.summarySubtitle(action: actionType)
+            analyticsLogger: analyticsLogger
         )
 
         return (step: step, interactor: interactor)

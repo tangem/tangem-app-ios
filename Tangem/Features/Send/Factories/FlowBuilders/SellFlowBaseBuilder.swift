@@ -85,7 +85,8 @@ struct SellFlowBaseBuilder {
         let stepsManager = CommonSellStepsManager(
             feeStep: fee.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeSellSendSummaryTitleProvider()
         )
 
         summary.step.set(router: stepsManager)
