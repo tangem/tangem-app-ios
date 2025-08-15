@@ -16,7 +16,7 @@ public final class FloatingSheetRegistry {
 
     public nonisolated init() {}
 
-    func register<SheetContentViewModel: FloatingSheetContentViewModel>(
+    public func register<SheetContentViewModel: FloatingSheetContentViewModel>(
         _ viewModelType: SheetContentViewModel.Type,
         viewBuilder: @escaping (SheetContentViewModel) -> some View
     ) {
