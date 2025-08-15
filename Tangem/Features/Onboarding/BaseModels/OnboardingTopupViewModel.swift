@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopupRoutable>: OnboardingViewModel<Step, Coordinator> {
-    @Injected(\.exchangeService) var exchangeService: ExchangeService
+    @Injected(\.sellService) var sellService: SellService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
@@ -20,32 +20,20 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
     var walletModelUpdateCancellable: AnyCancellable?
 
-    var buyCryptoURL: URL? {
-        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
-            let blockchain = walletModel.tokenItem.blockchain
-            return exchangeService.getBuyUrl(
-                currencySymbol: blockchain.currencySymbol,
-                amountType: .coin,
-                blockchain: blockchain,
-                walletAddress: walletModel.defaultAddressString
-            )
-        }
-
-        return nil
+    private var walletModel: (any WalletModel)? {
+        userWalletModel?.walletModelsManager.walletModels.first
     }
 
-    var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
-
     private var shareAddress: String {
-        userWalletModel?.walletModelsManager.walletModels.first?.shareAddressString(for: 0) ?? ""
+        walletModel?.shareAddressString(for: 0) ?? ""
     }
 
     private var walletAddress: String {
-        userWalletModel?.walletModelsManager.walletModels.first?.displayAddress(for: 0) ?? ""
+        walletModel?.displayAddress(for: 0) ?? ""
     }
 
     private var qrNoticeMessage: String {
-        userWalletModel?.walletModelsManager.walletModels.first?.qrReceiveMessage ?? ""
+        walletModel?.qrReceiveMessage ?? ""
     }
 
     func updateCardBalance(shouldGoToNextStep: Bool = true) {
@@ -125,12 +113,10 @@ extension OnboardingTopupViewModel {
     }
 
     func openBuyCrypto() {
-        guard let url = buyCryptoURL else { return }
+        guard let walletModel, let userWalletModel else { return }
 
         Analytics.log(.buttonBuyCrypto)
-        coordinator?.openBrowser(at: url) { [weak self] _ in
-            self?.updateCardBalance()
-        }
+        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
     }
 }
 
