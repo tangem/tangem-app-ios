@@ -36,13 +36,7 @@ class SendNewSummaryStep {
 // MARK: - SendStep
 
 extension SendNewSummaryStep: SendStep {
-    var title: String? { interactor.title }
-
     var type: SendStepType { .newSummary(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .backButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
