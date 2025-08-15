@@ -135,12 +135,13 @@ private extension ActionButtonsSellViewModel {
             return nil
         }
 
-        return .init(
-            amountToSend: sellCryptoRequest.amount,
+        let sellParameters = PredefinedSellParameters(
+            amount: sellCryptoRequest.amount,
             destination: sellCryptoRequest.targetAddress,
-            tag: sellCryptoRequest.tag,
-            walletModel: walletModel
+            tag: sellCryptoRequest.tag
         )
+
+        return .init(.init(sellParameters: sellParameters, walletModel: walletModel))
     }
 
     func makeSellUrl(from token: ActionButtonsTokenSelectorItem) -> URL? {
