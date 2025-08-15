@@ -88,12 +88,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private var walletCreatedWhileOnboarding: Bool = false
     private var canBuyCrypto: Bool {
-        if let blockchain = userWalletModel?.walletModelsManager.walletModels.first?.tokenItem.blockchain,
-           exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
-            return true
+        guard let userWalletModel,
+              let walletModel = userWalletModel.walletModelsManager.walletModels.first else {
+            return false
         }
 
-        return false
+        let provider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
+        return provider.isBuyAvailable
     }
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {

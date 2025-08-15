@@ -13,15 +13,18 @@ import SwiftUI
 class SendNewSummaryStep {
     private let viewModel: SendNewSummaryViewModel
     private let interactor: SendNewSummaryInteractor
+    private let analyticsLogger: SendSummaryAnalyticsLogger
     private let sendFeeProvider: SendFeeProvider
 
     init(
         viewModel: SendNewSummaryViewModel,
         interactor: SendNewSummaryInteractor,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.sendFeeProvider = sendFeeProvider
     }
 
@@ -33,13 +36,7 @@ class SendNewSummaryStep {
 // MARK: - SendStep
 
 extension SendNewSummaryStep: SendStep {
-    var title: String? { interactor.title }
-
     var type: SendStepType { .newSummary(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
@@ -51,6 +48,7 @@ extension SendNewSummaryStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
+        analyticsLogger.logSummaryStepOpened()
         sendFeeProvider.updateFees()
     }
 }

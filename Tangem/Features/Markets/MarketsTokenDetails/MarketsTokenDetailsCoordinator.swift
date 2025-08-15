@@ -134,19 +134,6 @@ extension MarketsTokenDetailsCoordinator {
         receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(for: walletModel)
     }
 
-    func openBuyCryptoIfPossible(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
-        guard let url = portfolioCoordinatorFactory.makeBuyURL(for: walletModel, with: userWalletModel) else {
-            return
-        }
-
-        openBuyCrypto(at: url, with: walletModel)
-    }
-
     func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
         let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
