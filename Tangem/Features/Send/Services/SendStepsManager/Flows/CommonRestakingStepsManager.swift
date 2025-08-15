@@ -7,11 +7,13 @@
 //
 import Combine
 import TangemStaking
+import TangemLocalization
 
 class CommonRestakingStepsManager {
     private let validatorsStep: StakingValidatorsStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
     private let actionType: SendFlowActionType
 
     private var stack: [SendStep]
@@ -21,11 +23,13 @@ class CommonRestakingStepsManager {
         validatorsStep: StakingValidatorsStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider,
         actionType: SendFlowActionType
     ) {
         self.validatorsStep = validatorsStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
         self.actionType = actionType
 
         stack = [actionType == .restake ? validatorsStep : summaryStep]
@@ -33,25 +37,22 @@ class CommonRestakingStepsManager {
 
     private func currentStep() -> SendStep {
         let last = stack.last
+        return last ?? initialStep
+    }
 
-        assert(last != nil, "Stack is empty")
-
-        return last ?? initialState.step
+    private func getNextStep() -> SendStep? {
+        switch currentStep().type {
+        case .validators:
+            return summaryStep
+        default:
+            assertionFailure("There is no next step")
+            return nil
+        }
     }
 
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .validators:
-            output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .fee, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -61,14 +62,7 @@ class CommonRestakingStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            assertionFailure("There is no back step")
-        }
+        output?.update(step: currentStep())
     }
 }
 
@@ -81,16 +75,37 @@ extension CommonRestakingStepsManager: SendStepsManager {
         actionType
     }
 
-    var initialState: SendStepsManagerViewState {
-        if actionType == .restake {
-            SendStepsManagerViewState(step: validatorsStep, action: .next, backButtonVisible: false)
-        } else {
-            SendStepsManagerViewState(step: summaryStep, action: .action, backButtonVisible: false)
-        }
+    var initialStep: any SendStep {
+        actionType == .restake ? validatorsStep : summaryStep
     }
 
     var shouldShowDismissAlert: Bool {
         return false
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .validators:
+            return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
+        case .summary:
+            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+        case .finish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        let isEditAction = stack.contains(where: { $0.type.isSummary })
+
+        switch currentStep().type {
+        case .validators where isEditAction: return .init(action: .continue)
+        case .validators: return .init(action: .next)
+        case .summary: return .init(action: .action)
+        case .finish: return .init(action: .close)
+        default: return .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -98,7 +113,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
     }
 
     func performBack() {
-        assertionFailure("There's not back action in this flow")
+        back()
     }
 
     func performNext() {
@@ -126,17 +141,5 @@ extension CommonRestakingStepsManager: SendSummaryStepsRoutable {
         }
 
         next(step: validatorsStep)
-    }
-
-    func summaryStepRequestEditAmount() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
-    func summaryStepRequestEditDestination() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
-    func summaryStepRequestEditFee() {
-        assertionFailure("This steps is not tappable in this flow")
     }
 }
