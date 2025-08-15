@@ -11,7 +11,6 @@ import Foundation
 enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case learnToEarn
-    case onramp
     case visa // [REDACTED_TODO_COMMENT]
     case nft
     case walletConnectUI
@@ -23,12 +22,12 @@ enum Feature: String, Hashable, CaseIterable {
     case deeplink
     case wcSolanaALT
     case accounts
+    case nftNewSendUI
 
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .learnToEarn: return "Learn to Earn"
-        case .onramp: return "Onramp"
         case .visa: return "Visa"
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
@@ -40,6 +39,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplink: return "Deeplink"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
+        case .nftNewSendUI: return "NFT New Send UI"
         }
     }
 
@@ -47,7 +47,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .onramp: return .version("5.24.2")
         case .visa: return .unspecified
         case .nft: return .version("5.25")
         case .walletConnectUI: return .version("5.27")
@@ -57,8 +56,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .hotWallet: return .unspecified
         case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
-        case .wcSolanaALT: return .unspecified
+        case .wcSolanaALT: return .version("5.27") // [REDACTED_TODO_COMMENT]
         case .accounts: return .unspecified
+        case .nftNewSendUI: return .unspecified
         }
     }
 }
