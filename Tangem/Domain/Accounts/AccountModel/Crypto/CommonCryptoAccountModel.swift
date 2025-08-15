@@ -12,15 +12,19 @@ import TangemSdk
 import TangemFoundation
 
 final class CommonCryptoAccountModel {
+    let walletModelsManager: WalletModelsManager
+
     private let accountId: AccountId
     private let derivationIndex: Int
 
     init(
         accountId: AccountId,
-        derivationIndex: Int
+        derivationIndex: Int,
+        walletModelsManager: WalletModelsManager
     ) {
         self.accountId = accountId
         self.derivationIndex = derivationIndex
+        self.walletModelsManager = walletModelsManager
     }
 }
 
@@ -30,10 +34,15 @@ extension CommonCryptoAccountModel {
     /// Convenience init, initializes a `CommonCryptoAccountModel` with a `UserWalletId` and a derivation index.
     convenience init(
         userWalletId: UserWalletId,
-        derivationIndex: Int
+        derivationIndex: Int,
+        walletModelsManager: WalletModelsManager
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
-        self.init(accountId: accountId, derivationIndex: derivationIndex)
+        self.init(
+            accountId: accountId,
+            derivationIndex: derivationIndex,
+            walletModelsManager: walletModelsManager
+        )
     }
 }
 
@@ -88,11 +97,6 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     var didChangePublisher: any Publisher<Void, Never> {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var walletModelsManager: WalletModelsManager {
         // [REDACTED_TODO_COMMENT]
         fatalError()
     }
