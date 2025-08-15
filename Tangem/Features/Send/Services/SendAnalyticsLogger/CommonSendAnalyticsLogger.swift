@@ -74,10 +74,10 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentViewModelAnalytics {
     func logFeeStepOpened() {
         switch tokenItem.token?.metadata.kind {
-        case .nonFungible:
-            Analytics.log(.nftCommissionScreenOpened)
         case .fungible, .none:
             Analytics.log(.sendFeeScreenOpened)
+        case .nonFungible:
+            Analytics.log(.nftCommissionScreenOpened)
         }
     }
 
@@ -116,7 +116,14 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentV
 
 extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logTapMaxAmount() {
-        Analytics.log(.sendMaxAmountTapped)
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if let token = sendSourceTokenInput?.sourceToken {
+            params[.token] = token.tokenItem.currencySymbol
+            params[.blockchain] = token.tokenItem.blockchain.displayName
+        }
+
+        Analytics.log(event: .sendMaxAmountTapped, params: params)
     }
 
     func logAmountStepOpened() {
