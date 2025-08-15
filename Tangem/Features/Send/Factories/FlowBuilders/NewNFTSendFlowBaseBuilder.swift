@@ -51,7 +51,6 @@ struct NewNFTSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            receiveTokenInput: sendModel,
             receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
@@ -94,7 +93,8 @@ struct NewNFTSendFlowBaseBuilder {
             destinationStep: destination.step,
             feeSelector: fee.feeSelector,
             summaryStep: summary,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeSendSummaryTitleProvider()
         )
 
         summary.set(router: stepsManager)
