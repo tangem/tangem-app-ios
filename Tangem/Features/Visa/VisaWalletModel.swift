@@ -13,11 +13,13 @@ import TangemVisa
 import TangemStaking
 import TangemExpress
 import TangemLocalization
+import TangemFoundation
 
 class VisaWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     let id: WalletModelId
+    let userWalletId: UserWalletId
 
     lazy var availableBalanceProvider = makeAvailableBalanceProvider()
     let stakingBalanceProvider: TokenBalanceProvider = NotSupportedStakingTokenBalanceProvider()
@@ -36,10 +38,12 @@ class VisaWalletModel {
     private let transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
 
     init(
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
         transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
     ) {
+        self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         id = .init(tokenItem: tokenItem)
 
