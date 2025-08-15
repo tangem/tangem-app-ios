@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// A helper that helps to perform the common navigation flow: open the `Token Details` screen for the fee currency.
 protocol FeeCurrencyNavigating where Self: AnyObject, Self: CoordinatorObject {
@@ -29,14 +30,7 @@ extension FeeCurrencyNavigating {
         }
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: model,
-                userTokensManager: userWalletModel.userTokensManager,
-                pendingTransactionDetails: nil
-            )
-        )
+        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
 
         tokenDetailsCoordinator = coordinator
     }
@@ -53,12 +47,15 @@ extension FeeCurrencyNavigating {
             self?.sendCoordinator = nil
 
             switch dismissOptions {
-            case .openFeeCurrency(let walletModel, let userWalletModel):
-                DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
-                    self?.openFeeCurrency(for: walletModel, userWalletModel: userWalletModel)
+            case .openFeeCurrency(let userWalletId, let feeTokenItem):
+                guard let result = FeeCurrencyFinder().findFeeWalletModel(userWalletId: userWalletId, feeTokenItem: feeTokenItem) else {
+                    return
                 }
-            case .closeButtonTap,
-                 .none:
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
+                    self?.openFeeCurrency(for: result.feeWalletModel, userWalletModel: result.userWalletModel)
+                }
+            case .closeButtonTap, .none:
                 break
             }
         }
