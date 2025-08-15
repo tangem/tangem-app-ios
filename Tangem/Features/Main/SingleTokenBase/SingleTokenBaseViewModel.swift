@@ -548,11 +548,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        if FeatureProvider.isAvailable(.onramp) {
-            tokenRouter.openOnramp(walletModel: walletModel)
-        } else {
-            tokenRouter.openBuy(walletModel: walletModel)
-        }
+        tokenRouter.openOnramp(walletModel: walletModel)
     }
 
     func openSend() {
