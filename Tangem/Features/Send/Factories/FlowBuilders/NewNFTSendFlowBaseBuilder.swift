@@ -9,7 +9,6 @@
 import Foundation
 
 struct NewNFTSendFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
     let nftAssetStepBuilder: NFTAssetStepBuilder
@@ -105,12 +104,11 @@ struct NewNFTSendFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
             coordinator: router
         )
