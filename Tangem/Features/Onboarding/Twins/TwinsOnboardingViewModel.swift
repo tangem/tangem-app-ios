@@ -11,9 +11,7 @@ import TangemLocalization
 import Combine
 import TangemUI
 
-class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
+class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
     @Published var currentCardIndex: Int = 0
@@ -54,17 +52,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     // MARK: - Main Button settings
 
-    override var mainButtonTitle: String {
-        if case .topup = currentStep, !canBuy {
-            return Localization.onboardingButtonReceiveCrypto
-        }
-
-        return super.mainButtonTitle
-    }
-
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .topup, .saveUserWallet:
+        case .saveUserWallet:
             return super.mainButtonSettings
         default:
             return nil
@@ -141,16 +131,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
     private let twinsService: TwinsWalletCreationUtil
     private let imageProvider = TwinImageProvider()
 
-    private var canBuy: Bool {
-        guard let userWalletModel,
-              let walletModel = userWalletModel.walletModelsManager.walletModels.first else {
-            return false
-        }
-
-        let provider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
-        return provider.isBuyAvailable
-    }
-
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         let twinData = input.twinData!
 
@@ -159,19 +139,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
         super.init(input: input, coordinator: coordinator)
 
-        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
-            updateCardBalanceText(for: walletModel)
-        }
-
         if case .twins(let steps) = input.steps {
             self.steps = steps
-
-            if case .topup = steps.first {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.updateCardBalance()
-                }
-            }
         }
+
         if isFromMain {
             displayTwinImages = true
         }
@@ -225,18 +196,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     // MARK: - Main button action
 
-    override func mainButtonAction() {
-        switch currentStep {
-        case .pushNotifications, .first, .second, .third, .saveUserWallet, .done, .intro, .success, .alert:
-            break
-        case .topup:
-            if canBuy {
-                openBuyCrypto()
-            } else {
-                supplementButtonAction()
-            }
-        }
-    }
+    override func mainButtonAction() {}
 
     // MARK: - Supplement button action
 
@@ -244,10 +204,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         switch currentStep {
         case .intro, .success, .done, .alert:
             goToNextStep()
-        case .topup:
-            withAnimation {
-                openQR()
-            }
         case .first:
             if !retwinMode {
                 AppSettings.shared.cardsStartedActivation.insert(twinsService.firstTwinCid)
@@ -332,7 +288,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 switch currentStep {
                 case .done, .success:
                     withAnimation {
-                        self?.refreshButtonState = .doneCheckmark
                         self?.fireConfetti()
                     }
                 default:
@@ -365,8 +320,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                         }
                         if viewModel.input.isStandalone {
                             viewModel.fireConfetti()
-                        } else {
-                            viewModel.updateCardBalance()
                         }
                     }
 
