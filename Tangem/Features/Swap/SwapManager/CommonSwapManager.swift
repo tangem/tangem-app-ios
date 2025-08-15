@@ -33,7 +33,10 @@ class CommonSwapManager {
 
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
-        expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+        let hasMemo = SendDestinationAdditionalFieldType.type(for: swappingPair.sender.tokenItem.blockchain) != nil
+
+        return canSwap && !hasMemo
     }
 
     var swappingPair: SwapManagerSwappingPair {
