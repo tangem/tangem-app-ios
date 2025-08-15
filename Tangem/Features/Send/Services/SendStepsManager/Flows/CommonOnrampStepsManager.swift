@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import Combine
+import TangemLocalization
 
 class CommonOnrampStepsManager {
     private let onrampStep: OnrampStep
     private let finishStep: SendFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
     private let shouldActivateKeyboard: Bool
 
     private var stack: [SendStep]
@@ -20,24 +21,25 @@ class CommonOnrampStepsManager {
     init(
         onrampStep: OnrampStep,
         finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider,
         shouldActivateKeyboard: Bool
     ) {
         self.onrampStep = onrampStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
         self.shouldActivateKeyboard = shouldActivateKeyboard
 
         stack = [onrampStep]
     }
 
+    private func currentStep() -> SendStep {
+        let last = stack.last
+        return last ?? initialStep
+    }
+
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 }
 
@@ -45,36 +47,39 @@ class CommonOnrampStepsManager {
 
 extension CommonOnrampStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { shouldActivateKeyboard }
-
-    var initialFlowActionType: SendFlowActionType {
-        .onramp
-    }
-
-    var initialState: SendStepsManagerViewState {
-        .init(step: onrampStep, action: .action, backButtonVisible: false)
-    }
+    var initialFlowActionType: SendFlowActionType { .onramp }
+    var initialStep: any SendStep { onrampStep }
 
     var shouldShowDismissAlert: Bool {
         return false
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .onramp:
+            return .init(title: summaryTitleProvider.title, leadingViewType: .closeButton, trailingViewType: .dotsButton { [weak self] in
+                self?.onrampStep.openOnrampSettingsView()
+            })
+        case .finish:
+            return .init(leadingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        switch currentStep().type {
+        case .onramp: .init(action: .action, keyboardHiddenToolbarButtonVisible: true)
+        case .finish: .init(action: .close)
+        default: .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
         self.output = output
     }
 
-    func performBack() {
-        assertionFailure("There's not back action in this flow")
-    }
-
-    func performNext() {
-        assertionFailure("There's not next action in this flow")
-    }
-
     func performFinish() {
         next(step: finishStep)
-    }
-
-    func performContinue() {
-        assertionFailure("There's not continue action in this flow")
     }
 }

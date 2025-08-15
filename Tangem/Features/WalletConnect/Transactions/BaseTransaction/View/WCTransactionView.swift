@@ -135,6 +135,7 @@ private extension WCTransactionView {
                 .padding(.vertical, 12)
 
             transactionRequest
+                .clipShape(Rectangle())
                 .onTapGesture {
                     viewModel.handleViewAction(.showRequestData)
                 }
@@ -172,7 +173,8 @@ private extension WCTransactionView {
         case .personalSign, .signTypedData, .signTypedDataV4:
             WCEthPersonalSignTransactionView(
                 walletName: viewModel.userWalletName,
-                isWalletRowVisible: viewModel.isWalletRowVisible
+                isWalletRowVisible: viewModel.isWalletRowVisible,
+                blockchain: viewModel.transactionData.blockchain
             )
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
