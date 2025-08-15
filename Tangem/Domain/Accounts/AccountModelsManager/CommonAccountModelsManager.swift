@@ -19,15 +19,18 @@ actor CommonAccountModelsManager {
     }
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
 
     init(
         userWalletId: UserWalletId,
-        cryptoAccountsRepository: CryptoAccountsRepository
+        cryptoAccountsRepository: CryptoAccountsRepository,
+        walletModelsManagerFactory: AccountWalletModelsManagerFactory
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.walletModelsManagerFactory = walletModelsManagerFactory
         executor = Executor(label: userWalletId.stringValue)
     }
 
@@ -79,9 +82,14 @@ actor CommonAccountModelsManager {
         cache.removeAll { removedAccountIds.contains($0.key) }
 
         return addedAccountIds.map { accountId in
+            let newDerivationIndex = newDerivationIndices[accountId]! // Force unwrapping is safe here since the dict is already populated
+            let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
+                forAccountWithDerivationIndex: newDerivationIndex
+            )
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
-                derivationIndex: newDerivationIndices[accountId]! // Force unwrapping is safe here since the dict is already populated
+                derivationIndex: newDerivationIndex,
+                walletModelsManager: walletModelsManager
             )
             // Updating `cache` within the `map` loop here to reduce the number of iterations
             cache[accountId] = cryptoAccount
@@ -102,9 +110,14 @@ extension CommonAccountModelsManager: AccountModelsManager {
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
+        let newDerivationIndex = cryptoAccountsRepository.totalCryptoAccountsCount + 1
+        let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
+            forAccountWithDerivationIndex: newDerivationIndex
+        )
         let newCryptoAccount = CommonCryptoAccountModel(
             userWalletId: userWalletId,
-            derivationIndex: cryptoAccountsRepository.totalCryptoAccountsCount + 1
+            derivationIndex: newDerivationIndex,
+            walletModelsManager: walletModelsManager
         )
         cryptoAccountsRepository.addCryptoAccount(newCryptoAccount)
 
@@ -147,14 +160,21 @@ private extension CommonAccountModelsManager {
 
 @available(*, deprecated, message: "Test only initializer, remove")
 extension CommonAccountModelsManager {
-    init(userWalletId: UserWalletId) {
+    init(
+        userWalletId: UserWalletId,
+        walletManagersRepository: WalletManagersRepository,
+        walletModelsFactory: WalletModelsFactory
+    ) {
         self.init(
             userWalletId: userWalletId,
-            cryptoAccountsRepository:
-            CommonCryptoAccountsRepository(
+            cryptoAccountsRepository: CommonCryptoAccountsRepository(
                 tokenItemsRepository: CommonTokenItemsRepository(
                     key: userWalletId.stringValue
                 )
+            ),
+            walletModelsManagerFactory: CommonAccountWalletModelsManagerFactory(
+                walletManagersRepository: walletManagersRepository,
+                walletModelsFactory: walletModelsFactory
             )
         )
     }
