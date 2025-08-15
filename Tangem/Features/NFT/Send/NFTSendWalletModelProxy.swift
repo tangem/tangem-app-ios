@@ -49,6 +49,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         WalletModelId(tokenItem: tokenItem)
     }
 
+    var userWalletId: UserWalletId {
+        mainTokenWalletModel.userWalletId
+    }
+
     var name: String {
         asset.name
     }
