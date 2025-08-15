@@ -158,7 +158,7 @@ private extension CommonAccountModelsManager {
 
 // MARK: - Temporary convenience extensions
 
-@available(*, deprecated, message: "Test only initializer, remove")
+@available(*, deprecated, message: "Test only initializer, will be removed in the future")
 extension CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,

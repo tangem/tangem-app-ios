@@ -25,7 +25,7 @@ struct CommonAccountWalletModelsManagerFactory {
 
 extension CommonAccountWalletModelsManagerFactory: AccountWalletModelsManagerFactory {
     func makeWalletModelsManager(forAccountWithDerivationIndex derivationIndex: Int) -> WalletModelsManager {
-        let repositoryAdapter = WalletManagersRepositoryAccountsAdapter(
+        let repositoryAdapter = AccountWalletManagersRepositoryAdapter(
             derivationIndex: derivationIndex,
             walletManagersRepository: walletManagersRepository
         )
