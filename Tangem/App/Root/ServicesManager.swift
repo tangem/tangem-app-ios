@@ -16,7 +16,7 @@ import TangemFoundation
 import UIKit
 
 class ServicesManager {
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
@@ -57,7 +57,7 @@ class ServicesManager {
 
         configureBlockchainSdkExceptionHandler()
 
-        exchangeService.initialize()
+        sellService.initialize()
         accountHealthChecker.initialize()
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
