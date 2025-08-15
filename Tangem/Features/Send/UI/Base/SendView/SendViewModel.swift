@@ -52,12 +52,11 @@ final class SendViewModel: ObservableObject {
 
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
-    private let userWalletModel: UserWalletModel
     private let alertBuilder: SendAlertBuilder
     private let dataBuilder: SendGenericBaseDataBuilder
     private let analyticsLogger: SendBaseViewAnalyticsLogger
+    private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
     private let source: SendCoordinator.Source
     private weak var coordinator: SendRoutable?
 
@@ -71,22 +70,20 @@ final class SendViewModel: ObservableObject {
     init(
         interactor: SendBaseInteractor,
         stepsManager: SendStepsManager,
-        userWalletModel: UserWalletModel,
         alertBuilder: SendAlertBuilder,
         dataBuilder: SendGenericBaseDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
+        blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
         source: SendCoordinator.Source,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
         self.stepsManager = stepsManager
-        self.userWalletModel = userWalletModel
         self.alertBuilder = alertBuilder
         self.analyticsLogger = analyticsLogger
+        self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
         self.dataBuilder = dataBuilder
         self.source = source
         self.coordinator = coordinator
@@ -189,12 +186,12 @@ final class SendViewModel: ObservableObject {
 
 private extension SendViewModel {
     func performOnramp() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            showAlert(AlertBuilder.makeDemoAlert(disabledLocalizedReason))
-            return
-        }
-
         do {
+            if let demoAlertMessage = try dataBuilder.onrampBuilder().demoAlertMessage() {
+                showAlert(AlertBuilder.makeDemoAlert(demoAlertMessage))
+                return
+            }
+
             isKeyboardActive = false
             let onrampRedirectingBuilder = try dataBuilder.onrampBuilder().makeDataForOnrampRedirecting()
             coordinator?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
@@ -225,12 +222,8 @@ private extension SendViewModel {
             } catch _ as CancellationError {
                 // Do nothing
             } catch let error as ValidationError {
-                let factory = BlockchainSDKNotificationMapper(
-                    tokenItem: viewModel.tokenItem,
-                    feeTokenItem: viewModel.feeTokenItem
-                )
-
-                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let mapper = viewModel.blockchainSDKNotificationMapper
+                let validationErrorEvent = mapper.mapToValidationErrorEvent(error)
                 let message = validationErrorEvent.description ?? error.localizedDescription
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
@@ -341,13 +334,13 @@ private extension SendViewModel {
 
 extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        guard let feeCurrencyWalletModel = walletModels.first(where: { $0.tokenItem == feeTokenItem }) else {
-            assertionFailure("Network currency WalletModel not found")
-            return
+        do {
+            let builder = try dataBuilder.sendBuilder()
+            let (userWalletId, feeTokenItem) = builder.makeFeeCurrencyData()
+            coordinator?.openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem)
+        } catch {
+            showAlert(error.alertBinder)
         }
-
-        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
