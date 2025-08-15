@@ -151,7 +151,10 @@ private extension TokenDetailsView {
         walletModelsManager: userWalletModel.walletModelsManager,
         contextDataProvider: nil
     )
-    let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userWalletModel: userWalletModel)
+    let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
+        userWalletId: userWalletModel.userWalletId,
+        refcode: userWalletModel.refcodeProvider?.getRefcode()
+    )
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         walletModel: walletModel,
