@@ -3386,6 +3386,7 @@
 		EF669B0D2D8C17C600F2E078 /* UTXOScriptType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B0C2D8C17C600F2E078 /* UTXOScriptType.swift */; };
 		EF669B0E2D8C17C600F2E078 /* LockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B0B2D8C17C600F2E078 /* LockingScriptBuilder.swift */; };
 		EF669B112D8C183200F2E078 /* LockingScriptAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B102D8C183200F2E078 /* LockingScriptAddress.swift */; };
+		EF67612B2E4F69E4009132E3 /* FeeCurrencyFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF67612A2E4F69E4009132E3 /* FeeCurrencyFinder.swift */; };
 		EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6883082CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift */; };
 		EF68830B2CF87DC000658644 /* OnrampCountryDetectionCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF68830A2CF87DC000658644 /* OnrampCountryDetectionCoordinatorView.swift */; };
 		EF68830E2CF8871500658644 /* OnrampPaymentMethodsFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF68830D2CF8871500658644 /* OnrampPaymentMethodsFilter.swift */; };
@@ -7400,6 +7401,7 @@
 		EF669B0B2D8C17C600F2E078 /* LockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF669B0C2D8C17C600F2E078 /* UTXOScriptType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOScriptType.swift; sourceTree = "<group>"; };
 		EF669B102D8C183200F2E078 /* LockingScriptAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptAddress.swift; sourceTree = "<group>"; };
+		EF67612A2E4F69E4009132E3 /* FeeCurrencyFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeCurrencyFinder.swift; sourceTree = "<group>"; };
 		EF6883082CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryDetectionCoordinator.swift; sourceTree = "<group>"; };
 		EF68830A2CF87DC000658644 /* OnrampCountryDetectionCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryDetectionCoordinatorView.swift; sourceTree = "<group>"; };
 		EF68830D2CF8871500658644 /* OnrampPaymentMethodsFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampPaymentMethodsFilter.swift; sourceTree = "<group>"; };
@@ -10460,6 +10462,7 @@
 				EF808441293F6B43000D91EA /* IconURLBuilder */,
 				EF031A322C09EBB9001535C9 /* PercentFormatter */,
 				B0E20E102C2B018C00213580 /* PriceChange */,
+				EF6761292E4F69D9009132E3 /* FeeCurrencyNavigating */,
 				B047A0202D411A2E00CA44EA /* AccessCodeSaveUtility.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
 				B091D7472AA0DBA000ACB6E2 /* AppUtils.swift */,
@@ -10469,7 +10472,6 @@
 				B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */,
 				DC5DBBC8289B951600C21E35 /* DemoUtil.swift */,
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
-				B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 				B034785F2B0F6C08004FECA0 /* HighPriceImpactCalculator.swift */,
 				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
@@ -19400,6 +19402,15 @@
 			path = Implementations;
 			sourceTree = "<group>";
 		};
+		EF6761292E4F69D9009132E3 /* FeeCurrencyNavigating */ = {
+			isa = PBXGroup;
+			children = (
+				B6CC6F5F2DD77301005D78DD /* FeeCurrencyNavigating.swift */,
+				EF67612A2E4F69E4009132E3 /* FeeCurrencyFinder.swift */,
+			);
+			path = FeeCurrencyNavigating;
+			sourceTree = "<group>";
+		};
 		EF68830C2CF8870D00658644 /* OnrampPaymentMethodsFilter */ = {
 			isa = PBXGroup;
 			children = (
@@ -21865,6 +21876,7 @@
 				DCD221F72B3EF6C100F4FF6A /* CurvesValidator.swift in Sources */,
 				DA559C3F2B0261F400F59584 /* SendAmountViewModel.swift in Sources */,
 				DCA19BEC2DDD7F8D0057BDA5 /* WCTransactionRoutable.swift in Sources */,
+				EF67612B2E4F69E4009132E3 /* FeeCurrencyFinder.swift in Sources */,
 				DAE4BB022CD795900020CE3F /* OnrampCountrySelectorView.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
 				B61980102AB8BD5200153886 /* PreviewContentShapeModifier.swift in Sources */,
