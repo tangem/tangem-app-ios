@@ -13,8 +13,6 @@ import TangemUI
 struct OnboardingCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnboardingCoordinator
 
-    private let bottomSheetBackground = Colors.Background.primary
-
     var body: some View {
         ZStack {
             content
@@ -55,14 +53,6 @@ struct OnboardingCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
-            }
-            .sheet(item: $coordinator.sendCoordinator) {
-                SendCoordinatorView(coordinator: $0)
-            }
-
-        NavHolder()
-            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewModel, backgroundColor: bottomSheetBackground) {
-                AddressQrBottomSheetContent(viewModel: $0)
             }
     }
 }
