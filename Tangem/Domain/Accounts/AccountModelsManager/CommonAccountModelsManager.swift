@@ -81,8 +81,12 @@ actor CommonAccountModelsManager {
 
         cache.removeAll { removedAccountIds.contains($0.key) }
 
-        return addedAccountIds.map { accountId in
-            let newDerivationIndex = newDerivationIndices[accountId]! // Force unwrapping is safe here since the dict is already populated
+        return addedAccountIds.compactMap { accountId in
+            guard let newDerivationIndex = newDerivationIndices[accountId] else {
+                assertionFailure("Derivation index not found for accountId: \(accountId)")
+                return nil
+            }
+
             let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
                 forAccountWithDerivationIndex: newDerivationIndex
             )
