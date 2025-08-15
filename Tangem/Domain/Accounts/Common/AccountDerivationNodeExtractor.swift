@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 import BlockchainSdk
 
 struct AccountDerivationNodeExtractor {
@@ -17,13 +18,12 @@ struct AccountDerivationNodeExtractor {
         self.blockchain = blockchain
     }
 
-    func extract(from derivationPath: DerivationPath) -> DerivationNode {
+    func extract(from derivationPath: DerivationPath) -> DerivationNode? {
         let derivationNodeIndex = blockchain.isUTXO
             ? Constants.utxoDerivationNodeIndex
             : Constants.nonUTXODerivationNodeIndex
 
-        // [REDACTED_TODO_COMMENT]
-        return derivationPath.nodes[derivationNodeIndex]
+        return derivationPath.nodes[safe: derivationNodeIndex]
     }
 }
 
