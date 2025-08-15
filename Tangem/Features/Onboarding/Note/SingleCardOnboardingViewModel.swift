@@ -14,33 +14,16 @@ import Combine
 import BlockchainSdk
 import TangemUI
 
-class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
+class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Published var isCardScanned: Bool = true
 
     override var navbarTitle: String {
         currentStep.navbarTitle
     }
 
-    override var subtitle: String? {
-        if currentStep == .topup,
-           case .xrp = userWalletModel?.walletModelsManager.walletModels.first?.tokenItem.blockchain {
-            return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
-        } else {
-            return super.subtitle
-        }
-    }
-
-    override var mainButtonTitle: String {
-        if case .topup = currentStep, !canBuyCrypto {
-            return Localization.onboardingButtonReceiveCrypto
-        }
-
-        return super.mainButtonTitle
-    }
-
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .pushNotifications, .createWallet, .successTopup, .success:
+        case .pushNotifications, .createWallet, .success:
             return nil
         default:
             return super.mainButtonSettings
@@ -49,7 +32,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var supplementButtonStyle: MainButton.Style {
         switch currentStep {
-        case .createWallet, .successTopup, .success:
+        case .createWallet, .success:
             return .primary
         default:
             return super.supplementButtonStyle
@@ -75,7 +58,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var isSupportButtonVisible: Bool {
         switch currentStep {
-        case .success, .successTopup:
+        case .success:
             return false
         default:
             return true
@@ -86,17 +69,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         currentStep.infoText
     }
 
-    private var walletCreatedWhileOnboarding: Bool = false
-    private var canBuyCrypto: Bool {
-        guard let userWalletModel,
-              let walletModel = userWalletModel.walletModelsManager.walletModels.first else {
-            return false
-        }
-
-        let provider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
-        return provider.isBuyAvailable
-    }
-
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
@@ -104,16 +76,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.steps = steps
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
-        }
-
-        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
-            updateCardBalanceText(for: walletModel)
-        }
-
-        if steps.first == .topup, currentStep == .topup {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.updateCardBalance()
-            }
         }
 
         bind()
@@ -132,25 +94,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 let currentStep = steps[index]
 
                 switch currentStep {
-                case .topup:
-                    if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
-                        updateCardBalanceText(for: walletModel)
-                    }
-
-                    if walletCreatedWhileOnboarding {
-                        return
-                    }
-
-                    withAnimation {
-                        self.isBalanceRefresherVisible = true
-                    }
-
-                    updateCardBalance()
-                case .successTopup:
-                    withAnimation {
-                        self.refreshButtonState = .doneCheckmark
-                    }
-                    fallthrough
                 case .success:
                     fireConfetti()
                 default:
@@ -170,34 +113,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
-    override func mainButtonAction() {
-        switch currentStep {
-        case .pushNotifications, .createWallet, .saveUserWallet, .success, .successTopup, .addTokens:
-            break
-        case .topup:
-            if canBuyCrypto {
-                if let disabledLocalizedReason = userWalletModel?.config.getDisabledLocalizedReason(for: .exchange) {
-                    alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
-                        DispatchQueue.main.async {
-                            self.updateCardBalance()
-                        }
-                    }
-                } else {
-                    openBuyCrypto()
-                }
-            } else {
-                supplementButtonAction()
-            }
-        }
-    }
+    override func mainButtonAction() {}
 
     override func supplementButtonAction() {
         switch currentStep {
-        case .topup:
-            openQR()
         case .createWallet:
             createWallet()
-        case .successTopup, .success:
+        case .success:
             goToNextStep()
         default:
             break
@@ -235,7 +157,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             switch result {
             case .success(let result):
                 initializeUserWallet(from: result)
-                walletCreatedWhileOnboarding = true
 
                 Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
 
