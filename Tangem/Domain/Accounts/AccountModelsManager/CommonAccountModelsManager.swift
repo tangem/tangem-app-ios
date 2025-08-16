@@ -12,6 +12,7 @@ import TangemFoundation
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
+    private typealias AccountMetadata = (derivationIndex: Int, name: String, icon: AccountModel.Icon)
     private typealias Cache = [AccountId: CommonCryptoAccountModel]
 
     nonisolated var unownedExecutor: UnownedSerialExecutor {
@@ -61,38 +62,53 @@ actor CommonAccountModelsManager {
     ) -> [any CryptoAccountModel] {
         // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
+        var newAccountsMetadata: [AccountId: AccountMetadata] = [:]
 
-        var newDerivationIndices: [AccountId: Int] = [:]
         let newAccountIds = cryptoAccounts
-            .map { cryptoAccount in
+            .compactMap { cryptoAccount -> AccountId? in
+                guard let icon = AccountModel.Icon(
+                    rawName: cryptoAccount.icon.iconName,
+                    rawColor: cryptoAccount.icon.iconColor
+                ) else {
+                    assertionFailure("Invalid icon for crypto account: \(cryptoAccount)")
+                    return nil
+                }
+
                 let accountId = AccountId(
                     userWalletId: userWalletId,
                     derivationIndex: cryptoAccount.derivationIndex
                 )
-                // Updating `newDerivationIndices` within the `map` loop here to reduce the number of iterations
-                newDerivationIndices[accountId] = cryptoAccount.derivationIndex
+
+                // Updating the `newAccountsMetadata` dict within the `map` loop here to reduce the number of iterations
+                newAccountsMetadata[accountId] = (derivationIndex: cryptoAccount.derivationIndex, name: cryptoAccount.name, icon: icon)
 
                 return accountId
             }
             .toSet()
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
-        let addedAccountIds = newAccountIds.subtracting(currentAccountIds)
-
         cache.removeAll { removedAccountIds.contains($0.key) }
 
-        return addedAccountIds.compactMap { accountId in
-            guard let newDerivationIndex = newDerivationIndices[accountId] else {
+        return newAccountIds.compactMap { accountId in
+            if let cachedAccount = cache[accountId] {
+                return cachedAccount
+            }
+
+            guard let accountMetadata = newAccountsMetadata[accountId] else {
                 assertionFailure("Derivation index not found for accountId: \(accountId)")
                 return nil
             }
 
+            let derivationIndex = accountMetadata.derivationIndex
+
             let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
-                forAccountWithDerivationIndex: newDerivationIndex
+                forAccountWithDerivationIndex: derivationIndex
             )
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
-                derivationIndex: newDerivationIndex,
+                accountName: accountMetadata.name,
+                accountIcon: accountMetadata.icon,
+                derivationIndex: derivationIndex,
                 walletModelsManager: walletModelsManager
             )
             // Updating `cache` within the `map` loop here to reduce the number of iterations
@@ -120,6 +136,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
         let newCryptoAccount = CommonCryptoAccountModel(
             userWalletId: userWalletId,
+            accountName: name,
+            accountIcon: icon,
             derivationIndex: newDerivationIndex,
             walletModelsManager: walletModelsManager
         )
