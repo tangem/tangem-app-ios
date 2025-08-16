@@ -11,6 +11,7 @@ import TangemSdk
 import LocalAuthentication
 import TangemFoundation
 
+/// Handles the storage of entropy / passphrase data and encryption keys for hot wallets.
 final class PrivateInfoStorageManager {
     private let privateInfoStorage: PrivateInfoStorage
     private let encryptedSecureStorage: EncryptedSecureStorage
@@ -65,6 +66,7 @@ final class PrivateInfoStorageManager {
 
     func updateAccessCode(
         _ newAccessCode: String,
+        enableBiometrics: Bool = false,
         context: MobileWalletContext
     ) throws {
         let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
@@ -75,6 +77,17 @@ final class PrivateInfoStorageManager {
             secureEnclaveKeyTag: context.walletID.encryptionKeySecureEnclaveTag,
             accessCode: newAccessCode
         )
+
+        if enableBiometrics {
+            // errors are ignored here, as biometrics storage is optional
+            try? encryptedBiometricsStorage.deleteData(keyTag: context.walletID.encryptionKeyBiometricsTag)
+
+            try encryptedBiometricsStorage.storeData(
+                aesEncryptionKey,
+                keyTag: context.walletID.encryptionKeyBiometricsTag,
+                secureEnclaveKeyTag: context.walletID.encryptionKeyBiometricsSecureEnclaveTag
+            )
+        }
     }
 
     func enableBiometrics(
@@ -91,6 +104,7 @@ final class PrivateInfoStorageManager {
 
     func clearBiometrics(walletIDs: [UserWalletId]) {
         walletIDs.forEach { walletID in
+            // errors are ignored here, as biometrics storage is optional
             try? encryptedBiometricsStorage.deleteData(keyTag: walletID.encryptionKeyBiometricsTag)
         }
     }
@@ -147,59 +161,7 @@ private extension PrivateInfoStorageManager {
 
 extension PrivateInfoStorageManager {
     enum Constants {
-        static let privateInfoPrefix = "hotsdk_private_info_"
-        static let privateInfoSecureEnclavePrefix = "hotsdk_private_info_secure_enclave_"
-        static let encryptionKeyPrefix = "hotsdk_encryption_key_"
-        static let encryptionKeySecureEnclavePrefix = "hotsdk_encryption_key_secure_enclave_"
-        static let encryptionKeyBiometricsPrefix = "hotsdk_encryption_key_biometrics_"
-        static let encryptionKeyBiometricsSecureEnclavePrefix = "hotsdk_encryption_key_biometrics_secure_enclave_"
-        static let publicInfoPrefix = "hotsdk_public_info_"
-        static let publicInfoSecureEnclavePrefix = "hotsdk_public_info_secure_enclave_"
-        static let publicInfoBiometricsPrefix = "hotsdk_public_info_biometrics_"
-        static let publicInfoBiometricsSecureEnclavePrefix = "hotsdk_public_info_biometrics_secure_enclave_"
         static let aesKeySize = 32
-    }
-}
-
-extension UserWalletId {
-    var privateInfoTag: String {
-        PrivateInfoStorageManager.Constants.privateInfoPrefix + stringValue
-    }
-
-    var privateInfoSecureEnclaveTag: String {
-        PrivateInfoStorageManager.Constants.privateInfoSecureEnclavePrefix + stringValue
-    }
-
-    var encryptionKeyTag: String {
-        PrivateInfoStorageManager.Constants.encryptionKeyPrefix + stringValue
-    }
-
-    var encryptionKeySecureEnclaveTag: String {
-        PrivateInfoStorageManager.Constants.encryptionKeySecureEnclavePrefix + stringValue
-    }
-
-    var encryptionKeyBiometricsTag: String {
-        PrivateInfoStorageManager.Constants.encryptionKeyBiometricsPrefix + stringValue
-    }
-
-    var encryptionKeyBiometricsSecureEnclaveTag: String {
-        PrivateInfoStorageManager.Constants.encryptionKeyBiometricsSecureEnclavePrefix + stringValue
-    }
-
-    var publicInfoTag: String {
-        PrivateInfoStorageManager.Constants.publicInfoPrefix + stringValue
-    }
-
-    var publicInfoSecureEnclaveTag: String {
-        PrivateInfoStorageManager.Constants.publicInfoSecureEnclavePrefix + stringValue
-    }
-
-    var publicInfoBiometricsTag: String {
-        PrivateInfoStorageManager.Constants.publicInfoBiometricsPrefix + stringValue
-    }
-
-    var publicInfoBiometricsSecureEnclaveTag: String {
-        PrivateInfoStorageManager.Constants.publicInfoBiometricsSecureEnclavePrefix + stringValue
     }
 }
 
@@ -209,10 +171,4 @@ enum PrivateInfoStorageError: Error {
     case invalidEncryptionType(walletID: UserWalletId)
     case noInfo(tag: String)
     case unknown
-}
-
-func secureErase(data: inout Data) {
-    _ = data.withUnsafeMutableBytes { bytes in
-        memset_s(bytes.baseAddress, bytes.count, 0, bytes.count)
-    }
 }
