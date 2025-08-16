@@ -57,30 +57,19 @@ actor CommonAccountModelsManager {
     }()
 
     private func makeCryptoAccountModels(
-        from cryptoAccounts: [StoredCryptoAccount],
+        from storedCryptoAccounts: [StoredCryptoAccount],
         cache: inout Cache
     ) -> [any CryptoAccountModel] {
         // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
-        var newAccountsMetadata: [AccountId: AccountMetadata] = [:]
+        var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
 
-        let newAccountIds = cryptoAccounts
-            .compactMap { cryptoAccount -> AccountId? in
-                guard let icon = AccountModel.Icon(
-                    rawName: cryptoAccount.icon.iconName,
-                    rawColor: cryptoAccount.icon.iconColor
-                ) else {
-                    assertionFailure("Invalid icon for crypto account: \(cryptoAccount)")
-                    return nil
-                }
+        let newAccountIds = storedCryptoAccounts
+            .compactMap { storedCryptoAccount in
+                let accountId = AccountId(userWalletId: userWalletId, derivationIndex: storedCryptoAccount.derivationIndex)
 
-                let accountId = AccountId(
-                    userWalletId: userWalletId,
-                    derivationIndex: cryptoAccount.derivationIndex
-                )
-
-                // Updating the `newAccountsMetadata` dict within the `map` loop here to reduce the number of iterations
-                newAccountsMetadata[accountId] = (derivationIndex: cryptoAccount.derivationIndex, name: cryptoAccount.name, icon: icon)
+                // Updating the `storedCryptoAccountsKeyedByAccountIds` dict within this `compactMap` loop to reduce the number of iterations
+                storedCryptoAccountsKeyedByAccountIds[accountId] = storedCryptoAccount
 
                 return accountId
             }
@@ -90,28 +79,37 @@ actor CommonAccountModelsManager {
         cache.removeAll { removedAccountIds.contains($0.key) }
 
         return newAccountIds.compactMap { accountId in
+            // Early exit if the account is already created and cached
             if let cachedAccount = cache[accountId] {
                 return cachedAccount
             }
 
-            guard let accountMetadata = newAccountsMetadata[accountId] else {
-                assertionFailure("Derivation index not found for accountId: \(accountId)")
+            guard let storedCryptoAccount = storedCryptoAccountsKeyedByAccountIds[accountId] else {
+                assertionFailure("Stored crypto account not found for accountId: \(accountId)")
                 return nil
             }
 
-            let derivationIndex = accountMetadata.derivationIndex
+            guard let accountIcon = AccountModel.Icon(
+                rawName: storedCryptoAccount.icon.iconName,
+                rawColor: storedCryptoAccount.icon.iconColor
+            ) else {
+                assertionFailure("Invalid icon for stored crypto account: \(storedCryptoAccount)")
+                return nil
+            }
 
+            let derivationIndex = storedCryptoAccount.derivationIndex
             let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
                 forAccountWithDerivationIndex: derivationIndex
             )
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
-                accountName: accountMetadata.name,
-                accountIcon: accountMetadata.icon,
+                accountName: storedCryptoAccount.name,
+                accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
                 walletModelsManager: walletModelsManager
             )
-            // Updating `cache` within the `map` loop here to reduce the number of iterations
+
+            // Updating `cache` within this `compactMap` loop to reduce the number of iterations
             cache[accountId] = cryptoAccount
 
             return cryptoAccount
