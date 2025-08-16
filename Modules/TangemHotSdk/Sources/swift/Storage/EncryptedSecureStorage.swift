@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import TangemFoundation
 
+/// A storage service that encrypts data using Secure Enclave and AES encryption.
 final class EncryptedSecureStorage {
     private let secureStorage: HotSecureStorage
     private let secureEnclaveService: HotSecureEnclaveService
