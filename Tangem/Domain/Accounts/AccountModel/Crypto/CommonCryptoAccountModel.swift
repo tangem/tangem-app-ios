@@ -8,21 +8,41 @@
 
 import Foundation
 import Combine
-import TangemSdk
 import TangemFoundation
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
 
+    private(set) var name: String {
+        didSet {
+            if oldValue != name {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    private(set) var icon: AccountModel.Icon {
+        didSet {
+            if oldValue != icon {
+                didChangeSubject.send()
+            }
+        }
+    }
+
+    private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
 
     init(
         accountId: AccountId,
+        accountName: String,
+        accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager
     ) {
         self.accountId = accountId
+        name = accountName
+        icon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
     }
@@ -34,12 +54,16 @@ extension CommonCryptoAccountModel {
     /// Convenience init, initializes a `CommonCryptoAccountModel` with a `UserWalletId` and a derivation index.
     convenience init(
         userWalletId: UserWalletId,
+        accountName: String,
+        accountIcon: AccountModel.Icon,
         derivationIndex: Int,
         walletModelsManager: WalletModelsManager
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
         self.init(
             accountId: accountId,
+            accountName: accountName,
+            accountIcon: accountIcon,
             derivationIndex: derivationIndex,
             walletModelsManager: walletModelsManager
         )
@@ -47,8 +71,6 @@ extension CommonCryptoAccountModel {
 }
 
 // MARK: - Inner types
-
-
 
 // MARK: - Identifiable protocol conformance
 
@@ -65,19 +87,8 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
     }
 
-    var name: String {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
-    var icon: AccountModel.Icon {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
-    }
-
     var didChangePublisher: any Publisher<Void, Never> {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        didChangeSubject.eraseToAnyPublisher()
     }
 
     var userTokensManager: UserTokensManager {
@@ -91,13 +102,11 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
     }
 
     func setName(_ name: String) async throws {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        self.name = name
     }
 
     func setIcon(_ icon: AccountModel.Icon) async throws {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+        self.icon = icon
     }
 }
 
