@@ -33,6 +33,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     func getAccounts() -> [StoredCryptoAccount] {
         // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         return [
             StoredCryptoAccount(
                 derivationIndex: Constants.mainAccountDerivationIndex,
@@ -40,6 +41,15 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
                 icon: .init(
                     iconName: Constants.mainAccountIconName,
                     iconColor: Constants.mainAccountIconColor
+                ),
+                tokenList: tokenItemsRepository.getList()
+            ),
+            StoredCryptoAccount(
+                derivationIndex: 1,
+                name: "Test account",
+                icon: .init(
+                    iconName: AccountModel.Icon.Name.airplane.rawValue,
+                    iconColor: AccountModel.Icon.Color.coralRed.rawValue
                 ),
                 tokenList: tokenItemsRepository.getList()
             ),
