@@ -151,3 +151,18 @@ extension CommonCryptoAccountModel: WalletModelBalancesProvider {
         fatalError()
     }
 }
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonCryptoAccountModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "name": name,
+                "id": id,
+                "derivationIndex": derivationIndex,
+            ]
+        )
+    }
+}
