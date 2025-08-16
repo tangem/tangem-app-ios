@@ -104,17 +104,16 @@ struct PrivateInfoStorageManagerTests {
 
         let context1 = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context1)
+        try storage.updateAccessCode("accessCode", enableBiometrics: true, context: context1)
 
         let context2 = try storage.validate(auth: .accessCode("accessCode"), for: walletID)
-
-        try storage.enableBiometrics(context: context2)
-
         let context3 = try storage.validate(auth: .biometrics(context: LAContext()), for: walletID)
 
-        let result = try storage.getPrivateInfoData(context: context3)
+        let result1 = try storage.getPrivateInfoData(context: context2)
+        let result2 = try storage.getPrivateInfoData(context: context3)
 
-        #expect(result == encoded, "Stored data should match the original encoded data")
+        #expect(result1 == encoded, "Stored data should match the original encoded data")
+        #expect(result2 == encoded, "Stored data should match the original encoded data")
     }
 
     @Test
@@ -127,7 +126,7 @@ struct PrivateInfoStorageManagerTests {
 
         let context = try storage.validate(auth: .none, for: walletID)
 
-        try storage.updateAccessCode("accessCode", context: context)
+        try storage.updateAccessCode("accessCode", enableBiometrics: true, context: context)
 
         #expect(throws: Error.self, performing: {
             _ = try storage.validate(auth: .accessCode("invalidAccessCode"), for: walletID)
