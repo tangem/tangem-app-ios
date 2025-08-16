@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
+import TangemFoundation
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
@@ -19,6 +20,7 @@ protocol WalletModel:
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
+    var userWalletId: UserWalletId { get }
     var name: String { get }
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
