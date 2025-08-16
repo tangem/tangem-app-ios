@@ -11,16 +11,17 @@ import TangemSdk
 import LocalAuthentication
 import TangemFoundation
 
+/// A storage for securely storing and retrieving data using biometrics and Secure Enclave.
 final class EncryptedBiometricsStorage {
     private let biometricsStorage: HotBiometricsStorage
-    private let secureEnclaveService: HotBiometricsSecureEnclaveService
+    private let secureEnclaveBiometricsService: HotBiometricsSecureEnclaveService
 
     init(
         biometricsStorage: HotBiometricsStorage = BiometricsStorage(),
         secureEnclaveService: HotBiometricsSecureEnclaveService = BiometricsSecureEnclaveService()
     ) {
         self.biometricsStorage = biometricsStorage
-        self.secureEnclaveService = secureEnclaveService
+        secureEnclaveBiometricsService = secureEnclaveService
     }
 
     func storeData(
@@ -28,7 +29,7 @@ final class EncryptedBiometricsStorage {
         keyTag: String,
         secureEnclaveKeyTag: String
     ) throws {
-        let secureEnclaveEncryptedKey = try secureEnclaveService.encryptData(
+        let secureEnclaveEncryptedKey = try secureEnclaveBiometricsService.encryptData(
             data,
             keyTag: secureEnclaveKeyTag,
             context: nil
@@ -49,7 +50,7 @@ final class EncryptedBiometricsStorage {
             throw PrivateInfoStorageError.noInfo(tag: keyTag)
         }
 
-        return try secureEnclaveService.decryptData(
+        return try secureEnclaveBiometricsService.decryptData(
             secureEnclaveEncryptedData,
             keyTag: secureEnclaveKeyTag,
             context: context

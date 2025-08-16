@@ -52,15 +52,22 @@ public protocol HotSdk {
 
     /// Updates the access code for a hot wallet.
     /// - Parameters:
-    ///   - newAccessCode: The new access code to set for the wallet.
-    ///   - context: The wallet context containing current authentication information.
+    ///  - newAccessCode: The new access code to set for the wallet.
+    ///  - enableBiometrics: A boolean indicating whether to enable biometric authentication.
+    ///  - seedKey: The seed key to store under new access code
+    ///  - context: The wallet context containing current authentication information.
     /// - Throws: An error if the access code update fails, such as if authentication is incorrect or the wallet is missing.
-    func updateAccessCode(_ newAccessCode: String, context: MobileWalletContext) throws
+    func updateAccessCode(
+        _ newAccessCode: String,
+        enableBiometrics: Bool,
+        seedKey: Data,
+        context: MobileWalletContext
+    ) throws
 
-    /// Enables biometric authentication for a hot wallet.
+    /// Refreshes biometric authentication for a hot wallet.
     /// - Parameters:
     ///   - context: The wallet context containing authentication information.
-    /// - Throws: An error if enabling biometrics fails, such as if the wallet is missing or authentication is incorrect.
+    /// - Throws: An error if refreshing biometrics fails, such as if the wallet is missing or authentication is incorrect.
     func refreshBiometrics(context: MobileWalletContext) throws
 
     /// This method will remove the biometric authentication data for the specified wallets.
