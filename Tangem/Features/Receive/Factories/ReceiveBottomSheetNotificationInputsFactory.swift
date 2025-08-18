@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 
 struct ReceiveBottomSheetNotificationInputsFactory {
-    let flow: ReceiveBottomSheetViewModel.Flow
+    let flow: ReceiveFlow
 
     func makeNotificationInputs(for tokenItem: TokenItem) -> [NotificationViewInput] {
         let assetSymbol = switch flow {
