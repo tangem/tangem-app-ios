@@ -100,7 +100,6 @@ struct SellFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            source: coordinatorSource,
             coordinator: router
         )
         stepsManager.set(output: viewModel)
