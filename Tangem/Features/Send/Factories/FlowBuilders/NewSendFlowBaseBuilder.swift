@@ -17,7 +17,7 @@ struct NewSendFlowBaseBuilder {
     let swapProvidersBuilder: SendSwapProvidersBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendNewFinishStepBuilder
-    let builder: SendDependenciesBuilder
+    let builder: SendWithSwapDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let sendQRCodeService = builder.makeSendQRCodeService()
