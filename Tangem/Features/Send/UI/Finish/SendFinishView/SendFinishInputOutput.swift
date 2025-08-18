@@ -9,6 +9,12 @@
 import Foundation
 import Combine
 
+protocol SendFinishRoutable: AnyObject {
+    func openExplorer(url: URL)
+    func openShareSheet(url: URL)
+}
+
 protocol SendFinishInput: AnyObject {
+    var transactionExplorerURL: AnyPublisher<URL?, Never> { get }
     var transactionSentDate: AnyPublisher<Date, Never> { get }
 }
