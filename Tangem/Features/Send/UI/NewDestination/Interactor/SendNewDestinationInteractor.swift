@@ -68,7 +68,7 @@ class CommonSendNewDestinationInteractor {
 
     private func bind() {
         receiveTokenInput?.receiveTokenPublisher
-            .receiveOnGlobal()
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { $0.updateDependencies(receivedTokenType: $1) }
             .store(in: &bag)
