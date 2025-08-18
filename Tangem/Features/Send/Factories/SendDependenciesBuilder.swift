@@ -24,6 +24,10 @@ struct SendWalletInfo {
 protocol SenadableToken: ExpressInteractorSourceWallet {
     var feeOptions: [FeeOption] { get }
     var walletModelsManager: any WalletModelsManager { get }
+
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
+    var transactionCreator: TransactionCreator { get }
 }
 
 class SendGenericDependenciesBuilder {
@@ -65,11 +69,11 @@ class SendWithSwapDependenciesBuilder: SendGenericDependenciesBuilder {
             feeTokenItem: senadableToken.feeTokenItem,
             tokenIconInfo: makeTokenIconInfo(),
             fiatItem: makeFiatItem(),
-            possibleToConvertToFiat: possibleToChangeAmountType(),
-            availableBalanceProvider: walletModel.availableBalanceProvider,
-            fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
-            transactionValidator: walletModel.transactionValidator,
-            transactionCreator: walletModel.transactionCreator,
+            possibleToConvertToFiat: senadableToken.fiatAvailableBalanceProvider.balanceType.value != nil,
+            availableBalanceProvider: senadableToken.availableBalanceProvider,
+            fiatAvailableBalanceProvider: senadableToken.fiatAvailableBalanceProvider,
+            transactionValidator: senadableToken.transactionValidator,
+            transactionCreator: senadableToken.transactionCreator,
             transactionDispatcher: makeTransactionDispatcher()
         )
     }
