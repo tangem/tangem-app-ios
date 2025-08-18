@@ -52,6 +52,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     private var bag = Set<AnyCancellable>()
 
     let transactionData: WCHandleTransactionData
+    let addressRowViewModel: WCTransactionAddressRowViewModel?
     let feeManager: WCTransactionFeeManager
 
     private(set) var isDappVerified: Bool = false
@@ -69,6 +70,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
         analyticsLogger: some WalletConnectTransactionAnalyticsLogger
     ) {
         self.transactionData = transactionData
+        self.addressRowViewModel = Self.makeAddressRowViewModel(from: transactionData)
         self.feeManager = feeManager
         self.simulationManager = simulationManager
         self.securityManager = securityManager
@@ -474,5 +476,27 @@ private extension WCTransactionViewModel {
         }
 
         return nil
+    }
+
+    private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {
+        let walletModels = transactionData
+            .userWalletModel
+            .walletModelsManager
+            .walletModels
+            .filter { walletModel in
+                let isCoin = walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId && walletModel.isMainToken
+                let isTokenInOtherBlockchain = walletModel.tokenItem.token?.id == transactionData.blockchain.networkId
+
+                return isCoin || isTokenInOtherBlockchain
+            }
+
+        guard
+            walletModels.count > 1,
+            let mainAddress = walletModels.first(where: { $0.isMainToken })?.defaultAddressString
+        else {
+            return nil
+        }
+
+        return WCTransactionAddressRowViewModel(address: mainAddress)
     }
 }
