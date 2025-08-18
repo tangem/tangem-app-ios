@@ -198,7 +198,7 @@ private struct CommonUserWalletModelDependencies {
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
 
         accountModelsManager = FeatureProvider.isAvailable(.accounts)
-            ? CommonAccountModelsManager()
+            ? CommonAccountModelsManager(userWalletId: userWalletId)
             : DummyCommonAccountModelsManager()
     }
 
