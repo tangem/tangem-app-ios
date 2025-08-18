@@ -73,8 +73,10 @@
 "app_settings_default_fee_footer" = "デフォルト手数料を有効にすると、取引手数料が自動的に設定され、送金時に手数料ページを表示する必要がなくなります。必要に応じて、いつでもこのページに戻ることができます。";
 "app_settings_default_fee" = "デフォルト手数料";
 "app_settings_off_biometrics_alert_message" = "%1$sが無効になると、アプリのロックを解除してウォレットを操作するために、パスコードを入力する必要があります。";
+"app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "これにより、保存されているウォレットアクセスコードがすべて削除されます。ウォレットでの今後の操作には、アクセスコードの送信が必要になります。";
 "app_settings_off_saved_wallet_alert_message" = "保存したデバイスを削除すると、保存されているすべてのウォレットとそのアクセスコードがアプリから削除されます。";
+"app_settings_on_require_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further interaction with the wallet will require submitting the access code.";
 "app_settings_require_access_code_footer" = "このオプションを選択すると、機密性の高い操作における生体認証が無効になります。取引の署名時などには、毎回アクセスコードの入力が必要になります。";
 "app_settings_require_access_code" = "アクセスコードを要求する";
 "app_settings_saved_access_codes_footer" = "カードまたはリングとのやり取りには、アクセスコードの代わりに生体認証が要求されます。";
@@ -189,6 +191,7 @@
 "common_disconnect" = "切断";
 "common_done" = "完了";
 "common_edit" = "編集";
+"common_enable" = "Enable";
 "common_enabled" = "有効";
 "common_error" = "エラー";
 "common_exchange" = "スワップ";
