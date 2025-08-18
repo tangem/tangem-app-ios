@@ -42,12 +42,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openReceive(walletModel: any WalletModel) {
-        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: walletModel.addresses)
-
-        coordinator?.openReceiveScreen(
-            tokenItem: walletModel.tokenItem,
-            addressInfos: addressInfos
-        )
+        coordinator?.openReceiveScreen(walletModel: walletModel)
     }
 
     func openOnramp(walletModel: any WalletModel) {

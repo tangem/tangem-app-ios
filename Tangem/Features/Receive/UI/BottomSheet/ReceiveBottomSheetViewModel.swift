@@ -20,13 +20,13 @@ final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
     private let tokenItem: TokenItem
-    private let flow: Flow
+    private let flow: ReceiveFlow
 
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
 
     init(
-        flow: Flow,
+        flow: ReceiveFlow,
         tokenItem: TokenItem,
         notificationInputs: [NotificationViewInput],
         addressInfos: [ReceiveAddressInfo]
@@ -124,12 +124,5 @@ final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
                 .blockchain: tokenItem.blockchain.displayName,
             ])
         }
-    }
-}
-
-extension ReceiveBottomSheetViewModel {
-    enum Flow {
-        case nft
-        case crypto
     }
 }
