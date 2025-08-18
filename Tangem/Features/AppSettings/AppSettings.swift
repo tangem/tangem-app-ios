@@ -125,6 +125,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userWalletIdsWithSkippedAccessCode)
     var userWalletIdsWithSkippedAccessCode: [String] = []
 
+    @AppStorageCompat(StorageType.settingsVersion)
+    var settingsVersion: Int = 0
+
     static let shared: AppSettings = .init()
 
     private init() {}
