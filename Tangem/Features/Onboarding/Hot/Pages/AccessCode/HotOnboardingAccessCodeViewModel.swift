@@ -164,10 +164,11 @@ private extension HotOnboardingAccessCodeViewModel {
                 }
 
                 let isBiometricsAvailable = await viewModel.isBiometricsAvailable()
+                let requireAccessCodes = await AppSettings.shared.requireAccessCodes
 
                 try viewModel.hotSdk.updateAccessCode(
                     accessCode,
-                    enableBiometrics: isBiometricsAvailable,
+                    enableBiometrics: isBiometricsAvailable && !requireAccessCodes,
                     seedKey: userWalletIdSeed,
                     context: context
                 )
