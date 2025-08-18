@@ -93,7 +93,7 @@ class SendWithSwapDependenciesBuilder: SendGenericDependenciesBuilder {
     ) -> SendWithSwapModel {
         let feeIncludedCalculator = CommonFeeIncludedCalculator(validator: senadableToken.transactionValidator)
         let sendReceiveTokenBuilder = SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
-let sendAlertBuilder = CommonSendAlertBuilder()
+        let sendAlertBuilder = CommonSendAlertBuilder()
 
         return SendWithSwapModel(
             userToken: makeSourceToken(),

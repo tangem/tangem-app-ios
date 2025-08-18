@@ -11,8 +11,6 @@ import Foundation
 struct SendFinishStepBuilder {
     typealias ReturnValue = SendFinishStep
 
-    let walletModel: any WalletModel
-
     func makeSendFinishStep(
         input: SendFinishInput,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
