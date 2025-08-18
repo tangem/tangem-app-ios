@@ -19,7 +19,7 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
-    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
@@ -355,7 +355,7 @@ private extension VisaWalletMainContentViewModel {
             publicKey: .init(seedKey: Data(), derivationType: nil),
             type: .default
         )
-        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: [visaAddress])
+        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: [visaAddress])
 
         coordinator?.openReceiveScreen(
             tokenItem: info.tokenItem,
@@ -391,7 +391,7 @@ private extension VisaWalletMainContentViewModel {
 
         // [REDACTED_TODO_COMMENT]
         // Implement Onramp functionality with VisaWalletModel as WalletModel
-        // coordinator?.openOnramp(walletModel:, userWalletModel:)
+        // coordinator?.openOnramp(userWalletModel:, walletModel:)
     }
 }
 
