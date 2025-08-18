@@ -73,8 +73,10 @@
 "app_settings_default_fee_footer" = "Habilite las Tarifas predeterminadas para establecer automáticamente las tarifas de transacción y omitir la página de Tarifas al enviar fondos. Siempre puede volver a esta página si es necesario.";
 "app_settings_default_fee" = "Tarifa por defecto";
 "app_settings_off_biometrics_alert_message" = "Para deshabilitar %1$s deberá ingresar su código de acceso para desbloquear la aplicación e interactuar con su billetera.";
+"app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "Esto eliminará todos los códigos de acceso guardados de la billetera. Cualquier operación posterior con la billetera requerirá introducir el código de acceso.";
 "app_settings_off_saved_wallet_alert_message" = "Eliminar la tarjeta guardada borra todos las billeteras guardadas y sus códigos de acceso de la app.";
+"app_settings_on_require_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further interaction with the wallet will require submitting the access code.";
 "app_settings_require_access_code_footer" = "Esta opción desactiva la autenticación biométrica para acciones importantes. Se le pedirá que introduzca su código de acceso cada vez que, por ejemplo, deba firmar una transacción.";
 "app_settings_require_access_code" = "Requerir código de acceso";
 "app_settings_saved_access_codes_footer" = "Se solicitará la autenticación biométrica en lugar del código de acceso para las interacciones con su tarjeta o anillo.";
@@ -189,6 +191,7 @@
 "common_disconnect" = "Desconectar";
 "common_done" = "Listo";
 "common_edit" = "Editar";
+"common_enable" = "Enable";
 "common_enabled" = "Activado";
 "common_error" = "Error";
 "common_exchange" = "Intercambiar";

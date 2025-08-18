@@ -11,6 +11,7 @@ import TangemSdk
 import LocalAuthentication
 import TangemFoundation
 
+/// Storage for securely storing and retrieving entropy / passphrase data.
 final class PrivateInfoStorage {
     private let secureStorage: HotSecureStorage
     private let secureEnclaveService: HotSecureEnclaveService

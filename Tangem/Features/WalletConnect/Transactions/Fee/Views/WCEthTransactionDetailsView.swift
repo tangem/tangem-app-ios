@@ -30,6 +30,8 @@ struct WCEthTransactionDetailsView: View {
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.init(top: 0, leading: 16, bottom: 10, trailing: 16))
 
+            addressRowView
+
             feeRow
                 .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
         }
@@ -42,6 +44,17 @@ struct WCEthTransactionDetailsView: View {
         if let feeRowViewModel = viewModel.feeRowViewModel {
             WCFeeRowView(viewModel: feeRowViewModel)
                 .onTapGesture(perform: feeRowViewModel.onTap)
+        }
+    }
+
+    @ViewBuilder
+    private var addressRowView: some View {
+        if let addressRowViewModel = viewModel.addressRowViewModel {
+            WCTransactionAddressRowView(viewModel: addressRowViewModel)
+
+            Separator(height: .minimal, color: Colors.Stroke.primary)
+                .padding(.leading, 46)
+                .padding(.trailing, 14)
         }
     }
 }

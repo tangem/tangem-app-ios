@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import LocalAuthentication
 import TangemFoundation
+import CryptoKit
 
 public final class CommonHotSdk: HotSdk {
     private let privateInfoStorageManager: PrivateInfoStorageManager
@@ -26,7 +27,6 @@ public final class CommonHotSdk: HotSdk {
         )
         publicInfoStorageManager = PublicInfoStorageManager(
             encryptedSecureStorage: encryptedSecureStorage,
-            encryptedBiometricsStorage: encryptedBiometricsStorage
         )
     }
 
@@ -43,9 +43,10 @@ public final class CommonHotSdk: HotSdk {
             throw HotWalletError.walletAlreadyExists
         }
 
-        try publicInfoStorageManager.storePublicData(
-            seedKey,
-            context: MobileWalletContext(walletID: userWalletId, authentication: .none)
+        try publicInfoStorageManager.storeData(
+            UserWalletEncryptionKey(userWalletIdSeed: seedKey).symmetricKey.data,
+            walletID: userWalletId,
+            accessCode: nil
         )
 
         try privateInfoStorageManager.storeUnsecured(
@@ -106,25 +107,36 @@ public final class CommonHotSdk: HotSdk {
 
     public func updateAccessCode(
         _ newAccessCode: String,
+        enableBiometrics: Bool,
+        seedKey: Data,
         context: MobileWalletContext
     ) throws {
-        try privateInfoStorageManager.updateAccessCode(newAccessCode, context: context)
-        try publicInfoStorageManager.updateAccessCode(newAccessCode, context: context)
+        try privateInfoStorageManager.updateAccessCode(
+            newAccessCode,
+            enableBiometrics: enableBiometrics,
+            context: context,
+        )
+
+        let symmetricKeyData = UserWalletEncryptionKey(
+            userWalletIdSeed: seedKey
+        ).symmetricKey.data
+
+        try publicInfoStorageManager.storeData(
+            symmetricKeyData,
+            walletID: context.walletID,
+            accessCode: newAccessCode
+        )
     }
 
     public func refreshBiometrics(
         context: MobileWalletContext
     ) throws {
-        try? privateInfoStorageManager.clearBiometrics(walletIDs: [context.walletID])
-        try? publicInfoStorageManager.clearBiometrics(walletIDs: [context.walletID])
-
+        privateInfoStorageManager.clearBiometrics(walletIDs: [context.walletID])
         try privateInfoStorageManager.enableBiometrics(context: context)
-        try publicInfoStorageManager.enableBiometrics(context: context)
     }
 
     public func clearBiometrics(walletIDs: [UserWalletId]) {
         privateInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
-        publicInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
     }
 
     public func deriveMasterKeys(context: MobileWalletContext) throws -> HotWallet {
@@ -203,12 +215,6 @@ public final class CommonHotSdk: HotSdk {
         return result
     }
 
-    public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
-        let seedKey = try publicInfoStorageManager.publicData(for: context)
-
-        return UserWalletEncryptionKey(userWalletIdSeed: seedKey)
-    }
-
     public func sign(
         dataToSign: [SignData],
         seedKey: Data,
@@ -248,6 +254,18 @@ public final class CommonHotSdk: HotSdk {
         }
 
         return result
+    }
+
+    public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
+        let accessCode: String? = switch context.authentication {
+        case .none: .none
+        case .accessCode(let code): code
+        case .biometrics: throw HotWalletError.accessCodeIsRequired
+        }
+
+        let symmetricKeyData = try publicInfoStorageManager.data(for: context.walletID, accessCode: accessCode)
+
+        return UserWalletEncryptionKey(symmetricKey: SymmetricKey(data: symmetricKeyData))
     }
 }
 
