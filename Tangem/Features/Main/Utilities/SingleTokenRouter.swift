@@ -42,23 +42,15 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openReceive(walletModel: any WalletModel) {
-        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: walletModel.addresses)
-
-        coordinator?.openReceiveScreen(
-            tokenItem: walletModel.tokenItem,
-            addressInfos: addressInfos
-        )
+        coordinator?.openReceiveScreen(walletModel: walletModel)
     }
 
     func openOnramp(walletModel: any WalletModel) {
-        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+        coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel)
     }
 
     func openSend(walletModel: any WalletModel) {
-        coordinator?.openSend(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel
-        )
+        coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
     }
 
     func openExchange(walletModel: any WalletModel) {
@@ -96,11 +88,9 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {
         coordinator?.openSendToSell(
-            amountToSend: request.amount,
-            destination: request.targetAddress,
-            tag: request.tag,
             userWalletModel: userWalletModel,
-            walletModel: walletModel
+            walletModel: walletModel,
+            sellParameters: .init(amount: request.amount, destination: request.targetAddress, tag: request.tag)
         )
     }
 

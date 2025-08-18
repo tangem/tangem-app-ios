@@ -15,7 +15,7 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
@@ -406,8 +406,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch singleCardStep {
                     case .createWallet:
                         Analytics.log(.createWalletScreenOpened)
-                    case .topup:
-                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
@@ -415,9 +413,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch twinStep {
                     case .first:
                         Analytics.log(.createWalletScreenOpened)
-                    case .topup:
+                    case .done:
                         Analytics.log(.twinSetupFinished)
-                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
