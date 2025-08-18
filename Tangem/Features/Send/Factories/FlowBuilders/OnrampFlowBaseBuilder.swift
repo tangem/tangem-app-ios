@@ -10,6 +10,42 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 
+struct OnrampDependenciesBuilder {
+    let tokenItem: TokenItem
+    let expressDependenciesFactory: ExpressDependenciesFactory
+
+    func makeOnrampDependencies() -> (
+        manager: OnrampManager,
+        repository: OnrampRepository,
+        dataRepository: OnrampDataRepository
+    ) {
+        let apiProvider = expressDependenciesFactory.expressAPIProvider
+        let factory = TangemExpressFactory()
+
+        // For UI tests, use UITestOnrampRepository with predefined values
+        let repository: OnrampRepository
+        if AppEnvironment.current.isUITest {
+            repository = UITestOnrampRepository()
+        } else {
+            repository = factory.makeOnrampRepository(storage: CommonOnrampStorage())
+        }
+
+        let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
+        let manager = factory.makeOnrampManager(
+            expressAPIProvider: apiProvider,
+            onrampRepository: repository,
+            dataRepository: dataRepository,
+            analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: tokenItem)
+        )
+
+        return (
+            manager: manager,
+            repository: repository,
+            dataRepository: dataRepository
+        )
+    }
+}
+
 struct OnrampFlowBaseBuilder {
     let walletModel: any WalletModel
     let source: SendCoordinator.Source

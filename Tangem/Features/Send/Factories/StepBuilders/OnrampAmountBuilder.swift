@@ -13,18 +13,16 @@ struct OnrampAmountBuilder {
     typealias IO = (input: OnrampAmountInput, output: OnrampAmountOutput)
     typealias ReturnValue = (viewModel: OnrampAmountViewModel, interactor: OnrampAmountInteractor)
 
-    private let walletModel: any WalletModel
-    private let builder: SendDependenciesBuilder
+    private let tokenItem: TokenItem
 
-    init(walletModel: any WalletModel, builder: SendDependenciesBuilder) {
-        self.walletModel = walletModel
-        self.builder = builder
+    init(tokenItem: TokenItem) {
+        self.tokenItem = tokenItem
     }
 
     func makeOnrampAmountViewModel(io: IO, onrampProvidersInput: OnrampProvidersInput, coordinator: OnrampAmountRoutable) -> ReturnValue {
         let interactor = makeOnrampAmountInteractor(io: io, onrampProvidersInput: onrampProvidersInput)
         let viewModel = OnrampAmountViewModel(
-            tokenItem: walletModel.tokenItem,
+            tokenItem: tokenItem,
             interactor: interactor,
             coordinator: coordinator
         )
@@ -39,7 +37,7 @@ struct OnrampAmountBuilder {
         OnrampAmountCompactViewModel(
             onrampAmountInput: onrampAmountInput,
             onrampProvidersInput: onrampProvidersInput,
-            tokenItem: walletModel.tokenItem
+            tokenItem: tokenItem
         )
     }
 }
