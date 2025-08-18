@@ -13,17 +13,20 @@ public actor CommonOnrampManager {
     private let onrampRepository: OnrampRepository
     private let dataRepository: OnrampDataRepository
     private let analyticsLogger: ExpressAnalyticsLogger
+    private let sorter: ProviderItemSorter
 
     public init(
         apiProvider: ExpressAPIProvider,
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
-        analyticsLogger: ExpressAnalyticsLogger
+        analyticsLogger: ExpressAnalyticsLogger,
+        sorter: ProviderItemSorter
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
         self.dataRepository = dataRepository
         self.analyticsLogger = analyticsLogger
+        self.sorter = sorter
     }
 }
 
@@ -60,7 +63,7 @@ extension CommonOnrampManager: OnrampManager {
         OnrampLogger.info(self, "The quotes was updated for amount: \(amount)")
 
         providers.updateSupportedPaymentMethods()
-        let sorted = providers.sorted()
+        let sorted = providers.sorted(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
         return (list: sorted, provider: suggestProvider)
     }
@@ -176,7 +179,7 @@ private extension CommonOnrampManager {
                     )
                 )
             }
-            return ProviderItem(paymentMethod: paymentMethod, providers: providers)
+            return ProviderItem(paymentMethod: paymentMethod, sorter: sorter, providers: providers)
         }
 
         OnrampLogger.info(self, "Built providers \(availableProviders)")

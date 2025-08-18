@@ -409,11 +409,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
-            type: .onramp,
+            type: .onramp(parameters: parameters),
             source: .main
         )
         coordinator.start(with: options)

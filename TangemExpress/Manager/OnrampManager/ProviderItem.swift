@@ -13,10 +13,17 @@ public typealias ProvidersList = [ProviderItem]
 
 public class ProviderItem {
     public let paymentMethod: OnrampPaymentMethod
+    public let sorter: ProviderItemSorter
+
     public private(set) var providers: [OnrampProvider]
 
-    init(paymentMethod: OnrampPaymentMethod, providers: [OnrampProvider]) {
+    init(
+        paymentMethod: OnrampPaymentMethod,
+        sorter: ProviderItemSorter,
+        providers: [OnrampProvider]
+    ) {
         self.paymentMethod = paymentMethod
+        self.sorter = sorter
         self.providers = providers
     }
 
@@ -36,7 +43,6 @@ public class ProviderItem {
 
     @discardableResult
     public func sort() -> [OnrampProvider] {
-        let sorter = ProviderItemSorter()
         providers.sort(by: { sorter.sort(lhs: $0, rhs: $1) })
         // Return sorted providers
         return providers
@@ -93,18 +99,18 @@ public extension ProvidersList {
         first(where: { $0.paymentMethod == paymentMethod })
     }
 
-    func sorted() -> Self {
+    func sorted(sorter: some ProviderItemSorter) -> Self {
         forEach { $0.sort() }
 
         return sorted { lhs, rhs in
             // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
-            guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
-                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
+            guard lhs.paymentMethod.type == rhs.paymentMethod.type else {
+                return sorter.sort(lhs: lhs.paymentMethod, rhs: rhs.paymentMethod)
             }
 
             switch (lhs.providers.first, rhs.providers.first) {
             case (.some(let lhsProvider), .some(let rhsProvider)):
-                return ProviderItemSorter().sort(lhs: lhsProvider, rhs: rhsProvider)
+                return sorter.sort(lhs: lhsProvider, rhs: rhsProvider)
             case (.none, _), (_, .none):
                 return false
             }

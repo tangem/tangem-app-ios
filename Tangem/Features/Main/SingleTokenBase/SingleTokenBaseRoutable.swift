@@ -20,11 +20,17 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openStaking(options: StakingDetailsCoordinator.Options)
     func openInSafari(url: URL)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel)
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
         userWalletModel: UserWalletModel,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+}
+
+extension SingleTokenBaseRoutable {
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
+        openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .default)
+    }
 }

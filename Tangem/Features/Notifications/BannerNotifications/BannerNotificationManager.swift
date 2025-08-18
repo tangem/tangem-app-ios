@@ -12,7 +12,6 @@ import TangemFoundation
 
 class BannerNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private weak var delegate: NotificationTapDelegate?
@@ -65,8 +64,11 @@ class BannerNotificationManager {
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self, placement] id, action in
             self?.delegate?.didTapNotification(with: id, action: action)
-            self?.bannerPromotionService.hide(promotion: promotion.bannerPromotion, on: placement)
-            self?.dismissNotification(with: id)
+
+            if promotion.bannerPromotion.shouldHideWhenAction {
+                self?.bannerPromotionService.hide(promotion: promotion.bannerPromotion, on: placement)
+                self?.dismissNotification(with: id)
+            }
 
             var params = analytics.analyticsParams
             params[.action] = Analytics.ParameterValue.clicked.rawValue
@@ -109,29 +111,17 @@ class BannerNotificationManager {
             }
 
         case .onrampSEPAWithMercuryo:
-            if let bitcoinWalletModel = findBitcoinWalletModel() {
+            let builder = OnrampSEPAWithMercuryoBannerDataBuilder()
+            if let (walletModel, parameters) = builder.prepare(userWalletId: userWalletId) {
                 return BannerNotificationEvent(
                     programName: promotion.bannerPromotion,
                     analytics: analytics,
-                    buttonAction: .init(.openBuyCrypto(walletModel: bitcoinWalletModel))
+                    buttonAction: .init(.openBuyCrypto(walletModel: walletModel, parameters: parameters))
                 )
             }
         }
 
         return nil
-    }
-
-    private func findBitcoinWalletModel() -> (any WalletModel)? {
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
-            return nil
-        }
-
-        let walletModels = userWalletModel.walletModelsManager.walletModels
-        let bitcoinWalletModel = walletModels.first(where: {
-            $0.isMainToken && $0.tokenItem.blockchain == .bitcoin(testnet: false)
-        })
-
-        return bitcoinWalletModel
     }
 }
 
