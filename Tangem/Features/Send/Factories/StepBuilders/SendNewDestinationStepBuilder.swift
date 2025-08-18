@@ -18,13 +18,13 @@ struct SendNewDestinationStepBuilder {
         finish: SendDestinationCompactViewModel
     )
 
-    let builder: SendDependenciesBuilder
+    let interactorDependenciesProvider: SendNewDestinationInteractorDependenciesProvider
+    let sendQRCodeService: any SendQRCodeService
+    let analyticsLogger: any SendDestinationAnalyticsLogger
 
     func makeSendDestinationStep(
         io: IO,
         receiveTokenInput: SendReceiveTokenInput,
-        sendQRCodeService: SendQRCodeService,
-        analyticsLogger: any SendDestinationAnalyticsLogger,
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let interactorSaver = CommonSendNewDestinationInteractorSaver(input: io.input, output: io.output)
@@ -69,9 +69,7 @@ private extension SendNewDestinationStepBuilder {
             input: io.input,
             receiveTokenInput: receiveTokenInput,
             saver: interactorSaver,
-            dependenciesBuilder: builder.makeSendNewDestinationInteractorDependenciesProvider(
-                analyticsLogger: analyticsLogger
-            ),
+            dependenciesBuilder: interactorDependenciesProvider,
         )
     }
 }
