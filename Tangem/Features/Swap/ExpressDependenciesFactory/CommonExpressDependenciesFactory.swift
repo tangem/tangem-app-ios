@@ -101,5 +101,12 @@ extension CommonExpressDependenciesFactory {
             signer = userWalletModel.signer
             walletModelsManager = userWalletModel.walletModelsManager
         }
+
+        init(userWalletId: UserWalletId, refcode: Refcode?, signer: TangemSigner, walletModelsManager: WalletModelsManager) {
+            self.userWalletId = userWalletId
+            self.refcode = refcode
+            self.signer = signer
+            self.walletModelsManager = walletModelsManager
+        }
     }
 }
