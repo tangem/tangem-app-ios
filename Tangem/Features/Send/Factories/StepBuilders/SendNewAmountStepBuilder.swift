@@ -18,10 +18,6 @@ struct SendNewAmountStepBuilder {
 
     typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
 
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let builder: SendDependenciesBuilder
-
     func makeSendNewAmountStep(
         sourceIO: SourceIO,
         sourceAmountIO: SourceAmountIO,

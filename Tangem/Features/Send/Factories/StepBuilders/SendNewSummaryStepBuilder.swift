@@ -12,7 +12,6 @@ struct SendNewSummaryStepBuilder {
     typealias IO = (input: SendSummaryInput, output: SendSummaryOutput)
     typealias ReturnValue = SendNewSummaryStep
 
-    let tokenItem: TokenItem
     let builder: SendDependenciesBuilder
 
     func makeSendSummaryStep(
