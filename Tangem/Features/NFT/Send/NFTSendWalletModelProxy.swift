@@ -49,6 +49,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         WalletModelId(tokenItem: tokenItem)
     }
 
+    var userWalletId: UserWalletId {
+        mainTokenWalletModel.userWalletId
+    }
+
     var name: String {
         asset.name
     }
@@ -344,7 +348,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var account: CryptoAccountModel {
+    var account: any CryptoAccountModel {
         mainTokenWalletModel.account
     }
 
