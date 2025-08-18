@@ -8,4 +8,11 @@ public extension ContiguousBytes {
             return ((cfdata as NSData?) as Data?) ?? Data()
         }
     }
+
+    /// 'dataRepresentation' isn't working reliably in MobileWallet creation flow, needs further investigation.
+    var data: Data {
+        withUnsafeBytes { buffer in
+            Data(buffer)
+        }
+    }
 }
