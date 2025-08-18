@@ -49,7 +49,12 @@ enum PromotionProgramName: String, Hashable, CaseIterable {
     case ring
     case onrampSEPAWithMercuryo
 
-    var id: String { rawValue }
+    var shouldHideWhenAction: Bool {
+        switch self {
+        case .ring: true
+        case .onrampSEPAWithMercuryo: false
+        }
+    }
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
