@@ -11,16 +11,21 @@ struct SendSwapProvidersBuilder {
     typealias ReturnValue = SendSwapProvidersSelectorViewModel
 
     let tokenItem: TokenItem
-    let builder: SendDependenciesBuilder
+    let expressProviderFormatter: ExpressProviderFormatter
+    let priceChangeFormatter: PriceChangeFormatter
 
-    func makeSwapProviders(io: IO, receiveTokenInput: SendReceiveTokenInput, analyticsLogger: any SendSwapProvidersAnalyticsLogger) -> ReturnValue {
+    func makeSwapProviders(
+        io: IO,
+        receiveTokenInput: SendReceiveTokenInput,
+        analyticsLogger: any SendSwapProvidersAnalyticsLogger
+    ) -> ReturnValue {
         let providersSelector = SendSwapProvidersSelectorViewModel(
             input: io.input,
             output: io.output,
             receiveTokenInput: receiveTokenInput,
             tokenItem: tokenItem,
-            expressProviderFormatter: builder.makeExpressProviderFormatter(),
-            priceChangeFormatter: builder.makePriceChangeFormatter(),
+            expressProviderFormatter: expressProviderFormatter,
+            priceChangeFormatter: priceChangeFormatter,
             analyticsLogger: analyticsLogger
         )
 

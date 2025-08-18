@@ -347,6 +347,8 @@ extension RestakingModel: SendSummaryInput, SendSummaryOutput {
 // MARK: - SendFinishInput
 
 extension RestakingModel: SendFinishInput {
+    var transactionExplorerURL: AnyPublisher<URL?, Never> {}
+
     var transactionSentDate: AnyPublisher<Date, Never> {
         _transactionTime.compactMap { $0 }.first().eraseToAnyPublisher()
     }
