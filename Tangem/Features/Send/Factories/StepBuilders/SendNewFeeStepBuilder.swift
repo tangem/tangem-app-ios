@@ -15,26 +15,20 @@ struct SendNewFeeStepBuilder {
     typealias IO = (input: SendFeeInput, output: SendFeeOutput)
     typealias ReturnValue = (feeSelector: FeeSelectorContentViewModel, compact: SendNewFeeCompactViewModel, finish: SendFeeFinishViewModel)
 
-    private let feeTokenItem: TokenItem
-    private let builder: SendDependenciesBuilder
+    let feeTokenItem: TokenItem
+    let isFeeApproximate: Bool
+    let feeProvider: SendFeeProvider
+    let analyticsLogger: any FeeSelectorContentViewModelAnalytics
+    let customFeeService: (any CustomFeeService)?
+    let feeSelectorCustomFeeFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder
 
-    init(feeTokenItem: TokenItem, builder: SendDependenciesBuilder) {
-        self.feeTokenItem = feeTokenItem
-        self.builder = builder
-    }
-
-    func makeSendFee(
-        io: IO,
-        feeProvider: SendFeeProvider,
-        analyticsLogger: any FeeSelectorContentViewModelAnalytics,
-        customFeeService: (any CustomFeeService)?
-    ) -> ReturnValue {
-        let interactor = makeSendFeeInteractor(io: io, feeProvider: feeProvider, customFeeService: customFeeService)
+    func makeSendFee(io: IO) -> ReturnValue {
+        let interactor = makeSendFeeInteractor(io: io)
         let feeSelector = FeeSelectorContentViewModel(
             input: interactor,
             output: interactor,
             analytics: analyticsLogger,
-            customFieldsBuilder: builder.makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService),
+            customFieldsBuilder: feeSelectorCustomFeeFieldsBuilder,
             feeTokenItem: feeTokenItem
         )
         let compact = makeSendNewFeeCompactViewModel(input: io.input)
@@ -44,14 +38,14 @@ struct SendNewFeeStepBuilder {
     }
 
     func makeSendNewFeeCompactViewModel(input: SendFeeInput) -> SendNewFeeCompactViewModel {
-        SendNewFeeCompactViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
+        SendNewFeeCompactViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: isFeeApproximate)
     }
 
     func makeSendFeeFinishViewModel(input: SendFeeInput) -> SendFeeFinishViewModel {
-        SendFeeFinishViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: builder.isFeeApproximate())
+        SendFeeFinishViewModel(feeTokenItem: feeTokenItem, isFeeApproximate: isFeeApproximate)
     }
 
-    private func makeSendFeeInteractor(io: IO, feeProvider: SendFeeProvider, customFeeService: CustomFeeService?) -> CommonSendFeeInteractor {
+    private func makeSendFeeInteractor(io: IO) -> CommonSendFeeInteractor {
         let interactor = CommonSendFeeInteractor(
             input: io.input,
             output: io.output,
