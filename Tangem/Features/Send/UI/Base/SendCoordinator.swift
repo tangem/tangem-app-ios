@@ -14,10 +14,11 @@ import BlockchainSdk
 import TangemExpress
 import TangemStaking
 import TangemUIUtils
+import TangemFoundation
 
 class SendCoordinator: CoordinatorObject {
     enum DismissOptions {
-        case openFeeCurrency(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
         case closeButtonTap
     }
 
@@ -61,13 +62,8 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let factory = SendFlowFactory(
-            userWalletModel: options.userWalletModel,
-            walletModel: options.walletModel,
-            source: options.source
-        )
-
-        let stakingParams = StakingBlockchainParams(blockchain: options.walletModel.tokenItem.blockchain)
+        let factory = SendFlowFactory(input: options.input, source: options.source)
+        let stakingParams = StakingBlockchainParams(blockchain: options.input.walletModel.tokenItem.blockchain)
 
         switch options.type {
         case .send(let parameters) where parameters.nonFungibleTokenParameters != nil && FeatureProvider.isAvailable(.nftNewSendUI):
@@ -109,11 +105,21 @@ class SendCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension SendCoordinator {
+    typealias Input = SendDependenciesBuilder.Input
     struct Options {
-        let walletModel: any WalletModel
-        let userWalletModel: UserWalletModel
+        let input: Input
         let type: SendType
         let source: Source
+
+        init(
+            input: SendDependenciesBuilder.Input,
+            type: SendType,
+            source: Source
+        ) {
+            self.input = input
+            self.type = type
+            self.source = source
+        }
     }
 
     enum Source {
@@ -189,8 +195,8 @@ extension SendCoordinator: SendRoutable {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
-    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        dismiss(with: .openFeeCurrency(walletModel: walletModel, userWalletModel: userWalletModel))
+    func openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
+        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
     }
 
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
