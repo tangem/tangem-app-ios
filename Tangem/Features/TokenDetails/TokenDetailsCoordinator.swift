@@ -17,6 +17,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -149,11 +150,23 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
-    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
-            for: tokenItem,
+    func openReceiveScreen(walletModel: any WalletModel) {
+        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
+
+        let receiveFlowFactory = ReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
             addressInfos: addressInfos
         )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 
     func openBuyCrypto(at url: URL, action: @escaping () -> Void) {

@@ -286,11 +286,23 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 // MARK: - SingleTokenBaseRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
-    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
-            for: tokenItem,
+    func openReceiveScreen(walletModel: any WalletModel) {
+        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
+
+        let receiveFlowFactory = ReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
             addressInfos: addressInfos
         )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 
     func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
@@ -442,6 +454,10 @@ extension MainCoordinator: OrganizeTokensRoutable {
 extension MainCoordinator: VisaWalletRoutable {
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
         visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
+    }
+
+    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
+        receiveBottomSheetViewModel = ReceiveFlowFactory(flow: .crypto, tokenItem: tokenItem, addressInfos: addressInfos).makeBottomSheetViewModel()
     }
 }
 
