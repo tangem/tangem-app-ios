@@ -14,6 +14,119 @@ import TangemExpress
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
+struct SendWalletInfo {
+    let name: String
+    let userWalletId: UserWalletId
+    let signer: TangemSigner
+    let refcode: Refcode?
+}
+
+protocol SenadableToken: ExpressInteractorSourceWallet {
+    var feeOptions: [FeeOption] { get }
+    var walletModelsManager: any WalletModelsManager { get }
+}
+
+class SendGenericDependenciesBuilder {
+    func makeFiatItem() -> FiatItem {
+        FiatItem(
+            iconURL: IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode),
+            currencyCode: AppSettings.shared.selectedCurrencyCode,
+            fractionDigits: 2
+        )
+    }
+}
+
+class SendWithSwapDependenciesBuilder: SendGenericDependenciesBuilder {
+    let walletInfo: SendWalletInfo
+    let senadableToken: SenadableToken
+
+    private lazy var expressDependenciesFactory: ExpressDependenciesFactory = CommonExpressDependenciesFactory(
+        input: .init(
+            userWalletId: walletInfo.userWalletId,
+            refcode: walletInfo.refcode,
+            signer: walletInfo.signer,
+            walletModelsManager: senadableToken.walletModelsManager
+        ),
+        initialWallet: senadableToken,
+        destinationWallet: .none,
+        // We support only `CEX` in `Send With Swap` flow
+        supportedProviderTypes: [.cex]
+    )
+
+    init(walletInfo: SendWalletInfo, senadableToken: SenadableToken) {
+        self.walletInfo = walletInfo
+        self.senadableToken = senadableToken
+    }
+
+    func makeSourceToken() -> SendSourceToken {
+        SendSourceToken(
+            wallet: walletInfo.name,
+            tokenItem: senadableToken.tokenItem,
+            feeTokenItem: senadableToken.feeTokenItem,
+            tokenIconInfo: makeTokenIconInfo(),
+            fiatItem: makeFiatItem(),
+            possibleToConvertToFiat: possibleToChangeAmountType(),
+            availableBalanceProvider: walletModel.availableBalanceProvider,
+            fiatAvailableBalanceProvider: walletModel.fiatAvailableBalanceProvider,
+            transactionValidator: walletModel.transactionValidator,
+            transactionCreator: walletModel.transactionCreator,
+            transactionDispatcher: makeTransactionDispatcher()
+        )
+    }
+
+    func makeTokenIconInfo() -> TokenIconInfo {
+        TokenIconInfoBuilder().build(from: senadableToken.tokenItem, isCustom: senadableToken.isCustom)
+    }
+
+    func makeSwapManager() -> SwapManager {
+        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+    }
+
+    func makeSendWithSwapModel(
+        swapManager: SwapManager,
+        analyticsLogger: any SendAnalyticsLogger,
+        predefinedValues: SendWithSwapModel.PredefinedValues = .init()
+    ) -> SendWithSwapModel {
+        let feeIncludedCalculator = CommonFeeIncludedCalculator(validator: senadableToken.transactionValidator)
+        let sendReceiveTokenBuilder = SendReceiveTokenBuilder(tokenIconInfoBuilder: TokenIconInfoBuilder(), fiatItem: makeFiatItem())
+let sendAlertBuilder = CommonSendAlertBuilder()
+
+        return SendWithSwapModel(
+            userToken: makeSourceToken(),
+            transactionSigner: walletInfo.signer,
+            feeIncludedCalculator: feeIncludedCalculator,
+            analyticsLogger: analyticsLogger,
+            sendReceiveTokenBuilder: sendReceiveTokenBuilder,
+            sendAlertBuilder: sendAlertBuilder,
+            swapManager: swapManager,
+            predefinedValues: predefinedValues
+        )
+    }
+
+    func makeSendAnalyticsLogger(coordinatorSource: SendCoordinator.Source) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(
+            tokenItem: senadableToken.tokenItem,
+            feeTokenItem: senadableToken.feeTokenItem,
+            feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
+            coordinatorSource: coordinatorSource
+        )
+    }
+
+    func makeFeeAnalyticsParameterBuilder() -> FeeAnalyticsParameterBuilder {
+        FeeAnalyticsParameterBuilder(isFixedFee: senadableToken.feeOptions.count == 1)
+    }
+
+    func makeSendQRCodeService() -> SendQRCodeService {
+        let parser = QRCodeParser(
+            amountType: senadableToken.tokenItem.amountType,
+            blockchain: senadableToken.tokenItem.blockchain,
+            decimalCount: senadableToken.tokenItem.decimalCount
+        )
+
+        return CommonSendQRCodeService(parser: parser)
+    }
+}
+
 struct SendDependenciesBuilder {
     private let input: Input
     private var walletModel: any WalletModel { input.walletModel }
