@@ -146,6 +146,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             )
         } catch {
             analyticsLogger.logDAppConnectionFailed(with: error)
+            logger.error("Failed to approve \(proposal.dAppData.name) dApp proposal", error: error)
             hapticFeedbackGenerator.errorNotificationOccurred()
             coordinator?.display(proposalApprovalError: error)
             return
