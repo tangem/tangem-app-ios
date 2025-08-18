@@ -147,7 +147,8 @@ private extension HotOnboardingAccessCodeViewModel {
     }
 
     func handleConfirmed(accessCode: String) {
-        guard let userWalletModel = delegate?.getUserWalletModel() else {
+        guard let userWalletModel = delegate?.getUserWalletModel(),
+              let userWalletIdSeed = userWalletModel.config.userWalletIdSeed else {
             return
         }
 
@@ -162,11 +163,18 @@ private extension HotOnboardingAccessCodeViewModel {
                     context
                 }
 
-                try viewModel.hotSdk.updateAccessCode(accessCode, context: context)
-                userWalletModel.update(type: .accessCodeDidSet)
-                AppLogger.info("AccessCode update was successful")
+                let isBiometricsAvailable = await viewModel.isBiometricsAvailable()
+                let requireAccessCodes = await AppSettings.shared.requireAccessCodes
 
-                await viewModel.requestBiometricsIfNeeded(userWalletId: userWalletId, accessCode: accessCode)
+                try viewModel.hotSdk.updateAccessCode(
+                    accessCode,
+                    enableBiometrics: isBiometricsAvailable && !requireAccessCodes,
+                    seedKey: userWalletIdSeed,
+                    context: context
+                )
+
+                userWalletModel.update(type: .accessCodeDidSet)
+                AppLogger.info("AccessCode update was successful, biometrics enabled: \(isBiometricsAvailable)")
                 await viewModel.onAccessCodeComplete()
 
             } catch {
@@ -178,33 +186,33 @@ private extension HotOnboardingAccessCodeViewModel {
         }
     }
 
-    func requestBiometricsIfNeeded(userWalletId: UserWalletId, accessCode: String) async {
-        // [REDACTED_TODO_COMMENT]
-        let isBiometricsEnabled = true
-
-        if BiometricsUtil.isAvailable, isBiometricsEnabled {
+    func isBiometricsAvailable() async -> Bool {
+        if BiometricsUtil.isAvailable {
             do {
-                let context: MobileWalletContext
-                if !AppSettings.shared.askedToSaveUserWallets {
-                    let laContext = try await requestBiometrics()
-                    context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
+                if await !AppSettings.shared.askedToSaveUserWallets {
+                    _ = try await requestBiometrics()
+                    return true
                 } else {
-                    context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
+                    return await AppSettings.shared.useBiometricAuthentication
                 }
-
-                try hotSdk.refreshBiometrics(context: context)
-                AppLogger.info("AccessCode enable biometrics was successful")
-
             } catch {
-                AppLogger.error("AccessCode biometrics request failed:", error: error)
+                return false
             }
         }
+
+        return false
     }
 
     func requestBiometrics() async throws -> LAContext {
-        AppSettings.shared.askedToSaveUserWallets = true
+        await MainActor.run {
+            AppSettings.shared.askedToSaveUserWallets = true
+        }
 
         let context = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
+
+        await MainActor.run {
+            AppSettings.shared.useBiometricAuthentication = true
+        }
 
         userWalletRepository.onBiometricsChanged(enabled: true)
         AppLogger.info("AccessCode biometrics request was successful")
