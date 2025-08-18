@@ -109,7 +109,6 @@ struct NewNFTSendFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            source: coordinatorSource,
             coordinator: router
         )
 
