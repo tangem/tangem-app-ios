@@ -13,6 +13,7 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
+    @Published var transactionURL: URL?
     @Published var transactionSentTime: String?
 
     @Published var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
@@ -22,12 +23,14 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var sendFeeCompactViewModel: SendFeeCompactViewModel?
     @Published var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
-    private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
+    private weak var coordinator: SendFinishRoutable?
+    private let analyticsLogger: SendFinishAnalyticsLogger
     private var bag: Set<AnyCancellable> = []
 
     init(
         input: SendFinishInput,
-        sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
+        coordinator: SendFinishRoutable,
+        analyticsLogger: SendFinishAnalyticsLogger,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
@@ -35,7 +38,8 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         sendFeeCompactViewModel: SendFeeCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
     ) {
-        self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
+        self.coordinator = coordinator
+        self.analyticsLogger = analyticsLogger
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
@@ -47,11 +51,21 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        sendFinishAnalyticsLogger.logFinishStepOpened()
+        analyticsLogger.logFinishStepOpened()
 
         withAnimation(SendTransitionService.Constants.defaultAnimation) {
             showHeader = true
         }
+    }
+
+    func share(url: URL) {
+        analyticsLogger.logShareButton()
+        coordinator?.openShareSheet(url: url)
+    }
+
+    func explore(url: URL) {
+        analyticsLogger.logExploreButton()
+        coordinator?.openExplorer(url: url)
     }
 
     func bind(input: SendFinishInput) {
@@ -69,6 +83,10 @@ class SendFinishViewModel: ObservableObject, Identifiable {
                 }
             })
             .store(in: &bag)
+
+        input.transactionExplorerURL
+            .receiveOnMain()
+            .assign(to: &$transactionURL)
     }
 }
 

@@ -30,8 +30,6 @@ final class SendViewModel: ObservableObject {
     @Published var flowActionType: SendFlowActionType
     @Published var isKeyboardActive: Bool = false
 
-    @Published var transactionURL: URL?
-
     @Published var closeButtonDisabled = false
     @Published var trailingButtonDisabled = false
     @Published var isUserInteractionDisabled = false
