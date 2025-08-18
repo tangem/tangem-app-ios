@@ -66,8 +66,6 @@ extension SendManagementModelAnalyticsLogger {
 protocol SendBaseViewAnalyticsLogger {
     func logSendBaseViewOpened()
 
-    func logShareButton()
-    func logExploreButton()
     func logRequestSupport()
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType)
@@ -133,4 +131,7 @@ protocol SendSummaryAnalyticsLogger {
 
 protocol SendFinishAnalyticsLogger {
     func logFinishStepOpened()
+
+    func logShareButton()
+    func logExploreButton()
 }

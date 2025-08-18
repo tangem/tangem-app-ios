@@ -87,4 +87,24 @@ struct SendFinishView: View {
         .padding(.top, 4)
         .padding(.bottom, 10)
     }
+
+    private var exploreButtons: some View {
+        if let url = viewModel.transactionURL, viewModel.shouldShowShareExploreButtons {
+            HStack(spacing: 8) {
+                MainButton(
+                    title: Localization.commonExplore,
+                    icon: .leading(Assets.Glyphs.explore),
+                    style: .secondary,
+                    action: { viewModel.explore(url: url) }
+                )
+                MainButton(
+                    title: Localization.commonShare,
+                    icon: .leading(Assets.share),
+                    style: .secondary,
+                    action: { viewModel.share(url: url) }
+                )
+            }
+            .transition(.opacity.animation(SendTransitionService.Constants.newAnimation))
+        }
+    }
 }
