@@ -11,10 +11,12 @@ import SwiftUI
 import TangemSdk
 import TangemAssets
 import TangemLocalization
+import TangemHotSdk
 import struct TangemUIUtils.AlertBinder
 
 class NewAppSettingsViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    private let mobileSdk = CommonHotSdk()
 
     // MARK: ViewState
 
@@ -30,7 +32,9 @@ class NewAppSettingsViewModel: ObservableObject {
     }
 
     @Published var requireAccessCodes: Bool {
-        didSet { AppSettings.shared.requireAccessCodes = requireAccessCodes }
+        didSet {
+            AppSettings.shared.requireAccessCodes = requireAccessCodes
+        }
     }
 
     @Published var alert: AlertBinder?
@@ -135,7 +139,7 @@ private extension NewAppSettingsViewModel {
     func requireAccessCodesRequestChange(require: Bool) {
         // [REDACTED_TODO_COMMENT]
 
-        setRequireAccessCodes(require)
+        presentRequireAccessCodeAlert(require: require)
     }
 
     func setupView() {
@@ -241,6 +245,33 @@ private extension NewAppSettingsViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
+    func presentRequireAccessCodeAlert(require: Bool) {
+        let okButton = if require {
+            Alert.Button.destructive(Text(Localization.commonEnable)) { [weak self] in
+                self?.setRequireAccessCodes(require)
+            }
+        } else {
+            Alert.Button.default(Text(Localization.commonOk)) { [weak self] in
+                self?.setRequireAccessCodes(require)
+            }
+        }
+
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonCancel)) { [weak self] in
+            self?.setRequireAccessCodes(!require)
+        }
+
+        let alert = Alert(
+            title: Text(Localization.commonAttention),
+            message: require
+                ? Text(Localization.appSettingsOnRequireAccessCodeAlertMessage)
+                : Text(Localization.appSettingsOffRequireAccessCodeAlertMessage),
+            primaryButton: okButton,
+            secondaryButton: cancelButton
+        )
+
+        self.alert = AlertBinder(alert: alert)
+    }
+
     func setUseBiometricAuthentication(_ useBiometricAuthentication: Bool) {
         userWalletRepository.onBiometricsChanged(enabled: useBiometricAuthentication)
         self.useBiometricAuthentication = useBiometricAuthentication
@@ -257,6 +288,8 @@ private extension NewAppSettingsViewModel {
         if requireAccessCodes {
             let accessCodeRepository = AccessCodeRepository()
             accessCodeRepository.clear()
+
+            clearBiometricsForMobileWallets()
 
             self.requireAccessCodes = true
         } else {
@@ -276,6 +309,10 @@ private extension NewAppSettingsViewModel {
     func updateView() {
         isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
         setupView()
+    }
+
+    func clearBiometricsForMobileWallets() {
+        mobileSdk.clearBiometrics(walletIDs: userWalletRepository.models.map { $0.userWalletId })
     }
 }
 
