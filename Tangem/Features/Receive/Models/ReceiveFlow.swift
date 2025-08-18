@@ -1,5 +1,5 @@
 //
-//  HotOnboardingFlowBuilder.swift
+//  ReceiveFlow.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,3 +7,8 @@
 //
 
 import Foundation
+
+enum ReceiveFlow {
+    case nft
+    case crypto
+}
