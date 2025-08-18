@@ -110,7 +110,6 @@ struct OnrampFlowBaseBuilder {
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            source: source,
             coordinator: router
         )
 

@@ -57,7 +57,7 @@ final class SendViewModel: ObservableObject {
     private let analyticsLogger: SendBaseViewAnalyticsLogger
     private let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     private let tokenItem: TokenItem
-    private let source: SendCoordinator.Source
+
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
@@ -75,7 +75,6 @@ final class SendViewModel: ObservableObject {
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
         tokenItem: TokenItem,
-        source: SendCoordinator.Source,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -85,7 +84,6 @@ final class SendViewModel: ObservableObject {
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
         self.tokenItem = tokenItem
         self.dataBuilder = dataBuilder
-        self.source = source
         self.coordinator = coordinator
 
         step = stepsManager.initialStep

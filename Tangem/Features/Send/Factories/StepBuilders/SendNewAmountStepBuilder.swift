@@ -18,9 +18,10 @@ struct SendNewAmountStepBuilder {
 
     typealias ReturnValue = (step: SendNewAmountStep, amountUpdater: SendExternalAmountUpdater, compact: SendNewAmountCompactViewModel, finish: SendNewAmountFinishViewModel)
 
-    let tokenItem: TokenItem
-    let feeTokenItem: TokenItem
-    let builder: SendDependenciesBuilder
+    let sendAmountValidator: any SendAmountValidator
+    let amountModifier: (any SendAmountModifier)?
+    let notificationService: (any SendAmountNotificationService)?
+    let analyticsLogger: any SendAnalyticsLogger
 
     func makeSendNewAmountStep(
         sourceIO: SourceIO,
@@ -28,11 +29,6 @@ struct SendNewAmountStepBuilder {
         receiveIO: ReceiveIO,
         receiveAmountIO: ReceiveAmountIO,
         swapProvidersInput: SendSwapProvidersInput,
-        actionType: SendFlowActionType,
-        sendAmountValidator: SendAmountValidator,
-        amountModifier: SendAmountModifier?,
-        notificationService: SendAmountNotificationService?,
-        analyticsLogger: any SendAnalyticsLogger
     ) -> ReturnValue {
         let interactorSaver = CommonSendNewAmountInteractorSaver(
             sourceTokenAmountInput: sourceAmountIO.input,

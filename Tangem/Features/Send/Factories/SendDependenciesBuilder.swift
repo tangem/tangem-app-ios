@@ -816,3 +816,46 @@ extension SendDependenciesBuilder {
         }
     }
 }
+
+protocol NewSendDependenciesBuilder: SendBaseDependenciesBuilder {
+    var sendAmountStepBuilder: SendNewAmountStepBuilder { get }
+    var sendDestinationStepBuilder: SendNewDestinationStepBuilder { get }
+    var sendFeeStepBuilder: SendNewFeeStepBuilder { get }
+    var swapProvidersBuilder: SendSwapProvidersBuilder { get }
+    var sendSummaryStepBuilder: SendNewSummaryStepBuilder { get }
+    var sendFinishStepBuilder: SendNewFinishStepBuilder { get }
+}
+
+protocol SendBaseDependenciesBuilder {
+    var walletData: SendWalletData { get }
+
+    var tokenItem: TokenItem { get }
+    var feeTokenItem: TokenItem { get }
+
+    var signer: TangemSigner { get }
+
+    func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper
+
+    func makeSendViewModel() -> SendViewModel
+}
+
+struct SendWalletData {
+    let userWalletId: UserWalletId
+    let walletName: String
+}
+
+enum SendTypeOption {
+    case send(parameters: SendParameters)
+    case sell(parameters: PredefinedSellParameters)
+    case staking(manager: StakingManager)
+    case unstaking(manager: StakingManager, action: UnstakingModel.Action)
+    case restaking(manager: StakingManager, action: RestakingModel.Action)
+    case stakingSingleAction(manager: StakingManager, action: StakingSingleActionModel.Action)
+    case onramp
+}
+
+struct SendBaseOptions {
+    let userWalletId: UserWalletId
+    let walletName: String
+    let signer: TangemSigner
+}
