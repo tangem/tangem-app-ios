@@ -44,7 +44,7 @@ public final class CommonHotSdk: HotSdk {
         }
 
         try publicInfoStorageManager.storeData(
-            UserWalletEncryptionKey(userWalletIdSeed: seedKey).symmetricKey.dataRepresentation,
+            UserWalletEncryptionKey(userWalletIdSeed: seedKey).symmetricKey.data,
             walletID: userWalletId,
             accessCode: nil
         )
@@ -119,7 +119,7 @@ public final class CommonHotSdk: HotSdk {
 
         let symmetricKeyData = UserWalletEncryptionKey(
             userWalletIdSeed: seedKey
-        ).symmetricKey.dataRepresentation
+        ).symmetricKey.data
 
         try publicInfoStorageManager.storeData(
             symmetricKeyData,
