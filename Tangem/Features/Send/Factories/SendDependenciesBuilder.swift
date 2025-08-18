@@ -15,19 +15,19 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 
 struct SendDependenciesBuilder {
-    private let walletModel: any WalletModel
-    private let userWalletModel: UserWalletModel
+    private let input: Input
+    private var walletModel: any WalletModel { input.walletModel }
+
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let expressDependenciesFactory: ExpressDependenciesFactory
 
-    init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
-        self.userWalletModel = userWalletModel
-        self.walletModel = walletModel
+    init(input: Input) {
+        self.input = input
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            userWalletModel: userWalletModel,
-            initialWallet: walletModel.asExpressInteractorWallet,
+            input: input.expressInput,
+            initialWallet: input.walletModel.asExpressInteractorWallet,
             destinationWallet: .none,
             // We support only `CEX` in `Send With Swap` flow
             supportedProviderTypes: [.cex]
@@ -59,7 +59,7 @@ struct SendDependenciesBuilder {
     func walletHeaderText(for actionType: SendFlowActionType) -> String {
         switch actionType {
         case .unstake: Localization.stakingStakedAmount
-        default: walletName()
+        default: input.userWalletName
         }
     }
 
@@ -96,10 +96,6 @@ struct SendDependenciesBuilder {
             )
         }
         return Localization.commonCryptoFiatFormat(balanceFormatted.crypto, balanceFormatted.fiat)
-    }
-
-    func walletName() -> String {
-        userWalletModel.name
     }
 
     func isFeeApproximate() -> Bool {
@@ -159,7 +155,7 @@ struct SendDependenciesBuilder {
     func makeTransactionDispatcher() -> TransactionDispatcher {
         TransactionDispatcherFactory(
             walletModel: walletModel,
-            signer: userWalletModel.signer
+            signer: input.signer
         )
         .makeSendDispatcher()
     }
@@ -170,7 +166,7 @@ struct SendDependenciesBuilder {
     ) -> TransactionDispatcher {
         StakingTransactionDispatcher(
             walletModel: walletModel,
-            transactionSigner: userWalletModel.signer,
+            transactionSigner: input.signer,
             pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
             stakingTransactionMapper: makeStakingTransactionMapper(),
             analyticsLogger: analyticsLogger,
@@ -206,7 +202,7 @@ struct SendDependenciesBuilder {
             balanceProvider: walletModel.availableBalanceProvider,
             transactionDispatcher: transactionDispatcher,
             transactionCreator: walletModel.transactionCreator,
-            transactionSigner: userWalletModel.signer,
+            transactionSigner: input.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             predefinedValues: predefinedValues
@@ -351,7 +347,7 @@ struct SendDependenciesBuilder {
         CommonSendBaseDataBuilder(
             input: input,
             walletModel: walletModel,
-            emailDataProvider: userWalletModel,
+            emailDataProvider: self.input.emailDataProvider,
             sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
         )
     }
@@ -395,8 +391,12 @@ struct SendDependenciesBuilder {
         )
     }
 
+    func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
+        BlockchainSDKNotificationMapper(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+    }
+
     func makeSendSummaryTitleProvider() -> SendSummaryTitleProvider {
-        CommonSendSummaryTitleProvider(tokenItem: walletModel.tokenItem, walletName: walletName())
+        CommonSendSummaryTitleProvider(tokenItem: walletModel.tokenItem, walletName: input.userWalletName)
     }
 
     // MARK: - Sell
@@ -414,7 +414,7 @@ struct SendDependenciesBuilder {
     ) -> SendWithSwapModel {
         SendWithSwapModel(
             userToken: makeSourceToken(),
-            transactionSigner: userWalletModel.signer,
+            transactionSigner: input.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
@@ -426,7 +426,7 @@ struct SendDependenciesBuilder {
 
     func makeSourceToken() -> SendSourceToken {
         SendSourceToken(
-            wallet: userWalletModel.name,
+            wallet: input.userWalletName,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             tokenIconInfo: makeTokenIconInfo(),
@@ -514,24 +514,22 @@ struct SendDependenciesBuilder {
 
     // MARK: - NFT support
 
+    // Will be delete
+    // [REDACTED_TODO_COMMENT]
     func makeNFTSendAmountValidator() -> SendAmountValidator {
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
-
-        return NFTSendAmountValidator(expectedAmount: nftSendUtil.amountToSend)
+        return NFTSendAmountValidator(expectedAmount: NFTSendUtil.amountToSend)
     }
 
+    // Will be delete
+    // [REDACTED_TODO_COMMENT]
     func makeNFTSendAmountModifier() -> SendAmountModifier {
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
-
-        return NFTSendAmountModifier(amount: nftSendUtil.amountToSend)
+        return NFTSendAmountModifier(amount: NFTSendUtil.amountToSend)
     }
 
+    // Will be delete
+    // [REDACTED_TODO_COMMENT]
     func makePredefinedNFTValues() -> SendModel.PredefinedValues {
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: userWalletModel)
-
-        return .init(
-            amount: .init(type: .typical(crypto: nftSendUtil.amountToSend, fiat: .none))
-        )
+        .init(amount: .init(type: .typical(crypto: NFTSendUtil.amountToSend, fiat: .none)))
     }
 
     // MARK: - Staking
@@ -688,7 +686,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
-        CommonStakingBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
+        CommonStakingBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: self.input.emailDataProvider)
     }
 
     func makeStakingSendAnalyticsLogger(actionType: SendFlowActionType) -> StakingSendAnalyticsLogger {
@@ -699,7 +697,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeStakingSummaryTitleProvider(actionType: SendFlowActionType) -> SendSummaryTitleProvider {
-        StakingSendSummaryTitleProvider(actionType: actionType, tokenItem: walletModel.tokenItem, walletName: walletName())
+        StakingSendSummaryTitleProvider(actionType: actionType, tokenItem: walletModel.tokenItem, walletName: input.userWalletName)
     }
 
     // MARK: - Onramp
@@ -711,7 +709,7 @@ struct SendDependenciesBuilder {
         analyticsLogger: some OnrampSendAnalyticsLogger
     ) -> OnrampModel {
         OnrampModel(
-            userWalletId: userWalletModel.userWalletId.stringValue,
+            userWalletId: input.userWalletId.stringValue,
             walletModel: walletModel,
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
@@ -720,15 +718,12 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeOnrampDependencies(userWalletId: String) -> (
+    func makeOnrampDependencies() -> (
         manager: OnrampManager,
         repository: OnrampRepository,
         dataRepository: OnrampDataRepository
     ) {
-        let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletModel: userWalletModel
-        )
-
+        let apiProvider = expressDependenciesFactory.expressAPIProvider
         let factory = TangemExpressFactory()
 
         // For UI tests, use UITestOnrampRepository with predefined values
@@ -762,6 +757,7 @@ struct SendDependenciesBuilder {
         onrampRedirectingBuilder: OnrampRedirectingBuilder
     ) -> OnrampBaseDataBuilder {
         CommonOnrampBaseDataBuilder(
+            config: input.userWalletConfig,
             onrampRepository: onrampRepository,
             onrampDataRepository: onrampDataRepository,
             providersBuilder: providersBuilder,
@@ -776,9 +772,9 @@ struct SendDependenciesBuilder {
 
     func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager {
         CommonPendingOnrampTransactionsManager(
-            userWalletId: userWalletModel.userWalletId.stringValue,
+            userWalletId: input.userWalletId.stringValue,
             walletModel: walletModel,
-            expressAPIProvider: ExpressAPIProviderFactory().makeExpressAPIProvider(userWalletModel: userWalletModel)
+            expressAPIProvider: expressDependenciesFactory.expressAPIProvider
         )
     }
 
@@ -788,5 +784,35 @@ struct SendDependenciesBuilder {
 
     func makeOnrampSummaryTitleProvider() -> SendSummaryTitleProvider {
         OnrampSendSummaryTitleProvider(tokenItem: walletModel.tokenItem)
+    }
+}
+
+extension SendDependenciesBuilder {
+    struct Input {
+        // Probably get rid of WalletModel in
+        // [REDACTED_TODO_COMMENT]
+        let walletModel: any WalletModel
+
+        let userWalletName: String
+        let userWalletId: UserWalletId
+        let userWalletConfig: UserWalletConfig
+        let signer: TangemSigner
+        let emailDataProvider: EmailDataProvider
+
+        let expressInput: CommonExpressDependenciesFactory.Input
+
+        // Will be updated
+        // [REDACTED_TODO_COMMENT]
+        init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+            self.walletModel = walletModel
+
+            userWalletName = userWalletModel.name
+            userWalletId = userWalletModel.userWalletId
+            userWalletConfig = userWalletModel.config
+            signer = userWalletModel.signer
+            emailDataProvider = userWalletModel as EmailDataProvider
+
+            expressInput = .init(userWalletModel: userWalletModel)
+        }
     }
 }
