@@ -91,17 +91,17 @@ private extension SendWithSwapModel {
                 _selectedFee.compactMap { $0.value.value }
             )
             .withWeakCaptureOf(self)
-            .setFailureType(to: Error.self)
-            .asyncTryMap { manager, args -> BSDKTransaction in
+            .asyncMap { manager, args -> Result<BSDKTransaction, Error> in
                 let (amount, destination, fee) = args
 
-                return try await manager.makeTransaction(
-                    amountValue: amount,
-                    destination: destination,
-                    fee: fee
-                )
+                do {
+                    return try await .success(
+                        manager.makeTransaction(amountValue: amount, destination: destination, fee: fee)
+                    )
+                } catch {
+                    return .failure(error)
+                }
             }
-            .mapToResult()
             .withWeakCaptureOf(self)
             .sink { $0._transaction.send($1) }
             .store(in: &bag)
