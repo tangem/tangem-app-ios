@@ -17,10 +17,9 @@ struct NewSendFlowBaseBuilder {
     let swapProvidersBuilder: SendSwapProvidersBuilder
     let sendSummaryStepBuilder: SendNewSummaryStepBuilder
     let sendFinishStepBuilder: SendNewFinishStepBuilder
-    let builder: SendDependenciesBuilder
+    let builder: SendWithSwapDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
-        let sendQRCodeService = builder.makeSendQRCodeService()
         let swapManager: SwapManager = builder.makeSwapManager()
         let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
         let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
@@ -49,7 +48,7 @@ struct NewSendFlowBaseBuilder {
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
             receiveTokenInput: sendModel,
-            sendQRCodeService: sendQRCodeService,
+            sendQRCodeService: builder.makeSendQRCodeService(),
             analyticsLogger: analyticsLogger,
             router: router
         )
