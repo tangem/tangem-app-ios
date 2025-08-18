@@ -15,6 +15,7 @@ struct WCEthPersonalSignTransactionView: View {
     let walletName: String
     let isWalletRowVisible: Bool
     let blockchain: Blockchain
+    let addressRowViewModel: WCTransactionAddressRowViewModel?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -28,8 +29,21 @@ struct WCEthPersonalSignTransactionView: View {
 
             WCTransactionNetworkRow(blockchain: blockchain)
                 .padding(.init(top: isWalletRowVisible ? 0 : 12, leading: 16, bottom: 12, trailing: 16))
+
+            addressRowView
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
+    }
+
+    @ViewBuilder
+    private var addressRowView: some View {
+        if let addressRowViewModel {
+            Separator(height: .minimal, color: Colors.Stroke.primary)
+                .padding(.leading, 46)
+                .padding(.trailing, 14)
+
+            WCTransactionAddressRowView(viewModel: addressRowViewModel)
+        }
     }
 }
