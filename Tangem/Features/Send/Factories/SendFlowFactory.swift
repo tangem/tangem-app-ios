@@ -88,12 +88,17 @@ struct SendFlowFactory {
         return baseBuilder.makeSendViewModel(router: router)
     }
 
-    func makeNewSendViewModel(router: SendRoutable) -> SendViewModel {
+    func makeNewSendViewModel(
+        walletInfo: SendWalletInfo,
+        walletModel: any WalletModel,
+        expressInput: CommonExpressDependenciesFactory.Input,
+        router: SendRoutable
+    ) -> SendViewModel {
         let sendDestinationStepBuilder = SendNewDestinationStepBuilder(builder: builder)
-        let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        let sendAmountStepBuilder = SendNewAmountStepBuilder()
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
-        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
+        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(builder: builder)
         let sendFinishStepBuilder = SendNewFinishStepBuilder()
 
         let baseBuilder = NewSendFlowBaseBuilder(
@@ -105,7 +110,7 @@ struct SendFlowFactory {
             swapProvidersBuilder: swapProvidersBuilder,
             sendSummaryStepBuilder: sendSummaryStepBuilder,
             sendFinishStepBuilder: sendFinishStepBuilder,
-            builder: builder
+            builder: SendWithSwapDependenciesBuilder(walletInfo: walletInfo, walletModel: walletModel, expressInput: expressInput)
         )
 
         return baseBuilder.makeSendViewModel(router: router)
