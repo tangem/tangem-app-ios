@@ -2238,6 +2238,8 @@
 		C2321F442E301A61006428A8 /* WalletConnectConnectedDAppDetailsAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2321F432E301A5F006428A8 /* WalletConnectConnectedDAppDetailsAnalyticsLogger.swift */; };
 		C2321F462E30243C006428A8 /* WalletConnectTransactionAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2321F452E302435006428A8 /* WalletConnectTransactionAnalyticsLogger.swift */; };
 		C2321F482E3024B2006428A8 /* CommonWalletConnectTransactionAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2321F472E3024AF006428A8 /* CommonWalletConnectTransactionAnalyticsLogger.swift */; };
+		C2459EF12E4F81400061785C /* WCTransactionAddressRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2459EF02E4F81360061785C /* WCTransactionAddressRowViewModel.swift */; };
+		C2459EF32E4FB0820061785C /* WCTransactionAddressRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2459EF22E4FB07D0061785C /* WCTransactionAddressRowView.swift */; };
 		C24A196E2DEDB60600B995E6 /* WalletConnectDAppSessionProposalRejectionReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24A196D2DEDB5FD00B995E6 /* WalletConnectDAppSessionProposalRejectionReason.swift */; };
 		C24A19702DEDEEE900B995E6 /* WalletConnectRejectDAppProposalUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24A196F2DEDEEDE00B995E6 /* WalletConnectRejectDAppProposalUseCase.swift */; };
 		C24A19732DEE28CA00B995E6 /* WalletConnectDAppConnectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24A19722DEE28BF00B995E6 /* WalletConnectDAppConnectionInteractor.swift */; };
@@ -6143,6 +6145,8 @@
 		C2321F432E301A5F006428A8 /* WalletConnectConnectedDAppDetailsAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectedDAppDetailsAnalyticsLogger.swift; sourceTree = "<group>"; };
 		C2321F452E302435006428A8 /* WalletConnectTransactionAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTransactionAnalyticsLogger.swift; sourceTree = "<group>"; };
 		C2321F472E3024AF006428A8 /* CommonWalletConnectTransactionAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletConnectTransactionAnalyticsLogger.swift; sourceTree = "<group>"; };
+		C2459EF02E4F81360061785C /* WCTransactionAddressRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionAddressRowViewModel.swift; sourceTree = "<group>"; };
+		C2459EF22E4FB07D0061785C /* WCTransactionAddressRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionAddressRowView.swift; sourceTree = "<group>"; };
 		C24A196D2DEDB5FD00B995E6 /* WalletConnectDAppSessionProposalRejectionReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSessionProposalRejectionReason.swift; sourceTree = "<group>"; };
 		C24A196F2DEDEEDE00B995E6 /* WalletConnectRejectDAppProposalUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRejectDAppProposalUseCase.swift; sourceTree = "<group>"; };
 		C24A19722DEE28BF00B995E6 /* WalletConnectDAppConnectionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionInteractor.swift; sourceTree = "<group>"; };
@@ -14605,6 +14609,15 @@
 			path = Overlays;
 			sourceTree = "<group>";
 		};
+		C2459EEF2E4F81140061785C /* AddressRow */ = {
+			isa = PBXGroup;
+			children = (
+				C2459EF22E4FB07D0061785C /* WCTransactionAddressRowView.swift */,
+				C2459EF02E4F81360061785C /* WCTransactionAddressRowViewModel.swift */,
+			);
+			path = AddressRow;
+			sourceTree = "<group>";
+		};
 		C24A196A2DED8B3500B995E6 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
@@ -16878,6 +16891,7 @@
 			isa = PBXGroup;
 			children = (
 				DC145B632E2E4BC100E04F5C /* Model */,
+				C2459EEF2E4F81140061785C /* AddressRow */,
 				DC075F8A2DE1A1F00092457A /* NetworkRow */,
 				DC075F922DE1A49B0092457A /* WalletRow */,
 				DC8E030A2DE07105008967D8 /* View */,
@@ -21449,6 +21463,7 @@
 				EF46622C2924DF0300346B6C /* DefaultToggleRowViewModel.swift in Sources */,
 				B6AA13682A2A373000B53937 /* CardInfoPagePreviewViewModel.swift in Sources */,
 				DCE2F7E22CE354A400BDE145 /* ActionButtonsSellCoordinatorView.swift in Sources */,
+				C2459EF32E4FB0820061785C /* WCTransactionAddressRowView.swift in Sources */,
 				B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */,
 				B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
@@ -22484,6 +22499,7 @@
 				EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */,
 				EF3F75502E324F0D00334E51 /* AlertPresenterViewModel.swift in Sources */,
 				B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */,
+				C2459EF12E4F81400061785C /* WCTransactionAddressRowViewModel.swift in Sources */,
 				DC5118632860A339004FB954 /* SecurityModeRoutable.swift in Sources */,
 				EFEE22BC2BFCE44B0099917E /* ValidationErrorEvent.swift in Sources */,
 				EFA48BB02E157EBF00BF1665 /* CommonAllowanceService.swift in Sources */,
