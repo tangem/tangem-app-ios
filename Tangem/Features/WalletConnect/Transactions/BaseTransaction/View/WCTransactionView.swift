@@ -174,7 +174,8 @@ private extension WCTransactionView {
             WCEthPersonalSignTransactionView(
                 walletName: viewModel.userWalletName,
                 isWalletRowVisible: viewModel.isWalletRowVisible,
-                blockchain: viewModel.transactionData.blockchain
+                blockchain: viewModel.transactionData.blockchain,
+                addressRowViewModel: viewModel.addressRowViewModel
             )
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
