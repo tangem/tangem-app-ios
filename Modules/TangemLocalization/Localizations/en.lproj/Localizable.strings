@@ -73,8 +73,10 @@
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
+"app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved devices deletes all the saved wallets and their access codes from the app.";
+"app_settings_on_require_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further interaction with the wallet will require submitting the access code.";
 "app_settings_require_access_code_footer" = "This option disables biometric authentication for sensitive actions. You will be required to enter your access code every time, such as when signing a transaction.";
 "app_settings_require_access_code" = "Require Access Code";
 "app_settings_saved_access_codes_footer" = "Biometric authentication will be requested instead of the access code for interactions with your card or ring.";
@@ -189,6 +191,7 @@
 "common_disconnect" = "Disconnect";
 "common_done" = "Done";
 "common_edit" = "Edit";
+"common_enable" = "Enable";
 "common_enabled" = "Enabled";
 "common_error" = "Error";
 "common_exchange" = "Swap";
