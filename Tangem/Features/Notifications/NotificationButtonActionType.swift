@@ -56,7 +56,7 @@ enum NotificationButtonActionType: Identifiable {
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case openBuyCrypto(walletModel: any WalletModel)
+    case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
 
     var id: Int {
         switch self {
