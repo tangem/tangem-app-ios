@@ -105,7 +105,7 @@ private extension NewAuthViewModel {
     }
 
     func makeWalletItem(userWalletModel: UserWalletModel) -> WalletItem {
-        let description = userWalletModel.config.cardSetLabel ?? .empty
+        let description = userWalletModel.config.cardSetLabel
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let isProtected = !unlocker.canUnlockAutomatically
         return WalletItem(
@@ -146,8 +146,17 @@ private extension NewAuthViewModel {
                 }
             }
 
-        case .bioSelected:
-            unlockWithBiometry()
+        case .biometrics(let context):
+            do {
+                let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
+                let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                await openMain(userWalletModel: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                await runOnMain {
+                    alert = error.alertBinder
+                }
+            }
 
         case .scanTroubleshooting:
             await openTroubleshooting(userWalletModel: userWalletModel)
@@ -200,7 +209,6 @@ private extension NewAuthViewModel {
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
                 await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
-                viewModel.incomingActionManager.discardIncomingAction()
                 await viewModel.handleUnlockWithBiometryResult(error: error)
             }
         }
@@ -219,7 +227,10 @@ private extension NewAuthViewModel {
                     unlock(userWalletModel: userWalletModel)
                 }
             case .wallets:
-                alert = error.alertBinder
+                let sdkError = error.toTangemSdkError()
+                if !sdkError.isUserCancelled {
+                    alert = sdkError.alertBinder
+                }
             case .none:
                 break
             }
