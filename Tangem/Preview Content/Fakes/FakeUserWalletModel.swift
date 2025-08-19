@@ -42,6 +42,7 @@ class FakeUserWalletModel: UserWalletModel {
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
     var isTokensListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())

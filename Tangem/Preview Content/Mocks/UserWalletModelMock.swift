@@ -64,7 +64,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
 
-    var cardsCount: Int { 3 }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var isUserWalletLocked: Bool { false }
 

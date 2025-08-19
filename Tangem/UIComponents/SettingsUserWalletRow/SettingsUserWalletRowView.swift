@@ -83,7 +83,7 @@ struct SettingsUserWalletRowView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             HStack(spacing: 4) {
-                Text(viewModel.cardsCount)
+                Text(viewModel.cardSetLabel)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
                 if viewModel.balanceState != .empty {
@@ -103,6 +103,8 @@ struct SettingsUserWalletRowView: View {
 }
 
 #Preview("SettingsUserWalletRowView") {
+    let cardSetLabel = UserWalletModelMock().config.cardSetLabel
+
     ZStack {
         Colors.Background.tertiary.ignoresSafeArea()
 
@@ -110,11 +112,11 @@ struct SettingsUserWalletRowView: View {
             SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "My wallet",
-                    cardsCount: 3,
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
-                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -123,11 +125,11 @@ struct SettingsUserWalletRowView: View {
             SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "My wallet",
-                    cardsCount: 2,
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -136,11 +138,11 @@ struct SettingsUserWalletRowView: View {
             SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "Old wallet",
-                    cardsCount: 2,
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Old wallet")),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
-                    isUserWalletBackupNeededPublisher: .just(output: false),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
@@ -149,11 +151,11 @@ struct SettingsUserWalletRowView: View {
             SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "Locked wallet",
-                    cardsCount: 2,
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: true,
                     isUserWalletLocked: true,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Locked wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    isUserWalletBackupNeededPublisher: .just(output: true),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
                 )
