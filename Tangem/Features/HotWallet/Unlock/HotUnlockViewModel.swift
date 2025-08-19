@@ -11,7 +11,7 @@ import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class HotUnlockViewModel: ObservableObject {
@@ -103,7 +103,7 @@ private extension HotUnlockViewModel {
         guard
             BiometricsUtil.isAvailable,
             AppSettings.shared.useBiometricAuthentication,
-            CommonHotSdk().isBiometricsEnabled(for: userWalletId)
+            CommonMobileWalletSdk().isBiometricsEnabled(for: userWalletId)
         else {
             return
         }
