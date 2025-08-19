@@ -9,7 +9,7 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 
 final class HotOnboardingCreateWalletViewModel: ObservableObject {
