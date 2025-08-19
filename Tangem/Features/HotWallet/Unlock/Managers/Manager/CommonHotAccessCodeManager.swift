@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class CommonHotAccessCodeManager {
     private let stateSubject = CurrentValueSubject<HotAccessCodeState, Never>(.available(.normal))
@@ -24,7 +24,7 @@ final class CommonHotAccessCodeManager {
         ProcessInfo.processInfo.systemUptime
     }
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletId: UserWalletId
     private let configuration: HotAccessCodeConfiguration
@@ -218,7 +218,7 @@ extension CommonHotAccessCodeManager: HotAccessCodeManager {
         case .available(let availableState):
             let command: StateCommand
             do {
-                let context = try hotSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
+                let context = try mobileWalletSdk.validate(auth: .accessCode(accessCode), for: userWalletId)
                 cleanWrongAccessCodeStore()
                 command = makeValidCommand(context: context)
             } catch {
