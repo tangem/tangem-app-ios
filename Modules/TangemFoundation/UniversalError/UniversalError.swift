@@ -27,6 +27,7 @@ import Foundation
 /// `107` - WalletConnect `WC+UniversalError`
 /// `108` - MoyaError `ThirdParty+UniversalError`
 /// `109` - Onramp `Onramp+UniversalError`
+/// `110` - MobileWallet `MobileWallet+UniversalError`
 public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }
