@@ -655,8 +655,11 @@ int hdnode_sign(HDNode *node, const uint8_t *msg, uint32_t msg_len,
   if (node->curve->params) {
     return ecdsa_sign(node->curve->params, hasher_sign, node->private_key, msg,
                       msg_len, sig, pby, is_canonical);
-  } else if (node->curve == &curve25519_info) {
-    return 1;  // signatures are not supported
+  } else if (node->curve == &ed25519_cardano_info) {
+#if USE_CARDANO
+      ed25519_sign_ext(msg, msg_len, node->private_key, node->private_key_extension, sig);
+      return 0;
+#endif
   } else {
     if (node->curve == &ed25519_info) {
       tangem_vendored_ed25519_sign(msg, msg_len, node->private_key, sig);

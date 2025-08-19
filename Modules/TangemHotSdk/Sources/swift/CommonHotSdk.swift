@@ -135,6 +135,10 @@ public final class CommonHotSdk: HotSdk {
         try privateInfoStorageManager.enableBiometrics(context: context)
     }
 
+    public func isBiometricsEnabled(for walletID: UserWalletId) -> Bool {
+        privateInfoStorageManager.isBiometricsEnabled(walletID: walletID)
+    }
+
     public func clearBiometrics(walletIDs: [UserWalletId]) {
         privateInfoStorageManager.clearBiometrics(walletIDs: walletIDs)
     }
