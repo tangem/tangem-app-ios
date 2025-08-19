@@ -319,7 +319,7 @@ private extension DetailsViewModel {
             }
         }
 
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
                 action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
