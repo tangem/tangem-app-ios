@@ -115,7 +115,7 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
             .map { userWalletModel in
                 WalletSelectorItemViewModel(
                     userWalletId: userWalletModel.userWalletId,
-                    cardsCount: userWalletModel.cardsCount,
+                    cardSetLabel: userWalletModel.config.cardSetLabel,
                     isUserWalletLocked: userWalletModel.isUserWalletLocked,
                     infoProvider: userWalletModel,
                     totalBalancePublisher: userWalletModel.totalBalancePublisher,
