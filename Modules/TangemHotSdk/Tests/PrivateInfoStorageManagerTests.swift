@@ -35,7 +35,10 @@ struct PrivateInfoStorageManagerTests {
                 secureStorage: mockedSecureStorage,
                 secureEnclaveService: mockedSecureEnclaveService
             ),
-            encryptedBiometricsStorage: EncryptedBiometricsStorage(biometricsStorage: mockedBiometricsStorage, secureEnclaveService: mockedBiometricsSecureEnclaveService)
+            encryptedBiometricsStorage: EncryptedBiometricsStorage(
+                biometricsStorage: mockedBiometricsStorage,
+                secureEnclaveBiometricsService: mockedBiometricsSecureEnclaveService
+            )
         )
     }
 
@@ -95,7 +98,22 @@ struct PrivateInfoStorageManagerTests {
     }
 
     @Test
-    func testSetBiometricWithValidAccessCodeSuccess() throws {
+    func testSetUpBiometric() throws {
+        let storage = makeStorage()
+
+        let encoded = makePrivateInfo().encode()
+
+        try storage.storeUnsecured(privateInfoData: encoded, walletID: walletID)
+
+        let context1 = try storage.validate(auth: .none, for: walletID)
+
+        try storage.updateAccessCode("accessCode", enableBiometrics: true, context: context1)
+
+        #expect(storage.isBiometricsEnabled(walletID: walletID) == true)
+    }
+
+    @Test
+    func testSetUpBiometricWithValidAccessCodeSuccess() throws {
         let storage = makeStorage()
 
         let encoded = makePrivateInfo().encode()
@@ -117,7 +135,7 @@ struct PrivateInfoStorageManagerTests {
     }
 
     @Test
-    func testSetBiometricsWithInvalidAccessCodeFail() throws {
+    func testSetUpBiometricsWithInvalidAccessCodeFail() throws {
         let storage = makeStorage()
 
         let encoded = makePrivateInfo().encode()

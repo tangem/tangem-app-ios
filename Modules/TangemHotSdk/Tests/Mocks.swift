@@ -71,4 +71,8 @@ final class MockedBiometricsStorage: HotBiometricsStorage {
         }
         storage[account] = nil
     }
+
+    func hasValue(account: String) -> Bool {
+        storage[account] != nil
+    }
 }
