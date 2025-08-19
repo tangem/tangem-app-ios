@@ -9,7 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 struct StoredUserWallet: Identifiable, Encodable {
     var id = UUID()
