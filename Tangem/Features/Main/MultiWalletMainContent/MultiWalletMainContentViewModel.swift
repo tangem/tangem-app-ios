@@ -449,8 +449,8 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openHotFinishActivation() {
-        coordinator?.openHotFinishActivation(userWalletModel: userWalletModel)
+    private func openMobileFinishActivation() {
+        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
     }
 }
 
@@ -496,8 +496,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openHotFinishActivation:
-            openHotFinishActivation()
+        case .openMobileFinishActivation:
+            openMobileFinishActivation()
         default:
             break
         }
