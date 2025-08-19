@@ -50,8 +50,8 @@ final class OnboardingCoordinator: CoordinatorObject {
         switch options {
         case .input(let onboardingInputput):
             handle(input: onboardingInputput)
-        case .hotInput(let hotOnboardingInput):
-            handle(input: hotOnboardingInput)
+        case .mobileInput(let mobileOnboardingInput):
+            handle(input: mobileOnboardingInput)
         }
 
         Analytics.log(.onboardingStarted)
@@ -63,7 +63,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 extension OnboardingCoordinator {
     enum Options {
         case input(OnboardingInput)
-        case hotInput(HotOnboardingInput)
+        case mobileInput(MobileOnboardingInput)
     }
 
     enum OutputOptions {
@@ -140,9 +140,9 @@ extension OnboardingCoordinator: OnboardingRoutable {
 
 extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
-// MARK: - HotOnboardingRoutable
+// MARK: - MobileOnboardingRoutable
 
-extension OnboardingCoordinator: HotOnboardingRoutable {}
+extension OnboardingCoordinator: MobileOnboardingRoutable {}
 
 // MARK: - Input handlers
 
@@ -171,10 +171,10 @@ private extension OnboardingCoordinator {
         }
     }
 
-    func handle(input: HotOnboardingInput) {
-        let model = HotOnboardingViewModel(input: input, coordinator: self)
+    func handle(input: MobileOnboardingInput) {
+        let model = MobileOnboardingViewModel(input: input, coordinator: self)
         onDismissalAttempt = model.onDismissalAttempt
-        viewState = .hot(model)
+        viewState = .mobile(model)
     }
 }
 
@@ -186,6 +186,6 @@ extension OnboardingCoordinator {
         case twins(TwinsOnboardingViewModel)
         case wallet(WalletOnboardingViewModel)
         case visa(VisaOnboardingViewModel)
-        case hot(HotOnboardingViewModel)
+        case mobile(MobileOnboardingViewModel)
     }
 }
