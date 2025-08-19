@@ -196,6 +196,16 @@ extension GenericDemoConfig: UserWalletConfig {
             return .hidden
         case .nft:
             return .available
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
+            return .hidden
         }
     }
 
