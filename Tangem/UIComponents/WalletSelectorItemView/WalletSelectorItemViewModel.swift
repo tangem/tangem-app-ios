@@ -14,7 +14,7 @@ import TangemLocalization
 class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingValue<ImageValue> = .loading
-    @Published var cardsCount: String
+    @Published var cardSetLabel: String
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     @Published var isSelected: Bool = false
 
@@ -32,7 +32,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     init(
         userWalletId: UserWalletId,
-        cardsCount: Int,
+        cardSetLabel: String,
         isUserWalletLocked: Bool,
         infoProvider: WalletSelectorInfoProvider,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
@@ -41,7 +41,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     ) {
         self.userWalletId = userWalletId
         self.isUserWalletLocked = isUserWalletLocked
-        self.cardsCount = Localization.cardLabelCardCount(cardsCount)
+        self.cardSetLabel = cardSetLabel
         self.infoProvider = infoProvider
         name = infoProvider.name
 

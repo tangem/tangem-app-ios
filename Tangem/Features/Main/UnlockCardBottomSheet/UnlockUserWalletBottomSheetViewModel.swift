@@ -82,6 +82,22 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                     viewModel.openTroubleshooting()
                 }
 
+            case .biometrics(let context):
+                do {
+                    let method = UserWalletRepositoryUnlockMethod.biometrics(context)
+                    _ = try await viewModel.userWalletRepository.unlock(with: method)
+
+                    await runOnMain {
+                        viewModel.isScannerBusy = false
+                    }
+
+                } catch {
+                    await runOnMain {
+                        viewModel.isScannerBusy = false
+                        viewModel.error = error.alertBinder
+                    }
+                }
+
             case .success(let userWalletId, let encryptionKey):
                 do {
                     let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
@@ -98,10 +114,9 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                     }
                 }
 
-            case .userWalletNeedsToDelete, .bioSelected:
-                await runOnMain {
-                    viewModel.isScannerBusy = false
-                }
+            case .userWalletNeedsToDelete:
+                // [REDACTED_TODO_COMMENT]
+                break
             }
         }
     }
