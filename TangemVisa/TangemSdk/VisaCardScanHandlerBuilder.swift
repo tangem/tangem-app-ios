@@ -7,38 +7,40 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct VisaCardScanHandlerBuilder {
-    private let apiType: VisaAPIType
-    private let isMockedAPIEnabled: Bool
+    private let isTestnet: Bool
+    private let apiServiceBuilder: VisaAPIServiceBuilder
+    private let cardActivationStatusServiceBuilder: VisaCardActivationStatusServiceBuilder
 
     public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
-        self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
+        isTestnet = apiType.isTestnet
+        apiServiceBuilder = VisaAPIServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPIEnabled
+        )
+        cardActivationStatusServiceBuilder = VisaCardActivationStatusServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPIEnabled
+        )
     }
 
     public func build(
-        isTestnet: Bool,
-        urlSessionConfiguration: URLSessionConfiguration,
-        refreshTokenRepository: VisaRefreshTokenRepository
+        refreshTokenRepository: VisaRefreshTokenRepository,
+        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaCardScanHandler {
-        let authorizationService = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
-        .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
+        let authorizationService = apiServiceBuilder
+            .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
 
-        let cardActivationStateProvider = VisaCardActivationStatusServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
-        .build(urlSessionConfiguration: urlSessionConfiguration)
+        let cardActivationStateProvider = cardActivationStatusServiceBuilder
+            .build(urlSessionConfiguration: urlSessionConfiguration)
 
-        return .init(
-            isTestnet: isTestnet,
+        return VisaCardScanHandler(
             authorizationService: authorizationService,
             cardActivationStateProvider: cardActivationStateProvider,
-            refreshTokenRepository: refreshTokenRepository
+            refreshTokenRepository: refreshTokenRepository,
+            isTestnet: isTestnet
         )
     }
 }

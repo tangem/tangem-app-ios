@@ -56,7 +56,7 @@ private extension Analytics.ProductType {
         switch self {
         case .demoWallet, .wallet, .wallet2, .ring:
             return true
-        case .demoNote, .note, .other, .start2coin, .twin, .visa, .visaBackup, .hotWallet:
+        case .demoNote, .note, .other, .start2coin, .twin, .visa, .visaBackup, .mobileWallet:
             return false
         }
     }

@@ -16,7 +16,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             walletModel: FakeUserWalletModel.wallet3Cards,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "William Wallet" ? "Uilleam Uallet" : "William Wallet")
+                provider.walletModel.update(type: .newName(provider.walletModel.name == "William Wallet" ? "Uilleam Uallet" : "William Wallet"))
                 let firstValue: Decimal = 4346824.2189
                 let secondValue: Decimal = 4346820004.2189
                 let thirdValue: Decimal = 4346213820004.2189
@@ -47,7 +47,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
         CardInfoProvider(
             walletModel: FakeUserWalletModel.twins,
             tapAction: { provider in
-                provider.walletModel.updateWalletName(provider.walletModel.userWalletName == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah")
+                provider.walletModel.update(type: .newName(provider.walletModel.name == "Wallet Hannah" ? "Wallet Jane" : "Wallet Hannah"))
                 switch provider.balance {
                 case .loading:
                     provider.balance = .loaded(balance: 92324.2133654889)
