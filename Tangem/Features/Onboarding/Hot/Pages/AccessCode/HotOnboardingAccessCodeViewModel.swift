@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemAssets
 import TangemLocalization
 import TangemUIUtils
-import TangemHotSdk
+import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class HotOnboardingAccessCodeViewModel: ObservableObject {
@@ -94,7 +94,7 @@ final class HotOnboardingAccessCodeViewModel: ObservableObject {
         }
     }
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let mode: Mode
     private weak var delegate: HotOnboardingAccessCodeDelegate?
@@ -158,7 +158,7 @@ private extension HotOnboardingAccessCodeViewModel {
             do {
                 let context = switch viewModel.mode {
                 case .create:
-                    try viewModel.hotSdk.validate(auth: .none, for: userWalletId)
+                    try viewModel.mobileWalletSdk.validate(auth: .none, for: userWalletId)
                 case .change(let context):
                     context
                 }
@@ -166,7 +166,7 @@ private extension HotOnboardingAccessCodeViewModel {
                 let isBiometricsAvailable = await viewModel.isBiometricsAvailable()
                 let requireAccessCodes = await AppSettings.shared.requireAccessCodes
 
-                try viewModel.hotSdk.updateAccessCode(
+                try viewModel.mobileWalletSdk.updateAccessCode(
                     accessCode,
                     enableBiometrics: isBiometricsAvailable && !requireAccessCodes,
                     seedKey: userWalletIdSeed,
