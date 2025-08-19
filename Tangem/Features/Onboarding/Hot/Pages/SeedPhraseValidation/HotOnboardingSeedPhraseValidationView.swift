@@ -28,6 +28,7 @@ struct HotOnboardingSeedPhraseValidationView: View {
 private extension HotOnboardingSeedPhraseValidationView {
     func state(item: ViewModel.StateItem) -> some View {
         OnboardingSeedPhraseUserValidationView(viewModel: OnboardingSeedPhraseUserValidationViewModel(
+            mode: .mobile,
             validationInput: .init(
                 secondWord: item.second,
                 seventhWord: item.seventh,
