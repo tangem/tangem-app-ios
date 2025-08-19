@@ -184,6 +184,7 @@
 		2D22765E2C0F0A4F006BB6A1 /* MarketsListOrderBottonSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D22765C2C0F0A4F006BB6A1 /* MarketsListOrderBottonSheetView.swift */; };
 		2D2276602C0F0BEC006BB6A1 /* MarketsListDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D22765F2C0F0BEC006BB6A1 /* MarketsListDataFilterProvider.swift */; };
 		2D2B9C282CE5176A00D744C6 /* ChilizExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2B9C272CE5176A00D744C6 /* ChilizExternalLinkProvider.swift */; };
+		2D2C173F2E53626F0028CD51 /* ReceiveFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2C173E2E53626F0028CD51 /* ReceiveFlowCoordinator.swift */; };
 		2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3023432DF093B500B4FFE6 /* PushNotificationsService.swift */; };
 		2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3023392DF093B500B4FFE6 /* ApplicationWalletEntry.swift */; };
 		2D30234C2DF093B600B4FFE6 /* UserTokensPushNotifificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3023482DF093B500B4FFE6 /* UserTokensPushNotifificationsManager.swift */; };
@@ -204,6 +205,9 @@
 		2D3A70DB2E32D94A005846BA /* SolanaALTBlockhashProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3A70DA2E32D94A005846BA /* SolanaALTBlockhashProvider.swift */; };
 		2D3B96782D6380420061FAF2 /* AlephiumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3B96772D6380420061FAF2 /* AlephiumUtils.swift */; };
 		2D3C1E582DAF6418004BFD2B /* PepecoinAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3C1E572DAF6418004BFD2B /* PepecoinAddressService.swift */; };
+		2D3C29942E5336E50050A463 /* QRCodeReceiveAssetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3C29912E5336E50050A463 /* QRCodeReceiveAssetsView.swift */; };
+		2D3C29952E5336E50050A463 /* QRCodeReceiveAssetsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3C29902E5336E50050A463 /* QRCodeReceiveAssetsRoutable.swift */; };
+		2D3C29962E5336E50050A463 /* QRCodeReceiveAssetsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3C29922E5336E50050A463 /* QRCodeReceiveAssetsViewModel.swift */; };
 		2D3E1DC32C99CCEE006AF975 /* MainBottomSheetHintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3E1DC22C99CCEE006AF975 /* MainBottomSheetHintView.swift */; };
 		2D3E1DF52C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3E1DF42C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift */; };
 		2D3E1EDF2C9D6F96006AF975 /* WalletSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3E1EDE2C9D6F96006AF975 /* WalletSelectorRoutable.swift */; };
@@ -4250,6 +4254,7 @@
 		2D22765C2C0F0A4F006BB6A1 /* MarketsListOrderBottonSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListOrderBottonSheetView.swift; sourceTree = "<group>"; };
 		2D22765F2C0F0BEC006BB6A1 /* MarketsListDataFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsListDataFilterProvider.swift; sourceTree = "<group>"; };
 		2D2B9C272CE5176A00D744C6 /* ChilizExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChilizExternalLinkProvider.swift; sourceTree = "<group>"; };
+		2D2C173E2E53626F0028CD51 /* ReceiveFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveFlowCoordinator.swift; sourceTree = "<group>"; };
 		2D3023392DF093B500B4FFE6 /* ApplicationWalletEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationWalletEntry.swift; sourceTree = "<group>"; };
 		2D30233A2DF093B500B4FFE6 /* UserWalletPushNotifyStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletPushNotifyStatus.swift; sourceTree = "<group>"; };
 		2D30233C2DF093B500B4FFE6 /* CommonPushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsInteractor.swift; sourceTree = "<group>"; };
@@ -4270,6 +4275,9 @@
 		2D3A70DA2E32D94A005846BA /* SolanaALTBlockhashProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTBlockhashProvider.swift; sourceTree = "<group>"; };
 		2D3B96772D6380420061FAF2 /* AlephiumUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumUtils.swift; sourceTree = "<group>"; };
 		2D3C1E572DAF6418004BFD2B /* PepecoinAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinAddressService.swift; sourceTree = "<group>"; };
+		2D3C29902E5336E50050A463 /* QRCodeReceiveAssetsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsRoutable.swift; sourceTree = "<group>"; };
+		2D3C29912E5336E50050A463 /* QRCodeReceiveAssetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsView.swift; sourceTree = "<group>"; };
+		2D3C29922E5336E50050A463 /* QRCodeReceiveAssetsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsViewModel.swift; sourceTree = "<group>"; };
 		2D3E1DC22C99CCEE006AF975 /* MainBottomSheetHintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetHintView.swift; sourceTree = "<group>"; };
 		2D3E1DF42C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerBottomOverlayFactoryParams.swift; sourceTree = "<group>"; };
 		2D3E1EDE2C9D6F96006AF975 /* WalletSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectorRoutable.swift; sourceTree = "<group>"; };
@@ -8615,6 +8623,16 @@
 			path = UserTokensPushNotifications;
 			sourceTree = "<group>";
 		};
+		2D3C29932E5336E50050A463 /* QR */ = {
+			isa = PBXGroup;
+			children = (
+				2D3C29902E5336E50050A463 /* QRCodeReceiveAssetsRoutable.swift */,
+				2D3C29912E5336E50050A463 /* QRCodeReceiveAssetsView.swift */,
+				2D3C29922E5336E50050A463 /* QRCodeReceiveAssetsViewModel.swift */,
+			);
+			path = QR;
+			sourceTree = "<group>";
+		};
 		2D3E1DC12C99CCE1006AF975 /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
@@ -9340,6 +9358,7 @@
 		2DE2818B2E4DEA7300B8BC1E /* DomainAssets */ = {
 			isa = PBXGroup;
 			children = (
+				2D3C29932E5336E50050A463 /* QR */,
 				2DE2818A2E4DEA7300B8BC1E /* Selector */,
 				2DD322922E4DEF9A00994C2A /* TokenAlert */,
 			);
@@ -9353,6 +9372,7 @@
 				2DE2818B2E4DEA7300B8BC1E /* DomainAssets */,
 				2DE2818C2E4DEA7300B8BC1E /* ReceiveMainView.swift */,
 				2DE2818D2E4DEA7300B8BC1E /* ReceiveMainViewModel.swift */,
+				2D2C173E2E53626F0028CD51 /* ReceiveFlowCoordinator.swift */,
 				2DE2818E2E4DEA7300B8BC1E /* ReceiveNavigationBarView.swift */,
 			);
 			path = UI;
@@ -23804,6 +23824,7 @@
 				EF0E1D9B2CE37DA4003D47AA /* OnrampProvidersInputOutput.swift in Sources */,
 				EF0E1D9C2CE37DA4003D47AA /* OnrampProvidersViewModel.swift in Sources */,
 				DC8F7BD12E0C919F00B3F5DB /* WCFeeSelectorFactory.swift in Sources */,
+				2D2C173F2E53626F0028CD51 /* ReceiveFlowCoordinator.swift in Sources */,
 				DC8F7BD32E0C919F00B3F5DB /* WCEthTransactionDetailsView.swift in Sources */,
 				EF0E1D9D2CE37DA4003D47AA /* OnrampProvidersCompactProviderViewData.swift in Sources */,
 				EF0E1D9E2CE37DA4003D47AA /* OnrampProvidersInteractor.swift in Sources */,
@@ -24079,6 +24100,9 @@
 				EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */,
 				DC0003502DC2090600305FB6 /* WebSocketEvent.swift in Sources */,
 				DC0003512DC2090600305FB6 /* WalletConnectCryptoProvider.swift in Sources */,
+				2D3C29942E5336E50050A463 /* QRCodeReceiveAssetsView.swift in Sources */,
+				2D3C29952E5336E50050A463 /* QRCodeReceiveAssetsRoutable.swift in Sources */,
+				2D3C29962E5336E50050A463 /* QRCodeReceiveAssetsViewModel.swift in Sources */,
 				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,
 				B0ED3F082C3D76C100311DE2 /* MarketsTokenDetailsInsightsViewModel.swift in Sources */,
 				EFC990082CD3A6D90098B7C8 /* OnrampPaymentMethodsInteractor.swift in Sources */,
