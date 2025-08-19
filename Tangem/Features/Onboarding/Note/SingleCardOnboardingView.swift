@@ -116,21 +116,6 @@ struct SingleCardOnboardingView: View {
                                 )
                             }
 
-                            OnboardingTopupBalanceView(
-                                backgroundFrameSize: backgroundFrame,
-                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
-                                backgroundOffset: backgroundOffset,
-                                balance: viewModel.cardBalance,
-                                balanceUpdaterFrame: backgroundFrame,
-                                balanceUpdaterOffset: backgroundOffset,
-                                refreshAction: {
-                                    viewModel.updateCardBalance()
-                                },
-                                refreshButtonState: viewModel.refreshButtonState,
-                                refreshButtonSize: .medium,
-                                refreshButtonOpacity: currentStep.balanceStackOpacity
-                            )
-
                             OnboardingCircleButton(
                                 refreshAction: {},
                                 state: currentStep.successCircleState,
