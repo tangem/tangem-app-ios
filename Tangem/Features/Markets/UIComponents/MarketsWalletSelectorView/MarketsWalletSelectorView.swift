@@ -70,22 +70,19 @@ struct MarketsWalletSelectorView: View {
         VStack {
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
-                    userWalletNamePublisher: .just(output: "Old wallet"),
-                    walletImageProvider: CardImageProviderMock()
+                    infoProvider: UserWalletModelMock()
                 )
             )
 
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
-                    userWalletNamePublisher: .just(output: "My wallet"),
-                    walletImageProvider: CardImageProviderMock()
+                    infoProvider: UserWalletModelMock()
                 )
             )
 
             MarketsWalletSelectorView(
                 viewModel: MarketsWalletSelectorViewModel(
-                    userWalletNamePublisher: .just(output: "My wallet"),
-                    walletImageProvider: CardImageProviderMock()
+                    infoProvider: UserWalletModelMock()
                 )
             )
         }

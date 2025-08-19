@@ -17,6 +17,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -102,9 +103,18 @@ extension TokenDetailsCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
         let walletModel: any WalletModel
-        let userTokensManager: UserTokensManager
         /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
         let pendingTransactionDetails: PendingTransactionDetails?
+
+        init(
+            userWalletModel: UserWalletModel,
+            walletModel: any WalletModel,
+            pendingTransactionDetails: PendingTransactionDetails? = nil
+        ) {
+            self.userWalletModel = userWalletModel
+            self.walletModel = walletModel
+            self.pendingTransactionDetails = pendingTransactionDetails
+        }
     }
 }
 
@@ -140,11 +150,23 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
-    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
-            for: tokenItem,
+    func openReceiveScreen(walletModel: any WalletModel) {
+        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
+
+        let receiveFlowFactory = ReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
             addressInfos: addressInfos
         )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 
     func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
@@ -172,8 +194,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
+            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
             type: .send,
             source: .tokenDetails
         )
@@ -181,16 +202,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Decimal, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+    func openSendToSell(userWalletModel: UserWalletModel, walletModel: any WalletModel, sellParameters: PredefinedSellParameters) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
         let coordinator = makeSendCoordinator()
+
         let options = SendCoordinator.Options(
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
-            type: .sell(parameters: .init(amount: amountToSend, destination: destination, tag: tag)),
+            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
+            type: .sell(parameters: sellParameters),
             source: .tokenDetails
         )
         coordinator.start(with: options)
@@ -254,15 +275,14 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
+            input: .init(userWalletModel: userWalletModel, walletModel: walletModel),
             type: .onramp,
             source: .tokenDetails
         )
@@ -300,24 +320,17 @@ extension TokenDetailsCoordinator: FeeCurrencyNavigating {
 
 private extension TokenDetailsCoordinator {
     func openTokenDetails(for walletModel: any WalletModel) {
-        guard let options = options,
-              walletModel.tokenItem != options.walletModel.tokenItem else {
+        guard let options = options, walletModel.tokenItem != options.walletModel.tokenItem else {
             return
         }
 
-        #warning("[REDACTED_TODO_COMMENT]")
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
 
         let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         coordinator.start(
-            with: .init(
-                userWalletModel: options.userWalletModel,
-                walletModel: walletModel,
-                userTokensManager: options.userWalletModel.userTokensManager,
-                pendingTransactionDetails: nil
-            )
+            with: .init(userWalletModel: options.userWalletModel, walletModel: walletModel)
         )
 
         tokenDetailsCoordinator = coordinator

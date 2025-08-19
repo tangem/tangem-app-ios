@@ -21,6 +21,7 @@ class CommonWalletModel {
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
@@ -43,6 +44,8 @@ class CommonWalletModel {
         case .some: .positive
         }
     }
+
+    private unowned var _account: (any CryptoAccountModel)!
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -73,6 +76,7 @@ class CommonWalletModel {
     }
 
     init(
+        userWalletId: UserWalletId,
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
@@ -83,6 +87,7 @@ class CommonWalletModel {
         shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
+        self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
         _stakingManager = stakingManager
@@ -241,6 +246,8 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var account: any CryptoAccountModel { _account }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
