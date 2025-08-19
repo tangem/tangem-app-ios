@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemStaking
+import TangemFoundation
 
 struct CommonWalletModelsFactory {
     private let config: UserWalletConfig
@@ -109,6 +110,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             )
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = CommonWalletModel(
+                userWalletId: userWalletId,
                 walletManager: walletManager,
                 stakingManager: makeStakingManager(
                     publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -142,6 +144,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 )
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = CommonWalletModel(
+                    userWalletId: userWalletId,
                     walletManager: walletManager,
                     stakingManager: makeStakingManager(
                         publicKey: walletManager.wallet.publicKey.blockchainKey,

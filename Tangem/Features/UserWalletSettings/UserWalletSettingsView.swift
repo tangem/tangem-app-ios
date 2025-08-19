@@ -56,7 +56,7 @@ struct UserWalletSettingsView: View {
 
     private var accessCodeSection: some View {
         GroupedSection(
-            viewModel.hotAccessCodeViewModel,
+            viewModel.mobileAccessCodeViewModel,
             content: {
                 DefaultRowView(viewModel: $0).appearance(.accentButton)
             },
