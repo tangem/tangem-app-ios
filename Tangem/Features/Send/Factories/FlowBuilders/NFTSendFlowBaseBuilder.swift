@@ -9,7 +9,6 @@
 import Foundation
 
 struct NFTSendFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: NFTSendAmountStepBuilder
@@ -56,7 +55,6 @@ struct NFTSendFlowBaseBuilder {
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            descriptionBuilder: builder.makeNFTSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
             destinationEditableType: .editable,
             amountEditableType: .noEditable, // Amount is fixed for NFTs
@@ -97,7 +95,8 @@ struct NFTSendFlowBaseBuilder {
             destinationStep: destination.step,
             feeStep: fee.step,
             summaryStep: summary.step,
-            finishStep: finish
+            finishStep: finish,
+            summaryTitleProvider: builder.makeSendSummaryTitleProvider()
         )
 
         summary.step.set(router: stepsManager)
@@ -108,12 +107,11 @@ struct NFTSendFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
             coordinator: router
         )

@@ -11,60 +11,68 @@ import Combine
 import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
+import struct TangemUIUtils.AlertBinder
 
 class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
-    let walletNameTitle: String
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
+    let title: String
     let tokenIconInfo: TokenIconInfo
 
     var tokenCurrencySymbol: String { tokenItem.currencySymbol }
 
-    @Published private(set) var amountTextFieldViewModel: DecimalNumberTextField.ViewModel
-    @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    @Published private(set) var amountText: String = ""
     @Published private(set) var alternativeAmount: String?
+    @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
 
     @Published private(set) var balance: LoadableTokenBalanceView.State?
 
+    private let isApproximateAmount: Bool
     private let tokenItem: TokenItem
     private let fiatItem: FiatItem
     private let sendAmountFormatter: SendAmountFormatter
-    private let prefixSuffixOptionsFactory: SendDecimalNumberTextField.PrefixSuffixOptionsFactory
     private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private var amountPublisherSubscription: AnyCancellable?
     private var balancePublisherSubscription: AnyCancellable?
 
     convenience init(receiveToken: SendReceiveToken) {
         self.init(
-            wallet: receiveToken.wallet,
+            title: Localization.sendWithSwapRecipientAmountTitle,
             tokenIconInfo: receiveToken.tokenIconInfo,
             tokenItem: receiveToken.tokenItem,
-            fiatItem: receiveToken.fiatItem
+            fiatItem: receiveToken.fiatItem,
+            isApproximateAmount: true
         )
     }
 
     convenience init(sourceToken: SendSourceToken) {
         self.init(
-            wallet: sourceToken.wallet,
+            title: Localization.sendFromWalletName(sourceToken.wallet),
             tokenIconInfo: sourceToken.tokenIconInfo,
             tokenItem: sourceToken.tokenItem,
-            fiatItem: sourceToken.fiatItem
+            fiatItem: sourceToken.fiatItem,
+            isApproximateAmount: false
         )
     }
 
-    init(wallet: String, tokenIconInfo: TokenIconInfo, tokenItem: TokenItem, fiatItem: FiatItem) {
-        walletNameTitle = wallet
+    init(
+        title: String,
+        tokenIconInfo: TokenIconInfo,
+        tokenItem: TokenItem,
+        fiatItem: FiatItem,
+        isApproximateAmount: Bool
+    ) {
+        self.title = title
         self.tokenIconInfo = tokenIconInfo
         self.tokenItem = tokenItem
         self.fiatItem = fiatItem
+        self.isApproximateAmount = isApproximateAmount
 
         sendAmountFormatter = .init(tokenItem: tokenItem, fiatItem: fiatItem)
         loadableTokenBalanceViewStateBuilder = .init()
-        prefixSuffixOptionsFactory = .init()
-
-        amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
-        amountTextFieldViewModel = .init(maximumFractionDigits: tokenItem.decimalCount)
     }
 
-    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount?, Error>, Never>) {
+    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
         amountPublisherSubscription = amountPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
@@ -82,27 +90,47 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
             }
     }
 
-    private func updateAmount(from amount: LoadingResult<SendAmount?, Error>) {
-        switch amount {
-        case .loading:
-            break // [REDACTED_TODO_COMMENT]
-        case .failure, .success(.none):
-            amountTextFieldViewModel.update(value: .none)
-            alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
+    func bind(highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never>) {
+        highPriceImpactPublisher.map { result in
+            if let result, result.isHighPriceImpact {
+                return HighPriceImpactWarning(percent: result.lossesInPercentsFormatted, infoMessage: result.infoMessage)
+            }
 
-        case .success(.some(let amount)):
+            return nil
+        }
+        .receiveOnMain()
+        .assign(to: &$highPriceImpactWarning)
+    }
+
+    func userDidTapHighPriceImpactWarning(highPriceImpactWarning: HighPriceImpactWarning) {
+        alertPresenter.present(alert: .init(title: "", message: highPriceImpactWarning.infoMessage))
+    }
+
+    private func updateAmount(from amount: LoadingResult<SendAmount, Error>) {
+        switch amount {
+        case .loading, .failure:
+            // Do nothing. Just leave a current amount on UI
+            break
+
+        case .success(let amount):
             switch amount.type {
             case .typical(let crypto, _):
-                amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: tokenItem.currencySymbol)
-                amountTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
-                amountTextFieldViewModel.update(value: crypto)
+                amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+            case .alternative(let fiat, _) where isApproximateAmount:
+                amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
+                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             case .alternative(let fiat, _):
-                amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: fiatItem.currencyCode)
-                amountTextFieldViewModel.update(maximumFractionDigits: fiatItem.fractionDigits)
-                amountTextFieldViewModel.update(value: fiat)
+                amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             }
         }
+    }
+}
+
+extension SendNewAmountCompactTokenViewModel {
+    struct HighPriceImpactWarning {
+        let percent: String
+        let infoMessage: String
     }
 }

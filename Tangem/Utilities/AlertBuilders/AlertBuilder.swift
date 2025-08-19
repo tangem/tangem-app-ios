@@ -176,7 +176,7 @@ enum AlertBuilder {
             },
             action: { newName in
                 if userWalletModel.name != newName {
-                    userWalletModel.updateWalletName(newName)
+                    userWalletModel.update(type: .newName(newName))
                     updateName?(newName)
                 }
             }
