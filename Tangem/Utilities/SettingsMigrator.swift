@@ -11,7 +11,7 @@ import TangemSdk
 
 enum SettingsMigrator {
     static func migrateIfNeeded() {
-        guard FeatureProvider.isAvailable(.hotWallet) else {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
             return
         }
 

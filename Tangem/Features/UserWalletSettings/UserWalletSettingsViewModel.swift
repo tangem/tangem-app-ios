@@ -26,11 +26,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private(set) var name: String
     @Published var accountsSection: [AccountsSectionType] = []
-    @Published var hotAccessCodeViewModel: DefaultRowViewModel?
+    @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
-        [hotBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+        [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -43,12 +43,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Published private var hotBackupViewModel: DefaultRowViewModel?
+    @Published private var mobileBackupViewModel: DefaultRowViewModel?
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    private let hotSettingsUtil: HotSettingsUtil
+    private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
         get { nftAvailabilityProvider.isNFTEnabled(for: userWalletModel) }
@@ -67,7 +67,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
         coordinator: UserWalletSettingsRoutable
     ) {
         name = userWalletModel.name
-        hotSettingsUtil = HotSettingsUtil(userWalletModel: userWalletModel)
+        mobileSettingsUtil = MobileSettingsUtil(userWalletModel: userWalletModel)
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
@@ -109,7 +109,7 @@ private extension UserWalletSettingsViewModel {
     func setupView() {
         // setupAccountsSection()
         setupViewModels()
-        setupHotViewModels()
+        setupMobileViewModels()
     }
 
     func setupAccountsSection() {
@@ -178,13 +178,13 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func setupHotViewModels() {
-        hotSettingsUtil.walletSettings.forEach { setting in
+    func setupMobileViewModels() {
+        mobileSettingsUtil.walletSettings.forEach { setting in
             switch setting {
             case .accessCode:
-                hotAccessCodeViewModel = DefaultRowViewModel(
+                mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.hotAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
                 )
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
@@ -195,25 +195,25 @@ private extension UserWalletSettingsViewModel {
                     detailsType = nil
                 }
 
-                hotBackupViewModel = DefaultRowViewModel(
+                mobileBackupViewModel = DefaultRowViewModel(
                     title: Localization.commonBackup,
                     detailsType: detailsType,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openHotBackupTypes)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openMobileBackupTypes)
                 )
             }
         }
     }
 
-    func hotAccessCodeAction() {
+    func MobileAccessCodeAction() {
         runTask(in: self) { viewModel in
-            let state = await viewModel.hotSettingsUtil.calculateAccessCodeState()
+            let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
             await runOnMain {
                 switch state {
                 case .needsBackup:
-                    viewModel.openHotBackupNeeded()
+                    viewModel.openMobileBackupNeeded()
                 case .onboarding(let context):
-                    viewModel.openHotAccessCodeOnboarding(context: context)
+                    viewModel.openMobileAccessCodeOnboarding(context: context)
                 case .none:
                     break
                 }
@@ -328,18 +328,18 @@ private extension UserWalletSettingsViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    func openHotBackupNeeded() {
-        coordinator?.openHotBackupNeeded(userWalletModel: userWalletModel)
+    func openMobileBackupNeeded() {
+        coordinator?.openMobileBackupNeeded(userWalletModel: userWalletModel)
     }
 
-    func openHotAccessCodeOnboarding(context: MobileWalletContext) {
-        let flow = HotOnboardingFlow.accessCode(userWalletModel: userWalletModel, context: context)
-        let input = HotOnboardingInput(flow: flow)
-        openOnboarding(with: .hotInput(input))
+    func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
+        let flow = MobileOnboardingFlow.accessCode(userWalletModel: userWalletModel, context: context)
+        let input = MobileOnboardingInput(flow: flow)
+        openOnboarding(with: .mobileInput(input))
     }
 
-    func openHotBackupTypes() {
-        coordinator?.openHotBackupTypes(userWalletModel: userWalletModel)
+    func openMobileBackupTypes() {
+        coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 }
 
