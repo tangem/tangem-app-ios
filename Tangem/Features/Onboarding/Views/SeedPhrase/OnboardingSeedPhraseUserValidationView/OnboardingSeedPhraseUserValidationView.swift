@@ -71,8 +71,8 @@ struct OnboardingSeedPhraseUserValidationView: View {
             }
 
             MainButton(
-                title: Localization.onboardingCreateWalletButtonCreateWallet,
-                icon: .trailing(Assets.tangemIcon),
+                title: viewModel.actionTitle,
+                icon: viewModel.actionIcon,
                 style: .primary,
                 isLoading: false,
                 isDisabled: !viewModel.isCreateWalletButtonEnabled,
@@ -146,6 +146,7 @@ private struct WordInputView: View {
 
 struct OnboardingSeedPhraseUserValidationView_Previews: PreviewProvider {
     private static let viewModel = OnboardingSeedPhraseUserValidationViewModel(
+        mode: .card,
         validationInput: .init(
             secondWord: "tree",
             seventhWord: "lunar",
