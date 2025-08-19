@@ -8,6 +8,7 @@
 
 import UIKit
 import TangemSdk
+import TangemFoundation
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
@@ -24,7 +25,7 @@ struct OnboardingInput { // [REDACTED_TODO_COMMENT]
 extension OnboardingInput {
     enum CardInput {
         case cardInfo(_ cardInfo: CardInfo)
-        case userWalletModel(_ userWalletModel: UserWalletModel)
+        case userWalletModel(_ userWalletModel: UserWalletModel, cardId: String)
         case cardId(_ cardId: String)
 
         var emailData: [EmailCollectedData] {
@@ -32,7 +33,7 @@ extension OnboardingInput {
             case .cardInfo(let cardInfo):
                 let factory = UserWalletConfigFactory()
                 return factory.makeConfig(cardInfo: cardInfo).emailData
-            case .userWalletModel(let userWalletModel):
+            case .userWalletModel(let userWalletModel, _):
                 return userWalletModel.emailData
             case .cardId:
                 return []
@@ -44,7 +45,7 @@ extension OnboardingInput {
             case .cardInfo(let cardInfo):
                 let factory = UserWalletConfigFactory()
                 return factory.makeConfig(cardInfo: cardInfo).getFeatureAvailability(.backup).disabledLocalizedReason
-            case .userWalletModel(let userWalletModel):
+            case .userWalletModel(let userWalletModel, _):
                 return userWalletModel.config.getDisabledLocalizedReason(for: .backup)
             case .cardId:
                 return nil
@@ -53,7 +54,7 @@ extension OnboardingInput {
 
         var userWalletModel: UserWalletModel? {
             switch self {
-            case .userWalletModel(let userWalletModel):
+            case .userWalletModel(let userWalletModel, _):
                 return userWalletModel
             default:
                 return nil
@@ -65,7 +66,7 @@ extension OnboardingInput {
             case .cardInfo(let cardInfo):
                 let factory = UserWalletConfigFactory()
                 return factory.makeConfig(cardInfo: cardInfo)
-            case .userWalletModel(let userWalletModel):
+            case .userWalletModel(let userWalletModel, _):
                 return userWalletModel.config
             case .cardId:
                 return nil
@@ -76,7 +77,7 @@ extension OnboardingInput {
             switch self {
             case .cardInfo(let cardInfo):
                 return CardImageProvider(card: cardInfo.card)
-            case .userWalletModel(let userWalletModel):
+            case .userWalletModel(let userWalletModel, _):
                 return userWalletModel.walletImageProvider
             case .cardId(let cardId):
                 return CardImageProvider(
