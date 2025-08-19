@@ -16,7 +16,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
-    private lazy var unlockUtil = HotUnlockUtil(
+    private lazy var unlockUtil = MobileUnlockUtil(
         userWalletId: userWalletId,
         config: config,
         biometricsProvider: UserWalletBiometricsUnlocker()
@@ -25,7 +25,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
 
-    init(userWalletId: UserWalletId, config: UserWalletConfig, info: HotWalletInfo) {
+    init(userWalletId: UserWalletId, config: UserWalletConfig, info: MobileWalletInfo) {
         self.userWalletId = userWalletId
         self.config = config
         canUnlockAutomatically = !info.isAccessCodeSet
@@ -60,7 +60,7 @@ private extension MobileWalletUnlocker {
 // MARK: - Mapping
 
 private extension MobileWalletUnlocker {
-    func map(result: HotUnlockUtil.Result) throws -> UserWalletModelUnlockerResult {
+    func map(result: MobileUnlockUtil.Result) throws -> UserWalletModelUnlockerResult {
         switch result {
         case .accessCode(let context):
             return try makeSuccessResult(context: context)

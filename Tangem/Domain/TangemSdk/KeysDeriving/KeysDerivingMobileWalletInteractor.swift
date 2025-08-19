@@ -49,14 +49,14 @@ extension KeysDerivingMobileWalletInteractor: KeysDeriving {
 
 private extension KeysDerivingMobileWalletInteractor {
     func unlock() async throws -> MobileWalletContext {
-        let authUtil = HotAuthUtil(userWalletId: userWalletId, config: userWalletConfig)
+        let authUtil = MobileAuthUtil(userWalletId: userWalletId, config: userWalletConfig)
         let unlockResult = try await authUtil.unlock()
 
         return try await handleUnlockResult(unlockResult, userWalletId: userWalletId)
     }
 
     func handleUnlockResult(
-        _ result: HotAuthUtil.Result,
+        _ result: MobileAuthUtil.Result,
         userWalletId: UserWalletId
     ) async throws -> MobileWalletContext {
         switch result {
