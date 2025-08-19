@@ -32,10 +32,6 @@ extension VisaConfig: UserWalletConfig {
         .visaDefault()
     }
 
-    var cardSetLabel: String? {
-        nil
-    }
-
     var cardsCount: Int {
         1
     }
