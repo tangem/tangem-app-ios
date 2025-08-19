@@ -20,7 +20,7 @@ extension CommonWalletImageProviderFactory: WalletImageProviderFactory {
         case .cardWallet(let cardInfo):
             CardImageProvider(card: cardInfo.card)
         case .mobileWallet:
-            HotWalletImageProvider()
+            MobileWalletImageProvider()
         }
     }
 }
