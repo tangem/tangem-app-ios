@@ -38,7 +38,7 @@ enum SignUtil {
                 guard let hashBaseAddress = $0.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
                     throw HotWalletError.failedToSignHash
                 }
-                
+
                 let result: Int32
 
                 if node.curve.pointee.params != nil {
@@ -54,7 +54,7 @@ enum SignUtil {
                         nil
                     )
                 }
-                
+
                 guard result == 0 else {
                     throw HotWalletError.failedToSignHash
                 }

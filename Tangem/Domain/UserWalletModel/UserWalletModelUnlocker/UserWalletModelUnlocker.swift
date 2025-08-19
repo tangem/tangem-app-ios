@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import LocalAuthentication
 import TangemFoundation
 
 protocol UserWalletModelUnlocker {
@@ -21,7 +22,7 @@ protocol UserWalletModelUnlocker {
 enum UserWalletModelUnlockerResult {
     case success(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
     case error(Error)
-    case bioSelected
+    case biometrics(LAContext)
     case userWalletNeedsToDelete
     case scanTroubleshooting
 }

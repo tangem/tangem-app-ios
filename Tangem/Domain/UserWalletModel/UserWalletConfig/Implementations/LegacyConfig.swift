@@ -45,10 +45,6 @@ struct LegacyConfig: CardContainer {
 }
 
 extension LegacyConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        nil
-    }
-
     var cardsCount: Int {
         1
     }
