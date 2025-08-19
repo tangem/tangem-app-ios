@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol HotBackupTypesRoutable: HotBackupOnboardingRoutable {
-    func openHotBackupSeedPhrase()
+protocol HotBackupTypesRoutable: AnyObject {
+    func openOnboarding(input: HotOnboardingInput)
 }
