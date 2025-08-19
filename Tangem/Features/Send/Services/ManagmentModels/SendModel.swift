@@ -414,7 +414,7 @@ extension SendModel: NotificationTapDelegate {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation,
+             .openMobileFinishActivation,
              .unlock:
             assertionFailure("Notification tap not handled")
         }
