@@ -645,7 +645,7 @@ private extension ExpressInteractor {
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.swap.rawValue,
-            .token: data.source.tokenItem.currencySymbol,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.source.tokenItem),
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
