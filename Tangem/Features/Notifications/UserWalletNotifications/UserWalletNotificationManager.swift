@@ -37,22 +37,17 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
-    private let hotNotificationsManager: HotNotificationsManager
-    private var shownHotFinishActivationNotification = false
-
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
 
     init(
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController,
         contextDataProvider: AnalyticsContextDataProvider?,
-        referralNotificationController: ReferralNotificationController,
-        hotNotificationsManager: HotNotificationsManager
+        referralNotificationController: ReferralNotificationController
     ) {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
         self.referralNotificationController = referralNotificationController
-        self.hotNotificationsManager = hotNotificationsManager
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -131,19 +126,11 @@ final class UserWalletNotificationManager {
             )
         }
 
-        if FeatureProvider.isAvailable(.hotWallet), shownHotFinishActivationNotification {
-            inputs.append(
-                factory.buildNotificationInput(
-                    for: HotNotificationEvent.finishActivation,
-                    buttonAction: buttonAction
-                )
-            )
-        }
-
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
+        showMobileActivationNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -209,10 +196,51 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.value.insert(input, at: 0)
     }
 
+    private func showMobileActivationNotificationIfNeeded() {
+        let config = userWalletModel.config
+        let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
+        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !HotAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+
+        guard needBackup || needAccessCode else {
+            return
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { [weak self] id in
+            self?.delegate?.didTapNotification(with: id, action: .empty)
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            self?.delegate?.didTapNotification(with: id, action: action)
+        }
+
+        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+
+        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+        let input = factory.buildNotificationInput(
+            for: .hotFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+
+        addInputIfNeeded(input)
+    }
+
     private func bind() {
         bag.removeAll()
 
         userWalletModel.updatePublisher
+            .filter { value in
+                switch value {
+                case .configurationChanged:
+                    return true
+                case .nameDidChange:
+                    return false
+                }
+            }
+            .mapToVoid()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
@@ -242,13 +270,15 @@ final class UserWalletNotificationManager {
             })
             .store(in: &bag)
 
-        hotNotificationsManager
-            .showFinishActivationNotificationPublisher
+        userWalletModel
+            .totalBalancePublisher
+            .map(\.hasPositiveBalance)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { manager, shouldShow in
-                manager.shownHotFinishActivationNotification = shouldShow
+            .sink(receiveValue: { manager, _ in
                 manager.createNotifications()
-            }
+            })
             .store(in: &bag)
     }
 
