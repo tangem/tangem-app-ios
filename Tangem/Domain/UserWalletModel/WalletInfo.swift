@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 
 enum WalletInfo: Codable {
