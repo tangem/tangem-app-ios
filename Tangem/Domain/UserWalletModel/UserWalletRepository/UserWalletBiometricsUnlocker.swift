@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemSdk
 import TangemVisa
 
-class UserWalletBiometricsUnlocker {
+class UserWalletBiometricsUnlocker: UserWalletBiometricsProvider {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     func unlock() async throws -> LAContext {

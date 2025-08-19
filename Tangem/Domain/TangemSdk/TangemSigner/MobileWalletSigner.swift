@@ -7,16 +7,15 @@
 //
 
 import Foundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 import BlockchainSdk
 import Combine
 import TangemSdk
 import TangemFoundation
-import TangemLocalization
 
 final class MobileWalletSigner {
     let userWalletConfig: UserWalletConfig
-    let hotSdk = CommonHotSdk()
+    let mobileWalletSdk = CommonMobileWalletSdk()
 
     init(userWalletConfig: UserWalletConfig) {
         self.userWalletConfig = userWalletConfig
@@ -66,8 +65,8 @@ extension MobileWalletSigner: TangemSigner {
             .eraseToAnyPublisher()
 
         let signedDataPublisher = mobileWalletContextPublisher
-            .tryMap { [hotSdk] context in
-                try hotSdk.sign(
+            .tryMap { [mobileWalletSdk] context in
+                try mobileWalletSdk.sign(
                     dataToSign: dataToSign,
                     seedKey: walletPublicKey.seedKey,
                     context: context
@@ -91,42 +90,21 @@ extension MobileWalletSigner: TangemSigner {
 
 private extension MobileWalletSigner {
     func unlock(userWalletId: UserWalletId) async throws -> MobileWalletContext {
-        let accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletId, config: userWalletConfig)
-        let unlockMethod = try await accessCodeUtil.unlock(method: .default(useBiometrics: true))
+        let authUtil = HotAuthUtil(userWalletId: userWalletId, config: userWalletConfig)
+        let unlockResult = try await authUtil.unlock()
 
-        return try await handleUnlockResult(unlockMethod, userWalletId: userWalletId, accessCodeUtil: accessCodeUtil)
+        return try await handleUnlockResult(unlockResult, userWalletId: userWalletId)
     }
 
     func handleUnlockResult(
-        _ result: HotAccessCodeUtil.Result,
-        userWalletId: UserWalletId,
-        accessCodeUtil: HotAccessCodeUtil
+        _ result: HotAuthUtil.Result,
+        userWalletId: UserWalletId
     ) async throws -> MobileWalletContext {
         switch result {
-        case .accessCode(let context):
+        case .successful(let context):
             return context
-        case .biometricsRequired:
-            return try await handleBiometricsRequired(
-                userWalletId: userWalletId,
-                accessCodeUtil: accessCodeUtil
-            )
         case .canceled, .userWalletNeedsToDelete:
             throw CancellationError()
-        }
-    }
-
-    func handleBiometricsRequired(
-        userWalletId: UserWalletId,
-        accessCodeUtil: HotAccessCodeUtil
-    ) async throws -> MobileWalletContext {
-        do {
-            let context = try await BiometricsUtil.requestAccess(
-                localizedReason: Localization.biometryTouchIdReason
-            )
-            return try hotSdk.validate(auth: .biometrics(context: context), for: userWalletId)
-        } catch {
-            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
-            return try await handleUnlockResult(result, userWalletId: userWalletId, accessCodeUtil: accessCodeUtil)
         }
     }
 }

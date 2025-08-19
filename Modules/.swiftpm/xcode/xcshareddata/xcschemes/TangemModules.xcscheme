@@ -70,6 +70,16 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "TangemMobileWalletSdkTests"
+               BuildableName = "TangemMobileWalletSdkTests"
+               BlueprintName = "TangemMobileWalletSdkTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
