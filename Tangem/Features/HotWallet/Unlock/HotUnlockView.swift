@@ -1,5 +1,5 @@
 //
-//  HotAccessCodeView.swift
+//  HotUnlockView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-struct HotAccessCodeView: View {
-    typealias ViewModel = HotAccessCodeViewModel
+struct HotUnlockView: View {
+    typealias ViewModel = HotUnlockViewModel
 
     @ObservedObject var viewModel: ViewModel
 
@@ -23,7 +23,7 @@ struct HotAccessCodeView: View {
 
 // MARK: - Subviews
 
-private extension HotAccessCodeView {
+private extension HotUnlockView {
     var content: some View {
         VStack(spacing: 40) {
             CloseButton(dismiss: viewModel.onCloseTap)
