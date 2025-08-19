@@ -20,13 +20,7 @@ class SendFinishStep {
 // MARK: - SendStep
 
 extension SendFinishStep: SendStep {
-    var title: String? { nil }
-
     var type: SendStepType { .finish(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
