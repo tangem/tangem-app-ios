@@ -359,11 +359,11 @@ extension CommonUserWalletModel: UserWalletSerializable {
             )
 
             return newStoredUserWallet
-        case .mobileWallet(let hotWalletInfo):
+        case .mobileWallet(let mobileWalletInfo):
             let newStoredUserWallet = StoredUserWallet(
                 userWalletId: userWalletId.value,
                 name: name,
-                walletInfo: .mobileWallet(hotWalletInfo),
+                walletInfo: .mobileWallet(mobileWalletInfo),
             )
 
             return newStoredUserWallet
