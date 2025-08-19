@@ -161,8 +161,8 @@ extension CommonUserWalletModel: UserWalletModel {
         config.tangemSigner
     }
 
-    var cardsCount: Int {
-        config.cardsCount
+    var cardSetLabel: String {
+        config.cardSetLabel
     }
 
     var emailData: [EmailCollectedData] {
@@ -322,7 +322,7 @@ extension CommonUserWalletModel: KeysDerivingProvider {
         case .cardWallet(let cardInfo):
             return KeysDerivingCardInteractor(with: cardInfo)
         case .mobileWallet:
-            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
+            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
         }
     }
 }
