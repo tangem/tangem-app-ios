@@ -9,7 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 import LocalAuthentication
 import TangemFoundation
 
