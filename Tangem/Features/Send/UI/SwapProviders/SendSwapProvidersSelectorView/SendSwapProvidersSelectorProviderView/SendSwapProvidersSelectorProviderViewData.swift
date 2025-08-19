@@ -7,13 +7,14 @@
 //
 
 import TangemExpress
+import TangemLocalization
 
 struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let id: String
     let title: String
     let providerIcon: URL?
     let providerType: String
-    let isTappable: Bool
+    let isDisabled: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
 }
@@ -21,9 +22,12 @@ struct SendSwapProvidersSelectorProviderViewData: Identifiable {
 extension SendSwapProvidersSelectorProviderViewData {
     typealias Subtitle = ProviderRowViewModel.Subtitle
 
-    enum Badge: String, Hashable {
-        case permissionNeeded
-        case fcaWarning
-        case bestRate
+    enum Badge: Hashable {
+        case plain(String)
+        case accent(String)
+
+        static let permissionNeeded = Badge.plain(Localization.expressProviderPermissionNeeded)
+        static let fcaWarning = Badge.plain(Localization.expressProviderFcaWarningList)
+        static let bestRate = Badge.accent(Localization.expressProviderBestRate)
     }
 }
