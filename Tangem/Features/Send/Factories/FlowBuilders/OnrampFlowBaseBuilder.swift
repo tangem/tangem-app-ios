@@ -8,9 +8,9 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 struct OnrampFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let onrampAmountBuilder: OnrampAmountBuilder
@@ -19,10 +19,7 @@ struct OnrampFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
-        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies(
-            userWalletId: userWalletModel.userWalletId.stringValue
-        )
-
+        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies()
         let analyticsLogger = builder.makeOnrampSendAnalyticsLogger(source: source)
         let onrampModel = builder.makeOnrampModel(
             onrampManager: onrampManager,
@@ -90,6 +87,7 @@ struct OnrampFlowBaseBuilder {
         let stepsManager = CommonOnrampStepsManager(
             onrampStep: onramp.step,
             finishStep: finish,
+            summaryTitleProvider: builder.makeOnrampSummaryTitleProvider(),
             // If user already has saved country in the repository then the bottom sheet will not show
             // And we can show keyboard safely
             shouldActivateKeyboard: onrampRepository.preferenceCountry != nil
@@ -107,12 +105,11 @@ struct OnrampFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: source,
             coordinator: router
         )
