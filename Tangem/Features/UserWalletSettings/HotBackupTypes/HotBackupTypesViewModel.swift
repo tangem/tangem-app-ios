@@ -25,7 +25,7 @@ final class HotBackupTypesViewModel: ObservableObject {
     }
 
     private lazy var hotSdk: HotSdk = CommonHotSdk()
-    private lazy var accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
+    private lazy var authUtil = HotAuthUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
 
     private let userWalletModel: UserWalletModel
     private weak var routable: HotBackupTypesRoutable?
@@ -118,14 +118,11 @@ private extension HotBackupTypesViewModel {
 private extension HotBackupTypesViewModel {
     func unlock() async {
         do {
-            let result = try await accessCodeUtil.unlock(method: .default(useBiometrics: false))
+            let result = try await authUtil.unlock()
 
             switch result {
-            case .accessCode(let context):
+            case .successful(let context):
                 try await handleAccessCodeUnlockResult(context: context)
-
-            case .biometricsRequired:
-                await unlockWithBiometrics()
 
             case .canceled:
                 return
@@ -134,44 +131,6 @@ private extension HotBackupTypesViewModel {
                 // [REDACTED_TODO_COMMENT]
                 return
             }
-        } catch {
-            AppLogger.error("Unlock with AccessCode failed:", error: error)
-            await runOnMain {
-                alert = error.alertBinder
-            }
-        }
-    }
-
-    func unlockWithBiometrics() async {
-        do {
-            let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-            let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletModel.userWalletId)
-            await openSeedPhraseReveal(context: context)
-        } catch {
-            await unlockWithAccessCode()
-        }
-    }
-
-    func unlockWithAccessCode() async {
-        do {
-            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
-
-            switch result {
-            case .accessCode(let context):
-                try await handleAccessCodeUnlockResult(context: context)
-
-            case .biometricsRequired:
-                assertionFailure("Case \(result): should never occur in unlock with access-code flow.")
-                return
-
-            case .canceled:
-                return
-
-            case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
-                return
-            }
-
         } catch {
             AppLogger.error("Unlock with AccessCode failed:", error: error)
             await runOnMain {

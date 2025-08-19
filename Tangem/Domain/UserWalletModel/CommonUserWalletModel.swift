@@ -161,8 +161,8 @@ extension CommonUserWalletModel: UserWalletModel {
         config.tangemSigner
     }
 
-    var cardsCount: Int {
-        config.cardsCount
+    var cardSetLabel: String {
+        config.cardSetLabel
     }
 
     var emailData: [EmailCollectedData] {
