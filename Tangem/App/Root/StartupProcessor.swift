@@ -13,7 +13,7 @@ class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var shouldOpenAuthScreen: Bool {
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             AppSettings.shared.saveUserWallets
                 && userWalletRepository.models.isNotEmpty
         } else {
@@ -28,11 +28,36 @@ class StartupProcessor {
             return .uncompletedBackup
         }
 
+        if let modelToOpen = shouldOpenMainScreen() {
+            return .main(modelToOpen)
+        }
+
         if shouldOpenAuthScreen {
             return .auth
         }
 
         return .welcome
+    }
+
+    private func shouldOpenMainScreen() -> UserWalletModel? {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
+            return nil
+        }
+
+        let allUnlocked = userWalletRepository.models.allConforms { !$0.isUserWalletLocked }
+        guard allUnlocked else {
+            return nil
+        }
+
+        if let selectedModel = userWalletRepository.selectedModel {
+            return selectedModel
+        }
+
+        if let firstModel = userWalletRepository.models.first {
+            return firstModel
+        }
+
+        return nil
     }
 }
 
@@ -40,4 +65,5 @@ enum StartupOption {
     case uncompletedBackup
     case auth
     case welcome
+    case main(UserWalletModel)
 }
