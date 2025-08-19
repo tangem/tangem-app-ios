@@ -31,7 +31,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     var tokensCount: Int? { nil }
 
-    var cardsCount: Int { config.cardsCount }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var hasBackupCards: Bool {
         userWallet.walletInfo.hasBackupCards
