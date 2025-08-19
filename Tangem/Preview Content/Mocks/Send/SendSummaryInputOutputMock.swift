@@ -16,6 +16,6 @@ class SendSummaryInputOutputMock: SendSummaryInput, SendSummaryOutput {
 }
 
 class SendSummaryInteractorMock: SendSummaryInteractor {
-    var transactionDescription: AnyPublisher<String?, Never> { .just(output: "123124$ (34151 USDT)") }
+    var transactionDescription: AnyPublisher<AttributedString?, Never> { .just(output: "123124$ (34151 USDT)") }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { .just(output: false) }
 }

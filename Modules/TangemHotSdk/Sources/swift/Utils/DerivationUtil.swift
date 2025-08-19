@@ -13,7 +13,7 @@ public enum DerivationUtil {
     public static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
-        derivationPath: String,
+        derivationPath: DerivationPath?,
         masterKey: Data
     ) throws -> ExtendedPublicKey {
         guard let curve = curve(for: masterKey, entropy: entropy, passphrase: passphrase) else {
@@ -26,11 +26,9 @@ public enum DerivationUtil {
     static func deriveKeys(
         entropy: Data,
         passphrase: String = "",
-        derivationPath: String?,
+        derivationPath: DerivationPath?,
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
-        let derivationPath = derivationPath.flatMap { try? DerivationPath(rawPath: $0) }
-
         switch curve {
         case .ed25519:
             return try publicKeyCardano(
@@ -52,21 +50,27 @@ public enum DerivationUtil {
             throw HotWalletError.tangemSdk(.unsupportedCurve)
         }
     }
-}
 
-private extension DerivationUtil {
     static func curve(for masterKey: Data, entropy: Data, passphrase: String) -> EllipticCurve? {
         let curves: [EllipticCurve] = [.secp256k1, .ed25519, .ed25519_slip0010]
 
-        return curves
+        let curve = curves
             .first { curve in
                 guard let key = try? Self.masterKey(from: curve, entropy: entropy, passphrase: passphrase) else {
                     return false
                 }
                 return key == masterKey
             }
-    }
 
+        if curve == nil, (try? BLSUtil.publicKey(entropy: entropy, passphrase: passphrase).publicKey) == masterKey {
+            return .bls12381_G2
+        }
+
+        return curve
+    }
+}
+
+private extension DerivationUtil {
     static func masterKey(from curve: EllipticCurve, entropy: Data, passphrase: String) throws -> Data {
         try publicKeyDefault(entropy: entropy, passphrase: passphrase, derivationPath: nil, curve: curve).publicKey
     }
@@ -90,49 +94,20 @@ private extension DerivationUtil {
             }
         }
 
-        let publicKey: Data
+        guard hdnode_fill_public_key(&node) == 0 else {
+            throw HotWalletError.failedToDeriveKey
+        }
 
-        switch curve {
-        case .ed25519_slip0010:
-            var pubKey = [UInt8](repeating: 0, count: Constants.edPublicKeySize)
-
-            pubKey.withUnsafeMutableBufferPointer { publicKeyBuf in
-                ed25519_publickey(&node.private_key, publicKeyBuf.baseAddress)
+        let publicKey = try withUnsafeBytes(of: node.public_key) {
+            let data = Data($0)
+            switch curve {
+            case .secp256k1:
+                return data.suffix(Constants.secp256k1PublicKeySize)
+            case .ed25519, .ed25519_slip0010:
+                return data.suffix(Constants.edPublicKeySize)
+            default:
+                throw HotWalletError.invalidCurve(curve)
             }
-
-            publicKey = Data(pubKey)
-        case .secp256k1:
-            var pubKey = [UInt8](repeating: 0, count: Constants.secp256k1PublicKeySize)
-
-            let result = pubKey.withUnsafeMutableBufferPointer { pubBuf in
-                ecdsa_get_public_key33(
-                    node.curve?.pointee.params,
-                    &node.private_key,
-                    pubBuf.baseAddress
-                )
-            }
-
-            guard result == 0 else {
-                throw HotWalletError.failedToDeriveKey
-            }
-
-            publicKey = Data(pubKey)
-        case .ed25519:
-            var pubKey = [UInt8](repeating: 0, count: DerivationUtil.Constants.edPublicKeySize)
-
-            try pubKey.withUnsafeMutableBytes { publicKeyBuf in
-                guard let publicKeyPtr = publicKeyBuf.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
-                    throw HotWalletError.failedToDeriveKey
-                }
-                return ed25519_publickey_ext(
-                    &node.private_key,
-                    publicKeyPtr
-                )
-            }
-
-            publicKey = Data(pubKey)
-        default:
-            throw HotWalletError.invalidCurve(curve)
         }
 
         let chainCode = withUnsafeBytes(of: node.chain_code) { Data($0) }
