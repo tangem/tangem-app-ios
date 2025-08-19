@@ -26,7 +26,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
                 targetSettings: stackCalculator.cardSettings(at: stackIndex(at: step)),
                 intermediateSettings: animated ? stackCalculator.prehideAnimSettings : nil
             )
-        case (.done, _), (.topup, _):
+        case (.done, _):
             var settings = stackCalculator.cardSettings(at: stackIndex(at: step))
             settings.scale *= 0.5
             settings.offset = offset(at: step, in: containerSize)
@@ -53,7 +53,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.intro, _), (.alert, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second): return 120
-        case (.done, _), (.topup, _):
+        case (.done, _):
             return 220
         }
     }
@@ -66,7 +66,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 0.454
         case (.first, .second), (.second, .first), (.third, .second):
             return 0.395
-        case (.done, _), (.topup, _):
+        case (.done, _):
             return 0.246
         }
     }
@@ -84,14 +84,12 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             let widthOffset = container.width * 0.131
             return .init(width: widthOffset, height: heightOffset)
         case (.first, .first), (.second, .second), (.third, .first):
-//            return .init(width: 0, height: -containerHeight * 0.128)
             fallthrough
         case (.first, .second), (.second, .first), (.third, .second):
-//            return .init(width: 0, height: containerHeight * 0.095)
             return .zero
-        case (.done, .first), (.topup, .first):
+        case (.done, .first):
             return .init(width: 0, height: -containerHeight * 0.12)
-        case (.done, .second), (.topup, .second):
+        case (.done, .second):
             return .init(width: 0, height: -containerHeight * 0.08)
         }
     }
