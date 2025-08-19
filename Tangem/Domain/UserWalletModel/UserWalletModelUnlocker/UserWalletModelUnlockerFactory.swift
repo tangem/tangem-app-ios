@@ -73,7 +73,7 @@ extension FakeUserWalletModel {
             userWalletId: userWalletId,
             config: config,
             walletInfo: .mobileWallet(
-                HotWalletInfo(
+                MobileWalletInfo(
                     hasMnemonicBackup: false,
                     hasICloudBackup: false,
                     isAccessCodeSet: false,
@@ -91,7 +91,7 @@ extension UserWalletModelMock {
             userWalletId: userWalletId,
             config: config,
             walletInfo: .mobileWallet(
-                HotWalletInfo(
+                MobileWalletInfo(
                     hasMnemonicBackup: false,
                     hasICloudBackup: false,
                     isAccessCodeSet: false,
