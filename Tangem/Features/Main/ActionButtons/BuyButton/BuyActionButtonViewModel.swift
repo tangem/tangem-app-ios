@@ -18,9 +18,6 @@ final class BuyActionButtonViewModel: ActionButtonViewModel {
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    @Injected(\.exchangeService)
-    private var exchangeService: CombinedExchangeService
-
     // MARK: Published property
 
     @Published var alert: AlertBinder?
@@ -37,7 +34,6 @@ final class BuyActionButtonViewModel: ActionButtonViewModel {
 
     private weak var coordinator: ActionButtonsBuyFlowRoutable?
     private var bag: Set<AnyCancellable> = []
-    private var exchangeServiceState: ExchangeServiceState = .initializing
 
     private let lastButtonTapped: PassthroughSubject<ActionButtonModel, Never>
     private let userWalletModel: UserWalletModel
@@ -85,12 +81,7 @@ extension BuyActionButtonViewModel {
 
     private func handleInitialStateTap() {
         isOpeningRequired = false
-
-        if FeatureProvider.isAvailable(.onramp) {
-            handleExpressProviderStateTap()
-        } else {
-            handleExchangeServiceState()
-        }
+        handleExpressProviderStateTap()
     }
 
     private func handleExpressProviderStateTap() {
@@ -108,14 +99,6 @@ extension BuyActionButtonViewModel {
             handleFailedStateTap(reason: error.localizedDescription)
         }
     }
-
-    private func handleExchangeServiceState() {
-        switch exchangeServiceState {
-        case .initializing: handleUpdatingStateTap()
-        case .initialized: handleUpdatedStateTap()
-        case .failed(let error): handleFailedStateTap(reason: error.localizedDescription)
-        }
-    }
 }
 
 // MARK: - Bind
@@ -128,16 +111,6 @@ extension BuyActionButtonViewModel {
             .sink { viewModel, model in
                 if model != viewModel.model, viewModel.isOpeningRequired {
                     viewModel.isOpeningRequired = false
-                }
-            }
-            .store(in: &bag)
-
-        exchangeService
-            .buyInitializationPublisher
-            .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                if !FeatureProvider.isAvailable(.onramp) {
-                    viewModel.exchangeServiceState = state
                 }
             }
             .store(in: &bag)
