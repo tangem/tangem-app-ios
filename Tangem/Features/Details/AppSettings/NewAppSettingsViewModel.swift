@@ -11,12 +11,12 @@ import SwiftUI
 import TangemSdk
 import TangemAssets
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 class NewAppSettingsViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    private let mobileSdk = CommonHotSdk()
+    private let mobileSdk = CommonMobileWalletSdk()
 
     // MARK: ViewState
 
