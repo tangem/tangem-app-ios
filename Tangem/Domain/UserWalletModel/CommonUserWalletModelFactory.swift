@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemNFT
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 
 struct CommonUserWalletModelFactory {

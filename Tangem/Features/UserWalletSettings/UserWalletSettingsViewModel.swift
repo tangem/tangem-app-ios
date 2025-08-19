@@ -11,7 +11,7 @@ import SwiftUI
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
-import TangemHotSdk
+import TangemMobileWalletSdk
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -60,6 +60,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         userWalletModel: UserWalletModel,
         coordinator: UserWalletSettingsRoutable
@@ -69,6 +71,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        bind()
     }
 
     func onAppear() {
@@ -91,6 +94,18 @@ final class UserWalletSettingsViewModel: ObservableObject {
 // MARK: - Private
 
 private extension UserWalletSettingsViewModel {
+    func bind() {
+        userWalletModel.updatePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                if case .configurationChanged = event {
+                    viewModel.setupView()
+                }
+            }
+            .store(in: &bag)
+    }
+
     func setupView() {
         // setupAccountsSection()
         setupViewModels()
@@ -171,13 +186,13 @@ private extension UserWalletSettingsViewModel {
                     title: Localization.walletSettingsAccessCodeTitle,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.hotAccessCodeAction)
                 )
-            case .backup(let hasBackup):
+            case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
-                if hasBackup {
-                    detailsType = nil
-                } else {
+                if needsBackup {
                     let badgeItem = BadgeView.Item(title: Localization.hwBackupNoBackup, style: .warning)
                     detailsType = .badge(badgeItem)
+                } else {
+                    detailsType = nil
                 }
 
                 hotBackupViewModel = DefaultRowViewModel(
