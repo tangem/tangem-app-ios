@@ -18,7 +18,7 @@ struct SendReceiveTokensListView: View {
     var body: some View {
         VStack(spacing: 0) {
             BottomSheetHeaderView(title: Localization.commonChooseToken, trailing: {
-                RoundedButton(style: .icon(Assets.cross, color: Colors.Icon.secondary), action: viewModel.dismiss)
+                CircleButton.close(action: viewModel.dismiss)
             })
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
@@ -29,18 +29,18 @@ struct SendReceiveTokensListView: View {
                 style: .focused
             )
             .innerPadding(8)
+            .onEditingChanged(viewModel.focusChangedInSearchBar)
             .focused($isFocused)
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
 
-            if let notification = viewModel.onboardNotification {
-                NotificationView(input: notification)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
-                    .transition(.notificationTransition.animation(.linear(duration: 0.2)))
-            }
-
             GroupedScrollView {
+                if let notification = viewModel.onboardNotification {
+                    NotificationView(input: notification)
+                        .padding(.bottom, 14)
+                        .transition(.notificationTransition.animation(.linear(duration: 0.2)))
+                }
+
                 GroupedSection(viewModel.items) {
                     SendReceiveTokensListTokenView(viewModel: $0)
                 }
