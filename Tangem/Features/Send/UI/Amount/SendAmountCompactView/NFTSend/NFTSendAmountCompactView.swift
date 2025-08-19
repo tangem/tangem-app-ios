@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemNFT
+import TangemLocalization
 
 struct NFTSendAmountCompactContentView: View {
     let viewModel: NFTSendAmountCompactContentViewModel
