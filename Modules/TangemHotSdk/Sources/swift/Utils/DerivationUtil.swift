@@ -94,49 +94,20 @@ private extension DerivationUtil {
             }
         }
 
-        let publicKey: Data
+        guard hdnode_fill_public_key(&node) == 0 else {
+            throw HotWalletError.failedToDeriveKey
+        }
 
-        switch curve {
-        case .ed25519_slip0010:
-            var pubKey = [UInt8](repeating: 0, count: Constants.edPublicKeySize)
-
-            pubKey.withUnsafeMutableBufferPointer { publicKeyBuf in
-                ed25519_publickey(
-                    &node.private_key,
-                    publicKeyBuf.baseAddress
-                )
+        let publicKey = try withUnsafeBytes(of: node.public_key) {
+            let data = Data($0)
+            switch curve {
+            case .secp256k1:
+                return data.suffix(Constants.secp256k1PublicKeySize)
+            case .ed25519, .ed25519_slip0010:
+                return data.suffix(Constants.edPublicKeySize)
+            default:
+                throw HotWalletError.invalidCurve(curve)
             }
-
-            publicKey = Data(pubKey)
-        case .secp256k1:
-            var pubKey = [UInt8](repeating: 0, count: Constants.secp256k1PublicKeySize)
-
-            let result = pubKey.withUnsafeMutableBufferPointer { pubBuf in
-                ecdsa_get_public_key33(
-                    node.curve?.pointee.params,
-                    &node.private_key,
-                    pubBuf.baseAddress
-                )
-            }
-
-            guard result == 0 else {
-                throw HotWalletError.failedToDeriveKey
-            }
-
-            publicKey = Data(pubKey)
-        case .ed25519:
-            var pubKey = [UInt8](repeating: 0, count: Constants.edPublicKeySize)
-
-            pubKey.withUnsafeMutableBufferPointer { publicKeyBuf in
-                ed25519_publickey_ext(
-                    &node.private_key,
-                    publicKeyBuf.baseAddress
-                )
-            }
-
-            publicKey = Data(pubKey)
-        default:
-            throw HotWalletError.invalidCurve(curve)
         }
 
         let chainCode = withUnsafeBytes(of: node.chain_code) { Data($0) }
