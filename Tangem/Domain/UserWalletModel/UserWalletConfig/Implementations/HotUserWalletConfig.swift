@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 import TangemLocalization
 
