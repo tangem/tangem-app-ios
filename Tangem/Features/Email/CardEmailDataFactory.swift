@@ -34,7 +34,7 @@ struct CardEmailDataFactory {
         return data
     }
 
-    func makeEmailData(for hotWallet: HotWalletInfo) -> [EmailCollectedData] {
+    func makeEmailData(for mobileWallet: MobileWalletInfo) -> [EmailCollectedData] {
         #warning("Provide implementation")
         return []
     }
