@@ -8,12 +8,12 @@
 
 import Combine
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingSeedPhraseValidationViewModel: ObservableObject {
     @Published var state: State?
 
-    private let hotSdk: HotSdk = CommonHotSdk()
+    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletId: UserWalletId
     private weak var delegate: HotOnboardingSeedPhraseValidationDelegate?
@@ -39,8 +39,8 @@ private extension HotOnboardingSeedPhraseValidationViewModel {
     func setup() {
         runTask(in: self) { viewModel in
             do {
-                let context = try viewModel.hotSdk.validate(auth: .none, for: viewModel.userWalletId)
-                let mnemonic = try viewModel.hotSdk.exportMnemonic(context: context)
+                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletId)
+                let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
                 let item = StateItem(second: mnemonic[1], seventh: mnemonic[6], eleventh: mnemonic[10])
 
                 await runOnMain {
