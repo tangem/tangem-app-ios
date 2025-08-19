@@ -36,7 +36,9 @@ struct SendNewAmountStepBuilder {
     ) -> ReturnValue {
         let interactorSaver = CommonSendNewAmountInteractorSaver(
             sourceTokenAmountInput: sourceAmountIO.input,
-            sourceTokenAmountOutput: sourceAmountIO.output
+            sourceTokenAmountOutput: sourceAmountIO.output,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenOutput: receiveIO.output
         )
 
         let interactor = CommonSendNewAmountInteractor(
@@ -53,8 +55,7 @@ struct SendNewAmountStepBuilder {
         )
 
         let viewModel = SendNewAmountViewModel(
-            sourceTokenInput: sourceIO.input,
-            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
+            sourceToken: sourceIO.input.sourceToken,
             interactor: interactor,
             analyticsLogger: analyticsLogger
         )
