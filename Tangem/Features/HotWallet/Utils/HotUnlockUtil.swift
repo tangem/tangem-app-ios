@@ -12,7 +12,7 @@ import SwiftUI
 import Combine
 import LocalAuthentication
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class HotUnlockUtil {

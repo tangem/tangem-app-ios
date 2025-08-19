@@ -11,7 +11,7 @@ import SwiftUI
 import TangemLocalization
 import TangemFoundation
 import TangemAccessibilityIdentifiers
-import TangemHotSdk
+import TangemMobileWalletSdk
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 

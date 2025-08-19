@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
-import TangemHotSdk
+import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class HotBackupTypesViewModel: ObservableObject {
@@ -24,7 +24,7 @@ final class HotBackupTypesViewModel: ObservableObject {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
     private lazy var authUtil = HotAuthUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
 
     private let userWalletModel: UserWalletModel
@@ -140,7 +140,7 @@ private extension HotBackupTypesViewModel {
     }
 
     func handleAccessCodeUnlockResult(context: MobileWalletContext) async throws {
-        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+        let encryptionKey = try mobileWalletSdk.userWalletEncryptionKey(context: context)
 
         guard
             let configEncryptionKey = UserWalletEncryptionKey(config: userWalletModel.config),

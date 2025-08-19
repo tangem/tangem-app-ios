@@ -8,7 +8,7 @@
 
 import Combine
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 import struct TangemSdk.Mnemonic
 
 final class HotOnboardingSeedPhraseImportViewModel: ObservableObject {
