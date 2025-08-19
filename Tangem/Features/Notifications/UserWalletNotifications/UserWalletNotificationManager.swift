@@ -199,7 +199,7 @@ final class UserWalletNotificationManager {
     private func showMobileActivationNotificationIfNeeded() {
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !HotAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
 
         guard needBackup || needAccessCode else {
             return
@@ -219,7 +219,7 @@ final class UserWalletNotificationManager {
 
         let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
         let input = factory.buildNotificationInput(
-            for: .hotFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
             action: action,
             buttonAction: buttonAction,
             dismissAction: dismissAction
