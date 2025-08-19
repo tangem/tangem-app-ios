@@ -22,14 +22,6 @@ struct GenericConfig {
 }
 
 extension GenericConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
-            return nil
-        }
-
-        return Localization.cardLabelCardCount(backupCardsCount + 1)
-    }
-
     var cardsCount: Int {
         if let backupCardsCount = card.backupStatus?.backupCardsCount {
             return backupCardsCount + 1
@@ -203,6 +195,16 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .nft:
             return .available
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
+            return .hidden
         }
     }
 
