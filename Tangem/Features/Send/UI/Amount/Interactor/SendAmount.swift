@@ -81,3 +81,7 @@ extension SendAmount {
         }
     }
 }
+
+enum SendAmountError: LocalizedError {
+    case noAmount
+}
