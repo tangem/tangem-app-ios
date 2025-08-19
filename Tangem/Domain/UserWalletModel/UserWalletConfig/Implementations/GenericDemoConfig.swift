@@ -22,14 +22,6 @@ struct GenericDemoConfig: CardContainer {
 }
 
 extension GenericDemoConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
-            return nil
-        }
-
-        return Localization.cardLabelCardCount(backupCardsCount + 1)
-    }
-
     var cardsCount: Int {
         1
     }
