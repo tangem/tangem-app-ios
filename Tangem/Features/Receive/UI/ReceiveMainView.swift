@@ -27,9 +27,10 @@ struct ReceiveMainView: View {
             switch viewModel.viewState {
             case .selector(let viewModel):
                 SelectorReceiveAssetsView(viewModel: viewModel)
-            case .qrCode:
-                // [REDACTED_TODO_COMMENT]
-                EmptyView()
+                    .transition(.content)
+            case .qrCode(let viewModel):
+                QRCodeReceiveAssetsView(viewModel: viewModel)
+                    .transition(.content)
             case .tokenAlert(let viewModel):
                 TokenAlertReceiveAssetsView(viewModel: viewModel)
             case .none:
