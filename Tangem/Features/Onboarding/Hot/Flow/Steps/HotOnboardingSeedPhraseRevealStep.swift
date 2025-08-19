@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingSeedPhraseRevealStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingSeedPhraseRevealViewModel
