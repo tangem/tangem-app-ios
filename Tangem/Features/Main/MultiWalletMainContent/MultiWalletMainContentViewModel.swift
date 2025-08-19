@@ -427,19 +427,6 @@ extension MultiWalletMainContentViewModel {
         )
     }
 
-    private func openBuy(for walletModel: any WalletModel) {
-        if FeatureProvider.isAvailable(.onramp) {
-            tokenRouter.openOnramp(walletModel: walletModel)
-        } else {
-            if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-                error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-                return
-            }
-
-            tokenRouter.openBuy(walletModel: walletModel)
-        }
-    }
-
     private func openSell(for walletModel: any WalletModel) {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -461,9 +448,8 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openHotFinishActivation() {
-        // [REDACTED_TODO_COMMENT]
-        coordinator?.openHotFinishActivation()
+    private func openMobileFinishActivation() {
+        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
     }
 }
 
@@ -509,8 +495,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openHotFinishActivation:
-            openHotFinishActivation()
+        case .openMobileFinishActivation:
+            openMobileFinishActivation()
         default:
             break
         }
@@ -579,7 +565,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
         switch action {
         case .buy:
-            openBuy(for: walletModel)
+            tokenRouter.openOnramp(walletModel: walletModel)
         case .send:
             tokenRouter.openSend(walletModel: walletModel)
         case .receive:
