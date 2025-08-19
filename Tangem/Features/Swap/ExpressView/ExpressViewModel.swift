@@ -709,7 +709,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .unlock,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation:
+             .openMobileFinishActivation:
             return
         }
     }
