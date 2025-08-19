@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingAccessCodeFlowBuilder: HotOnboardingFlowBuilder {
     private let userWalletModel: UserWalletModel
