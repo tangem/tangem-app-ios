@@ -29,13 +29,13 @@ class ServicesManager {
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
-    private let hotAccessCodeCleaner: HotAccessCodeCleaner
+    private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
-        hotAccessCodeCleaner = HotAccessCodeCleaner(manager: CommonHotAccessCodeStorageManager())
+        mobileAccessCodeCleaner = MobileAccessCodeCleaner(manager: CommonMobileAccessCodeStorageManager())
     }
 
     func initialize() {
@@ -69,7 +69,7 @@ class ServicesManager {
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.initialize()
         }
-        hotAccessCodeCleaner.initialize()
+        mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
