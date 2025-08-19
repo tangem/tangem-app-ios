@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     @Published var state: State?
@@ -18,7 +18,7 @@ final class HotOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     let continueButtonTitle = Localization.commonContinue
     let responsibilityDescription = Localization.backupSeedResponsibility
 
-    private let hotSdk: HotSdk = CommonHotSdk()
+    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletId: UserWalletId
     private weak var delegate: HotOnboardingSeedPhraseRecoveryDelegate?
@@ -42,8 +42,8 @@ private extension HotOnboardingSeedPhraseRecoveryViewModel {
     func setup() {
         runTask(in: self) { viewModel in
             do {
-                let context = try viewModel.hotSdk.validate(auth: .none, for: viewModel.userWalletId)
-                let mnemonic = try viewModel.hotSdk.exportMnemonic(context: context)
+                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletId)
+                let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
                 await viewModel.setupState(mnemonic: mnemonic)
             } catch {
                 AppLogger.error("Export mnemonic to recovery failed:", error: error)
