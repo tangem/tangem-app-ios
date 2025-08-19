@@ -71,6 +71,7 @@ class CommonSendFeeInteractor {
                 }
             }
             .share()
+            .removeDuplicates()
 
         suggestedFeeToUse
             // Only once when the fee has value
@@ -233,8 +234,10 @@ private extension CommonSendFeeInteractor {
     }
 
     private func feeForAutoupdate(fees: [SendFee]) -> SendFee? {
-        let option = input?.selectedFee.option ?? .market
-        let market = fees.first(where: { $0.option == option })
-        return market
+        if let selected = fees.first(where: { $0.option == input?.selectedFee.option }) {
+            return selected
+        }
+
+        return fees.first(where: { $0.option == .market })
     }
 }
