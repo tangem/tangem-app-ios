@@ -18,9 +18,9 @@ protocol WalletInitializer {
 }
 
 final class MobileWalletInitializer: WalletInitializer {
-    typealias Wallet = HotWalletInfo
+    typealias Wallet = MobileWalletInfo
 
-    func initializeWallet(mnemonic: Mnemonic?, passphrase: String?) async throws -> HotWalletInfo {
+    func initializeWallet(mnemonic: Mnemonic?, passphrase: String?) async throws -> MobileWalletInfo {
         let sdk = CommonMobileWalletSdk()
 
         let userWalletId = switch mnemonic {
@@ -38,14 +38,14 @@ final class MobileWalletInitializer: WalletInitializer {
             result[key.curve] = key.publicKey
         }
 
-        var mobileWalletInfo = HotWalletInfo(
+        var mobileWalletInfo = MobileWalletInfo(
             hasMnemonicBackup: mnemonic != nil,
             hasICloudBackup: false,
             isAccessCodeSet: false,
             keys: []
         )
 
-        let config = HotUserWalletConfig(hotWalletInfo: mobileWalletInfo)
+        let config = MobileUserWalletConfig(mobileWalletInfo: mobileWalletInfo)
 
         let derivationPaths: [Data: [DerivationPath]] = config.supportedBlockchains.reduce(
             into: [:]
