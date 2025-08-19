@@ -13,7 +13,7 @@ import TangemVisa
 
 struct VisaWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(for token: StorageEntry, keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
-        let blockchain = VisaUtilities().visaBlockchain
+        let blockchain = VisaUtilities.visaBlockchain
 
         guard let walletPublicKey = keys.first(where: { $0.curve == blockchain.curve })?.publicKey else {
             throw CommonError.noData
