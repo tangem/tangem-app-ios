@@ -1083,6 +1083,7 @@
 		B618A6852DDA0927004043C9 /* NFTSendFixedBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B618A6842DDA0927004043C9 /* NFTSendFixedBalanceProvider.swift */; };
 		B61980102AB8BD5200153886 /* PreviewContentShapeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */; };
 		B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */; };
+		B61999042E54C4AB00F85C04 /* SendAnalyticsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61999032E54C4AB00F85C04 /* SendAnalyticsHelper.swift */; };
 		B61D2A202B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61D2A1F2B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift */; };
 		B620352F2E25B3A300F1F229 /* visa.json in Resources */ = {isa = PBXBuildFile; fileRef = B66BCD2E2E25B308009BD357 /* visa.json */; };
 		B62035302E25B3A300F1F229 /* visaTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B66BCD2F2E25B308009BD357 /* visaTestnet.json */; };
@@ -5038,6 +5039,7 @@
 		B618A6842DDA0927004043C9 /* NFTSendFixedBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTSendFixedBalanceProvider.swift; sourceTree = "<group>"; };
 		B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContentShapeModifier.swift; sourceTree = "<group>"; };
 		B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightableViewModifier.swift; sourceTree = "<group>"; };
+		B61999032E54C4AB00F85C04 /* SendAnalyticsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAnalyticsHelper.swift; sourceTree = "<group>"; };
 		B61D2A1F2B1947E6004F2C2D /* ScrollViewOffsetHandler+TokenDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+TokenDetails.swift"; sourceTree = "<group>"; };
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
 		B62238CE2CDDAED5003C07EC /* MarketsTokenDetailsSecurityScoreRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreRatingView.swift; sourceTree = "<group>"; };
@@ -18754,6 +18756,7 @@
 				EF95441E2C3C43B600041FCD /* FeeAnalyticsParameterBuilder.swift */,
 				EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */,
 				EF700D6D2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift */,
+				B61999032E54C4AB00F85C04 /* SendAnalyticsHelper.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -23020,6 +23023,7 @@
 				2DB648642C3542E700DA100D /* TokenItemMapper.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				B050F5032B613A6F00B2E53C /* VisaTransactionHistoryService.swift in Sources */,
+				B61999042E54C4AB00F85C04 /* SendAnalyticsHelper.swift in Sources */,
 				EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */,
 				B6996CF02CDC403900F8D582 /* MarketsTokenDetailsSecurityScoreRoutable.swift in Sources */,
 				EF95441F2C3C43B600041FCD /* FeeAnalyticsParameterBuilder.swift in Sources */,
