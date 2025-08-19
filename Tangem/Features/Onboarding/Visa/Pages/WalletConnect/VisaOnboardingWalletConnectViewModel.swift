@@ -25,7 +25,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
 
     func openBrowser() {
         Analytics.log(.visaOnboardingButtonBrowser)
-        let visaURL = VisaUtilities().walletConnectURL
+        let visaURL = VisaUtilities.walletConnectURL
         delegate?.openBrowser(at: visaURL, onSuccess: { [weak self] successURL in
             self?.proceedOnboardingIfPossible()
         })
@@ -34,7 +34,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
 
     func openShareSheet() {
         Analytics.log(.visaOnboardingButtonShareLink)
-        let visaURL = VisaUtilities().walletConnectURL
+        let visaURL = VisaUtilities.walletConnectURL
         // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [visaURL], applicationActivities: nil)
         AppPresenter.shared.show(av)
