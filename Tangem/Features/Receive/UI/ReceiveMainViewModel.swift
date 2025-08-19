@@ -91,14 +91,12 @@ extension ReceiveMainViewModel {
     }
 }
 
-// MARK: - OnboardingReceiveDomainAssetsRoutable & SelectorReceiveDomainAssetsRoutable & SelectorReceiveAssetItemRoutable
+// MARK: - ReceiveFlowCoordinator
 
-extension ReceiveMainViewModel:
-    TokenAlertReceiveAssetsRoutable, SelectorReceiveAssetItemRoutable {
+extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     func routeOnReceiveQR(with info: ReceiveAddressInfo) {
-        /*
-         // [REDACTED_TODO_COMMENT]
-         */
+        let viewModel = receiveFlowFactory.makeQRCodeReceiveAssetViewModel(with: info)
+        viewState = .qrCode(viewModel: viewModel)
     }
 
     func copyToClipboard(with address: String) {
@@ -109,6 +107,15 @@ extension ReceiveMainViewModel:
                 layout: .top(padding: 12),
                 type: .temporary()
             )
+    }
+
+    func share(with address: String) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+
+            let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
+            UIApplication.modalFromTop(av)
+        }
     }
 
     func routeOnSelectorReceiveAssets(with proxySelectorViewModel: SelectorReceiveAssetsViewModel) {
@@ -126,7 +133,7 @@ extension ReceiveMainViewModel {
     enum ViewState: Identifiable, Equatable {
         case selector(viewModel: SelectorReceiveAssetsViewModel)
         case tokenAlert(viewModel: TokenAlertReceiveAssetsViewModel)
-        case qrCode
+        case qrCode(viewModel: QRCodeReceiveAssetsViewModel)
 
         // MARK: - Identifiable
 

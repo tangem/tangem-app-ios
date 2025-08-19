@@ -55,6 +55,8 @@ struct SelectorReceiveAssetsAddressItemView: View {
             Button(action: viewModel.qrCodeButtonDidTap) {
                 Assets.qrNew.image
                     .renderingMode(.template)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 20))
                     .foregroundStyle(Colors.Icon.informative)
                     .padding(Layout.ButtomView.paddingIcon)
                     .background(
