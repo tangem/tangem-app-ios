@@ -322,7 +322,7 @@ extension CommonUserWalletModel: KeysDerivingProvider {
         case .cardWallet(let cardInfo):
             return KeysDerivingCardInteractor(with: cardInfo)
         case .mobileWallet:
-            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
+            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
         }
     }
 }
