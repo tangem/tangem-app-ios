@@ -8,7 +8,7 @@
 
 import SwiftUI
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingAccessCodeStep: HotOnboardingFlowStep {
     private let viewModel: HotOnboardingAccessCodeViewModel

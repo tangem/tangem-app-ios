@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 import BlockchainSdk
 
 protocol WalletInitializer {
@@ -21,7 +21,7 @@ final class MobileWalletInitializer: WalletInitializer {
     typealias Wallet = HotWalletInfo
 
     func initializeWallet(mnemonic: Mnemonic?, passphrase: String?) async throws -> HotWalletInfo {
-        let sdk = CommonHotSdk()
+        let sdk = CommonMobileWalletSdk()
 
         let userWalletId = switch mnemonic {
         case .some(let mnemonic):
