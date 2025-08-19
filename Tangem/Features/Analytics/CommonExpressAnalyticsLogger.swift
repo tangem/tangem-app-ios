@@ -97,7 +97,7 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
             .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
-            .token: tokenItem.currencySymbol,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
