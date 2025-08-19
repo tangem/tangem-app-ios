@@ -209,7 +209,7 @@ struct SendDependenciesBuilder {
         )
     }
 
-    private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
+    func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
         let destination = sellParameters.map { SendAddress(value: .plain($0.destination), source: .sellProvider) }
         let amount = sellParameters.map { sellParameters in
             let fiatValue = walletModel.tokenItem.currencyId.flatMap { currencyId in
