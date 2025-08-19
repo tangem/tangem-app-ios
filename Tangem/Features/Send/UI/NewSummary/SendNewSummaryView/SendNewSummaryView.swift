@@ -41,6 +41,7 @@ struct SendNewSummaryView: View {
     private var amountSectionView: some View {
         if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
             SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+                .allowsHitTesting(viewModel.amountCompactViewType.editable)
         }
     }
 
@@ -61,6 +62,7 @@ struct SendNewSummaryView: View {
             Button(action: viewModel.userDidTapDestination) {
                 SendNewDestinationCompactView(viewModel: destinationCompactViewModel)
             }
+            .allowsHitTesting(viewModel.destinationCompactViewType.editable)
         }
     }
 
