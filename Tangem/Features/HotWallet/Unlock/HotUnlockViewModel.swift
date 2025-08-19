@@ -1,5 +1,5 @@
 //
-//  HotAccessCodeViewModel.swift
+//  HotUnlockViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -14,7 +14,7 @@ import TangemLocalization
 import TangemHotSdk
 import class TangemSdk.BiometricsUtil
 
-final class HotAccessCodeViewModel: ObservableObject {
+final class HotUnlockViewModel: ObservableObject {
     @Published var accessCode: String = .empty
 
     @Published private(set) var unlockItem: UnlockItem?
@@ -32,23 +32,21 @@ final class HotAccessCodeViewModel: ObservableObject {
         return isSuccessful ? Colors.Text.accent : Colors.Text.warning
     }
 
-    var resultPublisher: AnyPublisher<HotAccessCodeResult, Never> {
-        resultSubject
+    var actionPublisher: AnyPublisher<Action, Never> {
+        actionSubject
             .compactMap { $0 }
             .eraseToAnyPublisher()
     }
 
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-
-    private let manager: HotAccessCodeManager
-    private let useBiometrics: Bool
-
-    private let resultSubject: CurrentValueSubject<HotAccessCodeResult?, Never> = .init(nil)
+    private let actionSubject: CurrentValueSubject<Action?, Never> = .init(nil)
     private var bag: Set<AnyCancellable> = []
 
-    init(manager: HotAccessCodeManager, useBiometrics: Bool) {
-        self.manager = manager
-        self.useBiometrics = useBiometrics
+    private let userWalletId: UserWalletId
+    private let accessCodeManager: HotAccessCodeManager
+
+    init(userWalletId: UserWalletId, accessCodeManager: HotAccessCodeManager) {
+        self.userWalletId = userWalletId
+        self.accessCodeManager = accessCodeManager
         bind()
         setupUnlockItemIfNeeded()
     }
@@ -56,21 +54,21 @@ final class HotAccessCodeViewModel: ObservableObject {
 
 // MARK: - Internal methods
 
-extension HotAccessCodeViewModel {
+extension HotUnlockViewModel {
     func onCloseTap() {
-        onResult(.closed)
+        onAction(.closed)
     }
 
     func onDisappear() {
-        if resultSubject.value == nil {
-            onResult(.dismissed)
+        if actionSubject.value == nil {
+            onAction(.dismissed)
         }
     }
 }
 
 // MARK: - Private methods
 
-private extension HotAccessCodeViewModel {
+private extension HotUnlockViewModel {
     func bind() {
         $accessCode
             .dropFirst()
@@ -81,7 +79,7 @@ private extension HotAccessCodeViewModel {
             }
             .store(in: &bag)
 
-        manager.statePublisher
+        accessCodeManager.statePublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
@@ -94,33 +92,36 @@ private extension HotAccessCodeViewModel {
         guard accessCode.count == accessCodeLength else {
             return
         }
-        manager.validate(accessCode: accessCode)
+        accessCodeManager.validate(accessCode: accessCode)
     }
 }
 
 // MARK: - Unlocking
 
-private extension HotAccessCodeViewModel {
+private extension HotUnlockViewModel {
     func setupUnlockItemIfNeeded() {
-        // [REDACTED_TODO_COMMENT]
-        guard useBiometrics, BiometricsUtil.isAvailable else {
+        guard
+            BiometricsUtil.isAvailable,
+            AppSettings.shared.useBiometricAuthentication,
+            CommonHotSdk().isBiometricsEnabled(for: userWalletId)
+        else {
             return
         }
 
         unlockItem = UnlockItem(
             title: Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name),
-            action: weakify(self, forFunction: HotAccessCodeViewModel.unlockWithBiometry)
+            action: weakify(self, forFunction: HotUnlockViewModel.unlockWithBiometry)
         )
     }
 
     func unlockWithBiometry() {
-        onResult(.biometricsRequest)
+        onAction(.biometricsRequest)
     }
 }
 
 // MARK: - State handlers
 
-private extension HotAccessCodeViewModel {
+private extension HotUnlockViewModel {
     func handle(state: HotAccessCodeState) {
         switch state {
         case .available(let availableState):
@@ -172,7 +173,7 @@ private extension HotAccessCodeViewModel {
         isAccessCodeAvailable = false
         isSuccessful = true
         infoState = nil
-        onResult(.accessCodeSuccessful(context))
+        onAction(.accessCodeSuccessful(context))
     }
 
     func handleUnavailableState(_ state: HotAccessCodeState.UnavailableState) {
@@ -182,7 +183,7 @@ private extension HotAccessCodeViewModel {
 
         switch state {
         case .needsToDelete:
-            onResult(.unavailableDueToDeletion)
+            onAction(.unavailableDueToDeletion)
         }
     }
 
@@ -191,17 +192,17 @@ private extension HotAccessCodeViewModel {
     }
 }
 
-// MARK: - Result
+// MARK: - Callbacks
 
-private extension HotAccessCodeViewModel {
-    func onResult(_ result: HotAccessCodeResult) {
-        resultSubject.send(result)
+private extension HotUnlockViewModel {
+    func onAction(_ action: Action) {
+        actionSubject.send(action)
     }
 }
 
 // MARK: - Types
 
-extension HotAccessCodeViewModel {
+extension HotUnlockViewModel {
     enum InfoState {
         case warning(InfoWarningItem)
     }
@@ -213,5 +214,18 @@ extension HotAccessCodeViewModel {
     struct UnlockItem {
         let title: String
         let action: () -> Void
+    }
+
+    enum Action {
+        /// Access code was successfully entered.
+        case accessCodeSuccessful(MobileWalletContext)
+        /// Sent a request for biometrics.
+        case biometricsRequest
+        /// User tapped "Close" on the access code screen.
+        case closed
+        /// Access code screen was manually dismissed (e.g. swiped down).
+        case dismissed
+        /// Unavailable due wallet needs to be deleted.
+        case unavailableDueToDeletion
     }
 }
