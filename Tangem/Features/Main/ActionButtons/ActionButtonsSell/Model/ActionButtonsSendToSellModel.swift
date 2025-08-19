@@ -9,8 +9,6 @@
 import BlockchainSdk
 
 struct ActionButtonsSendToSellModel {
-    let amountToSend: Decimal
-    let destination: String
-    let tag: String?
+    let sellParameters: PredefinedSellParameters
     let walletModel: any WalletModel
 }

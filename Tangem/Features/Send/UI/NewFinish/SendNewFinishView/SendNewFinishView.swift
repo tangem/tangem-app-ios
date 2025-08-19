@@ -14,7 +14,6 @@ import TangemUI
 struct SendNewFinishView: View {
     @ObservedObject var viewModel: SendNewFinishViewModel
     let transitionService: SendTransitionService
-    let namespace: SendSummaryView.Namespace
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
@@ -26,16 +25,16 @@ struct SendNewFinishView: View {
                 SendNewAmountFinishView(viewModel: sendAmountFinishViewModel)
             }
 
+            if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+                NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
+            }
+
             if let sendDestinationCompactViewModel = viewModel.sendDestinationCompactViewModel {
                 SendNewDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
-            if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
-                SendFeeCompactView(
-                    viewModel: sendFeeCompactViewModel,
-                    type: .enabled(),
-                    namespace: .init(id: namespace.id, names: namespace.names)
-                )
+            if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
+                SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
         }
         .onAppear(perform: viewModel.onAppear)

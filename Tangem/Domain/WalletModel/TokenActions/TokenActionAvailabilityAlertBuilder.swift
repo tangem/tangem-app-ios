@@ -40,7 +40,7 @@ struct TokenActionAvailabilityAlertBuilder {
 
     func alert(for status: TokenActionAvailabilityProvider.SwapActionAvailabilityStatus) -> AlertBinder? {
         switch status {
-        case .available:
+        case .available, .hidden:
             return nil
         case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
