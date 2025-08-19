@@ -53,6 +53,7 @@ struct SelectorReceiveAssetsDomainItemView: View {
             Button(action: viewModel.copyAddressButtonDidTap) {
                 Assets.copyNew.image
                     .renderingMode(.template)
+                    .frame(size: .init(bothDimensions: 20))
                     .foregroundStyle(Colors.Icon.informative)
                     .padding(Layout.ButtomView.paddingIcon)
                     .background(
