@@ -203,41 +203,37 @@ extension XRPWalletManager: TransactionSender {
     var allowsFeeSelection: Bool { true }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        Publishers.Zip(
-            networkService.checkAccountCreated(account: decodeAddress(address: transaction.destinationAddress)),
-            networkService.getSequence(account: decodeAddress(address: transaction.sourceAddress))
-        )
-        .withWeakCaptureOf(self)
-        .tryMap { manager, results in
-            let (isAccountCreated, sequence) = results
-            let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-            let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
-            return txBuiltForSign
-        }
-        .mapSendTxError()
-        .withWeakCaptureOf(self)
-        .flatMap { manager, txBuiltForSign in
-            let (xrpTransaction, hash) = txBuiltForSign
+        return networkService
+            .getSequence(account: decodeAddress(address: transaction.sourceAddress))
+            .withWeakCaptureOf(self)
+            .tryMap { manager, sequence in
+                let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
+                let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
+                return txBuiltForSign
+            }
+            .mapSendTxError()
+            .withWeakCaptureOf(self)
+            .flatMap { manager, txBuiltForSign in
+                let (xrpTransaction, hash) = txBuiltForSign
 
-            if case .token(let token) = transaction.amount.type {
-                return manager.checkTrustlineAndSendToken(
-                    token: token,
+                if case .token(let token) = transaction.amount.type {
+                    return manager.checkTrustlineAndSendToken(
+                        token: token,
+                        transaction: transaction,
+                        signer: signer,
+                        xrpTransaction: xrpTransaction,
+                        hash: hash
+                    )
+                }
+
+                return manager.signAndSend(
                     transaction: transaction,
                     signer: signer,
                     xrpTransaction: xrpTransaction,
                     hash: hash
                 )
             }
-
-            return manager.signAndSend(
-                transaction: transaction,
-                signer: signer,
-                xrpTransaction: xrpTransaction,
-                hash: hash
-            )
             .eraseToAnyPublisher()
-        }
-        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
