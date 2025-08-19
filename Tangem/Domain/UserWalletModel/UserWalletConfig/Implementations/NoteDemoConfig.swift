@@ -30,10 +30,6 @@ struct NoteDemoConfig: CardContainer {
 }
 
 extension NoteDemoConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        nil
-    }
-
     var cardsCount: Int {
         1
     }
