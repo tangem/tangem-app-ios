@@ -19,16 +19,24 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     private weak var sourceTokenAmountInput: SendSourceTokenAmountInput?
     private weak var sourceTokenAmountOutput: SendSourceTokenAmountOutput?
 
+    private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveTokenOutput: SendReceiveTokenOutput?
+
     var updater: SendExternalAmountUpdater?
 
     private var captureAmount: SendAmount?
+    private var captureToken: SendReceiveTokenType?
 
     init(
         sourceTokenAmountInput: any SendSourceTokenAmountInput,
-        sourceTokenAmountOutput: any SendSourceTokenAmountOutput
+        sourceTokenAmountOutput: any SendSourceTokenAmountOutput,
+        receiveTokenInput: any SendReceiveTokenInput,
+        receiveTokenOutput: any SendReceiveTokenOutput,
     ) {
         self.sourceTokenAmountInput = sourceTokenAmountInput
         self.sourceTokenAmountOutput = sourceTokenAmountOutput
+        self.receiveTokenInput = receiveTokenInput
+        self.receiveTokenOutput = receiveTokenOutput
     }
 
     func update(amount: SendAmount?) {
@@ -36,11 +44,21 @@ class CommonSendNewAmountInteractorSaver: SendNewAmountInteractorSaver {
     }
 
     func captureValue() {
-        captureAmount = sourceTokenAmountInput?.amount
+        captureAmount = sourceTokenAmountInput?.sourceAmount.value
+        captureToken = receiveTokenInput?.receiveToken
     }
 
     func cancelChanges() {
         updater?.externalUpdate(amount: captureAmount?.main)
         sourceTokenAmountOutput?.sourceAmountDidChanged(amount: captureAmount)
+
+        if let captureToken, captureToken != receiveTokenInput?.receiveToken {
+            switch captureToken {
+            case .same:
+                receiveTokenOutput?.userDidRequestClearSelection()
+            case .swap(let receiveToken):
+                receiveTokenOutput?.userDidRequestSelect(receiveToken: receiveToken, selected: { _ in })
+            }
+        }
     }
 }
