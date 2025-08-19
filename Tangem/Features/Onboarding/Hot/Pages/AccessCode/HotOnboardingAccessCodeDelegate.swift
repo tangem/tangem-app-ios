@@ -9,6 +9,6 @@
 import Foundation
 
 protocol HotOnboardingAccessCodeDelegate: AnyObject {
-    func isRequestBiometricsNeeded() -> Bool
-    func accessCodeComplete(accessCode: String)
+    func getUserWalletModel() -> UserWalletModel?
+    func didCompleteAccessCode()
 }
