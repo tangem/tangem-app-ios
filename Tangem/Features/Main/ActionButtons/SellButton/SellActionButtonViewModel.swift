@@ -13,8 +13,8 @@ import struct TangemUIUtils.AlertBinder
 final class SellActionButtonViewModel: ActionButtonViewModel {
     // MARK: Dependencies
 
-    @Injected(\.exchangeService)
-    private var exchangeService: CombinedExchangeService
+    @Injected(\.sellService)
+    private var sellService: SellService
 
     // MARK: Published properties
 
@@ -32,7 +32,7 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
 
     private weak var coordinator: ActionButtonsSellFlowRoutable?
     private var bag: Set<AnyCancellable> = []
-    private var exchangeServiceState: ExchangeServiceState = .initializing
+    private var sellServiceState: SellServiceState = .initializing
 
     private let lastButtonTapped: PassthroughSubject<ActionButtonModel, Never>
     private let userWalletModel: UserWalletModel
@@ -94,7 +94,7 @@ private extension SellActionButtonViewModel {
     }
 
     private func handleInitialStateTap() {
-        switch exchangeServiceState {
+        switch sellServiceState {
         case .initializing: handleInitializingStateTap()
         case .initialized: handleInitializedStateTap()
         case .failed(let error): handleFailedStateTap(reason: error.localizedDescription)
@@ -116,11 +116,11 @@ private extension SellActionButtonViewModel {
             }
             .store(in: &bag)
 
-        exchangeService
-            .sellInitializationPublisher
+        sellService
+            .initializationPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                viewModel.exchangeServiceState = state
+                viewModel.sellServiceState = state
             }
             .store(in: &bag)
 
