@@ -40,7 +40,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationButtonIsLoading = false
 
-    @Published var transactionDescription: String?
+    @Published var transactionDescription: AttributedString?
     @Published var transactionDescriptionIsVisible: Bool = false
 
     var destinationCompactViewType: SendCompactViewEditableType {
