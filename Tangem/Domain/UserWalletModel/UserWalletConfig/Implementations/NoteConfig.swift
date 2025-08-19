@@ -29,10 +29,6 @@ struct NoteConfig: CardContainer {
 }
 
 extension NoteConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        nil
-    }
-
     var cardsCount: Int {
         1
     }
