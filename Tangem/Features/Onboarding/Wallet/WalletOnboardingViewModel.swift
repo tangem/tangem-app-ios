@@ -763,11 +763,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
                             pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == backupService.primaryCard?.cardId {
-                                userWalletModel?.onBackupUpdate(type: .primaryCardBackuped(card: updatedCard))
+                                userWalletModel?.update(type: .backupStarted(card: updatedCard))
                             }
+
+                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -779,7 +780,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 trySaveAccessCodes()
 
                                 pendingBackupManager.onBackupCompleted()
-                                userWalletModel?.onBackupUpdate(type: .backupCompleted)
+                                userWalletModel?.update(type: .backupCompleted)
                                 Analytics.log(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
@@ -960,21 +961,24 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
             return
         }
 
-        validationUserSeedPhraseModel = OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
-            secondWord: words[1],
-            seventhWord: words[6],
-            eleventhWord: words[10],
-            createWalletAction: { [weak self, mnemonic] in
-                self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
-            }
-        ))
+        validationUserSeedPhraseModel = OnboardingSeedPhraseUserValidationViewModel(
+            mode: .card,
+            validationInput: .init(
+                secondWord: words[1],
+                seventhWord: words[6],
+                eleventhWord: words[10],
+                createWalletAction: { [weak self, mnemonic] in
+                    self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
+                }
+            )
+        )
         mainButtonAction()
     }
 }
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
-    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
-        let isWithPassphrase = !(passphrase ?? "").isEmpty
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        let isWithPassphrase = !passphrase.isEmpty
         createWalletOnPrimaryCard(
             using: mnemonic,
             mnemonicPassphrase: passphrase,
