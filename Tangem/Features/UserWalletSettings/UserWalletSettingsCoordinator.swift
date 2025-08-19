@@ -64,7 +64,7 @@ extension UserWalletSettingsCoordinator {
 extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable,
-    HotBackupNeedRoutable,
+    HotBackupNeededRoutable,
     HotBackupTypesRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
@@ -118,16 +118,16 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openHotBackupNeeded() {
-        let viewModel = HotBackupNeededViewModel(routable: self)
+    func openHotBackupNeeded(userWalletModel: UserWalletModel) {
+        let viewModel = HotBackupNeededViewModel(userWalletModel: userWalletModel, routable: self)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openHotBackupTypes() {
-        hotBackupTypesViewModel = HotBackupTypesViewModel(routable: self)
+    func openHotBackupTypes(userWalletModel: UserWalletModel) {
+        hotBackupTypesViewModel = HotBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
     }
 
     func openAppSettings() {
@@ -155,12 +155,12 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - HotBackupOnboardingRoutable
 
-    func openHotBackupOnboarding() {
-        let backupInput = HotOnboardingInput(flow: .walletActivate)
+    func openHotBackupOnboarding(userWalletModel: UserWalletModel) {
+        let backupInput = HotOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
         openOnboardingModal(with: .hotInput(backupInput))
     }
 
-    // MARK: - HotBackupNeedRoutable
+    // MARK: - HotBackupNeededRoutable
 
     func dismissHotBackupNeeded() {
         Task { @MainActor in
@@ -168,10 +168,13 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
+    func openHotOnboarding(input: HotOnboardingInput) {
+        openOnboardingModal(with: .hotInput(input))
+    }
+
     // MARK: - HotBackupTypesRoutable
 
-    func openHotBackupSeedPhrase() {
-        let backupInput = HotOnboardingInput(flow: .seedPhraseBackup)
-        openOnboardingModal(with: .hotInput(backupInput))
+    func openOnboarding(input: HotOnboardingInput) {
+        openOnboardingModal(with: .hotInput(input))
     }
 }
