@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendFeeCompactView: View {
     @ObservedObject var viewModel: SendFeeCompactViewModel
@@ -32,6 +33,7 @@ struct SendFeeCompactView: View {
                         namespace: namespace.id
                     )
                 )
+                .accessibilityIdentifier(feeRowViewModel.option.accessibilityIdentifier)
         } header: {
             DefaultHeaderView(Localization.commonNetworkFeeTitle)
                 .matchedGeometryEffect(id: namespace.names.feeTitle, in: namespace.id)
@@ -47,5 +49,6 @@ struct SendFeeCompactView: View {
                 action()
             }
         }
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }
