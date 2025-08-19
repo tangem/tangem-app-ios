@@ -145,6 +145,7 @@
 "common_access_denied" = "Accès refusé";
 "common_add_to_portfolio" = "Ajouter au portfolio";
 "common_add_token" = "Ajouter un jeton";
+"common_address" = "Adresse";
 "common_all" = "Tous";
 "common_allow" = "Permettre";
 "common_amount" = "Montant";
@@ -191,7 +192,7 @@
 "common_disconnect" = "Se déconnecter";
 "common_done" = "Exécuté";
 "common_edit" = "Modifier";
-"common_enable" = "Enable";
+"common_enable" = "Activer";
 "common_enabled" = "Activé";
 "common_error" = "Erreur";
 "common_exchange" = "Échangez";
@@ -280,6 +281,7 @@
 "common_transaction_status" = "Statut de la transaction";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfert";
+"common_unable_to_load" = "Unable to load the data…";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
 "common_unreachable" = "Inaccessible";
@@ -477,6 +479,7 @@
 "hw_create_seed_description" = "Restez informé des dernières fonctionnalités et actualités";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
 "information_generated_with_ai" = "Ces informations ont été générées avec l'IA.\nAppuyez ici si vous trouvez des erreurs.";
 "initial_message_change_access_code_body" = "Touchez, pour modifier le code d'accès";
@@ -1447,12 +1450,18 @@
 "warning_token_trustline_button_title" = "Activer Trustline";
 "warning_token_trustline_subtitle" = "Une Trustline doit être activée pour recevoir ce jeton. Le réseau requiert une réserve de %1$@ %2$@";
 "warning_token_trustline_title" = "Trustline requise";
+"wc_alert_add_network_to_portfolio_description" = "The required network %@ is not added to your portfolio. Add it first, then proceed with the connection.";
+"wc_alert_add_network_to_portfolio_title" = "Add network to portfolio";
 "wc_alert_audit_malicious_domain" = "Domaine malveillant";
 "wc_alert_audit_unknown_domain" = "Unknown domain";
 "wc_alert_connect_anyway" = "Connect anyway";
 "wc_alert_connection_timeout_description" = "Timeout error. Please, try again later.";
 "wc_alert_connection_timeout_title" = "Failed to establish WalletConnect";
 "wc_alert_domain_issues_description" = "This domain cannot be verified. Check the request carefully approving.";
+"wc_alert_network_not_connected_description" = "To continue, please reconnect your dApp session with the required network %@.";
+"wc_alert_network_not_connected_title" = "Network not connected";
+"wc_alert_request_timeout_description" = "Check your network connection";
+"wc_alert_request_timeout_title" = "Request timeout";
 "wc_alert_session_disconnected_description" = "Please return to your browser and reconnect via WalletConnect.";
 "wc_alert_session_disconnected_title" = "Wallet Connect session was disconnected";
 "wc_alert_sign_anyway" = "Signer quand même";
@@ -1463,9 +1472,11 @@
 "wc_alert_unsupported_dapps_title" = "dApp non prise en charge";
 "wc_alert_unsupported_method_description" = "Code d'erreur : 8 005. Si le problème persiste, n'hésitez pas à contacter notre support.";
 "wc_alert_unsupported_method_title" = "Nous avons rencontré une erreur inconnue";
+"wc_alert_unsupported_network_description" = "This network %@ is not supported by Tangem Wallet and cannot be connected.";
+"wc_alert_unsupported_network_title" = "Unsupported network";
 "wc_alert_unsupported_networks_description" = "Tangem does not currently support a required network by %@.";
 "wc_alert_unsupported_networks_title" = "Unsupported networks";
-"wc_alert_verified_domain_description" = "Tangem support a required network by %@";
+"wc_alert_verified_domain_description" = "Ce domaine a passé les contrôles de vérification et est considéré comme sûr, fiable et exempt de menaces connues ou d’activités suspectes.%@";
 "wc_alert_verified_domain_title" = "Verified domain";
 "wc_alert_wrong_card_description" = "Wrong card or ring selected in the App";
 "wc_alert_wrong_card_title" = "We've got some kind of problem";
@@ -1492,7 +1503,7 @@
 "wc_copy_data_button_text" = "Copier les données";
 "wc_custom_allowance_title" = "Custom allowance";
 "wc_dapp_disconnected" = "dApp disconnected";
-"wc_disconnect_all_alert_desc" = "Texte sur la déconnexion de toutes les dApps";
+"wc_disconnect_all_alert_desc" = "Toutes les sessions dApp seront déconnectées. Votre portefeuille ne sera plus lié à aucune dApp.";
 "wc_disconnect_all_alert_title" = "Déconnecter toutes les dApps";
 "wc_disconnect_all" = "Déconnecter tout";
 "wc_errors_invalid_domain_subtitle" = "Essayez de jumeler à nouveau avec un nouvel URI";
@@ -1530,7 +1541,7 @@
 "wc_unlimited_amount" = "Montant illimité";
 "wc_uri_already_used_description" = "Ensure that each pairing attempt uses a fresh and unique URI";
 "wc_uri_already_used_title" = "URI already used";
-"wc_wallet_connect" = "Wallet connect";
+"wc_wallet_connect" = "WalletConnect";
 "wc_warning_transaction" = "Suspicious transaction";
 "welcome_interrupted_backup_alert_discard" = "Ignorer";
 "welcome_interrupted_backup_alert_message" = "Vous avez une sauvegarde interrompue. Voulez-vous la reprendre ?";
