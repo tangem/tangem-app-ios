@@ -74,6 +74,8 @@ class SendCoordinator: CoordinatorObject {
             rootViewModel = factory.makeNewSendViewModel(router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
+        case .sell(let parameters) where FeatureProvider.isAvailable(.sellNewSendUI):
+            rootViewModel = factory.makeNewSellViewModel(sellParameters: parameters, router: self)
         case .sell(let parameters):
             rootViewModel = factory.makeSellViewModel(sellParameters: parameters, router: self)
         case .staking(let manager) where stakingParams.isStakingAmountEditable:
