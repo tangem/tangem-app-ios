@@ -102,6 +102,10 @@ final class PrivateInfoStorageManager {
         )
     }
 
+    func isBiometricsEnabled(walletID: UserWalletId) -> Bool {
+        encryptedBiometricsStorage.hasData(keyTag: walletID.encryptionKeyBiometricsTag)
+    }
+
     func clearBiometrics(walletIDs: [UserWalletId]) {
         walletIDs.forEach { walletID in
             // errors are ignored here, as biometrics storage is optional
