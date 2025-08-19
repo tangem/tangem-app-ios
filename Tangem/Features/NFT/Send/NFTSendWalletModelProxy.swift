@@ -49,6 +49,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         WalletModelId(tokenItem: tokenItem)
     }
 
+    var userWalletId: UserWalletId {
+        mainTokenWalletModel.userWalletId
+    }
+
     var name: String {
         asset.name
     }
@@ -342,6 +346,10 @@ extension NFTSendWalletModelProxy: WalletModel {
     var existentialDepositWarning: String? {
         // No existential deposit for NFT
         nil
+    }
+
+    var account: any CryptoAccountModel {
+        mainTokenWalletModel.account
     }
 
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
