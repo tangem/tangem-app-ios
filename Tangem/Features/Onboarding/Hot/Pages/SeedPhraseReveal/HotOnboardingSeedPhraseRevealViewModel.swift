@@ -10,12 +10,12 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingSeedPhraseRevealViewModel: ObservableObject {
     @Published var state: State?
 
-    private let hotSdk: HotSdk = CommonHotSdk()
+    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let context: MobileWalletContext
 
@@ -31,7 +31,7 @@ private extension HotOnboardingSeedPhraseRevealViewModel {
     func setup() {
         runTask(in: self) { viewModel in
             do {
-                let mnemonic = try viewModel.hotSdk.exportMnemonic(context: viewModel.context)
+                let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: viewModel.context)
                 await viewModel.setupState(mnemonic: mnemonic)
             } catch {
                 AppLogger.error("Export mnemonic to reveal failed:", error: error)
