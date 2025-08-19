@@ -39,10 +39,6 @@ struct TwinConfig: CardContainer {
 }
 
 extension TwinConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        Localization.cardLabelCardCount(cardsCount)
-    }
-
     var cardsCount: Int {
         2
     }
