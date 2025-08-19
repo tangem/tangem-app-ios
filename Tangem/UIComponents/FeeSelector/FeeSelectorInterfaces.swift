@@ -36,6 +36,7 @@ protocol FeeSelectorContentViewModelOutput: AnyObject {
 }
 
 protocol FeeSelectorContentViewModelAnalytics {
+    func logFeeStepOpened()
     func logSendFeeSelected(_ feeOption: FeeOption)
 }
 
