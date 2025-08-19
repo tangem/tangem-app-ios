@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 enum HotAccessCodeState: Equatable {
     /// Access code is available for user input.
