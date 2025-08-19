@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 import BlockchainSdk
 import Combine
 import TangemSdk
@@ -15,7 +15,7 @@ import TangemFoundation
 
 final class MobileWalletSigner {
     let userWalletConfig: UserWalletConfig
-    let hotSdk = CommonHotSdk()
+    let mobileWalletSdk = CommonMobileWalletSdk()
 
     init(userWalletConfig: UserWalletConfig) {
         self.userWalletConfig = userWalletConfig
@@ -65,8 +65,8 @@ extension MobileWalletSigner: TangemSigner {
             .eraseToAnyPublisher()
 
         let signedDataPublisher = mobileWalletContextPublisher
-            .tryMap { [hotSdk] context in
-                try hotSdk.sign(
+            .tryMap { [mobileWalletSdk] context in
+                try mobileWalletSdk.sign(
                     dataToSign: dataToSign,
                     seedKey: walletPublicKey.seedKey,
                     context: context

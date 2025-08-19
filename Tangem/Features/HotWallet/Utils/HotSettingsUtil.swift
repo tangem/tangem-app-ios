@@ -9,7 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotSettingsUtil {
     private var isAccessCodeFeatureAvailable: Bool {
@@ -28,7 +28,7 @@ final class HotSettingsUtil {
         userWalletModel.config
     }
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private lazy var authUtil = HotAuthUtil(
         userWalletId: userWalletModel.userWalletId,

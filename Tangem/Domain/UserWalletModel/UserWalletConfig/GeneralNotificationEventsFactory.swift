@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 struct GeneralNotificationEventsFactory {
     func makeNotifications(for card: CardDTO) -> [GeneralNotificationEvent] {
