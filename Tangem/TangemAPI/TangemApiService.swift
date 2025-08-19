@@ -96,8 +96,6 @@ protocol TangemApiService: AnyObject {
 
     func loadAPIList() async throws -> APIListDTO
 
-    func setAuthData(_ authData: TangemApiTarget.AuthData)
-
     // MARK: - Notification
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem]
