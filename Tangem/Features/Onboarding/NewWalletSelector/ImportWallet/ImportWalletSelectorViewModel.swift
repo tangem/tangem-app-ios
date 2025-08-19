@@ -176,8 +176,8 @@ private extension ImportWalletSelectorViewModel {
 
 private extension ImportWalletSelectorViewModel {
     func openImportSeedPhrase() {
-        let input = HotOnboardingInput(flow: .walletImport)
-        let options = OnboardingCoordinator.Options.hotInput(input)
+        let input = MobileOnboardingInput(flow: .walletImport)
+        let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }
 
