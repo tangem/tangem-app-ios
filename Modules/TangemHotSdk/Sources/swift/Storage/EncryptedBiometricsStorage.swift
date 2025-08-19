@@ -18,10 +18,10 @@ final class EncryptedBiometricsStorage {
 
     init(
         biometricsStorage: HotBiometricsStorage = BiometricsStorage(),
-        secureEnclaveService: HotBiometricsSecureEnclaveService = BiometricsSecureEnclaveService()
+        secureEnclaveBiometricsService: HotBiometricsSecureEnclaveService = BiometricsSecureEnclaveService()
     ) {
         self.biometricsStorage = biometricsStorage
-        secureEnclaveBiometricsService = secureEnclaveService
+        self.secureEnclaveBiometricsService = secureEnclaveBiometricsService
     }
 
     func storeData(
@@ -36,6 +36,10 @@ final class EncryptedBiometricsStorage {
         )
 
         try biometricsStorage.store(secureEnclaveEncryptedKey, forKey: keyTag)
+    }
+
+    func hasData(keyTag: String) -> Bool {
+        biometricsStorage.hasValue(account: keyTag)
     }
 
     func getData(
