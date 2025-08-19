@@ -88,7 +88,7 @@ private extension WalletConnectDAppDomainVerificationViewState {
             severity: .verified,
             iconAsset: iconAsset(for: .verified),
             title: title(for: .verified),
-            body: Localization.wcAlertVerifiedDomainDescription(dAppName),
+            body: Localization.wcAlertVerifiedDomainDescription,
             badge: badge(for: .verified),
             buttons: [.done]
         )
