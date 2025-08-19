@@ -18,7 +18,7 @@ public struct ExpressProvider: Hashable {
     public let termsOfUse: URL?
     public let privacyPolicy: URL?
     public let recommended: Bool?
-    public let slippage: Double?
+    public let slippage: Decimal?
 
     public init(
         id: Id,
@@ -28,7 +28,7 @@ public struct ExpressProvider: Hashable {
         termsOfUse: URL?,
         privacyPolicy: URL?,
         recommended: Bool?,
-        slippage: Double?
+        slippage: Decimal?
     ) {
         self.id = id
         self.name = name
