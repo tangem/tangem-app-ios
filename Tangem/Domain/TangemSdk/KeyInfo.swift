@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 /// Describing wallets created on card or hot wallet
 struct KeyInfo: Codable {
@@ -38,7 +38,7 @@ extension CardDTO.Wallet {
     }
 }
 
-extension HotWalletKeyInfo {
+extension MobileWalletKeyInfo {
     var keyInfo: KeyInfo {
         KeyInfo(
             publicKey: publicKey,

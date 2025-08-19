@@ -9,8 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemFoundation
-import TangemHotSdk
-import class TangemSdk.BiometricsUtil
+import TangemMobileWalletSdk
 
 final class HotSettingsUtil {
     private var isAccessCodeFeatureAvailable: Bool {
@@ -25,15 +24,21 @@ final class HotSettingsUtil {
         userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
     }
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
-    private lazy var accessCodeUtil = HotAccessCodeUtil(userWalletId: userWalletId, config: userWalletConfig)
+    private var userWalletConfig: UserWalletConfig {
+        userWalletModel.config
+    }
 
-    private let userWalletId: UserWalletId
-    private let userWalletConfig: UserWalletConfig
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+
+    private lazy var authUtil = HotAuthUtil(
+        userWalletId: userWalletModel.userWalletId,
+        config: userWalletModel.config
+    )
+
+    private let userWalletModel: UserWalletModel
 
     init(userWalletModel: UserWalletModel) {
-        userWalletId = userWalletModel.userWalletId
-        userWalletConfig = userWalletModel.config
+        self.userWalletModel = userWalletModel
     }
 }
 
@@ -48,7 +53,7 @@ extension HotSettingsUtil {
         }
 
         if isBackupFeatureAvailable {
-            settings.append(.backup(hasBackup: !isBackupNeeded))
+            settings.append(.backup(needsBackup: isBackupNeeded))
         }
 
         return settings
@@ -82,14 +87,11 @@ extension HotSettingsUtil {
 private extension HotSettingsUtil {
     func unlock() async -> UnlockResult {
         do {
-            let result = try await accessCodeUtil.unlock(method: .default(useBiometrics: false))
+            let result = try await authUtil.unlock()
 
             switch result {
-            case .accessCode(let context):
-                return try handleAccessCodeUnlockResult(context: context)
-
-            case .biometricsRequired:
-                return await unlockWithBiometrics()
+            case .successful(let context):
+                return .successful(context: context)
 
             case .canceled:
                 return .canceled
@@ -102,55 +104,6 @@ private extension HotSettingsUtil {
         } catch {
             return .failed
         }
-    }
-
-    func unlockWithBiometrics() async -> UnlockResult {
-        do {
-            let laContext = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
-            let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
-            return .successful(context: context)
-        } catch {
-            return await unlockWithAccessCode()
-        }
-    }
-
-    func unlockWithAccessCode() async -> UnlockResult {
-        do {
-            let result = try await accessCodeUtil.unlock(method: .manual(useBiometrics: false))
-
-            switch result {
-            case .accessCode(let context):
-                return try handleAccessCodeUnlockResult(context: context)
-
-            case .biometricsRequired:
-                assertionFailure("Case \(result): should never occur in unlock with access-code flow.")
-                return .failed
-
-            case .canceled:
-                return .canceled
-
-            case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
-                return .failed
-            }
-
-        } catch {
-            AppLogger.error("Unlock with AccessCode failed:", error: error)
-            return .failed
-        }
-    }
-
-    func handleAccessCodeUnlockResult(context: MobileWalletContext) throws -> UnlockResult {
-        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
-
-        guard
-            let configEncryptionKey = UserWalletEncryptionKey(config: userWalletConfig),
-            encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
-        else {
-            throw MobileWalletError.encryptionKeyMismatched
-        }
-
-        return .successful(context: context)
     }
 
     enum UnlockResult {
@@ -165,7 +118,7 @@ private extension HotSettingsUtil {
 extension HotSettingsUtil {
     enum WalletSetting {
         case accessCode
-        case backup(hasBackup: Bool)
+        case backup(needsBackup: Bool)
     }
 
     enum AccessCodeState {

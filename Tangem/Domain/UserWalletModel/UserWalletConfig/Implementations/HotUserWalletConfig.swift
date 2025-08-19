@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 import TangemLocalization
 
@@ -21,8 +21,8 @@ struct HotUserWalletConfig {
 extension HotUserWalletConfig: UserWalletConfig {
     var cardsCount: Int { 0 }
 
-    var cardSetLabel: String? {
-        Localization.authWalletMobileDescription
+    var cardSetLabel: String {
+        Localization.hwMobileWallet
     }
 
     var defaultName: String { Localization.hwMobileWallet }
@@ -93,7 +93,6 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     var cardHeaderImage: ImageType? {
-        #warning("Add asset")
         return nil
     }
 
@@ -152,11 +151,11 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     func makeBackupService() -> BackupService {
-        fatalError("Unimplemented")
+        fatalError("Implementation not required")
     }
 
     func makeTangemSdk() -> TangemSdk {
-        fatalError("Unimplemented")
+        fatalError("Implementation not required")
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> any WalletModelsFactory {
@@ -168,11 +167,10 @@ extension HotUserWalletConfig: UserWalletConfig {
     }
 
     func makeMainHeaderProviderFactory() -> any MainHeaderProviderFactory {
-        CommonMainHeaderProviderFactory()
+        HotMainHeaderProviderFactory()
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder {
-        #warning("Add asset")
-        fatalError("Unimplemented")
+        fatalError("Implementation not required")
     }
 }

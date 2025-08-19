@@ -13,7 +13,7 @@ struct ReceiveFlowFactory {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
     private let addressInfos: [ReceiveAddressInfo]
-    private let coordinator: (TokenAlertReceiveAssetsRoutable & SelectorReceiveAssetItemRoutable)?
+    private let coordinator: ReceiveFlowCoordinator?
 
     // MARK: - Init
 
@@ -21,10 +21,7 @@ struct ReceiveFlowFactory {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressInfos: [ReceiveAddressInfo],
-        coordinator: (
-            TokenAlertReceiveAssetsRoutable &
-                SelectorReceiveAssetItemRoutable
-        )? = nil
+        coordinator: ReceiveFlowCoordinator? = nil
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
@@ -83,7 +80,14 @@ struct ReceiveFlowFactory {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
+    func makeQRCodeReceiveAssetViewModel(with addressInfo: ReceiveAddressInfo) -> QRCodeReceiveAssetsViewModel {
+        QRCodeReceiveAssetsViewModel(
+            flow: flow,
+            tokenItem: tokenItem,
+            addressInfo: addressInfo,
+            coordinator: coordinator
+        )
+    }
 
     // MARK: - Private Implementation
 
