@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct StakingDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: StakingDetailsCoordinator
