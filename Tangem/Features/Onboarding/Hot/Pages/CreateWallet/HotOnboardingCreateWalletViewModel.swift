@@ -9,10 +9,16 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
+import TangemHotSdk
+import TangemFoundation
 
-final class HotOnboardingCreateWalletViewModel {
+final class HotOnboardingCreateWalletViewModel: ObservableObject {
+    @Published var isCreating: Bool = false
+
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
@@ -27,7 +33,34 @@ final class HotOnboardingCreateWalletViewModel {
 
 extension HotOnboardingCreateWalletViewModel {
     func onCreateTap() {
-        delegate?.onCreateWallet()
+        isCreating = true
+
+        runTask(in: self) { viewModel in
+            do {
+                let initializer = MobileWalletInitializer()
+
+                let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+
+                guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                    walletInfo: .mobileWallet(walletInfo),
+                    keys: .mobileWallet(keys: walletInfo.keys),
+                ) else {
+                    throw UserWalletRepositoryError.cantUnlockWallet
+                }
+
+                try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                await runOnMain {
+                    viewModel.isCreating = false
+                    viewModel.handleWalletCreated(newUserWalletModel)
+                }
+            } catch {
+                AppLogger.error("Failed to create wallet", error: error)
+                await runOnMain {
+                    viewModel.isCreating = false
+                }
+            }
+        }
     }
 }
 
@@ -47,6 +80,10 @@ private extension HotOnboardingCreateWalletViewModel {
                 subtitle: Localization.hwCreateSeedDescription
             ),
         ]
+    }
+
+    func handleWalletCreated(_ newUserWalletModel: UserWalletModel) {
+        delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
     }
 }
 
