@@ -64,7 +64,7 @@ extension ExpressDTO {
                 let termsOfUse: String?
                 let privacyPolicy: String?
                 let recommended: Bool?
-                let slippage: Double?
+                let slippage: Decimal?
             }
         }
 
