@@ -9,6 +9,7 @@
 struct SendAmountFormatter {
     let fiatCurrencyCode: String
     let balanceFormatter: BalanceFormatter
+    let decimalNumberFormatter: DecimalNumberFormatter
     let cryptoValueFormatter: SendCryptoValueFormatter
 
     init(
@@ -20,11 +21,24 @@ struct SendAmountFormatter {
         fiatCurrencyCode = fiatItem.currencyCode
         self.balanceFormatter = balanceFormatter
 
+        decimalNumberFormatter = .init(maximumFractionDigits: tokenItem.decimalCount)
         cryptoValueFormatter = .init(
             decimals: tokenItem.decimalCount,
             currencySymbol: tokenItem.currencySymbol,
             trimFractions: trimFractions
         )
+    }
+
+    /// Without `currencySymbol`. Just number
+    func formatMain(amount: SendAmount?) -> String {
+        switch amount?.type {
+        case .typical(.some(let crypto), _):
+            return decimalNumberFormatter.mapToString(decimal: crypto)
+        case .alternative(.some(let fiat), _):
+            return decimalNumberFormatter.mapToString(decimal: fiat)
+        default:
+            return decimalNumberFormatter.mapToString(decimal: .zero)
+        }
     }
 
     /// 0,00 is value is nil
