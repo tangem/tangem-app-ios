@@ -532,7 +532,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
 
-    var cardsCount: Int { 1 }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var hasImportedWallets: Bool { false }
 
