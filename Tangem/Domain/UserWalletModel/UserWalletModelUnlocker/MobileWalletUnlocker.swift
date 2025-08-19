@@ -8,13 +8,13 @@
 
 import Foundation
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 class MobileWalletUnlocker: UserWalletModelUnlocker {
     let canUnlockAutomatically: Bool
     let canShowUnlockUIAutomatically: Bool
 
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private lazy var unlockUtil = HotUnlockUtil(
         userWalletId: userWalletId,
@@ -35,7 +35,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
     func unlock() async -> UserWalletModelUnlockerResult {
         do {
             if canUnlockAutomatically {
-                let context = try hotSdk.validate(auth: .none, for: userWalletId)
+                let context = try mobileWalletSdk.validate(auth: .none, for: userWalletId)
                 return try makeSuccessResult(context: context)
             } else {
                 let unlockResult = try await unlockUtil.unlock()
@@ -52,7 +52,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
 
 private extension MobileWalletUnlocker {
     func makeSuccessResult(context: MobileWalletContext) throws -> UserWalletModelUnlockerResult {
-        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+        let encryptionKey = try mobileWalletSdk.userWalletEncryptionKey(context: context)
         return .success(userWalletId: userWalletId, encryptionKey: encryptionKey)
     }
 }

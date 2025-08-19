@@ -9,11 +9,11 @@
 import Foundation
 import LocalAuthentication
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class HotAuthUtil {
-    private lazy var hotSdk: HotSdk = CommonHotSdk()
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private var isAccessCodeSet: Bool {
         !config.hasFeature(.userWalletAccessCode)
@@ -25,8 +25,8 @@ final class HotAuthUtil {
 
     private var isBiometricsAvailable: Bool {
         BiometricsUtil.isAvailable &&
-        AppSettings.shared.useBiometricAuthentication &&
-        hotSdk.isBiometricsEnabled(for: userWalletId)
+            AppSettings.shared.useBiometricAuthentication &&
+            mobileWalletSdk.isBiometricsEnabled(for: userWalletId)
     }
 
     private lazy var unlockUtil = HotUnlockUtil(
@@ -53,7 +53,7 @@ extension HotAuthUtil {
         if isAccessCodeSet {
             return try await unlockResult()
         } else {
-            let context = try hotSdk.validate(auth: .none, for: userWalletId)
+            let context = try mobileWalletSdk.validate(auth: .none, for: userWalletId)
             return .successful(context)
         }
     }
@@ -96,12 +96,12 @@ private extension HotAuthUtil {
 
 private extension HotAuthUtil {
     func handleBiometrics(laContext: LAContext) throws -> Result {
-        let context = try hotSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
+        let context = try mobileWalletSdk.validate(auth: .biometrics(context: laContext), for: userWalletId)
         return .successful(context)
     }
 
     func handleAccessCode(context: MobileWalletContext) throws -> Result {
-        let encryptionKey = try hotSdk.userWalletEncryptionKey(context: context)
+        let encryptionKey = try mobileWalletSdk.userWalletEncryptionKey(context: context)
         guard
             let configEncryptionKey = UserWalletEncryptionKey(config: config),
             encryptionKey.symmetricKey == configEncryptionKey.symmetricKey

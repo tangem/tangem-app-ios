@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemLocalization
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 final class HotOnboardingRevealSeedPhraseFlowBuilder: HotOnboardingFlowBuilder {
     private let context: MobileWalletContext
