@@ -175,8 +175,8 @@ private extension NewAuthViewModel {
         }
     }
 
-    /// Returns wallet if it is single hot protected wallet in repository.
-    func singleProtectedHotWallet() -> UserWalletModel? {
+    /// Returns wallet if it is single mobile protected wallet in repository.
+    func singleProtectedMobileWallet() -> UserWalletModel? {
         guard
             userWalletRepository.models.count == 1,
             let userWalletModel = userWalletRepository.models.first
@@ -223,7 +223,7 @@ private extension NewAuthViewModel {
             switch state {
             case .locked:
                 setup(state: makeWalletsState())
-                if let userWalletModel = singleProtectedHotWallet() {
+                if let userWalletModel = singleProtectedMobileWallet() {
                     unlock(userWalletModel: userWalletModel)
                 }
             case .wallets:
