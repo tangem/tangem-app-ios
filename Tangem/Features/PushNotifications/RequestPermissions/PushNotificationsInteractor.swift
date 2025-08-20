@@ -14,6 +14,8 @@ protocol PushNotificationsInteractor: Initializable {
     func allowRequest(in flow: PushNotificationsPermissionRequestFlow) async
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow)
 
+    func logRequest(in flow: PushNotificationsPermissionRequestFlow)
+
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> { get }
 }
 
