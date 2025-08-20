@@ -1,16 +1,16 @@
 //
-//  CommonProviderItemSorter.swift
+//  ProviderItemSorter.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-public extension ProviderItemSorter where Self == CommonProviderItemSorter {
-    static var `default`: Self { .init() }
-}
+import Foundation
 
-public struct CommonProviderItemSorter: ProviderItemSorter {
+public struct ProviderItemSorter {
+    public init() {}
+
     public func sort(lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
         switch (lhs.state, rhs.state) {
         case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
@@ -33,9 +33,5 @@ public struct CommonProviderItemSorter: ProviderItemSorter {
         default:
             return false
         }
-    }
-
-    public func sort(lhs: OnrampPaymentMethod, rhs: OnrampPaymentMethod) -> Bool {
-        lhs.type.priority > rhs.type.priority
     }
 }

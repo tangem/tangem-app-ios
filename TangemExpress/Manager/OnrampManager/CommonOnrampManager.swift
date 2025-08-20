@@ -10,7 +10,12 @@ import TangemFoundation
 
 public struct PreferredProvider {
     public let providerId: String
-    public let paymentMethod: OnrampPaymentMethod
+    public let paymentMethodType: OnrampPaymentMethod.MethodType
+
+    public init(providerId: String, paymentMethodType: OnrampPaymentMethod.MethodType) {
+        self.providerId = providerId
+        self.paymentMethodType = paymentMethodType
+    }
 }
 
 public actor CommonOnrampManager {
@@ -18,6 +23,7 @@ public actor CommonOnrampManager {
     private let onrampRepository: OnrampRepository
     private let dataRepository: OnrampDataRepository
     private let analyticsLogger: ExpressAnalyticsLogger
+    private let sorter: ProviderItemSorter
     private let preferredProvider: PreferredProvider?
 
     public init(
@@ -25,12 +31,14 @@ public actor CommonOnrampManager {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
+        sorter: ProviderItemSorter = .init(),
         preferredProvider: PreferredProvider?
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
         self.dataRepository = dataRepository
         self.analyticsLogger = analyticsLogger
+        self.sorter = sorter
         self.preferredProvider = preferredProvider
     }
 }
@@ -76,7 +84,7 @@ extension CommonOnrampManager: OnrampManager {
     public func suggestProvider(in providers: ProvidersList, paymentMethod: OnrampPaymentMethod) throws -> OnrampProvider {
         OnrampLogger.info(self, "Payment method was updated by user to: \(paymentMethod.name)")
 
-        guard let providerItem = providers.select(for: paymentMethod) else {
+        guard let providerItem = providers.select(for: paymentMethod.type) else {
             throw OnrampManagerError.noProviderForPaymentMethod
         }
 
@@ -130,9 +138,8 @@ private extension CommonOnrampManager {
         if let preferredProvider {
             OnrampLogger.info(self, "Has preferredProvider \(preferredProvider)")
 
-            if let providerItem = providers.select(for: preferredProvider.paymentMethod),
+            if let providerItem = providers.select(for: preferredProvider.paymentMethodType),
                let preferredProvider = providerItem.preferredProvider(providerId: preferredProvider.providerId) {
-
                 OnrampLogger.info(self, "The selected preferred provider provider is \(preferredProvider)")
                 return preferredProvider
             }
