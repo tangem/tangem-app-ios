@@ -47,11 +47,17 @@ enum BannerPromotionPlacement {
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
     case ring
+    case onrampSEPAWithMercuryo
+
+    var id: String { rawValue }
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
         case .ring:
             return Analytics.ParameterValue.ring
+        case .onrampSEPAWithMercuryo:
+            // [REDACTED_TODO_COMMENT]
+            return Analytics.ParameterValue.onramp
         }
     }
 }
