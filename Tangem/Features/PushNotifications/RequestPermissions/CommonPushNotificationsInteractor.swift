@@ -128,6 +128,11 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         logPostponedRequest(in: flow)
     }
 
+    func logRequest(in flow: PushNotificationsPermissionRequestFlow) {
+        let source = analyticsSourceValue(for: flow)
+        Analytics.log(.pushNotificationScreenOpened, params: [.source: source])
+    }
+
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> {
         _permissionRequestEventSubject.eraseToAnyPublisher()
     }
