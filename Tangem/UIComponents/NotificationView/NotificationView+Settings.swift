@@ -58,7 +58,7 @@ extension NotificationView {
         var id: Int { actionType.id }
 
         static func == (lhs: NotificationButton, rhs: NotificationButton) -> Bool {
-            return lhs.actionType == rhs.actionType
+            return lhs.actionType.id == rhs.actionType.id
         }
     }
 
