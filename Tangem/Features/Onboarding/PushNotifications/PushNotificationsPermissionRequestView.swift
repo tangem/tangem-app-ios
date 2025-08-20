@@ -74,6 +74,7 @@ struct PushNotificationsPermissionRequestView: View {
             buttonsContainer
                 .layoutPriority(101) // Higher layout priority causes spacers to collapse if there is not enough vertical space
         }
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
