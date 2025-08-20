@@ -509,6 +509,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openReferralProgram()
         case .openMobileFinishActivation:
             openMobileFinishActivation()
+        case .openBuyCrypto(let walletModel):
+            coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel)
         default:
             break
         }
