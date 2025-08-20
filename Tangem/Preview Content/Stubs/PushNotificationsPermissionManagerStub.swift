@@ -13,4 +13,6 @@ struct PushNotificationsPermissionManagerStub: PushNotificationsPermissionManage
 
     func allowPermissionRequest() async {}
     func postponePermissionRequest() {}
+
+    func logPushNotificationScreenOpened() {}
 }
