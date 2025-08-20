@@ -11,10 +11,10 @@ import TangemExpress
 import TangemFoundation
 
 struct PredefinedOnrampParameters {
-    static let `default` = PredefinedOnrampParameters(amount: nil, sorter: .default)
+    static let `default` = PredefinedOnrampParameters(amount: nil, preferredProvider: nil)
 
     let amount: Decimal?
-    let sorter: ProviderItemSorter
+    let preferredProvider: PreferredProvider?
 }
 
 struct OnrampFlowBaseBuilder {
@@ -26,7 +26,10 @@ struct OnrampFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(parameters: PredefinedOnrampParameters, router: SendRoutable) -> SendViewModel {
-        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies(sorter: parameters.sorter)
+        let (onrampManager, onrampRepository, onrampDataRepository) = builder.makeOnrampDependencies(
+            preferredProvider: parameters.preferredProvider
+        )
+
         let analyticsLogger = builder.makeOnrampSendAnalyticsLogger(source: source)
         let onrampModel = builder.makeOnrampModel(
             onrampManager: onrampManager,
