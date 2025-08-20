@@ -51,7 +51,8 @@ struct PushNotificationsHelpersFactory {
         return InteractorTrampoline(
             isAvailable: { interactor.isAvailable(in: flow) },
             allowRequest: { await interactor.allowRequest(in: flow) },
-            postponeRequest: { interactor.postponeRequest(in: flow) }
+            postponeRequest: { interactor.postponeRequest(in: flow) },
+            logRequest: { interactor.logRequest(in: flow) }
         )
     }
 }
@@ -65,21 +66,25 @@ private extension PushNotificationsHelpersFactory {
         typealias IsAvailable = () -> Bool
         typealias AllowRequest = () async -> Void
         typealias PostponeRequest = () -> Void
+        typealias LogRequest = () -> Void
 
         var isAvailable: Bool { _isAvailable() }
 
         private let _isAvailable: IsAvailable
         private let _allowRequest: AllowRequest
         private let _postponeRequest: PostponeRequest
+        private let _logRequest: LogRequest
 
         init(
             isAvailable: @escaping IsAvailable,
             allowRequest: @escaping AllowRequest,
-            postponeRequest: @escaping PostponeRequest
+            postponeRequest: @escaping PostponeRequest,
+            logRequest: @escaping LogRequest
         ) {
             _isAvailable = isAvailable
             _allowRequest = allowRequest
             _postponeRequest = postponeRequest
+            _logRequest = logRequest
         }
 
         func allowPermissionRequest() async {
@@ -88,6 +93,10 @@ private extension PushNotificationsHelpersFactory {
 
         func postponePermissionRequest() {
             _postponeRequest()
+        }
+
+        func logPushNotificationScreenOpened() {
+            _logRequest()
         }
     }
 }
