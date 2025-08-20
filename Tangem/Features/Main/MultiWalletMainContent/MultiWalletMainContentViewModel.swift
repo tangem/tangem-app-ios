@@ -534,6 +534,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileFinishActivation(needsAttention: needsAttention)
         case .openMobileUpgrade:
             openMobileUpgrade()
+        case .openBuyCrypto(let walletModel):
+            coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel)
         default:
             break
         }
