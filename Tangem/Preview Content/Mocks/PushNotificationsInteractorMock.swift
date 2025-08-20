@@ -18,6 +18,8 @@ class PushNotificationsInteractorMock: PushNotificationsInteractor {
 
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow) {}
 
+    func logRequest(in flow: PushNotificationsPermissionRequestFlow) {}
+
     func initialize() {}
 
     func registerForPushNotifications(completion: @escaping (Result<Void, Error>) -> Void) {
