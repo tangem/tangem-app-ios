@@ -35,7 +35,8 @@ struct OnrampSEPAWithMercuryoBannerDataBuilder {
             return nil
         }
 
-        return PredefinedOnrampParameters(amount: fiat, sorter: .mercuryoWithSEPAPriority)
+        let preferredProvider = PreferredProvider(providerId: "mercuryo", paymentMethodType: .sepa)
+        return PredefinedOnrampParameters(amount: fiat, preferredProvider: preferredProvider)
     }
 
     private func getBitcoinWalletModel(userWalletId: UserWalletId) -> (any WalletModel)? {
