@@ -8,22 +8,30 @@
 
 import TangemFoundation
 
+public struct PreferredProvider {
+    public let providerId: String
+    public let paymentMethod: OnrampPaymentMethod
+}
+
 public actor CommonOnrampManager {
     private let apiProvider: ExpressAPIProvider
     private let onrampRepository: OnrampRepository
     private let dataRepository: OnrampDataRepository
     private let analyticsLogger: ExpressAnalyticsLogger
+    private let preferredProvider: PreferredProvider?
 
     public init(
         apiProvider: ExpressAPIProvider,
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
-        analyticsLogger: ExpressAnalyticsLogger
+        analyticsLogger: ExpressAnalyticsLogger,
+        preferredProvider: PreferredProvider?
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
         self.dataRepository = dataRepository
         self.analyticsLogger = analyticsLogger
+        self.preferredProvider = preferredProvider
     }
 }
 
@@ -118,6 +126,17 @@ private extension CommonOnrampManager {
 
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
+
+        if let preferredProvider {
+            OnrampLogger.info(self, "Has preferredProvider \(preferredProvider)")
+
+            if let providerItem = providers.select(for: preferredProvider.paymentMethod),
+               let preferredProvider = providerItem.preferredProvider(providerId: preferredProvider.providerId) {
+
+                OnrampLogger.info(self, "The selected preferred provider provider is \(preferredProvider)")
+                return preferredProvider
+            }
+        }
 
         for provider in providers {
             provider.updateAttractiveTypes()
