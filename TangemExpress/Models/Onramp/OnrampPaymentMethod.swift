@@ -12,7 +12,7 @@ public struct OnrampPaymentMethod: Hashable {
     public let image: URL
 
     public var type: MethodType {
-        MethodType(rawValue: id) ?? .other
+        MethodType.from(id: id)
     }
 
     public init(id: String, name: String, image: URL) {
@@ -23,17 +23,27 @@ public struct OnrampPaymentMethod: Hashable {
 }
 
 public extension OnrampPaymentMethod {
-    enum MethodType: String {
-        case applePay = "apple-pay"
+    enum MethodType: Hashable {
+        case applePay
         case card
 
         /// Google Pay doesn't support on iOS
-        case googlePay = "google-pay"
+        case googlePay
 
         case sepa
 
         /// Generic for other not so important methods
-        case other
+        case other(id: String)
+
+        public static func from(id: String) -> MethodType {
+            switch id {
+            case "apple-pay": .applePay
+            case "card": .card
+            case "google-pay": .googlePay
+            case "sepa": .sepa
+            default: .other(id: id)
+            }
+        }
 
         public var priority: Int {
             switch self {

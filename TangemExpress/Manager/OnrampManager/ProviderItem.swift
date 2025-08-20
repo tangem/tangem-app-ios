@@ -100,17 +100,17 @@ public extension ProvidersList {
         !flatMap { $0.providers }.isEmpty
     }
 
-    func select(for paymentMethod: OnrampPaymentMethod) -> ProviderItem? {
-        first(where: { $0.paymentMethod == paymentMethod })
+    func select(for paymentMethod: OnrampPaymentMethod.MethodType) -> ProviderItem? {
+        first(where: { $0.paymentMethod.type == paymentMethod })
     }
 
-    func sorted(sorter: some ProviderItemSorter) -> Self {
+    func sorted(sorter: ProviderItemSorter) -> Self {
         forEach { $0.sort() }
 
         return sorted { lhs, rhs in
             // If paymentMethod has same priority (e.g. SEPA and Revolut Pay)
-            guard lhs.paymentMethod.type == rhs.paymentMethod.type else {
-                return sorter.sort(lhs: lhs.paymentMethod, rhs: rhs.paymentMethod)
+            guard lhs.paymentMethod.type.priority == rhs.paymentMethod.type.priority else {
+                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
             }
 
             switch (lhs.providers.first, rhs.providers.first) {
