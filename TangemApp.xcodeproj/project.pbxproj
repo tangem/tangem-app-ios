@@ -3387,8 +3387,6 @@
 		EF530D522DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF530D512DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift */; };
 		EF530D542DD4F00A00AE67EA /* CommonNewSendStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF530D532DD4F00A00AE67EA /* CommonNewSendStepsManager.swift */; };
 		EF536B822CAFD2CA00FDC3E7 /* StakingConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */; };
-		EF5554A42E535A0D00A17495 /* CommonProviderItemSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5554A32E535A0D00A17495 /* CommonProviderItemSorter.swift */; };
-		EF5554A62E535A1B00A17495 /* SEPABannerProviderItemSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5554A52E535A1B00A17495 /* SEPABannerProviderItemSorter.swift */; };
 		EF56B3D12A03AFDB002CCE27 /* DefaultMenuRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */; };
 		EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */; };
 		EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF57693D2A8BAF6700901571 /* TransactionHistoryService.swift */; };
@@ -7456,8 +7454,6 @@
 		EF530D512DD4EFD000AE67EA /* NewSendFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSendFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		EF530D532DD4F00A00AE67EA /* CommonNewSendStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNewSendStepsManager.swift; sourceTree = "<group>"; };
 		EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConstants.swift; sourceTree = "<group>"; };
-		EF5554A32E535A0D00A17495 /* CommonProviderItemSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonProviderItemSorter.swift; sourceTree = "<group>"; };
-		EF5554A52E535A1B00A17495 /* SEPABannerProviderItemSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SEPABannerProviderItemSorter.swift; sourceTree = "<group>"; };
 		EF56B3CF2A03AFDA002CCE27 /* DefaultMenuRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowViewModel.swift; sourceTree = "<group>"; };
 		EF56B3D02A03AFDA002CCE27 /* DefaultMenuRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuRowView.swift; sourceTree = "<group>"; };
 		EF57693D2A8BAF6700901571 /* TransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryService.swift; sourceTree = "<group>"; };
@@ -19197,7 +19193,7 @@
 				EF798DBB2CEBB0E0003AE6CA /* ProviderItem.swift */,
 				EF49C05C2CAD70310062AF06 /* OnrampManager.swift */,
 				EF49C0682CAD85E40062AF06 /* CommonOnrampManager.swift */,
-				EF5554A22E535A0300A17495 /* ProviderItemSorter */,
+				EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */,
 			);
 			path = OnrampManager;
 			sourceTree = "<group>";
@@ -19364,16 +19360,6 @@
 				EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */,
 			);
 			path = TokenBalancesRepository;
-			sourceTree = "<group>";
-		};
-		EF5554A22E535A0300A17495 /* ProviderItemSorter */ = {
-			isa = PBXGroup;
-			children = (
-				EFB541C92D1076A100330B5B /* ProviderItemSorter.swift */,
-				EF5554A32E535A0D00A17495 /* CommonProviderItemSorter.swift */,
-				EF5554A52E535A1B00A17495 /* SEPABannerProviderItemSorter.swift */,
-			);
-			path = ProviderItemSorter;
 			sourceTree = "<group>";
 		};
 		EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */ = {
@@ -25896,7 +25882,6 @@
 				EF49C0612CAD85910062AF06 /* OnrampIdentity.swift in Sources */,
 				EF1C27BE2CEF9F7A00592DA9 /* OnrampPreference.swift in Sources */,
 				EFD68F3B2CC3D7E600693C97 /* ExpressDTO+Onramp.swift in Sources */,
-				EF5554A42E535A0D00A17495 /* CommonProviderItemSorter.swift in Sources */,
 				EF68830E2CF8871500658644 /* OnrampPaymentMethodsFilter.swift in Sources */,
 				EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */,
 				EF9E2A262B4F0CD100418559 /* ExpressTransaction.swift in Sources */,
@@ -25910,7 +25895,6 @@
 				EF9E2A202B4F0CD100418559 /* ExpressRestriction.swift in Sources */,
 				EF9E2A1B2B4F0CD100418559 /* CommonExpressAPIService.swift in Sources */,
 				EF9E2A312B4F0CD100418559 /* ExpressRepository.swift in Sources */,
-				EF5554A62E535A1B00A17495 /* SEPABannerProviderItemSorter.swift in Sources */,
 				EF8BE6C02CCA9CC3001FBA2B /* CommonOnrampDataRepository.swift in Sources */,
 				EF9E2A362B4F0CD100418559 /* DEXExpressProviderManager.swift in Sources */,
 				EF9E29972B4F0C8C00418559 /* TangemExpress.docc in Sources */,
