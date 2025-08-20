@@ -28,12 +28,17 @@ public class ProviderItem {
     }
 
     public func hasSelectableProviders() -> Bool {
-        providers.filter { $0.isShowable && $0.isSelectable }.isNotEmpty
+        providers.contains { $0.isShowable && $0.isSelectable }
     }
 
     /// Provider which can be showed and selected
     public func maxPriorityProvider() -> OnrampProvider? {
         providers.first(where: { $0.isShowable && $0.isSelectable })
+    }
+
+    /// Provider which can be showed and selected
+    public func preferredProvider(providerId: String) -> OnrampProvider? {
+        providers.first(where: { $0.provider.id == providerId && $0.isShowable && $0.isSelectable })
     }
 
     /// Provider which can be selected by user
