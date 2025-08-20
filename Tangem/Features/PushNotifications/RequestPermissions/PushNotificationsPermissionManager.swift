@@ -11,4 +11,6 @@ import Foundation
 protocol PushNotificationsPermissionManager {
     func allowPermissionRequest() async
     func postponePermissionRequest()
+
+    func logPushNotificationScreenOpened()
 }
