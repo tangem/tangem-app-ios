@@ -48,6 +48,9 @@ playground.xcworkspace
 Pods/
 tangem-ios-kit/Pods/
 
+# Python
+__pycache__
+
 # Carthage
 #
 # Add this line if you want to avoid checking in source code from Carthage dependencies.
