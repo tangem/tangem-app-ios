@@ -16,6 +16,10 @@ final class MobileSettingsUtil {
         userWalletConfig.isFeatureVisible(.userWalletAccessCode)
     }
 
+    private var isAccessCodeNeeded: Bool {
+        userWalletConfig.hasFeature(.userWalletAccessCode)
+    }
+
     private var isBackupFeatureAvailable: Bool {
         userWalletConfig.isFeatureVisible(.userWalletBackup)
     }
@@ -29,11 +33,6 @@ final class MobileSettingsUtil {
     }
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-
-    private lazy var authUtil = MobileAuthUtil(
-        userWalletId: userWalletModel.userWalletId,
-        config: userWalletModel.config
-    )
 
     private let userWalletModel: UserWalletModel
 
@@ -49,7 +48,7 @@ extension MobileSettingsUtil {
         var settings: [WalletSetting] = []
 
         if isAccessCodeFeatureAvailable {
-            settings.append(.accessCode)
+            settings.append(isAccessCodeNeeded ? .setAccessCode : .changeAccessCode)
         }
 
         if isBackupFeatureAvailable {
@@ -87,6 +86,10 @@ extension MobileSettingsUtil {
 private extension MobileSettingsUtil {
     func unlock() async -> UnlockResult {
         do {
+            let authUtil = MobileAuthUtil(
+                userWalletId: userWalletModel.userWalletId,
+                config: userWalletModel.config
+            )
             let result = try await authUtil.unlock()
 
             switch result {
@@ -117,7 +120,8 @@ private extension MobileSettingsUtil {
 
 extension MobileSettingsUtil {
     enum WalletSetting {
-        case accessCode
+        case setAccessCode
+        case changeAccessCode
         case backup(needsBackup: Bool)
     }
 
