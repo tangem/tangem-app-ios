@@ -33,6 +33,10 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
         isPushTransactionsAvailable = FeatureProvider.isAvailable(.pushTransactionNotifications)
     }
 
+    func onViewAppear() {
+        permissionManager.logPushNotificationScreenOpened()
+    }
+
     func didTapAllow() {
         runTask(in: self) { viewModel in
             await viewModel.permissionManager.allowPermissionRequest()
