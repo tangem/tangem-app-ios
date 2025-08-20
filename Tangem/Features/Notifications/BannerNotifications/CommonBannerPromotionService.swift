@@ -11,7 +11,17 @@ import Foundation
 class CommonBannerPromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    init() {}
+    private let offlinePromotions: [PromotionProgramName: ActivePromotionInfo]
+
+    init() {
+        AppSettings.shared.mainPromotionDismissed.removeAll()
+
+        offlinePromotions = [.onrampSEPAWithMercuryo: .init(
+            bannerPromotion: .onrampSEPAWithMercuryo,
+            timeline: Timeline(start: Date.now, end: .now.addingTimeInterval(100_000)),
+            link: nil
+        )]
+    }
 }
 
 // MARK: - PromotionService
@@ -20,6 +30,10 @@ extension CommonBannerPromotionService: BannerPromotionService {
     func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo? {
         guard !isHidden(promotion: promotion, on: place) else {
             return nil
+        }
+
+        if let offline = offlinePromotions[promotion] {
+            return offline
         }
 
         do {
