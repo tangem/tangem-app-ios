@@ -709,7 +709,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .unlock,
              .openReferralProgram,
              .addTokenTrustline,
-             .openMobileFinishActivation:
+             .openMobileFinishActivation,
+             .openBuyCrypto:
             return
         }
     }

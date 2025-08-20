@@ -23,7 +23,7 @@ struct NotificationButtonAction {
     }
 }
 
-enum NotificationButtonActionType: Identifiable, Hashable {
+enum NotificationButtonActionType: Identifiable {
     case generateAddresses
     case backupCard
     case buyCrypto(currencySymbol: String?)
@@ -55,8 +55,41 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case unlock
     case openReferralProgram
     case openMobileFinishActivation(needsAttention: Bool)
+    case openBuyCrypto(walletModel: any WalletModel)
 
-    var id: Int { hashValue }
+    var id: Int {
+        switch self {
+        case .generateAddresses: "generateAddresses".hashValue
+        case .backupCard: "backupCard".hashValue
+        case .buyCrypto(let currencySymbol): "buyCrypto\(String(describing: currencySymbol))".hashValue
+        case .openFeeCurrency(let currencySymbol): "openFeeCurrency\(currencySymbol)".hashValue
+        case .refresh: "refresh".hashValue
+        case .refreshFee: "refresh_fee".hashValue
+        case .goToProvider: "goToProvider".hashValue
+        case .leaveAmount(let amount, let amountFormatted): "leaveAmount\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountBy(let amount, let amountFormatted): "reduceAmountBy\(amount)\(amountFormatted)".hashValue
+        case .reduceAmountTo(let amount, let amountFormatted): "reduceAmountTo\(amount)\(amountFormatted)".hashValue
+        case .openLink(let promotionLink, let buttonTitle): "openLink\(promotionLink)\(buttonTitle)".hashValue
+        case .swap: "swap".hashValue
+        case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
+        case .addTokenTrustline: "addTokenTrustline".hashValue
+        case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
+        case .stake: "stake".hashValue
+        case .openFeedbackMail: "openFeedbackMail".hashValue
+        case .openAppStoreReview: "openFeedbackMail".hashValue
+        case .empty: "empty".hashValue
+        case .support: "support".hashValue
+        case .openCurrency: "openCurrency".hashValue
+        case .seedSupportYes: "seedSupportYes".hashValue
+        case .seedSupportNo: "seedSupportNo".hashValue
+        case .seedSupport2Yes: "seedSupport2Yes".hashValue
+        case .seedSupport2No: "seedSupport2No".hashValue
+        case .unlock: "unlock".hashValue
+        case .openReferralProgram: "openReferralProgram".hashValue
+        case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
+        case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(String(describing: parameters))".hashValue
+        }
+    }
 
     var title: String {
         switch self {
@@ -116,6 +149,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
             return Localization.hwActivationNeedFinish
+        case .openBuyCrypto:
+            return Localization.commonBuy
         }
     }
 
@@ -150,7 +185,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openMobileFinishActivation:
+             .openMobileFinishActivation,
+             .openBuyCrypto:
             return nil
         }
     }
@@ -184,7 +220,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .addTokenTrustline:
+             .addTokenTrustline,
+             .openBuyCrypto:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary
