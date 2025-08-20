@@ -181,11 +181,18 @@ private extension UserWalletSettingsViewModel {
     func setupMobileViewModels() {
         mobileSettingsUtil.walletSettings.forEach { setting in
             switch setting {
-            case .accessCode:
+            case .setAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
-                    title: Localization.walletSettingsAccessCodeTitle,
+                    title: Localization.walletSettingsSetAccessCodeTitle,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
                 )
+
+            case .changeAccessCode:
+                mobileAccessCodeViewModel = DefaultRowViewModel(
+                    title: Localization.walletSettingsChangeAccessCodeTitle,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
+                )
+
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
                 if needsBackup {
