@@ -721,7 +721,7 @@ struct SendDependenciesBuilder {
         )
     }
 
-    func makeOnrampDependencies(sorter: ProviderItemSorter) -> (
+    func makeOnrampDependencies(preferredProvider: PreferredProvider?) -> (
         manager: OnrampManager,
         repository: OnrampRepository,
         dataRepository: OnrampDataRepository
@@ -742,7 +742,7 @@ struct SendDependenciesBuilder {
             onrampRepository: repository,
             dataRepository: dataRepository,
             analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem),
-            sorter: sorter
+            preferredProvider: preferredProvider
         )
 
         return (
