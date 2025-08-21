@@ -151,7 +151,7 @@ extension XRPTransaction {
         // MARK: - XRPTransactionEncodable
 
         func toAnyDictionary() -> [String: Any] {
-            var dict: [String: Any?] = [
+            let dict: [String: Any?] = [
                 "Account": account,
                 "TransactionType": TransactionType.payment,
                 "Destination": destination,
