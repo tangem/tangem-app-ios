@@ -41,7 +41,14 @@ struct OldWalletConnectV2HandlersService {
             throw WalletConnectV2Error.unsupportedWCMethod(method)
         }
 
-        return try handlersCreator.createHandler(for: wcAction, with: request.params, blockchainId: blockchainId, signer: signer, walletModelProvider: walletModelProvider)
+        return try handlersCreator.createHandler(
+            for: wcAction,
+            with: request.params,
+            blockchainNetworkID: blockchainId,
+            signer: signer,
+            walletModelProvider: walletModelProvider,
+            connectedDApp: nil
+        )
     }
 }
 

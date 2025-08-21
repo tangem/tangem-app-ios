@@ -9,7 +9,10 @@
 import struct ReownWalletKit.Session
 
 enum WalletConnectDAppSessionMapper {
-    static func mapToDomain(_ reownSession: ReownWalletKit.Session) -> WalletConnectDAppSession {
-        WalletConnectDAppSession(topic: reownSession.topic, expiryDate: reownSession.expiryDate)
+    static func mapToDomain(
+        _ reownSession: ReownWalletKit.Session,
+        domainNamespaces: [String: WalletConnectSessionNamespace]
+    ) -> WalletConnectDAppSession {
+        WalletConnectDAppSession(topic: reownSession.topic, namespaces: domainNamespaces, expiryDate: reownSession.expiryDate)
     }
 }
