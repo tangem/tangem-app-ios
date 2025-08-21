@@ -105,7 +105,7 @@ private extension NewAuthViewModel {
     }
 
     func makeWalletItem(userWalletModel: UserWalletModel) -> WalletItem {
-        let description = userWalletModel.config.cardSetLabel ?? .empty
+        let description = userWalletModel.config.cardSetLabel
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let isProtected = !unlocker.canUnlockAutomatically
         return WalletItem(
@@ -146,8 +146,17 @@ private extension NewAuthViewModel {
                 }
             }
 
-        case .bioSelected:
-            unlockWithBiometry()
+        case .biometrics(let context):
+            do {
+                let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
+                let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
+                await openMain(userWalletModel: userWalletModel)
+            } catch {
+                incomingActionManager.discardIncomingAction()
+                await runOnMain {
+                    alert = error.alertBinder
+                }
+            }
 
         case .scanTroubleshooting:
             await openTroubleshooting(userWalletModel: userWalletModel)
@@ -166,8 +175,8 @@ private extension NewAuthViewModel {
         }
     }
 
-    /// Returns wallet if it is single hot protected wallet in repository.
-    func singleProtectedHotWallet() -> UserWalletModel? {
+    /// Returns wallet if it is single mobile protected wallet in repository.
+    func singleProtectedMobileWallet() -> UserWalletModel? {
         guard
             userWalletRepository.models.count == 1,
             let userWalletModel = userWalletRepository.models.first
@@ -200,7 +209,6 @@ private extension NewAuthViewModel {
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
                 await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
-                viewModel.incomingActionManager.discardIncomingAction()
                 await viewModel.handleUnlockWithBiometryResult(error: error)
             }
         }
@@ -215,11 +223,14 @@ private extension NewAuthViewModel {
             switch state {
             case .locked:
                 setup(state: makeWalletsState())
-                if let userWalletModel = singleProtectedHotWallet() {
+                if let userWalletModel = singleProtectedMobileWallet() {
                     unlock(userWalletModel: userWalletModel)
                 }
             case .wallets:
-                alert = error.alertBinder
+                let sdkError = error.toTangemSdkError()
+                if !sdkError.isUserCancelled {
+                    alert = sdkError.alertBinder
+                }
             case .none:
                 break
             }
