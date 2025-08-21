@@ -30,7 +30,7 @@ class IncomingActionsTests: XCTestCase {
 
     func testWC1Link() throws {
         let parser = WalletConnectURLParser()
-        let uri = XCTAssertThrowsError(try parser.parse(uriString: "wc:e42fe03f-1e27-4ca5-b24b-1fae23f16e79@1?bridge=https%3A%2F%2Fwalletconnect-relay.minerva.digital&key=605df78472a128f297eefe94a2c2880638394b3dd6ecf9888426a9e8cd81e748"))
+        XCTAssertThrowsError(try parser.parse(uriString: "wc:e42fe03f-1e27-4ca5-b24b-1fae23f16e79@1?bridge=https%3A%2F%2Fwalletconnect-relay.minerva.digital&key=605df78472a128f297eefe94a2c2880638394b3dd6ecf9888426a9e8cd81e748"))
     }
 
     func testWC2Link() throws {
@@ -52,8 +52,6 @@ class IncomingActionsTests: XCTestCase {
         switch uri {
         case .v2:
             XCTAssertTrue(true)
-        default:
-            XCTAssertTrue(false)
         }
     }
 
