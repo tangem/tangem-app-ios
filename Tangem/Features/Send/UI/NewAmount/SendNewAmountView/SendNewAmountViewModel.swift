@@ -15,6 +15,12 @@ import struct TangemUI.TokenIconInfo
 class SendNewAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
+    @Published var walletHeaderText: String = ""
+    @Published var possibleToConvertToFiat: Bool = true
+
+    @Published var cryptoIconURL: URL?
+    @Published var fiatIconURL: URL?
+
     @Published var cryptoTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var cryptoTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published var fiatTextFieldViewModel: DecimalNumberTextField.ViewModel
@@ -24,33 +30,13 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
     @Published var bottomInfoText: BottomInfoTextType?
     @Published var amountType: SendAmountCalculationType = .crypto
 
+    @Published var sendAmountTokenViewData: SendNewAmountTokenViewData?
     @Published var receivedTokenViewType: ReceivedTokenViewType?
-
-    lazy var tokenWithAmountViewData: SendNewAmountTokenViewData = .init(
-        tokenIconInfo: tokenIconInfo,
-        title: tokenItem.name,
-        subtitle: balanceFormatted,
-        detailsType: .max { [weak self] in
-            self?.userDidTapMaxAmount()
-        }
-    )
 
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
         set { amountType = newValue ? .fiat : .crypto }
     }
-
-    var tokenCurrencySymbol: String {
-        tokenItem.currencySymbol
-    }
-
-    var cryptoIconURL: URL? {
-        tokenIconInfo.imageURL
-    }
-
-    let walletHeaderText: String
-    let fiatIconURL: URL?
-    let possibleToChangeAmountType: Bool
 
     // MARK: - Router
 
@@ -58,44 +44,31 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private let tokenItem: TokenItem
-    private let tokenIconInfo: TokenIconInfo
-    private let balanceFormatted: String
-    private let fiatCurrencyCode: String
     private let interactor: SendNewAmountInteractor
     private let analyticsLogger: SendAnalyticsLogger
-    private let actionType: SendFlowActionType
-    private let sendAmountFormatter: SendAmountFormatter
+    private var sendAmountFormatter: SendAmountFormatter
+    private var balanceFormatter: BalanceFormatter = .init()
+    private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        sourceTokenInput: SendSourceTokenInput,
-        settings: Settings,
+        sourceToken: SendSourceToken,
         interactor: SendNewAmountInteractor,
         analyticsLogger: SendAnalyticsLogger
     ) {
-        walletHeaderText = sourceTokenInput.sourceToken.wallet
-        tokenItem = sourceTokenInput.sourceToken.tokenItem
-        balanceFormatted = Localization.commonCryptoFiatFormat(
-            sourceTokenInput.sourceToken.availableBalanceProvider.formattedBalanceType.value,
-            sourceTokenInput.sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value
+        cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
+        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
+
+        fiatTextFieldViewModel = .init(maximumFractionDigits: sourceToken.fiatItem.fractionDigits)
+        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceToken.fiatItem.currencyCode)
+
+        sendAmountFormatter = .init(
+            tokenItem: sourceToken.tokenItem,
+            fiatItem: sourceToken.fiatItem,
+            balanceFormatter: balanceFormatter
         )
 
-        tokenIconInfo = sourceTokenInput.sourceToken.tokenIconInfo
-        fiatIconURL = sourceTokenInput.sourceToken.fiatItem.iconURL
-        fiatCurrencyCode = sourceTokenInput.sourceToken.fiatItem.currencyCode
-        possibleToChangeAmountType = settings.possibleToChangeAmountType
-        actionType = settings.actionType
-
-        cryptoTextFieldViewModel = .init(maximumFractionDigits: sourceTokenInput.sourceToken.tokenItem.decimalCount)
-        fiatTextFieldViewModel = .init(maximumFractionDigits: SendAmountStep.Constants.fiatMaximumFractionDigits)
-
-        let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
-        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceTokenInput.sourceToken.tokenItem.currencySymbol)
-        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceTokenInput.sourceToken.fiatItem.currencyCode)
-
-        sendAmountFormatter = .init(tokenItem: sourceTokenInput.sourceToken.tokenItem, fiatItem: sourceTokenInput.sourceToken.fiatItem)
         alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
 
         self.interactor = interactor
@@ -110,7 +83,7 @@ class SendNewAmountViewModel: ObservableObject, Identifiable {
         analyticsLogger.logTapMaxAmount()
 
         let amount = try? interactor.updateToMaxAmount()
-        FeedbackGenerator.success()
+        FeedbackGenerator.heavy()
         updateAmountsUI(amount: amount)
     }
 
@@ -152,6 +125,13 @@ private extension SendNewAmountViewModel {
             .infoTextPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.bottomInfoText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        interactor
+            .sourceTokenPublisher
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { $0.updateSourceToken(sourceToken: $1) }
             .store(in: &bag)
 
         Publishers.CombineLatest(
@@ -196,10 +176,41 @@ private extension SendNewAmountViewModel {
     }
 }
 
-// MARK: - Express
+// MARK: - Tokens
 
 extension SendNewAmountViewModel {
-    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount?, Error>?) {
+    func updateSourceToken(sourceToken: SendSourceToken) {
+        walletHeaderText = Localization.sendFromWalletName(sourceToken.wallet)
+        possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
+
+        var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
+        if sourceToken.fiatAvailableBalanceProvider.balanceType.value != nil {
+            balanceFormatted += "\(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
+        }
+
+        sendAmountTokenViewData = .init(
+            tokenIconInfo: sourceToken.tokenIconInfo,
+            title: sourceToken.tokenItem.name,
+            subtitle: .balance(state: .loaded(text: .string(balanceFormatted))),
+            detailsType: .max { [weak self] in
+                self?.userDidTapMaxAmount()
+            }
+        )
+
+        cryptoIconURL = sourceToken.tokenIconInfo.imageURL
+        fiatIconURL = sourceToken.fiatItem.iconURL
+
+        cryptoTextFieldViewModel.update(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
+        cryptoTextFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol)
+
+        fiatTextFieldViewModel.update(maximumFractionDigits: sourceToken.fiatItem.fractionDigits)
+        fiatTextFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(fiatCurrencyCode: sourceToken.fiatItem.currencyCode)
+
+        sendAmountFormatter = .init(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem, balanceFormatter: balanceFormatter)
+        alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: .none, type: .crypto)
+    }
+
+    func updateReceivedToken(receiveToken: SendReceiveTokenType, amount: LoadingResult<SendAmount, Error>) {
         guard FeatureProvider.isAvailable(.sendViaSwap) else {
             receivedTokenViewType = .none
             return
@@ -217,8 +228,9 @@ extension SendNewAmountViewModel {
             receivedTokenViewType = .selected(SendNewAmountTokenViewData(
                 tokenIconInfo: receiveToken.tokenIconInfo,
                 title: receiveToken.tokenItem.name,
-                subtitle: Localization.sendAmountReceiveTokenSubtitle,
-                detailsType: mapToSendNewAmountTokenViewDataDetailsType(amount: amount),
+                subtitle: mapToSendNewAmountTokenViewDataSubtitleType(tokenItem: receiveToken.tokenItem, amount: amount),
+                // The `individualAction` should be use when the fixed rate will available
+                detailsType: .select(individualAction: nil),
                 action: { [weak self] in
                     self?.router?.openReceiveTokensList()
                 }
@@ -226,15 +238,18 @@ extension SendNewAmountViewModel {
         }
     }
 
-    func mapToSendNewAmountTokenViewDataDetailsType(amount: LoadingResult<SendAmount?, Error>?) -> SendNewAmountTokenViewData.DetailsType? {
+    func mapToSendNewAmountTokenViewDataSubtitleType(
+        tokenItem: TokenItem,
+        amount: LoadingResult<SendAmount, Error>
+    ) -> SendNewAmountTokenViewData.SubtitleType {
         switch amount {
         case .success(let success):
-            // The `individualAction` should be use when the fixed rate will available
-            return .select(amount: success?.crypto?.stringValue, individualAction: nil)
-        case .none, .failure:
-            return nil
+            let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
+            return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(formatted)))
+        case .failure:
+            return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))
         case .loading:
-            return .loading
+            return .receive(state: .loading)
         }
     }
 }
@@ -257,11 +272,6 @@ extension SendNewAmountViewModel: SendStepViewAnimatable {
 // MARK: - Types
 
 extension SendNewAmountViewModel {
-    struct Settings {
-        let possibleToChangeAmountType: Bool
-        let actionType: SendFlowActionType
-    }
-
     typealias BottomInfoTextType = SendAmountViewModel.BottomInfoTextType
 
     enum ReceivedTokenViewType {
