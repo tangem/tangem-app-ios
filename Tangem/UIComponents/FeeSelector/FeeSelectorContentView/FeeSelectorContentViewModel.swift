@@ -11,7 +11,7 @@ import TangemUI
 import SwiftUI
 import TangemFoundation
 
-class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     @Published var selectedFeeOption: FeeOption = .market
