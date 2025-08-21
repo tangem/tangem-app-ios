@@ -52,6 +52,7 @@ class CommonWalletModel {
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
     private let _transactionHistoryService: TransactionHistoryService?
+    private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
 
     private var updateTimer: AnyCancellable?
@@ -81,6 +82,7 @@ class CommonWalletModel {
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
         transactionHistoryService: TransactionHistoryService?,
+        receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
         amountType: Amount.AmountType,
@@ -92,6 +94,7 @@ class CommonWalletModel {
         self.featureManager = featureManager
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
+        _receiveAddressService = receiveAddressService
         self.amountType = amountType
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
@@ -362,9 +365,14 @@ extension CommonWalletModel: WalletModelUpdater {
     /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
+        _receiveAddressService.clear()
 
         return Publishers
-            .CombineLatest(update(silent: silent), updateTransactionsHistory())
+            .CombineLatest3(
+                update(silent: silent),
+                updateTransactionsHistory(),
+                updateReceiveAddressTypes()
+            )
             .mapToVoid()
             .eraseToAnyPublisher()
     }
@@ -390,7 +398,11 @@ extension CommonWalletModel: WalletModelUpdater {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
-            .combineLatest(loadQuotes(), updateStakingManagerState())
+            .combineLatest(
+                loadQuotes(),
+                updateStakingManagerState(),
+                updateReceiveAddressTypes()
+            )
             .withWeakCaptureOf(self)
             .sink { walletModel, newState in
                 let newState = walletModel.walletManager.state
@@ -417,6 +429,15 @@ extension CommonWalletModel: WalletModelUpdater {
         }
 
         return _transactionHistoryService.update()
+    }
+
+    private func updateReceiveAddressTypes() -> AnyPublisher<Void, Never> {
+        Future.async { [weak self] in
+            await self?._receiveAddressService.update()
+        }
+        // Here we have to skip the error to let the PTR to complete
+        .replaceError(with: ())
+        .eraseToAnyPublisher()
     }
 
     private func updateStakingManagerState() -> AnyPublisher<Void, Never> {
@@ -817,6 +838,18 @@ extension CommonWalletModel: FeeResourceInfoProvider {
         default:
             return nil
         }
+    }
+}
+
+// MARK: - WalletModelReceiveAddressProvider
+
+extension CommonWalletModel: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        _receiveAddressService.addressTypes
+    }
+
+    var receiveAddressInfos: [ReceiveAddressInfo] {
+        _receiveAddressService.addressInfos
     }
 }
 
