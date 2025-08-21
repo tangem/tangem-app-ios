@@ -35,7 +35,7 @@ class BannerNotificationManager {
         case .main where AppSettings.shared.userWalletIdsWithRing.contains(userWalletId.stringValue):
             loadActivePromotionInfo(programName: .ring)
         case .main:
-            loadActivePromotionInfo(programName: .onrampSEPAWithMercuryo)
+            loadActivePromotionInfo(programName: .onrampSEPA)
         case .tokenDetails:
             break
         }
@@ -112,7 +112,7 @@ class BannerNotificationManager {
                 )
             }
 
-        case .onrampSEPAWithMercuryo:
+        case .onrampSEPA:
             let builder = PredefinedOnrampParametersBuilder(userWalletId: userWalletId)
             if let (walletModel, parameters) = await builder.prepare() {
                 return BannerNotificationEvent(
