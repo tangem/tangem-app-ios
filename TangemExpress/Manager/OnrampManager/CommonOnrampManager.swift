@@ -8,18 +8,6 @@
 
 import TangemFoundation
 
-public struct PreferredValues {
-    public static let none = PreferredValues(paymentMethodType: .none, providerId: .none)
-
-    public let paymentMethodType: OnrampPaymentMethod.MethodType?
-    public let providerId: String?
-
-    public init(paymentMethodType: OnrampPaymentMethod.MethodType? = nil, providerId: String? = nil) {
-        self.paymentMethodType = paymentMethodType
-        self.providerId = providerId
-    }
-}
-
 public actor CommonOnrampManager {
     private let apiProvider: ExpressAPIProvider
     private let onrampRepository: OnrampRepository
