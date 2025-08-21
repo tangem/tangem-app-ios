@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemAssets
-import TangemUI
 import TangemUIUtils
 
 public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View {
