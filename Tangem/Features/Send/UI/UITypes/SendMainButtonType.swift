@@ -10,7 +10,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-enum SendMainButtonType {
+enum SendMainButtonType: Hashable {
     case next
     case `continue`
     case action
