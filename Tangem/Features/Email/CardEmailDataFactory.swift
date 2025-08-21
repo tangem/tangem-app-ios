@@ -35,7 +35,7 @@ struct CardEmailDataFactory {
     }
 
     func makeEmailData(for mobileWallet: MobileWalletInfo) -> [EmailCollectedData] {
-        #warning("Provide implementation")
+        #warning("[REDACTED_TODO_COMMENT]")
         return []
     }
 }
