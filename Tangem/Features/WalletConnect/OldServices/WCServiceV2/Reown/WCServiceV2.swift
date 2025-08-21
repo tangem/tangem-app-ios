@@ -17,15 +17,13 @@ final class WCServiceV2 {
 
     private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
 
-    private let transactionRequestSubject = PassthroughSubject<WCHandleTransactionData, WalletConnectV2Error>()
+    private let transactionRequestSubject = PassthroughSubject<Result<WCHandleTransactionData, any Error>, Never>()
     private var bag = Set<AnyCancellable>()
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
 
-    // MARK: - Public properties
-
-    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
+    var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         transactionRequestSubject.eraseToAnyPublisher()
     }
 
@@ -88,13 +86,23 @@ private extension WCServiceV2 {
     func setupMessagesSubscriptions() {
         walletKitClient
             .sessionRequestPublisher
+            .removeDuplicates { lhs, rhs in
+                lhs.request == rhs.request && lhs.context == rhs.context
+            }
             .receiveOnMain()
             .sink { [weak self, walletKitClient] request, context in
+
                 guard let self else { return }
 
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
+                    if Self.checkIfShouldIgnore(transactionRequest: request) {
+                        WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
+                        await self.reject(transactionRequest: request)
+                        return
+                    }
+
                     let connectedDApp: WalletConnectConnectedDApp
 
                     do {
@@ -102,39 +110,56 @@ private extension WCServiceV2 {
                     } catch {
                         let errorMessage = "Session for topic \(request.topic) not found."
                         WCLogger.error(error: errorMessage)
-                        try? await walletKitClient.respond(
-                            topic: request.topic,
-                            requestId: request.id,
-                            response: .error(.init(code: 0, message: error.localizedDescription))
-                        )
+                        await self.reject(transactionRequest: request)
+                        self.transactionRequestSubject.send(.failure(error))
                         return
                     }
 
                     do {
-                        let validatedRequest = try await self.wcHandlersService.validate(request)
-                        let transactionDTO = try await self.wcHandlersService.makeHandleTransactionDTO(
+                        let validatedRequest = try self.wcHandlersService.validate(request: request, forConnectedDApp: connectedDApp)
+
+                        let transactionDTO = try self.wcHandlersService.makeHandleTransactionDTO(
                             from: validatedRequest,
-                            connectedBlockchains: connectedDApp.dAppBlockchains.map(\.blockchain)
+                            connectedDApp: connectedDApp
                         )
 
-                        self.transactionRequestSubject.send(
-                            .init(
-                                from: transactionDTO,
-                                validatedRequest: validatedRequest,
-                                respond: walletKitClient.respond
-                            )
+                        let handleTransactionData = WCHandleTransactionData(
+                            from: transactionDTO,
+                            validatedRequest: validatedRequest,
+                            respond: walletKitClient.respond
                         )
+
+                        self.transactionRequestSubject.send(.success(handleTransactionData))
                     } catch {
-                        try? await walletKitClient.respond(
-                            topic: request.topic,
-                            requestId: request.id,
-                            response: .error(.init(code: 0, message: error.localizedDescription))
-                        )
+                        WCLogger.error("WCHandleTransactionDTO creation failed: ", error: error)
+                        await self.reject(transactionRequest: request)
+
+                        self.transactionRequestSubject.send(.failure(error))
                         self.logSignatureRequestReceiveFailed(with: error, request: request, connectedDApp: connectedDApp)
                     }
                 }
             }
             .store(in: &bag)
+    }
+
+    private static func checkIfShouldIgnore(transactionRequest request: Request) -> Bool {
+        let methodIsNotSupported = WalletConnectMethod(rawValue: request.method) == nil
+        let methodHasWalletPrefix = request.method.hasPrefix("wallet_")
+
+        return methodIsNotSupported && methodHasWalletPrefix
+    }
+
+    private func reject(transactionRequest: Request) async {
+        do {
+            try await walletKitClient.respond(
+                topic: transactionRequest.topic,
+                requestId: transactionRequest.id,
+                response: .error(.init(code: 0, message: ""))
+            )
+        } catch {
+            let errorMessage = "Failed to reject request with topic: \(transactionRequest.topic) for method: \(transactionRequest.method)"
+            WCLogger.error(errorMessage, error: error)
+        }
     }
 }
 
@@ -258,12 +283,25 @@ extension WCServiceV2 {
             throw error
         }
     }
+
+    func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws {
+        try await walletKitClient.update(topic: topic, namespaces: namespaces)
+    }
 }
 
 // MARK: - Analytics
 
 extension WCServiceV2 {
     func logSignatureRequestReceiveFailed(with error: some Error, request: Request, connectedDApp: WalletConnectConnectedDApp) {
+        // [REDACTED_USERNAME], wallet_addEthereumChain and wallet_switchEthereumChain methods are heavily relying on error propagation.
+        // No need to report to analytics services.
+        switch WalletConnectMethod(rawValue: request.method) {
+        case .addChain, .switchChain:
+            return
+        default:
+            break
+        }
+
         let blockchainName = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.displayName ?? request.chainId.absoluteString
 
         let params: [Analytics.ParameterKey: String] = [
