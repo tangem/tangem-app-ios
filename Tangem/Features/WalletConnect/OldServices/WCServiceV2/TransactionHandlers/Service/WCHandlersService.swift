@@ -10,18 +10,15 @@ import ReownWalletKit
 import BlockchainSdk
 
 protocol WCHandlersService {
-    func validate(_ request: Request) async throws -> WCValidatedRequest
+    func validate(request: Request, forConnectedDApp connectedDApp: WalletConnectConnectedDApp) throws -> WCValidatedRequest
 
     func makeHandleTransactionDTO(
         from validatedRequest: WCValidatedRequest,
-        connectedBlockchains: [BlockchainSdk.Blockchain]
-    ) async throws -> WCHandleTransactionDTO
+        connectedDApp: WalletConnectConnectedDApp
+    ) throws -> WCHandleTransactionDTO
 }
 
 final class CommonWCHandlersService {
-    // MARK: - Dependencies
-
-    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let wcHandlersFactory: WalletConnectHandlersCreator
@@ -32,10 +29,11 @@ final class CommonWCHandlersService {
 
     private func getHandler(
         for request: Request,
-        blockchainId: String,
+        blockchain: BlockchainSdk.Blockchain,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) async throws -> WalletConnectMessageHandler {
+        walletModelProvider: WalletConnectWalletModelProvider,
+        connectedDApp: WalletConnectConnectedDApp
+    ) throws -> WalletConnectMessageHandler {
         let method = request.method
 
         guard let wcAction = WalletConnectMethod(rawValue: method) else {
@@ -45,9 +43,10 @@ final class CommonWCHandlersService {
         return try wcHandlersFactory.createHandler(
             for: wcAction,
             with: request.params,
-            blockchainId: blockchainId,
+            blockchainNetworkID: blockchain.networkId,
             signer: signer,
-            walletModelProvider: walletModelProvider
+            walletModelProvider: walletModelProvider,
+            connectedDApp: connectedDApp
         )
     }
 }
@@ -55,19 +54,11 @@ final class CommonWCHandlersService {
 // MARK: - WCHandlersService
 
 extension CommonWCHandlersService: WCHandlersService {
-    /// Validate the request and return a validated request object
-    func validate(_ request: Request) async throws -> WCValidatedRequest {
-        let logSuffix = " for request: \(request.id)"
-
-        // Session validation
-        guard let connectedDApp = try? await connectedDAppRepository.getDApp(with: request.topic) else {
-            WCLogger.warning("Failed to find session in storage \(logSuffix)")
-            throw WalletConnectV2Error.wrongCardSelected
-        }
-
+    func validate(request: Request, forConnectedDApp connectedDApp: WalletConnectConnectedDApp) throws -> WCValidatedRequest {
         // Blockchain validation
-        guard let targetBlockchain = WCUtils.makeBlockchainMeta(from: request.chainId) else {
-            WCLogger.warning("Failed to create blockchain \(logSuffix)")
+        guard let targetBlockchain = WalletConnectBlockchainMapper.mapToDomain(request.chainId) else {
+            // [REDACTED_TODO_COMMENT]
+            WCLogger.warning("Failed to create blockchain for request: \(request.id)")
             throw WalletConnectV2Error.missingBlockchains([request.chainId.absoluteString])
         }
 
@@ -100,16 +91,22 @@ extension CommonWCHandlersService: WCHandlersService {
 
     func makeHandleTransactionDTO(
         from validatedRequest: WCValidatedRequest,
-        connectedBlockchains: [BlockchainSdk.Blockchain]
-    ) async throws -> WCHandleTransactionDTO {
-        let handler = try await getHandler(
+        connectedDApp: WalletConnectConnectedDApp
+    ) throws -> WCHandleTransactionDTO {
+        let handler = try getHandler(
             for: validatedRequest.request,
-            blockchainId: validatedRequest.targetBlockchain.id,
+            blockchain: validatedRequest.targetBlockchain,
             signer: validatedRequest.userWalletModel.signer,
-            walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider
+            walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider,
+            connectedDApp: connectedDApp
         )
 
-        guard let blockchain = connectedBlockchains.first(where: { $0.networkId == validatedRequest.targetBlockchain.id }) else { throw WalletConnectV2Error.missingActiveUserWalletModel }
+        guard let blockchain = connectedDApp.dAppBlockchains
+            .map(\.blockchain)
+            .first(where: { $0.networkId == validatedRequest.targetBlockchain.networkId })
+        else {
+            throw WalletConnectV2Error.missingActiveUserWalletModel
+        }
 
         return WCHandleTransactionDTO(
             method: handler.method,
