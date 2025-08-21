@@ -54,6 +54,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .sheet(item: $coordinator.mobileUpgradeViewModel) {
+                MobileUpgradeView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.mailViewModel) {
+                MailView(viewModel: $0)
+            }
             .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
                 TransactionNotificationsModalView(viewModel: $0)
             }
