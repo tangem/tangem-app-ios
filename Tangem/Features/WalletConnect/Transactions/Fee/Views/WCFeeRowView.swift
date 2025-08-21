@@ -16,19 +16,24 @@ struct WCFeeRowView: View {
     let viewModel: WCFeeRowViewModel
 
     var body: some View {
-        HStack(spacing: 0) {
-            leadingView
-                .padding(.trailing, 8)
+        Button(action: viewModel.onTap) {
+            HStack(spacing: 0) {
+                leadingView
 
-            Spacer()
+                Spacer(minLength: 8)
 
-            trailingView
-                .lineLimit(1)
-                .padding(.trailing, 2)
+                trailingView
+                    .lineLimit(1)
+                    .padding(.trailing, 2)
 
-            Assets.Glyphs.selectIcon.image
-                .foregroundStyle(Colors.Icon.informative)
+                Assets.Glyphs.selectIcon.image
+                    .foregroundStyle(Colors.Icon.informative)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 14)
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -52,18 +57,16 @@ struct WCFeeRowView: View {
             SkeletonView()
                 .frame(width: 70, height: 15)
                 .cornerRadius(4, corners: .allCorners)
+
         case .loaded(let components):
-            trailingView(for: components)
+            Text("~ " + (components.fiatFee ?? components.cryptoFee))
+                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .layoutPriority(1)
+
         case .failedToLoad:
             Text(AppConstants.emDashSign)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .layoutPriority(1)
         }
-    }
-
-    func trailingView(for components: FormattedFeeComponents) -> some View {
-        Text("~ " + (components.fiatFee ?? components.cryptoFee))
-            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-            .layoutPriority(1)
     }
 }

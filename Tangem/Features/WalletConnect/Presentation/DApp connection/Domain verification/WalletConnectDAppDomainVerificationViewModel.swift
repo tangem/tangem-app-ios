@@ -20,11 +20,11 @@ final class WalletConnectDAppDomainVerificationViewModel: ObservableObject {
 
     @Published private(set) var state: WalletConnectDAppDomainVerificationViewState
 
-    init(verifiedDAppName: String, closeAction: @escaping () -> Void) {
+    init(closeAction: @escaping () -> Void) {
         self.closeAction = closeAction
         connectAnywayAction = nil
 
-        state = .verifiedDomain(forDAppName: verifiedDAppName)
+        state = .verifiedDomain
     }
 
     init(
@@ -83,16 +83,14 @@ extension WalletConnectDAppDomainVerificationViewModel {
 }
 
 private extension WalletConnectDAppDomainVerificationViewState {
-    static func verifiedDomain(forDAppName dAppName: String) -> WalletConnectDAppDomainVerificationViewState {
-        WalletConnectDAppDomainVerificationViewState(
-            severity: .verified,
-            iconAsset: iconAsset(for: .verified),
-            title: title(for: .verified),
-            body: Localization.wcAlertVerifiedDomainDescription(dAppName),
-            badge: badge(for: .verified),
-            buttons: [.done]
-        )
-    }
+    static let verifiedDomain = WalletConnectDAppDomainVerificationViewState(
+        severity: .verified,
+        iconAsset: iconAsset(for: .verified),
+        title: title(for: .verified),
+        body: Localization.wcAlertVerifiedDomainDescription,
+        badge: badge(for: .verified),
+        buttons: [.done]
+    )
 
     static func domainWarning(_ verificationStatus: WalletConnectDAppVerificationStatus) -> WalletConnectDAppDomainVerificationViewState {
         return WalletConnectDAppDomainVerificationViewState(

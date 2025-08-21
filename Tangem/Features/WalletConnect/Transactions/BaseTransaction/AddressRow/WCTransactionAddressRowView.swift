@@ -23,7 +23,7 @@ struct WCTransactionAddressRowView: View {
         }
         .readGeometry(\.frame.width, bindTo: $frameWidth)
         .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 14)
         .contentShape(.rect)
         .onTapGesture {
             tooltipIsShown.toggle()
