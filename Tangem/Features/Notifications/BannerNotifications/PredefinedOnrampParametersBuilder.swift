@@ -13,16 +13,29 @@ struct PredefinedOnrampParametersBuilder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
 
-    func prepare(userWalletId: UserWalletId) -> (bitcoinWalletModel: any WalletModel, parameters: PredefinedOnrampParameters)? {
+    private let userWalletId: UserWalletId
+    private let expressAPIProvider: any ExpressAPIProvider
+    private let onrampRepository: any OnrampRepository
+
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
+
+        expressAPIProvider = ExpressAPIProviderFactory()
+            .makeExpressAPIProvider(userWalletId: userWalletId, refcode: .none)
+
+        onrampRepository = TangemExpressFactory().makeOnrampRepository(storage: CommonOnrampStorage())
+    }
+
+    func prepare() async -> (bitcoinWalletModel: any WalletModel, parameters: PredefinedOnrampParameters)? {
         guard moreThanOneWeekAfterFirstWalletUse() else {
             return nil
         }
 
-        guard let bitcoinWalletModel = getBitcoinWalletModel(userWalletId: userWalletId) else {
+        guard let bitcoinWalletModel = getBitcoinWalletModel() else {
             return nil
         }
 
-        guard let parameters = getParameters() else {
+        guard let parameters = await getParameters() else {
             return nil
         }
 
@@ -41,7 +54,7 @@ struct PredefinedOnrampParametersBuilder {
         return oneWeekLater < Date.now
     }
 
-    private func getBitcoinWalletModel(userWalletId: UserWalletId) -> (any WalletModel)? {
+    private func getBitcoinWalletModel() -> (any WalletModel)? {
         guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
             return nil
         }
@@ -54,10 +67,14 @@ struct PredefinedOnrampParametersBuilder {
         return bitcoinWalletModel
     }
 
-    private func getParameters() -> PredefinedOnrampParameters? {
-        let repository = TangemExpressFactory().makeOnrampRepository(storage: CommonOnrampStorage())
+    private func getParameters() async -> PredefinedOnrampParameters? {
+        var currency: OnrampFiatCurrency? = onrampRepository.preferenceCurrency
 
-        guard let currency = repository.preferenceCurrency,
+        if currency == nil {
+            currency = try? await expressAPIProvider.onrampCountryByIP().currency
+        }
+
+        guard let currency,
               let fiat = PredefinedOnrampParametersBuilder.fiatPairs[currency.identity.code] else {
             return nil
         }
