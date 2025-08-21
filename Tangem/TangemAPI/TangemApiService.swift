@@ -128,7 +128,7 @@ protocol TangemApiService: AnyObject {
     ///   - requestModel: Details for creating the new wallet including ID and name
     /// - Returns: Empty response indicating success
     @discardableResult
-    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO
 }
 
 private struct TangemApiServiceKey: InjectionKey {
