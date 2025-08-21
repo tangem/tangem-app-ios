@@ -36,7 +36,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
-    private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
     var isOrganizeTokensVisible: Bool {
         guard canManageTokens else { return false }
@@ -62,6 +62,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
     private let rateAppController: RateAppInteractionController
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
@@ -100,9 +101,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
         bind()
-
-        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     deinit {
@@ -242,6 +245,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher1: $notificationInputs,
             notificationsPublisher2: $tokensNotificationInputs
         )
+
+        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isAvailable in
+                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
+            }
+            .store(in: &bag)
 
         subscribeToTokenListSync(with: sectionsPublisher)
         nftFeatureLifecycleHandler.startObserving()

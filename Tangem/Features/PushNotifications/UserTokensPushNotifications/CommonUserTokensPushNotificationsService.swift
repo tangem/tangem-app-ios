@@ -297,7 +297,7 @@ private extension CommonUserTokensPushNotificationsService {
     func createAndConnectWallet(entries: [ApplicationWalletEntry]) {
         let toUpdateItems = entries.map {
             UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
-        }
+        }.toSet()
 
         updateStateTask?.cancel()
 
