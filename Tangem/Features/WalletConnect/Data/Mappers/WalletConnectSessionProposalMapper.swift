@@ -118,7 +118,7 @@ enum WalletConnectDAppSessionProposalMapper {
             let unsupportedBlockchainNames = reownBlockchains.compactMap { reownBlockchain in
                 let domainBlockchain = WalletConnectBlockchainMapper.mapToDomain(reownBlockchain)
 
-                switch WCUtils.WCSupportedNamespaces(rawValue: reownSessionNamespace.key.lowercased()) {
+                switch WalletConnectSupportedNamespace(rawValue: reownSessionNamespace.key.lowercased()) {
                 case .some where domainBlockchain == nil:
                     return reownBlockchain.absoluteString
 

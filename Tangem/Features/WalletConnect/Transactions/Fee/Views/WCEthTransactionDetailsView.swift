@@ -18,43 +18,39 @@ struct WCEthTransactionDetailsView: View {
         VStack(alignment: .leading, spacing: 0) {
             if viewModel.isWalletRowVisible {
                 WCTransactionWalletRow(walletName: viewModel.userWalletName)
-                    .padding(.init(top: 12, leading: 16, bottom: 0, trailing: 16))
-
-                Separator(height: .minimal, color: Colors.Stroke.primary)
-                    .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
+                separator
             }
 
             WCTransactionNetworkRow(blockchain: viewModel.transactionData.blockchain)
-                .padding(.init(top: viewModel.isWalletRowVisible ? 0 : 12, leading: 16, bottom: 12, trailing: 16))
 
-            Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.init(top: 0, leading: 16, bottom: 10, trailing: 16))
+            separator
 
             addressRowView
 
             feeRow
-                .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
     }
 
     @ViewBuilder
-    private var feeRow: some View {
-        if let feeRowViewModel = viewModel.feeRowViewModel {
-            WCFeeRowView(viewModel: feeRowViewModel)
-                .onTapGesture(perform: feeRowViewModel.onTap)
+    private var addressRowView: some View {
+        if let addressRowViewModel = viewModel.addressRowViewModel {
+            WCTransactionAddressRowView(viewModel: addressRowViewModel)
+            separator
         }
     }
 
     @ViewBuilder
-    private var addressRowView: some View {
-        if let addressRowViewModel = viewModel.addressRowViewModel {
-            WCTransactionAddressRowView(viewModel: addressRowViewModel)
-
-            Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.leading, 46)
-                .padding(.trailing, 14)
+    private var feeRow: some View {
+        if let feeRowViewModel = viewModel.feeRowViewModel {
+            WCFeeRowView(viewModel: feeRowViewModel)
         }
+    }
+
+    private var separator: some View {
+        Separator(height: .minimal, color: Colors.Stroke.primary)
+            .padding(.leading, 46)
+            .padding(.trailing, 14)
     }
 }
