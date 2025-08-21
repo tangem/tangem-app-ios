@@ -11,22 +11,16 @@ import BlockchainSdk
 import TangemExpress
 
 protocol SingleTokenBaseRoutable: AnyObject {
-    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
+    func openReceiveScreen(walletModel: any WalletModel)
     func openBuyCrypto(at url: URL, action: @escaping () -> Void)
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void)
     func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel)
-    func openSendToSell(
-        amountToSend: Decimal,
-        destination: String,
-        tag: String?,
-        userWalletModel: UserWalletModel,
-        walletModel: any WalletModel
-    )
+    func openSendToSell(userWalletModel: UserWalletModel, walletModel: any WalletModel, sellParameters: PredefinedSellParameters)
     func openExpress(input: CommonExpressModulesFactory.InputModel)
     func openStaking(options: StakingDetailsCoordinator.Options)
     func openInSafari(url: URL)
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel)
-    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel)
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
