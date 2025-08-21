@@ -221,8 +221,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleVerifiedDomainIconTapped() {
-        guard !state.dAppDescriptionSection.isLoading, let dAppName = loadedDAppProposal?.dAppData.name else { return }
-        coordinator?.openVerifiedDomain(for: dAppName)
+        guard !state.dAppDescriptionSection.isLoading else { return }
+        coordinator?.openVerifiedDomain()
     }
 
     private func handleConnectionRequestSectionHeaderTapped() {
