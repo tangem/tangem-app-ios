@@ -30,7 +30,7 @@ extension SendAddress {
         var transactionAddress: String {
             switch self {
             case .plain(let address): address
-            case .resolved(let address, let resolved): resolved
+            case .resolved(_, let resolved): resolved
             }
         }
 
