@@ -16,7 +16,7 @@ enum SendType {
     case unstaking(manager: StakingManager, action: UnstakingModel.Action)
     case restaking(manager: StakingManager, action: RestakingModel.Action)
     case stakingSingleAction(manager: StakingManager, action: StakingSingleActionModel.Action)
-    case onramp(parameters: PredefinedOnrampParameters = .default)
+    case onramp(parameters: PredefinedOnrampParameters = .none)
 }
 
 // MARK: - Convenience extensions
