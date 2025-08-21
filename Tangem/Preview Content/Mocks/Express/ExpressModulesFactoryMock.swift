@@ -162,7 +162,8 @@ private extension ExpressModulesFactoryMock {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(
-            userWalletModel: userWalletModel
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
         )
     }
 
@@ -172,7 +173,8 @@ private extension ExpressModulesFactoryMock {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            supportedProviderTypes: .swap
         )
 
         let interactor = ExpressInteractor(

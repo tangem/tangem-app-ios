@@ -9,7 +9,6 @@
 import Foundation
 
 struct NewSendFlowBaseBuilder {
-    let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
     let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendNewAmountStepBuilder
@@ -40,7 +39,6 @@ struct NewSendFlowBaseBuilder {
             receiveIO: (input: sendModel, output: sendModel),
             receiveAmountIO: (input: sendModel, output: sendModel),
             swapProvidersInput: sendModel,
-            actionType: .send,
             sendAmountValidator: builder.makeSendSourceTokenAmountValidator(input: sendModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
@@ -70,14 +68,15 @@ struct NewSendFlowBaseBuilder {
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: (input: sendModel, output: sendModel),
-            actionType: .send,
-            descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
-            notificationManager: notificationManager,
+            receiveTokenAmountInput: sendModel,
             sendFeeProvider: sendFeeProvider,
             destinationEditableType: .editable,
             amountEditableType: .editable,
+            notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
+            nftAssetCompactViewModel: .none,
             stakingValidatorsCompactViewModel: nil,
             sendFeeCompactViewModel: fee.compact
         )
@@ -86,8 +85,9 @@ struct NewSendFlowBaseBuilder {
             input: sendModel,
             sendFinishAnalyticsLogger: analyticsLogger,
             sendAmountFinishViewModel: amount.finish,
+            nftAssetCompactViewModel: .none,
             sendDestinationCompactViewModel: destination.compact,
-            sendFeeCompactViewModel: fee.finish,
+            sendFeeFinishViewModel: fee.finish,
         )
 
         // We have to set dependencies here after all setups is completed
@@ -101,6 +101,11 @@ struct NewSendFlowBaseBuilder {
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
 
+        analyticsLogger.setup(sendFeeInput: sendModel)
+        analyticsLogger.setup(sendSourceTokenInput: sendModel)
+        analyticsLogger.setup(sendReceiveTokenInput: sendModel)
+        analyticsLogger.setup(sendSwapProvidersInput: sendModel)
+
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
         fee.finish.bind(input: sendModel)
@@ -111,7 +116,8 @@ struct NewSendFlowBaseBuilder {
             summaryStep: summary,
             finishStep: finish,
             feeSelector: fee.feeSelector,
-            providersSelector: providers
+            providersSelector: providers,
+            summaryTitleProvider: builder.makeSendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel)
         )
 
         summary.set(router: stepsManager)
@@ -119,7 +125,8 @@ struct NewSendFlowBaseBuilder {
 
         let sendReceiveTokensListBuilder = builder.makeSendReceiveTokensListBuilder(
             sendSourceTokenInput: sendModel,
-            receiveTokenOutput: sendModel
+            receiveTokenOutput: sendModel,
+            analyticsLogger: analyticsLogger,
         )
 
         let dataBuilder = builder.makeSendBaseDataBuilder(
@@ -132,12 +139,11 @@ struct NewSendFlowBaseBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
-            userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
             analyticsLogger: analyticsLogger,
+            blockchainSDKNotificationMapper: builder.makeBlockchainSDKNotificationMapper(),
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             source: coordinatorSource,
             coordinator: router
         )
