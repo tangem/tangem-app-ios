@@ -13,11 +13,11 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
     private let userWalletConfig: UserWalletConfig
     private let totalBalanceProvider: TotalBalanceProviding
 
-    private let isSwapAvailableSubject: CurrentValueSubject<Bool, Never>
+    private let isActionButtonsAvailableSubject: CurrentValueSubject<Bool, Never>
     private var bag = Set<AnyCancellable>()
 
-    var isSwapAvailablePublisher: AnyPublisher<Bool, Never> {
-        isSwapAvailableSubject.eraseToAnyPublisher()
+    var isActionButtonsAvailablePublisher: AnyPublisher<Bool, Never> {
+        isActionButtonsAvailableSubject.eraseToAnyPublisher()
     }
 
     init(userWalletConfig: UserWalletConfig, totalBalanceProvider: TotalBalanceProviding) {
@@ -26,7 +26,7 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
 
         let isBalanceRestrictionActive = userWalletConfig.hasFeature(.isBalanceRestrictionActive)
 
-        isSwapAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
+        isActionButtonsAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
 
         if isBalanceRestrictionActive {
             bind()
@@ -43,8 +43,8 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
                 case .loaded(let balance): balance > 0
                 }
             }
-            .sink(receiveValue: { [isSwapAvailableSubject] value in
-                isSwapAvailableSubject.send(value)
+            .sink(receiveValue: { [isActionButtonsAvailableSubject] value in
+                isActionButtonsAvailableSubject.send(value)
             })
             .store(in: &bag)
     }
