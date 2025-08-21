@@ -170,7 +170,7 @@ struct WCTransactionSimulationView: View {
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
 
             if item.asset.isNFT, let iconURL = item.iconURL {
-                IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, placeholder: { EmptyView() })
+                IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, forceKingfisher: true, placeholder: { EmptyView() })
             }
         }
         .padding(.vertical, 12)
@@ -189,6 +189,7 @@ struct WCTransactionSimulationView: View {
                 editButton(onEdit: onEdit)
             }
         }
+        .lineLimit(1)
     }
 
     private func leftContentView(for content: WCTransactionSimulationDisplayModel.ApprovalItem.LeftContent) -> some View {
@@ -218,7 +219,7 @@ struct WCTransactionSimulationView: View {
                     .lineLimit(1)
 
                 if asset.isNFT, let iconURL {
-                    IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, placeholder: { EmptyView() })
+                    IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, forceKingfisher: true, placeholder: { EmptyView() })
                 }
             case .empty:
                 EmptyView()
