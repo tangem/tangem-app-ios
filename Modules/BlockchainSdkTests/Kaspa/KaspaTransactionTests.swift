@@ -164,7 +164,7 @@ struct KaspaTransactionTests {
         let commitRedeemScript = Data(hexString: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a717970746a7735306b716370366137786d78386a75763078766d67746d656d3466766c74653838636c74326b616661733836336e617273707639736a333475227d68")
 
         // when
-        let (txgroup, meta) = try await txBuilder.buildForSignKRC20(transaction: transaction)
+        let (txgroup, _) = try await txBuilder.buildForSignKRC20(transaction: transaction)
         let hashes = txgroup.hashesCommit + txgroup.hashesReveal
         let builtTransaction = txBuilder.mapToTransaction(transaction: txgroup.kaspaCommitTransaction, signatures: signatures)
         let builtRevealTransaction = txBuilder.mapToRevealTransaction(
