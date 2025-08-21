@@ -28,11 +28,28 @@ extension Publisher where Failure == MoyaError {
                 return error
             }
 
-            if response.statusCode == TangemAPIError.ErrorCode.notFound.rawValue {
-                return TangemAPIError(code: .notFound)
+            if let error = mapStatusCodeToError(code: response.statusCode) {
+                return error
             }
 
             return TangemAPIError(code: .decode)
+        }
+    }
+
+    private func mapStatusCodeToError(code: Int) -> TangemAPIError? {
+        switch code {
+        case 400:
+            return TangemAPIError(code: .badRequest)
+        case 403:
+            return TangemAPIError(code: .forbidden)
+        case 404:
+            return TangemAPIError(code: .notFound)
+        case 409:
+            return TangemAPIError(code: .conflict)
+        case 422:
+            return TangemAPIError(code: .unprocessableEntity)
+        default:
+            return nil
         }
     }
 
