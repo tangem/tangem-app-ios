@@ -26,7 +26,7 @@ enum UserWalletDTO {
     }
 
     enum Create {
-        struct Request: Encodable {
+        struct Request: Encodable, Hashable {
             /// Unique identifier for the new wallet
             let id: String
             /// Display name for the new wallet
