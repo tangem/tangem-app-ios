@@ -16,8 +16,6 @@ protocol MainRoutable: AnyObject & WCTransactionRoutable & MainDeepLinkRoutable 
     func openScanCardManual()
     func openPushNotificationsAuthorization()
     func openReferral(input: ReferralInputModel)
-    func showWCTransactionRequest(with data: WCHandleTransactionData)
-    func showWCTransactionRequest(with error: Error)
     func popToRoot()
 }
 

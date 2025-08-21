@@ -16,6 +16,7 @@ import TangemFoundation
 // `006` - WebSocketError
 // `007` - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
 // `008` - WalletConnectSavedSessionMigrationService.Error
+// `009` - WalletConnectTransactionRequestProcessingError
 
 extension WalletConnectDAppProposalLoadingError: UniversalError {
     var errorCode: Int {
@@ -105,6 +106,25 @@ extension WalletConnectSavedSessionMigrationService.Error: UniversalError {
             107008000
         case .userWalletNotFound:
             107008001
+        }
+    }
+}
+
+extension WalletConnectTransactionRequestProcessingError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .invalidPayload:
+            107009001
+        case .unsupportedBlockchain:
+            107009002
+        case .blockchainToAddDuplicate:
+            107009003
+        case .blockchainToAddRequiresDAppReconnection:
+            107009004
+        case .blockchainToAddIsMissingFromUserWallet:
+            107009005
+        case .userWalletNotFound:
+            107009006
         }
     }
 }
