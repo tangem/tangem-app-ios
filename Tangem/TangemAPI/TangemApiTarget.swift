@@ -331,7 +331,7 @@ extension TangemApiTarget {
         case getUserWallets(applicationUid: String)
         case getUserWallet(userWalletId: String)
         case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
-        case createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request])
+        case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
     }
 
     struct AuthData {
