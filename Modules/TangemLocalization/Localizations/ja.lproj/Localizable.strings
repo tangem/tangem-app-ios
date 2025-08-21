@@ -51,6 +51,10 @@
 "add_custom_token_choose_network" = "ネットワークを選択";
 "add_custom_token_title" = "カスタムトークンの追加";
 "add_tokens_title" = "トークンの管理";
+"add_wallet_add_existing" = "既存のウォレットを追加";
+"add_wallet_buy_tangem" = "Tangemウォレットを購入";
+"add_wallet_create_new" = "新しいウォレットを作成";
+"add_wallet_title" = "ウォレットを追加";
 "address_qr_code_message_format" = "このアドレスには%3$@ ネットワークから%1$@ (%2$@) のみを送信してください。他のトークンやネットワークを使用すると、資金を失う可能性があります。";
 "address_type_default" = "デフォルト";
 "address_type_legacy" = "レガシー";
@@ -145,6 +149,7 @@
 "common_access_denied" = "アクセスが拒否されました";
 "common_add_to_portfolio" = "ポートフォリオに追加";
 "common_add_token" = "トークンを追加";
+"common_add" = "追加";
 "common_address" = "アドレス";
 "common_all" = "すべて";
 "common_allow" = "許可する";
@@ -466,6 +471,8 @@
 "hw_backup_alert_title" = "アクティベーションプロセスを終了してもよろしいですか？";
 "hw_backup_close_description" = "実行すると、最初からやり直す必要があります。";
 "hw_backup_google_drive_description" = "Googleドライブのバックアップに保存されている既存のウォレットを復元する";
+"hw_backup_hardware_description" = "Tangemの業界最高水準のハードウェアウォレットで、今すぐセキュリティをアップグレードしましょう。";
+"hw_backup_hardware_title" = "ハードウェアウォレット";
 "hw_backup_icloud_description" = "iCloudバックアップに保存されている既存のウォレットを復元する";
 "hw_backup_icloud_title" = "iCloudバックアップ";
 "hw_backup_need_action" = "バックアップへ移動";
@@ -481,6 +488,19 @@
 "hw_create_title" = "モバイルウォレットを作成する";
 "hw_import_seed_phrase_already_imported" = "このリカバリーフレーズはすでにインポートされています。";
 "hw_mobile_wallet" = "モバイルウォレット";
+"hw_upgrade_funds_access_description" = "手続き中も資金は安全に保管され、完全にアクセス可能です";
+"hw_upgrade_funds_access_title" = "資金へのアクセス";
+"hw_upgrade_general_security_description" = "すべてのプライベートウォレットデータはモバイルアプリから削除され、Tangemデバイスにのみ安全に保存されます。";
+"hw_upgrade_general_security_title" = "セキュリティ全般";
+"hw_upgrade_key_migration_description" = "秘密鍵は、アプリからTangemカード・リングに移動します";
+"hw_upgrade_key_migration_title" = "鍵の移行";
+"hw_upgrade_scan_device" = "デバイスをスキャン";
+"hw_upgrade_start_action" = "アップグレードを開始";
+"hw_upgrade_start_description" = "ウォレットをTangemウォレットにアップグレードします。これにより、コールドストレージで資産を安全に保管できます。";
+"hw_upgrade_start_title" = "Tangemウォレット";
+"hw_upgrade_title" = "ハードウェアウォレットにアップグレード";
+"hw_upgrade_to_cold_banner_description" = "Tangemの業界最高水準のハードウェアウォレットで、暗号資産を安全に保管しましょう。";
+"hw_upgrade_to_cold_banner_title" = "ハードウェアバックアップでウォレットをアップグレード";
 "information_generated_with_ai" = "この情報はAIで生成されました。 \nエラーが見つかった場合は、ここをタップしてください。";
 "initial_message_change_access_code_body" = "アクセスコードを変更するには、上図のようにカードまたはリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_message_change_passcode_body" = "パスコードを変更するには、上記のようにカードをタップし、操作が終了するまで取り外さないでください。";

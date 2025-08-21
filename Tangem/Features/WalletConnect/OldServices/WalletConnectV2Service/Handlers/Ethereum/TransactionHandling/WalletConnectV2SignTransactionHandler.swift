@@ -67,15 +67,10 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WC
     var event: WalletConnectEvent { .sendTx }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
-        if FeatureProvider.isAvailable(.walletConnectUI), let sendableTransaction = sendableTransaction {
-            let transaction = try await newTransactionBuilder.buildTx(from: sendableTransaction, for: walletModel)
-            self.transaction = transaction
-        } else {
-            let transaction = try await transactionBuilder.buildTx(from: wcTransaction, for: walletModel)
-            self.transaction = transaction
-        }
+        let transaction = try await transactionBuilder.buildTx(from: wcTransaction, for: walletModel)
+        self.transaction = transaction
 
-        let message = messageComposer.makeMessage(for: transaction!, walletModel: walletModel, dApp: dApp)
+        let message = messageComposer.makeMessage(for: transaction, walletModel: walletModel, dApp: dApp)
         return message
     }
 
@@ -83,9 +78,6 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WC
         if FeatureProvider.isAvailable(.walletConnectUI) {
             let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
             let transaction = try await newTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
-            self.transaction = transaction
-        } else {
-            let transaction = try await transactionBuilder.buildTx(from: wcTransaction, for: walletModel)
             self.transaction = transaction
         }
 

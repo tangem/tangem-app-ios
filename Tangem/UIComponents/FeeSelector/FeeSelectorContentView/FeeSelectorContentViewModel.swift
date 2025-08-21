@@ -11,8 +11,10 @@ import TangemUI
 import SwiftUI
 import TangemFoundation
 
-class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Published private(set) var selectedFeeOption: FeeOption = .market
+final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Published var selectedFeeOption: FeeOption = .market
     @Published private(set) var feesRowData: [FeeSelectorContentRowViewModel] = []
 
     let dismissButtonType: FeeSelectorDismissButtonType

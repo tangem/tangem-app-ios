@@ -19,14 +19,13 @@ struct WCSolanaDefaultTransactionDetailsView: View {
         VStack(alignment: .leading, spacing: 0) {
             if isWalletRowVisible {
                 WCTransactionWalletRow(walletName: walletName)
-                    .padding(.init(top: 12, leading: 16, bottom: 0, trailing: 16))
 
                 Separator(height: .minimal, color: Colors.Stroke.primary)
-                    .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
+                    .padding(.leading, 46)
+                    .padding(.trailing, 14)
             }
 
             WCTransactionNetworkRow(blockchain: .solana(curve: .ed25519_slip0010, testnet: false))
-                .padding(.init(top: isWalletRowVisible ? 0 : 12, leading: 16, bottom: 12, trailing: 16))
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
