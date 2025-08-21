@@ -31,14 +31,6 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         }
     }
 
-    func replacingExistingDApps(with dApps: [WalletConnectConnectedDApp]) throws(WalletConnectDAppPersistenceError) {
-        try fetchIfNeeded()
-
-        inMemoryCache = dApps
-        try persist(inMemoryCache)
-        continuation?.yield(inMemoryCache)
-    }
-
     func save(dApp: WalletConnectConnectedDApp) throws(WalletConnectDAppPersistenceError) {
         try fetchIfNeeded()
 
@@ -72,6 +64,26 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         continuation?.yield(inMemoryCache)
 
         return inMemoryCache
+    }
+
+    func replacingAllExistingDApps(with dApps: [WalletConnectConnectedDApp]) throws(WalletConnectDAppPersistenceError) {
+        try fetchIfNeeded()
+
+        inMemoryCache = dApps
+        try persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
+    }
+
+    func replaceExistingDApp(with updatedDApp: WalletConnectConnectedDApp) throws(WalletConnectDAppPersistenceError) {
+        try fetchIfNeeded()
+
+        guard let dAppToReplaceIndex = inMemoryCache.firstIndex(where: { $0.session.topic == updatedDApp.session.topic }) else {
+            throw WalletConnectDAppPersistenceError.notFound
+        }
+
+        inMemoryCache[dAppToReplaceIndex] = updatedDApp
+        try persist(inMemoryCache)
+        continuation?.yield(inMemoryCache)
     }
 
     func deleteDApp(with sessionTopic: String) throws(WalletConnectDAppPersistenceError) {
