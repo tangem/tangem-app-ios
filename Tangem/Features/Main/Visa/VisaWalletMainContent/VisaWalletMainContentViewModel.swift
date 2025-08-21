@@ -19,11 +19,14 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
-    func openBuyCrypto(at url: URL, action: @escaping () -> Void)
+    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
+    @Injected(\.expressAvailabilityProvider)
+    private var expressAvailabilityProvider: any ExpressAvailabilityProvider
+
     @Published var balancesAndLimitsViewModel: VisaBalancesLimitsBottomSheetViewModel? = nil
     @Published var alert: AlertBinder? = nil
 
@@ -247,7 +250,8 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
 // MARK: - Buttons setup logic
 
-#warning("[REDACTED_TODO_COMMENT]")
+// [REDACTED_TODO_COMMENT]
+// Extension will be changed, after `WalletModel` refactoring"
 private extension VisaWalletMainContentViewModel {
     private func setupButtons() {
         let tokenActionInfo = try? makeTokenActionInfo()
@@ -278,7 +282,9 @@ private extension VisaWalletMainContentViewModel {
         case .receive:
             return false
         case .buy:
-            return !tokenActionInfo.exchangeUtility.buyAvailable || tokenActionInfo.exchangeUtility.buyURL == nil
+            // [REDACTED_TODO_COMMENT]
+            // Use TokenActionAvailabilityProvider(userWalletConfig:, walletModel:) instead
+            return !expressAvailabilityProvider.canOnramp(tokenItem: tokenActionInfo.tokenItem)
         default:
             return true
         }
@@ -320,23 +326,14 @@ private extension VisaWalletMainContentViewModel {
             throw .missingTokenInfo
         }
 
-        let exchangeCryptoUtility = ExchangeCryptoUtility(
-            blockchain: tokenItem.blockchain,
-            address: accountAddress,
-            amountType: tokenItem.amountType
-        )
-
-        return .init(
-            accountAddress: accountAddress,
-            tokenItem: tokenItem,
-            exchangeUtility: exchangeCryptoUtility
-        )
+        return .init(accountAddress: accountAddress, tokenItem: tokenItem)
     }
 }
 
 // MARK: - Buttons actions
 
-#warning("[REDACTED_TODO_COMMENT]")
+// [REDACTED_TODO_COMMENT]
+// Extension will be changed, after `WalletModel` refactoring"
 private extension VisaWalletMainContentViewModel {
     func openReceive() {
         let info: TokenActionInfo
@@ -358,7 +355,7 @@ private extension VisaWalletMainContentViewModel {
             publicKey: .init(seedKey: Data(), derivationType: nil),
             type: .default
         )
-        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: [visaAddress])
+        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: [visaAddress])
 
         coordinator?.openReceiveScreen(
             tokenItem: info.tokenItem,
@@ -381,10 +378,9 @@ private extension VisaWalletMainContentViewModel {
             return
         }
 
-        guard
-            info.exchangeUtility.buyAvailable,
-            let url = info.exchangeUtility.buyURL
-        else {
+        // [REDACTED_TODO_COMMENT]
+        // Use TokenActionAvailabilityProvider(userWalletConfig:, walletModel:) instead
+        guard expressAvailabilityProvider.canOnramp(tokenItem: info.tokenItem) else {
             alert = tokenActionAvailabilityAlertBuilder.alert(
                 for: TokenActionAvailabilityProvider
                     .BuyActionAvailabilityStatus
@@ -393,9 +389,9 @@ private extension VisaWalletMainContentViewModel {
             return
         }
 
-        coordinator?.openBuyCrypto(at: url, action: { [weak self] in
-            self?.onPullToRefresh(completionHandler: {})
-        })
+        // [REDACTED_TODO_COMMENT]
+        // Implement Onramp functionality with VisaWalletModel as WalletModel
+        // coordinator?.openOnramp(userWalletModel:, walletModel:)
     }
 }
 
@@ -422,6 +418,5 @@ private extension VisaWalletMainContentViewModel {
     struct TokenActionInfo {
         let accountAddress: String
         let tokenItem: TokenItem
-        let exchangeUtility: ExchangeCryptoUtility
     }
 }
