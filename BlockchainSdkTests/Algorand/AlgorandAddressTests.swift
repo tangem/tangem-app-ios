@@ -40,8 +40,8 @@ struct AlgorandAddressTests {
         let address = try addressService.makeAddress(from: Keys.AddressesKeys.edKey).value
 
         let slipAddressServiceFactory = AddressServiceFactory(blockchain: .algorand(curve: .ed25519_slip0010, testnet: false))
-        let slipAddressService = addressServiceFactory.makeAddressService()
-        let slipAddress = try addressService.makeAddress(from: Keys.AddressesKeys.edKey).value
+        let slipAddressService = slipAddressServiceFactory.makeAddressService()
+        let slipAddress = try slipAddressService.makeAddress(from: Keys.AddressesKeys.edKey).value
 
         #expect(address == slipAddress)
     }
