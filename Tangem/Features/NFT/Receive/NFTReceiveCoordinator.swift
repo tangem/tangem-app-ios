@@ -77,13 +77,12 @@ extension NFTReceiveCoordinator: NFTNetworkSelectionListRoutable {
             return
         }
 
-        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
         let receiveFlow: ReceiveFlow = .nft
 
-        let receiveFlowFactory = ReceiveFlowFactory(
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: receiveFlow,
             tokenItem: walletModel.tokenItem,
-            addressInfos: addressInfos
+            addressTypesProvider: walletModel
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
