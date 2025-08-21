@@ -86,6 +86,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             let transaction = try await newEthTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
             transactionToSend = transaction
         }
+
         guard let transaction = transactionToSend else {
             throw WalletConnectV2Error.missingTransaction
         }
