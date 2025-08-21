@@ -10,7 +10,7 @@ import SwiftUI
 import TangemLocalization
 
 struct PromocodeActivationView: View {
-    @Environment(\.dismiss) private var dismiss
+
     @StateObject var viewModel: PromocodeActivationViewModel
 
     init(promoCode: String) {
@@ -21,15 +21,16 @@ struct PromocodeActivationView: View {
         ZStack {
             Color.black.opacity(0.4).ignoresSafeArea()
 
-            ProgressView().progressViewStyle(.circular)
+            ProgressView()
+                .progressViewStyle(.circular)
+                .tint(.white)
         }
         .task {
-            await viewModel.start()
+            await viewModel.activatePromoCode()
         }
         .alert(viewModel.alertMessage, isPresented: $viewModel.isPresentingAlert) {
             Button(Localization.commonOk, role: .cancel) {
-                dismiss()
-//                viewModel.dismissSelf()
+                viewModel.dismissSelf()
             }
         }
     }

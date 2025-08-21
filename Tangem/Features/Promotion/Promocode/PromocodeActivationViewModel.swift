@@ -28,35 +28,24 @@ final class PromocodeActivationViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    func start() async {
-        await checkPromoCode()
-    }
-
     func dismissSelf() {
         UIApplication.dismissTop(animated: false)
     }
 
-    // MARK: - Private Implementatation
-
-    private func checkPromoCode() async {
+    func activatePromoCode() async {
         isCheckingPromoCode = true
 
         defer {
             isCheckingPromoCode = false
         }
 
-        guard let address = btcAddress() else {
-            presentAlert(message: "No BTC address")
-            return
-        }
-
-        guard let selectedWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue else {
-            presentAlert(message: "Generic error")
+        guard let address = getWalletAddress() else {
+            presentAlert(message: "No wallet address")
             return
         }
 
         do {
-            let response = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
+            let _ = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
             presentAlert(message: "OK")
         } catch let error as TangemAPIError {
             switch error.code {
@@ -71,14 +60,16 @@ final class PromocodeActivationViewModel: ObservableObject {
             case .unprocessableEntity:
                 presentAlert(message: "422")
             default:
-                presentAlert(message: "Generic Error")
+                presentAlert(message: error.localizedDescription)
             }
         } catch {
             presentAlert(message: "Generic Error")
         }
     }
+    
+    // MARK: - Private Implementatation
 
-    private func btcAddress() -> String? {
+    private func getWalletAddress() -> String? {
         userWalletRepository
             .selectedModel?
             .walletModelsManager
