@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import struct SwiftUI.Image
 import TangemLocalization
+import TangemFoundation
 
 @MainActor
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
