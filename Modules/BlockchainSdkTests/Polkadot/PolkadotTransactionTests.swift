@@ -23,10 +23,10 @@ struct PolkadotTests {
     @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func transaction9fd062RuntimeV14(curve: EllipticCurve) throws {
         let privateKey = Data(hexString: "0x70a794d4f1019c3ce002f33062f45029c4f930a56b3d20ec477f7668c6bbc37f")
-        let publicKey = try #require(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
+        let publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation
         let blockchain: Blockchain = .polkadot(curve: curve, testnet: false)
         let network = try #require(PolkadotNetwork(blockchain: blockchain))
-        let runtimeVersionProvider = try #require(SubstrateRuntimeVersionProvider(network: network))
+        let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
 
         let txBuilder = PolkadotTransactionBuilder(
             blockchain: blockchain,
@@ -50,11 +50,11 @@ struct PolkadotTests {
         let runtimeVersion = runtimeVersionProvider.runtimeVersion(for: meta)
         #expect(runtimeVersion == .v14)
 
-        let preImage = try #require(try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta))
+        let preImage = try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta)
         sizeTester.testTxSize(preImage)
 
-        let signature = try #require(try signEd25519(message: preImage, privateKey: privateKey))
-        let image = try #require(try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature))
+        let signature = try signEd25519(message: preImage, privateKey: privateKey)
+        let image = try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature)
 
         let expectedPreImage = Data(
             hexString: """
@@ -84,7 +84,7 @@ struct PolkadotTests {
     func transactionRuntimeV14(curve: EllipticCurve) throws {
         let toAddress = Data(hexString: "0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
         let privateKey = Data(hexString: "0xabf8e5bdbe30c65656c0a3cbd181ff8a56294a69dfedd27982aace4a76909115")
-        let publicKey = try #require(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
+        let publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation
         let blockchain: Blockchain = .polkadot(curve: curve, testnet: false)
         let network = try #require(PolkadotNetwork(blockchain: blockchain))
         let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
@@ -98,7 +98,7 @@ struct PolkadotTests {
 
         let amount = Amount(with: blockchain, value: 12345 / blockchain.decimalValue)
 
-        let destination = try #require(try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress)).value
+        let destination = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress).value
         let meta = PolkadotBlockchainMeta(
             specVersion: 17,
             transactionVersion: 3,
@@ -111,11 +111,11 @@ struct PolkadotTests {
         let runtimeVersion = runtimeVersionProvider.runtimeVersion(for: meta)
         #expect(runtimeVersion == .v14)
 
-        let preImage = try #require(try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta))
+        let preImage = try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta)
         sizeTester.testTxSize(preImage)
 
-        let signature = try #require(try signEd25519(message: preImage, privateKey: privateKey))
-        let image = try #require(try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature))
+        let signature = try signEd25519(message: preImage, privateKey: privateKey)
+        let image = try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature)
 
         let expectedPreImage = Data(
             hexString: """
@@ -144,7 +144,7 @@ struct PolkadotTests {
     @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func transaction72dd5bRuntimeV14(curve: EllipticCurve) throws {
         let privateKey = Data(hexString: "0x37932b086586a6675e66e562fe68bd3eeea4177d066619c602fe3efc290ada62")
-        let publicKey = try #require(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
+        let publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation
         let blockchain: Blockchain = .polkadot(curve: curve, testnet: false)
         let network = try #require(PolkadotNetwork(blockchain: blockchain))
         let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
@@ -170,11 +170,11 @@ struct PolkadotTests {
         let runtimeVersion = runtimeVersionProvider.runtimeVersion(for: meta)
         #expect(runtimeVersion == .v14)
 
-        let preImage = try #require(try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta))
+        let preImage = try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta)
         sizeTester.testTxSize(preImage)
 
-        let signature = try #require(try signEd25519(message: preImage, privateKey: privateKey))
-        let image = try #require(try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature))
+        let signature = try signEd25519(message: preImage, privateKey: privateKey)
+        let image = try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature)
 
         let expectedPreImage = Data(
             hexString: """
@@ -206,7 +206,7 @@ struct PolkadotTests {
     @Test(arguments: [EllipticCurve.ed25519, .ed25519_slip0010])
     func transactionRuntimeV15(curve: EllipticCurve) throws {
         let privateKey = Data(hexString: "0x360B498C9157BAA460790AB4AC03D74166C6ED993A1D3C871E30AF3D86150F49")
-        let publicKey = try #require(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
+        let publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation
         let blockchain: Blockchain = .polkadot(curve: curve, testnet: true)
         let network = try #require(PolkadotNetwork(blockchain: blockchain))
         let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
@@ -233,11 +233,11 @@ struct PolkadotTests {
         let runtimeVersion = runtimeVersionProvider.runtimeVersion(for: meta)
         #expect(runtimeVersion == .v15)
 
-        let preImage = try #require(try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta))
+        let preImage = try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta)
         sizeTester.testTxSize(preImage)
 
-        let signature = try #require(try signEd25519(message: preImage, privateKey: privateKey))
-        let image = try #require(try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature))
+        let signature = try signEd25519(message: preImage, privateKey: privateKey)
+        let image = try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature)
 
         let expectedPreImage = Data(
             hexString: """
@@ -269,7 +269,7 @@ struct PolkadotTests {
     func azeroTransactionRuntimeV14(curve: EllipticCurve) throws {
         let toAddress = Data(hexString: "0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
         let privateKey = Data(hexString: "0xabf8e5bdbe30c65656c0a3cbd181ff8a56294a69dfedd27982aace4a76909115")
-        let publicKey = try #require(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
+        let publicKey = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation
         let blockchain: Blockchain = .azero(curve: curve, testnet: false)
         let network = try #require(PolkadotNetwork(blockchain: blockchain))
         let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
@@ -282,7 +282,7 @@ struct PolkadotTests {
         )
 
         let amount = Amount(with: blockchain, value: 12345 / blockchain.decimalValue)
-        let destination = try #require(AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress).value)
+        let destination = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: toAddress).value
         let meta = PolkadotBlockchainMeta(
             specVersion: 17,
             transactionVersion: 3,
@@ -295,11 +295,11 @@ struct PolkadotTests {
         let runtimeVersion = runtimeVersionProvider.runtimeVersion(for: meta)
         #expect(runtimeVersion == .v14)
 
-        let preImage = try #require(try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta))
+        let preImage = try txBuilder.buildForSign(amount: amount, destination: destination, meta: meta)
         sizeTester.testTxSize(preImage)
 
-        let signature = try #require(try signEd25519(message: preImage, privateKey: privateKey))
-        let image = try #require(try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature))
+        let signature = try signEd25519(message: preImage, privateKey: privateKey)
+        let image = try txBuilder.buildForSend(amount: amount, destination: destination, meta: meta, signature: signature)
 
         let expectedPreImage = Data(
             hexString: """
