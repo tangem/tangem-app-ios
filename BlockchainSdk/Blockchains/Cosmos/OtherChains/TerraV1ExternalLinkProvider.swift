@@ -12,10 +12,10 @@ struct TerraV1ExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? { nil }
 
     func url(transaction hash: String) -> URL? {
-        return URL(string: "https://atomscan.com/terra/transactions/\(hash)")
+        URL(string: "https://ping.pub/terra-luna/tx/\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        return URL(string: "https://atomscan.com/terra/accounts/\(address)")
+        URL(string: "https://ping.pub/terra-luna/account/\(address)")
     }
 }

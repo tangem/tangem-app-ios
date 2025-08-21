@@ -8,12 +8,13 @@
 
 import Foundation
 
-enum WalletConnectMethod: String, Equatable {
+enum WalletConnectMethod: String {
     case personalSign = "personal_sign"
-    case switchChain = "wallet_switchEthereumChain"
 
     // MARK: - ETH
 
+    case addChain = "wallet_addEthereumChain"
+    case switchChain = "wallet_switchEthereumChain"
     case signTransaction = "eth_signTransaction"
     case sendTransaction = "eth_sendTransaction"
     case signTypedData = "eth_signTypedData"
@@ -32,9 +33,12 @@ enum WalletConnectMethod: String, Equatable {
 
     var trimmedPrefixValue: String {
         switch self {
-        case .personalSign: "personalSign"
+        case .personalSign:
+            "personalSign"
         case .switchChain:
             "switchChain"
+        case .addChain:
+            "addChain"
         case .signTransaction:
             "signTransaction"
         case .sendTransaction:
