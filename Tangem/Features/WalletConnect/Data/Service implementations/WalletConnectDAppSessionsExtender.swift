@@ -138,7 +138,7 @@ actor WalletConnectDAppSessionsExtender {
     }
 
     private func handle(extendedDApps: [WalletConnectConnectedDApp]) async throws {
-        try await connectedDAppRepository.replacingExistingDApps(with: extendedDApps)
+        try await connectedDAppRepository.replacingAllExistingDApps(with: extendedDApps)
     }
 }
 
@@ -173,7 +173,11 @@ extension WalletConnectDAppSessionsExtender {
 private extension WalletConnectConnectedDApp {
     func with(updatedExpiryDate: Date) -> WalletConnectConnectedDApp {
         WalletConnectConnectedDApp(
-            session: WalletConnectDAppSession(topic: session.topic, expiryDate: updatedExpiryDate),
+            session: WalletConnectDAppSession(
+                topic: session.topic,
+                namespaces: session.namespaces,
+                expiryDate: updatedExpiryDate
+            ),
             userWalletID: userWalletID,
             dAppData: dAppData,
             verificationStatus: verificationStatus,
