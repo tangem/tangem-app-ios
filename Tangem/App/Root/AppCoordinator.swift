@@ -83,6 +83,8 @@ class AppCoordinator: CoordinatorObject {
             setupAuth(unlockOnAppear: true)
         case .uncompletedBackup:
             setupUncompletedBackup()
+        case .main(let model):
+            openMain(with: model)
         }
     }
 

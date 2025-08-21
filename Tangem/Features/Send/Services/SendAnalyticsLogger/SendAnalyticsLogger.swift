@@ -12,14 +12,17 @@ import TangemExpress
 protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
+    SendReceiveTokensListAnalyticsLogger,
     SendDestinationAnalyticsLogger,
     SendFeeAnalyticsLogger,
     FeeSelectorContentViewModelAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
-    func setup(sendFeeInput: SendFeeInput)
-    func setup(sendSourceTokenInput: SendSourceTokenInput)
+    func setup(sendFeeInput: any SendFeeInput)
+    func setup(sendSourceTokenInput: any SendSourceTokenInput)
+    func setup(sendReceiveTokenInput: any SendReceiveTokenInput)
+    func setup(sendSwapProvidersInput: any SendSwapProvidersInput)
 }
 
 protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
@@ -88,6 +91,13 @@ protocol SendAmountAnalyticsLogger {
     func logAmountStepReopened()
 }
 
+protocol SendReceiveTokensListAnalyticsLogger {
+    func logSearchClicked()
+    func logTokenSearched(coin: CoinModel, searchText: String?)
+
+    func logTokenChosen(token: TokenItem)
+}
+
 protocol SendFeeAnalyticsLogger {
     func logSendFeeSelected(_ feeOption: FeeOption)
 
@@ -116,6 +126,7 @@ protocol SendSwapProvidersAnalyticsLogger {
 
 protocol SendSummaryAnalyticsLogger {
     func logUserDidTapOnValidator()
+    func logUserDidTapOnProvider()
 
     func logSummaryStepOpened()
 }
