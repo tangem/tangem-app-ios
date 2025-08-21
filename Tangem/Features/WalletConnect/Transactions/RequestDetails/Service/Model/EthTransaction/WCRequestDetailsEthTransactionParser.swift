@@ -74,16 +74,6 @@ enum WCRequestDetailsEthTransactionParser {
         return .init(sectionTitle: "Advanced", items: advancedItems)
     }
 
-    private static func formatDecimalValue(_ amount: Decimal, currencySymbol: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 8
-        formatter.minimumFractionDigits = 0
-
-        let formattedValue = formatter.string(from: amount as NSDecimalNumber) ?? "\(amount)"
-        return "\(formattedValue) " + currencySymbol
-    }
-
     private static func formatTokenValue(_ hexValue: String, currencySymbol: String) -> String {
         guard let amount = EthereumUtils.parseEthereumDecimal(hexValue, decimalsCount: 18) else {
             return hexValue
