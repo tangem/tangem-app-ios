@@ -114,13 +114,13 @@ class SendNewAmountCompactTokenViewModel: ObservableObject, Identifiable {
 
         case .success(let amount):
             switch amount.type {
-            case .typical(let crypto, _):
+            case .typical:
                 amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
-            case .alternative(let fiat, _) where isApproximateAmount:
+            case .alternative where isApproximateAmount:
                 amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
-            case .alternative(let fiat, _):
+            case .alternative:
                 amountText = sendAmountFormatter.formatMain(amount: amount)
                 alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
             }
