@@ -52,7 +52,7 @@ struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {
         switch receiveTokenInput?.receiveToken {
         case .none, .same:
             Localization.commonSend
-        case .swap(let sendReceiveToken):
+        case .swap:
             Localization.sendWithSwapTitle
         }
     }
