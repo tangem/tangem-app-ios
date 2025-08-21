@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemLocalization
 
 class CommonStakingStepsManager {
     private let provider: StakingModelStateProvider
@@ -15,6 +16,7 @@ class CommonStakingStepsManager {
     private let validatorsStep: StakingValidatorsStep?
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
     private var bag: Set<AnyCancellable> = []
@@ -26,13 +28,15 @@ class CommonStakingStepsManager {
         amountStep: SendAmountStep,
         validatorsStep: StakingValidatorsStep?,
         summaryStep: SendSummaryStep,
-        finishStep: SendFinishStep
+        finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider
     ) {
         self.provider = provider
         self.amountStep = amountStep
         self.validatorsStep = validatorsStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
 
         stack = [amountStep]
         bind()
@@ -58,36 +62,22 @@ class CommonStakingStepsManager {
 
     private func currentStep() -> SendStep {
         let last = stack.last
-
-        assert(last != nil, "Stack is empty")
-
-        return last ?? initialState.step
+        return last ?? initialStep
     }
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
         case .amount:
             return summaryStep
-        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
+        default:
             assertionFailure("There is no next step")
             return nil
         }
     }
 
     private func next(step: SendStep) {
-        let isEditAction = stack.contains(where: { $0.type.isSummary })
         stack.append(step)
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .amount where isEditAction, .validators where isEditAction:
-            output?.update(state: .init(step: step, action: .continue))
-        case .amount, .destination, .validators, .fee, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -97,14 +87,7 @@ class CommonStakingStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            assertionFailure("There is no back step")
-        }
+        output?.update(step: currentStep())
     }
 }
 
@@ -112,15 +95,39 @@ class CommonStakingStepsManager {
 
 extension CommonStakingStepsManager: SendStepsManager {
     var initialKeyboardState: Bool { true }
-
     var initialFlowActionType: SendFlowActionType { .stake }
-
-    var initialState: SendStepsManagerViewState {
-        .init(step: amountStep, action: .next, backButtonVisible: false)
-    }
+    var initialStep: any SendStep { amountStep }
 
     var shouldShowDismissAlert: Bool {
         stack.contains(where: { $0.type.isSummary })
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .amount:
+            return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
+        case .validators:
+            return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
+        case .summary:
+            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+        case .finish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        let isEditAction = stack.contains(where: { $0.type.isSummary })
+
+        switch currentStep().type {
+        case .amount where isEditAction: return .init(action: .continue)
+        case .validators where isEditAction: return .init(action: .continue)
+        case .amount: return .init(action: .next)
+        case .summary: return .init(action: .action)
+        case .finish: return .init(action: .close)
+        default: return .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
