@@ -28,11 +28,8 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-
     let walletImageProvider: WalletImageProviding
-
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
-
     let accountModelsManager: AccountModelsManager
 
     var emailConfig: EmailConfig? {
@@ -157,8 +154,8 @@ extension CommonUserWalletModel: UserWalletModel {
         config.tangemSigner
     }
 
-    var cardsCount: Int {
-        config.cardsCount
+    var cardSetLabel: String {
+        config.cardSetLabel
     }
 
     var emailData: [EmailCollectedData] {
@@ -318,7 +315,7 @@ extension CommonUserWalletModel: KeysDerivingProvider {
         case .cardWallet(let cardInfo):
             return KeysDerivingCardInteractor(with: cardInfo)
         case .mobileWallet:
-            return KeysDerivingHotWalletInteractor(userWalletId: userWalletId)
+            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
         }
     }
 }
@@ -355,11 +352,11 @@ extension CommonUserWalletModel: UserWalletSerializable {
             )
 
             return newStoredUserWallet
-        case .mobileWallet(let hotWalletInfo):
+        case .mobileWallet(let mobileWalletInfo):
             let newStoredUserWallet = StoredUserWallet(
                 userWalletId: userWalletId.value,
                 name: name,
-                walletInfo: .mobileWallet(hotWalletInfo),
+                walletInfo: .mobileWallet(mobileWalletInfo),
             )
 
             return newStoredUserWallet

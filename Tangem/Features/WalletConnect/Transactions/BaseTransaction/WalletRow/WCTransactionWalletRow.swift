@@ -31,5 +31,7 @@ struct WCTransactionWalletRow: View {
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
         }
         .lineLimit(1)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
     }
 }

@@ -28,7 +28,6 @@ struct SendNewAmountStepBuilder {
         receiveIO: ReceiveIO,
         receiveAmountIO: ReceiveAmountIO,
         swapProvidersInput: SendSwapProvidersInput,
-        actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
@@ -87,5 +86,37 @@ struct SendNewAmountStepBuilder {
         interactorSaver.updater = amountUpdater
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
+    }
+
+    func makeSendNewAmountCompactViewModel(
+        sourceTokenInput: SendSourceTokenInput,
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
+        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        swapProvidersInput: SendSwapProvidersInput,
+    ) -> SendNewAmountCompactViewModel {
+        SendNewAmountCompactViewModel(
+            sourceTokenInput: sourceTokenInput,
+            sourceTokenAmountInput: sourceTokenAmountInput,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
+            swapProvidersInput: swapProvidersInput,
+        )
+    }
+
+    func makeSendNewAmountFinishViewModel(
+        sourceTokenInput: SendSourceTokenInput,
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
+        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        swapProvidersInput: SendSwapProvidersInput,
+    ) -> SendNewAmountFinishViewModel {
+        SendNewAmountFinishViewModel(
+            sourceTokenInput: sourceTokenInput,
+            sourceTokenAmountInput: sourceTokenAmountInput,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
+            swapProvidersInput: swapProvidersInput,
+        )
     }
 }
