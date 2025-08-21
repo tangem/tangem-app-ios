@@ -52,14 +52,11 @@ class BannerNotificationManager {
             }
 
             try Task.checkCancellation()
-
-            await runOnMain {
-                manager.setupNotification(promotion: promotion)
-            }
+            await manager.setupNotification(promotion: promotion)
         }
     }
 
-    private func setupNotification(promotion: ActivePromotionInfo) {
+    private func setupNotification(promotion: ActivePromotionInfo) async {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self, placement] id, action in
@@ -84,8 +81,11 @@ class BannerNotificationManager {
             Analytics.log(event: .promotionBannerClicked, params: params)
         }
 
-        guard let event = makeEvent(promotion: promotion, analytics: analytics) else {
-            notificationInputsSubject.value.removeAll { $0.id == promotion.bannerPromotion.hashValue }
+        guard let event = await makeEvent(promotion: promotion, analytics: analytics) else {
+            await runOnMain {
+                notificationInputsSubject.value.removeAll { $0.id == promotion.bannerPromotion.hashValue }
+            }
+
             return
         }
 
@@ -96,10 +96,12 @@ class BannerNotificationManager {
             return
         }
 
-        notificationInputsSubject.value.insert(input, at: 0)
+        await runOnMain {
+            notificationInputsSubject.value.insert(input, at: 0)
+        }
     }
 
-    private func makeEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> BannerNotificationEvent? {
+    private func makeEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) async -> BannerNotificationEvent? {
         switch promotion.bannerPromotion {
         case .ring:
             if let link = promotion.link {
@@ -111,8 +113,8 @@ class BannerNotificationManager {
             }
 
         case .onrampSEPAWithMercuryo:
-            let builder = PredefinedOnrampParametersBuilder()
-            if let (walletModel, parameters) = builder.prepare(userWalletId: userWalletId) {
+            let builder = PredefinedOnrampParametersBuilder(userWalletId: userWalletId)
+            if let (walletModel, parameters) = await builder.prepare() {
                 return BannerNotificationEvent(
                     programName: promotion.bannerPromotion,
                     analytics: analytics,
