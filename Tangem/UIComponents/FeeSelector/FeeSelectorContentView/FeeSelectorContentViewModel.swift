@@ -30,8 +30,6 @@ final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentV
         balanceConverter: .init()
     )
 
-    private var bag: Set<AnyCancellable> = []
-
     init(
         input: FeeSelectorContentViewModelInput,
         output: FeeSelectorContentViewModelOutput,
@@ -54,11 +52,19 @@ final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentV
         .init(root: self, default: false) { root in
             return root.selectedFeeOption == option
         } set: { root, isSelected in
-            root.selectedFeeOption = option
-
             if isSelected {
+                root.selectedFeeOption = option
                 root.analytics.logSendFeeSelected(option)
             }
+        }
+    }
+
+    func onAppear() {
+        analytics.logFeeStepOpened()
+
+        if let currentSelectedFee = input.selectedSelectorFee,
+           currentSelectedFee.option != selectedFeeOption {
+            selectedFeeOption = currentSelectedFee.option
         }
     }
 
@@ -89,35 +95,25 @@ private extension FeeSelectorContentViewModel {
             // Skip a different loading states when fees is empty
             .compactMap { $0.value }
             .withWeakCaptureOf(self)
+            .map { $0.mapToFeeSelectorContentRowViewModels(values: $1) }
             .receiveOnMain()
-            .sink { viewModel, values in
-                viewModel.updateViewModels(values: values)
-            }
-            .store(in: &bag)
-
-        input.selectedSelectorFeePublisher
-            .withWeakCaptureOf(self)
-            .receiveOnMain()
-            .sink { viewModel, selectedFee in
-                viewModel.selectedFeeOption = selectedFee.option
-            }
-            .store(in: &bag)
+            .assign(to: &$feesRowData)
     }
 
-    func updateViewModels(values: [FeeSelectorFee]) {
-        feesRowData = values.compactMap { fee in
-            let viewModel = mapToFeeRowViewModel(fee: fee)
-            return viewModel
-        }
+    func mapToFeeSelectorContentRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorContentRowViewModel] {
+        values
+            .sorted(by: \.option)
+            .map { mapToFeeRowViewModel(fee: $0) }
     }
 
-    private func mapToFeeRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel? {
+    private func mapToFeeRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel {
         let feeComponents = feeFormatter.formattedFeeComponents(
             fee: fee.value,
             tokenItem: feeTokenItem,
             formattingOptions: .sendCryptoFeeFormattingOptions
         )
 
+        // We will create the custom fields only for the `.custom` option
         let customFields = fee.option == .custom ? customFieldsBuilder.buildCustomFeeFields() : []
 
         return FeeSelectorContentRowViewModel(
