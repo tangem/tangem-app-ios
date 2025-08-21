@@ -238,7 +238,9 @@ extension CommonUserTokensManager: UserTokensManager {
 
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
+        guard
+            let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
+        else {
             return false
         }
 
@@ -257,21 +259,6 @@ extension CommonUserTokensManager: UserTokensManager {
 
         // We can remove token if there is no items in `tokenList`
         return tokenList.isEmpty
-    }
-
-    func canRemove(_ tokenItem: TokenItem) -> Bool {
-        guard tokenItem.isBlockchain else {
-            return true
-        }
-
-        let tokenItem = withBlockchainNetwork(tokenItem)
-
-        guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork }) else {
-            return false
-        }
-
-        let hasNoTokens = entry.tokens.isEmpty
-        return hasNoTokens
     }
 
     func remove(_ tokenItem: TokenItem) {
