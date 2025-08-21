@@ -70,7 +70,6 @@
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */; };
 		0ADFB9342E424F7D00334A3C /* MobileWalletError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */; };
-		0ADFB9362E42500700334A3C /* MobileWallet+UniversalError.swift in Resources */ = {isa = PBXBuildFile; fileRef = 0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */; };
 		0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */; };
 		0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */; };
 		0AE3EE0F2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */; };
@@ -274,7 +273,6 @@
 		2D665C312CDCA3FC00C9BA85 /* CLValueWrapperToJsonString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0D2CDCA3FC00C9BA85 /* CLValueWrapperToJsonString.swift */; };
 		2D665C322CDCA3FC00C9BA85 /* CLValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0B2CDCA3FC00C9BA85 /* CLValue.swift */; };
 		2D665C342CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */; };
-		2D6E67E72D0C8CC6003B4D5C /* Solana+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E67E62D0C8CC6003B4D5C /* Solana+.swift */; };
 		2D70C61D2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */; };
 		2D7C45DB2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */; };
 		2D8D5EA42D5F2FA1005AECC9 /* AlephiumAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */; };
@@ -4351,7 +4349,6 @@
 		2D665C1E2CDCA3FC00C9BA85 /* CLTypeSerializeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLTypeSerializeHelper.swift; sourceTree = "<group>"; };
 		2D665C1F2CDCA3FC00C9BA85 /* DeploySerialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploySerialization.swift; sourceTree = "<group>"; };
 		2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperNetworkResponse.Transaction.swift; sourceTree = "<group>"; };
-		2D6E67E62D0C8CC6003B4D5C /* Solana+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Solana+.swift"; sourceTree = "<group>"; };
 		2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsAddCustomItemView.swift; sourceTree = "<group>"; };
 		2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
@@ -8874,7 +8871,6 @@
 			children = (
 				2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */,
 				2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */,
-				2D6E67E62D0C8CC6003B4D5C /* Solana+.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -21402,8 +21398,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5D3F77EC24BF56DC00E8695B /* Build configuration list for PBXNativeTarget "Tangem" */;
 			buildPhases = (
-				EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */,
 				DC751ADF2ABB9EBB0039A4D2 /* Headers */,
+				EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */,
 				5D3F77BE24BF56D800E8695B /* Sources */,
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
@@ -21866,7 +21862,6 @@
 				DC4512722BD15DFB00DE6F94 /* xlmBird.json in Resources */,
 				B07C6A0D2A77E5AD00ACCBB0 /* xrpNote.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
-				0ADFB9362E42500700334A3C /* MobileWallet+UniversalError.swift in Resources */,
 				B07C6A0B2A77E5A600ACCBB0 /* wallet2.json in Resources */,
 				EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */,
 				B0DC10D1292755BB00BBE854 /* wallet.json in Resources */,
@@ -23658,7 +23653,6 @@
 				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				0FB934072E4A91D300DAB673 /* MobileOnboardingSeedPhraseValidationView.swift in Sources */,
 				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
-				EFB4CA552E0BE2AF003C1522 /* SendNewDestinationInteractorDependenciesProvider.swift in Sources */,
 				0FE588522DEF2A1500E5663E /* MobileOnboardingViewModel.swift in Sources */,
 				C207D5FA2DE60E8800A5FB2E /* WalletConnectSessionNamespaceMapper.swift in Sources */,
 				DC43E8662CE66DED00DD7B06 /* WalletPromoBannerView.swift in Sources */,
@@ -25588,7 +25582,6 @@
 				305B22332D789C2C009BCC73 /* BitcoinCashAddressTests.swift in Sources */,
 				B62D435C2CBC79E400C2460E /* KoinosAddressTests.swift in Sources */,
 				303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */,
-				2D6E67E72D0C8CC6003B4D5C /* Solana+.swift in Sources */,
 				306EA0572D803EC9003489C1 /* BittensorAddressTests.swift in Sources */,
 				B62D434E2CBC79E400C2460E /* LitecoinTransactionTests.swift in Sources */,
 				B62D43572CBC79E400C2460E /* PolkadotTransactionTests.swift in Sources */,
@@ -27357,7 +27350,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -27448,7 +27440,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -27539,7 +27530,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -27630,7 +27620,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -27714,7 +27703,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -27798,7 +27786,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

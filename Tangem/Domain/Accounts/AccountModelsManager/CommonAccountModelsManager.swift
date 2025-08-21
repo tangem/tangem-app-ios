@@ -22,6 +22,10 @@ actor CommonAccountModelsManager {
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
 
+    /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
+    private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
+    private nonisolated let criticalSection: Lock
+
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository
@@ -29,28 +33,12 @@ actor CommonAccountModelsManager {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         executor = Executor(label: userWalletId.stringValue)
+        criticalSection = Lock(isRecursive: false)
     }
 
     private func initialize() {
         // [REDACTED_TODO_COMMENT]
     }
-
-    private nonisolated lazy var _accountModelsPublisher: AnyPublisher<[AccountModel], Never> = {
-        var cache: Cache = [:]
-
-        return cryptoAccountsRepository
-            .cryptoAccountsPublisher
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, cryptoAccounts in
-                let cryptoAccountModels = await manager.makeCryptoAccountModels(from: cryptoAccounts, cache: &cache)
-                let cryptoAccounts = CryptoAccounts(accounts: cryptoAccountModels)
-
-                return [
-                    .standard(cryptoAccounts),
-                ]
-            }
-            .eraseToAnyPublisher()
-    }()
 
     private func makeCryptoAccountModels(
         from cryptoAccounts: [StoredCryptoAccount],
@@ -89,14 +77,41 @@ actor CommonAccountModelsManager {
             return cryptoAccount
         }
     }
+
+    /// - Note: Manual synchronization is used since this publisher must be created in a lazy manner and lazy properties not really
+    /// supported in actors (compiler warning on Swift 5.x and compiler error on Swift 6; see https://forums.swift.org/t/74609 for details).
+    private nonisolated func makeOrGetAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        return criticalSection {
+            if let publisher = unsafeAccountModelsPublisher {
+                return publisher
+            }
+
+            var cache: Cache = [:]
+            let publisher = cryptoAccountsRepository
+                .cryptoAccountsPublisher
+                .withWeakCaptureOf(self)
+                .asyncMap { manager, cryptoAccounts -> [AccountModel] in
+                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: cryptoAccounts, cache: &cache)
+                    let cryptoAccounts = CryptoAccounts(accounts: cryptoAccountModels)
+
+                    return [
+                        .standard(cryptoAccounts),
+                    ]
+                }
+                .eraseToAnyPublisher()
+
+            unsafeAccountModelsPublisher = publisher
+
+            return publisher
+        }
+    }
 }
 
 // MARK: - AccountModelsManager protocol conformance
 
 extension CommonAccountModelsManager: AccountModelsManager {
     nonisolated var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
-        // [REDACTED_TODO_COMMENT]
-        _accountModelsPublisher
+        makeOrGetAccountModelsPublisher()
     }
 
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel {
@@ -145,7 +160,7 @@ private extension CommonAccountModelsManager {
 
 // MARK: - Temporary convenience extensions
 
-@available(*, deprecated, message: "Test only initializer, remove")
+@available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
 extension CommonAccountModelsManager {
     init(userWalletId: UserWalletId) {
         self.init(
