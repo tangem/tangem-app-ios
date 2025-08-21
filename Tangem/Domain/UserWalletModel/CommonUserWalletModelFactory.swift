@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine // [REDACTED_TODO_COMMENT]
 import TangemNFT
 import TangemMobileWalletSdk
 import TangemFoundation
