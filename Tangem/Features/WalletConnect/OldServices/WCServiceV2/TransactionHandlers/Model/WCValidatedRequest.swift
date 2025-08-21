@@ -6,11 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import ReownWalletKit
+import struct ReownWalletKit.Request
+import enum BlockchainSdk.Blockchain
 
 struct WCValidatedRequest {
-    let request: Request
+    let request: ReownWalletKit.Request
     let dAppData: WalletConnectDAppData
-    let targetBlockchain: WCUtils.BlockchainMeta
+    let targetBlockchain: Blockchain
     let userWalletModel: UserWalletModel
 }

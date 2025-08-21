@@ -11,15 +11,15 @@ import enum BlockchainSdk.Blockchain
 import TangemFoundation
 
 enum WalletConnectAccountsMapper {
-    static func mapToDomain(_ reownAccount: ReownWalletKit.Account) -> WalletConnectDAppConnectionRequest.Account {
-        WalletConnectDAppConnectionRequest.Account(
+    static func mapToDomain(_ reownAccount: ReownWalletKit.Account) -> WalletConnectAccount {
+        WalletConnectAccount(
             namespace: reownAccount.namespace,
             reference: reownAccount.reference,
             address: reownAccount.address
         )
     }
 
-    static func mapFromDomain(_ domainAccount: WalletConnectDAppConnectionRequest.Account) -> ReownWalletKit.Account? {
+    static func mapFromDomain(_ domainAccount: WalletConnectAccount) -> ReownWalletKit.Account? {
         ReownWalletKit.Account(
             chainIdentifier: "\(domainAccount.namespace):\(domainAccount.reference)",
             address: domainAccount.address
@@ -31,11 +31,23 @@ enum WalletConnectAccountsMapper {
         userWalletModel: some UserWalletModel,
         preferredCAIPReference: String?
     ) -> [ReownWalletKit.Account] {
+        map(
+            from: blockchain,
+            walletConnectWalletModelProvider: userWalletModel.wcWalletModelProvider,
+            preferredCAIPReference: preferredCAIPReference
+        )
+    }
+
+    static func map(
+        from blockchain: BlockchainSdk.Blockchain,
+        walletConnectWalletModelProvider: some WalletConnectWalletModelProvider,
+        preferredCAIPReference: String?
+    ) -> [ReownWalletKit.Account] {
         guard let reownBlockchain = WalletConnectBlockchainMapper.mapFromDomain(blockchain, preferredCAIPReference: preferredCAIPReference) else {
             return []
         }
 
-        let wallets = userWalletModel.wcWalletModelProvider.getModels(with: blockchain.networkId)
+        let wallets = walletConnectWalletModelProvider.getModels(with: blockchain.networkId)
 
         guard wallets.isNotEmpty else {
             return []

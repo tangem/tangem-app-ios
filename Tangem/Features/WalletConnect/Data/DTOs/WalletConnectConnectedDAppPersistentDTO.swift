@@ -11,6 +11,7 @@ import enum BlockchainSdk.Blockchain
 
 struct WalletConnectConnectedDAppPersistentDTO: Codable {
     let sessionTopic: String
+    let namespaces: [String: SessionNamespace]
     let userWalletID: String
     let dAppName: String
     let dAppDomainURL: URL
@@ -31,5 +32,18 @@ extension WalletConnectConnectedDAppPersistentDTO {
     struct DAppBlockchain: Codable {
         let blockchain: Blockchain
         let isRequired: Bool
+    }
+
+    struct Account: Codable {
+        let namespace: String
+        let reference: String
+        let address: String
+    }
+
+    struct SessionNamespace: Codable {
+        let blockchains: Set<Blockchain>?
+        let accounts: [Account]
+        let methods: Set<String>
+        let events: Set<String>
     }
 }
