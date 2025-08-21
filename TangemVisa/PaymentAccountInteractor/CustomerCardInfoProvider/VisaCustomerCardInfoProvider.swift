@@ -13,14 +13,6 @@ public protocol VisaCustomerCardInfoProvider {
     func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo
 }
 
-/// For backwards compatibility.
-/// Will be removed in next [REDACTED_INFO]
-public extension VisaCustomerCardInfoProvider {
-    func loadPaymentAccount(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
-        try await loadPaymentAccount(cardWalletAddress: cardWalletAddress)
-    }
-}
-
 struct CommonCustomerCardInfoProvider {
     private let isTestnet: Bool
     private let customerInfoManagementService: CustomerInfoManagementService?
