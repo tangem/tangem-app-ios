@@ -25,7 +25,6 @@ final class MobileBackupTypesViewModel: ObservableObject {
     }
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-    private lazy var authUtil = MobileAuthUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
 
     private let userWalletModel: UserWalletModel
     private weak var routable: MobileBackupTypesRoutable?
@@ -70,7 +69,7 @@ private extension MobileBackupTypesViewModel {
 
 private extension MobileBackupTypesViewModel {
     func makeBackupItems() -> [BackupItem] {
-        [makeSeedPhraseBackupItem(), makeICloudBackupItem()]
+        [makeSeedPhraseBackupItem(), makeHardwareBackupItem(), makeICloudBackupItem()]
     }
 
     func makeSeedPhraseBackupItem() -> BackupItem {
@@ -85,6 +84,18 @@ private extension MobileBackupTypesViewModel {
         return BackupItem(
             title: Localization.hwBackupSeedTitle,
             description: Localization.hwBackupSeedDescription,
+            badge: badge,
+            isEnabled: true,
+            action: action
+        )
+    }
+
+    func makeHardwareBackupItem() -> BackupItem {
+        let badge = BadgeView.Item(title: Localization.expressProviderRecommended, style: .secondary)
+        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onHardwareBackupTap)
+        return BackupItem(
+            title: Localization.hwBackupHardwareTitle,
+            description: Localization.hwBackupHardwareDescription,
             badge: badge,
             isEnabled: true,
             action: action
@@ -107,7 +118,33 @@ private extension MobileBackupTypesViewModel {
             openSeedPhraseBackup()
         } else {
             runTask(in: self) { viewModel in
-                await viewModel.unlock()
+                do {
+                    let context = try await viewModel.unlock()
+                    await viewModel.openSeedPhraseReveal(context: context)
+                } catch where error.isCancellationError {
+                    AppLogger.error("Unlock is canceled", error: error)
+                } catch {
+                    AppLogger.error("Unlock failed:", error: error)
+                    await runOnMain {
+                        viewModel.alert = error.alertBinder
+                    }
+                }
+            }
+        }
+    }
+
+    func onHardwareBackupTap() {
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await viewModel.unlock()
+                await viewModel.openUpgrade()
+            } catch where error.isCancellationError {
+                AppLogger.error("Unlock is canceled", error: error)
+            } catch {
+                AppLogger.error("Unlock failed:", error: error)
+                await runOnMain {
+                    viewModel.alert = error.alertBinder
+                }
             }
         }
     }
@@ -116,40 +153,21 @@ private extension MobileBackupTypesViewModel {
 // MARK: - Unlocking
 
 private extension MobileBackupTypesViewModel {
-    func unlock() async {
-        do {
-            let result = try await authUtil.unlock()
+    func unlock() async throws -> MobileWalletContext {
+        let authUtil = MobileAuthUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
+        let result = try await authUtil.unlock()
 
-            switch result {
-            case .successful(let context):
-                try await handleAccessCodeUnlockResult(context: context)
+        switch result {
+        case .successful(let context):
+            return context
 
-            case .canceled:
-                return
+        case .canceled:
+            throw CancellationError()
 
-            case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
-                return
-            }
-        } catch {
-            AppLogger.error("Unlock with AccessCode failed:", error: error)
-            await runOnMain {
-                alert = error.alertBinder
-            }
+        case .userWalletNeedsToDelete:
+            // [REDACTED_TODO_COMMENT]
+            throw CancellationError()
         }
-    }
-
-    func handleAccessCodeUnlockResult(context: MobileWalletContext) async throws {
-        let encryptionKey = try mobileWalletSdk.userWalletEncryptionKey(context: context)
-
-        guard
-            let configEncryptionKey = UserWalletEncryptionKey(config: userWalletModel.config),
-            encryptionKey.symmetricKey == configEncryptionKey.symmetricKey
-        else {
-            throw MobileWalletError.encryptionKeyMismatched
-        }
-
-        await openSeedPhraseReveal(context: context)
     }
 }
 
@@ -158,13 +176,18 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func openSeedPhraseBackup() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
-        routable?.openOnboarding(input: input)
+        routable?.openMobileOnboarding(input: input)
     }
 
     @MainActor
     func openSeedPhraseReveal(context: MobileWalletContext) {
         let input = MobileOnboardingInput(flow: .seedPhraseReveal(context: context))
-        routable?.openOnboarding(input: input)
+        routable?.openMobileOnboarding(input: input)
+    }
+
+    @MainActor
+    func openUpgrade() {
+        routable?.openMobileUpgrade()
     }
 }
 

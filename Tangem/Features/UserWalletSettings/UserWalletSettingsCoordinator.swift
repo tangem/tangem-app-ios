@@ -35,6 +35,8 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
+    @Published var mobileUpgradeViewModel: MobileUpgradeViewModel?
+    @Published var mailViewModel: MailViewModel?
 
     // MARK: - Helpers
 
@@ -65,7 +67,8 @@ extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable,
     MobileBackupNeededRoutable,
-    MobileBackupTypesRoutable {
+    MobileBackupTypesRoutable,
+    MobileUpgradeRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -153,13 +156,6 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    // MARK: - MobileBackupOnboardingRoutable
-
-    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
-        let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .mobileInput(backupInput))
-    }
-
     // MARK: - MobileBackupNeededRoutable
 
     func dismissMobileBackupNeeded() {
@@ -174,7 +170,26 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - MobileBackupTypesRoutable
 
-    func openOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(with: .mobileInput(input))
+    func openMobileUpgrade() {
+        mobileUpgradeViewModel = MobileUpgradeViewModel(coordinator: self)
+    }
+
+    // MARK: - MobileUpgradeRoutable
+
+    func openOnboarding(input: OnboardingInput) {
+        openOnboardingModal(with: .input(input))
+    }
+
+    func openMail(dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: recipient,
+            emailType: .failedToScanCard
+        )
+    }
+
+    func closeMobileUpgrade() {
+        mobileUpgradeViewModel = nil
     }
 }
