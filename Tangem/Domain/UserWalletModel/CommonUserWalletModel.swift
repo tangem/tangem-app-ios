@@ -28,11 +28,8 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
-
     let walletImageProvider: WalletImageProviding
-
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
-
     let accountModelsManager: AccountModelsManager
 
     private let walletManagersRepository: WalletManagersRepository
