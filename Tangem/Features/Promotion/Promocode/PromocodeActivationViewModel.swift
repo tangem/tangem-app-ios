@@ -20,7 +20,6 @@ final class PromocodeActivationViewModel: ObservableObject {
     @Published private(set) var isCheckingPromoCode = false
 
     private let promoCode: String
-    
     private let alertOkButton = Alert.Button.default(Text(Localization.commonOk)) {
         UIApplication.dismissTop(animated: false)
     }
@@ -33,10 +32,6 @@ final class PromocodeActivationViewModel: ObservableObject {
 
     // MARK: - Public Implementation
 
-    func dismissSelf() {
-        UIApplication.dismissTop(animated: false)
-    }
-
     func activatePromoCode() async {
         isCheckingPromoCode = true
 
@@ -45,34 +40,40 @@ final class PromocodeActivationViewModel: ObservableObject {
         }
 
         guard let address = getWalletAddress() else {
-            presentAlert(message: "No wallet address")
+            displayErrorAlert(error: .noAddress)
             return
         }
 
         do {
-            let _ = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
-            presentAlert(message: Localization.bitcoinPromoActivationSuccess)
-        } catch let error as TangemAPIError {
-            switch error.code {
-            case .badRequest:
-                presentAlert(message: "400")
-            case .forbidden:
-                presentAlert(message: "403")
-            case .notFound:
-                presentAlert(message: "404")
-            case .conflict:
-                presentAlert(message: "409")
-            case .unprocessableEntity:
-                presentAlert(message: "422")
-            default:
-                presentAlert(message: error.localizedDescription)
-            }
+            _ = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
+            displaySuccessAlert()
         } catch {
-            presentAlert(message: "Generic Error")
+            handleAPIError(error)
         }
     }
 
     // MARK: - Private Implementatation
+    
+    private func handleAPIError(_ error: Error) {
+        var promocodeError: PromocodeActivationError
+
+        if let apiError = error as? TangemAPIError {
+            switch apiError.code {
+            case .badRequest, .forbidden:
+                promocodeError = .activationError
+            case .notFound:
+                promocodeError = .invalidCode
+            case .conflict:
+                promocodeError = .alreadyActivated
+            default:
+                promocodeError = .activationError
+            }
+        } else {
+            promocodeError = .activationError
+        }
+
+        displayErrorAlert(error: promocodeError)
+    }
 
     private func getWalletAddress() -> String? {
         userWalletRepository
@@ -83,14 +84,21 @@ final class PromocodeActivationViewModel: ObservableObject {
     }
 }
 
-
 // MARK: - Alerts
 
-extension PromocodeActivationViewModel {
-    func createErrorAlert(error: PromocodeActivationError) {
+private extension PromocodeActivationViewModel {
+    private func displayErrorAlert(error: PromocodeActivationError) {
         alert = AlertBinder(alert: Alert(
-            title: Text(title),
-            message: Text(message),
+            title: Text(error.title),
+            message: Text(error.localizedDescription),
+            dismissButton: alertOkButton
+        ))
+    }
+    
+    private func displaySuccessAlert() {
+        alert = AlertBinder(alert: Alert(
+            title: Text(Localization.bitcoinPromoActivationSuccessTitle),
+            message: Text(Localization.bitcoinPromoActivationSuccess),
             dismissButton: alertOkButton
         ))
     }

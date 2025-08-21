@@ -15,23 +15,22 @@ struct PromocodeActivationView: View {
     init(promoCode: String) {
         _viewModel = StateObject(wrappedValue: PromocodeActivationViewModel(promoCode: promoCode))
     }
-
+    
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4).ignoresSafeArea()
+            Color.black
+                .opacity(0.4)
+                .ignoresSafeArea()
 
             ProgressView()
                 .progressViewStyle(.circular)
                 .tint(.white)
+                .opacity(viewModel.isCheckingPromoCode ? 1 : 0)
         }
         .task {
             await viewModel.activatePromoCode()
         }
-        .alert(viewModel.alertMessage, isPresented: $viewModel.isPresentingAlert) {
-            Button(Localization.commonOk, role: .cancel) {
-                viewModel.dismissSelf()
-            }
-        }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
