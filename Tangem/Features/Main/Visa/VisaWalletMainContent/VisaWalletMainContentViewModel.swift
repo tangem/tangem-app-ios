@@ -355,7 +355,7 @@ private extension VisaWalletMainContentViewModel {
             publicKey: .init(seedKey: Data(), derivationType: nil),
             type: .default
         )
-        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: [visaAddress])
+        let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: [visaAddress])
 
         coordinator?.openReceiveScreen(
             tokenItem: info.tokenItem,
