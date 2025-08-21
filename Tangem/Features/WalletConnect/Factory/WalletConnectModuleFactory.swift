@@ -226,6 +226,14 @@ enum WalletConnectModuleFactory {
         return Toast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
     }
 
+    static func makeGenericErrorToast(_ error: some Error) -> Toast<WarningToast> {
+        Toast(
+            view: WarningToast(
+                text: Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: error.toUniversalError()))
+            )
+        )
+    }
+
     static func makeDAppProposalLoadingErrorViewModel(
         _ proposalLoadingError: WalletConnectDAppProposalLoadingError,
         closeAction: @escaping () -> Void
@@ -324,6 +332,48 @@ enum WalletConnectModuleFactory {
         return WalletConnectErrorViewModel(
             state: viewState,
             contactSupportAction: makeContactSupportAction(for: proposalApprovalError),
+            closeAction: closeAction
+        )
+    }
+
+    static func makeTransactionRequestProcessingErrorViewModel(
+        _ transactionRequestProcessingError: WalletConnectTransactionRequestProcessingError,
+        closeAction: @escaping () -> Void
+    ) -> WalletConnectErrorViewModel? {
+        let viewState: WalletConnectErrorViewState
+
+        switch transactionRequestProcessingError {
+        case .unsupportedBlockchain(let caipBlockchain):
+            viewState = WalletConnectErrorViewState(
+                icon: .blockchain,
+                title: Localization.wcAlertUnsupportedNetworkTitle,
+                subtitle: Localization.wcAlertUnsupportedNetworkDescription(caipBlockchain),
+                buttonStyle: .secondary
+            )
+
+        case .blockchainToAddRequiresDAppReconnection(let blockchain):
+            viewState = WalletConnectErrorViewState(
+                icon: .blockchain,
+                title: Localization.wcAlertNetworkNotConnectedTitle,
+                subtitle: Localization.wcAlertNetworkNotConnectedDescription(blockchain.displayName),
+                buttonStyle: .secondary
+            )
+
+        case .blockchainToAddIsMissingFromUserWallet(let blockchain):
+            viewState = WalletConnectErrorViewState(
+                icon: .blockchain,
+                title: Localization.wcAlertAddNetworkToPortfolioTitle,
+                subtitle: Localization.wcAlertAddNetworkToPortfolioDescription(blockchain.displayName),
+                buttonStyle: .secondary
+            )
+
+        case .invalidPayload, .blockchainToAddDuplicate, .userWalletNotFound:
+            return nil
+        }
+
+        return WalletConnectErrorViewModel(
+            state: viewState,
+            contactSupportAction: makeContactSupportAction(for: transactionRequestProcessingError),
             closeAction: closeAction
         )
     }
