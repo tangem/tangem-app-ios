@@ -35,7 +35,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
-    private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
     var isOrganizeTokensVisible: Bool {
         guard canManageTokens else { return false }
@@ -61,6 +61,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
     private let rateAppController: RateAppInteractionController
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
@@ -99,9 +100,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
         bind()
-
-        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     deinit {
@@ -241,6 +244,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher1: $notificationInputs,
             notificationsPublisher2: $tokensNotificationInputs
         )
+
+        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isAvailable in
+                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
+            }
+            .store(in: &bag)
 
         subscribeToTokenListSync(with: sectionsPublisher)
         nftFeatureLifecycleHandler.startObserving()
@@ -427,19 +439,6 @@ extension MultiWalletMainContentViewModel {
         )
     }
 
-    private func openBuy(for walletModel: any WalletModel) {
-        if FeatureProvider.isAvailable(.onramp) {
-            tokenRouter.openOnramp(walletModel: walletModel)
-        } else {
-            if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-                error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-                return
-            }
-
-            tokenRouter.openBuy(walletModel: walletModel)
-        }
-    }
-
     private func openSell(for walletModel: any WalletModel) {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
@@ -461,9 +460,8 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openHotFinishActivation() {
-        // [REDACTED_TODO_COMMENT]
-        coordinator?.openHotFinishActivation()
+    private func openMobileFinishActivation() {
+        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
     }
 }
 
@@ -509,8 +507,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openHotFinishActivation:
-            openHotFinishActivation()
+        case .openMobileFinishActivation:
+            openMobileFinishActivation()
         default:
             break
         }
@@ -579,7 +577,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
         switch action {
         case .buy:
-            openBuy(for: walletModel)
+            tokenRouter.openOnramp(walletModel: walletModel)
         case .send:
             tokenRouter.openSend(walletModel: walletModel)
         case .receive:
