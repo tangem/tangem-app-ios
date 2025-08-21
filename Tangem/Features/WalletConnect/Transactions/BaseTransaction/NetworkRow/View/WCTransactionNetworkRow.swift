@@ -39,5 +39,7 @@ struct WCTransactionNetworkRow: View {
                 .frame(size: .init(bothDimensions: 20))
         }
         .lineLimit(1)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
     }
 }
