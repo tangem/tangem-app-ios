@@ -224,15 +224,26 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         )
     }
 
+    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse {
+        return .init(
+            nonce: RandomBytesGenerator().generateBytes(length: 16).hexString,
+            sessionId: "098acd0987ba0af0787ff8abc90dcb12=098acd0987ba0af0787ff8abc90dcb12=="
+        )
+    }
+
     func getAccessTokensForCardAuth(signedChallenge: String, salt: String, sessionId: String) async throws -> VisaAuthorizationTokens {
         return authorizationTokens
     }
 
-    func getAccessTokensForWalletAuth(signedChallenge: String, salt: String, sessionId: String) async throws -> VisaAuthorizationTokens? {
+    func getAccessTokensForWalletAuth(signedChallenge: String, salt: String, sessionId: String) async throws -> VisaAuthorizationTokens {
         guard VisaMocksManager.instance.isWalletAuthorizationTokenEnabled else {
-            return nil
+            throw VisaAPIError(code: 110206, name: "VisaMockManager", message: "Should use card authorization")
         }
 
+        return authorizationTokens
+    }
+
+    func getAccessTokensForCustomerWalletAuth(sessionId: String, signedChallenge: String, messageFormat: String) async throws -> VisaAuthorizationTokens {
         return authorizationTokens
     }
 
@@ -311,6 +322,14 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 id: "5add5bde-04e7-4efd-9191-cb7f21956c00",
                 customerWalletAddress: "0xef08ea3531d219ede813fb521e6d89220198bcb1",
                 address: "0xd7d2d8266e79d22be3680a062e19484140e248d1"
+            ),
+            kyc: .init(
+                id: "",
+                provider: "",
+                status: .undefined,
+                risk: .undefined,
+                reviewAnswer: .undefined,
+                createdAt: Date()
             )
         )
     }
