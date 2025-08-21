@@ -43,10 +43,12 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.newWalletSelectorCoordinator) {
-                NewWalletSelectorCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.createWalletSelectorCoordinator) {
+                CreateWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
+            .navigation(item: $coordinator.importWalletSelectorCoordinator) {
+                ImportWalletSelectorCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder

@@ -102,27 +102,8 @@ struct TwinsOnboardingView: View {
                             .padding(.horizontal, 16)
 
                         if !viewModel.isCustomContentVisible {
-                            let backgroundFrame = currentStep.backgroundFrame(in: size)
-                            let backgroundOffset = currentStep.backgroundOffset(in: size)
-                            OnboardingTopupBalanceView(
-                                backgroundFrameSize: backgroundFrame,
-                                cornerSize: currentStep.backgroundCornerRadius(in: size),
-                                backgroundOffset: backgroundOffset,
-                                balance: viewModel.cardBalance,
-                                balanceUpdaterFrame: backgroundFrame,
-                                balanceUpdaterOffset: backgroundOffset,
-                                refreshAction: {
-                                    viewModel.updateCardBalance()
-                                },
-                                refreshButtonState: viewModel.refreshButtonState,
-                                refreshButtonSize: .medium,
-                                refreshButtonOpacity: currentStep.backgroundOpacity
-                            )
-
                             OnboardingCircleButton(
-                                refreshAction: {
-                                    viewModel.updateCardBalance()
-                                },
+                                refreshAction: {},
                                 state: currentStep.successCircleState,
                                 size: .huge
                             )
