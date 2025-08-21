@@ -53,7 +53,7 @@ final class PromocodeActivationViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementatation
-    
+
     private func handleAPIError(_ error: Error) {
         var promocodeError: PromocodeActivationError
 
@@ -94,7 +94,7 @@ private extension PromocodeActivationViewModel {
             dismissButton: alertOkButton
         ))
     }
-    
+
     private func displaySuccessAlert() {
         alert = AlertBinder(alert: Alert(
             title: Text(Localization.bitcoinPromoActivationSuccessTitle),

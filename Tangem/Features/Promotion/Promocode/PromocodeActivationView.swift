@@ -15,7 +15,7 @@ struct PromocodeActivationView: View {
     init(promoCode: String) {
         _viewModel = StateObject(wrappedValue: PromocodeActivationViewModel(promoCode: promoCode))
     }
-    
+
     var body: some View {
         ZStack {
             Color.black
