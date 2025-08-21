@@ -24,7 +24,7 @@ struct WCRequestDetailsBuilder: Equatable {
 
     func makeRequestDetails() -> [WCTransactionDetailsSection] {
         switch method {
-        case .personalSign, .solanaSignMessage, .solanaSignTransaction:
+        case .personalSign, .solanaSignMessage, .solanaSignTransaction, .addChain:
             WCSignTransactionDetailsModel(for: method, source: source).data
         case .solanaSignAllTransactions:
             WCSolanaSignAllTransactionsDetailsModel(for: method, source: source).data
