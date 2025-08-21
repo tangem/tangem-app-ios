@@ -47,12 +47,12 @@ enum BannerPromotionPlacement {
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
     case ring
-    case onrampSEPAWithMercuryo
+    case onrampSEPA
 
     var shouldHideWhenAction: Bool {
         switch self {
         case .ring: true
-        case .onrampSEPAWithMercuryo: false
+        case .onrampSEPA: false
         }
     }
 
@@ -60,7 +60,7 @@ enum PromotionProgramName: String, Hashable, CaseIterable {
         switch self {
         case .ring:
             return Analytics.ParameterValue.ring
-        case .onrampSEPAWithMercuryo:
+        case .onrampSEPA:
             // [REDACTED_TODO_COMMENT]
             return Analytics.ParameterValue.onramp
         }
