@@ -14,6 +14,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemNFT
 import TangemFoundation
+import TangemUI
 
 class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -634,23 +635,13 @@ extension MainCoordinator: NFTEntrypointRoutable {
 // MARK: - WCTransactionRoutable
 
 extension MainCoordinator: WCTransactionRoutable {
-    func showWCTransactionRequest(with data: WCHandleTransactionData) {
-        Task { @MainActor in
-            UIApplication.mainWindow?.endEditing(true)
-            floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(
-                    transactionData: data,
-                    feeManager: CommonWCTransactionFeeManager(
-                        feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: data.dAppData.name)
-                    ),
-                    analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
-                )
-            )
-        }
+    func show(floatingSheetViewModel: some FloatingSheetContentViewModel) {
+        UIApplication.mainWindow?.endEditing(true)
+        floatingSheetPresenter.enqueue(sheet: floatingSheetViewModel)
     }
 
-    func showWCTransactionRequest(with error: Error) {
-        // make error view model
+    func show(toast: Toast<WarningToast>) {
+        toast.present(layout: .top(padding: 20), type: .temporary())
     }
 }
 
