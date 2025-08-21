@@ -59,7 +59,7 @@ struct WCFeeRowView: View {
                 .cornerRadius(4, corners: .allCorners)
 
         case .loaded(let components):
-            Text("~ " + (components.fiatFee ?? components.cryptoFee))
+            Text(formattedFee(components: components))
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .layoutPriority(1)
 
@@ -68,5 +68,14 @@ struct WCFeeRowView: View {
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .layoutPriority(1)
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func formattedFee(components: FormattedFeeComponents) -> String {
+        let feeString = components.fiatFee ?? components.cryptoFee
+
+        return feeString.starts(with: "<") || feeString.starts(with: ">")
+            ? feeString
+            : "\(AppConstants.tildeSign) \(feeString)"
     }
 }
