@@ -9,7 +9,6 @@
 import Foundation
 
 public enum OnrampAccessibilityIdentifiers {
-    public static let title = "onrampTitle"
     public static let settingsButton = "onrampSettingsButton"
     public static let providerToSLink = "onrampProviderToSLink"
     public static let cryptoAmountLabel = "onrampCryptoAmountLabel"
