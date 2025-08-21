@@ -184,7 +184,7 @@ private extension UserWalletSettingsViewModel {
             case .accessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
                 )
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
@@ -204,7 +204,7 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
-    func MobileAccessCodeAction() {
+    func mobileAccessCodeAction() {
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 

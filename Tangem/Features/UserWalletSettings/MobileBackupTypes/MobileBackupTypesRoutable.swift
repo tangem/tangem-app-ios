@@ -9,5 +9,6 @@
 import Foundation
 
 protocol MobileBackupTypesRoutable: AnyObject {
-    func openOnboarding(input: MobileOnboardingInput)
+    func openMobileOnboarding(input: MobileOnboardingInput)
+    func openMobileUpgrade()
 }
