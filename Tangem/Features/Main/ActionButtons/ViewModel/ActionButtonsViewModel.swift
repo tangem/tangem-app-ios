@@ -32,8 +32,8 @@ final class ActionButtonsViewModel: ObservableObject {
     // MARK: Button ViewModels
 
     let sellActionButtonViewModel: SellActionButtonViewModel
+    let swapActionButtonViewModel: SwapActionButtonViewModel
 
-    @Published private(set) var swapActionButtonViewModel: SwapActionButtonViewModel?
     private(set) var buyActionButtonViewModel: BuyActionButtonViewModel?
 
     @Published private(set) var shouldShowSwapUnreadNotificationBadge = false
@@ -41,17 +41,12 @@ final class ActionButtonsViewModel: ObservableObject {
     // MARK: Private properties
 
     private var bag = Set<AnyCancellable>()
-    private var resettableBag = Set<AnyCancellable>()
-
     private let lastButtonTapped = PassthroughSubject<ActionButtonModel, Never>()
 
     private var lastSellInitializeState: SellServiceState?
 
     private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private let userWalletModel: UserWalletModel
-
-    private let coordinator: ActionButtonsRoutable
 
     init(
         coordinator: some ActionButtonsRoutable,
@@ -59,12 +54,7 @@ final class ActionButtonsViewModel: ObservableObject {
         userWalletModel: some UserWalletModel
     ) {
         self.expressTokensListAdapter = expressTokensListAdapter
-        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel
-        )
         self.userWalletModel = userWalletModel
-        self.coordinator = coordinator
 
         sellActionButtonViewModel = SellActionButtonViewModel(
             model: .sell,
@@ -73,7 +63,14 @@ final class ActionButtonsViewModel: ObservableObject {
             userWalletModel: userWalletModel
         )
 
-        makeBuyButtonViewModel()
+        swapActionButtonViewModel = SwapActionButtonViewModel(
+            model: .swap,
+            coordinator: coordinator,
+            lastButtonTapped: lastButtonTapped,
+            userWalletModel: userWalletModel
+        )
+
+        makeBuyButtonViewModel(coordinator)
 
         bind()
     }
@@ -88,7 +85,7 @@ final class ActionButtonsViewModel: ObservableObject {
         sellService.initialize()
     }
 
-    func makeBuyButtonViewModel() {
+    func makeBuyButtonViewModel(_ coordinator: ActionButtonsBuyFlowRoutable) {
         buyActionButtonViewModel = BuyActionButtonViewModel(
             model: .buy,
             coordinator: coordinator,
@@ -105,6 +102,7 @@ private extension ActionButtonsViewModel {
         bindWalletModels()
         bindBuyAvailability()
         bindSwapAvailability()
+        bindSwapUnreadNotificationBadge()
         bindSellAvailability()
     }
 
@@ -129,7 +127,7 @@ private extension ActionButtonsViewModel {
     private func disabledAllButtons() {
         buyActionButtonViewModel?.updateState(to: .disabled)
         sellActionButtonViewModel.updateState(to: .disabled)
-        swapActionButtonViewModel?.updateState(to: .disabled)
+        swapActionButtonViewModel.updateState(to: .disabled)
     }
 
     @MainActor
@@ -198,26 +196,16 @@ private extension ActionButtonsViewModel {
 
 private extension ActionButtonsViewModel {
     func bindSwapAvailability() {
-        balanceRestrictionFeatureAvailabilityProvider
-            .isSwapAvailablePublisher
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isSwapAvailable in
-                viewModel.handleSwapAvailable(isSwapAvailable)
-            }
-            .store(in: &bag)
-    }
-
-    func bindSwapExpressAvailability() {
-        expressAvailabilityProvider.expressAvailabilityUpdateState
+        expressAvailabilityProvider
+            .expressAvailabilityUpdateState
             .withWeakCaptureOf(self)
             .sink { viewModel, expressUpdateState in
                 viewModel.updateSwapButtonState(expressUpdateState)
             }
-            .store(in: &resettableBag)
+            .store(in: &bag)
     }
 
-    func bindSwapUnreadNotificationBadge(swapActionButtonViewModel: SwapActionButtonViewModel) {
+    func bindSwapUnreadNotificationBadge() {
         storyAvailabilityService
             .availableStoriesPublisher
             .combineLatest(swapActionButtonViewModel.$viewState)
@@ -227,7 +215,7 @@ private extension ActionButtonsViewModel {
                 let buttonStateIsValid = swapButtonViewState == .idle || swapButtonViewState == .initial
                 self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && swapStoryAvailable
             }
-            .store(in: &resettableBag)
+            .store(in: &bag)
     }
 
     func updateSwapButtonState(_ expressUpdateState: ExpressAvailabilityUpdateState) {
@@ -242,38 +230,19 @@ private extension ActionButtonsViewModel {
             case (.updated, false):
                 viewModel.handleUpdatedSwapState()
             case (.failed, false):
-                viewModel.swapActionButtonViewModel?.updateState(
+                viewModel.swapActionButtonViewModel.updateState(
                     to: .restricted(reason: Localization.actionButtonsSomethingWrongAlertMessage)
                 )
             }
         }
     }
 
-    func handleSwapAvailable(_ available: Bool) {
-        runTask(in: self) { @MainActor viewModel in
-            if available {
-                let swapActionButtonViewModel = SwapActionButtonViewModel(
-                    model: .swap,
-                    coordinator: viewModel.coordinator,
-                    lastButtonTapped: viewModel.lastButtonTapped,
-                    userWalletModel: viewModel.userWalletModel
-                )
-                viewModel.swapActionButtonViewModel = swapActionButtonViewModel
-                viewModel.bindSwapExpressAvailability()
-                viewModel.bindSwapUnreadNotificationBadge(swapActionButtonViewModel: swapActionButtonViewModel)
-            } else {
-                viewModel.resettableBag.removeAll()
-                viewModel.swapActionButtonViewModel = nil
-            }
-        }
-    }
-
     @MainActor
     func handleUpdatingSwapState() {
-        switch swapActionButtonViewModel?.viewState {
+        switch swapActionButtonViewModel.viewState {
         case .idle:
-            swapActionButtonViewModel?.updateState(to: .initial)
-        case .restricted, .loading, .initial, .disabled, .none:
+            swapActionButtonViewModel.updateState(to: .initial)
+        case .restricted, .loading, .initial, .disabled:
             break
         }
     }
@@ -284,15 +253,15 @@ private extension ActionButtonsViewModel {
 
         switch walletModelsCount {
         case 0:
-            swapActionButtonViewModel?.updateState(to: .disabled)
+            swapActionButtonViewModel.updateState(to: .disabled)
         case 1:
-            swapActionButtonViewModel?.updateState(
+            swapActionButtonViewModel.updateState(
                 to: .restricted(
                     reason: Localization.actionButtonsSwapNotEnoughTokensAlertMessage
                 )
             )
         default:
-            swapActionButtonViewModel?.updateState(to: .idle)
+            swapActionButtonViewModel.updateState(to: .idle)
         }
     }
 }
