@@ -32,23 +32,17 @@ class SendDestinationStep {
     func set(stepRouter: SendDestinationStepRoutable) {
         viewModel.stepRouter = stepRouter
     }
+
+    func userDidRequestScanQRCode() {
+        viewModel.scanQRCode()
+    }
 }
 
 // MARK: - SendStep
 
 extension SendDestinationStep: SendStep {
-    var title: String? { Localization.sendRecipientLabel }
-
     var type: SendStepType { .destination(viewModel) }
-
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
-        .qrCodeButton { [weak self] in
-            self?.viewModel.scanQRCode()
-        }
-    }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
