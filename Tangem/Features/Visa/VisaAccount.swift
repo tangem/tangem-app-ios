@@ -41,7 +41,7 @@ struct VisaAccount {
     }
     #endif // ALPHA || BETA || DEBUG
 
-    private func getTokens() async throws -> VisaAuthorizationTokens {
+    func getTokens() async throws -> VisaAuthorizationTokens {
         if let savedTokens = try await readSavedAuthTokens() {
             return savedTokens
         }
