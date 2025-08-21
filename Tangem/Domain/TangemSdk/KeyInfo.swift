@@ -8,9 +8,9 @@
 
 import Foundation
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 
-/// Describing wallets created on card or hot wallet
+/// Describing wallets created on card or mobile wallet
 struct KeyInfo: Codable {
     /// Wallet's public key.  For `secp256k1`, the key can be compressed or uncompressed. Use `Secp256k1Key` for any conversions.
     public let publicKey: Data
@@ -38,7 +38,7 @@ extension CardDTO.Wallet {
     }
 }
 
-extension HotWallet {
+extension MobileWalletKeyInfo {
     var keyInfo: KeyInfo {
         KeyInfo(
             publicKey: publicKey,

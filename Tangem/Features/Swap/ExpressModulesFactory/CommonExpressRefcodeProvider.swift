@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 struct CommonExpressRefcodeProvider: RefcodeProvider {
     private let userWalletId: UserWalletId
