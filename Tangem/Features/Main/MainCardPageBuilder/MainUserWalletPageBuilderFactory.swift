@@ -192,16 +192,19 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let id = visaUserWalletModel.userWalletId
         let isUserWalletLocked = visaUserWalletModel.isUserWalletLocked
 
-        let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
+        let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(
+            isUserWalletLocked: isUserWalletLocked,
+            dataSource: visaUserWalletModel.dataProvider
+        )
         let headerModel = MainHeaderViewModel(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
-            balanceProvider: visaUserWalletModel
+            balanceProvider: visaUserWalletModel.dataProvider
         )
 
         let viewModel = VisaWalletMainContentViewModel(
-            visaWalletModel: visaUserWalletModel,
+            visaDataProvider: visaUserWalletModel.dataProvider,
             coordinator: coordinator
         )
 
