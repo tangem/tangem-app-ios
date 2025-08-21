@@ -27,19 +27,19 @@ extension Publisher where Failure == MoyaError {
             if let error = try? mapInputAPIError(from: body, using: decoder) {
                 return error
             }
-            
+
             if response.statusCode == TangemAPIError.ErrorCode.badRequest.rawValue {
                 return TangemAPIError(code: .badRequest)
             }
-            
+
             if response.statusCode == TangemAPIError.ErrorCode.forbidden.rawValue {
                 return TangemAPIError(code: .forbidden)
             }
-            
+
             if response.statusCode == TangemAPIError.ErrorCode.notFound.rawValue {
                 return TangemAPIError(code: .notFound)
             }
-            
+
             if response.statusCode == TangemAPIError.ErrorCode.conflict.rawValue {
                 return TangemAPIError(code: .conflict)
             }
