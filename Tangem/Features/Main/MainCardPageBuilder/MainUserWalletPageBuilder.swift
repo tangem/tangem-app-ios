@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemFoundation
 
 enum MainUserWalletPageBuilder: Identifiable {
     case singleWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentViewModel?)

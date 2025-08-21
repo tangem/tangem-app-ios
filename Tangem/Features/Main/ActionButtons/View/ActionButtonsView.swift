@@ -18,6 +18,7 @@ struct ActionButtonsView: View {
             if let buyActionButtonViewModel = viewModel.buyActionButtonViewModel {
                 ActionButtonView(viewModel: buyActionButtonViewModel)
             }
+
             ActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
                 .unreadNotificationBadge(viewModel.shouldShowSwapUnreadNotificationBadge, badgeColor: Colors.Icon.accent)
 
