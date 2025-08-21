@@ -127,6 +127,12 @@ public protocol AddressResolver {
     func resolve(_ address: String) async throws -> String
 }
 
+// MARK: - DomainNameAddressResolver
+
+public protocol DomainNameAddressResolver {
+    func resolveDomainName(_ address: String) async throws -> String
+}
+
 // MARK: - AssetRequirementsManager
 
 /// Responsible for the token association creation (Hedera) and trust line setup (XRP, Stellar, Aptos, Algorand and other).

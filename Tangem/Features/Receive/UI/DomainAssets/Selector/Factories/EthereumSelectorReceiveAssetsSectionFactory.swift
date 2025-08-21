@@ -23,7 +23,7 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
 
     // MARK: - Implementation
 
-    func makeSections(from assets: [ReceiveAsset]) -> [SelectorReceiveAssetsSection] {
+    func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
         var domainAssets: [SelectorReceiveAssetsContentItemViewModel] = []
         var defaultAssets: [SelectorReceiveAssetsContentItemViewModel] = []
 

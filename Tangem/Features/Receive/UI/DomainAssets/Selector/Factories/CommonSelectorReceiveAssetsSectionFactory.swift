@@ -23,7 +23,7 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
 
     // MARK: - Implementation
 
-    func makeSections(from assets: [ReceiveAsset]) -> [SelectorReceiveAssetsSection] {
+    func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
         let assetItems: [SelectorReceiveAssetsContentItemViewModel] = assets.compactMap {
             let stateView = makeStateViewModel(asset: $0, tokenItem: tokenItem, coordinator: coordinator)
             return SelectorReceiveAssetsContentItemViewModel(stateView: stateView)

@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-struct ReceiveFlowUtils {
+struct ReceiveAddressInfoUtils {
     func makeAddressInfos(from addresses: [Address]) -> [ReceiveAddressInfo] {
         addresses.map { address in
             ReceiveAddressInfo(
