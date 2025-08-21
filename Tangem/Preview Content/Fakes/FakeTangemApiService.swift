@@ -185,7 +185,7 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO {
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
         throw "Not implemented"
     }
 }
