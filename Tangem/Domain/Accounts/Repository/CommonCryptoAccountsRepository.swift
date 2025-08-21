@@ -33,7 +33,6 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     func getAccounts() -> [StoredCryptoAccount] {
         // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
         return [
             StoredCryptoAccount(
                 derivationIndex: Constants.mainAccountDerivationIndex,
