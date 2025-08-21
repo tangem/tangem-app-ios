@@ -16,8 +16,8 @@ class CommonBannerPromotionService {
     init() {
         AppSettings.shared.mainPromotionDismissed.removeAll()
 
-        offlinePromotions = [.onrampSEPAWithMercuryo: .init(
-            bannerPromotion: .onrampSEPAWithMercuryo,
+        offlinePromotions = [.onrampSEPA: .init(
+            bannerPromotion: .onrampSEPA,
             timeline: Timeline(start: Date.now, end: .now.addingTimeInterval(100_000)),
             link: nil
         )]
