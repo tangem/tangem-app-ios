@@ -160,6 +160,7 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
             self,
             userInfo: [
                 "name": name,
+                "icon": icon,
                 "id": id,
                 "derivationIndex": derivationIndex,
             ]
