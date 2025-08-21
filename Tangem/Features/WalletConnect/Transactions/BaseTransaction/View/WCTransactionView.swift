@@ -7,15 +7,15 @@
 //
 
 import SwiftUI
-import BigInt
+import Kingfisher
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
-import BlockchainSdk
-import TangemLocalization
 
 struct WCTransactionView: View {
     @ObservedObject var viewModel: WCTransactionViewModel
+    let kingfisherImageCache: ImageCache
 
     var body: some View {
         ZStack {
@@ -49,17 +49,19 @@ struct WCTransactionView: View {
     private var transactionDetails: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 12) {
-                header
+                WalletConnectNavigationBarView(
+                    title: Localization.wcWalletConnect,
+                    closeButtonAction: { viewModel.handleViewAction(.dismissTransactionView) }
+                )
 
                 scrollableSections
             }
 
-            actionButtons()
+            actionButtons
         }
     }
 
-    @ViewBuilder
-    private func actionButtons() -> some View {
+    private var actionButtons: some View {
         HStack(spacing: 8) {
             MainButton(
                 settings: .init(
@@ -88,13 +90,6 @@ struct WCTransactionView: View {
 }
 
 private extension WCTransactionView {
-    var header: some View {
-        WalletConnectNavigationBarView(
-            title: Localization.wcWalletConnect,
-            closeButtonAction: { viewModel.handleViewAction(.dismissTransactionView) }
-        )
-    }
-
     var scrollableSections: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 14) {
@@ -127,38 +122,39 @@ private extension WCTransactionView {
 
             WCDappTitleView(
                 dAppData: viewModel.transactionData.dAppData,
-                iconSideLength: 36,
-                isVerified: viewModel.isDappVerified
+                isVerified: viewModel.isDappVerified,
+                kingfisherImageCache: kingfisherImageCache
             )
 
             Separator(height: .minimal, color: Colors.Stroke.primary)
                 .padding(.vertical, 12)
 
             transactionRequest
-                .clipShape(Rectangle())
-                .onTapGesture {
-                    viewModel.handleViewAction(.showRequestData)
-                }
         }
-        .padding(.init(top: 12, leading: 16, bottom: 12, trailing: 16))
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
     }
 
     var transactionRequest: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Assets.Glyphs.docNew.image
-                .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.accent)
+        Button(action: { viewModel.handleViewAction(.showRequestData) }) {
+            HStack(alignment: .center, spacing: 8) {
+                Assets.Glyphs.docNew.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.accent)
 
-            Text(Localization.wcTransactionRequest)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(Localization.wcTransactionRequest)
+                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            Assets.Glyphs.chevronRightNew.image
-                .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                Assets.Glyphs.chevronRightNew.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.informative)
+            }
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
     }
 
     private var simulationResultSection: some View {
@@ -177,6 +173,10 @@ private extension WCTransactionView {
                 blockchain: viewModel.transactionData.blockchain,
                 addressRowViewModel: viewModel.addressRowViewModel
             )
+        case .addChain where viewModel.isWalletRowVisible:
+            WCTransactionWalletRow(walletName: viewModel.userWalletName)
+                .background(Colors.Background.action)
+                .cornerRadius(14, corners: .allCorners)
         case .solanaSignMessage, .solanaSignTransaction, .solanaSignAllTransactions:
             WCSolanaDefaultTransactionDetailsView(
                 walletName: viewModel.userWalletName,

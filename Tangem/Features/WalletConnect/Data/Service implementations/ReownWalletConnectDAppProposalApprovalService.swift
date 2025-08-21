@@ -23,7 +23,7 @@ final class ReownWalletConnectDAppProposalApprovalService: WalletConnectDAppProp
 
         do {
             let reownSession = try await walletConnectService.approveSessionProposal(with: request.proposalID, namespaces: reownNamespaces)
-            return WalletConnectDAppSessionMapper.mapToDomain(reownSession)
+            return WalletConnectDAppSessionMapper.mapToDomain(reownSession, domainNamespaces: request.namespaces)
         } catch {
             try Self.parseConnectionProposalHasExpiredError(error)
             throw WalletConnectDAppProposalApprovalError.approvalFailed(error)
