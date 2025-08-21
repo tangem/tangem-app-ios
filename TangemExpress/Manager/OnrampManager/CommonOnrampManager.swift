@@ -8,13 +8,15 @@
 
 import TangemFoundation
 
-public struct PreferredProvider {
-    public let providerId: String
-    public let paymentMethodType: OnrampPaymentMethod.MethodType
+public struct PreferredValues {
+    public static let none = PreferredValues(paymentMethodType: .none, providerId: .none)
 
-    public init(providerId: String, paymentMethodType: OnrampPaymentMethod.MethodType) {
-        self.providerId = providerId
+    public let paymentMethodType: OnrampPaymentMethod.MethodType?
+    public let providerId: String?
+
+    public init(paymentMethodType: OnrampPaymentMethod.MethodType? = nil, providerId: String? = nil) {
         self.paymentMethodType = paymentMethodType
+        self.providerId = providerId
     }
 }
 
@@ -24,7 +26,7 @@ public actor CommonOnrampManager {
     private let dataRepository: OnrampDataRepository
     private let analyticsLogger: ExpressAnalyticsLogger
     private let sorter: ProviderItemSorter
-    private let preferredProvider: PreferredProvider?
+    private let preferredValues: PreferredValues
 
     public init(
         apiProvider: ExpressAPIProvider,
@@ -32,14 +34,14 @@ public actor CommonOnrampManager {
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
         sorter: ProviderItemSorter = .init(),
-        preferredProvider: PreferredProvider?
+        preferredValues: PreferredValues
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
         self.dataRepository = dataRepository
         self.analyticsLogger = analyticsLogger
         self.sorter = sorter
-        self.preferredProvider = preferredProvider
+        self.preferredValues = preferredValues
     }
 }
 
@@ -135,13 +137,20 @@ private extension CommonOnrampManager {
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
 
-        if let preferredProvider {
-            OnrampLogger.info(self, "Has preferredProvider \(preferredProvider)")
+        if let paymentMethodType = preferredValues.paymentMethodType {
+            OnrampLogger.info(self, "Has preferredValues \(preferredValues)")
 
-            if let providerItem = providers.select(for: preferredProvider.paymentMethodType),
-               let preferredProvider = providerItem.preferredProvider(providerId: preferredProvider.providerId) {
-                OnrampLogger.info(self, "The selected preferred provider provider is \(preferredProvider)")
-                return preferredProvider
+            if let providerItem = providers.select(for: paymentMethodType) {
+                if let providerId = preferredValues.providerId,
+                   let maxPriorityProvider = providerItem.preferredProvider(providerId: providerId) {
+                    OnrampLogger.info(self, "The selected preferred provider provider is \(preferredValues)")
+                    return maxPriorityProvider
+                }
+
+                if let maxPriorityProvider = providerItem.maxPriorityProvider() {
+                    OnrampLogger.info(self, "The selected max priority provider for preferred paymentMethodType is \(maxPriorityProvider)")
+                    return maxPriorityProvider
+                }
             }
         }
 
