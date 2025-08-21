@@ -31,7 +31,7 @@ class UserWalletEncryptionKeyStorage {
     }
 
     func add(_ userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey) {
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             guard AppSettings.shared.saveUserWallets,
                   BiometricsUtil.isAvailable else {
                 return
@@ -62,7 +62,7 @@ class UserWalletEncryptionKeyStorage {
     }
 
     func refreshEncryptionKey(_ key: UserWalletEncryptionKey, for userWalletId: UserWalletId) {
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             guard AppSettings.shared.saveUserWallets,
                   BiometricsUtil.isAvailable else {
                 return

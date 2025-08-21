@@ -31,7 +31,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case seedSupport
     case seedSupport2
     case referralProgram
-    case hotFinishActivation(needsAttention: Bool, hasBackup: Bool)
+    case mobileFinishActivation(needsAttention: Bool, hasBackup: Bool)
 }
 
 /// For Notifications
@@ -82,7 +82,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .referralProgram:
             return .string(Localization.notificationReferralPromoTitle)
-        case .hotFinishActivation(let needsAttention, _):
+        case .mobileFinishActivation(let needsAttention, _):
             let text = Localization.hwActivationNeedTitle
             if needsAttention {
                 var string = AttributedString(text)
@@ -138,7 +138,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseContactedSupport
         case .referralProgram:
             return Localization.notificationReferralPromoText
-        case .hotFinishActivation(_, let hasBackup):
+        case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         }
     }
@@ -152,7 +152,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .seedSupport2,
              .referralProgram,
              .backupErrors,
-             .hotFinishActivation:
+             .mobileFinishActivation:
             return .primary
         default:
             return .secondary
@@ -180,7 +180,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
         case .referralProgram:
             return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
-        case .hotFinishActivation(let needsAttention, _):
+        case .mobileFinishActivation(let needsAttention, _):
             let imageType = needsAttention ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
         }
@@ -210,7 +210,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
-             .hotFinishActivation:
+             .mobileFinishActivation:
             return .warning
         }
     }
@@ -233,7 +233,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .seedSupport,
              .seedSupport2,
-             .hotFinishActivation:
+             .mobileFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -299,14 +299,14 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
             ])
-        case .hotFinishActivation(let needsAttention, _):
+        case .mobileFinishActivation(let needsAttention, _):
             guard let buttonAction else {
                 break
             }
             return .withButtons([
                 .init(
                     action: buttonAction,
-                    actionType: .openHotFinishActivation(needsAttention: needsAttention),
+                    actionType: .openMobileFinishActivation(needsAttention: needsAttention),
                     isWithLoader: false
                 ),
             ])
@@ -341,7 +341,7 @@ extension GeneralNotificationEvent {
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
         case .referralProgram: return .mainReferralProgram
-        case .hotFinishActivation: return nil
+        case .mobileFinishActivation: return nil
         }
     }
 
