@@ -17,6 +17,7 @@ extension CommonWalletModel {
         stakingManager: StakingManagerMock(),
         featureManager: WalletModelFeaturesManagerMock(),
         transactionHistoryService: nil,
+        receiveAddressService: DummyReceiveAddressService(addressInfos: []),
         sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
         tokenBalancesRepository: TokenBalancesRepositoryMock(),
         amountType: .coin,
