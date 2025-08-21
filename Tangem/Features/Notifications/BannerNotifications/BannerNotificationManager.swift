@@ -111,7 +111,7 @@ class BannerNotificationManager {
             }
 
         case .onrampSEPAWithMercuryo:
-            let builder = OnrampSEPAWithMercuryoBannerDataBuilder()
+            let builder = PredefinedOnrampParametersBuilder()
             if let (walletModel, parameters) = builder.prepare(userWalletId: userWalletId) {
                 return BannerNotificationEvent(
                     programName: promotion.bannerPromotion,
