@@ -97,9 +97,6 @@ struct SingleCardOnboardingView: View {
                             .opacity(isTopItemsVisible && isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
 
-                        let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
-                        let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
-
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
                                 OnboardingCardView(
