@@ -7,9 +7,9 @@
 //
 
 import struct Foundation.Date
-import enum BlockchainSdk.Blockchain
 
 struct WalletConnectDAppSession: Hashable {
     let topic: String
+    let namespaces: [String: WalletConnectSessionNamespace]
     let expiryDate: Date
 }

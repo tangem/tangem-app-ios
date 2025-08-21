@@ -9,7 +9,7 @@
 import Foundation
 import Combine // [REDACTED_TODO_COMMENT]
 import TangemNFT
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 
 struct CommonUserWalletModelFactory {

@@ -86,6 +86,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             let transaction = try await newEthTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
             transactionToSend = transaction
         }
+
         guard let transaction = transactionToSend else {
             throw WalletConnectV2Error.missingTransaction
         }
@@ -94,7 +95,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceWalletConnect.rawValue,
-            .token: walletModel.tokenItem.currencySymbol,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
         ])
