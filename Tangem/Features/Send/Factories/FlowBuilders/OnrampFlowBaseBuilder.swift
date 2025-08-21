@@ -11,7 +11,7 @@ import TangemExpress
 import TangemFoundation
 
 struct PredefinedOnrampParameters {
-    static let `default` = PredefinedOnrampParameters(amount: .none, preferredValues: .none)
+    static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)
 
     let amount: Decimal?
     let preferredValues: PreferredValues

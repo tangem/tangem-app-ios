@@ -31,6 +31,6 @@ protocol SingleTokenBaseRoutable: AnyObject {
 
 extension SingleTokenBaseRoutable {
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
-        openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .default)
+        openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .none)
     }
 }
