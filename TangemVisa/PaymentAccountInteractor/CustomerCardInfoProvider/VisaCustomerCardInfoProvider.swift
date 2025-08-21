@@ -11,23 +11,19 @@ import BlockchainSdk
 
 public protocol VisaCustomerCardInfoProvider {
     func loadPaymentAccount(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo
-    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 }
 
 struct CommonCustomerCardInfoProvider {
     private let isTestnet: Bool
-    private let authorizationTokensHandler: VisaAuthorizationTokensHandler?
     private let customerInfoManagementService: CustomerInfoManagementService?
     private let evmSmartContractInteractor: EVMSmartContractInteractor
 
     init(
         isTestnet: Bool,
-        authorizationTokensHandler: VisaAuthorizationTokensHandler?,
         customerInfoManagementService: CustomerInfoManagementService?,
         evmSmartContractInteractor: EVMSmartContractInteractor
     ) {
         self.isTestnet = isTestnet
-        self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
         self.evmSmartContractInteractor = evmSmartContractInteractor
     }
@@ -53,14 +49,6 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
             cardWalletAddress: cardWalletAddress,
             customerInfo: nil
         )
-    }
-
-    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
-        guard let customerInfoManagementService else {
-            throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
-        }
-
-        return try await customerInfoManagementService.loadKYCAccessToken()
     }
 
     private func loadPaymentAccountFromCIM(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
