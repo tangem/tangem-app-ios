@@ -147,6 +147,9 @@
 		0FB937512E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB937502E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift */; };
 		0FB938132E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB938122E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift */; };
 		0FB938152E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB938142E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift */; };
+		0FB93C9E2E5726C800DAB673 /* MobileUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */; };
+		0FB93CA02E5726D000DAB673 /* MobileUpgradeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */; };
+		0FB93CE22E57671900DAB673 /* MobileUpgradeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */; };
 		0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */; };
 		0FBB13F12E015F290086784A /* MobileOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */; };
@@ -4217,6 +4220,9 @@
 		0FB937502E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMainHeaderProviderFactory.swift; sourceTree = "<group>"; };
 		0FB938122E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletBiometricsUnlockProvider.swift; sourceTree = "<group>"; };
 		0FB938142E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletBiometricsProvider.swift; sourceTree = "<group>"; };
+		0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeView.swift; sourceTree = "<group>"; };
+		0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeViewModel.swift; sourceTree = "<group>"; };
+		0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeRoutable.swift; sourceTree = "<group>"; };
 		0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
@@ -8166,6 +8172,7 @@
 		0A4C217D2DF1AFA300B8B1BD /* MobileWallet */ = {
 			isa = PBXGroup;
 			children = (
+				0FB93C9C2E57268D00DAB673 /* Upgrade */,
 				0FA453B52E1D3AFE0055B5BB /* Unlock */,
 				0FA453702E1D0D6A0055B5BB /* Utils */,
 				0A8DD9762E018F1500783A9E /* MobileWalletImageProvider.swift */,
@@ -8426,6 +8433,16 @@
 				0FB9340A2E4B0A9600DAB673 /* MobileOnboardingSeedPhraseValidationDelegate.swift */,
 			);
 			path = SeedPhraseValidation;
+			sourceTree = "<group>";
+		};
+		0FB93C9C2E57268D00DAB673 /* Upgrade */ = {
+			isa = PBXGroup;
+			children = (
+				0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */,
+				0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */,
+				0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */,
+			);
+			path = Upgrade;
 			sourceTree = "<group>";
 		};
 		0FBB13EC2E015DA10086784A /* SeedPhraseIntro */ = {
@@ -22045,6 +22062,7 @@
 				0FA453D72E1E9F1B0055B5BB /* NewAuthView.swift in Sources */,
 				DCB14B0F2DC6173B0075F340 /* WalletConnectConnectedDAppDetailsView.swift in Sources */,
 				B03662612B6384BA0064E073 /* VisaTransactionDetailsView.swift in Sources */,
+				0FB93CA02E5726D000DAB673 /* MobileUpgradeViewModel.swift in Sources */,
 				EF3F75522E32608300334E51 /* SendExternalDestinationUpdater.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
 				DA19D8C62B39AE3C001C91C4 /* QRCodeParser.swift in Sources */,
@@ -23026,6 +23044,7 @@
 				DA559C522B0265E700F59584 /* SendDestinationTextView.swift in Sources */,
 				B0CB73B72A82324200D530BA /* TokenWithoutDerivationInfoProvider.swift in Sources */,
 				EF9CA60E2D42405B009549E2 /* LogsViewModel.swift in Sources */,
+				0FB93C9E2E5726C800DAB673 /* MobileUpgradeView.swift in Sources */,
 				0AC9EFF72CAE857C005F868F /* StakingSingleActionModel.swift in Sources */,
 				DC2293F22E3BDDCB00743C7B /* MobileWalletUnlocker.swift in Sources */,
 				DC0DE7812D48005800492A0B /* Analytics+ScanErrorsSource.swift in Sources */,
@@ -23552,6 +23571,7 @@
 				DC1D4C452C38616500B2A422 /* CommonExpressAnalyticsLogger.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
 				B018FE662B0CE55E00D8D31E /* ExpressNotificationEvent.swift in Sources */,
+				0FB93CE22E57671900DAB673 /* MobileUpgradeRoutable.swift in Sources */,
 				B69F0EE12DD39A2C00997631 /* CommonSendAmountValidator.swift in Sources */,
 				B002654E2CE1F62F00D969E0 /* VisaOnboardingPinViewModel.swift in Sources */,
 				EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */,
