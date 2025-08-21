@@ -45,14 +45,14 @@ public struct TangemExpressFactory {
         onrampRepository: OnrampRepository,
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        preferredProvider: PreferredProvider?,
+        preferredValues: PreferredValues,
     ) -> OnrampManager {
         CommonOnrampManager(
             apiProvider: expressAPIProvider,
             onrampRepository: onrampRepository,
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
-            preferredProvider: preferredProvider
+            preferredValues: preferredValues
         )
     }
 
