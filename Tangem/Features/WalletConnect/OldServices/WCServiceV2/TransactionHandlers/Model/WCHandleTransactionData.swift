@@ -50,7 +50,7 @@ extension WCHandleTransactionData {
         }
 
         reject = {
-            let result = try await dto.reject()
+            let result = try dto.reject()
             try await respond(validatedRequest.request.topic, validatedRequest.request.id, result)
         }
     }
