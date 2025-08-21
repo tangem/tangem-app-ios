@@ -11,12 +11,12 @@ import struct ReownWalletKit.SessionNamespace
 enum WalletConnectSessionNamespaceMapper {
     static func mapToDomain(
         _ reownNamespaces: [String: ReownWalletKit.SessionNamespace]
-    ) -> [String: WalletConnectDAppConnectionRequest.SessionNamespace] {
+    ) -> [String: WalletConnectSessionNamespace] {
         reownNamespaces
             .mapValues { reownSessionNamespace in
                 let blockchains = Set((reownSessionNamespace.chains ?? []).compactMap(WalletConnectBlockchainMapper.mapToDomain))
 
-                return WalletConnectDAppConnectionRequest.SessionNamespace(
+                return WalletConnectSessionNamespace(
                     blockchains: blockchains,
                     accounts: reownSessionNamespace.accounts.map(WalletConnectAccountsMapper.mapToDomain),
                     methods: reownSessionNamespace.methods,
@@ -26,7 +26,7 @@ enum WalletConnectSessionNamespaceMapper {
     }
 
     static func mapFromDomain(
-        _ namespaces: [String: WalletConnectDAppConnectionRequest.SessionNamespace]
+        _ namespaces: [String: WalletConnectSessionNamespace]
     ) -> [String: ReownWalletKit.SessionNamespace] {
         namespaces
             .mapValues { domainNamespace in
