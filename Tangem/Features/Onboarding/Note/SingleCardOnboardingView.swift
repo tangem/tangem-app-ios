@@ -97,9 +97,6 @@ struct SingleCardOnboardingView: View {
                             .opacity(isTopItemsVisible && isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
 
-                        let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
-                        let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
-
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
                                 OnboardingCardView(
@@ -115,21 +112,6 @@ struct SingleCardOnboardingView: View {
                                     cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned
                                 )
                             }
-
-                            OnboardingTopupBalanceView(
-                                backgroundFrameSize: backgroundFrame,
-                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
-                                backgroundOffset: backgroundOffset,
-                                balance: viewModel.cardBalance,
-                                balanceUpdaterFrame: backgroundFrame,
-                                balanceUpdaterOffset: backgroundOffset,
-                                refreshAction: {
-                                    viewModel.updateCardBalance()
-                                },
-                                refreshButtonState: viewModel.refreshButtonState,
-                                refreshButtonSize: .medium,
-                                refreshButtonOpacity: currentStep.balanceStackOpacity
-                            )
 
                             OnboardingCircleButton(
                                 refreshAction: {},

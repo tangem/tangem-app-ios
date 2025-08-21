@@ -15,7 +15,7 @@ import TangemUI
 struct ReceiveCurrencyView: View {
     @ObservedObject private var viewModel: ReceiveCurrencyViewModel
     private var didTapChangeCurrency: () -> Void = {}
-    private var didTapNetworkFeeInfoButton: ((_ isBigLoss: Bool) -> Void)?
+    private var didTapNetworkFeeInfoButton: ((_ message: String) -> Void)?
 
     init(viewModel: ReceiveCurrencyViewModel) {
         self.viewModel = viewModel
@@ -33,12 +33,7 @@ struct ReceiveCurrencyView: View {
         }
         .didTapChangeCurrency(didTapChangeCurrency)
         .didTapNetworkFeeInfoButton { type in
-            switch type {
-            case .info:
-                didTapNetworkFeeInfoButton?(false)
-            case .percent:
-                didTapNetworkFeeInfoButton?(true)
-            }
+            didTapNetworkFeeInfoButton?(type.message)
         }
     }
 }
@@ -50,7 +45,7 @@ extension ReceiveCurrencyView: Setupable {
         map { $0.didTapChangeCurrency = block }
     }
 
-    func didTapNetworkFeeInfoButton(_ block: @escaping (_ isBigLoss: Bool) -> Void) -> Self {
+    func didTapNetworkFeeInfoButton(_ block: @escaping (_ message: String) -> Void) -> Self {
         map { $0.didTapNetworkFeeInfoButton = block }
     }
 }
@@ -117,7 +112,7 @@ struct ReceiveCurrencyView_Preview: PreviewProvider {
                 titleState: .text(Localization.swappingToTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
-                priceChangeState: .percent("-24.3 %"),
+                priceChangeState: .percent("-24.3 %", message: "Bla blah blah"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
