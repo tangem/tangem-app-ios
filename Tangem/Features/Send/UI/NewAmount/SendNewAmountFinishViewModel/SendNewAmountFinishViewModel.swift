@@ -164,7 +164,8 @@ private extension SendNewAmountFinishViewModel {
                     decimalCount: token.tokenItem.decimalCount
                 )
             )
-        case (.swap(let token), .failure), (.swap(let token), .loading):
+        case (.swap, .failure),
+             (.swap, .loading):
             // Do nothing to avoid incorrect view state
             break
         }
