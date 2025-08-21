@@ -44,7 +44,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
         cryptoLimitText.isEmpty || numberOfDaysLimitText.isEmpty
     }
 
-    private let visaWalletModel: VisaUserWalletModel
+    let visaDataProvider: VisaDataProvider
     private let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
     private weak var coordinator: VisaWalletRoutable?
     private let buttonActionTypes: [TokenActionType] = [
@@ -56,10 +56,10 @@ class VisaWalletMainContentViewModel: ObservableObject {
     private var updateTask: Task<Void, Error>?
 
     init(
-        visaWalletModel: VisaUserWalletModel,
+        visaDataProvider: VisaDataProvider,
         coordinator: VisaWalletRoutable?
     ) {
-        self.visaWalletModel = visaWalletModel
+        self.visaDataProvider = visaDataProvider
         self.coordinator = coordinator
 
         setupButtons()
@@ -69,9 +69,9 @@ class VisaWalletMainContentViewModel: ObservableObject {
     func openBalancesAndLimits() {
         Analytics.log(.visaMainBalancesLimits)
         guard
-            let balances = visaWalletModel.balances,
-            let limit = visaWalletModel.limits?.currentLimit,
-            let tokenItem = visaWalletModel.tokenItem
+            let balances = visaDataProvider.balances,
+            let limit = visaDataProvider.limits?.currentLimit,
+            let tokenItem = visaDataProvider.tokenItem
         else {
             return
         }
@@ -80,7 +80,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     func openExplorer() {
-        guard let url = visaWalletModel.exploreURL() else {
+        guard let url = visaDataProvider.exploreURL() else {
             return
         }
 
@@ -91,9 +91,9 @@ class VisaWalletMainContentViewModel: ObservableObject {
     func exploreTransaction(with id: String) {
         guard
             let transactionId = UInt64(id),
-            let transactionRecord = visaWalletModel.transaction(with: transactionId),
-            let tokenItem = visaWalletModel.tokenItem,
-            let emailConfig = visaWalletModel.emailConfig
+            let transactionRecord = visaDataProvider.transaction(with: transactionId),
+            let tokenItem = visaDataProvider.tokenItem,
+            let emailConfig = visaDataProvider.emailConfig
         else {
             return
         }
@@ -103,16 +103,16 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
     func reloadTransactionHistory() {
         isTransactionHistoryReloading = true
-        visaWalletModel.reloadHistory()
+        visaDataProvider.reloadHistory()
     }
 
     func fetchNextTransactionHistoryPage() -> FetchMore? {
-        guard visaWalletModel.canFetchMoreTransactionHistory else {
+        guard visaDataProvider.canFetchMoreTransactionHistory else {
             return nil
         }
 
         return FetchMore { [weak self] in
-            self?.visaWalletModel.loadNextHistoryPage()
+            self?.visaDataProvider.loadNextHistoryPage()
         }
     }
 
@@ -123,7 +123,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
         isTransactionHistoryReloading = true
         updateTask = Task { [weak self] in
-            await self?.visaWalletModel.generalUpdateAsync()
+            await self?.visaDataProvider.generalUpdateAsync()
             try await Task.sleep(seconds: 0.2)
 
             await runOnMain {
@@ -136,7 +136,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     private func bind() {
-        visaWalletModel.walletDidChangePublisher
+        visaDataProvider.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { (self, newState) in
@@ -157,7 +157,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        visaWalletModel.transactionHistoryStatePublisher
+        visaDataProvider.transactionHistoryStatePublisher
             .receive(on: DispatchQueue.main)
             .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
@@ -167,7 +167,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                     return .loading
                 case .loaded:
                     viewModel.isTransactionHistoryReloading = false
-                    return .loaded(viewModel.visaWalletModel.transactionHistoryItems)
+                    return .loaded(viewModel.visaDataProvider.transactionHistoryItems)
                 case .failedToLoad(let error):
                     viewModel.isTransactionHistoryReloading = false
                     return .error(error)
@@ -203,7 +203,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
         switch buttonActionType {
         case .unlock:
             isScannerBusy = true
-            visaWalletModel.authorizeCard { [weak self] in
+            visaDataProvider.authorizeCard { [weak self] in
                 DispatchQueue.main.async {
                     self?.isScannerBusy = false
                 }
@@ -215,8 +215,8 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
     private func updateLimits() {
         guard
-            let limits = visaWalletModel.limits,
-            let tokenItem = visaWalletModel.tokenItem
+            let limits = visaDataProvider.limits,
+            let tokenItem = visaDataProvider.tokenItem
         else {
             return
         }
@@ -232,7 +232,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     private func copyPaymentAccountAddress() {
-        guard let accountAddress = visaWalletModel.accountAddress else {
+        guard let accountAddress = visaDataProvider.accountAddress else {
             alert = ViewModelError.missingPaymentAccountInfo.alertBinder
             return
         }
@@ -311,18 +311,18 @@ private extension VisaWalletMainContentViewModel {
     }
 
     private func makeTokenActionInfo() throws(ViewModelError) -> TokenActionInfo {
-        switch visaWalletModel.currentModelState {
+        switch visaDataProvider.currentModelState {
         case .notInitialized, .loading:
             throw .infoIsLoading
         case .failedToLoad, .idle:
             break
         }
 
-        guard let accountAddress = visaWalletModel.accountAddress else {
+        guard let accountAddress = visaDataProvider.accountAddress else {
             throw .missingPaymentAccountInfo
         }
 
-        guard let tokenItem = visaWalletModel.tokenItem else {
+        guard let tokenItem = visaDataProvider.tokenItem else {
             throw .missingTokenInfo
         }
 
@@ -373,7 +373,7 @@ private extension VisaWalletMainContentViewModel {
             return
         }
 
-        if let disabledLocalizedReason = visaWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
+        if let disabledLocalizedReason = visaDataProvider.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }

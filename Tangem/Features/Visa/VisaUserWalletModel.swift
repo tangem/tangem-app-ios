@@ -23,445 +23,26 @@ import struct TangemUIUtils.AlertBinder
 /// Transaction history also requested from BFF, so it can be loaded while authorization tokens didn't retrieved
 /// If refresh token for this Visa card is staled we need to request a new one through signing authorization request using card wallet.
 final class VisaUserWalletModel {
-    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-    @Injected(\.keysManager) private var keysManager: KeysManager
-    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-
-    var accountAddress: String? { visaPaymentAccountInteractor?.accountAddress }
-
-    var walletDidChangePublisher: AnyPublisher<State, Never> {
-        stateSubject.eraseToAnyPublisher()
-    }
-
-    var currentModelState: State {
-        stateSubject.value
-    }
-
-    var balancesPublisher: AnyPublisher<AppVisaBalances?, Never> {
-        balancesSubject.eraseToAnyPublisher()
-    }
-
-    var limitsPublisher: AnyPublisher<AppVisaLimits?, Never> {
-        cardSettingsSubject
-            .map { cardSettings in
-                guard let cardSettings else {
-                    return nil
-                }
-
-                return AppVisaLimits(limits: cardSettings.limits)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    var balances: AppVisaBalances? {
-        balancesSubject.value
-    }
-
-    var limits: AppVisaLimits? {
-        guard let cardSettings = cardSettingsSubject.value else {
-            return nil
-        }
-
-        return .init(limits: cardSettings.limits)
-    }
-
-    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
-        transactionHistoryService.statePublisher
-    }
-
-    var transactionHistoryItems: [TransactionListItem] {
-        let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
-        return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
-    }
-
-    var canFetchMoreTransactionHistory: Bool {
-        transactionHistoryService.canFetchMoreHistory
-    }
-
-    var currencySymbol: String {
-        tokenItem?.currencySymbol ?? "Not loaded"
-    }
-
-    var tokenItem: TokenItem?
-
-    private var cardId: String {
-        cardInfo.card.cardId
-    }
-
-    private var cardInfoAuthorizationTokens: VisaAuthorizationTokens? {
-        guard case .visa(let tokens) = cardInfo.walletData else {
-            return nil
-        }
-
-        return tokens.authTokens
-    }
-
+    let dataProvider: VisaDataProvider
     let userWalletModel: UserWalletModel
-    private var cardWalletAddress: String?
     private var cardInfo: CardInfo
-    private let transactionHistoryService: VisaTransactionHistoryService
-    private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
-    private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
-
-    private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
-    private let customerCardInfoSubject = CurrentValueSubject<VisaCustomerCardInfo?, Never>(nil)
-    private let cardSettingsSubject = CurrentValueSubject<VisaPaymentAccountCardSettings?, Never>(nil)
-    private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
-    private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
-
-    private var historyReloadTask: Task<Void, Never>?
 
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
-        transactionHistoryService = .init(cardId: cardInfo.card.cardId)
 
-        let cardWalletAddress = VisaUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
-        self.cardWalletAddress = cardWalletAddress
-
-        initialSetup()
+        dataProvider = TangemPayDataProvider(
+            cardWalletAddress: VisaUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value,
+            cardId: cardInfo.card.cardId,
+            authorizationTokensProvider: VisaAuthorizationTokensProvider(cardInfo: cardInfo),
+            name: userWalletModel.name,
+            walletHeaderImagePublisher: userWalletModel.walletHeaderImagePublisher,
+            updatePublisher: userWalletModel.updatePublisher
+        )
     }
 
-    func exploreURL() -> URL? {
-        guard let accountAddress else {
-            return nil
-        }
-
-        let visaBlockchain = VisaUtilities.visaBlockchain
-        let linkProvider = ExternalLinkProviderFactory().makeProvider(for: visaBlockchain)
-        return linkProvider.url(address: accountAddress, contractAddress: tokenItem?.token?.contractAddress)
-    }
-
-    func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        transactionHistoryService.items.first(where: { $0.id == id })
-    }
-
-    func generalUpdateAsync() async {
-        if visaPaymentAccountInteractor == nil {
-            await setupPaymentAccountInteractorAsync()
-            return
-        }
-
-        await withTaskGroup(of: Void.self) { [weak self] group in
-            guard let self else { return }
-
-            stateSubject.send(.loading)
-            group.addTask {
-                guard let currencyId = self.tokenItem?.currencyId else {
-                    return
-                }
-
-                await self.quotesRepository.loadQuotes(currencyIds: [currencyId])
-            }
-
-            group.addTask { await self.loadBalancesAndLimits() }
-
-            group.addTask { await self.reloadHistoryAsync() }
-
-            await group.waitForAll()
-            stateSubject.send(.idle)
-        }
-    }
-
-    func reloadHistory() {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.reloadHistoryAsync()
-            self?.historyReloadTask = nil
-        }
-    }
-
-    func loadNextHistoryPage() {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService.loadNextPage()
-            self?.historyReloadTask = nil
-        }
-    }
-
-    private func initialSetup() {
-        Task { [weak self] in
-            await self?.initialSetupAsync()
-        }
-    }
-
-    private func initialSetupAsync() async {
-        do {
-            try await setupAuthorizationTokensHandler()
-        } catch let modelError as ModelError {
-            if modelError == .missingValidRefreshToken {
-                showRefreshTokenExpiredNotification()
-                return
-            }
-            stateSubject.send(.failedToLoad(modelError))
-            return
-        } catch {
-            VisaLogger.error("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup.", error: error)
-        }
-
-        await setupPaymentAccountInteractorAsync()
-    }
-
-    private func setupPaymentAccountInteractorAsync() async {
-        stateSubject.send(.loading)
-
-        let blockchain = VisaUtilities.visaBlockchain
-        let factory = EVMSmartContractInteractorFactory(blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig, tangemProviderConfig: .ephemeralConfiguration)
-
-        let smartContractInteractor: EVMSmartContractInteractor
-        do {
-            let apiList = try await apiListProvider.apiListPublisher.async()
-            smartContractInteractor = try factory.makeInteractor(for: blockchain, apiInfo: apiList[blockchain.networkId] ?? [])
-        } catch {
-            VisaLogger.error("Failed to setup bridge", error: error)
-            stateSubject.send(.failedToLoad(.invalidBlockchain))
-            return
-        }
-
-        guard let cardWalletAddress else {
-            stateSubject.send(.failedToLoad(.failedToGenerateAddress))
-            return
-        }
-
-        do {
-            let customerCardInfoProvider = VisaCustomerCardInfoProviderBuilder()
-                .build(
-                    authorizationTokensHandler: authorizationTokensHandler,
-                    evmSmartContractInteractor: smartContractInteractor
-                )
-
-            let customerCardInfo = try await customerCardInfoProvider.loadPaymentAccount(
-                cardId: cardId,
-                cardWalletAddress: cardWalletAddress
-            )
-            customerCardInfoSubject.send(customerCardInfo)
-
-            await reloadHistoryAsync()
-            let interactor = try await VisaPaymentAccountInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
-                .build(customerCardInfo: customerCardInfo)
-
-            visaPaymentAccountInteractor = interactor
-
-            tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
-            if let authorizationTokensHandler,
-               let customerInfo = customerCardInfo.customerInfo {
-                setupTransactionHistoryService(
-                    productInstanceId: customerInfo.productInstance.id,
-                    authorizationTokensHandler: authorizationTokensHandler
-                )
-            }
-            await generalUpdateAsync()
-        } catch let error as VisaAuthorizationTokensHandlerError {
-            if error == .refreshTokenExpired {
-                showRefreshTokenExpiredNotification()
-            } else {
-                VisaLogger.error("Authorization error", error: error)
-                stateSubject.send(.failedToLoad(.authorizationError))
-            }
-        } catch {
-            VisaLogger.error("Failed to create address from provided public key", error: error)
-            stateSubject.send(.failedToLoad(.failedToGenerateAddress))
-        }
-    }
-
-    private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken))
-    }
-
-    private func loadBalancesAndLimits() async {
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { [weak self] in await self?.updateBalances() }
-            group.addTask { [weak self] in await self?.updateLimits() }
-
-            await group.waitForAll()
-        }
-    }
-
-    private func updateBalances() async {
-        guard let visaPaymentAccountInteractor else {
-            return
-        }
-
-        do {
-            let balances = try await visaPaymentAccountInteractor.loadBalances()
-            balancesSubject.send(.init(balances: balances))
-        } catch {
-            balancesSubject.send(nil)
-        }
-    }
-
-    private func updateLimits() async {
-        guard let visaPaymentAccountInteractor else {
-            return
-        }
-
-        do {
-            let cardSettings = try await visaPaymentAccountInteractor.loadCardSettings()
-            cardSettingsSubject.send(cardSettings)
-        } catch {
-            VisaLogger.error("Failed to load card settings", error: error)
-            cardSettingsSubject.send(nil)
-        }
-    }
-
-    private func reloadHistoryAsync() async {
-        await transactionHistoryService.reloadHistory()
-    }
-}
-
-// MARK: - Authorization
-
-extension VisaUserWalletModel {
-    private func setupAuthorizationTokensHandler() async throws {
-        guard let cardInfoAuthorizationTokens else {
-            throw ModelError.invalidActivationState
-        }
-
-        let authorizationTokens: VisaAuthorizationTokens
-        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
-            authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken, authorizationType: .cardWallet)
-        } else {
-            authorizationTokens = cardInfoAuthorizationTokens
-        }
-
-        try await setupTokensHandler(with: authorizationTokens)
-    }
-
-    private func setupTokensHandler(with tokens: VisaAuthorizationTokens) async throws {
-        guard tokens.authorizationType == .cardWallet else {
-            VisaLogger.info("Saved authorization tokens in VisaUserWalletModel is not for activated card. Skip tokens handler setup")
-            return
-        }
-
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
-            .build(
-                cardId: cardId,
-                cardActivationStatus: .activated(authTokens: tokens),
-                refreshTokenSaver: self
-            )
-
-        if await authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken
-        }
-
-        if await authorizationTokensHandler.accessTokenExpired {
-            try await authorizationTokensHandler.forceRefreshToken()
-        }
-
-        self.authorizationTokensHandler = authorizationTokensHandler
-    }
-
-    func authorizeCard(completion: @escaping () -> Void) {
-        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-        let handler = VisaCardScanHandlerBuilder()
-            .build(refreshTokenRepository: visaRefreshTokenRepository)
-
-        tangemSdk.startSession(with: handler, cardId: cardId) { [weak self] result in
-            guard let self else { return }
-
-            switch result {
-            case .success(let activationState):
-                guard let authTokens = activationState.authTokens else {
-                    break
-                }
-
-                saveNewAuthorizationTokens(authTokens)
-            case .failure(let sdkError):
-                if sdkError.isUserCancelled {
-                    break
-                }
-
-                alertSubject.send(sdkError.alertBinder)
-            }
-
-            completion()
-            withExtendedLifetime(handler) {}
-            withExtendedLifetime(tangemSdk) {}
-        }
-    }
-
-    private func saveNewAuthorizationTokens(_ tokens: VisaAuthorizationTokens) {
-        runTask(in: self, isDetached: false) { walletModel in
-            try await walletModel.setupTokensHandler(with: tokens)
-            await walletModel.setupPaymentAccountInteractorAsync()
-        }
-    }
-
-    private func setupTransactionHistoryService(
-        productInstanceId: String,
-        authorizationTokensHandler: VisaAuthorizationTokensHandler
-    ) {
-        let apiService = VisaAPIServiceBuilder()
-            .buildTransactionHistoryService(authorizationTokensHandler: authorizationTokensHandler)
-
-        transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
-    }
-}
-
-extension VisaUserWalletModel: VisaRefreshTokenSaver {
-    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
-        try visaRefreshTokenRepository.save(refreshToken: refreshToken, cardId: cardId)
-    }
-}
-
-extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
-    var fiatBalance: String {
-        BalanceFormatter().formatFiatBalance(fiatValue)
-    }
-
-    var blockchainName: String {
-        VisaUtilities.visaBlockchain.displayName
-    }
-
-    private var fiatValue: Decimal? {
-        guard
-            let balanceValue = balancesSubject.value?.available,
-            let currencyId = tokenItem?.currencyId
-        else {
-            return nil
-        }
-
-        let converter = BalanceConverter()
-        return converter.convertToFiat(balanceValue, currencyId: currencyId)
-    }
-}
-
-extension VisaUserWalletModel: MainHeaderBalanceProvider {
-    var balance: LoadableTokenBalanceView.State {
-        mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
-    }
-
-    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        stateSubject
-            .combineLatest(balancesSubject)
-            .withWeakCaptureOf(self)
-            .map { $0.mapToLoadableTokenBalanceViewState(state: $1.0, balances: $1.1) }
-            .eraseToAnyPublisher()
-    }
-
-    private func mapToLoadableTokenBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableTokenBalanceView.State {
-        switch state {
-        case .notInitialized, .loading:
-            return .loading()
-        case .failedToLoad:
-            return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
-        case .idle:
-            if let balances, let tokenItem {
-                let balanceFormatter = BalanceFormatter()
-                let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
-                return .loaded(text: .attributed(formattedForMain))
-            } else {
-                return .loading()
-            }
-        }
+    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
+        config.getDisabledLocalizedReason(for: feature)
     }
 }
 
@@ -593,5 +174,467 @@ extension VisaUserWalletModel: UserWalletSerializable {
 extension VisaUserWalletModel: AssociatedCardIdsProvider {
     var associatedCardIds: Set<String> {
         cardInfo.associatedCardIds
+    }
+}
+
+final class TangemPayDataProvider {
+    private(set) var tokenItem: TokenItem?
+
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+
+    let name: String
+    let walletHeaderImagePublisher: AnyPublisher<ImageType?, Never>
+    let updatePublisher: AnyPublisher<UpdateResult, Never>
+
+    // [REDACTED_TODO_COMMENT]
+    private let cardWalletAddress: String?
+    private let transactionHistoryService: VisaTransactionHistoryService
+    private let authorizationTokensProvider: AuthorizationTokensProvider
+
+    private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
+    private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
+
+    private let stateSubject = CurrentValueSubject<VisaUserWalletModel.State, Never>(.notInitialized)
+    private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
+    private let cardSettingsSubject = CurrentValueSubject<VisaPaymentAccountCardSettings?, Never>(nil)
+
+    private var historyReloadTask: Task<Void, Never>?
+
+    private var currencySymbol: String {
+        tokenItem?.currencySymbol ?? "Not loaded"
+    }
+
+    init(
+        cardWalletAddress: String?,
+        cardId: String?,
+        authorizationTokensProvider: AuthorizationTokensProvider,
+        name: String,
+        walletHeaderImagePublisher: AnyPublisher<ImageType?, Never>,
+        updatePublisher: AnyPublisher<UpdateResult, Never>
+    ) {
+        self.cardWalletAddress = cardWalletAddress
+        transactionHistoryService = .init(cardId: cardId)
+        self.authorizationTokensProvider = authorizationTokensProvider
+
+        self.name = name
+        self.walletHeaderImagePublisher = walletHeaderImagePublisher
+        self.updatePublisher = updatePublisher
+
+        Task { [weak self] in
+            await self?.initialSetupAsync()
+        }
+    }
+
+    private func initialSetupAsync() async {
+        do {
+            let tokens = try await authorizationTokensProvider.makeAuthTokensFromRefreshRepository()
+            authorizationTokensHandler = try await authorizationTokensProvider.makeTokensHandler(with: tokens)
+            try await setupPaymentAccountInteractorAsync()
+        } catch let modelError as VisaUserWalletModel.ModelError {
+            stateSubject.send(.failedToLoad(modelError))
+        } catch {
+            VisaLogger.error("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup.", error: error)
+        }
+    }
+
+    private func setupPaymentAccountInteractorAsync() async throws(VisaUserWalletModel.ModelError) {
+        stateSubject.send(.loading)
+
+        let blockchain = VisaUtilities.visaBlockchain
+        let factory = EVMSmartContractInteractorFactory(blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig, tangemProviderConfig: .ephemeralConfiguration)
+
+        let smartContractInteractor: EVMSmartContractInteractor
+        do {
+            let apiList = try await apiListProvider.apiListPublisher.async()
+            smartContractInteractor = try factory.makeInteractor(for: blockchain, apiInfo: apiList[blockchain.networkId] ?? [])
+        } catch {
+            VisaLogger.error("Failed to setup bridge", error: error)
+            throw .invalidBlockchain
+        }
+
+        guard let cardWalletAddress else {
+            throw .failedToGenerateAddress
+        }
+
+        do {
+            let customerCardInfoProvider = VisaCustomerCardInfoProviderBuilder()
+                .build(
+                    authorizationTokensHandler: authorizationTokensHandler,
+                    evmSmartContractInteractor: smartContractInteractor
+                )
+
+            let customerCardInfo = try await customerCardInfoProvider.loadPaymentAccount(
+                cardWalletAddress: cardWalletAddress
+            )
+
+            await transactionHistoryService.reloadHistory()
+            let interactor = try await VisaPaymentAccountInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
+                .build(customerCardInfo: customerCardInfo)
+
+            visaPaymentAccountInteractor = interactor
+
+            tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
+            if let authorizationTokensHandler,
+               let customerInfo = customerCardInfo.customerInfo {
+                let apiService = VisaAPIServiceBuilder()
+                    .buildTransactionHistoryService(authorizationTokensHandler: authorizationTokensHandler)
+
+                transactionHistoryService.setupApiService(productInstanceId: customerInfo.productInstance.id, apiService: apiService)
+            }
+            await generalUpdateAsync()
+        } catch let error as VisaAuthorizationTokensHandlerError {
+            if error == .refreshTokenExpired {
+                throw .missingValidRefreshToken
+            } else {
+                VisaLogger.error("Authorization error", error: error)
+                throw .authorizationError
+            }
+        } catch {
+            VisaLogger.error("Failed to create address from provided public key", error: error)
+            throw .failedToGenerateAddress
+        }
+    }
+
+    func generalUpdateAsync() async {
+        guard let visaPaymentAccountInteractor else {
+            do {
+                try await setupPaymentAccountInteractorAsync()
+            } catch {
+                stateSubject.send(.failedToLoad(error))
+            }
+            return
+        }
+
+        await withTaskGroup(of: Void.self) { [weak self] group in
+            guard let self else { return }
+
+            if let currencyId = tokenItem?.currencyId {
+                group.addTask { await self.quotesRepository.loadQuotes(currencyIds: [currencyId]) }
+            }
+
+            group.addTask {
+                let balances = try? await visaPaymentAccountInteractor.loadBalances()
+                self.balancesSubject.send(balances.map(AppVisaBalances.init))
+            }
+
+            group.addTask {
+                let cardSettings = try? await visaPaymentAccountInteractor.loadCardSettings()
+                self.cardSettingsSubject.send(cardSettings)
+            }
+
+            group.addTask {
+                await self.transactionHistoryService.reloadHistory()
+            }
+
+            await group.waitForAll()
+            stateSubject.send(.idle)
+        }
+    }
+}
+
+protocol VisaDataProvider: MainHeaderBalanceProvider, VisaWalletMainHeaderSubtitleDataSource, MainHeaderSupplementInfoProvider {
+    var tokenItem: TokenItem? { get }
+    var balances: AppVisaBalances? { get }
+    var emailConfig: EmailConfig? { get }
+    var canFetchMoreTransactionHistory: Bool { get }
+    var transactionHistoryItems: [TransactionListItem] { get }
+    var accountAddress: String? { get }
+    var currentModelState: VisaUserWalletModel.State { get }
+    var limits: AppVisaLimits? { get }
+
+    var walletDidChangePublisher: AnyPublisher<VisaUserWalletModel.State, Never> { get }
+    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> { get }
+
+    func transaction(with id: UInt64) -> VisaTransactionRecord?
+    func exploreURL() -> URL?
+    func reloadHistory()
+    func loadNextHistoryPage()
+    func authorizeCard(completion: @escaping () -> Void)
+
+    func generalUpdateAsync() async
+
+    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String?
+}
+
+extension TangemPayDataProvider: VisaDataProvider {
+    var balances: AppVisaBalances? {
+        balancesSubject.value
+    }
+
+    var emailConfig: EmailConfig? {
+        .init(recipient: "recipient", subject: "subject")
+    }
+
+    var canFetchMoreTransactionHistory: Bool {
+        transactionHistoryService.canFetchMoreHistory
+    }
+
+    var transactionHistoryItems: [TransactionListItem] {
+        VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
+            .mapTransactionListItem(from: transactionHistoryService.items)
+    }
+
+    var accountAddress: String? {
+        visaPaymentAccountInteractor?.accountAddress
+    }
+
+    var currentModelState: VisaUserWalletModel.State {
+        stateSubject.value
+    }
+
+    var limits: AppVisaLimits? {
+        guard let cardSettings = cardSettingsSubject.value else {
+            return nil
+        }
+
+        return .init(limits: cardSettings.limits)
+    }
+
+    var walletDidChangePublisher: AnyPublisher<VisaUserWalletModel.State, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
+
+    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
+        transactionHistoryService.statePublisher
+    }
+
+    func transaction(with id: UInt64) -> TangemVisa.VisaTransactionRecord? {
+        transactionHistoryService.items.first(where: { $0.id == id })
+    }
+
+    func exploreURL() -> URL? {
+        guard let accountAddress else {
+            return nil
+        }
+
+        let visaBlockchain = VisaUtilities.visaBlockchain
+        let linkProvider = ExternalLinkProviderFactory().makeProvider(for: visaBlockchain)
+        return linkProvider.url(address: accountAddress, contractAddress: tokenItem?.token?.contractAddress)
+    }
+
+    func reloadHistory() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            await self?.transactionHistoryService.reloadHistory()
+            self?.historyReloadTask = nil
+        }
+    }
+
+    func loadNextHistoryPage() {
+        guard historyReloadTask == nil else {
+            return
+        }
+
+        historyReloadTask = Task { [weak self] in
+            await self?.transactionHistoryService.loadNextPage()
+            self?.historyReloadTask = nil
+        }
+    }
+
+    func authorizeCard(completion: @escaping () -> Void) {
+        runTask(in: self, isDetached: false) { walletModel in
+            if let tokens = await walletModel.authorizationTokensProvider.getSavedTokens() {
+                walletModel.authorizationTokensHandler = try? await walletModel.authorizationTokensProvider.makeTokensHandler(with: tokens)
+
+                do {
+                    try await walletModel.setupPaymentAccountInteractorAsync()
+                } catch let error as VisaUserWalletModel.ModelError {
+                    walletModel.stateSubject.send(.failedToLoad(error))
+                } catch {
+                    walletModel.stateSubject.send(.failedToLoad(.failedToGenerateAddress))
+                }
+            }
+            completion()
+        }
+    }
+
+    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
+        // [REDACTED_TODO_COMMENT]
+        nil
+    }
+}
+
+// MARK: MainHeaderBalanceProvider
+
+extension TangemPayDataProvider {
+    var balance: LoadableTokenBalanceView.State {
+        mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
+    }
+
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        stateSubject
+            .combineLatest(balancesSubject)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenBalanceViewState(state: $1.0, balances: $1.1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToLoadableTokenBalanceViewState(
+        state: VisaUserWalletModel.State,
+        balances: AppVisaBalances?
+    ) -> LoadableTokenBalanceView.State {
+        switch state {
+        case .notInitialized, .loading:
+            return .loading()
+        case .failedToLoad:
+            return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
+        case .idle:
+            if let balances, let tokenItem {
+                let balanceFormatter = BalanceFormatter()
+                let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
+                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
+                return .loaded(text: .attributed(formattedForMain))
+            } else {
+                return .loading()
+            }
+        }
+    }
+}
+
+// MARK: VisaWalletMainHeaderSubtitleDataSource
+
+extension TangemPayDataProvider {
+    var fiatBalance: String {
+        BalanceFormatter().formatFiatBalance(fiatValue)
+    }
+
+    var blockchainName: String {
+        VisaUtilities.visaBlockchain.displayName
+    }
+
+    private var fiatValue: Decimal? {
+        guard
+            let balanceValue = balancesSubject.value?.available,
+            let currencyId = tokenItem?.currencyId
+        else {
+            return nil
+        }
+
+        let converter = BalanceConverter()
+        return converter.convertToFiat(balanceValue, currencyId: currencyId)
+    }
+}
+
+enum AuthorizationTokensProviderError: Error {
+    case invalid
+}
+
+protocol AuthorizationTokensProvider {
+    func makeAuthTokensFromRefreshRepository() async throws -> VisaAuthorizationTokens
+    func getSavedTokens() async -> VisaAuthorizationTokens?
+    func makeTokensHandler(with tokens: VisaAuthorizationTokens) async throws -> VisaAuthorizationTokensHandler?
+}
+
+final class TangemPayAuthorizationTokensProvider: AuthorizationTokensProvider {
+    private let walletModel: any WalletModel
+
+    init(walletModel: any WalletModel) {
+        self.walletModel = walletModel
+    }
+
+    func makeAuthTokensFromRefreshRepository() async throws -> VisaAuthorizationTokens {
+        // [REDACTED_TODO_COMMENT]
+        throw AuthorizationTokensProviderError.invalid
+    }
+
+    func getSavedTokens() async -> VisaAuthorizationTokens? {
+        let account = VisaAccount(walletModel: walletModel)
+        return try? await account.getTokens()
+    }
+
+    func makeTokensHandler(with tokens: VisaAuthorizationTokens) async throws -> (any VisaAuthorizationTokensHandler)? {
+        VisaAuthorizationTokensHandlerBuilder()
+            .build(visaAuthorizationTokens: tokens)
+    }
+
+    func getTokensHandler() async throws -> (any VisaAuthorizationTokensHandler)? {
+        let account = VisaAccount(walletModel: walletModel)
+        let tokens = try await account.getTokens()
+        return VisaAuthorizationTokensHandlerBuilder()
+            .build(visaAuthorizationTokens: tokens)
+    }
+}
+
+final class VisaAuthorizationTokensProvider: AuthorizationTokensProvider, VisaRefreshTokenSaver {
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    private let cardInfo: CardInfo
+
+    private var cardId: String {
+        cardInfo.card.cardId
+    }
+
+    private var cardInfoAuthorizationTokens: VisaAuthorizationTokens? {
+        guard case .visa(let tokens) = cardInfo.walletData else {
+            return nil
+        }
+
+        return tokens.authTokens
+    }
+
+    init(cardInfo: CardInfo) {
+        self.cardInfo = cardInfo
+    }
+
+    func makeAuthTokensFromRefreshRepository() async throws -> VisaAuthorizationTokens {
+        guard let cardInfoAuthorizationTokens else {
+            throw VisaUserWalletModel.ModelError.invalidActivationState
+        }
+
+        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
+            return .init(accessToken: nil, refreshToken: savedRefreshToken, authorizationType: .cardWallet)
+        } else {
+            return cardInfoAuthorizationTokens
+        }
+    }
+
+    func getSavedTokens() async -> VisaAuthorizationTokens? {
+        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
+        let handler = VisaCardScanHandlerBuilder()
+            .build(refreshTokenRepository: visaRefreshTokenRepository)
+
+        return await withCheckedContinuation { continuation in
+            tangemSdk.startSession(with: handler, cardId: cardId) { result in
+                switch result {
+                case .success(let activationState):
+                    continuation.resume(returning: activationState.authTokens)
+                case .failure:
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
+    func makeTokensHandler(with tokens: VisaAuthorizationTokens) async throws -> VisaAuthorizationTokensHandler? {
+        guard tokens.authorizationType == .cardWallet else {
+            VisaLogger.info("Saved authorization tokens in VisaUserWalletModel is not for activated card. Skip tokens handler setup")
+            return nil
+        }
+
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder()
+            .build(
+                cardId: cardId,
+                cardActivationStatus: .activated(authTokens: tokens),
+                refreshTokenSaver: self
+            )
+
+        if await authorizationTokensHandler.refreshTokenExpired {
+            throw VisaUserWalletModel.ModelError.missingValidRefreshToken
+        }
+
+        if await authorizationTokensHandler.accessTokenExpired {
+            try await authorizationTokensHandler.forceRefreshToken()
+        }
+
+        return authorizationTokensHandler
+    }
+
+    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
+        try visaRefreshTokenRepository.save(refreshToken: refreshToken, cardId: cardId)
     }
 }
