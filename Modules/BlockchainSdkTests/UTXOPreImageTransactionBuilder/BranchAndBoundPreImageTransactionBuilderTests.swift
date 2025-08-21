@@ -180,7 +180,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         // then
         await #expect(throws: UTXOPreImageTransactionBuilderError.insufficientFunds) {
             try await selector.preImage(
-                outputs: outputs,
+                outputs: self.outputs,
                 changeScript: .p2wpkh,
                 destination: .init(amount: 900_000, script: .p2wpkh),
                 fee: .calculate(feeRate: 10)
