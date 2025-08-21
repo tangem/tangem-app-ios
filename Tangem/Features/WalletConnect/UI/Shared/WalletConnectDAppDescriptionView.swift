@@ -22,7 +22,7 @@ struct WalletConnectDAppDescriptionView: View {
             iconView
 
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 4) {
+                HStack(alignment: .top, spacing: 4) {
                     nameView
                     verifiedDomainIcon
                     Spacer(minLength: .zero)
@@ -107,6 +107,7 @@ struct WalletConnectDAppDescriptionView: View {
                     .frame(width: 20, height: 20)
                     .foregroundStyle(Colors.Icon.accent)
                     .contentShape(.circle)
+                    .padding(.top, 2)
             }
             .buttonStyle(.plain)
             .transition(.opacity)

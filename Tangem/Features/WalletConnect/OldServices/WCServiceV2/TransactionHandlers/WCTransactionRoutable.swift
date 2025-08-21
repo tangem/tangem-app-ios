@@ -6,7 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemUI
+
+@MainActor
 protocol WCTransactionRoutable {
-    func showWCTransactionRequest(with data: WCHandleTransactionData)
-    func showWCTransactionRequest(with error: Error)
+    func show(floatingSheetViewModel: some FloatingSheetContentViewModel)
+    func show(toast: Toast<WarningToast>)
 }
