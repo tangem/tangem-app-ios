@@ -9,12 +9,12 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 import TangemFoundation
 
 enum WalletInfo: Codable {
     case cardWallet(CardInfo)
-    case mobileWallet(HotWalletInfo)
+    case mobileWallet(MobileWalletInfo)
 
     var hasBackupCards: Bool {
         switch self {
@@ -47,7 +47,7 @@ enum WalletInfo: Codable {
 
         case .mobileWallet:
             return AnalyticsContextData(
-                productType: .hotWallet,
+                productType: .mobileWallet,
                 batchId: "",
                 firmware: "",
                 baseCurrency: nil
@@ -80,7 +80,7 @@ enum WalletInfo: Codable {
     }
 }
 
-struct HotWalletInfo: Codable {
+struct MobileWalletInfo: Codable {
     var hasMnemonicBackup: Bool
     var hasICloudBackup: Bool
     var isAccessCodeSet: Bool

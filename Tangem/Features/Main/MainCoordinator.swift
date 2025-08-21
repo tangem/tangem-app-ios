@@ -14,6 +14,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemNFT
 import TangemFoundation
+import TangemUI
 
 class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -274,10 +275,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Analytics.log(.referralScreenOpened)
     }
 
-    func openHotFinishActivation(userWalletModel: UserWalletModel) {
+    func openMobileFinishActivation(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: HotFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
+                sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
             )
         }
     }
@@ -286,11 +287,21 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 // MARK: - SingleTokenBaseRoutable
 
 extension MainCoordinator: SingleTokenBaseRoutable {
-    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
-            for: tokenItem,
-            addressInfos: addressInfos
+    func openReceiveScreen(walletModel: any WalletModel) {
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
+            addressTypesProvider: walletModel
         )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 
     func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
@@ -442,6 +453,25 @@ extension MainCoordinator: OrganizeTokensRoutable {
 extension MainCoordinator: VisaWalletRoutable {
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
         visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
+    }
+
+    func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
+        let addressTypesProvider = VisaReceiveAssetInfoProvider(addressInfos)
+
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: tokenItem,
+            addressTypesProvider: addressTypesProvider
+        )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 }
 
@@ -605,23 +635,13 @@ extension MainCoordinator: NFTEntrypointRoutable {
 // MARK: - WCTransactionRoutable
 
 extension MainCoordinator: WCTransactionRoutable {
-    func showWCTransactionRequest(with data: WCHandleTransactionData) {
-        Task { @MainActor in
-            UIApplication.mainWindow?.endEditing(true)
-            floatingSheetPresenter.enqueue(
-                sheet: WCTransactionViewModel(
-                    transactionData: data,
-                    feeManager: CommonWCTransactionFeeManager(
-                        feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: data.dAppData.name)
-                    ),
-                    analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
-                )
-            )
-        }
+    func show(floatingSheetViewModel: some FloatingSheetContentViewModel) {
+        UIApplication.mainWindow?.endEditing(true)
+        floatingSheetPresenter.enqueue(sheet: floatingSheetViewModel)
     }
 
-    func showWCTransactionRequest(with error: Error) {
-        // make error view model
+    func show(toast: Toast<WarningToast>) {
+        toast.present(layout: .top(padding: 20), type: .temporary())
     }
 }
 
@@ -642,17 +662,17 @@ extension MainCoordinator {
     }
 }
 
-// MARK: - HotFinishActivationNeededRoutable
+// MARK: - MobileFinishActivationNeededRoutable
 
-extension MainCoordinator: HotFinishActivationNeededRoutable {
-    func dismissHotFinishActivationNeeded() {
+extension MainCoordinator: MobileFinishActivationNeededRoutable {
+    func dismissMobileFinishActivationNeeded() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
     }
 
-    func openHotBackupOnboarding(userWalletModel: UserWalletModel) {
-        let backupInput = HotOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .hotInput(backupInput))
+    func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
+        let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
+        openOnboardingModal(with: .mobileInput(backupInput))
     }
 }

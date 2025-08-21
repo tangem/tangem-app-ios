@@ -14,7 +14,7 @@ import TangemSdk
 import TangemVisa
 import TangemLocalization
 import TangemFoundation
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
@@ -56,7 +56,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
-    private let mobileWalletSdk = CommonHotSdk()
+    private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
 
@@ -178,7 +178,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             do {
                 try mobileWalletSdk.delete(walletIDs: modelsToDelete)
             } catch {
-                Log.error("Failed to delete hot sdk data: \(error.localizedDescription)")
+                Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
             }
 
             let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
