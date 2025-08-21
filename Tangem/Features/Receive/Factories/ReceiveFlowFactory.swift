@@ -12,7 +12,7 @@ import BlockchainSdk
 struct ReceiveFlowFactory {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
-    private let addressInfos: [ReceiveAddressInfo]
+    private let addressTypesProvider: ReceiveAddressTypesProvider
     private let coordinator: ReceiveFlowCoordinator?
 
     // MARK: - Init
@@ -20,52 +20,21 @@ struct ReceiveFlowFactory {
     init(
         flow: ReceiveFlow,
         tokenItem: TokenItem,
-        addressInfos: [ReceiveAddressInfo],
-        coordinator: ReceiveFlowCoordinator? = nil
+        addressTypesProvider: ReceiveAddressTypesProvider,
+        coordinator: ReceiveFlowCoordinator?
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
-        self.addressInfos = addressInfos
+        self.addressTypesProvider = addressTypesProvider
         self.coordinator = coordinator
     }
 
     // MARK: Implementation
 
-    func makeAvailabilityReceiveFlow() -> AvailabilityViewModel {
-        if FeatureProvider.isAvailable(.receiveENS), flow == .crypto {
-            let options = ReceiveMainViewModel.Options(
-                tokenItem: tokenItem,
-                addressInfos: addressInfos,
-                flow: flow
-            )
-
-            let receiveMainViewModel = ReceiveMainViewModel(options: options)
-            receiveMainViewModel.start()
-
-            return .domainReceiveFlow(receiveMainViewModel)
-        } else {
-            let receiveBottomSheetViewModel = makeBottomSheetViewModel()
-            return .bottomSheetReceiveFlow(receiveBottomSheetViewModel)
-        }
-    }
-
-    func makeBottomSheetViewModel() -> ReceiveBottomSheetViewModel {
-        let dependencies = makeDependenciesBuilder()
-        let receiveBottomSheetNotificationInputsFactory = dependencies.makeReceiveBottomSheetNotificationInputsFactory()
-        let notificationInputs = receiveBottomSheetNotificationInputsFactory.makeNotificationInputs(for: tokenItem)
-
-        return ReceiveBottomSheetViewModel(
-            flow: flow,
-            tokenItem: tokenItem,
-            notificationInputs: notificationInputs,
-            addressInfos: addressInfos
-        )
-    }
-
     func makeSelectorReceiveAssetViewModel() -> SelectorReceiveAssetsViewModel {
         let dependencies = makeDependenciesBuilder()
         let interactor = dependencies.makeSelectorReceiveAssetsInteractor()
-        let sectionFactory = dependencies.makeSelectorReceiveAssetsSectionFactory()
+        let sectionFactory = dependencies.makeSelectorReceiveAssetsSectionFactory(with: coordinator)
 
         return SelectorReceiveAssetsViewModel(interactor: interactor, sectionFactory: sectionFactory)
     }
@@ -95,8 +64,7 @@ struct ReceiveFlowFactory {
         ReceiveDependenciesBuilder(
             flow: flow,
             tokenItem: tokenItem,
-            addressInfos: addressInfos,
-            coordinator: coordinator
+            addressTypesProvider: addressTypesProvider
         )
     }
 }
