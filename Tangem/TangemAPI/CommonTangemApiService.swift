@@ -349,7 +349,7 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel), decoder: decoder)
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO {
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
         try await request(for: .createAndConnectUserWallet(applicationUid: applicationUid, items: items), decoder: decoder)
     }
 }
