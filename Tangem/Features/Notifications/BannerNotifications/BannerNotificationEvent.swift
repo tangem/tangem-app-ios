@@ -31,14 +31,14 @@ extension PromotionProgramName {
     var title: String {
         switch self {
         case .ring: Localization.ringPromoTitle
-        case .onrampSEPAWithMercuryo: "Buy Crypto with SEPA"
+        case .onrampSEPA: "Buy Crypto with SEPA"
         }
     }
 
     var description: String? {
         switch self {
         case .ring: Localization.ringPromoText
-        case .onrampSEPAWithMercuryo: "Enjoy zero fees when purchasing crypto via SEPA transfer."
+        case .onrampSEPA: "Enjoy zero fees when purchasing crypto via SEPA transfer."
         }
     }
 
@@ -49,7 +49,7 @@ extension PromotionProgramName {
                 iconType: .placeholder,
                 size: .init(bothDimensions: 60)
             )
-        case .onrampSEPAWithMercuryo:
+        case .onrampSEPA:
             .init(
                 iconType: .image(Assets.sepaBannerImage.image),
                 size: .init(bothDimensions: 48)
@@ -60,7 +60,7 @@ extension PromotionProgramName {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .ring: .ring
-        case .onrampSEPAWithMercuryo: .action
+        case .onrampSEPA: .action
         }
     }
 }
