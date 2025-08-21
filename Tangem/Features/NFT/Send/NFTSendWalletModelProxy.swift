@@ -355,4 +355,12 @@ extension NFTSendWalletModelProxy: WalletModel {
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
         lhs.id == rhs.id
     }
+
+    var receiveAddressInfos: [ReceiveAddressInfo] {
+        mainTokenWalletModel.receiveAddressInfos
+    }
+
+    var receiveAddressTypes: [ReceiveAddressType] {
+        mainTokenWalletModel.receiveAddressTypes
+    }
 }
