@@ -287,12 +287,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(walletModel: any WalletModel) {
-        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
-
-        let receiveFlowFactory = ReceiveFlowFactory(
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressInfos: addressInfos
+            addressTypesProvider: walletModel
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -457,7 +455,22 @@ extension MainCoordinator: VisaWalletRoutable {
     }
 
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = ReceiveFlowFactory(flow: .crypto, tokenItem: tokenItem, addressInfos: addressInfos).makeBottomSheetViewModel()
+        let addressTypesProvider = VisaReceiveAssetInfoProvider(addressInfos)
+
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: tokenItem,
+            addressTypesProvider: addressTypesProvider
+        )
+
+        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
+        case .bottomSheetReceiveFlow(let viewModel):
+            receiveBottomSheetViewModel = viewModel
+        case .domainReceiveFlow(let viewModel):
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+        }
     }
 }
 
