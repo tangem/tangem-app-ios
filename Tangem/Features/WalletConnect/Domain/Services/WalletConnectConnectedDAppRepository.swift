@@ -13,12 +13,14 @@ protocol WalletConnectConnectedDAppRepository {
 
     func makeDAppsStream() async -> AsyncStream<[WalletConnectConnectedDApp]>
 
-    func replacingExistingDApps(with dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError)
     func save(dApp: WalletConnectConnectedDApp) async throws(WalletConnectDAppPersistenceError)
 
     func getDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError) -> WalletConnectConnectedDApp
     func getDApps(for userWalletID: String) async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
     func getAllDApps() async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
+
+    func replacingAllExistingDApps(with dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError)
+    func replaceExistingDApp(with updatedDApp: WalletConnectConnectedDApp) async throws(WalletConnectDAppPersistenceError)
 
     func deleteDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError)
     func delete(dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError)
