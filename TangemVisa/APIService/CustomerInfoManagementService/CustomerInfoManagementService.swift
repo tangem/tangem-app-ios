@@ -14,14 +14,6 @@ public protocol CustomerInfoManagementService {
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 }
 
-/// For backwards compatibility.
-/// Will be removed in [REDACTED_INFO]
-public extension CustomerInfoManagementService {
-    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
-        try await loadCustomerInfo()
-    }
-}
-
 class CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: VisaAuthorizationTokensHandler
