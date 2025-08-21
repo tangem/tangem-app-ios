@@ -38,7 +38,7 @@ struct VisaTokenInfoLoader {
             symbol: symbol,
             contractAddress: contractAddress,
             decimalCount: decimalsCount,
-            id: VisaUtilities(isTestnet: isTestnet).tokenId
+            id: VisaUtilities.tokenId
         )
     }
 
