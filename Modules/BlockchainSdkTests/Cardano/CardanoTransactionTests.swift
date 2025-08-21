@@ -320,7 +320,7 @@ struct CardanoTransactionTests {
         let privateKey = PrivateKey(data: privateKeyData)!
         let publicKey = privateKey.getPublicKeyByType(pubkeyType: .ed25519Cardano)
 
-        var bytes = Data(
+        let bytes = Data(
             privateKeyData.bytes[privateKeyData.bytes.count / 2 ..< privateKeyData.bytes.count]
         ).trailingZeroPadding(toLength: 192)
 
