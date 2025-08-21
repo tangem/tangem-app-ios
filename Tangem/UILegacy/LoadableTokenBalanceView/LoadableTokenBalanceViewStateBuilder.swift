@@ -25,6 +25,21 @@ struct LoadableTokenBalanceViewStateBuilder {
         }
     }
 
+    func build(type: FormattedTokenBalanceType, textBuilder builder: @escaping (String) -> String) -> LoadableTokenBalanceView.State {
+        switch type {
+        case .loading(.cache(let cached)):
+            .loading(cached: .builder(builder: builder, sensitive: cached.balance)) // Shining text
+        case .loading(.empty):
+            .loading(cached: .none) // Usual skeleton
+        case .failure(.empty(let string)):
+            .failed(cached: .builder(builder: builder, sensitive: string))
+        case .failure(.cache(let cache)):
+            .failed(cached: .builder(builder: builder, sensitive: cache.balance))
+        case .loaded(let string):
+            .loaded(text: .builder(builder: builder, sensitive: string))
+        }
+    }
+
     func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableTokenBalanceView.State {
         let formatter = BalanceFormatter()
 
