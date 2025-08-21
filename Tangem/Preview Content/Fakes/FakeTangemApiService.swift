@@ -111,8 +111,6 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func setAuthData(_ authData: TangemApiTarget.AuthData) {}
-
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         throw "Not implemented"
     }
