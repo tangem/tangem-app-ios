@@ -1,5 +1,5 @@
 //
-//  OnrampSEPAWithMercuryoBannerDataBuilder.swift
+//  PredefinedOnrampParametersBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import TangemExpress
 import TangemFoundation
 
-struct OnrampSEPAWithMercuryoBannerDataBuilder {
+struct PredefinedOnrampParametersBuilder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
 
@@ -35,8 +35,8 @@ struct OnrampSEPAWithMercuryoBannerDataBuilder {
             return nil
         }
 
-        let preferredProvider = PreferredProvider(providerId: "mercuryo", paymentMethodType: .sepa)
-        return PredefinedOnrampParameters(amount: fiat, preferredProvider: preferredProvider)
+        let preferredValues = PreferredValues(paymentMethodType: .sepa)
+        return PredefinedOnrampParameters(amount: fiat, preferredValues: preferredValues)
     }
 
     private func getBitcoinWalletModel(userWalletId: UserWalletId) -> (any WalletModel)? {
