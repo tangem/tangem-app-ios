@@ -13,8 +13,6 @@ import TangemAssets
 enum SingleCardOnboardingStep: Equatable {
     case pushNotifications
     case createWallet
-    case topup
-    case successTopup
     case saveUserWallet
     case addTokens
     case success
@@ -34,17 +32,8 @@ enum SingleCardOnboardingStep: Equatable {
         switch self {
         case .createWallet, .addTokens:
             return .init(width: 0, height: containerSize.height * 0.103)
-        case .topup, .successTopup:
-            return defaultBackgroundOffset(in: containerSize)
         default:
             return .zero
-        }
-    }
-
-    var balanceStackOpacity: Double {
-        switch self {
-        case .pushNotifications, .createWallet, .saveUserWallet, .addTokens, .success: return 0
-        case .topup, .successTopup: return 1
         }
     }
 
@@ -54,16 +43,6 @@ enum SingleCardOnboardingStep: Equatable {
         case .createWallet:
             let diameter = SingleCardOnboardingCardsLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
-        case .topup, .successTopup:
-            return defaultBackgroundFrameSize(in: containerSize)
-        }
-    }
-
-    func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
-        switch self {
-        case .pushNotifications, .saveUserWallet, .addTokens, .success: return 0
-        case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
-        case .topup, .successTopup: return 8
         }
     }
 }
@@ -74,8 +53,6 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var title: String? {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
-        case .topup: return Localization.onboardingTopupTitle
-        case .successTopup: return Localization.onboardingDoneHeader
         case .success: return successTitle
         case .saveUserWallet, .pushNotifications, .addTokens: return nil
         }
@@ -84,8 +61,6 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     var subtitle: String? {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletBody
-        case .topup: return Localization.onboardingTopUpBody
-        case .successTopup: return Localization.onboardingDoneBody
         case .success: return Localization.onboardingDoneBody
         case .saveUserWallet, .pushNotifications, .addTokens: return nil
         }
@@ -100,8 +75,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
-        case .topup: return Localization.onboardingTopUpButtonButCrypto
-        case .successTopup: return Localization.commonContinue
         case .success: return successButtonTitle
         case .pushNotifications, .addTokens, .saveUserWallet: return ""
         }
@@ -116,18 +89,11 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
 
-    var isSupplementButtonVisible: Bool {
-        switch self {
-        case .topup: return true
-        case .successTopup, .success, .createWallet, .saveUserWallet, .addTokens, .pushNotifications: return false
-        }
-    }
+    var isSupplementButtonVisible: Bool { false }
 
     var supplementButtonTitle: String {
         switch self {
         case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
-        case .topup: return Localization.onboardingTopUpButtonShowWalletAddress
-        case .successTopup: return Localization.commonContinue
         case .success: return successButtonTitle
         case .saveUserWallet, .addTokens, .pushNotifications: return ""
         }
@@ -157,7 +123,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
     var requiresConfetti: Bool {
         switch self {
-        case .success, .successTopup:
+        case .success:
             return true
         default:
             return false
@@ -175,5 +141,3 @@ extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
         }
     }
 }
-
-extension SingleCardOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
