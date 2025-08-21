@@ -137,6 +137,9 @@ private extension CommonOnrampManager {
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
 
+        providers
+            .forEach { $0.updateAttractiveTypes() }
+
         if let paymentMethodType = preferredValues.paymentMethodType {
             OnrampLogger.info(self, "Has preferredValues \(preferredValues)")
 
@@ -155,7 +158,6 @@ private extension CommonOnrampManager {
         }
 
         for provider in providers {
-            provider.updateAttractiveTypes()
             OnrampLogger.info(self, "Providers for paymentMethod: \(provider.paymentMethod.name) was sorted to order: \(provider.providers)")
 
             if let maxPriorityProvider = provider.maxPriorityProvider() {
