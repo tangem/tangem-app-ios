@@ -7,18 +7,23 @@
 //
 
 import Foundation
-import UIKit
+import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 @MainActor
 final class PromocodeActivationViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    @Published var isPresentingAlert = false
+    @Published var alert: AlertBinder?
     @Published private(set) var isCheckingPromoCode = false
-    private(set) var alertMessage = ""
 
     private let promoCode: String
+    
+    private let alertOkButton = Alert.Button.default(Text(Localization.commonOk)) {
+        UIApplication.dismissTop(animated: false)
+    }
 
     // MARK: - Init
 
@@ -46,7 +51,7 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         do {
             let _ = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
-            presentAlert(message: "OK")
+            presentAlert(message: Localization.bitcoinPromoActivationSuccess)
         } catch let error as TangemAPIError {
             switch error.code {
             case .badRequest:
@@ -66,7 +71,7 @@ final class PromocodeActivationViewModel: ObservableObject {
             presentAlert(message: "Generic Error")
         }
     }
-    
+
     // MARK: - Private Implementatation
 
     private func getWalletAddress() -> String? {
@@ -76,9 +81,17 @@ final class PromocodeActivationViewModel: ObservableObject {
             .walletModels
             .first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) })?.defaultAddressString
     }
+}
 
-    private func presentAlert(message: String) {
-        alertMessage = message
-        isPresentingAlert = true
+
+// MARK: - Alerts
+
+extension PromocodeActivationViewModel {
+    func createErrorAlert(error: PromocodeActivationError) {
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: alertOkButton
+        ))
     }
 }

@@ -10,7 +10,6 @@ import SwiftUI
 import TangemLocalization
 
 struct PromocodeActivationView: View {
-
     @StateObject var viewModel: PromocodeActivationViewModel
 
     init(promoCode: String) {

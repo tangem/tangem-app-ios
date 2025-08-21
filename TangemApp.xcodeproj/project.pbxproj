@@ -3127,6 +3127,7 @@
 		EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
+		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
 		EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */; };
 		EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */; };
 		EAB55F632DF0C3990016BF78 /* MainCoordinatorChildFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */; };
@@ -7168,6 +7169,7 @@
 		EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkPresenter.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
+		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
 		EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParser.swift; sourceTree = "<group>"; };
 		EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorChildFactory.swift; sourceTree = "<group>"; };
@@ -18361,6 +18363,7 @@
 				EA4032332E54C11E00573568 /* PromocodeActivationView.swift */,
 				EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */,
 				EA4032582E55F02E00573568 /* PromocodeActivationResponse.swift */,
+				EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */,
 			);
 			path = Promocode;
 			sourceTree = "<group>";
@@ -22972,6 +22975,7 @@
 				EFB7521D2C985F2600CB614C /* StakingFeeIncludedCalculator.swift in Sources */,
 				DC1D4C1A2C38289F00B2A422 /* BannerNotificationManager.swift in Sources */,
 				DC2911B22C623D1E00DF53CC /* SendTransactionDispatcher.swift in Sources */,
+				EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */,
 				B09684B42D82BA1900A4512D /* App+UniversalError.swift in Sources */,
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
