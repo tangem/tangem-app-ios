@@ -133,8 +133,6 @@ struct SendFlowFactory {
     }
 
     func makeNewSellViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
-        let sendDestinationStepBuilder = SendNewDestinationStepBuilder(builder: builder)
-        let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendFinishStepBuilder = SendNewFinishStepBuilder()
