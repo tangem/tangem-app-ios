@@ -15,7 +15,7 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
     @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
@@ -205,6 +205,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
+        guard userWalletModel == nil else {
+            return
+        }
+
         guard let userWallet = CommonUserWalletModelFactory().makeModel(
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)
@@ -220,19 +224,52 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func handleUserWalletOnFinish() {
+        // resumed backup
         guard let userWalletModel else {
+            DispatchQueue.main.async {
+                self.onboardingDidFinish()
+            }
+
+            onOnboardingFinished(for: input.primaryCardId)
             return
         }
 
-        if AppSettings.shared.saveUserWallets {
-            try? userWalletRepository.add(userWalletModel: userWalletModel)
-        } else {
-            let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
-            try? userWalletRepository.add(userWalletModel: userWalletModel)
+        if let existingModel = userWalletRepository.models[userWalletModel.userWalletId],
+           existingModel.isUserWalletLocked {
+            runTask(in: self) { viewModel in
+                // this card was onboarded previously but the onboarding have shown again, e.g. for pushes.
+                let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+                let unlockResult = await unlocker.unlock()
 
-            if let currentUserWalletId {
-                userWalletRepository.delete(userWalletId: currentUserWalletId)
+                if case .success(let userWalletId, let encryptionKey) = unlockResult {
+                    let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
+                    _ = try? await viewModel.userWalletRepository.unlock(with: method)
+                }
+
+                await runOnMain {
+                    viewModel.onboardingDidFinish()
+                    viewModel.onOnboardingFinished(for: viewModel.input.primaryCardId)
+                }
             }
+        } else {
+            // add model
+            if AppSettings.shared.saveUserWallets {
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+            } else {
+                // replace model
+                let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
+                try? userWalletRepository.add(userWalletModel: userWalletModel)
+
+                if let currentUserWalletId {
+                    userWalletRepository.delete(userWalletId: currentUserWalletId)
+                }
+            }
+
+            DispatchQueue.main.async {
+                self.onboardingDidFinish()
+            }
+
+            onOnboardingFinished(for: input.primaryCardId)
         }
     }
 
@@ -288,13 +325,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func goToNextStep() {
         if isOnboardingFinished {
             handleUserWalletOnFinish()
-
-            DispatchQueue.main.async {
-                self.onboardingDidFinish()
-            }
-
-            onOnboardingFinished(for: input.primaryCardId)
-
             return
         }
 
@@ -376,8 +406,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch singleCardStep {
                     case .createWallet:
                         Analytics.log(.createWalletScreenOpened)
-                    case .topup:
-                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
@@ -385,9 +413,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     switch twinStep {
                     case .first:
                         Analytics.log(.createWalletScreenOpened)
-                    case .topup:
+                    case .done:
                         Analytics.log(.twinSetupFinished)
-                        Analytics.log(.activationScreenOpened)
                     default:
                         break
                     }
