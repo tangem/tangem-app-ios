@@ -33,7 +33,7 @@ final class CommonWCService {
 }
 
 extension CommonWCService: WCService {
-    var transactionRequestPublisher: AnyPublisher<WCHandleTransactionData, WalletConnectV2Error> {
+    var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         v2Service.transactionRequestPublisher
     }
 
@@ -85,6 +85,10 @@ extension CommonWCService: WCService {
 
     func disconnectSession(withTopic topic: String) async throws {
         try await v2Service.disconnectSession(withTopic: topic)
+    }
+
+    func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws {
+        try await v2Service.updateSession(withTopic: topic, namespaces: namespaces)
     }
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {

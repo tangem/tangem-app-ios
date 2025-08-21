@@ -94,7 +94,6 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         guard case .dAppDetails(let dAppDetailsViewState) = state else { return }
 
         let viewModel = WalletConnectDAppDomainVerificationViewModel(
-            verifiedDAppName: connectedDApp.dAppData.name,
             closeAction: { [weak self] in
                 self?.state = .dAppDetails(dAppDetailsViewState)
             }
