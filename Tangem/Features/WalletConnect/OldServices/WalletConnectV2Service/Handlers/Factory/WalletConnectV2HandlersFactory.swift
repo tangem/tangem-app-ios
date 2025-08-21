@@ -13,9 +13,10 @@ protocol WalletConnectHandlersCreator: AnyObject {
     func createHandler(
         for action: WalletConnectMethod,
         with params: AnyCodable,
-        blockchainId: String,
+        blockchainNetworkID: String,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
+        connectedDApp: WalletConnectConnectedDApp?
     ) throws -> WalletConnectMessageHandler
 }
 
@@ -43,9 +44,10 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     func createHandler(
         for action: WalletConnectMethod,
         with params: AnyCodable,
-        blockchainId: String,
+        blockchainNetworkID: String,
         signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
+        walletModelProvider: WalletConnectWalletModelProvider,
+        connectedDApp: WalletConnectConnectedDApp?
     ) throws -> WalletConnectMessageHandler {
         switch action {
             // MARK: - ETH
@@ -53,31 +55,44 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         case .personalSign:
             return try WalletConnectV2PersonalSignHandler(
                 request: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 signer: CommonWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
+
+        case .addChain:
+            return try WalletConnectAddEthereumChainMessageHandler(
+                requestParams: params,
+                connectedDApp: connectedDApp,
+                walletModelProvider: walletModelProvider
+            )
+
+        case .switchChain:
+            return try WalletConnectSwitchEthereumChainMessageHandler(requestParams: params, connectedDApp: connectedDApp)
+
         case .signTypedData, .signTypedDataV4:
             return try WalletConnectV2SignTypedDataHandler(
                 requestParams: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 signer: CommonWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
+
         case .signTransaction:
             return try WalletConnectV2SignTransactionHandler(
                 requestParams: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 transactionBuilder: ethTransactionBuilder,
                 newTransactionBuilder: newEthTransactionBuilder,
                 messageComposer: messageComposer,
                 signer: signer,
                 walletModelProvider: walletModelProvider
             )
+
         case .sendTransaction:
             return try WalletConnectV2SendTransactionHandler(
                 requestParams: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 transactionBuilder: ethTransactionBuilder,
                 newEthTransactionBuilder: newEthTransactionBuilder,
                 messageComposer: messageComposer,
@@ -87,38 +102,40 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             )
 
         // MARK: - Solana
+
         case .solanaSignMessage:
             return try WalletConnectSolanaSignMessageHandler(
                 request: params,
                 signer: SolanaWalletConnectSigner(signer: signer),
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 walletModelProvider: walletModelProvider
             )
+
         case .solanaSignTransaction:
             return try WalletConnectSolanaSignTransactionHandler(
                 request: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 signer: signer,
                 walletNetworkServiceFactory: walletNetworkServiceFactoryProvider.factory,
                 walletModelProvider: walletModelProvider
             )
+
         case .solanaSignAllTransactions:
             return try WCSolanaSignAllTransactionsHandler(
                 request: params,
-                blockchainId: blockchainId,
+                blockchainId: blockchainNetworkID,
                 signer: SolanaWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
 
         // MARK: - BNB
+
         case .bnbSign, .bnbTxConfirmation:
             // [REDACTED_TODO_COMMENT]
             // Initially this methods was found occasionally and supported without any request
             // Need to find documentation and find place where it can be tested on 2.0
             // This page https://www.bnbchain.org/en/staking has WalletConnect in status 'Coming Soon'
             throw WalletConnectV2Error.unsupportedWCMethod("BNB methods")
-        case .switchChain:
-            throw WalletConnectV2Error.unsupportedWCMethod("Switch chain for WC 2.0")
         }
     }
 }
