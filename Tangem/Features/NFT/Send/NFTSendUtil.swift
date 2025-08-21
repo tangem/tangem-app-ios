@@ -12,7 +12,8 @@ import BlockchainSdk
 
 struct NFTSendUtil {
     /// - Note: Amount is fixed for NFTs.
-    let amountToSend: Decimal
+    /// We currently support sending only a single NFT asset per transaction, even for ERC1155
+    static let amountToSend: Decimal = 1
 
     private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
@@ -20,7 +21,6 @@ struct NFTSendUtil {
     init(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         self.walletModel = walletModel
         self.userWalletModel = userWalletModel
-        amountToSend = 1 // We currently support sending only a single NFT asset per transaction, even for ERC1155
     }
 
     /// NFTs require specially prepared and created `SendCoordinator.Options` in order for the Send flow to work properly.
@@ -29,7 +29,7 @@ struct NFTSendUtil {
             isSendingSupportedByCard: userWalletModel.config.hasFeature(.send)
         )
         let tokenItem = makeTokenItem(asset: asset, mainTokenWalletModel: walletModel)
-        let tokenBalanceProvider = NFTSendFixedBalanceProvider(tokenItem: tokenItem, fixedValue: amountToSend)
+        let tokenBalanceProvider = NFTSendFixedBalanceProvider(tokenItem: tokenItem, fixedValue: NFTSendUtil.amountToSend)
         let walletModelProxy = NFTSendWalletModelProxy(
             asset: asset,
             tokenItem: tokenItem,
@@ -41,8 +41,7 @@ struct NFTSendUtil {
         let parameters = SendParameters(nonFungibleTokenParameters: (asset, collection))
 
         return SendCoordinator.Options(
-            walletModel: walletModelProxy,
-            userWalletModel: userWalletModel,
+            input: .init(userWalletModel: userWalletModel, walletModel: walletModelProxy),
             type: .send(parameters: parameters),
             source: .nft
         )
