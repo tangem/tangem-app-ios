@@ -35,7 +35,6 @@ struct SS58Tests {
 
         let addressData = ss58.accountData(from: data)
 
-        #expect(addressData != nil)
         #expect(data != addressData)
     }
 
