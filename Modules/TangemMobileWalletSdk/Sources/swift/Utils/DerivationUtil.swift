@@ -30,14 +30,7 @@ public enum DerivationUtil {
         curve: EllipticCurve
     ) throws -> ExtendedPublicKey {
         switch curve {
-        case .ed25519:
-            return try publicKeyCardano(
-                entropy: entropy,
-                passphrase: passphrase,
-                derivationPath: derivationPath,
-                curve: curve
-            )
-        case .secp256k1, .ed25519_slip0010:
+        case .secp256k1, .ed25519_slip0010, .ed25519:
             let result = try publicKeyDefault(
                 entropy: entropy,
                 passphrase: passphrase,
@@ -113,41 +106,6 @@ private extension DerivationUtil {
         let chainCode = withUnsafeBytes(of: node.chain_code) { Data($0) }
 
         return ExtendedPublicKey(publicKey: publicKey, chainCode: chainCode)
-    }
-
-    static func publicKeyCardano(
-        entropy: Data,
-        passphrase: String,
-        derivationPath: DerivationPath?,
-        curve: EllipticCurve
-    ) throws -> ExtendedPublicKey {
-        guard case .ed25519 = curve else {
-            throw MobileWalletError.invalidCurve(curve)
-        }
-
-        let spendingKey = try publicKeyDefault(
-            entropy: entropy,
-            passphrase: passphrase,
-            derivationPath: derivationPath,
-            curve: curve
-        )
-
-        guard derivationPath != nil else {
-            return spendingKey
-        }
-
-        let stakingKey = try publicKeyDefault(
-            entropy: entropy,
-            passphrase: passphrase,
-            derivationPath: CardanoUtil.stakingDerivationPath,
-            curve: curve
-        )
-
-        let publicKey = Data(
-            spendingKey.publicKey + spendingKey.chainCode + stakingKey.publicKey + stakingKey.chainCode
-        )
-
-        return ExtendedPublicKey(publicKey: publicKey, chainCode: spendingKey.chainCode)
     }
 }
 
