@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemExpress
+import TangemFoundation
 import TangemUIUtils
 
 class SendRoutableMock: SendRoutable {
@@ -18,7 +19,7 @@ class SendRoutableMock: SendRoutable {
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
-    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
+    func openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {}
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
@@ -31,4 +32,5 @@ class SendRoutableMock: SendRoutable {
     func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
+    func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
 }
