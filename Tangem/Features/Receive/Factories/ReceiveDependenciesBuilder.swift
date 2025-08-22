@@ -31,9 +31,17 @@ struct ReceiveDependenciesBuilder {
     func makeSelectorReceiveAssetsSectionFactory(with coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsSectionFactory {
         switch tokenItem.blockchain {
         case .ethereum:
-            EthereumSelectorReceiveAssetsSectionFactory(tokenItem: tokenItem, coordinator: coordinator)
+            EthereumSelectorReceiveAssetsSectionFactory(
+                tokenItem: tokenItem,
+                analyticsLogger: makeAnalyticsLogger(),
+                coordinator: coordinator
+            )
         default:
-            CommonSelectorReceiveAssetsSectionFactory(tokenItem: tokenItem, coordinator: coordinator)
+            CommonSelectorReceiveAssetsSectionFactory(
+                tokenItem: tokenItem,
+                analyticsLogger: makeAnalyticsLogger(),
+                coordinator: coordinator
+            )
         }
     }
 
@@ -49,5 +57,9 @@ struct ReceiveDependenciesBuilder {
 
     func makeReceiveBottomSheetNotificationInputsFactory() -> ReceiveBottomSheetNotificationInputsFactory {
         ReceiveBottomSheetNotificationInputsFactory(flow: flow)
+    }
+
+    func makeAnalyticsLogger() -> ReceiveAnalyticsLogger {
+        CommonReceiveAnalyticsLogger(flow: flow, tokenItem: tokenItem)
     }
 }
