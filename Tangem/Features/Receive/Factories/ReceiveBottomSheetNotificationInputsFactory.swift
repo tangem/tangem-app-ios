@@ -136,7 +136,8 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .alephium),
              (_, .vanar),
              (_, .zkLinkNova),
-             (_, .pepecoin):
+             (_, .pepecoin),
+             (_, .hyperliquidEVM):
             // No additional notifications for these blockchains
             return baseNotificationInputs
         }
