@@ -72,13 +72,13 @@ extension StakingFeatureProvider {
             StakingItem(network: .tron, contractAddress: nil),
             StakingItem(network: .ethereum, contractAddress: StakingConstants.polygonContractAddress),
             StakingItem(network: .binance, contractAddress: nil),
+            StakingItem(network: .ton, contractAddress: nil),
+            StakingItem(network: .cardano, contractAddress: nil),
         ]
     }
 
     static var testableBlockchainItems: Set<StakingItem> {
         [
-            StakingItem(network: .ton, contractAddress: nil),
-            StakingItem(network: .cardano, contractAddress: nil),
         ]
     }
 
