@@ -59,7 +59,7 @@ struct SendDependenciesBuilder {
     func walletHeaderText(for actionType: SendFlowActionType) -> String {
         switch actionType {
         case .unstake: Localization.stakingStakedAmount
-        default: input.userWalletName
+        default: input.userWalletInfo.name
         }
     }
 
@@ -155,7 +155,7 @@ struct SendDependenciesBuilder {
     func makeTransactionDispatcher() -> TransactionDispatcher {
         TransactionDispatcherFactory(
             walletModel: walletModel,
-            signer: input.signer
+            signer: input.userWalletInfo.signer
         )
         .makeSendDispatcher()
     }
@@ -166,7 +166,7 @@ struct SendDependenciesBuilder {
     ) -> TransactionDispatcher {
         StakingTransactionDispatcher(
             walletModel: walletModel,
-            transactionSigner: input.signer,
+            transactionSigner: input.userWalletInfo.signer,
             pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
             stakingTransactionMapper: makeStakingTransactionMapper(),
             analyticsLogger: analyticsLogger,
@@ -202,7 +202,7 @@ struct SendDependenciesBuilder {
             balanceProvider: walletModel.availableBalanceProvider,
             transactionDispatcher: transactionDispatcher,
             transactionCreator: walletModel.transactionCreator,
-            transactionSigner: input.signer,
+            transactionSigner: input.userWalletInfo.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             predefinedValues: predefinedValues
@@ -396,7 +396,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeSendSummaryTitleProvider() -> SendSummaryTitleProvider {
-        CommonSendSummaryTitleProvider(tokenItem: walletModel.tokenItem, walletName: input.userWalletName)
+        CommonSendSummaryTitleProvider(tokenItem: walletModel.tokenItem, walletName: input.userWalletInfo.name)
     }
 
     // MARK: - Sell
@@ -414,7 +414,7 @@ struct SendDependenciesBuilder {
     ) -> SendWithSwapModel {
         SendWithSwapModel(
             userToken: makeSourceToken(),
-            transactionSigner: input.signer,
+            transactionSigner: input.userWalletInfo.signer,
             feeIncludedCalculator: makeFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             sendReceiveTokenBuilder: makeSendReceiveTokenBuilder(),
@@ -426,7 +426,7 @@ struct SendDependenciesBuilder {
 
     func makeSourceToken() -> SendSourceToken {
         SendSourceToken(
-            wallet: input.userWalletName,
+            wallet: input.userWalletInfo.name,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             tokenIconInfo: makeTokenIconInfo(),
@@ -697,7 +697,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeStakingSummaryTitleProvider(actionType: SendFlowActionType) -> SendSummaryTitleProvider {
-        StakingSendSummaryTitleProvider(actionType: actionType, tokenItem: walletModel.tokenItem, walletName: input.userWalletName)
+        StakingSendSummaryTitleProvider(actionType: actionType, tokenItem: walletModel.tokenItem, walletName: input.userWalletInfo.name)
     }
 
     // MARK: - Onramp
@@ -709,7 +709,7 @@ struct SendDependenciesBuilder {
         analyticsLogger: some OnrampSendAnalyticsLogger
     ) -> OnrampModel {
         OnrampModel(
-            userWalletId: input.userWalletId.stringValue,
+            userWalletId: input.userWalletInfo.id.stringValue,
             walletModel: walletModel,
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
@@ -757,7 +757,7 @@ struct SendDependenciesBuilder {
         onrampRedirectingBuilder: OnrampRedirectingBuilder
     ) -> OnrampBaseDataBuilder {
         CommonOnrampBaseDataBuilder(
-            config: input.userWalletConfig,
+            config: input.userWalletInfo.config,
             onrampRepository: onrampRepository,
             onrampDataRepository: onrampDataRepository,
             providersBuilder: providersBuilder,
@@ -772,7 +772,7 @@ struct SendDependenciesBuilder {
 
     func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager {
         CommonPendingOnrampTransactionsManager(
-            userWalletId: input.userWalletId.stringValue,
+            userWalletId: input.userWalletInfo.id.stringValue,
             walletModel: walletModel,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider
         )
@@ -793,10 +793,7 @@ extension SendDependenciesBuilder {
         // [REDACTED_TODO_COMMENT]
         let walletModel: any WalletModel
 
-        let userWalletName: String
-        let userWalletId: UserWalletId
-        let userWalletConfig: UserWalletConfig
-        let signer: TangemSigner
+        let userWalletInfo: SendWalletInfo
         let emailDataProvider: EmailDataProvider
 
         let expressInput: CommonExpressDependenciesFactory.Input
@@ -806,10 +803,13 @@ extension SendDependenciesBuilder {
         init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
             self.walletModel = walletModel
 
-            userWalletName = userWalletModel.name
-            userWalletId = userWalletModel.userWalletId
-            userWalletConfig = userWalletModel.config
-            signer = userWalletModel.signer
+            userWalletInfo = .init(
+                name: userWalletModel.name,
+                id: userWalletModel.userWalletId,
+                config: userWalletModel.config,
+                signer: userWalletModel.signer
+            )
+
             emailDataProvider = userWalletModel as EmailDataProvider
 
             expressInput = .init(userWalletModel: userWalletModel)
