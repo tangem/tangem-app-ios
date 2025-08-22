@@ -50,7 +50,8 @@ struct ExpressManagerMapper {
             source: source,
             destination: destination,
             amount: request.amount,
-            providerInfo: .init(id: providerId, type: providerType)
+            providerInfo: .init(id: providerId, type: providerType),
+            operationType: request.operationType
         )
     }
 }
