@@ -12,6 +12,11 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_add_limit_dialog_description" = "You cannot create more than %1$@ accounts. Archive one to add new.";
+"account_add_limit_dialog_title" = "Can’t add new account";
+"account_archived_accounts" = "Archived accounts";
+"account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
+"account_archived_recover_dialog_title" = "Recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
 "account_details_archive_action" = "Archive";
@@ -26,6 +31,8 @@
 "account_form_placeholder_new_account" = "New account";
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
+"account_label_tokens_info" = "%1$@ in %2$@";
+"account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
 "account_unsaved_dialog_action_second" = "Discard";
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
@@ -51,10 +58,6 @@
 "add_custom_token_choose_network" = "Choisissez le réseau";
 "add_custom_token_title" = "Ajouter un jeton personnalisé";
 "add_tokens_title" = "Gérer les jetons";
-"add_wallet_add_existing" = "Add Existing Wallet";
-"add_wallet_buy_tangem" = "Buy Tangem Wallet";
-"add_wallet_create_new" = "Create New Wallet";
-"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "Envoyez uniquement %1$@ (%2$@) depuis les réseaux %3$@ à cette adresse. L'utilisation d'autres jetons et réseaux peut entraîner une perte de fonds.";
 "address_type_default" = "Défaut";
 "address_type_legacy" = "Héritage";
@@ -120,6 +123,16 @@
 "beta_mode_warning_message" = "Selon les développeurs de la blockchain, les jetons Kaspa sont actuellement en version bêta. Restez à l'écoute des mises à jour !";
 "beta_mode_warning_title" = "Mode bêta";
 "biometry_touch_id_reason" = "Touch ID est utilisé pour enregistrer vos cartes dans l'application";
+"bitcoin_promo_activation_error_title" = "";
+"bitcoin_promo_activation_error" = "An error occurred while processing your promo code. Please try again later.";
+"bitcoin_promo_activation_success_title" = "Promo code activated";
+"bitcoin_promo_activation_success" = "Your promo code has been successfully activated. A bonus of 10 USDT in Bitcoin will be credited in 14 days.";
+"bitcoin_promo_already_activated_title" = "";
+"bitcoin_promo_already_activated" = "This promo code has already been used and cannot be activated again.";
+"bitcoin_promo_invalid_code_title" = "";
+"bitcoin_promo_invalid_code" = "This promo code is not valid and cannot be activated.";
+"bitcoin_promo_no_address_title" = "";
+"bitcoin_promo_no_address" = "A Bitcoin address is required to receive the bonus. Please add one to your wallet and retry the activation.";
 "button_start_backup_process" = "Démarrer le processus de sauvegarde";
 "buy_token_description" = "Utilisez une carte bancaire ou d'autres moyens de paiement";
 "card_settings_access_code_recovery_disabled_description" = "Désactivez cette option si vous ne voulez pas que cette carte soit utilisée pour réinitialiser les codes d'accès sur d'autres cartes de ce portefeuille. Veuillez noter que cela vous empêchera également de réinitialiser le code d'accès sur cette carte.";
@@ -147,6 +160,7 @@
 "cardano_max_amount_has_token_title" = "ADA insuffisant";
 "common_accept" = "Accepter";
 "common_access_denied" = "Accès refusé";
+"common_accounts" = "Accounts";
 "common_add_to_portfolio" = "Ajouter au portfolio";
 "common_add_token" = "Ajouter un jeton";
 "common_add" = "Ajouter";
@@ -685,6 +699,9 @@
 "notification_referral_promo_button" = "Rejoignez maintenant";
 "notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10 %% de réduction.";
 "notification_referral_promo_title" = "Recevez des RÉCOMPENSES pour chaque ami !";
+"notification_sepa_button" = "Buy crypto";
+"notification_sepa_text" = "Enjoy zero fees when purchasing crypto via SEPA transfer.";
+"notification_sepa_title" = "Buy Crypto with SEPA";
 "onboarding_access_code_feature_1_description" = "Vous devez définir un seul code d'accès pour protéger tous vos appareils.";
 "onboarding_access_code_feature_1_title" = "Protéger";
 "onboarding_access_code_feature_2_description" = "Vous pourrez définir un code d'accès individuel sur chaque carte plus tard";
