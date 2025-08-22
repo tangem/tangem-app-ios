@@ -23,6 +23,7 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
             }
 
             // Tap the scan button directly after existence check
+            Thread.sleep(forTimeInterval: 0.5)
             scanButton.tap()
 
             // Find the mock wallet button in the alert
