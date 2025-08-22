@@ -409,6 +409,7 @@ private extension Blockchain {
         case .vanar: return nil
         case .zkLinkNova: return nil
         case .pepecoin: return nil
+        case .hyperliquidEVM: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -503,6 +504,7 @@ private extension Blockchain {
         case .vanar: return nil
         case .zkLinkNova: return nil
         case .pepecoin: return nil
+        case .hyperliquidEVM: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
