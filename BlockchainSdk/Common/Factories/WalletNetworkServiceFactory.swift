@@ -90,7 +90,8 @@ extension WalletNetworkServiceFactory {
              .apeChain,
              .sonic,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .hyperliquidEVM:
             return makeEthereumNetworkService(for: blockchain)
         case .rsk:
             throw Error.notImplemeneted
