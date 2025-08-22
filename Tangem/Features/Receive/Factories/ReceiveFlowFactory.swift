@@ -35,8 +35,13 @@ struct ReceiveFlowFactory {
         let dependencies = makeDependenciesBuilder()
         let interactor = dependencies.makeSelectorReceiveAssetsInteractor()
         let sectionFactory = dependencies.makeSelectorReceiveAssetsSectionFactory(with: coordinator)
+        let analyticsLogger = dependencies.makeAnalyticsLogger()
 
-        return SelectorReceiveAssetsViewModel(interactor: interactor, sectionFactory: sectionFactory)
+        return SelectorReceiveAssetsViewModel(
+            interactor: interactor,
+            analyticsLogger: analyticsLogger,
+            sectionFactory: sectionFactory
+        )
     }
 
     func makeTokenAlertReceiveAssetViewModel() -> TokenAlertReceiveAssetsViewModel {
@@ -50,10 +55,14 @@ struct ReceiveFlowFactory {
     }
 
     func makeQRCodeReceiveAssetViewModel(with addressInfo: ReceiveAddressInfo) -> QRCodeReceiveAssetsViewModel {
-        QRCodeReceiveAssetsViewModel(
+        let dependencies = makeDependenciesBuilder()
+        let analyticsLogger = dependencies.makeAnalyticsLogger()
+
+        return QRCodeReceiveAssetsViewModel(
             flow: flow,
             tokenItem: tokenItem,
             addressInfo: addressInfo,
+            analyticsLogger: analyticsLogger,
             coordinator: coordinator
         )
     }
