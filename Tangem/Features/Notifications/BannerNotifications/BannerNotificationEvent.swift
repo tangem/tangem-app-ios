@@ -31,14 +31,14 @@ extension PromotionProgramName {
     var title: String {
         switch self {
         case .ring: Localization.ringPromoTitle
-        case .onrampSEPA: "Buy Crypto with SEPA"
+        case .onrampSEPA: Localization.notificationSepaTitle
         }
     }
 
     var description: String? {
         switch self {
         case .ring: Localization.ringPromoText
-        case .onrampSEPA: "Enjoy zero fees when purchasing crypto via SEPA transfer."
+        case .onrampSEPA: Localization.notificationSepaText
         }
     }
 
