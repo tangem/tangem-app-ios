@@ -46,6 +46,7 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/hedera-sdk-swift.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", branch: "feature/[REDACTED_INFO]_migrate_bsdk_to_spm"),
         // Moya
+        .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
         .package(url: "https://github.com/tesseract-one/ScaleCodec.swift", exact: "0.3.1"),
         .package(url: "git@github.com:tangem-developments/Solana.Swift.git", exact: "1.2.0-tangem15"),
         .package(url: "git@github.com:tangem-developments/stellar-ios-mac-sdk.git", exact: "3.1.0-tangem1"),
@@ -187,6 +188,7 @@ var serviceModules: [PackageDescription.Target] {
                 "IcpKit",
                 "Moya",
                 .product(name: "OrderedCollections", package: "swift-collections"),
+                "PotentCodables", // For `PotentCBOR` only
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
