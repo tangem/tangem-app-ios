@@ -102,7 +102,8 @@ struct AddressTypesConfig {
              .alephium,
              .vanar,
              .zkLinkNova,
-             .pepecoin:
+             .pepecoin,
+             .hyperliquidEVM:
             return [.default]
         }
     }
