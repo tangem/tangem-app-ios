@@ -211,7 +211,8 @@ private extension CommonExpressModulesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap
+            supportedProviderTypes: .swap,
+            operationType: .swap
         )
 
         let interactor = ExpressInteractor(
