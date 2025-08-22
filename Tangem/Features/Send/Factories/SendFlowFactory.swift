@@ -8,16 +8,22 @@
 
 import Foundation
 import TangemStaking
+import TangemFoundation
 
 struct SendFlowFactory {
-    private let builder: SendDependenciesBuilder
+    private let walletInfo: SendWalletInfo
     private let walletModel: any WalletModel
     private let source: SendCoordinator.Source
 
+    private let builder: SendDependenciesBuilder
+
     init(input: SendDependenciesBuilder.Input, source: SendCoordinator.Source) {
-        builder = SendDependenciesBuilder(input: input)
+        walletInfo = input.userWalletInfo
         walletModel = input.walletModel
+
         self.source = source
+
+        builder = SendDependenciesBuilder(input: input)
     }
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
@@ -69,7 +75,7 @@ struct SendFlowFactory {
 
     func makeNewNFTSendViewModel(parameters: SendParameters.NonFungibleTokenParameters, router: SendRoutable) -> SendViewModel {
         let sendDestinationStepBuilder = SendNewDestinationStepBuilder(builder: builder)
-        let sendAmountStepBuilder = NFTAssetStepBuilder(asset: parameters.asset, collection: parameters.collection)
+        let nftAssetStepBuilder = NFTAssetStepBuilder(wallet: walletInfo.name, asset: parameters.asset, collection: parameters.collection)
         let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
         let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
         let sendFinishStepBuilder = SendNewFinishStepBuilder()
@@ -77,7 +83,7 @@ struct SendFlowFactory {
         let baseBuilder = NewNFTSendFlowBaseBuilder(
             walletModel: walletModel,
             coordinatorSource: source,
-            nftAssetStepBuilder: sendAmountStepBuilder,
+            nftAssetStepBuilder: nftAssetStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
             sendSummaryStepBuilder: sendSummaryStepBuilder,
@@ -245,4 +251,11 @@ struct SendFlowFactory {
 
         return baseBuilder.makeSendViewModel(router: router)
     }
+}
+
+struct SendWalletInfo {
+    let name: String
+    let id: UserWalletId
+    let config: UserWalletConfig
+    let signer: TangemSigner
 }
