@@ -14,17 +14,20 @@ public struct ExpressSwappableDataItem {
     public let destination: DestinationWalletInfo
     public let amount: Decimal
     public let providerInfo: ProviderInfo
+    public let operationType: ExpressOperationType
 
     public init(
         source: SourceWalletInfo,
         destination: DestinationWalletInfo,
         amount: Decimal,
-        providerInfo: ProviderInfo
+        providerInfo: ProviderInfo,
+        operationType: ExpressOperationType
     ) {
         self.source = source
         self.destination = destination
         self.amount = amount
         self.providerInfo = providerInfo
+        self.operationType = operationType
     }
 
     func sourceAmountWEI() -> String {
