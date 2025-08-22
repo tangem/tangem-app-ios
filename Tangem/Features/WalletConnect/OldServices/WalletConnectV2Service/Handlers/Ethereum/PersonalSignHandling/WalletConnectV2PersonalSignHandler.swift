@@ -89,7 +89,7 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
             return .response(AnyCodable(signedMessage.hexString.addHexPrefix().lowercased()))
         } catch {
             WCLogger.error("Failed to sign message", error: error)
-            return .error(.internalError)
+            throw error
         }
     }
 }
