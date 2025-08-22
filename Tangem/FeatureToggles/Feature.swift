@@ -15,7 +15,6 @@ enum Feature: String, Hashable, CaseIterable {
     case nft
     case walletConnectUI
     case logs
-    case newSendUI
     case sendViaSwap
     case mobileWallet
     case pushTransactionNotifications
@@ -34,7 +33,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
         case .logs: return "Logs"
-        case .newSendUI: return "New Send UI"
         case .sendViaSwap: return "Send via Swap"
         case .mobileWallet: return "Mobile wallet"
         case .pushTransactionNotifications: return "Push Transaction Notifications"
@@ -55,15 +53,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return .version("5.25")
         case .walletConnectUI: return .version("5.27")
         case .logs: return .version("5.25")
-        case .newSendUI: return .unspecified
-        case .sendViaSwap: return .unspecified
+        case .sendViaSwap: return .version("5.28")
         case .mobileWallet: return .unspecified
         case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
-        case .wcSolanaALT: return .version("5.28") // [REDACTED_TODO_COMMENT]
+        case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
-        case .nftNewSendUI: return .unspecified
-        case .receiveENS: return .unspecified
+        case .nftNewSendUI: return .version("5.28")
+        case .receiveENS: return .version("5.28")
         case .sellNewSendUI: return .unspecified
         }
     }
