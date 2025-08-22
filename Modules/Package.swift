@@ -56,6 +56,7 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
+        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.5")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -185,6 +186,7 @@ var serviceModules: [PackageDescription.Target] {
                 .product(name: "Hedera", package: "hedera-sdk-swift"),
                 "IcpKit",
                 "Moya",
+                .product(name: "OrderedCollections", package: "swift-collections"),
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "SolanaSwift", package: "Solana.Swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
