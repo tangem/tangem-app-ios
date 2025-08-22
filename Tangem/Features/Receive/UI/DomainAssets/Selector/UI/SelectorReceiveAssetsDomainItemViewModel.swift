@@ -18,13 +18,20 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
 
     private let domainName: String
     private let addressInfo: ReceiveAddressInfo
+    private let analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger
     private weak var coordinator: SelectorReceiveAssetItemRoutable?
 
     // MARK: - Init
 
-    init(domainName: String, addressInfo: ReceiveAddressInfo, coordinator: SelectorReceiveAssetItemRoutable?) {
+    init(
+        domainName: String,
+        addressInfo: ReceiveAddressInfo,
+        analyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger,
+        coordinator: SelectorReceiveAssetItemRoutable?
+    ) {
         self.domainName = domainName
         self.addressInfo = addressInfo
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
@@ -35,6 +42,7 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
     }
 
     func copyAddressButtonDidTap() {
-        coordinator?.copyToClipboard(with: addressInfo.address)
+        analyticsLogger.logCopyDomainNameAddressButtonTapped()
+        coordinator?.copyToClipboard(with: domainName)
     }
 }
