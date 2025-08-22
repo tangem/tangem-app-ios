@@ -12,6 +12,11 @@
 "access_code_navtitle" = "Access code";
 "accessibility_action_long_press" = "Long press";
 "accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"account_add_limit_dialog_description" = "You cannot create more than %1$@ accounts. Archive one to add new.";
+"account_add_limit_dialog_title" = "Can’t add new account";
+"account_archived_accounts" = "Archived accounts";
+"account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
+"account_archived_recover_dialog_title" = "Recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
 "account_details_archive_action" = "Archive";
@@ -26,6 +31,8 @@
 "account_form_placeholder_new_account" = "New account";
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
+"account_label_tokens_info" = "%1$@ in %2$@";
+"account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
 "account_unsaved_dialog_action_second" = "Discard";
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
@@ -51,10 +58,6 @@
 "add_custom_token_choose_network" = "Оберіть мережу";
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
-"add_wallet_add_existing" = "Add Existing Wallet";
-"add_wallet_buy_tangem" = "Buy Tangem Wallet";
-"add_wallet_create_new" = "Create New Wallet";
-"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "Надсилайте тільки %1$@ (%2$@) в мережі %3$@ на цю адресу. Використання іншої мережі може призвести до втрати коштів.";
 "address_type_default" = "За замовчуванням";
 "address_type_legacy" = "Застарілий";
@@ -120,6 +123,16 @@
 "beta_mode_warning_message" = "Згідно інформації від розробників мережі, токени Kaspa знаходяться у режимі бета. Слідкуйте за оновленнями!";
 "beta_mode_warning_title" = "Бета режим";
 "biometry_touch_id_reason" = "Touch ID використовується для збереження ваших карток та кілець у додатку";
+"bitcoin_promo_activation_error_title" = "Помилка активації";
+"bitcoin_promo_activation_error" = "Під час обробки промокоду сталася помилка. Будь ласка, спробуйте пізніше.";
+"bitcoin_promo_activation_success_title" = "Промокод активовано";
+"bitcoin_promo_activation_success" = "Ваш промокод успішно активовано. Бонус 10 USDT у Bitcoin буде зараховано через 14 днів.";
+"bitcoin_promo_already_activated_title" = "Код недоступний";
+"bitcoin_promo_already_activated" = "Цей промокод уже був використаний і не може бути активований повторно.";
+"bitcoin_promo_invalid_code_title" = "Невірний код";
+"bitcoin_promo_invalid_code" = "Цей промокод недійсний і не може бути активований.";
+"bitcoin_promo_no_address_title" = "Потрібна Bitcoin-адреса";
+"bitcoin_promo_no_address" = "Для зарахування бонусу потрібна Bitcoin-адреса. Додайте її до портфеля та повторіть активацію.";
 "button_start_backup_process" = "Почніть процес резервного копіювання";
 "buy_token_description" = "Використовуйте банківську картку або інші способи оплати";
 "card_settings_access_code_recovery_disabled_description" = "Вимкніть цю опцію, якщо не хочете, щоб ця картка використовувалася для скидання кодів доступу на інших картках у цьому гаманці. Зверніть увагу, скидання коду доступу також не буде доступним на цій картці.";
@@ -147,6 +160,7 @@
 "cardano_max_amount_has_token_title" = "Недостатньо ADA";
 "common_accept" = "Прийняти";
 "common_access_denied" = "Доступ заборонено";
+"common_accounts" = "Accounts";
 "common_add_to_portfolio" = "Додати у портфель";
 "common_add_token" = "Додати токен";
 "common_add" = "Додати";
@@ -685,6 +699,9 @@
 "notification_referral_promo_button" = "Приєднатися";
 "notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10%% на картку Tangem!";
 "notification_referral_promo_title" = "Отримуй бонуси за кожного друга!";
+"notification_sepa_button" = "Buy crypto";
+"notification_sepa_text" = "Enjoy zero fees when purchasing crypto via SEPA transfer.";
+"notification_sepa_title" = "Buy Crypto with SEPA";
 "onboarding_access_code_feature_1_description" = "Налаштуйте єдиний код доступу для захисту всіх ваших карток або кілець";
 "onboarding_access_code_feature_1_title" = "Захист";
 "onboarding_access_code_feature_2_description" = "Встановіть індивідуальний код доступу для кожної картки або кільця пізніше.";
