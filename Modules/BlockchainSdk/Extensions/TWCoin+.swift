@@ -137,7 +137,8 @@ extension CoinType {
              .sonic,
              .alephium,
              .vanar,
-             .pepecoin:
+             .pepecoin,
+             .hyperliquidEVM:
             // Blockchains that are not in WalletCore yet
             return nil
         }
