@@ -55,7 +55,6 @@ let package = Package(
         // TangemSDK
         .package(url: "git@github.com:tangem-developments/wallet-core-binaries-ios.git", exact: "4.1.20-tangem7"),
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
-        // Transitive BSDK deps:
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
@@ -178,6 +177,7 @@ var serviceModules: [PackageDescription.Target] {
                 // [REDACTED_TODO_COMMENT]
                 // BSDK external deps:
                 "AnyCodable",
+                "BigInt",
                 .product(name: "BinanceChain", package: "SwiftBinanceChain"),
                 .product(name: "Sodium", package: "swift-sodium"),
                 "CombineExt",
@@ -199,8 +199,6 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemLocalization",
                 "TangemLogger",
                 "TangemNetworkUtils",
-                // Transitive BSDK deps:
-                "BigInt",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
