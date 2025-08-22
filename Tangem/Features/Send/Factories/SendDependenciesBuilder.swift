@@ -30,7 +30,8 @@ struct SendDependenciesBuilder {
             initialWallet: input.walletModel.asExpressInteractorWallet,
             destinationWallet: .none,
             // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex]
+            supportedProviderTypes: [.cex],
+            operationType: .swapAndSend
         )
     }
 

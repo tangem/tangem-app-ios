@@ -2206,6 +2206,7 @@
 		EF49C0692CAD85E70062AF06 /* CommonOnrampManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49C0682CAD85E40062AF06 /* CommonOnrampManager.swift */; };
 		EF49C06C2CAD8A7B0062AF06 /* OnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49C06B2CAD8A790062AF06 /* OnrampRepository.swift */; };
 		EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B70BF2B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift */; };
+		EF4BD6E62E585F90008F2259 /* ExpressOperationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BD6E52E585F90008F2259 /* ExpressOperationType.swift */; };
 		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
 		EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */; };
 		EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */; };
@@ -5040,6 +5041,7 @@
 		EF49C0682CAD85E40062AF06 /* CommonOnrampManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampManager.swift; sourceTree = "<group>"; };
 		EF49C06B2CAD8A790062AF06 /* OnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRepository.swift; sourceTree = "<group>"; };
 		EF4B70BF2B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetSearchableHeaderView.swift; sourceTree = "<group>"; };
+		EF4BD6E52E585F90008F2259 /* ExpressOperationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressOperationType.swift; sourceTree = "<group>"; };
 		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEF8228ACF0E700C5D1BE /* UserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListManager.swift; sourceTree = "<group>"; };
 		EF4BEFDE28AD3EE500C5D1BE /* ContentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentState.swift; sourceTree = "<group>"; };
@@ -13600,6 +13602,7 @@
 		EF49C05E2CAD85690062AF06 /* Swap */ = {
 			isa = PBXGroup;
 			children = (
+				EF4BD6E52E585F90008F2259 /* ExpressOperationType.swift */,
 				EF9CE9FE2D19B9930011BF4C /* ExpressAmount.swift */,
 				EF9CE9FC2D19B9800011BF4C /* ExpressFee.swift */,
 				EFDD6EDC2CBCF3EA00804205 /* ExpressProviderUpdateSource.swift */,
@@ -16113,6 +16116,7 @@
 				3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				B66BBD8A2E18B4B200446329 /* XCRemoteSwiftPackageReference "BigInt" */,
 				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
+				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -18807,6 +18811,7 @@
 				EF60C8BF2E015258005D538C /* ExpressSwappableDataItem.swift in Sources */,
 				EF9E2A222B4F0CD100418559 /* ExpressTransactionData.swift in Sources */,
 				EF13996C2CBCFD1700AC9E2B /* OnrampQuote.swift in Sources */,
+				EF4BD6E62E585F90008F2259 /* ExpressOperationType.swift in Sources */,
 				EF9CE9FD2D19B9800011BF4C /* ExpressFee.swift in Sources */,
 				EF49C0632CAD85A00062AF06 /* OnrampCountry.swift in Sources */,
 				EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */,
@@ -23762,6 +23767,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.5;
+			};
+		};
 		3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
