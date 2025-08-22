@@ -17,6 +17,9 @@ fail('Please provide a more detailed PR description.') if github.pr_body.length 
 # Warn if there are any TODOs or FIXMEs left in the code
 todo_fixme_found = git.modified_files.grep(/\.swift$/).any? do |file|
   File.read(file).match?(/TODO|FIXME/)
+rescue StandardError => e
+  puts e.message
+  false
 end
 message('❗️There are TODOs/FIXMEs left in the code. Consider fixing them before merge.❗️') if todo_fixme_found
 
