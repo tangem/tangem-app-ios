@@ -187,6 +187,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.zklinknovaFill : Tokens.zklinknova
         case .pepecoin:
             filled ? Tokens.pepecoinFill : Tokens.pepecoin
+        case .hyperliquidEVM:
+            filled ? Tokens.hyperliquidFill : Tokens.hyperliquid
         }
     }
 
