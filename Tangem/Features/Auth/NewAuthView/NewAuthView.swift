@@ -15,12 +15,6 @@ struct NewAuthView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var unlockButtonHeight: CGFloat = 0
-
-    private var walletsBottomPadding: CGFloat {
-        UIApplication.safeAreaInsets.bottom + unlockButtonHeight
-    }
-
     var body: some View {
         stateView
             .animation(.default, value: viewModel.state)
@@ -53,21 +47,18 @@ private extension NewAuthView {
     }
 
     func walletsView(item: ViewModel.WalletsStateItem) -> some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 32) {
-                    infoView(item: item.info)
-                    walletsView(items: item.wallets)
-                }
-                .padding(.top, 32)
-                .padding(.horizontal, 16)
-                .padding(.bottom, walletsBottomPadding)
-                .ignoresSafeArea(edges: .bottom)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 32) {
+                infoView(item: item.info)
+                walletsView(items: item.wallets)
             }
-
+            .padding(.top, 32)
+            .padding(.horizontal, 16)
+            .ignoresSafeArea(edges: .bottom)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 10) {
             item.unlock.map {
                 unlockButton(item: $0)
-                    .readGeometry(\.size.height, bindTo: $unlockButtonHeight)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
             }
