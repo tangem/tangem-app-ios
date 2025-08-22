@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 public struct StoryView: View {
     @ObservedObject private var viewModel: StoryViewModel
@@ -120,6 +121,7 @@ public struct StoryView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.closeButton)
     }
 
     private static var iOS18Available: Bool {
