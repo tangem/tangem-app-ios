@@ -30,9 +30,11 @@ class ReceiveMainViewModel: ObservableObject {
     private lazy var receiveFlowFactory: ReceiveFlowFactory = .init(
         flow: options.flow,
         tokenItem: options.tokenItem,
-        addressInfos: options.addressInfos,
+        addressTypesProvider: options.addressTypesProvider,
         coordinator: self
     )
+
+    private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
 
     // MARK: - Helpers
 
@@ -72,8 +74,7 @@ class ReceiveMainViewModel: ObservableObject {
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
-        if options.tokenItem.isToken {
-            // [REDACTED_TODO_COMMENT]
+        if receiveTokenWithdrawNoticeInteractor.shouldShowWithdrawalAlert(for: options.tokenItem) {
             return true
         }
 
@@ -86,8 +87,8 @@ class ReceiveMainViewModel: ObservableObject {
 extension ReceiveMainViewModel {
     struct Options {
         let tokenItem: TokenItem
-        let addressInfos: [ReceiveAddressInfo]
         let flow: ReceiveFlow
+        let addressTypesProvider: ReceiveAddressTypesProvider
     }
 }
 
