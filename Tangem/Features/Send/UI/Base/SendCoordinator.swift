@@ -70,7 +70,7 @@ class SendCoordinator: CoordinatorObject {
             rootViewModel = factory.makeNewNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
             rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
-        case .send where FeatureProvider.isAvailable(.newSendUI):
+        case .send where FeatureProvider.isAvailable(.sendViaSwap):
             rootViewModel = factory.makeNewSendViewModel(router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
