@@ -3135,7 +3135,7 @@
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
 		EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032332E54C11E00573568 /* PromocodeActivationView.swift */; };
 		EA4032372E54C13C00573568 /* PromocodeActivationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */; };
-		EA4032592E55F02E00573568 /* PromocodeActivationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032582E55F02E00573568 /* PromocodeActivationResponse.swift */; };
+		EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */; };
 		EA46738F2E37F4800052E196 /* XRPAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */; };
 		EA4A4F312E2FAE9B0059E282 /* CloreTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */; };
 		EA669FF72E390D200003688A /* XRPTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */; };
@@ -7197,7 +7197,7 @@
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
 		EA4032332E54C11E00573568 /* PromocodeActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationView.swift; sourceTree = "<group>"; };
 		EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationViewModel.swift; sourceTree = "<group>"; };
-		EA4032582E55F02E00573568 /* PromocodeActivationResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationResponse.swift; sourceTree = "<group>"; };
+		EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromoCodeActivationDTO.swift; sourceTree = "<group>"; };
 		EA46738E2E37F4800052E196 /* XRPAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAmountConverter.swift; sourceTree = "<group>"; };
 		EA4A4F302E2FAE9B0059E282 /* CloreTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreTransactionTests.swift; sourceTree = "<group>"; };
 		EA669FF62E390D200003688A /* XRPTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPTrustlineUtils.swift; sourceTree = "<group>"; };
@@ -18463,7 +18463,7 @@
 			children = (
 				EA4032332E54C11E00573568 /* PromocodeActivationView.swift */,
 				EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */,
-				EA4032582E55F02E00573568 /* PromocodeActivationResponse.swift */,
+				EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */,
 				EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */,
 			);
 			path = Promocode;
@@ -23109,7 +23109,7 @@
 				B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */,
 				EFA5683C2C480D120064EBA1 /* SendTransactionType.swift in Sources */,
 				EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */,
-				EA4032592E55F02E00573568 /* PromocodeActivationResponse.swift in Sources */,
+				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,

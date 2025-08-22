@@ -187,7 +187,7 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func activatePromoCode(_ code: String, walletAddress: String) -> AnyPublisher<PromocodeActivationResponse, TangemAPIError> {
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
     }
 }

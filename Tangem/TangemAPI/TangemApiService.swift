@@ -80,7 +80,7 @@ protocol TangemApiService: AnyObject {
     @discardableResult
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
 
-    func activatePromoCode(_ code: String, walletAddress: String) -> AnyPublisher<PromocodeActivationResponse, TangemAPIError>
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
 

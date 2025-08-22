@@ -224,13 +224,13 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .promotion(request: .init(programName: programName)))
     }
 
-    func activatePromoCode(_ code: String, walletAddress: String) -> AnyPublisher<PromocodeActivationResponse, TangemAPIError> {
-        let target = TangemApiTarget(type: .activatePromoCode(code: code, walletAddress: walletAddress))
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
+        let target = TangemApiTarget(type: .activatePromoCode(requestModel: model))
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(PromocodeActivationResponse.self)
+            .map(PromoCodeActivationDTO.Response.self)
             .mapTangemAPIError()
             .eraseToAnyPublisher()
     }

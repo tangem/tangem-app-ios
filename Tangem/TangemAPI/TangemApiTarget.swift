@@ -259,11 +259,8 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
 
         // MARK: - Promo Code
-        case .activatePromoCode(let code, let userWalletId):
-            return .requestParameters(
-                parameters: ["promo_code": code, "address": userWalletId],
-                encoding: URLEncoding.default
-            )
+        case .activatePromoCode(let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -293,7 +290,7 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
-        case activatePromoCode(code: String, walletAddress: String)
+        case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case story(_ id: String)
 

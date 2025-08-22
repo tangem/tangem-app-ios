@@ -45,7 +45,8 @@ final class PromocodeActivationViewModel: ObservableObject {
         }
 
         do {
-            _ = try await tangemApiService.activatePromoCode(promoCode, walletAddress: address).async()
+            let request = PromoCodeActivationDTO.Request(walletAddress: address, promoCode: promoCode)
+            _ = try await tangemApiService.activatePromoCode(request: request).async()
             displaySuccessAlert()
         } catch {
             handleAPIError(error)
