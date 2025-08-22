@@ -41,7 +41,7 @@ class ServicesManager {
     func initialize() {
         SettingsMigrator.migrateIfNeeded()
 
-        handleUITestingArguments()
+        configureForUITests()
 
         TangemLoggerConfigurator().initialize()
 
@@ -109,7 +109,7 @@ class ServicesManager {
         return initialLaunches
     }
 
-    private func handleUITestingArguments() {
+    private func configureForUITests() {
         // Only process UI testing arguments when running in UI test mode
         guard AppEnvironment.current.isUITest else { return }
 
