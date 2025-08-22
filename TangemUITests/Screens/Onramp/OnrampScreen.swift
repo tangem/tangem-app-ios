@@ -39,6 +39,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     @discardableResult
     func validate(amount: String, currency: String, title: String) -> Self {
         XCTContext.runActivity(named: "Validate OnRamp screen elements") { _ in
+            _ = amountInputField.waitForExistence(timeout: .robustUIUpdate)
             let actualValue = amountDisplayField.getValue()
             XCTAssertTrue(actualValue.contains(amount), "TextField value should contain '\(amount)' but was '\(actualValue)'")
             XCTAssertTrue(actualValue.contains(currency), "TextField value should contain '\(currency)' but was '\(actualValue)'")
@@ -183,7 +184,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
                 predicate: NSPredicate(format: "value CONTAINS %@", expectedCurrency),
                 object: amountDisplayField
             )
-            let result = XCTWaiter.wait(for: [expectation], timeout: 2.0)
+            let result = XCTWaiter.wait(for: [expectation], timeout: .robustUIUpdate)
 
             if result == .timedOut {
                 XCTFail("Timeout waiting for currency to change to '\(expectedCurrency)'")
@@ -240,7 +241,7 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
             )
 
             XCTAssertTrue(
-                payWithBlock.waitForState(state: .hittable, for: 2.0),
+                payWithBlock.waitForState(state: .hittable, for: .robustUIUpdate),
                 "Pay with block should be ready for interaction"
             )
         }
