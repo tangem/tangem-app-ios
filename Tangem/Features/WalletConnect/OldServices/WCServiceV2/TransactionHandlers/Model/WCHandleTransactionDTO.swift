@@ -20,7 +20,7 @@ struct WCHandleTransactionDTO {
     let requestData: Data
     let blockchain: BlockchainSdk.Blockchain
     let accept: () async throws -> RPCResult
-    let reject: () async throws -> RPCResult
+    let reject: () throws -> RPCResult
 
     weak var updatableHandler: WCTransactionUpdatable?
 }
