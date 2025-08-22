@@ -9,6 +9,8 @@
 import Foundation
 
 protocol SelectorReceiveAssetsSectionFactory {
+    var analyticsLogger: ReceiveAnalyticsLogger { get }
+
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
 }
 
@@ -26,6 +28,7 @@ extension SelectorReceiveAssetsSectionFactory {
             let viewModel = SelectorReceiveAssetsDomainItemViewModel(
                 domainName: domainName,
                 addressInfo: addressInfo,
+                analyticsLogger: analyticsLogger,
                 coordinator: coordinator
             )
             return .domain(viewModel)
