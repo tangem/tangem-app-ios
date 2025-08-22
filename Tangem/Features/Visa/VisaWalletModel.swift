@@ -320,6 +320,17 @@ extension VisaWalletModel: WalletModel {
     var account: any CryptoAccountModel {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
+
+    var receiveAddressInfos: [ReceiveAddressInfo] {
+        // [REDACTED_TODO_COMMENT]
+        ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
+    }
+
+    var receiveAddressTypes: [ReceiveAddressType] {
+        // [REDACTED_TODO_COMMENT]
+        let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
+        return addressInfos.map { .address($0) }
+    }
 }
 
 extension VisaWalletModel: Equatable {
