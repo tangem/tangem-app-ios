@@ -44,7 +44,8 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:.swiftpm/xcode/xcshareddata/TangemModules-Package.xctestplan">
+            reference = "container:.swiftpm/xcode/xcshareddata/TangemModules-Package.xctestplan"
+            default = "YES">
          </TestPlanReference>
       </TestPlans>
       <Testables>
@@ -95,6 +96,16 @@
                BlueprintIdentifier = "TangemNFTTests"
                BuildableName = "TangemNFTTests"
                BlueprintName = "TangemNFTTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "TangemMobileWalletSdkTests"
+               BuildableName = "TangemMobileWalletSdkTests"
+               BlueprintName = "TangemMobileWalletSdkTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
