@@ -19,9 +19,9 @@ struct SendNewSummaryView: View {
         GroupedScrollView(spacing: 14) {
             amountSectionView
 
-            destinationSectionView
-
             nftSectionView
+
+            destinationSectionView
 
             feeSectionView
 
