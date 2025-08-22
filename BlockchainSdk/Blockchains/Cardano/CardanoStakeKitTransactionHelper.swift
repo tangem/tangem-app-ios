@@ -8,7 +8,7 @@
 
 import Foundation
 import WalletCore
-import SwiftCBOR
+import PotentCBOR
 
 struct CardanoStakeKitTransactionHelper {
     private let transactionBuilder: CardanoTransactionBuilder
@@ -27,11 +27,10 @@ struct CardanoStakeKitTransactionHelper {
         return try transactionBuilder.buildCompiledForSend(transaction: transaction, signatures: signatures)
     }
 
-    private func cardanoTransaction(from unsignedData: String) throws -> CardanoTransaction {
+    func cardanoTransaction(from unsignedData: String) throws -> CardanoTransaction {
         let data = Data(hex: unsignedData)
-        guard let cbor = try CBOR.decode(data.bytes) else {
-            throw BlockchainSdkError.failedToBuildTx
-        }
+
+        let cbor = try CBORSerialization.cbor(from: data)
 
         guard let body = CardanoTransactionBody(cbor: cbor) else {
             throw BlockchainSdkError.failedToBuildTx
