@@ -3136,6 +3136,7 @@
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
 		EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */; };
+		EA7C2ADE2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7C2ADD2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift */; };
 		EA81E8512DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
 		EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */; };
@@ -7188,6 +7189,7 @@
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
 		EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkPresenter.swift; sourceTree = "<group>"; };
+		EA7C2ADD2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HyperliquidExternalLinkProvider.swift; sourceTree = "<group>"; };
 		EA81E8502DDDF89C006B3339 /* KaspaTransactionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTests.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
 		EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParser.swift; sourceTree = "<group>"; };
@@ -13721,6 +13723,7 @@
 				DABCDA1A2D08F67000AB2C69 /* Fact0rn */,
 				B62D3D1D2CBC79D900C2460E /* Filecoin */,
 				B62D3D3F2CBC79D900C2460E /* Hedera */,
+				EA7C2ADC2E532FA00007211E /* Hyperliquid */,
 				B62D3D492CBC79D900C2460E /* ICP */,
 				B62D3D592CBC79D900C2460E /* Kaspa */,
 				B62D3D792CBC79D900C2460E /* Koinos */,
@@ -18438,6 +18441,14 @@
 				EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */,
 			);
 			path = DeeplinkPresenter;
+			sourceTree = "<group>";
+		};
+		EA7C2ADC2E532FA00007211E /* Hyperliquid */ = {
+			isa = PBXGroup;
+			children = (
+				EA7C2ADD2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift */,
+			);
+			path = Hyperliquid;
 			sourceTree = "<group>";
 		};
 		EAB55F5A2DF067AF0016BF78 /* Factories */ = {
@@ -25082,6 +25093,7 @@
 				2D53D2442D95796D00865200 /* PepecoinWalletAssembly.swift in Sources */,
 				2D53D2462D95796D00865200 /* PepecoinExternalLinkProvider.swift in Sources */,
 				2D53D2472D95796D00865200 /* PepecoinTestnetNetworkParams.swift in Sources */,
+				EA7C2ADE2E532FAF0007211E /* HyperliquidExternalLinkProvider.swift in Sources */,
 				2D53D2482D95796D00865200 /* PepecoinWalletManager.swift in Sources */,
 				2D53D24A2D95796D00865200 /* PepecoinMainnetNetworkParams.swift in Sources */,
 				B62D42092CBC79DB00C2460E /* XRPKeypair.swift in Sources */,
