@@ -23,15 +23,18 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     private let interactor: SelectorReceiveAssetsInteractor
+    private let analyticsLogger: SelectorReceiveAssetsAnalyticsLogger
     private let sectionFactory: SelectorReceiveAssetsSectionFactory
 
     // MARK: - Init
 
     init(
         interactor: SelectorReceiveAssetsInteractor,
+        analyticsLogger: SelectorReceiveAssetsAnalyticsLogger,
         sectionFactory: SelectorReceiveAssetsSectionFactory
     ) {
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.sectionFactory = sectionFactory
 
         bind()
@@ -39,7 +42,8 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
     }
 
     func onViewAppear() {
-        // [REDACTED_TODO_COMMENT]
+        let hasDomainNameAddresses = interactor.hasDomainNameAddresses()
+        analyticsLogger.logSelectorReceiveAssetsScreenOpened(hasDomainNameAddresses)
     }
 
     // MARK: - Private Implementation
