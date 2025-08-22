@@ -209,10 +209,19 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             selectedFee: sendFeeInput?.selectedFee.option
         )
 
+        let ensTypeAnalyticsParameter: Bool
+
+        if case .ethereum = tokenItem.blockchain {
+            ensTypeAnalyticsParameter = true
+        } else {
+            ensTypeAnalyticsParameter = false
+        }
+
         var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeTypeAnalyticsParameter.rawValue,
+            .ensAddress: Analytics.ParameterValue.boolState(for: ensTypeAnalyticsParameter).rawValue,
         ]
 
         if let parameters = sendFeeInput?.selectedFee.value.value?.parameters as? EthereumFeeParameters,
