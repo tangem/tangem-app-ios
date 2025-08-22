@@ -1,5 +1,5 @@
 //
-//  ReceiveDomainAssetType.swift
+//  ReceiveAddressType.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,16 @@
 
 import Foundation
 
-enum ReceiveAsset: Identifiable {
+enum ReceiveAddressType: Identifiable {
     case address(ReceiveAddressInfo)
-    case domain(name: String, ReceiveAddressInfo)
+    case domain(_ addressName: String, ReceiveAddressInfo)
 
     var id: String {
         switch self {
         case .address(let addressInfo):
             return addressInfo.id
-        case .domain(let domainName, let addressInfo):
-            return "\(domainName)_\(addressInfo.id)"
+        case .domain(let addressName, let addressInfo):
+            return "\(addressName)_\(addressInfo.id)"
         }
     }
 }

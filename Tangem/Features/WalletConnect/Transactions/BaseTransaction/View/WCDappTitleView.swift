@@ -7,71 +7,70 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
-import ReownWalletKit
 
 struct WCDappTitleView: View {
-    private let icons: [URL]
-    private let dappName: String
-    private let dappUrl: String
-    private let iconSideLength: CGFloat
-    private let placeholderIconSideLength: CGFloat
-    private let isVerified: Bool
-
-    init(
-        dAppData: WalletConnectDAppData,
-        iconSideLength: CGFloat,
-        isVerified: Bool,
-        placeholderIconSideLength: CGFloat = 26
-    ) {
-        icons = [dAppData.icon].compactMap { $0 }
-        dappName = dAppData.name
-        dappUrl = dAppData.domain.host ?? ""
-        self.isVerified = isVerified
-        self.iconSideLength = iconSideLength
-        self.placeholderIconSideLength = placeholderIconSideLength
-    }
+    let dAppData: WalletConnectDAppData
+    let isVerified: Bool
+    let kingfisherImageCache: ImageCache
 
     var body: some View {
-        content
-    }
-
-    private var content: some View {
-        HStack(spacing: 16) {
-            if let iconURL = icons.last {
-                IconView(url: iconURL, size: .init(bothDimensions: iconSideLength))
-            } else {
-                ZStack {
-                    Colors.Icon.accent.opacity(0.1)
-                        .frame(size: .init(bothDimensions: iconSideLength))
-                        .cornerRadius(8, corners: .allCorners)
-                    Assets.Glyphs.explore.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.accent)
-                        .frame(size: .init(bothDimensions: placeholderIconSideLength))
-                }
-            }
+        HStack(spacing: 12) {
+            iconView
 
             VStack(alignment: .leading, spacing: 4) {
-                if dappName.isNotEmpty {
-                    HStack(spacing: 8) {
-                        Text(dappName)
-                            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                HStack(alignment: .top, spacing: 4) {
+                    Text(dAppData.name)
+                        .lineLimit(2)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                        if isVerified {
-                            Assets.Glyphs.verified.image
-                                .foregroundStyle(Colors.Icon.accent)
-                        }
+                    if isVerified {
+                        Assets.Glyphs.verified.image
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Colors.Icon.accent)
+                            .padding(.top, 2)
                     }
                 }
 
-                if dappUrl.isNotEmpty {
-                    Text(dappUrl)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                }
+                Text(dAppData.domain.host ?? "")
+                    .lineLimit(1)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
             .multilineTextAlignment(.leading)
         }
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        ZStack {
+            if let iconURL = dAppData.icon {
+                remoteIcon(iconURL)
+            } else {
+                fallbackIconAsset
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func remoteIcon(_ iconURL: URL) -> some View {
+        KFImage(iconURL)
+            .targetCache(kingfisherImageCache)
+            .cancelOnDisappear(true)
+            .resizable()
+            .scaledToFill()
+            .frame(width: 36, height: 36)
+    }
+
+    private var fallbackIconAsset: some View {
+        Assets.Glyphs.explore.image
+            .resizable()
+            .scaledToFit()
+            .frame(width: 20, height: 20)
+            .foregroundStyle(Colors.Icon.accent)
+            .frame(width: 36, height: 36)
+            .background(Colors.Icon.accent.opacity(0.1))
     }
 }
