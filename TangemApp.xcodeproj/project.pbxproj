@@ -285,6 +285,8 @@
 		2DC567812B0E047700B0244F /* MainBottomSheetUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5677A2B0E047700B0244F /* MainBottomSheetUIManager.swift */; };
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
 		2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */; };
+		2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */; };
+		2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */; };
 		2DCDE45A2DE60E5C007ECD34 /* UserTokenListAddressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */; };
 		2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */; };
 		2DCDE4602DE60F14007ECD34 /* GenericResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */; };
@@ -3113,6 +3115,8 @@
 		2DC5677A2B0E047700B0244F /* MainBottomSheetUIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainBottomSheetUIManager.swift; sourceTree = "<group>"; };
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
+		2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
+		2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCDE4592DE60E5C007ECD34 /* UserTokenListAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListAddressProvider.swift; sourceTree = "<group>"; };
 		2DCDE45B2DE60F14007ECD34 /* ApplicationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDTO.swift; sourceTree = "<group>"; };
 		2DCDE45C2DE60F14007ECD34 /* GenericResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericResponseDTO.swift; sourceTree = "<group>"; };
@@ -6230,6 +6234,7 @@
 				2D96E93A2E55D25300B69F91 /* ReceiveAddressService.swift */,
 				2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */,
 				2DA100272E55E7C200EC2257 /* ReceiveTokenWithdrawNoticeInteractor.swift */,
+				2DCB23A12E5700E50076C294 /* ReceiveAnalyticsLogger */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -6471,6 +6476,15 @@
 				2DC5677A2B0E047700B0244F /* MainBottomSheetUIManager.swift */,
 			);
 			path = Other;
+			sourceTree = "<group>";
+		};
+		2DCB23A12E5700E50076C294 /* ReceiveAnalyticsLogger */ = {
+			isa = PBXGroup;
+			children = (
+				2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */,
+				2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */,
+			);
+			path = ReceiveAnalyticsLogger;
 			sourceTree = "<group>";
 		};
 		2DD754D52AE166000009CA64 /* GenerateAddressesView */ = {
@@ -17709,6 +17723,8 @@
 				2D1BB36A2C074534008392F7 /* MarketsDTO.swift in Sources */,
 				DC8139D62E41FC9A00F7A1E4 /* WCSendableTransaction.swift in Sources */,
 				C2CDA54B2E328D640014C890 /* WalletConnectExtendConnectedDAppsUseCase.swift in Sources */,
+				2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */,
+				2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
 				B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
@@ -23833,7 +23849,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 3.23.5;
+				version = 3.23.8;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
