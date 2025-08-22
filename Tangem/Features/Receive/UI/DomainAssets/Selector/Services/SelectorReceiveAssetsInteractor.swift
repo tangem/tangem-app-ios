@@ -16,6 +16,7 @@ protocol SelectorReceiveAssetsInteractor {
     var notificationsPublisher: AnyPublisher<[NotificationViewInput], Never> { get }
 
     func update()
+    func hasDomainNameAddresses() -> Bool
 }
 
 class CommonSelectorReceiveAssetsInteractor {
@@ -33,13 +34,6 @@ class CommonSelectorReceiveAssetsInteractor {
         self.notificationInputs = notificationInputs
         self.addressTypes = addressTypes
     }
-
-    // MARK: - Public Implementation
-
-    func update() {
-        _addressTypesSubject.send(addressTypes)
-        _notificationsSubject.send(notificationInputs)
-    }
 }
 
 // MARK: - SelectorReceiveAssetsInteractor
@@ -51,5 +45,16 @@ extension CommonSelectorReceiveAssetsInteractor: SelectorReceiveAssetsInteractor
 
     var notificationsPublisher: AnyPublisher<[NotificationViewInput], Never> {
         _notificationsSubject.eraseToAnyPublisher()
+    }
+
+    func update() {
+        _addressTypesSubject.send(addressTypes)
+        _notificationsSubject.send(notificationInputs)
+    }
+
+    func hasDomainNameAddresses() -> Bool {
+        let currentAddressTypes = _addressTypesSubject.value
+
+        return currentAddressTypes.contains(where: { $0.id.hasPrefix(ReceiveAddressType.Constants.domainPrefix) })
     }
 }
