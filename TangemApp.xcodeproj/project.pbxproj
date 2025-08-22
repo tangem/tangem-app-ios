@@ -71,6 +71,9 @@
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */; };
 		0ADFB9342E424F7D00334A3C /* MobileWalletError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */; };
+		0AE2C97B2E5882EB00D3B9EB /* CardanoTransactionBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE2C97A2E5882EB00D3B9EB /* CardanoTransactionBody.swift */; };
+		0AE2C97D2E58831100D3B9EB /* PotentCBOR+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE2C97C2E58831100D3B9EB /* PotentCBOR+.swift */; };
+		0AE2C9802E58838000D3B9EB /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 0AE2C97F2E58838000D3B9EB /* OrderedCollections */; };
 		0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */; };
 		0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */; };
 		0AE3EE0F2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */; };
@@ -4159,6 +4162,8 @@
 		0AD9EF0E2CC2A9B600466191 /* UnstakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingAmountValidator.swift; sourceTree = "<group>"; };
 		0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletError.swift; sourceTree = "<group>"; };
 		0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileWallet+UniversalError.swift"; sourceTree = "<group>"; };
+		0AE2C97A2E5882EB00D3B9EB /* CardanoTransactionBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransactionBody.swift; sourceTree = "<group>"; };
+		0AE2C97C2E58831100D3B9EB /* PotentCBOR+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PotentCBOR+.swift"; sourceTree = "<group>"; };
 		0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewOffsetHandler.swift; sourceTree = "<group>"; };
 		0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationBarTitle.swift; sourceTree = "<group>"; };
 		0AE3EE0E2D019593003BC687 /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+MarketsTokenDetails.swift"; sourceTree = "<group>"; };
@@ -8096,6 +8101,7 @@
 				300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */,
 				B67E38B92CC7147600D660EB /* TangemSdk in Frameworks */,
 				B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */,
+				0AE2C9802E58838000D3B9EB /* OrderedCollections in Frameworks */,
 				B62D34502CBC67D500C2460E /* AnyCodable in Frameworks */,
 				B68E1F8D2CBC44AA0043E598 /* CryptoSwift in Frameworks */,
 				B6C0D3F42CBDC543001113ED /* Moya in Frameworks */,
@@ -8181,6 +8187,7 @@
 			isa = PBXGroup;
 			children = (
 				0A2261822D958ADA004DC848 /* CardanoTransaction.swift */,
+				0AE2C97A2E5882EB00D3B9EB /* CardanoTransactionBody.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -14226,6 +14233,7 @@
 				B62D3F7B2CBC79DA00C2460E /* AnyPublisher+Async.swift */,
 				B62D3F7C2CBC79DA00C2460E /* BigUInt+.swift */,
 				B62D3F7E2CBC79DA00C2460E /* CBOR+.swift */,
+				0AE2C97C2E58831100D3B9EB /* PotentCBOR+.swift */,
 				B62D3F7F2CBC79DA00C2460E /* Collection+.swift */,
 				B62D3F802CBC79DA00C2460E /* Data+.swift */,
 				B62D3F812CBC79DA00C2460E /* DateFormatter+.swift */,
@@ -21695,6 +21703,7 @@
 				300C26332DAFA29600C7E0B0 /* CombineExt */,
 				308501862E0DA20700AB58B3 /* TonSwift */,
 				B6E3A3912E144E9300183942 /* GRPC */,
+				0AE2C97F2E58838000D3B9EB /* OrderedCollections */,
 			);
 			productName = BlockchainSdk;
 			productReference = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */;
@@ -21918,6 +21927,7 @@
 				3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */,
 				B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */,
 				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
+				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -25172,6 +25182,7 @@
 				2DB1D6E92D56978D00AD43A3 /* ALPH+SerdeError.swift in Sources */,
 				2DB1D6EA2D56978D00AD43A3 /* AlephiumBalanceInfo.swift in Sources */,
 				2DB1D6EB2D56978D00AD43A3 /* ALPH+U32.swift in Sources */,
+				0AE2C97D2E58831100D3B9EB /* PotentCBOR+.swift in Sources */,
 				2DB1D6EC2D56978D00AD43A3 /* ALPH+AVector.swift in Sources */,
 				2DB1D6ED2D56978D00AD43A3 /* ALPH+Flags.swift in Sources */,
 				EFA48BAB2E157DF000BF1665 /* ApproveTransactionData.swift in Sources */,
@@ -25377,6 +25388,7 @@
 				B62D41FA2CBC79DB00C2460E /* VeChainFeeParams.swift in Sources */,
 				B62D429A2CBC79DB00C2460E /* URLSessionWebSocketTask.CloseCode+CustomStringConvertible.swift in Sources */,
 				F99007092CD3E1C700DFE2D3 /* KaspaTargetKRC20.swift in Sources */,
+				0AE2C97B2E5882EB00D3B9EB /* CardanoTransactionBody.swift in Sources */,
 				B62D40992CBC79DA00C2460E /* EthereumModels.swift in Sources */,
 				B62D40272CBC79DA00C2460E /* OpCodeProtocol.swift in Sources */,
 				B62D3FE72CBC79DA00C2460E /* OP_RESERVED1.swift in Sources */,
@@ -31835,6 +31847,14 @@
 				minimumVersion = 1.1.0;
 			};
 		};
+		0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.5;
+			};
+		};
 		3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -32095,6 +32115,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */;
 			productName = TweetNacl;
+		};
+		0AE2C97F2E58838000D3B9EB /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 		300C26332DAFA29600C7E0B0 /* CombineExt */ = {
 			isa = XCSwiftPackageProductDependency;
