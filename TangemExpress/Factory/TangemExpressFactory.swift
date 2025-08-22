@@ -20,7 +20,8 @@ public struct TangemExpressFactory {
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        supportedProviderTypes: [ExpressProviderType]
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,
@@ -32,7 +33,8 @@ public struct TangemExpressFactory {
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: supportedProviderTypes
+            supportedProviderTypes: supportedProviderTypes,
+            operationType: operationType
         )
     }
 
