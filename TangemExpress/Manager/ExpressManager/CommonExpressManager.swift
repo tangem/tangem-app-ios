@@ -20,6 +20,7 @@ actor CommonExpressManager {
     private let expressRepository: ExpressRepository
     private let analyticsLogger: ExpressAnalyticsLogger
     private let supportedProviderTypes: [ExpressProviderType]
+    private let operationType: ExpressOperationType
 
     // MARK: - State
 
@@ -40,13 +41,15 @@ actor CommonExpressManager {
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        supportedProviderTypes: [ExpressProviderType]
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.analyticsLogger = analyticsLogger
         self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
     }
 }
 
@@ -311,7 +314,8 @@ private extension CommonExpressManager {
             pair: pair,
             amount: amount,
             feeOption: _feeOption,
-            approvePolicy: _approvePolicy
+            approvePolicy: _approvePolicy,
+            operationType: operationType
         )
     }
 
