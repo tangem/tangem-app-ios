@@ -54,6 +54,7 @@ extension Analytics {
         case status = "Status"
         case option
         case feeType = "Fee Type"
+        case ensAddress = "ENS Address"
         case nonce = "Nonce"
         case permissionType = "Permission Type"
         case validation = "Validation"
@@ -87,6 +88,8 @@ extension Analytics {
 
         case sendBlockchain = "Send Blockchain"
         case receiveBlockchain = "Receive Blockchain"
+
+        case ens = "ENS"
 
         case validatorsCount = "Validators Count"
         case validator = "Validator"
