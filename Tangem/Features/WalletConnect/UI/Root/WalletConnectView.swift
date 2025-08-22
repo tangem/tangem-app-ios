@@ -172,7 +172,9 @@ struct WalletConnectView: View {
     }
 
     private func walletWithDAppsRowView(_ wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> some View {
-        LazyVStack(alignment: .leading, spacing: .zero) {
+        // [REDACTED_USERNAME], LazyVStack here causes dApp domain Text view blurriness bug.
+        // A large amount of socket connections will downgrade performance much more noticeably than a non-lazy VStack.
+        VStack(alignment: .leading, spacing: .zero) {
             Text(wallet.walletName)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 8)
@@ -192,7 +194,7 @@ struct WalletConnectView: View {
                 iconView(dApp)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+                    HStack(alignment: .top, spacing: 6) {
                         Text(dApp.name)
                             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
@@ -202,16 +204,18 @@ struct WalletConnectView: View {
                                 .resizable()
                                 .frame(width: 16, height: 16)
                                 .foregroundStyle(Colors.Icon.accent)
+                                .padding(.top, 2)
                         }
                     }
 
                     Text(dApp.domain)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .lineLimit(1)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .contentShape(Rectangle())
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -229,7 +233,7 @@ struct WalletConnectView: View {
                     .transition(.opacity)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var fallbackIconAsset: some View {
