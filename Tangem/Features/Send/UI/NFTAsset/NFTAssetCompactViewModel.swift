@@ -7,21 +7,25 @@
 //
 
 import TangemNFT
+import TangemLocalization
 
 struct NFTAssetCompactViewModel {
-    var id: AnyHashable { asset.id }
+    var walletTitle: String { Localization.sendFromWalletName(wallet) }
     var assetTitle: String { asset.name }
     var assetSubtitle: String { collection.name }
 
+    let wallet: String
     let asset: NFTAsset
     let nftChainIconProvider: NFTChainIconProvider
     let collection: NFTCollection
 
     init(
+        wallet: String,
         asset: NFTAsset,
         collection: NFTCollection,
         nftChainIconProvider: NFTChainIconProvider
     ) {
+        self.wallet = wallet
         self.asset = asset
         self.collection = collection
         self.nftChainIconProvider = nftChainIconProvider
