@@ -24,6 +24,7 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let flow: ReceiveFlow
 
+    private let analyticsLogger: QRCodeReceiveAssetsAnalyticsLogger
     private weak var coordinator: QRCodeReceiveAssetsRoutable?
 
     // MARK: - Init
@@ -32,18 +33,20 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
         flow: ReceiveFlow,
         tokenItem: TokenItem,
         addressInfo: ReceiveAddressInfo,
+        analyticsLogger: QRCodeReceiveAssetsAnalyticsLogger,
         coordinator: QRCodeReceiveAssetsRoutable?
     ) {
         self.tokenItem = tokenItem
         self.addressInfo = addressInfo
         self.flow = flow
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         memoWarningMessage = tokenItem.blockchain.hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
     }
 
     func onViewAppear() {
-        Analytics.log(event: .receiveScreenOpened, params: [.token: tokenItem.currencySymbol])
+        analyticsLogger.logQRCodeReceiveAssetsScreenOpened()
     }
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
@@ -74,10 +77,12 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
     }
 
     func copyToClipboard() {
+        analyticsLogger.logCopyButtonTapped()
         coordinator?.copyToClipboard(with: addressInfo.address)
     }
 
     func share() {
+        analyticsLogger.logShareButtonTapped()
         coordinator?.share(with: addressInfo.address)
     }
 }
