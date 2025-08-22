@@ -1,5 +1,5 @@
 {
-  "originHash" : "4db8340b58a148e354395dd9951394f5f37bb3befc4d93cecf8dffca861b4870",
+  "originHash" : "6014ca120f56aec2cd9bd24bd8897875d2d264d5624404bf735e20e366243209",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -402,7 +402,7 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "6d2f969fd896b73db53934e69d6ab163832f70f0"
+        "revision" : "874ead183dce9fc2c8a5f069444d5fa5198d64df"
       }
     },
     {
