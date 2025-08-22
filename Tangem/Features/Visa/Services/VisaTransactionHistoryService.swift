@@ -15,7 +15,7 @@ class VisaTransactionHistoryService {
     private let storage: ThreadSafeContainer<[VisaTransactionRecord]> = []
     private var apiService: VisaTransactionHistoryAPIService?
 
-    private let cardId: String
+    private let cardId: String?
     private let numberOfItemsOnPage: Int = 20
     private var currentOffset = 0
     private var reachEndOfHistoryList = false
@@ -23,12 +23,12 @@ class VisaTransactionHistoryService {
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
 
-    init(cardId: String) {
+    init(cardId: String?) {
         self.cardId = cardId
     }
 
     init(
-        cardId: String,
+        cardId: String?,
         productInstanceId: String,
         apiService: VisaTransactionHistoryAPIService
     ) {
