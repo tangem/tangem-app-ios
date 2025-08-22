@@ -60,6 +60,12 @@ xcode_summary.collapse_parallelized_tests = true
 result_bundle_paths.each do |path|
   xcode_summary.report path
   xcode_summary_result = xcode_summary.warning_error_count path
+
+  if xcode_summary_result.to_s == '["summary file not found"]'
+    puts "No build results for path '#{path}'"
+    next
+  end
+
   xcode_summary_result_json = JSON.parse(xcode_summary_result)
   errors_count += xcode_summary_result_json['errors'].to_i
   warnings_count += xcode_summary_result_json['warnings'].to_i
