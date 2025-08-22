@@ -9,6 +9,8 @@
 import Foundation
 
 struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
+    let analyticsLogger: any ReceiveAnalyticsLogger
+
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
@@ -16,8 +18,13 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
 
     // MARK: - Init
 
-    init(tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) {
+    init(
+        tokenItem: TokenItem,
+        analyticsLogger: ReceiveAnalyticsLogger,
+        coordinator: SelectorReceiveAssetItemRoutable?
+    ) {
         self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
