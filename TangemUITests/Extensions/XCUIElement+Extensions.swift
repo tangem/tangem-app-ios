@@ -19,6 +19,15 @@ extension XCUIElement {
             return false
         }
 
+        guard waitForState(state: .hittable, for: timeout) else {
+            return false
+        }
+
+        guard exists, isHittable, isEnabled else {
+            XCTFail("Element '\(self)' is not ready for interaction: exists=\(exists), isHittable=\(isHittable), isEnabled=\(isEnabled)")
+            return false
+        }
+
         tap()
         return true
     }
@@ -82,7 +91,7 @@ extension XCUIElement {
     }
 
     func staticTextByLabel(label: String) -> XCUIElement {
-        staticTexts.element(matching: NSPredicate(format: NSPredicateFormat.labelContains.rawValue, label))
+        staticTexts.element(matching: NSPredicate(format: "label == %@", label))
     }
 
     func containsLabel(label: String) -> Bool {
