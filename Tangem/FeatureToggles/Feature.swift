@@ -53,7 +53,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return .version("5.25")
         case .walletConnectUI: return .version("5.27")
         case .logs: return .version("5.25")
-        case .sendViaSwap: return .unspecified
+        case .sendViaSwap: return .version("5.28")
         case .mobileWallet: return .unspecified
         case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
