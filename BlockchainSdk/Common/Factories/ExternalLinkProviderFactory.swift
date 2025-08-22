@@ -193,6 +193,8 @@ public struct ExternalLinkProviderFactory {
             return ZKLinkNovaExternalLinkProvider(isTestnet: isTestnet)
         case .pepecoin:
             return PepecoinExternalLinkProvider(isTestnet: isTestnet)
+        case .hyperliquidEVM:
+            return HyperliquidExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
