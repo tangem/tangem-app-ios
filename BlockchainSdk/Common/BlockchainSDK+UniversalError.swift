@@ -138,6 +138,8 @@ extension CardanoError: UniversalError {
             102003004
         case .walletCoreError:
             102003005
+        case .failedToHashTransactionData:
+            102003006
         }
     }
 }
