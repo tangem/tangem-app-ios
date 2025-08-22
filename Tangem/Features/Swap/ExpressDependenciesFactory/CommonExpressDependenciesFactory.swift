@@ -14,6 +14,7 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private let initialWallet: any ExpressInteractorSourceWallet
     private let destinationWallet: ExpressInteractor.Destination?
     private let supportedProviderTypes: [ExpressProviderType]
+    private let operationType: ExpressOperationType
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
     @Injected(\.expressPendingTransactionsRepository)
@@ -27,12 +28,14 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
         input: Input,
         initialWallet: any ExpressInteractorSourceWallet,
         destinationWallet: ExpressInteractor.Destination?,
-        supportedProviderTypes: [ExpressProviderType]
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
     ) {
         self.input = input
         self.initialWallet = initialWallet
         self.destinationWallet = destinationWallet
         self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
     }
 }
 
@@ -44,7 +47,8 @@ private extension CommonExpressDependenciesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: supportedProviderTypes
+            supportedProviderTypes: supportedProviderTypes,
+            operationType: operationType
         )
 
         let interactor = ExpressInteractor(
