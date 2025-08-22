@@ -36,7 +36,6 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
         .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "874ead183dce9fc2c8a5f069444d5fa5198d64df"),
         // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
         // BSDK only deps:
         // AnyCodable
         .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.16"),
