@@ -11,7 +11,7 @@ import Foundation
 /// Prepares data for ENS contract calls.
 /// https://docs.ens.domains/resolution/names/#algorithm-1
 /// https://docs.ens.domains/resolvers/universal
-protocol ENSProcessor {
+public protocol ENSProcessor {
     func getNameHash(_ name: String) throws -> Data
     func encode(name: String) throws -> Data
 }
