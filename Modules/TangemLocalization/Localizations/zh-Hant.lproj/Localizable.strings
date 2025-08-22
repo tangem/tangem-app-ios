@@ -53,6 +53,10 @@
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
+"add_wallet_add_existing" = "Add Existing Wallet";
+"add_wallet_buy_tangem" = "Buy Tangem Wallet";
+"add_wallet_create_new" = "Create New Wallet";
+"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "僅將 %1$@ (%2$@) 從 %3$@ 網絡發送到此地址。使用其他代幣和網絡可能會導致資金損失";
 "address_type_default" = "默認";
 "address_type_legacy" = "遺留資產";

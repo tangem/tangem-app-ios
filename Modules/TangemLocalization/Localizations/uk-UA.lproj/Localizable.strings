@@ -53,6 +53,10 @@
 "add_custom_token_choose_network" = "Оберіть мережу";
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
+"add_wallet_add_existing" = "Add Existing Wallet";
+"add_wallet_buy_tangem" = "Buy Tangem Wallet";
+"add_wallet_create_new" = "Create New Wallet";
+"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "Надсилайте тільки %1$@ (%2$@) в мережі %3$@ на цю адресу. Використання іншої мережі може призвести до втрати коштів.";
 "address_type_default" = "За замовчуванням";
 "address_type_legacy" = "Застарілий";

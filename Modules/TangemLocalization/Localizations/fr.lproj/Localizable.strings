@@ -53,6 +53,10 @@
 "add_custom_token_choose_network" = "Choisissez le réseau";
 "add_custom_token_title" = "Ajouter un jeton personnalisé";
 "add_tokens_title" = "Gérer les jetons";
+"add_wallet_add_existing" = "Add Existing Wallet";
+"add_wallet_buy_tangem" = "Buy Tangem Wallet";
+"add_wallet_create_new" = "Create New Wallet";
+"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "Envoyez uniquement %1$@ (%2$@) depuis les réseaux %3$@ à cette adresse. L'utilisation d'autres jetons et réseaux peut entraîner une perte de fonds.";
 "address_type_default" = "Défaut";
 "address_type_legacy" = "Héritage";

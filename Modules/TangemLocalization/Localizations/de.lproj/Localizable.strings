@@ -53,6 +53,10 @@
 "add_custom_token_choose_network" = "Netzwerk wählen";
 "add_custom_token_title" = "Token anlegen";
 "add_tokens_title" = "Token verwalten";
+"add_wallet_add_existing" = "Add Existing Wallet";
+"add_wallet_buy_tangem" = "Buy Tangem Wallet";
+"add_wallet_create_new" = "Create New Wallet";
+"add_wallet_title" = "Add Wallet";
 "address_qr_code_message_format" = "Sende nur %1$@ ( %2$@ ) vom %3$@ -Netzwerk an diese Adresse. Die Verwendung anderer Token und Netzwerke kann zum Verlust von Geldern führen.";
 "address_type_default" = "Standard";
 "address_type_legacy" = "Altbestand";

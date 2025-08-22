@@ -35,11 +35,11 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
         self.sectionFactory = sectionFactory
 
         bind()
+        interactor.update()
     }
 
     func onViewAppear() {
         // [REDACTED_TODO_COMMENT]
-        interactor.updateAssets()
     }
 
     // MARK: - Private Implementation
@@ -52,7 +52,7 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         interactor
-            .receiveAssetsPublisher
+            .addressTypesPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, assets in

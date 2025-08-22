@@ -53,6 +53,10 @@
 "add_custom_token_choose_network" = "ネットワークを選択";
 "add_custom_token_title" = "カスタムトークンの追加";
 "add_tokens_title" = "トークンの管理";
+"add_wallet_add_existing" = "既存のウォレットを追加";
+"add_wallet_buy_tangem" = "Tangemウォレットを購入";
+"add_wallet_create_new" = "新しいウォレットを作成";
+"add_wallet_title" = "ウォレットを追加";
 "address_qr_code_message_format" = "このアドレスには%3$@ ネットワークから%1$@ (%2$@) のみを送信してください。他のトークンやネットワークを使用すると、資金を失う可能性があります。";
 "address_type_default" = "デフォルト";
 "address_type_legacy" = "レガシー";

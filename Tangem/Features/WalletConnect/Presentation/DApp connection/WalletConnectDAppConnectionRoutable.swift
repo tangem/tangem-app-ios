@@ -10,7 +10,7 @@
 protocol WalletConnectDAppConnectionRoutable: AnyObject {
     func openConnectionRequest()
 
-    func openVerifiedDomain(for dAppName: String)
+    func openVerifiedDomain()
 
     func openDomainVerificationWarning(
         _ verificationStatus: WalletConnectDAppVerificationStatus,
