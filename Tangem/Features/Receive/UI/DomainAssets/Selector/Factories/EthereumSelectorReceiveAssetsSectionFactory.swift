@@ -9,6 +9,8 @@
 import Foundation
 
 struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
+    let analyticsLogger: ReceiveAnalyticsLogger
+
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
@@ -16,14 +18,19 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
 
     // MARK: - Init
 
-    init(tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) {
+    init(
+        tokenItem: TokenItem,
+        analyticsLogger: ReceiveAnalyticsLogger,
+        coordinator: SelectorReceiveAssetItemRoutable?
+    ) {
         self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
     // MARK: - Implementation
 
-    func makeSections(from assets: [ReceiveAsset]) -> [SelectorReceiveAssetsSection] {
+    func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
         var domainAssets: [SelectorReceiveAssetsContentItemViewModel] = []
         var defaultAssets: [SelectorReceiveAssetsContentItemViewModel] = []
 

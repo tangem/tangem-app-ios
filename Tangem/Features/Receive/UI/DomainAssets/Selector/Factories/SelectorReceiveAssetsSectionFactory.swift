@@ -9,11 +9,13 @@
 import Foundation
 
 protocol SelectorReceiveAssetsSectionFactory {
-    func makeSections(from assets: [ReceiveAsset]) -> [SelectorReceiveAssetsSection]
+    var analyticsLogger: ReceiveAnalyticsLogger { get }
+
+    func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
 }
 
 extension SelectorReceiveAssetsSectionFactory {
-    func makeStateViewModel(asset: ReceiveAsset, tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsContentItemViewModel.StateView {
+    func makeStateViewModel(asset: ReceiveAddressType, tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsContentItemViewModel.StateView {
         switch asset {
         case .address(let addressInfo):
             let viewModel = SelectorReceiveAssetsAddressItemViewModel(
@@ -26,6 +28,7 @@ extension SelectorReceiveAssetsSectionFactory {
             let viewModel = SelectorReceiveAssetsDomainItemViewModel(
                 domainName: domainName,
                 addressInfo: addressInfo,
+                analyticsLogger: analyticsLogger,
                 coordinator: coordinator
             )
             return .domain(viewModel)

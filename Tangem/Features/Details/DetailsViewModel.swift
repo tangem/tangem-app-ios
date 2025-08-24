@@ -263,12 +263,6 @@ private extension DetailsViewModel {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
         setupBuyWalletViewModel()
-
-        // [REDACTED_TODO_COMMENT]
-//        tangemPayRowViewModel = TangemPayRowViewModel(isKYCInProgress: false) { [weak coordinator] in
-//            coordinator?.openTangemPayOfferViewModel()
-//        }
-
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -319,7 +313,7 @@ private extension DetailsViewModel {
             }
         }
 
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
                 action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)

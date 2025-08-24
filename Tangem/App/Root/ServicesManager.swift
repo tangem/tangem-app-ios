@@ -29,19 +29,19 @@ class ServicesManager {
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
-    private let hotAccessCodeCleaner: HotAccessCodeCleaner
+    private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
-        hotAccessCodeCleaner = HotAccessCodeCleaner(manager: CommonHotAccessCodeStorageManager())
+        mobileAccessCodeCleaner = MobileAccessCodeCleaner(manager: CommonMobileAccessCodeStorageManager())
     }
 
     func initialize() {
         SettingsMigrator.migrateIfNeeded()
 
-        handleUITestingArguments()
+        configureForUITests()
 
         TangemLoggerConfigurator().initialize()
 
@@ -69,7 +69,7 @@ class ServicesManager {
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.initialize()
         }
-        hotAccessCodeCleaner.initialize()
+        mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
@@ -109,7 +109,7 @@ class ServicesManager {
         return initialLaunches
     }
 
-    private func handleUITestingArguments() {
+    private func configureForUITests() {
         // Only process UI testing arguments when running in UI test mode
         guard AppEnvironment.current.isUITest else { return }
 

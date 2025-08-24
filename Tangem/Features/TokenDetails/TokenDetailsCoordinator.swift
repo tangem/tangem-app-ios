@@ -151,12 +151,10 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(walletModel: any WalletModel) {
-        let addressInfos = ReceiveFlowUtils().makeAddressInfos(from: walletModel.addresses)
-
-        let receiveFlowFactory = ReceiveFlowFactory(
+        let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
-            addressInfos: addressInfos
+            addressTypesProvider: walletModel
         )
 
         switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
@@ -276,10 +274,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel) {
-        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
-            self?.sendCoordinator = nil
-        }
-
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             input: .init(userWalletModel: userWalletModel, walletModel: walletModel),

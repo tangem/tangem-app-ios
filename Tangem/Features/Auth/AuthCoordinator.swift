@@ -43,7 +43,7 @@ class AuthCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             newRootViewModel = NewAuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
         } else {
             rootViewModel = AuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)

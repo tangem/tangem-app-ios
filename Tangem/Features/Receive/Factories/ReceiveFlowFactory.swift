@@ -12,65 +12,36 @@ import BlockchainSdk
 struct ReceiveFlowFactory {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
-    private let addressInfos: [ReceiveAddressInfo]
-    private let coordinator: (TokenAlertReceiveAssetsRoutable & SelectorReceiveAssetItemRoutable)?
+    private let addressTypesProvider: ReceiveAddressTypesProvider
+    private let coordinator: ReceiveFlowCoordinator?
 
     // MARK: - Init
 
     init(
         flow: ReceiveFlow,
         tokenItem: TokenItem,
-        addressInfos: [ReceiveAddressInfo],
-        coordinator: (
-            TokenAlertReceiveAssetsRoutable &
-                SelectorReceiveAssetItemRoutable
-        )? = nil
+        addressTypesProvider: ReceiveAddressTypesProvider,
+        coordinator: ReceiveFlowCoordinator?
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
-        self.addressInfos = addressInfos
+        self.addressTypesProvider = addressTypesProvider
         self.coordinator = coordinator
     }
 
     // MARK: Implementation
 
-    func makeAvailabilityReceiveFlow() -> AvailabilityViewModel {
-        if FeatureProvider.isAvailable(.receiveENS), flow == .crypto {
-            let options = ReceiveMainViewModel.Options(
-                tokenItem: tokenItem,
-                addressInfos: addressInfos,
-                flow: flow
-            )
-
-            let receiveMainViewModel = ReceiveMainViewModel(options: options)
-            receiveMainViewModel.start()
-
-            return .domainReceiveFlow(receiveMainViewModel)
-        } else {
-            let receiveBottomSheetViewModel = makeBottomSheetViewModel()
-            return .bottomSheetReceiveFlow(receiveBottomSheetViewModel)
-        }
-    }
-
-    func makeBottomSheetViewModel() -> ReceiveBottomSheetViewModel {
-        let dependencies = makeDependenciesBuilder()
-        let receiveBottomSheetNotificationInputsFactory = dependencies.makeReceiveBottomSheetNotificationInputsFactory()
-        let notificationInputs = receiveBottomSheetNotificationInputsFactory.makeNotificationInputs(for: tokenItem)
-
-        return ReceiveBottomSheetViewModel(
-            flow: flow,
-            tokenItem: tokenItem,
-            notificationInputs: notificationInputs,
-            addressInfos: addressInfos
-        )
-    }
-
     func makeSelectorReceiveAssetViewModel() -> SelectorReceiveAssetsViewModel {
         let dependencies = makeDependenciesBuilder()
         let interactor = dependencies.makeSelectorReceiveAssetsInteractor()
-        let sectionFactory = dependencies.makeSelectorReceiveAssetsSectionFactory()
+        let sectionFactory = dependencies.makeSelectorReceiveAssetsSectionFactory(with: coordinator)
+        let analyticsLogger = dependencies.makeAnalyticsLogger()
 
-        return SelectorReceiveAssetsViewModel(interactor: interactor, sectionFactory: sectionFactory)
+        return SelectorReceiveAssetsViewModel(
+            interactor: interactor,
+            analyticsLogger: analyticsLogger,
+            sectionFactory: sectionFactory
+        )
     }
 
     func makeTokenAlertReceiveAssetViewModel() -> TokenAlertReceiveAssetsViewModel {
@@ -83,7 +54,18 @@ struct ReceiveFlowFactory {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
+    func makeQRCodeReceiveAssetViewModel(with addressInfo: ReceiveAddressInfo) -> QRCodeReceiveAssetsViewModel {
+        let dependencies = makeDependenciesBuilder()
+        let analyticsLogger = dependencies.makeAnalyticsLogger()
+
+        return QRCodeReceiveAssetsViewModel(
+            flow: flow,
+            tokenItem: tokenItem,
+            addressInfo: addressInfo,
+            analyticsLogger: analyticsLogger,
+            coordinator: coordinator
+        )
+    }
 
     // MARK: - Private Implementation
 
@@ -91,8 +73,7 @@ struct ReceiveFlowFactory {
         ReceiveDependenciesBuilder(
             flow: flow,
             tokenItem: tokenItem,
-            addressInfos: addressInfos,
-            coordinator: coordinator
+            addressTypesProvider: addressTypesProvider
         )
     }
 }

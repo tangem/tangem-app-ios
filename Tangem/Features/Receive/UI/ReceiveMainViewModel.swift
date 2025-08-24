@@ -30,9 +30,11 @@ class ReceiveMainViewModel: ObservableObject {
     private lazy var receiveFlowFactory: ReceiveFlowFactory = .init(
         flow: options.flow,
         tokenItem: options.tokenItem,
-        addressInfos: options.addressInfos,
+        addressTypesProvider: options.addressTypesProvider,
         coordinator: self
     )
+
+    private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
 
     // MARK: - Helpers
 
@@ -72,8 +74,7 @@ class ReceiveMainViewModel: ObservableObject {
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
-        if options.tokenItem.isToken {
-            // [REDACTED_TODO_COMMENT]
+        if receiveTokenWithdrawNoticeInteractor.shouldShowWithdrawalAlert(for: options.tokenItem) {
             return true
         }
 
@@ -86,19 +87,17 @@ class ReceiveMainViewModel: ObservableObject {
 extension ReceiveMainViewModel {
     struct Options {
         let tokenItem: TokenItem
-        let addressInfos: [ReceiveAddressInfo]
         let flow: ReceiveFlow
+        let addressTypesProvider: ReceiveAddressTypesProvider
     }
 }
 
-// MARK: - OnboardingReceiveDomainAssetsRoutable & SelectorReceiveDomainAssetsRoutable & SelectorReceiveAssetItemRoutable
+// MARK: - ReceiveFlowCoordinator
 
-extension ReceiveMainViewModel:
-    TokenAlertReceiveAssetsRoutable, SelectorReceiveAssetItemRoutable {
+extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     func routeOnReceiveQR(with info: ReceiveAddressInfo) {
-        /*
-         // [REDACTED_TODO_COMMENT]
-         */
+        let viewModel = receiveFlowFactory.makeQRCodeReceiveAssetViewModel(with: info)
+        viewState = .qrCode(viewModel: viewModel)
     }
 
     func copyToClipboard(with address: String) {
@@ -109,6 +108,15 @@ extension ReceiveMainViewModel:
                 layout: .top(padding: 12),
                 type: .temporary()
             )
+    }
+
+    func share(with address: String) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+
+            let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
+            UIApplication.modalFromTop(av)
+        }
     }
 
     func routeOnSelectorReceiveAssets(with proxySelectorViewModel: SelectorReceiveAssetsViewModel) {
@@ -126,7 +134,7 @@ extension ReceiveMainViewModel {
     enum ViewState: Identifiable, Equatable {
         case selector(viewModel: SelectorReceiveAssetsViewModel)
         case tokenAlert(viewModel: TokenAlertReceiveAssetsViewModel)
-        case qrCode
+        case qrCode(viewModel: QRCodeReceiveAssetsViewModel)
 
         // MARK: - Identifiable
 

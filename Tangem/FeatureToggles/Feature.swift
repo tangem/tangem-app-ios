@@ -15,15 +15,15 @@ enum Feature: String, Hashable, CaseIterable {
     case nft
     case walletConnectUI
     case logs
-    case newSendUI
     case sendViaSwap
-    case hotWallet
+    case mobileWallet
     case pushTransactionNotifications
     case deeplink
     case wcSolanaALT
     case accounts
     case nftNewSendUI
     case receiveENS
+    case sellNewSendUI
 
     var name: String {
         switch self {
@@ -33,15 +33,15 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
         case .logs: return "Logs"
-        case .newSendUI: return "New Send UI"
         case .sendViaSwap: return "Send via Swap"
-        case .hotWallet: return "Hot wallet"
+        case .mobileWallet: return "Mobile wallet"
         case .pushTransactionNotifications: return "Push Transaction Notifications"
         case .deeplink: return "Deeplink"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
         case .nftNewSendUI: return "NFT New Send UI"
         case .receiveENS: return "Receive (ENS)"
+        case .sellNewSendUI: return "Sell on New Send UI"
         }
     }
 
@@ -53,15 +53,15 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return .version("5.25")
         case .walletConnectUI: return .version("5.27")
         case .logs: return .version("5.25")
-        case .newSendUI: return .unspecified
-        case .sendViaSwap: return .unspecified
-        case .hotWallet: return .unspecified
+        case .sendViaSwap: return .version("5.28")
+        case .mobileWallet: return .unspecified
         case .pushTransactionNotifications: return .version("5.26.3")
         case .deeplink: return .version("5.25")
-        case .wcSolanaALT: return .version("5.27") // [REDACTED_TODO_COMMENT]
+        case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
-        case .nftNewSendUI: return .unspecified
-        case .receiveENS: return .unspecified
+        case .nftNewSendUI: return .version("5.28")
+        case .receiveENS: return .version("5.28")
+        case .sellNewSendUI: return .unspecified
         }
     }
 }

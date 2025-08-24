@@ -9,6 +9,8 @@
 import Foundation
 
 struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
+    let analyticsLogger: any ReceiveAnalyticsLogger
+
     // MARK: - Private Properties
 
     private let tokenItem: TokenItem
@@ -16,14 +18,19 @@ struct CommonSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFa
 
     // MARK: - Init
 
-    init(tokenItem: TokenItem, coordinator: SelectorReceiveAssetItemRoutable?) {
+    init(
+        tokenItem: TokenItem,
+        analyticsLogger: ReceiveAnalyticsLogger,
+        coordinator: SelectorReceiveAssetItemRoutable?
+    ) {
         self.tokenItem = tokenItem
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
     }
 
     // MARK: - Implementation
 
-    func makeSections(from assets: [ReceiveAsset]) -> [SelectorReceiveAssetsSection] {
+    func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
         let assetItems: [SelectorReceiveAssetsContentItemViewModel] = assets.compactMap {
             let stateView = makeStateViewModel(asset: $0, tokenItem: tokenItem, coordinator: coordinator)
             return SelectorReceiveAssetsContentItemViewModel(stateView: stateView)

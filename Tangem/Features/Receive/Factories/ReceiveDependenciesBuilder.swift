@@ -7,35 +7,41 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct ReceiveDependenciesBuilder {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
-    private let addressInfos: [ReceiveAddressInfo]
-    private let coordinator: SelectorReceiveAssetItemRoutable?
+    private let addressTypesProvider: ReceiveAddressTypesProvider
 
     // MARK: - Init
 
     init(
         flow: ReceiveFlow,
         tokenItem: TokenItem,
-        addressInfos: [ReceiveAddressInfo],
-        coordinator: SelectorReceiveAssetItemRoutable?
+        addressTypesProvider: ReceiveAddressTypesProvider
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
-        self.addressInfos = addressInfos
-        self.coordinator = coordinator
+        self.addressTypesProvider = addressTypesProvider
     }
 
     // MARK: - Builder
 
-    func makeSelectorReceiveAssetsSectionFactory() -> SelectorReceiveAssetsSectionFactory {
+    func makeSelectorReceiveAssetsSectionFactory(with coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsSectionFactory {
         switch tokenItem.blockchain {
         case .ethereum:
-            EthereumSelectorReceiveAssetsSectionFactory(tokenItem: tokenItem, coordinator: coordinator)
+            EthereumSelectorReceiveAssetsSectionFactory(
+                tokenItem: tokenItem,
+                analyticsLogger: makeAnalyticsLogger(),
+                coordinator: coordinator
+            )
         default:
-            CommonSelectorReceiveAssetsSectionFactory(tokenItem: tokenItem, coordinator: coordinator)
+            CommonSelectorReceiveAssetsSectionFactory(
+                tokenItem: tokenItem,
+                analyticsLogger: makeAnalyticsLogger(),
+                coordinator: coordinator
+            )
         }
     }
 
@@ -44,12 +50,16 @@ struct ReceiveDependenciesBuilder {
         let notificationInputs = notificationInputsFactory.makeNotificationInputs(for: tokenItem)
 
         return CommonSelectorReceiveAssetsInteractor(
-            addressInfos: addressInfos,
-            notificationInputs: notificationInputs
+            notificationInputs: notificationInputs,
+            addressTypes: addressTypesProvider.receiveAddressTypes
         )
     }
 
     func makeReceiveBottomSheetNotificationInputsFactory() -> ReceiveBottomSheetNotificationInputsFactory {
         ReceiveBottomSheetNotificationInputsFactory(flow: flow)
+    }
+
+    func makeAnalyticsLogger() -> ReceiveAnalyticsLogger {
+        CommonReceiveAnalyticsLogger(flow: flow, tokenItem: tokenItem)
     }
 }
