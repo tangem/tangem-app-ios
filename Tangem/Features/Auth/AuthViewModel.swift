@@ -11,6 +11,7 @@ import SwiftUI
 import TangemSdk
 import TangemLocalization
 import TangemUIUtils
+import TangemFoundation
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState
@@ -60,9 +61,24 @@ final class AuthViewModel: ObservableObject {
     }
 
     func unlockWithBiometry() {
-        userWalletRepository.unlock(with: .biometry) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.didFinishUnlocking(result)
+        runTask(in: self) { viewModel in
+            do {
+                let context = try await UserWalletBiometricsUnlocker().unlock()
+                let userWalletModel = try viewModel.userWalletRepository.unlock(with: .biometrics(context))
+
+                await runOnMain {
+                    viewModel.openMain(with: userWalletModel)
+                }
+            } catch where error.isCancellationError {
+                viewModel.incomingActionManager.discardIncomingAction()
+            } catch {
+                Analytics.logScanError(error, source: .signIn)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.error = error.alertBinder
+                }
             }
         }
     }
@@ -71,9 +87,63 @@ final class AuthViewModel: ObservableObject {
         isScanningCard = true
         Analytics.beginLoggingCardScan(source: .auth)
 
-        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.didFinishUnlocking(result)
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
+
+            switch result {
+            case .error(let error) where error.isCancellationError:
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard = false
+                }
+
+            case .error(let error):
+                Analytics.logScanError(error, source: .signIn)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard = false
+                    viewModel.error = error.alertBinder
+                }
+
+            case .onboarding(let input):
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard = false
+                    viewModel.openOnboarding(with: input)
+                }
+
+            case .scanTroubleshooting:
+                Analytics.log(.cantScanTheCard, params: [.source: .signIn])
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isScanningCard = false
+                    viewModel.openTroubleshooting()
+                }
+
+            case .success(let cardInfo):
+                do {
+                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+
+                    await runOnMain {
+                        viewModel.isScanningCard = false
+                        viewModel.openMain(with: userWalletModel)
+                    }
+
+                } catch {
+                    viewModel.incomingActionManager.discardIncomingAction()
+
+                    await runOnMain {
+                        viewModel.isScanningCard = false
+                        viewModel.error = error.alertBinder
+                    }
+                }
             }
         }
     }
@@ -92,34 +162,6 @@ final class AuthViewModel: ObservableObject {
 
     func onDisappear() {
         incomingActionManager.resignFirstResponder(self)
-    }
-
-    private func didFinishUnlocking(_ result: UserWalletRepositoryResult?) {
-        isScanningCard = false
-
-        if result?.isSuccess != true {
-            incomingActionManager.discardIncomingAction()
-        }
-
-        guard let result else { return }
-
-        switch result {
-        case .troubleshooting:
-            Analytics.log(.cantScanTheCard, params: [.source: .signIn])
-            openTroubleshooting()
-        case .onboarding(let input):
-            openOnboarding(with: input)
-        case .error(let error):
-            if error.isCancellationError {
-                return
-            }
-
-            Analytics.logScanError(error, source: .signIn)
-            Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
-            self.error = error.alertBinder
-        case .success(let model), .partial(let model, _):
-            openMain(with: model)
-        }
     }
 }
 

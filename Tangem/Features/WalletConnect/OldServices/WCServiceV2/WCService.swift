@@ -7,27 +7,21 @@
 //
 
 import Combine
+import ReownWalletKit
+import enum BlockchainSdk.Blockchain
 
 protocol WCService {
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
-    var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
+    var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> { get }
 
     func initialize()
-    func reset()
-    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource)
-    func disconnectSession(with id: Int) async
+
+    func openSession(with uri: WalletConnectRequestURI) async throws -> (Session.Proposal, VerifyContext?)
+
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
+    func disconnectSession(withTopic topic: String) async throws
+    func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws
+
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
-    func updateSelectedWalletId(_ userWalletId: String)
-    func updateSelectedNetworks(_ selectedNetworks: [BlockchainNetwork])
-}
-
-private struct WCServiceKey: InjectionKey {
-    static var currentValue: WCService = CommonWCService()
-}
-
-extension InjectedValues {
-    var wConnectService: WCService {
-        get { Self[WCServiceKey.self] }
-        set { Self[WCServiceKey.self] = newValue }
-    }
+    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain)
 }

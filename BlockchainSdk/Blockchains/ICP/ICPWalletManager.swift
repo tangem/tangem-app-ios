@@ -74,7 +74,7 @@ final class ICPWalletManager: BaseManager, WalletManager {
                     transaction: transaction
                 )
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -104,7 +104,7 @@ final class ICPWalletManager: BaseManager, WalletManager {
                 )
             }
             .map { blockIndex in TransactionSendResult(hash: String(blockIndex)) }
-            .mapSendError(tx: signingOutput.callEnvelope.hex())
+            .mapAndEraseSendTxError(tx: signingOutput.callEnvelope.hex())
             .handleEvents(receiveOutput: { [weak self] transactionSendResult in
                 guard let self else { return }
                 let mapper = PendingTransactionRecordMapper()

@@ -19,16 +19,18 @@ final class AppOverlaysManager {
 
     @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
+    @Injected(\.alertPresenterViewModel) private var alertPresenterViewModel: AlertPresenterViewModel
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
 
     private var overlayWindow: UIWindow?
     private var storiesViewController: UIViewController?
 
-    private var storiesStateCancellable: (any Cancellable)?
+    private var cancellables: Set<AnyCancellable>
     private weak var mainWindow: MainWindow?
 
     init(sheetRegistry: FloatingSheetRegistry) {
         self.sheetRegistry = sheetRegistry
+        cancellables = []
     }
 
     func setup(with scene: UIScene) {
@@ -41,10 +43,11 @@ final class AppOverlaysManager {
             from: windowScene,
             sheetViewModel: floatingSheetViewModel,
             storiesViewModel: tangemStoriesViewModel,
-            sheetRegistry: sheetRegistry
+            sheetRegistry: sheetRegistry,
+            alertPresenterViewModel: alertPresenterViewModel
         )
 
-        bindStoriesViewModel()
+        bindStories()
     }
 
     func setMainWindow(_ mainWindow: MainWindow) {
@@ -58,19 +61,23 @@ final class AppOverlaysManager {
         tangemStoriesViewModel.forceDismiss()
     }
 
-    private func bindStoriesViewModel() {
-        storiesStateCancellable = tangemStoriesViewModel
+    // MARK: - Private methods
+
+    private func bindStories() {
+        tangemStoriesViewModel
             .$state
             .sink { [weak self] state in
-                if let state {
-                    self?.handleNewStoriesState(state)
-                } else {
-                    self?.dismissStoriesViewController()
-                }
+                self?.handleNewStoriesState(state)
             }
+            .store(in: &cancellables)
     }
 
-    private func handleNewStoriesState(_ state: TangemStoriesViewModel.State) {
+    private func handleNewStoriesState(_ state: TangemStoriesViewModel.State?) {
+        guard let state else {
+            dismissStoriesViewController()
+            return
+        }
+
         if let storiesViewController {
             Self.updateStoriesViewController(storiesViewController, with: state, imageCache: storyKingfisherImageCache)
         } else {
@@ -111,10 +118,15 @@ extension AppOverlaysManager {
         from windowScene: UIWindowScene,
         sheetViewModel: FloatingSheetViewModel,
         storiesViewModel: TangemStoriesViewModel,
-        sheetRegistry: FloatingSheetRegistry
+        sheetRegistry: FloatingSheetRegistry,
+        alertPresenterViewModel: AlertPresenterViewModel
     ) -> UIWindow {
-        let rootView = OverlayRootView(floatingSheetViewModel: sheetViewModel, tangemStoriesViewModel: storiesViewModel)
-            .environment(\.floatingSheetRegistry, sheetRegistry)
+        let rootView = OverlayRootView(
+            floatingSheetViewModel: sheetViewModel,
+            tangemStoriesViewModel: storiesViewModel,
+            alertPresenterViewModel: alertPresenterViewModel
+        )
+        .environment(\.floatingSheetRegistry, sheetRegistry)
 
         let rootViewController = UIHostingController(rootView: rootView)
         rootViewController.view.backgroundColor = .clear

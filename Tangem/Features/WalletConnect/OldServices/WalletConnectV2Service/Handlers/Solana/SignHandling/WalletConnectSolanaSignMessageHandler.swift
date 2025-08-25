@@ -15,6 +15,7 @@ struct WalletConnectSolanaSignMessageHandler {
     private let message: String
     private let signer: WalletConnectSigner
     private let walletModel: any WalletModel
+    private let request: AnyCodable
 
     init(
         request: AnyCodable,
@@ -38,13 +39,22 @@ struct WalletConnectSolanaSignMessageHandler {
         }
 
         self.signer = signer
+        self.request = request
     }
 }
 
 extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
-    var event: WalletConnectEvent {
-        .sign
+    var method: WalletConnectMethod { .solanaSignMessage }
+
+    var requestData: Data {
+        message.data(using: .utf8) ?? Data()
     }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
+    }
+
+    var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         let message = Localization.walletConnectPersonalSignMessage(dApp.name, message)

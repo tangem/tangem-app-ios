@@ -10,33 +10,37 @@ import Combine
 import SwiftUI
 import TangemExpress
 import TangemFoundation
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class OnrampPaymentMethodsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var paymentMethods: [OnrampPaymentMethodRowViewData] = []
+    @Published var selectedPaymentMethodID: String?
     @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
 
     private let interactor: OnrampPaymentMethodsInteractor
+    private let analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger
     private weak var coordinator: OnrampPaymentMethodsRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
     init(
         interactor: OnrampPaymentMethodsInteractor,
+        analyticsLogger: SendOnrampPaymentMethodAnalyticsLogger,
         coordinator: OnrampPaymentMethodsRoutable
     ) {
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         bind()
     }
 
     func onAppear() {
-        Analytics.log(.onrampPaymentMethodScreenOpened)
+        analyticsLogger.logOnrampPaymentMethodScreenOpened()
     }
 }
 
@@ -58,22 +62,27 @@ private extension OnrampPaymentMethodsViewModel {
     }
 
     func updateView(paymentMethods methods: [OnrampPaymentMethod], selectedPaymentMethod: OnrampPaymentMethod) {
-        paymentMethods = methods.map { method in
-            OnrampPaymentMethodRowViewData(
+        var paymentMethods: [OnrampPaymentMethodRowViewData] = []
+        methods.forEach { method in
+            let rowData = OnrampPaymentMethodRowViewData(
                 id: method.id,
                 name: method.name,
                 iconURL: method.image,
-                isSelected: selectedPaymentMethod.id == method.id,
                 action: { [weak self] in
-                    Analytics.log(event: .onrampMethodChosen, params: [
-                        .paymentMethod: method.name,
-                    ])
-
+                    self?.analyticsLogger.logOnrampPaymentMethodChosen(paymentMethod: method)
                     self?.interactor.update(selectedPaymentMethod: method)
                     self?.updateView(paymentMethods: methods, selectedPaymentMethod: method)
                     self?.coordinator?.closeOnrampPaymentMethodsView()
                 }
             )
+
+            paymentMethods.append(rowData)
+
+            if selectedPaymentMethod.id == method.id {
+                selectedPaymentMethodID = method.id
+            }
         }
+
+        self.paymentMethods = paymentMethods
     }
 }

@@ -13,10 +13,15 @@ import enum BlockchainSdk.Blockchain
 import struct BlockchainSdk.Token
 import struct TangemSdk.DerivationPath
 
-class CommonUserTokenListManager {
+final class CommonUserTokenListManager {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.wcService) private var wcService: any WCService
+
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
+
+    // MARK: - Private Properties
 
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
@@ -91,7 +96,11 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository.update(userTokenList)
         notifyAboutTokenListUpdates(with: userTokenList)
 
-        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+        let converter = UserTokenListConverter(
+            supportedBlockchains: supportedBlockchains,
+            externalParametersProvider: externalParametersProvider
+        )
+
         updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
     }
 
@@ -103,7 +112,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
             let storedUserTokens = converter.convertToStoredUserTokens(entries)
             tokenItemsRepository.append(storedUserTokens)
         case .removeBlockchain(let blockchainNetwork):
-            tokenItemsRepository.remove([blockchainNetwork])
+            tokenItemsRepository.remove(
+                [blockchainNetwork],
+                completion: { [wcService] in
+                    wcService.handleHiddenBlockchainFromCurrentUserWallet(blockchainNetwork.blockchain)
+                }
+            )
         case .removeToken(let token, let blockchainNetwork):
             let storedUserToken = converter.convertToStoredUserToken(token, in: blockchainNetwork)
             tokenItemsRepository.remove([storedUserToken])
@@ -146,7 +160,10 @@ private extension CommonUserTokenListManager {
 
     func loadUserTokenList(_ completion: @escaping Completion) {
         if let list = pendingTokensToUpdate {
-            let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+            let converter = UserTokenListConverter(
+                supportedBlockchains: supportedBlockchains,
+                externalParametersProvider: externalParametersProvider
+            )
 
             tokenItemsRepository.update(converter.convertRemoteToStored(list))
             updateTokensOnServer(list: list, completion: completion)
@@ -171,7 +188,10 @@ private extension CommonUserTokenListManager {
                 guard let self else { return }
 
                 if let list {
-                    let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+                    let converter = UserTokenListConverter(
+                        supportedBlockchains: supportedBlockchains,
+                        externalParametersProvider: externalParametersProvider
+                    )
                     let updatedUserTokenList = converter.convertRemoteToStored(list)
                     tokenItemsRepository.update(updatedUserTokenList)
                     notifyAboutTokenListUpdates(with: updatedUserTokenList)
@@ -208,7 +228,10 @@ private extension CommonUserTokenListManager {
     }
 
     func getUserTokenList() -> UserTokenList {
-        let converter = UserTokenListConverter(supportedBlockchains: supportedBlockchains)
+        let converter = UserTokenListConverter(
+            supportedBlockchains: supportedBlockchains,
+            externalParametersProvider: externalParametersProvider
+        )
         let list = tokenItemsRepository.getList()
         return converter.convertStoredToRemote(list)
     }
@@ -278,6 +301,6 @@ private extension CommonUserTokenListManager {
         }
 
         let blockchainNetwork = badEntries.map { $0.blockchainNetwork }
-        tokenItemsRepository.remove(blockchainNetwork)
+        tokenItemsRepository.remove(blockchainNetwork, completion: nil)
     }
 }

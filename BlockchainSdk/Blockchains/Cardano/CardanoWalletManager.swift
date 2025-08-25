@@ -63,14 +63,14 @@ extension CardanoWalletManager: TransactionSender {
             .receive(on: DispatchQueue.global())
             .tryMap { [weak self] _ -> Data in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return try transactionBuilder.buildForSign(transaction: transaction)
             }
             .flatMap { [weak self] dataForSign -> AnyPublisher<SignatureInfo, Error> in
                 guard let self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
 
                 return signer
@@ -78,24 +78,24 @@ extension CardanoWalletManager: TransactionSender {
             }
             .tryMap { [weak self] signatureInfo -> Data in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return try transactionBuilder.buildForSend(transaction: transaction, signature: signatureInfo)
             }
             .flatMap { [weak self] builtTransaction -> AnyPublisher<String, Error> in
                 guard let self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
 
                 return networkService
                     .send(transaction: builtTransaction)
-                    .mapSendError(tx: builtTransaction.hex())
+                    .mapAndEraseSendTxError(tx: builtTransaction.hex())
                     .eraseToAnyPublisher()
             }
             .tryMap { [weak self] hash in
                 guard let self else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 let mapper = PendingTransactionRecordMapper()
@@ -103,7 +103,7 @@ extension CardanoWalletManager: TransactionSender {
                 wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -135,10 +135,6 @@ extension CardanoWalletManager: DustRestrictable {
 // MARK: - WithdrawalNotificationProvider
 
 extension CardanoWalletManager: WithdrawalNotificationProvider {
-    func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
-        return nil
-    }
-
     func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
         // We have to show the notification only when send the token
         guard amount.type.isToken else {
@@ -184,7 +180,7 @@ extension CardanoWalletManager: CardanoTransferRestrictable {
         }
 
         guard let parameters = fee.parameters as? CardanoFeeParameters else {
-            throw CardanoTransactionBuilderError.feeParametersNotFound
+            throw CardanoError.feeParametersNotFound
         }
 
         let minChange = try transactionBuilder.minChange(amount: amount)
@@ -213,7 +209,7 @@ extension CardanoWalletManager: CardanoTransferRestrictable {
 
         // 1. Check if there is enough ADA to send the token
         guard let parameters = fee.parameters as? CardanoFeeParameters else {
-            throw CardanoTransactionBuilderError.feeParametersNotFound
+            throw CardanoError.feeParametersNotFound
         }
 
         let sendingAdaValueDecimal = Decimal(parameters.adaValue) / wallet.blockchain.decimalValue
@@ -264,7 +260,7 @@ extension CardanoWalletManager: StakeKitTransactionSender, StakeKitTransactionsB
 
             secondPublicKey = second.extendedPublicKey.publicKey
 
-        default: throw WalletError.failedToBuildTx
+        default: throw BlockchainSdkError.failedToBuildTx
         }
 
         var transactionHashes = [StakeKitTransaction: Data]()

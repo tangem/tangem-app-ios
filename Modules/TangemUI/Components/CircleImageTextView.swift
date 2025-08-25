@@ -8,7 +8,7 @@
 
 import SwiftUI
 import TangemAssets
-import TangemFoundation
+import TangemUIUtils
 
 public struct CircleImageTextView: View {
     var name: String

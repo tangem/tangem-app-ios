@@ -14,10 +14,16 @@ import WalletCore
 // Decoder: https://rawtxdecode.in
 class EthereumTransactionBuilder {
     private let chainId: Int
-    private let coinType: CoinType = .ethereum
+    private let coinType: CoinType
+    private let sourceAddress: Address
 
-    init(chainId: Int) {
+    init(
+        chainId: Int,
+        sourceAddress: Address
+    ) {
         self.chainId = chainId
+        self.sourceAddress = sourceAddress
+        coinType = .ethereum
     }
 
     func buildForSign(transaction: Transaction) throws -> Data {
@@ -33,12 +39,13 @@ class EthereumTransactionBuilder {
     }
 
     func buildDummyTransactionForL1(destination: String, value: String?, data: Data?, fee: Fee) throws -> Data {
-        let valueData = BigUInt(Data(hex: value ?? "0x0"))
+        let amountValue = BigUInt(Data(hex: value ?? "0x0"))
+
         switch fee.amount.type {
         case .coin:
             let input = try buildSigningInput(
                 destination: destination,
-                coinAmount: valueData,
+                coinAmount: amountValue,
                 fee: fee,
                 // The nonce for the dummy transaction won't be used later, so we can just mock it with any value
                 nonce: 1,
@@ -47,7 +54,12 @@ class EthereumTransactionBuilder {
             return try buildTxCompilerPreSigningOutput(input: input).data
 
         case .token(let token):
-            let data = TransferERC20TokenMethod(destination: destination, amount: valueData).data
+            let method = try makeTokenTransferSmartContractMethod(
+                destination: destination,
+                amount: amountValue,
+                token: token
+            )
+            let data = method.data
             let input = try buildSigningInput(
                 destination: token.contractAddress,
                 coinAmount: .zero,
@@ -72,15 +84,20 @@ class EthereumTransactionBuilder {
     }
 
     func buildForTokenTransfer(destination: String, amount: Amount) throws -> Data {
-        if !amount.type.isToken {
+        guard case .token(let token) = amount.type else {
             return Data()
         }
 
-        guard let bigUInt = amount.bigUIntValue else {
+        guard let amountValue = amount.bigUIntValue else {
             throw EthereumTransactionBuilderError.invalidAmount
         }
 
-        let method = TransferERC20TokenMethod(destination: destination, amount: bigUInt)
+        let method = try makeTokenTransferSmartContractMethod(
+            destination: destination,
+            amount: amountValue,
+            token: token
+        )
+
         return method.data
     }
 
@@ -214,7 +231,11 @@ private extension EthereumTransactionBuilder {
 
         case .token(let token):
             let contract = transaction.contractAddress ?? token.contractAddress
-            let method = TransferERC20TokenMethod(destination: transaction.destinationAddress, amount: amountValue)
+            let method = try makeTokenTransferSmartContractMethod(
+                destination: transaction.destinationAddress,
+                amount: amountValue,
+                token: token
+            )
             let data = parameters.data ?? method.data
 
             return try buildSigningInput(
@@ -231,13 +252,48 @@ private extension EthereumTransactionBuilder {
     }
 }
 
-extension EthereumTransactionBuilder {
-    private enum Constants {
+private extension EthereumTransactionBuilder {
+    func makeTokenTransferSmartContractMethod(
+        destination: String,
+        amount: BigUInt,
+        token: Token
+    ) throws -> SmartContractMethod {
+        switch token.metadata.kind {
+        case .fungible:
+            return TransferERC20TokenMethod(destination: destination, amount: amount)
+
+        case .nonFungible(let assetIdentifier, .erc721):
+            let source = sourceAddress.value
+            return try TransferERC721TokenMethod(
+                source: source,
+                destination: destination,
+                assetIdentifier: assetIdentifier
+            )
+
+        case .nonFungible(let assetIdentifier, .erc1155):
+            let source = sourceAddress.value
+            return try TransferERC1155TokenMethod(
+                source: source,
+                destination: destination,
+                assetIdentifier: assetIdentifier,
+                assetAmount: amount
+            )
+
+        case .nonFungible(_, .unspecified):
+            // Currently only ERC721 and ERC1155 contract types are supported,
+            // so receiving an `.unspecified` contract type here is a programming error
+            throw EthereumTransactionBuilderError.unsupportedContractType
+        }
+    }
+}
+
+private extension EthereumTransactionBuilder {
+    enum Constants {
         static let signatureSize = 64
     }
 }
 
-enum EthereumTransactionBuilderError: LocalizedError {
+enum EthereumTransactionBuilderError: LocalizedError, Equatable {
     case feeParametersNotFound
     case transactionParamsNotFound
     case invalidSignatureCount
@@ -246,6 +302,7 @@ enum EthereumTransactionBuilderError: LocalizedError {
     case transactionEncodingFailed
     case walletCoreError(message: String)
     case invalidStakingTransaction
+    case unsupportedContractType
 
     var errorDescription: String? {
         switch self {
@@ -265,6 +322,8 @@ enum EthereumTransactionBuilderError: LocalizedError {
             return "walletCoreError: \(message)"
         case .invalidStakingTransaction:
             return "invalidStakingTransaction"
+        case .unsupportedContractType:
+            return "unsupportedContractType"
         }
     }
 }

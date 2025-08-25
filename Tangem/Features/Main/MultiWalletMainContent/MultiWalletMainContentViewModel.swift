@@ -13,6 +13,7 @@ import CombineExt
 import TangemStaking
 import TangemNFT
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
@@ -100,7 +101,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         bind()
 
-        nftFeatureLifecycleHandler.startObserving()
         actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
@@ -136,7 +136,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     func startBackupProcess() {
         if let input = userWalletModel.backupInput {
             Analytics.log(.mainNoticeBackupWalletTapped)
-            coordinator?.openOnboardingModal(with: input)
+            coordinator?.openOnboardingModal(with: .input(input))
         }
     }
 
@@ -150,34 +150,37 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     private func bind() {
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisherForMainScreen(for: userWalletModel)
+
+        let tokenSectionsSourcePublisher = sourcePublisherFactory
+            .makeSourcePublisherForMainScreen(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
-        nftFeatureLifecycleHandler.walletsWithNFTEnabledPublisher
-            .map { [weak self] in
-                guard
-                    let self,
-                    let coordinator,
-                    $0.contains(userWalletModel.userWalletId)
-                else {
-                    return nil
-                }
+        let walletsWithNFTEnabledPublisher = nftFeatureLifecycleHandler
+            .walletsWithNFTEnabledPublisher
+            .share(replay: 1)
 
-                let navigationContext = NFTReceiveInput(
-                    userWalletName: userWalletModel.name,
-                    userWalletConfig: userWalletModel.config,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
+        let nftEntrypointViewModelPublisher = Publishers.Merge(
+            walletsWithNFTEnabledPublisher,
+            userWalletModel
+                .walletModelsManager
+                .walletModelsPublisher
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+        )
 
-                return NFTEntrypointViewModel(
-                    nftManager: userWalletModel.nftManager,
-                    navigationContext: navigationContext,
-                    coordinator: coordinator
-                )
+        nftEntrypointViewModelPublisher
+            .withWeakCaptureOf(self)
+            .flatMap { viewModel, walletsWithNFTEnabled in
+                let isNFTEnabledForWallet = walletsWithNFTEnabled.contains(viewModel.userWalletModel.userWalletId)
+                let result = Result { try viewModel.makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: isNFTEnabledForWallet) }
+
+                return result
+                    .publisher
+                    .materialize()
             }
+            .values()
             .receiveOnMain()
             .assign(to: \.nftEntrypointViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -272,6 +275,43 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
             return Section(model: sectionViewModel, items: itemViewModels)
         }
+    }
+
+    /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
+    private func makeNFTEntrypointViewModelIfNeeded(isNFTEnabledForWallet: Bool) throws -> NFTEntrypointViewModel? {
+        // NFT Entrypoint is shown only if the feature is enabled for the wallet and there is at least one token in the token list
+        guard isNFTEnabledForWallet, userWalletModel.walletModelsManager.walletModels.isNotEmpty else {
+            return nil
+        }
+
+        // Early exit when the NFT Entrypoint view model has already been created, since there is no point in creating it again
+        if nftEntrypointViewModel != nil {
+            throw "NFTEntrypointViewModel already created"
+        }
+
+        let navigationContext = NFTNavigationInput(
+            userWalletModel: userWalletModel,
+            walletModelsManager: userWalletModel.walletModelsManager
+        )
+
+        return NFTEntrypointViewModel(
+            nftManager: userWalletModel.nftManager,
+            navigationContext: navigationContext,
+            analytics: NFTAnalytics.Entrypoint(
+                logCollectionsOpen: { state, collectionsCount, nftsCount, dummyCollectionsCount in
+                    Analytics.log(
+                        event: .nftCollectionsOpened,
+                        params: [
+                            .state: state,
+                            .nftCollectionsCount: "\(collectionsCount)",
+                            .nftAssetsCount: "\(nftsCount)",
+                            .nftDummyCollectionsCount: "\(dummyCollectionsCount)",
+                        ]
+                    )
+                }
+            ),
+            coordinator: coordinator
+        )
     }
 
     private func makeTokenItemViewModel(
@@ -420,6 +460,11 @@ extension MultiWalletMainContentViewModel {
 
         coordinator?.openReferral(input: input)
     }
+
+    private func openHotFinishActivation() {
+        // [REDACTED_TODO_COMMENT]
+        coordinator?.openHotFinishActivation()
+    }
 }
 
 // MARK: - Notification tap delegate
@@ -464,6 +509,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
+        case .openHotFinishActivation:
+            openHotFinishActivation()
         default:
             break
         }

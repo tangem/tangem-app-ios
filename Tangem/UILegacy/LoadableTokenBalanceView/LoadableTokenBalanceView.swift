@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemAssets
 
 struct LoadableTokenBalanceView: View {
@@ -21,33 +22,36 @@ struct LoadableTokenBalanceView: View {
     }
 
     var body: some View {
-        switch state {
-        case .loading(.some(let cached)):
-            textView(cached)
-                .modifier(Shimmer())
-        case .loading(.none):
-            RoundedRectangle(cornerRadius: loader.cornerRadius, style: .continuous)
-                .fill(Colors.Control.shimmer)
-                .frame(size: loader.size)
-                .padding(loader.padding)
-                .modifier(Shimmer())
-        case .failed(let text, .none):
-            textView(text)
-        case .failed(let text, .leading):
-            HStack(spacing: 6) {
-                cloudIcon
+        Group {
+            switch state {
+            case .loading(.some(let cached)):
+                textView(cached)
+                    .shimmer()
+            case .loading(.none):
+                RoundedRectangle(cornerRadius: loader.cornerRadius, style: .continuous)
+                    .fill(Colors.Control.shimmer)
+                    .frame(size: loader.size)
+                    .padding(loader.padding)
+                    .shimmer()
+            case .failed(let text, .none):
+                textView(text)
+            case .failed(let text, .leading):
+                HStack(spacing: 6) {
+                    cloudIcon
 
+                    textView(text)
+                }
+            case .failed(let text, .trailing):
+                HStack(spacing: 6) {
+                    textView(text)
+
+                    cloudIcon
+                }
+            case .loaded(let text):
                 textView(text)
             }
-        case .failed(let text, .trailing):
-            HStack(spacing: 6) {
-                textView(text)
-
-                cloudIcon
-            }
-        case .loaded(let text):
-            textView(text)
         }
+        .environment(\.isShimmerActive, true)
     }
 
     private var cloudIcon: some View {

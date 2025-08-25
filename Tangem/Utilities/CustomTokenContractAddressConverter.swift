@@ -39,9 +39,16 @@ struct CustomTokenContractAddressConverter {
             let converter = SuiContractAddressConverter()
             let normalizeContractAddress = converter.convertIfNeeded(contractAddress: originalAddress)
             return normalizeContractAddress
+        case .stellar:
+            let converter = StellarAssetIdParser()
+            let normalizedConractAddrss = converter.normalizeAssetId(originalAddress)
+            return normalizedConractAddrss
+        case .xrp:
+            let converter = XRPAssetIdParser()
+            let normalizedConractAddress = converter.normalizeAssetId(originalAddress)
+            return normalizedConractAddress
         case .bitcoin,
              .litecoin,
-             .stellar,
              .ethereum,
              .ethereumPoW,
              .disChain,
@@ -49,7 +56,6 @@ struct CustomTokenContractAddressConverter {
              .rsk,
              .bitcoinCash,
              .binance,
-             .xrp,
              .ducatus,
              .tezos,
              .dogecoin,
@@ -106,7 +112,6 @@ struct CustomTokenContractAddressConverter {
              .blast,
              .filecoin,
              .sei,
-             .sui,
              .energyWebEVM,
              .energyWebX,
              .core,

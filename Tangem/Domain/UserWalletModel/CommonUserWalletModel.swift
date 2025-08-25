@@ -10,15 +10,15 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemAssets
+import TangemVisa
 import TangemSdk
 import TangemNFT
 
 class CommonUserWalletModel {
     // MARK: Services
 
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
@@ -27,25 +27,10 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
+    let walletImageProvider: WalletImageProviding
+    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
     private let walletManagersRepository: WalletManagersRepository
-    private let cardImageProvider = CardImageProvider()
-
-    private var associatedCardIds: Set<String>
-
-    var signer: TangemSigner { _signer }
-
-    var cardId: String { cardInfo.card.cardId }
-
-    var card: CardDTO {
-        cardInfo.card
-    }
-
-    var cardPublicKey: Data { cardInfo.card.cardPublicKey }
-
-    var supportsOnlineImage: Bool {
-        config.hasFeature(.onlineImage)
-    }
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -53,25 +38,20 @@ class CommonUserWalletModel {
 
     let userWalletId: UserWalletId
 
-    private(set) var cardInfo: CardInfo
+    private(set) var walletInfo: WalletInfo
     var config: UserWalletConfig
+
+    private(set) var name: String
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private var signSubscription: AnyCancellable?
-
-    private var _signer: TangemSigner {
-        didSet {
-            bindSigner()
-        }
-    }
 
     init(
-        cardInfo: CardInfo,
+        walletInfo: WalletInfo,
+        name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        associatedCardIds: Set<String>,
         walletManagersRepository: WalletManagersRepository,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
@@ -79,16 +59,13 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
-        totalBalanceProvider: TotalBalanceProviding
+        totalBalanceProvider: TotalBalanceProviding,
+        userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     ) {
-        self.cardInfo = cardInfo
+        self.walletInfo = walletInfo
         self.config = config
         self.userWalletId = userWalletId
-
-        var associatedCardIds = associatedCardIds
-        associatedCardIds.insert(cardInfo.card.cardId)
-        self.associatedCardIds = associatedCardIds
-
+        self.name = name
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
@@ -97,41 +74,32 @@ class CommonUserWalletModel {
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
+        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
 
-        _signer = config.tangemSigner
-        _userWalletNamePublisher = .init(cardInfo.name)
+        _userWalletNamePublisher = .init(name)
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         appendPersistentBlockchains()
-        bind()
-
         userTokensManager.sync {}
-        nftManager.update()
     }
 
     deinit {
         AppLogger.debug(self)
     }
 
-    func validate() -> Bool {
-        let pendingBackupManager = PendingBackupManager()
-        if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
-            return false
-        }
-
-        guard validateBackup(card.backupStatus, wallets: card.wallets) else {
-            return false
-        }
-
-        return true
-    }
-
     private func validateBackup(_ backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
-        let backupValidator = BackupValidator()
-        if !backupValidator.validate(backupStatus: card.backupStatus, wallets: wallets) {
-            return false
-        }
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            let backupValidator = BackupValidator()
+            if !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: wallets) {
+                return false
+            }
 
-        return true
+            return true
+
+        case .mobileWallet(let hotWalletInfo):
+            return true
+        }
     }
 
     private func appendPersistentBlockchains() {
@@ -140,40 +108,6 @@ class CommonUserWalletModel {
         }
 
         userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
-    }
-
-    // MARK: - Update
-
-    func onSigned(_ card: Card) {
-        for updatedWallet in card.wallets {
-            cardInfo.card.wallets[updatedWallet.publicKey]?.totalSignedHashes = updatedWallet.totalSignedHashes
-            cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
-        }
-
-        onUpdate()
-    }
-
-    private func onUpdate() {
-        AppLogger.info("Updating with new card")
-        config = UserWalletConfigFactory(cardInfo).makeConfig()
-        _cardHeaderImagePublisher.send(config.cardHeaderImage)
-        _signer = config.tangemSigner
-        // prevent save until onboarding completed
-        if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
-            userWalletRepository.save()
-        }
-        _updatePublisher.send()
-    }
-
-    private func bind() {
-        bindSigner()
-    }
-
-    private func bindSigner() {
-        signSubscription = _signer.signPublisher
-            .sink { [weak self] card in // [REDACTED_TODO_COMMENT]
-                self?.onSigned(card)
-            }
     }
 }
 
@@ -194,28 +128,24 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    var name: String {
-        cardInfo.name
-    }
-
-    var totalSignedHashes: Int {
-        cardInfo.card.wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
-    }
-
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
     var refcodeProvider: RefcodeProvider? {
-        CommonExpressRefcodeProvider(cardInfo: cardInfo)
+        walletInfo.refcodeProvider
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
+        walletInfo.tangemApiAuthData
     }
 
     var hasBackupCards: Bool {
-        cardInfo.card.backupStatus?.isActive ?? false
+        walletInfo.hasBackupCards
+    }
+
+    var signer: TangemSigner {
+        config.tangemSigner
     }
 
     var cardsCount: Int {
@@ -232,78 +162,119 @@ extension CommonUserWalletModel: UserWalletModel {
     }
 
     var backupInput: OnboardingInput? {
-        let factory = OnboardingInputFactory(
-            cardInfo: cardInfo,
-            userWalletModel: self,
-            sdkFactory: config,
-            onboardingStepsBuilderFactory: config,
-            pushNotificationsInteractor: pushNotificationsInteractor
-        )
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            let factory = OnboardingInputFactory(
+                sdkFactory: config,
+                onboardingStepsBuilderFactory: config
+            )
 
-        return factory.makeBackupInput()
+            return factory.makeBackupInput(cardInfo: cardInfo, userWalletModel: self)
+        case .mobileWallet:
+            return nil
+        }
     }
 
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
     }
 
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
-        let artwork: CardArtwork
-
-        if let artworkInfo = cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
-
-        return cardImageProvider.loadImage(
-            cardId: card.cardId,
-            cardPublicKey: card.cardPublicKey,
-            artwork: artwork
-        )
-    }
-
     func updateWalletName(_ name: String) {
-        cardInfo.name = name
+        self.name = name
         _userWalletNamePublisher.send(name)
-        userWalletRepository.save()
+        userWalletRepository.savePublicData()
     }
 
+    /// You should create new CommonUserWalletModel from card  for backup mobile wallet
     func onBackupUpdate(type: BackupUpdateType) {
-        switch type {
-        case .primaryCardBackuped(let card):
-            for updatedWallet in card.wallets {
-                cardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            switch type {
+            case .primaryCardBackuped(let card):
+                var mutableCardInfo = cardInfo
+                for updatedWallet in card.wallets {
+                    mutableCardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
+                }
+
+                mutableCardInfo.card.settings = CardDTO.Settings(settings: card.settings)
+                mutableCardInfo.card.isAccessCodeSet = card.isAccessCodeSet
+                mutableCardInfo.card.backupStatus = card.backupStatus
+
+                walletInfo = .cardWallet(mutableCardInfo)
+
+                config = UserWalletConfigFactory().makeConfig(cardInfo: mutableCardInfo)
+                _cardHeaderImagePublisher.send(config.cardHeaderImage)
+                // prevent save until onboarding completed
+                if userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) != nil {
+                    userWalletRepository.save(userWalletModel: self)
+                }
+                _updatePublisher.send()
+            case .backupCompleted:
+                // we have to read an actual status from backup validator
+                _updatePublisher.send()
             }
 
-            cardInfo.card.settings = CardDTO.Settings(settings: card.settings)
-            cardInfo.card.isAccessCodeSet = card.isAccessCodeSet
-            cardInfo.card.backupStatus = card.backupStatus
-            onUpdate()
-        case .backupCompleted:
-            // we have to read an actual status from backup validator
-            _updatePublisher.send()
-        }
-
-        // update for ring image
-        _cardHeaderImagePublisher.send(config.cardHeaderImage)
-    }
-
-    func addAssociatedCard(_ cardId: String) {
-        let cardInfo = CardInfo(card: card, walletData: .none, name: "")
-        guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo),
-              userWalletId == self.userWalletId else {
+            // update for ring image
+            _cardHeaderImagePublisher.send(config.cardHeaderImage)
+        case .mobileWallet:
             return
         }
+    }
 
-        if !associatedCardIds.contains(cardId) {
-            associatedCardIds.insert(cardId)
+    func addAssociatedCard(cardId: String) {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            var mutableCardInfo = cardInfo
+            if !mutableCardInfo.associatedCardIds.contains(cardId) {
+                mutableCardInfo.associatedCardIds.insert(cardId)
+            }
+            walletInfo = .cardWallet(mutableCardInfo)
+
+        case .mobileWallet:
+            return
+        }
+    }
+
+    func validate() -> Bool {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            let pendingBackupManager = PendingBackupManager()
+            if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
+                return false
+            }
+
+            guard validateBackup(cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) else {
+                return false
+            }
+
+            return true
+        case .mobileWallet:
+            return true
+        }
+    }
+
+    func cleanup() {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            try? visaRefreshTokenRepository.deleteToken(cardId: cardInfo.card.cardId)
+
+            if AppSettings.shared.saveAccessCodes {
+                do {
+                    let accessCodeRepository = AccessCodeRepository()
+                    try accessCodeRepository.deleteAccessCode(for: Array(cardInfo.associatedCardIds))
+                } catch {
+                    Analytics.error(error: error)
+                    AppLogger.error(error: error)
+                }
+            }
+        case .mobileWallet(let mobileWalletInfo):
+            return
         }
     }
 }
 
 extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }
@@ -318,23 +289,9 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
-extension CommonUserWalletModel: DerivationManagerDelegate {
-    func onDerived(_ response: DerivationResult) {
-        // tmp sync
-        for updatedWallet in response {
-            for derivedKey in updatedWallet.value.keys {
-                cardInfo.card.wallets[updatedWallet.key]?.derivedKeys[derivedKey.key] = derivedKey.value
-            }
-        }
-
-        userWalletRepository.save()
-    }
-}
-
 extension CommonUserWalletModel: KeysDerivingProvider {
     var keysDerivingInteractor: KeysDeriving {
-        KeysDerivingCardInteractor(with: cardInfo)
+        walletInfo.keysDerivingInteractor
     }
 }
 
@@ -350,28 +307,43 @@ extension CommonUserWalletModel: TotalBalanceProviding {
 
 extension CommonUserWalletModel: AnalyticsContextDataProvider {
     var analyticsContextData: AnalyticsContextData {
-        AnalyticsContextData(
-            card: cardInfo.card,
-            productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain,
-            userWalletId: userWalletId
-        )
+        walletInfo.analyticsContextData
     }
 }
 
 extension CommonUserWalletModel: UserWalletSerializable {
-    func serialize() -> StoredUserWallet {
-        let name = name.isEmpty ? config.cardName : name
+    func serializePublic() -> StoredUserWallet {
+        let name = name.isEmpty ? config.defaultName : name
 
-        let newStoredUserWallet = StoredUserWallet(
-            userWalletId: userWalletId.value,
-            name: name,
-            card: cardInfo.card,
-            associatedCardIds: associatedCardIds,
-            walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo
-        )
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            var mutableCardInfo = cardInfo
+            mutableCardInfo.card.wallets = []
 
-        return newStoredUserWallet
+            let newStoredUserWallet = StoredUserWallet(
+                userWalletId: userWalletId.value,
+                name: name,
+                walletInfo: .cardWallet(mutableCardInfo)
+            )
+
+            return newStoredUserWallet
+        case .mobileWallet(let hotWalletInfo):
+            let newStoredUserWallet = StoredUserWallet(
+                userWalletId: userWalletId.value,
+                name: name,
+                walletInfo: .mobileWallet(hotWalletInfo),
+            )
+
+            return newStoredUserWallet
+        }
+    }
+
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return .cardWallet(keys: cardInfo.card.wallets)
+        case .mobileWallet:
+            return .mobileWallet(keys: keysRepository.keys)
+        }
     }
 }

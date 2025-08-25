@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
 
 @MainActor
@@ -17,7 +16,7 @@ public final class FloatingSheetRegistry {
 
     public nonisolated init() {}
 
-    func register<SheetContentViewModel: FloatingSheetContentViewModel>(
+    public func register<SheetContentViewModel: FloatingSheetContentViewModel>(
         _ viewModelType: SheetContentViewModel.Type,
         viewBuilder: @escaping (SheetContentViewModel) -> some View
     ) {

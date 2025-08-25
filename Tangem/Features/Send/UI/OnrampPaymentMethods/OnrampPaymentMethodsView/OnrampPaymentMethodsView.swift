@@ -10,20 +10,22 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OnrampPaymentMethodsView: View {
     @ObservedObject var viewModel: OnrampPaymentMethodsViewModel
 
     var body: some View {
         GroupedScrollView(spacing: 0) {
-            ForEach(viewModel.paymentMethods) { paymentMethod in
-                OnrampPaymentMethodRowView(data: paymentMethod)
-
-                if paymentMethod.id != viewModel.paymentMethods.last?.id {
-                    Separator(height: .minimal, color: Colors.Stroke.primary)
-                        .padding(.leading, 62)
-                }
+            SelectableSection(viewModel.paymentMethods) { paymentMethod in
+                OnrampPaymentMethodRowView(
+                    isSelected: viewModel.selectedPaymentMethodID == paymentMethod.id,
+                    data: paymentMethod
+                )
             }
+            .separatorPadding(.init(leading: 62, trailing: SelectionOverlay.Constants.secondStrokeLineWidth))
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodsList)
         }
         .background(Colors.Background.primary)
         .navigationTitle(Text(Localization.onrampPayWith))

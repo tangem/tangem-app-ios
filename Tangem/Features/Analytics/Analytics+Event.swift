@@ -102,6 +102,7 @@ extension Analytics {
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
         case sendCustomFeeInserted = "[Token / Send] Custom Fee Inserted"
         case sendGasLimitInserted = "[Token / Send] Gas Limit Inserted"
+        case sendNonceInserted = "[Token / Send] Nonce Inserted"
         case sendMaxFeeInserted = "[Token / Send] Max Fee Inserted"
         case sendPriorityFeeInserted = "[Token / Send] Priority Fee Inserted"
         case sendSubstractFromAmount = "[Token / Send] Substract From Amount"
@@ -148,17 +149,30 @@ extension Analytics {
         // MARK: - Wallet Connect
 
         case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
+        case walletConnectDisconnectAllButtonTapped = "[Wallet Connect] Button - Disconnect All"
+
+        case walletConnectDAppDetailsDisconnectButtonTapped = "[Wallet Connect] Button - Disconnect"
+
         case walletConnectSessionInitiated = "[Wallet Connect] Session Initiated"
         case walletConnectSessionFailed = "[Wallet Connect] Session Failed"
 
-        case walletConnectDAppConnectionRequested = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
+        case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
+
+        case walletConnectSecurityAlertShown = "[Wallet Connect] Notice - Security Alert"
+
         case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
         case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
         case walletConnectDAppDisconnected = "[Wallet Connect] dApp Disconnected"
 
         case walletConnectSignatureRequestReceived = "[Wallet Connect] Signature Request Received"
+        case walletConnectSignatureRequestReceivedFailure = "[Wallet Connect] Signature Request Received with Failed"
+
         case walletConnectSignatureRequestHandled = "[Wallet Connect] Signature Request Handled"
         case walletConnectSignatureRequestFailed = "[Wallet Connect] Signature Request Failed"
+        case walletConnectTransactionDetailsOpened = "[Wallet Connect] Transaction Details Opened"
+        case walletConnectTransactionSignButtonTapped = "[Wallet Connect] Button - Sign"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -170,6 +184,8 @@ extension Analytics {
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
+        case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
+        case referralError = "[Referral Program] Referral Error"
 
         // MARK: - Swap
 
@@ -293,6 +309,8 @@ extension Analytics {
         case pushButtonPostpone = "[Push] Button - Later"
         case pushPermissionStatus = "[Push] Permission Status"
         case pushNotificationOpened = "[Push] Push Notification Opened"
+        case pushNotificationScreenOpened = "[Push] Push Notification Screen Opened"
+        case pushToggleClicked = "[Push] Push Toggle Clicked"
 
         // MARK: - Staking
 
@@ -344,6 +362,7 @@ extension Analytics {
         case marketsChartButtonBuy = "[Markets / Chart] Button - Buy"
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
+        case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
@@ -456,5 +475,29 @@ extension Analytics {
         case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
+
+        // MARK: - NFT
+
+        case nftAssetReadMore = "[NFT] Button - Read More"
+        case nftAssetSeeAll = "[NFT] Button - See All"
+        case nftAssetExplore = "[NFT] Button - Explore"
+        case nftAssetSend = "[NFT] Button - Send"
+
+        case nftAssetDetailsOpened = "[NFT] NFT Details Screen Opened"
+        case nftAssetReceiveOpened = "[NFT] Receive NFT Screen Opened"
+        case nftCollectionsOpened = "[NFT] NFT List Screen Opened"
+
+        case nftReceiveBlockchainChosen = "[NFT] Blockchain Chosen"
+        case nftReceiveCopyAddressButtonClicked = "[NFT] Button - Copy Address"
+        case nftReceiveShareAddressButtonClicked = "[NFT] Button - Share Address"
+
+        case nftSendAddressEntered = "[NFT] Send Address Entered"
+        case nftCommissionScreenOpened = "[NFT] Commission Screen Opened"
+        case nftFeeSelected = "[NFT] Fee Selected"
+        case nftConfirmScreenOpened = "[NFT] Confirm Screen Opened"
+        case nftSentScreenOpened = "[NFT] NFT Sent Screen Opened"
+
+        case nftErrors = "[NFT] NFT Errors"
+        case nftToggleSwitch = "[Settings / Wallet] NFT toggle switch"
     }
 }

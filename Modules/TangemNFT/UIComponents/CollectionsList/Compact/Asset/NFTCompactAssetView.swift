@@ -9,64 +9,121 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemUIUtils
 
 struct NFTCompactAssetView: View {
     var viewModel: NFTCompactAssetViewModel
 
     var body: some View {
-        Button(action: viewModel.didClick) {
-            content
+        switch viewModel.state {
+        case .loading:
+            skeleton
+
+        case .loaded(let viewData):
+            Button(action: viewModel.didClick) {
+                makeContent(from: viewData)
+            }
+            .buttonStyle(.defaultScaled)
         }
-        .buttonStyle(.defaultScaled)
     }
 
-    private var content: some View {
+    private func makeContent(from viewData: NFTCompactAssetViewModel.ViewData) -> some View {
         VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
-            icon
-            texts
+            makeIcon(media: viewData.media)
+
+            makeTexts(title: viewData.name, subtitle: viewData.price)
         }
-        .frame(width: Constants.imageSize.width)
     }
 
-    private var icon: some View {
-        SquaredOrRectangleImageView(url: viewModel.mediaURL, containerSide: Constants.imageSize.width)
+    private var skeleton: some View {
+        VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
+                .skeletonable(
+                    isShown: true,
+                    radius: SquaredOrRectangleImageView.Constants.defaultCornerRadius
+                )
+
+            VStack(alignment: .leading, spacing: 10) {
+                Color.clear
+                    .frame(size: CGSize(width: 70, height: Constants.textSkeletonsHeight))
+                    .skeletonable(
+                        isShown: true,
+                        radius: Constants.textSkeletonsCornerRadius
+                    )
+
+                Color.clear
+                    .frame(size: CGSize(width: 52, height: Constants.textSkeletonsHeight))
+                    .skeletonable(
+                        isShown: true,
+                        radius: Constants.textSkeletonsCornerRadius
+                    )
+            }
+        }
     }
 
-    private var texts: some View {
-        VStack(alignment: .leading, spacing: Constants.textsSpacing) {
-            Text(viewModel.title)
+    private func makeIcon(media: NFTMedia?) -> some View {
+        SquaredOrRectangleImageView(media: media)
+            .shimmer()
+    }
+
+    private func makeTexts(title: String, subtitle: String?) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-            Text(viewModel.subtitle)
+                .shimmer()
+
+            Text(subtitle ?? "")
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .shimmer()
         }
     }
 }
 
 extension NFTCompactAssetView {
     enum Constants {
-        static let imageSize: CGSize = .init(bothDimensions: 152)
-        static let cornerRadius: CGFloat = 14
+        static let textSkeletonsCornerRadius: CGFloat = 4
         static let iconTextsSpacing: CGFloat = 12
-        static let textsSpacing: CGFloat = 2
+
+        static let textSkeletonsHeight: CGFloat = 12
     }
 }
 
 #if DEBUG
-#Preview {
+#Preview("Loaded") {
     NFTCompactAssetView(
         viewModel: NFTCompactAssetViewModel(
-            nftAsset: NFTAsset(
-                assetIdentifier: "some",
-                collectionIdentifier: "some1",
-                chain: .solana,
-                contractType: .unknown,
-                ownerAddress: "",
-                name: "My asset",
-                description: "",
-                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                rarity: nil,
-                traits: []
+            state: .loaded(
+                .init(
+                    asset: NFTAsset(
+                        assetIdentifier: "some",
+                        assetContractAddress: "some1",
+                        chain: .solana,
+                        contractType: .unknown,
+                        decimalCount: 0,
+                        ownerAddress: "",
+                        name: "My asset",
+                        description: "",
+                        salePrice: nil,
+                        mediaFiles: [
+                            NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        ],
+                        rarity: nil,
+                        traits: []
+                    ),
+                    priceFormatter: NFTPriceFormatterMock()
+                )
             ),
+            openAssetDetailsAction: { _ in }
+        )
+    )
+}
+
+#Preview("Loading") {
+    NFTCompactAssetView(
+        viewModel: NFTCompactAssetViewModel(
+            state: .loading(id: "1"),
             openAssetDetailsAction: { _ in }
         )
     )
