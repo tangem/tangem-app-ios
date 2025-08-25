@@ -150,7 +150,8 @@ struct LockedWalletMainContentView_Previews: PreviewProvider {
             viewModel: .init(
                 userWalletModel: FakeUserWalletModel.wallet3Cards,
                 isMultiWallet: true,
-                lockedUserWalletDelegate: nil
+                lockedUserWalletDelegate: nil,
+                coordinator: MainCoordinator()
             )
         )
         .infinityFrame()
@@ -160,7 +161,8 @@ struct LockedWalletMainContentView_Previews: PreviewProvider {
             viewModel: .init(
                 userWalletModel: FakeUserWalletModel.twins,
                 isMultiWallet: false,
-                lockedUserWalletDelegate: nil
+                lockedUserWalletDelegate: nil,
+                coordinator: MainCoordinator()
             )
         )
         .infinityFrame()
