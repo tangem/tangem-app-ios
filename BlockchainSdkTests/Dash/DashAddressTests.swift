@@ -13,12 +13,10 @@ import Testing
 
 struct DashAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
+    private let addressService = AddressServiceFactory(blockchain: .dash(testnet: false)).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {
-        let blockchain = Blockchain.dash(testnet: false)
-        let addressService = BitcoinLegacyAddressService(networkParams: DashMainNetworkParams())
-
         let compressedExpectedAddress = "XtRN6njDCKp3C2VkeyhN1duSRXMkHPGLgH"
         let decompressedExpectedAddress = "Xs92pJsKUXRpbwzxDjBjApiwMK6JysNntG"
 
@@ -30,13 +28,12 @@ struct DashAddressTests {
         #expect(compressedKeyAddress.value == compressedExpectedAddress)
         #expect(decompressedKeyAddress.value == decompressedExpectedAddress)
 
-        let addressUtility = try addressesUtility.makeTrustWalletAddress(publicKey: Keys.AddressesKeys.secpCompressedKey, for: blockchain)
+        let addressUtility = try addressesUtility.makeTrustWalletAddress(publicKey: Keys.AddressesKeys.secpCompressedKey, for: .dash(testnet: false))
         #expect(addressUtility == compressedKeyAddress.value)
     }
 
     @Test
     func inavalidCurveGeneration_throwsError() async throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: DashMainNetworkParams())
         #expect(throws: (any Error).self) {
             try addressService.makeAddress(from: Keys.AddressesKeys.edKey)
         }
@@ -48,7 +45,6 @@ struct DashAddressTests {
         "XuRzigQHyJfvw35e281h5HPBqJ8HZjF8M4",
     ])
     func addressValidation_validAddresses(address: String) throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: DashMainNetworkParams())
         #expect(addressService.validate(address))
     }
 
@@ -58,7 +54,6 @@ struct DashAddressTests {
         "",
     ])
     func addressValidation_invalidAddresses(address: String) async throws {
-        let addressService = BitcoinLegacyAddressService(networkParams: DashMainNetworkParams())
         #expect(!addressService.validate(address))
     }
 }

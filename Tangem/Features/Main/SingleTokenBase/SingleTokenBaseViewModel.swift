@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemStories
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 import struct TangemUIUtils.AlertBinder
 
@@ -22,6 +23,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
+    @Published var isFulfillingAssetRequirements = false
     @Published var actionButtons: [FixedSizeButtonWithIconInfo] = []
     @Published var tokenNotificationInputs: [NotificationViewInput] = []
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -189,7 +191,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCrypto()
-        case .addHederaTokenAssociation:
+        case .addHederaTokenAssociation, .addTokenTrustline:
             fulfillAssetRequirements(with: .buttonAddTokenTrustline)
         case .retryKaspaTokenTransaction:
             fulfillAssetRequirements(with: .tokenButtonRevealTryAgain)
@@ -211,36 +213,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             }
     }
 
-    private func fulfillAssetRequirements(with analyticsEvent: Analytics.Event) {
-        func sendAnalytics(isSuccessful: Bool) {
-            let status: Analytics.ParameterValue = isSuccessful ? .sent : .error
-
-            Analytics.log(
-                event: analyticsEvent,
-                params: [
-                    .token: walletModel.tokenItem.currencySymbol,
-                    .blockchain: blockchain.displayName,
-                    .status: status.rawValue,
-                ]
-            )
-        }
-
-        let alertBuilder = AssetRequirementsAlertBuilder()
-        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
-
-        if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
-            for: requirementsCondition,
-            feeTokenItem: walletModel.feeTokenItem,
-            hasFeeCurrency: walletModel.feeCurrencyHasPositiveBalance
-        ) {
-            sendAnalytics(isSuccessful: false)
-            alert = fulfillAssetRequirementsAlert
-
-            return
-        }
-
-        sendAnalytics(isSuccessful: true)
-
+    private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
         walletModel
             .fulfillRequirements(signer: userWalletModel.signer)
             .materialize()
@@ -250,8 +223,61 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                 let alertBuilder = AssetRequirementsAlertBuilder()
                 let networkName = viewModel.blockchain.displayName
 
+                viewModel.isFulfillingAssetRequirements = false
                 return alertBuilder.fulfillmentAssetRequirementsFailedAlert(error: error, networkName: networkName)
             }
+            .eraseToAnyPublisher()
+    }
+
+    /// If the user doesn't meet the requirements to proceed (e.g. insufficient base coin or token),
+    /// show an alert explaining the issue.
+    private func buildFulfillAssetRequirementsAlertIfNeeded(
+        for requirement: AssetRequirementsCondition?,
+        feeStatus: AssetRequirementFeeStatus
+    ) -> AlertBinder? {
+        guard let requirement else {
+            return nil
+        }
+
+        return AssetRequirementsAlertBuilder().fulfillAssetRequirementsAlert(
+            for: requirement,
+            feeTokenItem: walletModel.feeTokenItem,
+            feeStatus: feeStatus,
+        )
+    }
+
+    private func fulfillAssetRequirements(with analyticsEvent: Analytics.Event) {
+        func sendAnalytics(isSuccessful: Bool, tokenSymbol: String, blockchainName: String) {
+            let status: Analytics.ParameterValue = isSuccessful ? .sent : .error
+
+            Analytics.log(
+                event: analyticsEvent,
+                params: [
+                    .token: tokenSymbol,
+                    .blockchain: blockchainName,
+                    .status: status.rawValue,
+                ]
+            )
+        }
+
+        isFulfillingAssetRequirements = true
+        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
+        let tokenSymbol = walletModel.tokenItem.currencySymbol
+        let blockchainName = blockchain.displayName
+
+        walletModel.assetRequirementsManager?.feeStatusForRequirement(asset: amountType)
+            .withWeakCaptureOf(self)
+            .flatMap { viewModel, feeStatus -> AnyPublisher<AlertBinder?, Never> in
+                if let alert = viewModel.buildFulfillAssetRequirementsAlertIfNeeded(for: requirementsCondition, feeStatus: feeStatus) {
+                    sendAnalytics(isSuccessful: false, tokenSymbol: tokenSymbol, blockchainName: blockchainName)
+                    viewModel.isFulfillingAssetRequirements = false
+                    return Just(alert).eraseToAnyPublisher()
+                } else {
+                    sendAnalytics(isSuccessful: true, tokenSymbol: tokenSymbol, blockchainName: blockchainName)
+                    return viewModel.fulfillRequirementsPublisher()
+                }
+            }
+            .receiveOnMain()
             .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
     }
@@ -282,6 +308,11 @@ extension SingleTokenBaseViewModel {
     }
 
     private func bind() {
+        walletModel.isAssetRequirementsTaskInProgressPublisher
+            .receiveOnMain()
+            .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)
+            .store(in: &bag)
+
         walletModel.totalTokenBalanceProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
@@ -501,8 +532,10 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
-        if let receiveUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.receiveAvailablity) {
-            alert = receiveUnavailableAlert
+        if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = availabilityAlert
             return
         }
 
@@ -579,6 +612,20 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
+    func didTapPendingExpressTransaction(id: String) {
+        let transactions = pendingExpressTransactionsManager.pendingTransactions
+
+        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
+            return
+        }
+
+        tokenRouter.openPendingExpressTransactionDetails(
+            pendingTransaction: transaction,
+            tokenItem: walletModel.tokenItem,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
+    }
+
     private func openAddressExplorer(at index: Int) {
         guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
             return
@@ -636,24 +683,10 @@ extension SingleTokenBaseViewModel {
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .action: Analytics.ParameterValue.receive.rawValue,
-            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailablity).rawValue,
+            .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.receiveAvailability).rawValue,
         ])
 
         openReceive()
-    }
-
-    private func didTapPendingExpressTransaction(id: String) {
-        let transactions = pendingExpressTransactionsManager.pendingTransactions
-
-        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
-            return
-        }
-
-        tokenRouter.openPendingExpressTransactionDetails(
-            pendingTransaction: transaction,
-            tokenItem: walletModel.tokenItem,
-            pendingTransactionsManager: pendingExpressTransactionsManager
-        )
     }
 }
 
