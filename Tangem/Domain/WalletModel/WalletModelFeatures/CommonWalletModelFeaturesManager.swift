@@ -21,26 +21,20 @@ final class CommonWalletModelFeaturesManager {
 
     // MARK: - NFT
 
-    private lazy var nftFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> = {
-        guard isNFTAvailable else {
-            return .just(output: [])
-                .append(Empty(completeImmediately: false)) // Prevents `nftFeaturePublisher` from completion
-                .eraseToAnyPublisher()
-        }
-
-        return nftAvailabilityProvider
-            .didChangeNFTAvailabilityPublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .map { featuresManager, _ in
-                guard let networkService = featuresManager.nftNetworkService else {
-                    return []
-                }
-
-                return [.nft(networkService: networkService)]
+    private lazy var nftFeaturePublisher: some Publisher<[WalletModelFeature], Never> = nftAvailabilityProvider
+        .didChangeNFTAvailabilityPublisher
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .map { featuresManager, _ in
+            guard
+                featuresManager.isNFTAvailable,
+                let networkService = featuresManager.nftNetworkService
+            else {
+                return []
             }
-            .eraseToAnyPublisher()
-    }()
+
+            return [.nft(networkService: networkService)]
+        }
 
     /// Can change its value at runtime.
     private var isNFTEnabledForWallet: Bool {
@@ -70,12 +64,12 @@ final class CommonWalletModelFeaturesManager {
     // MARK: - Staking
 
     // [REDACTED_TODO_COMMENT]
-    private lazy var stakingFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> = .just(output: [])
+    private lazy var stakingFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
 
     // MARK: - Transaction history
 
     // [REDACTED_TODO_COMMENT]
-    private lazy var transactionHistoryFeaturePublisher: AnyPublisher<[WalletModelFeature], Never> = .just(output: [])
+    private lazy var transactionHistoryFeaturePublisher: some Publisher<[WalletModelFeature], Never> = Just([])
 
     init(
         userWalletId: UserWalletId,
@@ -92,15 +86,12 @@ final class CommonWalletModelFeaturesManager {
 
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
-        let featurePublishers = [
+        return Publishers.CombineLatest3(
             nftFeaturePublisher,
             stakingFeaturePublisher,
             transactionHistoryFeaturePublisher,
-        ]
-
-        return featurePublishers
-            .combineLatest()
-            .map { $0.flattened() }
-            .eraseToAnyPublisher()
+        )
+        .map { $0.0 + $0.1 + $0.2 }
+        .eraseToAnyPublisher()
     }
 }
