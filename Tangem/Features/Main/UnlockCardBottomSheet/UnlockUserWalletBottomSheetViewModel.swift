@@ -115,8 +115,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                 }
 
             case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
-                break
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
             }
         }
     }
