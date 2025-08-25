@@ -83,8 +83,8 @@ struct TokenAlertReceiveAssetsView: View {
                 isDisabled: false,
                 action: viewModel.onGotItTapAction
             )
-            .padding(Layout.MainButton.horizontalPadding)
-            .padding(Layout.MainButton.bottomPadding)
+            .padding(.horizontal, Layout.MainButton.horizontalPadding)
+            .padding(.vertical, Layout.MainButton.verticalPadding)
             .background(LinearGradient(
                 colors: [Colors.Background.primary, Colors.Background.primary, Colors.Background.primary.opacity(0)],
                 startPoint: .bottom,
@@ -105,8 +105,8 @@ extension TokenAlertReceiveAssetsView {
             /// 16
             static let horizontalPadding: CGFloat = 16
 
-            /// 8
-            static let bottomPadding: CGFloat = 8
+            /// 16
+            static let verticalPadding: CGFloat = 16
         }
 
         enum Content {
@@ -114,13 +114,13 @@ extension TokenAlertReceiveAssetsView {
             static let spacing: CGFloat = 24
 
             /// 14
-            static let horizontalPadding: CGFloat = 14
+            static let horizontalPadding: CGFloat = 32
 
             /// 12
             static let textSpacing: CGFloat = 12
 
-            /// 96
-            static let bottomPadding: CGFloat = 96
+            /// 114
+            static let bottomPadding: CGFloat = 114
         }
     }
 }

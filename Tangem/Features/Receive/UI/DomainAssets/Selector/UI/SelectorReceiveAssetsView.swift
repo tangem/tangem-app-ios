@@ -29,6 +29,7 @@ struct SelectorReceiveAssetsView: View {
                 sectionView(header: section.header, viewModels: section.items)
             }
         }
+        .padding(.bottom, Layout.Container.paddingBottom)
         .onAppear(perform: viewModel.onViewAppear)
     }
 
@@ -61,6 +62,7 @@ extension SelectorReceiveAssetsView {
 
         enum Container {
             static let spacingContent: CGFloat = 8.0
+            static let paddingBottom: CGFloat = 16.0
         }
     }
 }
