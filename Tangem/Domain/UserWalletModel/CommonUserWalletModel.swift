@@ -14,6 +14,7 @@ import TangemVisa
 import TangemSdk
 import TangemNFT
 import TangemFoundation
+import TangemMobileWalletSdk
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -29,7 +30,7 @@ class CommonUserWalletModel {
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
 
-    let walletImageProvider: WalletImageProviding
+    private(set) var walletImageProvider: WalletImageProviding
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
@@ -229,8 +230,11 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
+                let walletInfo = WalletInfo.cardWallet(mutableCardInfo)
+                walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
+                updateConfiguration(walletInfo: walletInfo)
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
+                cleanMobileWallet()
             }
 
         case .accessCodeDidSet:
@@ -387,6 +391,19 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
             return cardInfo.associatedCardIds
         case .mobileWallet:
             return []
+        }
+    }
+}
+
+// MARK: - Private methods
+
+private extension CommonUserWalletModel {
+    func cleanMobileWallet() {
+        let mobileSdk = CommonMobileWalletSdk()
+        do {
+            try mobileSdk.delete(walletIDs: [userWalletId])
+        } catch {
+            AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
         }
     }
 }
