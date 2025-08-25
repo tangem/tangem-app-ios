@@ -9,6 +9,7 @@
 import UIKit
 import TangemSdk
 import TangemFoundation
+import TangemMobileWalletSdk
 
 struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
@@ -20,6 +21,7 @@ struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let twinData: TwinData?
     var isStandalone = false
     var userWalletToDelete: UserWalletId? // for twins. [REDACTED_TODO_COMMENT]
+    var mobileContext: MobileWalletContext? // for mobile wallet upgrade
 }
 
 extension OnboardingInput {

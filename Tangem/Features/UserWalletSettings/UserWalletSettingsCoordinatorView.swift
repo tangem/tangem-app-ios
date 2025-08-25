@@ -54,8 +54,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.mobileUpgradeViewModel) {
-                MobileUpgradeView(viewModel: $0)
+            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
+                MobileUpgradeCoordinatorView(coordinator: $0)
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                        coordinator.modalOnboardingCoordinatorKeeper = value
+                    })
             }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)

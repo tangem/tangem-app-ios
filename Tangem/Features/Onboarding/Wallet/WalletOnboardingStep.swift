@@ -25,6 +25,7 @@ enum WalletOnboardingStep: Equatable {
     case seedPhraseGeneration
     case seedPhraseUserValidation
     case seedPhraseImport
+    case mobileUpgrade
 
     case addTokens
 
@@ -73,6 +74,8 @@ enum WalletOnboardingStep: Equatable {
             return Localization.onboardingSeedIntroButtonImport
         case .addTokens:
             return Localization.onboardingAddTokens
+        case .mobileUpgrade:
+            return "Tangem"
         }
     }
 
@@ -112,6 +115,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingCreateWalletOptionsTitle
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications:
             return nil
+        case .mobileUpgrade: return Localization.commonTangemWallet
         }
     }
 
@@ -127,6 +131,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return Localization.onboardingCreateWalletOptionsMessage
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseImport, .seedPhraseUserValidation, .addTokens, .saveUserWallet, .pushNotifications:
             return nil
+        case .mobileUpgrade: return "You’re about to upgrade your wallet to Tangem Wallet. This will keep your assets safe with cold storage."
         }
     }
 
@@ -153,7 +158,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var mainButtonIcon: ImageType? {
         switch self {
-        case .createWallet, .createWalletSelector, .selectBackupCards, .backupCards:
+        case .createWallet, .createWalletSelector, .selectBackupCards, .backupCards, .mobileUpgrade:
             return Assets.tangemIcon
         default:
             return nil
@@ -169,13 +174,14 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonImport
         case .success: return Localization.onboardingButtonContinueWallet
         case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
+        case .mobileUpgrade: return "Start upgrade"
         default: return ""
         }
     }
 
     var supplementButtonIcon: ImageType? {
         switch self {
-        case .backupCards, .scanPrimaryCard:
+        case .backupCards, .scanPrimaryCard, .mobileUpgrade:
             return Assets.tangemIcon
         default:
             return nil
