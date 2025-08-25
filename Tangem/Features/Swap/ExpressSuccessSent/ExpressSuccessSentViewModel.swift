@@ -31,6 +31,10 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         return formatter.string(from: data.date)
     }
 
+    var shouldShowShareExploreButtons: Bool {
+        !data.source.tokenItem.blockchain.isTransactionAsync
+    }
+
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData
@@ -73,7 +77,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     }
 
     func openExplore() {
-        guard let exploreURL = data.source.exploreTransactionURL(for: data.hash) else {
+        guard let exploreURL = data.source.exploreTransactionURL(for: data.result.hash) else {
             return
         }
 

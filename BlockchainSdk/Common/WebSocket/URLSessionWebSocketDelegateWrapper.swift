@@ -55,7 +55,7 @@ class URLSessionWebSocketDelegateWrapper: NSObject, URLSessionWebSocketDelegate 
         URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
-        let result = ForcedCTServerTrustEvaluator.evaluate(challenge: challenge)
-        completionHandler(result, nil)
+        let result = TangemTrustEvaluatorUtil.evaluate(challenge: challenge)
+        completionHandler(result.0, result.1)
     }
 }
