@@ -203,7 +203,7 @@ private extension CardanoTransactionBuilder {
             }
 
         guard let asset else {
-            throw CardanoTransactionBuilderError.assetNotFound
+            throw CardanoError.assetNotFound
         }
 
         return asset
@@ -231,7 +231,7 @@ private extension CardanoTransactionBuilder {
 
     func buildCardanoSigningInput(transaction: Transaction) throws -> CardanoSigningInput {
         guard let parameters = transaction.fee.parameters as? CardanoFeeParameters else {
-            throw CardanoTransactionBuilderError.feeParametersNotFound
+            throw CardanoError.feeParametersNotFound
         }
 
         return try buildCardanoSigningInput(
@@ -294,7 +294,7 @@ private extension CardanoTransactionBuilder {
 
         if input.plan.error != .ok {
             BSDKLogger.error("CardanoSigningInput has a error", error: "\(input.plan.error)")
-            throw CardanoTransactionBuilderError.walletCoreError
+            throw CardanoError.walletCoreError
         }
         return input
     }
@@ -338,7 +338,7 @@ private extension CardanoTransactionBuilder {
 
         if input.plan.error != .ok {
             BSDKLogger.error("CardanoSigningInput has a error", error: "\(input.plan.error)")
-            throw CardanoTransactionBuilderError.walletCoreError
+            throw CardanoError.walletCoreError
         }
 
         return input
@@ -352,7 +352,7 @@ private extension CardanoTransactionBuilder {
 
         if preSigningOutput.error != .ok {
             BSDKLogger.error("CardanoPreSigningOutput has a error", error: preSigningOutput.errorMessage)
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return preSigningOutput.dataHash
@@ -384,11 +384,11 @@ private extension CardanoTransactionBuilder {
 
         if output.error != .ok {
             BSDKLogger.error("CardanoPreSigningOutput has a error", error: output.errorMessage)
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         if output.encoded.isEmpty {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return output.encoded
@@ -455,10 +455,4 @@ private extension CardanoTransactionBuilder {
         // This can be constructed using absolute ttl slot from `/metadata` endpoint.
         static let ttl: UInt64 = 190000000
     }
-}
-
-enum CardanoTransactionBuilderError: Error {
-    case assetNotFound
-    case walletCoreError
-    case feeParametersNotFound
 }

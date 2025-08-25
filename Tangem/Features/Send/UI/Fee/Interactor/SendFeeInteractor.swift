@@ -11,11 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-protocol SendFeeLoader {
-    func updateFees()
-}
-
-protocol SendFeeInteractor: SendFeeLoader {
+protocol SendFeeInteractor {
     var selectedFee: SendFee? { get }
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
 
@@ -26,32 +22,20 @@ protocol SendFeeInteractor: SendFeeLoader {
 }
 
 class CommonSendFeeInteractor {
+    // MARK: Dependencies
+
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     private weak var input: SendFeeInput?
     private weak var output: SendFeeOutput?
 
     private let provider: SendFeeProvider
     private let customFeeService: CustomFeeService?
-
-    private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
-    private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
-    private let _fees: CurrentValueSubject<LoadingValue<[Fee]>, Never> = .init(.loading)
     private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
 
-    private let defaultFeeOptions: [FeeOption]
-    private var feeOptions: [FeeOption] {
-        var options = defaultFeeOptions
-        if supportCustomFee {
-            options.append(.custom)
-        }
-        return options
-    }
-
     private var supportCustomFee: Bool {
-        customFeeService != nil
+        provider.feeOptions.contains(.custom)
     }
-
-    private var cryptoAmountSubscribtion: AnyCancellable?
-    private var destinationAddressSubscribtion: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -59,27 +43,24 @@ class CommonSendFeeInteractor {
         input: SendFeeInput,
         output: SendFeeOutput,
         provider: SendFeeProvider,
-        defaultFeeOptions: [FeeOption],
         customFeeService: CustomFeeService?
     ) {
         self.input = input
         self.output = output
         self.provider = provider
-        self.defaultFeeOptions = defaultFeeOptions
         self.customFeeService = customFeeService
 
         bind()
-        bind(input: input)
     }
 
     func bind() {
-        let suggestedFeeToUse = _fees
+        let suggestedFeeToUse = provider.feesPublisher
             .withWeakCaptureOf(self)
             .compactMap { interactor, fees in
                 switch fees {
-                case .loaded(let fees):
+                case .success(let fees):
                     return interactor.feeForAutoupdate(fees: fees)
-                case .failedToLoad(let error):
+                case .failure(let error):
                     return SendFee(option: .market, value: .failedToLoad(error: error))
                 case .loading where interactor.input?.selectedFee.value.value == nil:
                     // Show skeleton if currently fee don't have value
@@ -105,23 +86,9 @@ class CommonSendFeeInteractor {
         suggestedFeeToUse
             .withWeakCaptureOf(self)
             .sink { interactor, fee in
-                interactor.autoupdateSelectedFee(fee: fee)
+                interactor.update(selectedFee: fee)
             }
             .store(in: &bag)
-    }
-
-    func bind(input: any SendFeeInput) {
-        cryptoAmountSubscribtion = input.cryptoAmountPublisher
-            .withWeakCaptureOf(self)
-            .sink { processor, amount in
-                processor._cryptoAmount.send(amount)
-            }
-
-        destinationAddressSubscribtion = input.destinationAddressPublisher
-            .withWeakCaptureOf(self)
-            .sink { processor, destination in
-                processor._destination.send(destination)
-            }
     }
 }
 
@@ -141,8 +108,12 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
         return input.selectedFeePublisher
     }
 
+    var fees: [SendFee] {
+        mapToSendFees(feesValue: provider.fees, customFee: _customFee.value)
+    }
+
     var feesPublisher: AnyPublisher<[SendFee], Never> {
-        Publishers.CombineLatest(_fees, _customFee)
+        Publishers.CombineLatest(provider.feesPublisher, _customFee)
             .withWeakCaptureOf(self)
             .map { interactor, args in
                 let (feesValue, customFee) = args
@@ -155,46 +126,71 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
         customFeeService?.inputFieldModels() ?? []
     }
 
-    func updateFees() {
-        guard let amount = _cryptoAmount.value,
-              let destination = _destination.value else {
-            assertionFailure("SendFeeInteractor is not ready to update fees")
-            return
-        }
-
-        if _fees.value.error != nil {
-            _fees.send(.loading)
-        }
-
-        provider
-            .getFee(amount: amount, destination: destination)
-            .mapToResult()
-            .withWeakCaptureOf(self)
-            .sink { interactor, result in
-                switch result {
-                case .success(let fees):
-                    interactor._fees.send(.loaded(fees))
-                case .failure(let error):
-                    interactor._fees.send(.failedToLoad(error: error))
-                }
-            }
-            .store(in: &bag)
-    }
-
     func update(selectedFee: SendFee) {
         output?.feeDidChanged(fee: selectedFee)
     }
 }
 
-// MARK: - CustomFeeServiceInput
+// MARK: - FeeSelectorContentViewModelInput
 
-extension CommonSendFeeInteractor: CustomFeeServiceInput {
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
-        _cryptoAmount.compactMap { $0 }.eraseToAnyPublisher()
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
+    var selectedSelectorFee: FeeSelectorFee? {
+        mapToFeeSelectorFee(fee: selectedFee)
     }
 
-    var destinationAddressPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0 }.eraseToAnyPublisher()
+    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+        selectedFeePublisher
+            .withWeakCaptureOf(self)
+            .compactMap { $0.mapToFeeSelectorFee(fee: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorFees: [FeeSelectorFee] {
+        fees.compactMap { mapToFeeSelectorFee(fee: $0) }
+    }
+
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> {
+        feesPublisher
+            .withWeakCaptureOf(self)
+            .compactMap { interactor, fees in
+                if fees.contains(where: { $0.value.isLoading }) {
+                    return .loading
+                }
+
+                let selectorFees = fees.compactMap { interactor.mapToFeeSelectorFee(fee: $0) }
+                return .success(selectorFees)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func mapToFeeSelectorFee(fee: SendFee?) -> FeeSelectorFee? {
+        guard let fee, let value = fee.value.value else {
+            return nil
+        }
+
+        return .init(option: fee.option, value: value.amount.value)
+    }
+}
+
+// MARK: - FeeSelectorContentViewModelOutput
+
+extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
+    func update(selectedSelectorFee: FeeSelectorFee) {
+        if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
+            update(selectedFee: fee)
+        }
+    }
+
+    func dismissFeeSelector() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -204,26 +200,26 @@ extension CommonSendFeeInteractor: CustomFeeServiceOutput {
     func customFeeDidChanged(_ customFee: Fee) {
         _customFee.send(customFee)
         update(selectedFee: .init(option: .custom, value: .loaded(customFee)))
-        _fees.send(_fees.value)
     }
 }
 
 // MARK: - Private
 
 private extension CommonSendFeeInteractor {
-    func mapToSendFees(feesValue: LoadingValue<[Fee]>, customFee: Fee?) -> [SendFee] {
+    func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>, customFee: Fee?) -> [SendFee] {
         switch feesValue {
         case .loading:
-            return feeOptions.map { SendFee(option: $0, value: .loading) }
-        case .loaded(let fees):
+            return provider.feeOptions.map { SendFee(option: $0, value: .loading) }
+        case .success(let fees):
             return mapToFees(fees: fees, customFee: customFee)
-        case .failedToLoad(let error):
-            return feeOptions.map { SendFee(option: $0, value: .failedToLoad(error: error)) }
+        case .failure(let error):
+            return provider.feeOptions.map { SendFee(option: $0, value: .failedToLoad(error: error)) }
         }
     }
 
-    func mapToFees(fees: [Fee], customFee: Fee?) -> [SendFee] {
-        var defaultOptions = mapToDefaultFees(fees: fees)
+    func mapToFees(fees: [SendFee], customFee: Fee?) -> [SendFee] {
+        // This filter hides the values if we have not passed the default values
+        var defaultOptions = fees.filter { provider.feeOptions.contains($0.option) }
 
         if supportCustomFee {
             let customFee = customFee ?? defaultOptions.first(where: { $0.option == .market })?.value.value
@@ -236,33 +232,9 @@ private extension CommonSendFeeInteractor {
         return defaultOptions
     }
 
-    func mapToDefaultFees(fees: [Fee]) -> [SendFee] {
-        switch fees.count {
-        case 1:
-            return [SendFee(option: .market, value: .loaded(fees[0]))]
-        case 3:
-            let fees = [
-                SendFee(option: .slow, value: .loaded(fees[0])),
-                SendFee(option: .market, value: .loaded(fees[1])),
-                SendFee(option: .fast, value: .loaded(fees[2])),
-            ]
-
-            // This filter hides the values if we have not passed the default values
-            return fees.filter { defaultFeeOptions.contains($0.option) }
-        default:
-            assertionFailure("Wrong count of fees")
-            return []
-        }
-    }
-
-    private func feeForAutoupdate(fees: [Fee]) -> SendFee? {
-        let values = mapToDefaultFees(fees: fees)
+    private func feeForAutoupdate(fees: [SendFee]) -> SendFee? {
         let option = input?.selectedFee.option ?? .market
-        let market = values.first(where: { $0.option == option })
+        let market = fees.first(where: { $0.option == option })
         return market
-    }
-
-    private func autoupdateSelectedFee(fee: SendFee) {
-        output?.feeDidChanged(fee: fee)
     }
 }
