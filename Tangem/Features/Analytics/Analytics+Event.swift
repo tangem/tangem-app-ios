@@ -18,24 +18,38 @@ extension Analytics {
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
         case biometryFailed = "[Basic] Biometry Failed"
+
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
+        case introductionProcessButtonCreateNewWallet = "[Introduction Process] Button - Create New Wallet"
+        case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
+
         case promoBuy = "[Promo Screen] Button - Buy"
         case promoSuccessOpened = "[Promo Screen] Success Screen Opened"
+
         case shopScreenOpened = "[Shop] Shop Screen Opened"
         case purchased = "[Shop] Purchased"
         case redirected = "[Shop] Redirected"
-        case signInScreenOpened = "[Sign In] Sing In Screen Opened"
+
+        case signInScreenOpened = "[Sign In] Sign In Screen Opened"
         case buttonBiometricSignIn = "[Sign In] Button - Biometric Sign In"
         case buttonCardSignIn = "[Sign In] Button - Card Sign In"
+        case signInErrorBiometricUpdated = "[Sign In] Error - Biometric Updated"
+        case signInButtonUnlockAllWithBiometrics = "[Sign In] Button - Unlock All With Biometric"
+        case buttonAddWallet = "[Sign In] Button - Add Wallet"
+
         case onboardingStarted = "[Onboarding] Onboarding Started"
         case onboardingFinished = "[Onboarding] Onboarding Finished"
         case createWalletScreenOpened = "[Onboarding / Create Wallet] Create Wallet Screen Opened"
         case buttonCreateWallet = "[Onboarding / Create Wallet] Button - Create Wallet"
+        case buttonMobileWallet = "[Onboarding] Button - Mobile Wallet"
+        case onboardingButtonBuy = "[Onboarding] Button - Buy"
+
         case walletCreatedSuccessfully = "[Onboarding / Create Wallet] Wallet Created Successfully"
+
         case backupScreenOpened = "[Onboarding / Backup] Backup Screen Opened"
         case backupStarted = "[Onboarding / Backup] Backup Started"
         case backupSkipped = "[Onboarding / Backup] Backup Skipped"
@@ -45,6 +59,11 @@ extension Analytics {
         case accessCodeReEntered = "[Onboarding / Backup] Access Code Re-entered"
         case backupFinished = "[Onboarding / Backup] Backup Finished"
         case backupResetCardNotification = "[Onboarding / Backup] Reset Card Notification"
+        case backupSeedPhraseInfo = "[Onboarding / Backup] Seed Phrase Info"
+        case backupSeedCheckingScreenOpened = "[Onboarding / Backup] Seed Checking Screen Opened"
+        case backupAccessCodeSkipped = "[Onboarding / Backup] Access Code Skipped"
+
+        case activationScreenOpened = "[Onboarding / Top Up] Activation Screen Opened"
         case buttonBuyCrypto = "[Onboarding / Top Up] Button - Buy Crypto"
         case onboardingButtonShowTheWalletAddress = "[Onboarding / Top Up] Button - Show the Wallet Address"
         case onboardingEnableBiometric = "[Onboarding / Biometric] Enable Biometric"
@@ -53,16 +72,16 @@ extension Analytics {
         case twinSetupStarted = "[Onboarding / Twins] Twin Setup Started"
         case twinSetupFinished = "[Onboarding / Twins] Twin Setup Finished"
         case onboardingButtonChat = "[Onboarding] Button - Chat"
-        case mainScreenOpened = "[Main Screen] Screen opened"
-        case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
-        case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
 
+        case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
         case organizeTokensScreenOpened = "[Portfolio / Organize Tokens] Organize Tokens Screen Opened"
         case organizeTokensButtonSortByBalance = "[Portfolio / Organize Tokens] Button - By Balance"
         case organizeTokensButtonGroup = "[Portfolio / Organize Tokens] Button - Group"
         case organizeTokensButtonApply = "[Portfolio / Organize Tokens] Button - Apply"
         case organizeTokensButtonCancel = "[Portfolio / Organize Tokens] Button - Cancel"
+
         case detailsScreenOpened = "[Details Screen] Details Screen Opened"
+
         case buttonRemoveToken = "[Token] Button - Remove Token"
         case buttonExplore = "[Token] Button - Explore"
         case buttonReload = "[Token] Button - Reload"
@@ -82,8 +101,15 @@ extension Analytics {
 
         // MARK: - Main screen
 
+        case mainScreenOpened = "[Main Screen] Screen opened"
+        case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
+        case noticeFinishActivation = "[Main Screen] Notice - Finish Activation"
         case mainButtonReceive = "[Main Screen] Button - Receive"
         case mainButtonExplore = "[Main Screen] Button - Explore"
+        case mainButtonUnlockAllWithBiometrics = "[Main Screen] Button - Unlock All With Biometrics"
+        case buttonUnlockWithCardScan = "[Main Screen] Button - Unlock With Card Scan"
+        case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
+        case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
 
         // MARK: - Send
 
@@ -125,10 +151,6 @@ extension Analytics {
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
         case withdrawScreenOpened = "[Token / Withdraw] Withdraw Screen Opened"
-        case buttonUnlockAllWithBiometrics = "[Main Screen] Button - Unlock All With Biometrics"
-        case buttonUnlockWithCardScan = "[Main Screen] Button - Unlock With Card Scan"
-        case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
-        case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
         case settingsButtonChat = "[Settings] Button - Chat"
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
@@ -152,6 +174,12 @@ extension Analytics {
         case settingsNoticeEnableBiometrics = "[Settings / App Settings] Notice - Enable Biometric"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
         case mainCurrencyChanged = "[Settings / App Settings] Main Currency Changed"
+        case walletSettingsScreenOpened = "[Settings / Wallet Settings] Wallet Settings Screen Opened"
+        case walletSettingsButtonBackup = "[Settings / Wallet Settings] Button - Backup"
+        case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
+        case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
+        case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsNoticeBackupFirst = "[Settings / Wallet Settings] Notice - Backup First"
 
         // MARK: - Wallet Connect
 
@@ -284,6 +312,7 @@ extension Analytics {
         case mainReferralProgram = "[Main Screen] Referral Banner"
         case mainReferralProgramButtonParticipate = "[Main Screen] Button - Referral Participate"
         case mainReferralProgramButtonDismiss = "[Main Screen] Button - Referral Dismiss"
+        case mainButtonFinishNow = "[Main Screen] Button - Finish Now"
 
         // MARK: - BlockchainSdk exceptions
 
