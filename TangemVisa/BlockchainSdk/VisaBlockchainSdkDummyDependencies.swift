@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 public struct VisaDummyBlockchainDataProvider: BlockchainDataProvider {
     public let currentHost: String = ""
@@ -35,6 +36,19 @@ public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSe
     }
 
     public func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return Fail(error: .init(error: NSError(domain: "Not supported", code: -1))).eraseToAnyPublisher()
+        let error = SendTxError(error: VisaDummyTransactionDependencies.Error.notSupported)
+        return Fail(error: error).eraseToAnyPublisher()
+    }
+}
+
+private extension VisaDummyTransactionDependencies {
+    enum Error: UniversalError {
+        case notSupported
+
+        var errorCode: Int { -1 }
+
+        var errorDescription: String? {
+            return "Not supported"
+        }
     }
 }

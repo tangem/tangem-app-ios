@@ -7,9 +7,10 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemExpress
+import TangemFoundation
+import TangemLocalization
 
 final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
@@ -63,12 +64,10 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         runTask(in: self) { viewModel in
             try await viewModel.updateFields()
             await viewModel.setupProviderRowViewModels()
-        }
 
-        if ukGeoDefiner.isUK {
-            ukNotificationInput = NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
-        } else {
-            ukNotificationInput = nil
+            await runOnMain { [weak self] in
+                self?.showFCAWarningIfNeeded()
+            }
         }
     }
 
@@ -207,6 +206,23 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         let changePercent = quote.rate / selectedRate - 1
         let result = priceChangeFormatter.formatFractionalValue(changePercent, option: .express)
         return .percent(result.formattedText, signType: result.signType)
+    }
+
+    // MARK: - Private Implementation
+
+    func showFCAWarningIfNeeded() {
+        let allProviderIds = allProviders.map { $0.provider.id }
+
+        // Display FCA notification if the providers list contains FCA restriction for any provider
+        let isRestrictableFCAIncluded = allProviderIds.contains(where: {
+            ExpressConstants.expressProvidersFCAWarningList.contains($0)
+        })
+
+        if ukGeoDefiner.isUK, isRestrictableFCAIncluded {
+            ukNotificationInput = NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
+        } else {
+            ukNotificationInput = nil
+        }
     }
 }
 
