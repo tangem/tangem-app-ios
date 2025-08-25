@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemExpress
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampCountrySelectorView: View {
     @ObservedObject var viewModel: OnrampCountrySelectorViewModel
@@ -28,6 +29,7 @@ struct OnrampCountrySelectorView: View {
                     viewModel.searchText = ""
                 }
             )
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.residenceSearchField)
             .padding(.horizontal, 16)
 
             contentView
