@@ -132,6 +132,7 @@ private extension MobileOnboardingAccessCodeViewModel {
         guard accessCode.count == codeLength else {
             return
         }
+        Analytics.log(.accessCodeEntered)
         state = .confirmAccessCode
     }
 
@@ -143,6 +144,7 @@ private extension MobileOnboardingAccessCodeViewModel {
             return
         }
 
+        Analytics.log(.accessCodeReEntered)
         handleConfirmed(accessCode: accessCode)
     }
 
@@ -292,6 +294,9 @@ private extension MobileOnboardingAccessCodeViewModel {
         guard let userWalletModel = delegate?.getUserWalletModel() else {
             return
         }
+
+        Analytics.log(.backupAccessCodeSkipped)
+
         MobileAccessCodeSkipHelper.append(userWalletId: userWalletModel.userWalletId)
         // Workaround to manually trigger update event for userWalletModel publisher
         userWalletModel.update(type: .backupCompleted)
