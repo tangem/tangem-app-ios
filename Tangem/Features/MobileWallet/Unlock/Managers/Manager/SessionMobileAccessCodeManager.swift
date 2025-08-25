@@ -1,5 +1,5 @@
 //
-//  CommonMobileAccessCodeManager.swift
+//  SessionMobileAccessCodeManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,13 +11,11 @@ import Combine
 import TangemFoundation
 import TangemMobileWalletSdk
 
-final class CommonMobileAccessCodeManager {
+final class SessionMobileAccessCodeManager {
     private let stateSubject = CurrentValueSubject<MobileAccessCodeState, Never>(.available(.normal))
     private let stateCommandSubject = PassthroughSubject<StateCommand, Never>()
 
     private var attemptsToLockLimit: Int { configuration.attemptsToLockLimit }
-    private var attemptsBeforeWarningLimit: Int { configuration.attemptsBeforeWarningLimit }
-    private var attemptsBeforeDeleteLimit: Int { configuration.attemptsBeforeDeleteLimit }
     private var lockedTimeout: TimeInterval { configuration.lockedTimeout }
 
     private var currentUptime: TimeInterval {
@@ -48,7 +46,7 @@ final class CommonMobileAccessCodeManager {
 
 // MARK: - Private methods
 
-private extension CommonMobileAccessCodeManager {
+private extension SessionMobileAccessCodeManager {
     func bind() {
         stateCommandSubject
             .withWeakCaptureOf(self)
@@ -66,7 +64,7 @@ private extension CommonMobileAccessCodeManager {
 
 // MARK: - State methods
 
-private extension CommonMobileAccessCodeManager {
+private extension SessionMobileAccessCodeManager {
     func makeStatePublisher(command: StateCommand) -> AnyPublisher<MobileAccessCodeState, Never> {
         switch command {
         case .load:
@@ -90,11 +88,7 @@ private extension CommonMobileAccessCodeManager {
             return Just(state).eraseToAnyPublisher()
         }
 
-        if failedAttemptsCount >= attemptsBeforeDeleteLimit {
-            return Just(.unavailable(.needsToDelete)).eraseToAnyPublisher()
-        } else if failedAttemptsCount >= attemptsBeforeWarningLimit {
-            return makeBeforeDeleteStatePublisher(failedAttemptsLockIntervals: failedAttemptsLockIntervals)
-        } else if failedAttemptsCount >= attemptsToLockLimit {
+        if failedAttemptsCount >= attemptsToLockLimit {
             return makeBeforeWarningStatePublisher(failedAttemptsLockIntervals: failedAttemptsLockIntervals)
         } else {
             let remaining = attemptsToLockLimit - failedAttemptsCount
@@ -103,34 +97,12 @@ private extension CommonMobileAccessCodeManager {
         }
     }
 
-    func makeBeforeDeleteStatePublisher(failedAttemptsLockIntervals: [TimeInterval]) -> AnyPublisher<MobileAccessCodeState, Never> {
-        let failedAttemptsCount = failedAttemptsLockIntervals.count
-        let remaining = attemptsBeforeDeleteLimit - failedAttemptsCount
-
-        if let lockDuration = calculateAccessCodeLockDuration(failedAttemptsLockIntervals: failedAttemptsLockIntervals) {
-            let timer = LockedTimer(
-                type: .beforeDelete(remaining: remaining),
-                duration: lockDuration
-            )
-            return makeLockedTimerPublisher(timer: timer)
-        } else {
-            let state: MobileAccessCodeState = .available(.beforeDelete(remaining: remaining))
-            return Just(state).eraseToAnyPublisher()
-        }
-    }
-
     func makeBeforeWarningStatePublisher(failedAttemptsLockIntervals: [TimeInterval]) -> AnyPublisher<MobileAccessCodeState, Never> {
-        let failedAttemptsCount = failedAttemptsLockIntervals.count
-        let remaining = attemptsBeforeWarningLimit - failedAttemptsCount
-
         if let lockDuration = calculateAccessCodeLockDuration(failedAttemptsLockIntervals: failedAttemptsLockIntervals) {
-            let timer = LockedTimer(
-                type: .beforeWarning(remaining: remaining),
-                duration: lockDuration
-            )
+            let timer = LockedTimer(duration: lockDuration)
             return makeLockedTimerPublisher(timer: timer)
         } else {
-            let state: MobileAccessCodeState = .available(.beforeWarning(remaining: remaining))
+            let state: MobileAccessCodeState = .available(.beforeWarning(remaining: 0))
             return Just(state).eraseToAnyPublisher()
         }
     }
@@ -140,12 +112,6 @@ private extension CommonMobileAccessCodeManager {
 
         if let lockTime {
             let remainingTime = lockTime - currentUptime
-
-            // If device restart is detected, check timeout delta from current uptime.
-            guard remainingTime <= lockedTimeout else {
-                let timeoutDelta = lockedTimeout - currentUptime
-                return timeoutDelta > 0 ? timeoutDelta : nil
-            }
 
             guard remainingTime > 0 else {
                 return nil
@@ -160,34 +126,24 @@ private extension CommonMobileAccessCodeManager {
 
 // MARK: - Timers
 
-private extension CommonMobileAccessCodeManager {
+private extension SessionMobileAccessCodeManager {
     func makeLockedTimerPublisher(timer: LockedTimer) -> AnyPublisher<MobileAccessCodeState, Never> {
         let endUptime = currentUptime + timer.duration
         return makeCountdownPublisher(endUptime: endUptime)
             .withWeakCaptureOf(self)
             .map { manager, countdown in
-                manager.makeAccessCodeState(countdown: countdown, timerType: timer.type)
+                manager.makeAccessCodeState(countdown: countdown)
             }
             .eraseToAnyPublisher()
     }
 
-    func makeAccessCodeState(countdown: TimeInterval, timerType: LockedTimerType) -> MobileAccessCodeState {
+    func makeAccessCodeState(countdown: TimeInterval) -> MobileAccessCodeState {
         let isTimeoutFinished = (countdown == 0)
 
         if isTimeoutFinished {
-            switch timerType {
-            case .beforeWarning(let remaining):
-                return .available(.beforeWarning(remaining: remaining))
-            case .beforeDelete(let remaining):
-                return .available(.beforeDelete(remaining: remaining))
-            }
+            return .available(.beforeWarning(remaining: 0))
         } else {
-            switch timerType {
-            case .beforeWarning(let remaining):
-                return .locked(.beforeWarning(remaining: remaining, timeout: countdown))
-            case .beforeDelete(let remaining):
-                return .locked(.beforeDelete(remaining: remaining, timeout: countdown))
-            }
+            return .locked(.beforeWarning(remaining: 0, timeout: countdown))
         }
     }
 
@@ -208,7 +164,7 @@ private extension CommonMobileAccessCodeManager {
 
 // MARK: - MobileAccessCodeManager
 
-extension CommonMobileAccessCodeManager: MobileAccessCodeManager {
+extension SessionMobileAccessCodeManager: MobileAccessCodeManager {
     var statePublisher: AnyPublisher<MobileAccessCodeState, Never> {
         stateSubject.eraseToAnyPublisher()
     }
@@ -248,45 +204,22 @@ extension CommonMobileAccessCodeManager: MobileAccessCodeManager {
             if remaining > 0 {
                 return makeAvailableBeforeLockCommand(remaining: remaining)
             } else {
-                return makeBeforeWarningTimerCommand(
-                    remaining: attemptsBeforeWarningLimit - attemptsToLockLimit,
-                    duration: lockedTimeout
-                )
+                return makeLockedTimerCommand(duration: lockedTimeout)
             }
 
-        case .beforeWarning(let lastRemaining):
-            let remaining = lastRemaining - 1
+        case .beforeWarning:
+            return makeLockedTimerCommand(duration: lockedTimeout)
 
-            if remaining > 0 {
-                return makeBeforeWarningTimerCommand(
-                    remaining: remaining,
-                    duration: lockedTimeout
-                )
-            } else {
-                return makeBeforeDeleteTimerCommand(
-                    remaining: attemptsBeforeDeleteLimit - attemptsBeforeWarningLimit,
-                    duration: lockedTimeout
-                )
-            }
-
-        case .beforeDelete(let lastRemaining):
-            let remaining = lastRemaining - 1
-
-            if remaining > 0 {
-                return makeBeforeDeleteTimerCommand(
-                    remaining: remaining,
-                    duration: lockedTimeout
-                )
-            } else {
-                return makeUnavailableCommand(state: .needsToDelete)
-            }
+        case .beforeDelete:
+            assertionFailure("Unexpected state: .beforeDelete should never happen.")
+            return makeLockedTimerCommand(duration: lockedTimeout)
         }
     }
 }
 
 // MARK: - Commands maker
 
-private extension CommonMobileAccessCodeManager {
+private extension SessionMobileAccessCodeManager {
     // Available commands
 
     func makeAvailableBeforeLockCommand(remaining: Int) -> StateCommand {
@@ -294,31 +227,10 @@ private extension CommonMobileAccessCodeManager {
         return .update(state)
     }
 
-    func makeAvailableBeforeWarningCommand(remaining: Int) -> StateCommand {
-        let state: MobileAccessCodeState = .available(.beforeWarning(remaining: remaining))
-        return .update(state)
-    }
-
-    func makeAvailableBeforeDeleteCommand(remaining: Int) -> StateCommand {
-        let state: MobileAccessCodeState = .available(.beforeDelete(remaining: remaining))
-        return .update(state)
-    }
-
     // Timer commands
 
-    func makeBeforeWarningTimerCommand(remaining: Int, duration: TimeInterval) -> StateCommand {
-        let timer = LockedTimer(
-            type: .beforeWarning(remaining: remaining),
-            duration: duration
-        )
-        return .startTimer(timer)
-    }
-
-    func makeBeforeDeleteTimerCommand(remaining: Int, duration: TimeInterval) -> StateCommand {
-        let timer = LockedTimer(
-            type: .beforeDelete(remaining: remaining),
-            duration: duration
-        )
+    func makeLockedTimerCommand(duration: TimeInterval) -> StateCommand {
+        let timer = LockedTimer(duration: duration)
         return .startTimer(timer)
     }
 
@@ -335,7 +247,7 @@ private extension CommonMobileAccessCodeManager {
 
 // MARK: - Storing
 
-extension CommonMobileAccessCodeManager {
+extension SessionMobileAccessCodeManager {
     func getWrongAccessCodeStore() -> MobileWrongAccessCodeStore {
         storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
     }
@@ -352,7 +264,7 @@ extension CommonMobileAccessCodeManager {
 
 // MARK: - Types
 
-private extension CommonMobileAccessCodeManager {
+private extension SessionMobileAccessCodeManager {
     enum StateCommand {
         case load
         case update(MobileAccessCodeState)
@@ -360,12 +272,6 @@ private extension CommonMobileAccessCodeManager {
     }
 
     struct LockedTimer {
-        let type: LockedTimerType
         let duration: TimeInterval
-    }
-
-    enum LockedTimerType {
-        case beforeWarning(remaining: Int)
-        case beforeDelete(remaining: Int)
     }
 }
