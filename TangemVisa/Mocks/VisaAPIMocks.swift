@@ -18,7 +18,7 @@ public class VisaMocksManager {
     public static let instance = VisaMocksManager()
 
     private(set) var activationRemoteState: VisaCardActivationRemoteState = .cardWalletSignatureRequired
-    private(set) var customerWalletAddress: String = "0x3e24897ab2a19ca51536839fda818f8ea99cf96b"
+    private(set) var customerWalletAddress: String = "0x9F65354e595284956599F2892fA4A4a87653D6E6"
     lazy var activationOrder: VisaCardActivationOrder = validActivationOrder
     var validActivationOrder: VisaCardActivationOrder {
         .init(
@@ -217,9 +217,9 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         )
     }
 
-    func getWalletAuthorizationChallenge(cardId: String, walletAddress: String) async throws -> VisaAuthChallengeResponse {
+    func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse {
         return .init(
-            nonce: RandomBytesGenerator().generateBytes(length: 32).hexString,
+            nonce: RandomBytesGenerator().generateBytes(length: 16).hexString,
             sessionId: "098acd0987ba0af0787ff8abc90dcb12=098acd0987ba0af0787ff8abc90dcb12=="
         )
     }
@@ -238,6 +238,10 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
 
     func refreshAccessToken(refreshToken: String, authorizationType authType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
         return try await getAccessTokensForCardAuth(signedChallenge: "", salt: "", sessionId: "")
+    }
+
+    func exchangeTokens(accessToken: String, refreshToken: String, authorizationType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
+        return authorizationTokens
     }
 }
 
@@ -285,6 +289,34 @@ struct ProductActivationServiceMock: ProductActivationService {
 
     func sendSelectedPINCodeToIssuer(activationOrderId: String, sessionKey: String, iv: String, encryptedPin: String) async throws {
         VisaMocksManager.instance.changeActivationRemoteState(to: .waitingForActivationFinishing)
+    }
+}
+
+struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
+    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
+        return .init(
+            id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
+            state: .active,
+            createdAt: Date(),
+            productInstance: .init(
+                id: "0550913f-b5ec-4e84-aada-4dcac86a3e4f",
+                cardWalletAddress: "0xd971a808a08163b197e1e119cdba5d26ea3543bf",
+                cardId: "5c5ad769-9b2d-4b16-952a-6f4e51833cba",
+                cid: "FF05000000098425",
+                status: .active,
+                updatedAt: Date(),
+                paymentAccountId: "5add5bde-04e7-4efd-9191-cb7f21956c00"
+            ),
+            paymentAccount: .init(
+                id: "5add5bde-04e7-4efd-9191-cb7f21956c00",
+                customerWalletAddress: "0xef08ea3531d219ede813fb521e6d89220198bcb1",
+                address: "0xd7d2d8266e79d22be3680a062e19484140e248d1"
+            )
+        )
+    }
+
+    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
+        VisaKYCAccessTokenResponse(token: "", locale: "")
     }
 }
 

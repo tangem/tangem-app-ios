@@ -19,9 +19,6 @@ extension Analytics {
         case errorType = "Error Type"
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
-        case walletConnectAction = "wallet_connect_action"
-        case walletConnectRequest = "wallet_connect_request"
-        case walletConnectDappUrl = "wallet_connect_dapp_url"
         case source = "Source"
         case period = "Period"
         case type
@@ -57,6 +54,7 @@ extension Analytics {
         case status = "Status"
         case option
         case feeType = "Fee Type"
+        case nonce = "Nonce"
         case permissionType = "Permission Type"
         case validation = "Validation"
         case memo = "Memo"
@@ -67,8 +65,6 @@ extension Analytics {
         case region
         case clientType = "Client Type"
         case programName = "Program Name"
-        case dAppName = "DApp Name"
-        case dAppUrl = "DApp Url"
         case networks = "Networks"
         case methodName = "Method Name"
         case groupType = "Group"
@@ -101,5 +97,20 @@ extension Analytics {
         case paymentMethod = "Payment Method"
 
         case watched = "Watched"
+
+        // MARK: - Wallet Connect
+
+        case walletConnectDAppName = "DApp Name"
+        case walletConnectDAppUrl = "DApp Url"
+        case walletConnectBlockchain = "Blockchain"
+        case walletConnectDAppDomainVerification = "Domain Verification"
+        case walletConnectTransactionEmulationStatus = "Emulation Status"
+
+        // MARK: - NFT
+
+        case nftCollectionsCount = "Collections"
+        case nftAssetsCount = "Nft"
+        case nftStandard = "Standard"
+        case nftDummyCollectionsCount = "No collection"
     }
 }
