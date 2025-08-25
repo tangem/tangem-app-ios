@@ -11,6 +11,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import SwiftUI
+import TangemFoundation
+import TangemNetworkUtils
 
 enum DefaultWalletData: Codable {
     case file(WalletData)
@@ -34,15 +36,13 @@ struct AppScanTaskResponse {
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
-        var cardInfo = CardInfo(
+        let cardInfo = CardInfo(
             card: CardDTO(card: card),
             walletData: walletData,
-            name: "",
-            primaryCard: primaryCard
+            primaryCard: primaryCard,
+            associatedCardIds: []
         )
 
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        cardInfo.name = config.cardName
         return cardInfo
     }
 }
@@ -191,7 +191,6 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { result in
             switch result {
             case .success(let response):
-
                 if let walletData = session.environment.walletData {
                     let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
                     self.walletData = .twin(walletData, twinData)
@@ -240,7 +239,7 @@ final class AppScanTask: CardSessionRunnable {
             apiType: featureStorage.visaAPIType,
             isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
         ).build(
-            isTestnet: featureStorage.isVisaTestnet,
+            isTestnet: featureStorage.visaAPIType.isTestnet,
             urlSessionConfiguration: .visaConfiguration,
             refreshTokenRepository: visaRefreshTokenRepository
         )
@@ -274,8 +273,8 @@ final class AppScanTask: CardSessionRunnable {
         let config = config(for: card)
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
-        if let seed = config.userWalletIdSeed {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+        if let userWalletId = UserWalletId(config: config) {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
 
             // Force add blockchains for demo cards
             if let persistentBlockchains = config.persistentBlockchains {
@@ -304,7 +303,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let scanTask = ScanTask()
+        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession, additionalHeaders: DeviceInfo().asHeaders()))
         scanTask.run(in: session) { result in
             switch result {
             case .success:
@@ -324,8 +323,8 @@ final class AppScanTask: CardSessionRunnable {
         let card = CardDTO(card: plainCard)
         let config = config(for: card)
 
-        if let seed = config.userWalletIdSeed {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+        if let userWalletId = UserWalletId(config: config) {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
             if card.isAccessCodeSet, !tokenItemsRepository.containsFile {
                 session.pause()
                 session.viewDelegate.setState(.empty)
@@ -368,7 +367,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func config(for card: CardDTO) -> UserWalletConfig {
-        let cardInfo = CardInfo(card: card, walletData: walletData, name: "")
-        return UserWalletConfigFactory(cardInfo).makeConfig()
+        let cardInfo = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
+        return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
     }
 }

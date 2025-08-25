@@ -54,7 +54,7 @@ class ExpressNotificationManager {
             }
 
         case .restriction(let restrictions, _):
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 await manager.setupNotification(for: restrictions)
             }
 
@@ -178,8 +178,10 @@ class ExpressNotificationManager {
              .notEnoughMana,
              .manaLimit,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .koinosInsufficientBalanceToSendKoin,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             event = .validationErrorEvent(event: validationErrorEvent, context: context)
         }
 
@@ -230,7 +232,7 @@ class ExpressNotificationManager {
         return notification
     }
 
-    private func makeNotEnoughFeeForTokenTx(sender: any WalletModel) -> ExpressNotificationEvent? {
+    private func makeNotEnoughFeeForTokenTx(sender: any ExpressInteractorSourceWallet) -> ExpressNotificationEvent? {
         guard !sender.isFeeCurrency else {
             return nil
         }
