@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
 
-enum CommonError: Error {
+enum CommonError {
     case objectReleased
     case noData
     case notImplemented

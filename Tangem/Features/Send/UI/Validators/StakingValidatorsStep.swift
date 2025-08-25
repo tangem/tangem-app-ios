@@ -14,16 +14,16 @@ import SwiftUI
 class StakingValidatorsStep {
     private let viewModel: StakingValidatorsViewModel
     private let interactor: StakingValidatorsInteractor
-    private let sendFeeLoader: SendFeeLoader
+    private let sendFeeProvider: SendFeeProvider
 
     init(
         viewModel: StakingValidatorsViewModel,
         interactor: StakingValidatorsInteractor,
-        sendFeeLoader: SendFeeLoader
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeLoader = sendFeeLoader
+        self.sendFeeProvider = sendFeeProvider
     }
 }
 
@@ -33,6 +33,9 @@ extension StakingValidatorsStep: SendStep {
     var title: String? { Localization.stakingValidator }
 
     var type: SendStepType { .validators(viewModel) }
+
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
@@ -45,6 +48,6 @@ extension StakingValidatorsStep: SendStep {
             return
         }
 
-        sendFeeLoader.updateFees()
+        sendFeeProvider.updateFees()
     }
 }
