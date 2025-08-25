@@ -107,6 +107,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func setupView() {
+        resetViewModels()
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
@@ -117,14 +118,22 @@ private extension UserWalletSettingsViewModel {
         accountsSection = []
     }
 
+    func resetViewModels() {
+        backupViewModel = nil
+        manageTokensViewModel = nil
+        referralViewModel = nil
+        nftViewModel = nil
+        pushNotificationsViewModel = nil
+        mobileAccessCodeViewModel = nil
+        mobileBackupViewModel = nil
+    }
+
     func setupViewModels() {
         if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
             backupViewModel = DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.prepareBackup)
             )
-        } else {
-            backupViewModel = nil
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
@@ -146,8 +155,6 @@ private extension UserWalletSettingsViewModel {
                     accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
-        } else {
-            referralViewModel = nil
         }
 
         if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
@@ -160,8 +167,6 @@ private extension UserWalletSettingsViewModel {
                     set: { $0.isNFTEnabled = $1 }
                 )
             )
-        } else {
-            nftViewModel = nil
         }
 
         if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
