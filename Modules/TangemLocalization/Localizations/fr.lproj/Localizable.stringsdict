@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>auth_wallet_hardware_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -29,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>%@ token</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>%@ tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -48,6 +64,22 @@
         <string>jour</string>
         <key>other</key>
         <string>jours</string>
+      </dict>
+    </dict>
+    <key>common_tokens_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li jeton</string>
+        <key>other</key>
+        <string>%li jetons</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
@@ -109,15 +141,15 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li article</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li articles</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@nfts_count@ in %#@collections_count@</string>
+      <string>%#@nfts_count@ dans %#@collections_count@</string>
       <key>collections_count</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

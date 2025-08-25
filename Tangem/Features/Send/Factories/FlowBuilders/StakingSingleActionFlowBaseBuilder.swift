@@ -20,18 +20,20 @@ struct StakingSingleActionFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, action: UnstakingModel.Action, router: SendRoutable) -> SendViewModel {
-        let actionModel = builder.makeStakingSingleActionModel(stakingManager: manager, action: action)
+        let actionType = builder.sendFlowActionType(actionType: action.displayType)
+        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: actionType)
+        let actionModel = builder.makeStakingSingleActionModel(
+            stakingManager: manager,
+            analyticsLogger: analyticsLogger,
+            action: action
+        )
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: actionModel, input: actionModel)
         notificationManager.setupManager(with: actionModel)
 
-        let sendAmountCompactViewModel = sendAmountStepBuilder.makeSendAmountCompactViewModel(input: actionModel)
-        let actionType = builder.sendFlowActionType(actionType: action.displayType)
-        let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
-            actionType: actionType,
-            stakingValidatorsInput: actionModel
-        )
+        analyticsLogger.setup(stakingValidatorsInput: actionModel)
 
+        let sendAmountCompactViewModel = sendAmountStepBuilder.makeSendAmountCompactViewModel(input: actionModel)
         let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: actionModel)
         sendFeeCompactViewModel.bind(input: actionModel)
 
@@ -40,16 +42,18 @@ struct StakingSingleActionFlowBaseBuilder {
             actionType: actionType,
             descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .noEditable,
+            destinationEditableType: .noEditable,
+            amountEditableType: .noEditable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: .none,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: actionModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: .none,
@@ -72,6 +76,7 @@ struct StakingSingleActionFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: actionModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,

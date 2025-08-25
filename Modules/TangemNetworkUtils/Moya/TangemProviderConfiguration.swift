@@ -15,7 +15,7 @@ public struct TangemProviderConfiguration {
     public let headerValues: [APIHeaderKeyInfo]
 
     public init(
-        logOptions: TangemNetworkLoggerPlugin.LogOptions? = .default,
+        logOptions: TangemNetworkLoggerPlugin.LogOptions? = .verbose,
         urlSessionConfiguration: URLSessionConfiguration = .defaultConfiguration,
         credentials: Credentials? = nil,
         headerValues: [APIHeaderKeyInfo] = []
@@ -63,7 +63,7 @@ public extension TangemProviderConfiguration {
 
 public extension TangemProviderConfiguration {
     static let ephemeralConfiguration = TangemProviderConfiguration(
-        logOptions: .default,
+        logOptions: .verbose,
         urlSessionConfiguration: .ephemeralConfiguration
     )
 }
