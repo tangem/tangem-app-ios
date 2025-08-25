@@ -13,6 +13,7 @@ import WalletCore
 final class SuiNetworkService: MultiNetworkProvider {
     let providers: [SuiNetworkProvider]
     let balanceFetcher = SuiBalanceFetcher()
+    let blockchainName: String = Blockchain.sui(curve: .ed25519_slip0010, testnet: false).displayName
     var currentProviderIndex: Int
 
     init(providers: [SuiNetworkProvider]) {
@@ -24,7 +25,7 @@ final class SuiNetworkService: MultiNetworkProvider {
         return balanceFetcher
             .setupRequestPublisherBuilder { [weak self] nextAddress, nextCoin, nextCursor in
                 guard let self else {
-                    return .anyFail(error: NetworkServiceError.notAvailable)
+                    return .anyFail(error: BlockchainSdkError.networkUnavailable)
                 }
                 return providerPublisher { provider in
                     provider
