@@ -11,6 +11,7 @@ import TangemFoundation
 class CardWalletUnlocker: UserWalletModelUnlocker {
     var canUnlockAutomatically: Bool { false }
     var canShowUnlockUIAutomatically: Bool { false }
+    var analyticsSignInType: Analytics.SignInType { .card }
 
     private let userWalletId: UserWalletId
     private let scanner: UserWalletCardScanner
