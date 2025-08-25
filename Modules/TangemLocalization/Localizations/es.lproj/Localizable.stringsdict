@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>auth_wallet_hardware_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -29,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>%@ token</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>%@ tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -48,6 +64,22 @@
         <string>día</string>
         <key>other</key>
         <string>días</string>
+      </dict>
+    </dict>
+    <key>common_tokens_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li ficha</string>
+        <key>other</key>
+        <string>%li fichas</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
@@ -109,15 +141,15 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li elemento</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li elementos</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@nfts_count@ in %#@collections_count@</string>
+      <string>%#@nfts_count@ en %#@collections_count@</string>
       <key>collections_count</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -125,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li collection</string>
+        <string>%li colección</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li colecciones</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -232,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use su tarjeta o anillo para obtener una dirección para la red</string>
+        <string>Use su tarjeta o anillo para obtener una dirección para la red %li</string>
         <key>other</key>
-        <string>Use su tarjeta o anillo para obtener direcciónes para la red</string>
+        <string>Use su tarjeta o anillo para obtener direcciónes para las redes %li</string>
       </dict>
     </dict>
   </dict>

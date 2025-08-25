@@ -178,8 +178,8 @@ extension Amount.AmountType: Hashable {
         switch (lhs, rhs) {
         case (.coin, .coin), (.reserve, .reserve):
             return true
-        case (.token(let lv), .token(let rv)):
-            return lv == rv
+        case (.token(let lValue), .token(let rValue)):
+            return lValue == rValue
         case (.feeResource(let ln), .feeResource(let rn)):
             return ln == rn
         default:
@@ -191,6 +191,10 @@ extension Amount.AmountType: Hashable {
 public extension Amount {
     static func zeroCoin(for blockchain: Blockchain) -> Amount {
         .init(with: blockchain, type: .coin, value: 0)
+    }
+
+    static func zeroToken(token: Token) -> Amount {
+        Amount(with: token, value: .zero)
     }
 
     static func maxCoin(for blockchain: Blockchain) -> Amount {

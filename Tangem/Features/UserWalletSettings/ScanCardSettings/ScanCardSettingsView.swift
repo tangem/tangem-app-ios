@@ -91,7 +91,7 @@ struct ScanCardSettingsView: View {
 struct ScanCardSettingsView_Preview: PreviewProvider {
     static let viewModel = ScanCardSettingsViewModel(
         input: .init(
-            cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
+            cardImageProvider: CardImageProviderMock(),
             cardScanner: CommonCardScanner()
         ),
         coordinator: ScanCardSettingsCoordinator()
