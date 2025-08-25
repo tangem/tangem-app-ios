@@ -8,24 +8,25 @@
 
 import Foundation
 import ScaleCodec
+import BigInt
 
-struct PolkadotHeader: Codable {
+struct PolkadotHeader: Swift.Codable {
     let number: String
 }
 
-struct PolkadotRuntimeVersion: Codable {
+struct PolkadotRuntimeVersion: Swift.Codable {
     let specName: String
     let specVersion: UInt32
     let transactionVersion: UInt32
 }
 
-struct PolkadotQueriedInfo: ScaleDecodable {
+struct PolkadotQueriedInfo: ScaleCodec.Decodable {
     let refTime: UInt64
     let proofSize: UInt64
     let classType: UInt8
     let partialFee: BigUInt
 
-    init(from decoder: any ScaleCodec.ScaleDecoder) throws {
+    init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
         refTime = try decoder.decode(.compact)
         proofSize = try decoder.decode(.compact)
         classType = try decoder.decode()
@@ -37,21 +38,22 @@ struct PolkadotQueriedInfo: ScaleDecodable {
             let fee: UInt64 = try decoder.decode()
             partialFee = .init(fee)
         case 16:
-            partialFee = try decoder.decode(.b128)
+            let bytes: Data = try decoder.decode(.fixed(16))
+            partialFee = BigUInt(littleEndian: bytes)
         default:
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
     }
 }
 
-struct PolkadotAccountInfo: ScaleDecodable {
+struct PolkadotAccountInfo: ScaleCodec.Decodable {
     let nonce: UInt32
     let consumers: UInt32
     let providers: UInt32
     let sufficients: UInt32
     let data: PolkadotAccountData
 
-    init(from decoder: ScaleDecoder) throws {
+    init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
         nonce = try decoder.decode()
         consumers = try decoder.decode()
         providers = try decoder.decode()
@@ -60,10 +62,10 @@ struct PolkadotAccountInfo: ScaleDecodable {
     }
 }
 
-struct PolkadotAccountData: ScaleDecodable {
-    init(from decoder: ScaleDecoder) throws {
-        free = try decoder.decode(BigUInt.self, .b256)
-    }
-
+struct PolkadotAccountData: ScaleCodec.Decodable {
     var free: BigUInt
+
+    init<D: ScaleCodec.Decoder>(from decoder: inout D) throws {
+        free = BigUInt(littleEndian: try decoder.decode(.fixed(16)))
+    }
 }

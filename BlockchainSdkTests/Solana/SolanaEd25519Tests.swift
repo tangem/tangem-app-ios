@@ -18,7 +18,7 @@ struct SolanaEd25519Tests {
     private let walletPubKey = Data(hex: "B148CC30B144E8F214AE5754C753C40A9BF2A3359DB4246E03C6A2F61A82C282")
     private let address = "Cw3YcfqzRSa7xT7ecpR5E4FKDQU6aaxz5cWje366CZbf"
     private let blockchain = Blockchain.solana(curve: .ed25519, testnet: false)
-    private let feeParameters = SolanaFeeParameters(computeUnitLimit: nil, computeUnitPrice: nil, accountCreationFee: 0)
+    private let feeParameters = SolanaFeeParameters(destinationAccountExists: true, computeUnitLimit: nil, computeUnitPrice: nil)
     private let coinSigner = SolanaSignerTestUtility.CoinSigner()
 
     init() {
@@ -34,12 +34,10 @@ struct SolanaEd25519Tests {
         let wallet = Wallet(blockchain: blockchain, addresses: [.default: address])
 
         manager = .init(wallet: wallet)
-        manager.solanaSdk = solanaSdk
-        manager.usePriorityFees = false
         manager.networkService = SolanaNetworkService(
+            providers: [],
             solanaSdk: solanaSdk,
-            blockchain: blockchain,
-            hostProvider: networkingRouter
+            blockchain: blockchain
         )
     }
 

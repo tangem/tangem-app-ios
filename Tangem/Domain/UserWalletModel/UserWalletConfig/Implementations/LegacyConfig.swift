@@ -53,7 +53,7 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Tangem Card"
     }
 
@@ -205,8 +205,6 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .available
         case .topup:

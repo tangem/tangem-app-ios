@@ -75,9 +75,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.forcedDemoCardId)
     var forcedDemoCardId: String? = nil
 
-    @AppStorageCompat(StorageType.didMigrateUserWalletNames)
-    var didMigrateUserWalletNames: Bool = false
-
     @AppStorageCompat(StorageType.userWalletIdsWithRing)
     var userWalletIdsWithRing: [String] = []
 
@@ -98,6 +95,24 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.startWalletUsageDate)
     var startWalletUsageDate: Date? = nil
+
+    @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
+    var tronWarningWithdrawTokenDisplayed: Int = 0
+
+    @AppStorageCompat(StorageType.applicationUid)
+    var applicationUid: String = ""
+
+    @AppStorageCompat(StorageType.lastStoredFCMToken)
+    var lastStoredFCMToken: String? = nil
+
+    @AppStorageCompat(StorageType.didMigrateWalletConnectSavedSessions)
+    var didMigrateWalletConnectSavedSessions: Bool = false
+
+    @AppStorageCompat(StorageType.allowanceUserWalletIdTransactionsPush)
+    var allowanceUserWalletIdTransactionsPush: [String] = []
+
+    @AppStorageCompat(StorageType.isSendWithSwapOnboardNotificationHidden)
+    var isSendWithSwapOnboardNotificationHidden: Bool = false
 
     static let shared: AppSettings = .init()
 

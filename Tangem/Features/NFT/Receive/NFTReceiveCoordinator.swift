@@ -26,7 +26,7 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
     // MARK: - Private
 
-    private var walletModelFetcher: NFTReceiveWalletModelFetcher?
+    private var walletModelFinder: NFTReceiveWalletModelFinder?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -38,17 +38,20 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let receiveInput = options.input
+        let userWalletModel = receiveInput.userWalletModel
         let dataSource = CommonNFTNetworkSelectionListDataSource(
             walletModelsManager: receiveInput.walletModelsManager,
-            userWalletConfig: receiveInput.userWalletConfig
+            userWalletConfig: userWalletModel.config
         )
         rootViewModel = NFTNetworkSelectionListViewModel(
-            userWalletName: receiveInput.userWalletName,
+            userWalletName: userWalletModel.name,
             dataSource: dataSource,
             tokenIconInfoProvider: CommonNFTTokenIconInfoProvider(),
+            nftChainNameProviding: options.nftChainNameProviding,
+            analytics: options.analytics,
             coordinator: self
         )
-        walletModelFetcher = NFTReceiveWalletModelFetcher(walletModelsManager: receiveInput.walletModelsManager)
+        walletModelFinder = NFTReceiveWalletModelFinder(walletModelsManager: receiveInput.walletModelsManager)
     }
 }
 
@@ -56,7 +59,9 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
 extension NFTReceiveCoordinator {
     struct Options {
-        let input: NFTReceiveInput
+        let input: NFTNavigationInput
+        let nftChainNameProviding: NFTChainNameProviding
+        let analytics: NFTAnalytics.BlockchainSelection
     }
 }
 
@@ -64,7 +69,7 @@ extension NFTReceiveCoordinator {
 
 extension NFTReceiveCoordinator: NFTNetworkSelectionListRoutable {
     func openReceive(for nftChainItem: NFTChainItem) {
-        guard let walletModel = walletModelFetcher?.fetch(for: nftChainItem) else {
+        guard let walletModel = walletModelFinder?.findWalletModel(for: nftChainItem) else {
             return
         }
 

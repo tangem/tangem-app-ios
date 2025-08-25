@@ -11,22 +11,28 @@ import enum BlockchainSdk.Blockchain
 
 struct UserTokenListConverter {
     private let supportedBlockchains: Set<Blockchain>
+    private weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
-    init(
-        supportedBlockchains: Set<Blockchain>
-    ) {
+    init(supportedBlockchains: Set<Blockchain>, externalParametersProvider: UserTokenListExternalParametersProvider?) {
         self.supportedBlockchains = supportedBlockchains
+        self.externalParametersProvider = externalParametersProvider
     }
 
     // MARK: - Stored to Remote
 
     func convertStoredToRemote(_ storedUserTokenList: StoredUserTokenList) -> UserTokenList {
+        let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
+
         let tokens = storedUserTokenList
             .entries
             .compactMap { entry in
                 let network = entry.blockchainNetwork
                 let id = entry.isToken ? entry.id : network.blockchain.coinId
                 let name = entry.isToken ? entry.name : network.blockchain.coinDisplayName
+                // Determine the addresses based on the notifyStatusValue.
+                // If notifyStatusValue is true, fetch the addresses from the externalParametersProvider.
+                // Otherwise, set addresses to an empty array.
+                let addresses: [String]? = walletModelAddresses?[entry.walletModelId]
 
                 return UserTokenList.Token(
                     id: id,
@@ -35,15 +41,19 @@ struct UserTokenListConverter {
                     symbol: entry.symbol,
                     decimals: entry.decimalCount,
                     derivationPath: network.derivationPath,
-                    contractAddress: entry.contractAddress
+                    contractAddress: entry.contractAddress,
+                    addresses: addresses
                 )
             }
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
 
+        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
+
         return UserTokenList(
             tokens: tokens,
             group: convertToGroupType(groupingOption: storedUserTokenList.grouping),
-            sort: convertToSortType(sortingOption: storedUserTokenList.sorting)
+            sort: convertToSortType(sortingOption: storedUserTokenList.sorting),
+            notifyStatus: notifyStatusValue
         )
     }
 

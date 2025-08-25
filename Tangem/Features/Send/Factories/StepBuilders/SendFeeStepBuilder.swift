@@ -10,31 +10,42 @@ import Foundation
 
 struct SendFeeStepBuilder {
     typealias IO = (input: SendFeeInput, output: SendFeeOutput)
-    typealias ReturnValue = (step: SendFeeStep, interactor: SendFeeInteractor, compact: SendFeeCompactViewModel)
+    typealias ReturnValue = (step: SendFeeStep, compact: SendFeeCompactViewModel)
 
     let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
 
-    func makeFeeSendStep(io: IO, notificationManager: NotificationManager, router: SendFeeRoutable) -> ReturnValue {
-        let interactor = makeSendFeeInteractor(io: io)
+    func makeFeeSendStep(
+        io: IO,
+        notificationManager: NotificationManager,
+        analyticsLogger: any SendFeeAnalyticsLogger,
+        sendFeeProvider: SendFeeProvider,
+        customFeeService: CustomFeeService?,
+        router: SendFeeRoutable
+    ) -> ReturnValue {
+        let interactor = makeSendFeeInteractor(
+            io: io,
+            customFeeService: customFeeService,
+            sendFeeProvider: sendFeeProvider
+        )
 
         let viewModel = makeSendFeeViewModel(
             sendFeeInteractor: interactor,
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             router: router
         )
 
         let step = SendFeeStep(
             viewModel: viewModel,
-            interactor: interactor,
+            feeProvider: sendFeeProvider,
             notificationManager: notificationManager,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeAnalyticsParameterBuilder: builder.makeFeeAnalyticsParameterBuilder()
+            analyticsLogger: analyticsLogger
         )
 
         let compact = makeSendFeeCompactViewModel(input: io.input)
 
-        return (step: step, interactor: interactor, compact: compact)
+        return (step: step, compact: compact)
     }
 
     func makeSendFeeCompactViewModel(input: SendFeeInput) -> SendFeeCompactViewModel {
@@ -52,33 +63,32 @@ private extension SendFeeStepBuilder {
     func makeSendFeeViewModel(
         sendFeeInteractor: SendFeeInteractor,
         notificationManager: NotificationManager,
+        analyticsLogger: any SendFeeAnalyticsLogger,
         router: SendFeeRoutable
     ) -> SendFeeViewModel {
-        let settings = SendFeeViewModel.Settings(feeTokenItem: walletModel.feeTokenItem)
+        let settings = SendFeeViewModel.Settings(
+            feeTokenItem: walletModel.feeTokenItem,
+            tokenItem: walletModel.tokenItem
+        )
 
         return SendFeeViewModel(
             settings: settings,
             interactor: sendFeeInteractor,
             notificationManager: notificationManager,
-            router: router
+            router: router,
+            analyticsLogger: analyticsLogger
         )
     }
 
-    private func makeSendFeeInteractor(io: IO) -> SendFeeInteractor {
-        let customFeeService = CustomFeeServiceFactory(walletModel: walletModel).makeService()
+    private func makeSendFeeInteractor(io: IO, customFeeService: CustomFeeService?, sendFeeProvider: SendFeeProvider) -> SendFeeInteractor {
         let interactor = CommonSendFeeInteractor(
             input: io.input,
             output: io.output,
-            provider: makeSendFeeProvider(),
-            defaultFeeOptions: builder.makeFeeOptions(),
+            provider: sendFeeProvider,
             customFeeService: customFeeService
         )
 
-        customFeeService?.setup(input: interactor, output: interactor)
+        customFeeService?.setup(output: interactor)
         return interactor
-    }
-
-    func makeSendFeeProvider() -> SendFeeProvider {
-        CommonSendFeeProvider(walletModel: walletModel)
     }
 }

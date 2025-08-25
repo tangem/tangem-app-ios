@@ -13,6 +13,7 @@ import CombineExt
 import TangemSdk
 import BlockchainSdk
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ManageTokensAdapter {
@@ -61,7 +62,7 @@ class ManageTokensAdapter {
         bind()
     }
 
-    func saveChanges(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func saveChanges(completion: @escaping (Result<Void, Error>) -> Void) {
         userTokensManager.update(
             itemsToRemove: pendingRemove,
             itemsToAdd: pendingAdd
@@ -122,7 +123,11 @@ private extension ManageTokensAdapter {
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
-        return userTokensManager.canRemove(tokenItem)
+        return userTokensManager.canRemove(
+            tokenItem,
+            pendingToAddItems: pendingAdd,
+            pendingToRemoveItems: pendingRemove
+        )
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {

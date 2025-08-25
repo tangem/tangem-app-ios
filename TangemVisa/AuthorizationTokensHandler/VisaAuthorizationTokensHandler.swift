@@ -23,18 +23,10 @@ public protocol VisaRefreshTokenSaver: AnyObject {
 public protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
     func save(refreshToken: String, cardId: String) throws
     func deleteToken(cardId: String) throws
-    /// - Parameters:
-    ///  - cardIdTokenToKeep: this token will be saved after clearing secure and biometrics storages, but it will only persist in memory, not in storages
-    func clear(cardIdTokenToKeep: String?)
+    func clearPersistent()
     func fetch(using context: LAContext)
     func getToken(forCardId cardId: String) -> String?
     func lock()
-}
-
-public extension VisaRefreshTokenRepository {
-    func clear() {
-        clear(cardIdTokenToKeep: nil)
-    }
 }
 
 public extension VisaRefreshTokenRepository {
@@ -56,6 +48,7 @@ public protocol VisaAuthorizationTokensHandler {
     var authorizationTokens: VisaAuthorizationTokens? { get async }
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws
     func forceRefreshToken() async throws
+    func exchageTokens() async throws
     func setupRefreshTokenSaver(_ refreshTokenSaver: VisaRefreshTokenSaver)
 }
 
@@ -198,6 +191,35 @@ final class CommonVisaAuthorizationTokensHandler {
         try await saveTokens(authTokens: newTokens)
     }
 
+    private func exchangeTokens(internalTokens: InternalAuthorizationTokens, file: String = #file, line: Int = #line) async throws {
+        let cardActivationTokens = internalTokens.bffTokens
+        let refreshToken = cardActivationTokens.refreshToken
+
+        guard let accessToken = cardActivationTokens.accessToken else {
+            throw VisaAuthorizationTokensHandlerError.missingAccessToken
+        }
+
+        let activatedCardTokens = try await tokenRefreshService.exchangeTokens(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            authorizationType: cardActivationTokens.authorizationType
+        )
+
+        let newTokens = try InternalAuthorizationTokens(bffTokens: activatedCardTokens)
+
+        guard let newAccessToken = newTokens.jwtTokens.accessToken else {
+            VisaLogger.error("While refreshing tokens missing access token", error: VisaAuthorizationTokensHandlerError.missingAccessToken)
+            throw VisaAuthorizationTokensHandlerError.missingAccessToken
+        }
+
+        if newAccessToken.expired {
+            VisaLogger.error("New received access token is expired...", error: VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken)
+            throw VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken
+        }
+
+        try await saveTokens(authTokens: newTokens)
+    }
+
     private func saveTokens(tokens: VisaAuthorizationTokens) async throws {
         let authTokens = try InternalAuthorizationTokens(bffTokens: tokens)
         try await saveTokens(authTokens: authTokens)
@@ -262,6 +284,15 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
 
         try await refreshAccessToken(internalTokens: tokens)
         setupRefresherTask()
+    }
+
+    func exchageTokens() async throws {
+        guard let tokens = await authorizationTokensHolder.tokensInfo else {
+            VisaLogger.info("Nothing to exchange")
+            return
+        }
+
+        try await exchangeTokens(internalTokens: tokens)
     }
 
     func setupRefreshTokenSaver(_ refreshTokenSaver: any VisaRefreshTokenSaver) {

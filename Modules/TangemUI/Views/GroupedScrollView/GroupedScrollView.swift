@@ -14,6 +14,7 @@ import TangemUIUtils
 public struct GroupedScrollView<Content: View>: View {
     private let alignment: HorizontalAlignment
     private let spacing: CGFloat
+    private let showsIndicators: Bool?
     private let content: () -> Content
 
     private var interContentPadding: CGFloat = 0
@@ -26,14 +27,37 @@ public struct GroupedScrollView<Content: View>: View {
     ) {
         self.alignment = alignment
         self.spacing = spacing
+        showsIndicators = nil
+        self.content = content
+    }
+
+    @available(iOS, deprecated: 16.0, message: "Use the scrollIndicators(:_) modifier instead")
+    public init(
+        alignment: HorizontalAlignment = .center,
+        spacing: CGFloat = 0,
+        showsIndicators: Bool,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.alignment = alignment
+        self.spacing = spacing
+        self.showsIndicators = showsIndicators
         self.content = content
     }
 
     public var body: some View {
-        ScrollView {
+        makeScrollView {
             LazyVStack(alignment: alignment, spacing: spacing, content: content)
                 .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, interContentPadding)
+        }
+    }
+
+    @ViewBuilder
+    private func makeScrollView<ScrollViewContent: View>(content: () -> ScrollViewContent) -> some View {
+        if let showsIndicators {
+            ScrollView(showsIndicators: showsIndicators, content: content)
+        } else {
+            ScrollView(content: content)
         }
     }
 }

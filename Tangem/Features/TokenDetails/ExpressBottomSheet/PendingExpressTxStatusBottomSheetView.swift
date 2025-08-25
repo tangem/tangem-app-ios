@@ -120,7 +120,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
         PendingExpressTxStatusView(
             title: viewModel.statusViewTitle,
             statusesList: viewModel.statusesList,
-            topTrailingAction: .goToProvider(action: viewModel.openProviderFromStatusHeader)
+            topTrailingAction: viewModel.showGoToProviderHeaderButton ? .goToProvider(action: viewModel.openProviderFromStatusHeader) : .none
         )
         // This prevents notification to appear and disappear on top of the statuses list
         .zIndex(5)
@@ -156,11 +156,13 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
+                address: UUID().uuidString,
                 amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: .token(.shibaInuMock, .init(.ethereum(testnet: false), derivationPath: nil)),
+                address: UUID().uuidString,
                 amountString: "1",
                 isCustom: false
             ),

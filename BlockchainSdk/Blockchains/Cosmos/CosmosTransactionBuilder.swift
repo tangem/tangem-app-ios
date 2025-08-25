@@ -51,7 +51,7 @@ class CosmosTransactionBuilder {
         let output = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         if output.error != .ok {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return output.dataHash
@@ -75,11 +75,11 @@ class CosmosTransactionBuilder {
         let output = try CosmosSigningOutput(serializedData: transactionData)
 
         if output.error != .ok {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         guard let outputData = output.serialized.data(using: .utf8) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return outputData
@@ -93,7 +93,7 @@ class CosmosTransactionBuilder {
         memo: String?
     ) throws -> Data {
         guard let accountNumber, let sequenceNumber else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let fee = CosmosFee.with { fee in
@@ -139,16 +139,16 @@ class CosmosTransactionBuilder {
             case .token(let token):
                 decimalValue = token.decimalValue
             case .feeResource:
-                throw WalletError.empty
+                throw BlockchainSdkError.empty
             }
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let message: CosmosMessage
         if let token = transaction.amount.type.token, cosmosChain.allowCW20Tokens {
             guard let amountBytes = transaction.amount.encoded else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             let tokenMessage = CosmosMessage.WasmExecuteContractTransfer.with {
@@ -179,7 +179,7 @@ class CosmosTransactionBuilder {
         }
 
         guard let fee, let parameters = fee.parameters as? CosmosFeeParameters else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let feeAmountInSmallestDenomination = (fee.amount.value * decimalValue).uint64Value
@@ -204,12 +204,12 @@ class CosmosTransactionBuilder {
         case .token(let token):
             guard let tokenDenomination = cosmosChain.tokenDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol)
             else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             return tokenDenomination
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 
@@ -220,12 +220,12 @@ class CosmosTransactionBuilder {
         case .token(let token):
             guard let tokenDenomination = cosmosChain.tokenFeeDenomination(contractAddress: token.contractAddress, tokenCurrencySymbol: token.symbol)
             else {
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             return tokenDenomination
         case .reserve, .feeResource:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 }
@@ -233,7 +233,7 @@ class CosmosTransactionBuilder {
 extension CosmosMessage {
     static func createStakeMessage(
         message: CosmosProtoMessage.CosmosMessageDelegate
-    ) -> Self? {
+    ) throws -> Self? {
         let type = message.messageType
         guard message.hasDelegateData else {
             return nil
@@ -242,11 +242,13 @@ extension CosmosMessage {
 
         switch type {
         case let string where string.contains(Constants.delegateMessage.rawValue):
-            let delegateAmount = delegateData.delegateAmount
+            let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
+                serializedData: delegateData
+            )
             let stakeMessage = CosmosMessage.Delegate.with { delegate in
                 delegate.amount = CosmosAmount.with { amount in
-                    amount.amount = delegateAmount.amount
-                    amount.denom = delegateAmount.denomination
+                    amount.amount = delegateData.delegateAmount.amount
+                    amount.denom = delegateData.delegateAmount.denomination
                 }
                 delegate.delegatorAddress = delegateData.delegatorAddress
                 delegate.validatorAddress = delegateData.validatorAddress
@@ -255,6 +257,9 @@ extension CosmosMessage {
                 $0.stakeMessage = stakeMessage
             }
         case let string where string.contains(Constants.withdrawMessage.rawValue):
+            let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
+                serializedData: delegateData
+            )
             let withdrawMessage = CosmosMessage.WithdrawDelegationReward.with { reward in
                 reward.delegatorAddress = delegateData.delegatorAddress
                 reward.validatorAddress = delegateData.validatorAddress
@@ -263,6 +268,9 @@ extension CosmosMessage {
                 $0.withdrawStakeRewardMessage = withdrawMessage
             }
         case let string where string.contains(Constants.undelegateMessage.rawValue):
+            let delegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.DelegateData(
+                serializedData: delegateData
+            )
             let delegateAmount = delegateData.delegateAmount
             let unstakeMessage = CosmosMessage.Undelegate.with { delegate in
                 delegate.amount = CosmosAmount.with { amount in
@@ -275,6 +283,23 @@ extension CosmosMessage {
             return CosmosMessage.with {
                 $0.unstakeMessage = unstakeMessage
             }
+        case let string where string.contains(Constants.redelegate.rawValue):
+            let redelegateData = try CosmosProtoMessage.CosmosMessageDelegateContainer.RedelegateData(
+                serializedData: delegateData
+            )
+            let redelegateAmount = redelegateData.delegateAmount
+            let restakeMessage = CosmosMessage.BeginRedelegate.with { redelegate in
+                redelegate.amount = CosmosAmount.with { amount in
+                    amount.amount = redelegateAmount.amount
+                    amount.denom = redelegateAmount.denomination
+                }
+                redelegate.delegatorAddress = redelegateData.delegatorAddress
+                redelegate.validatorDstAddress = redelegateData.validatorDstAddress
+                redelegate.validatorSrcAddress = redelegateData.validatorSrcAddress
+            }
+            return CosmosMessage.with {
+                $0.restakeMessage = restakeMessage
+            }
         default: return nil
         }
     }
@@ -285,5 +310,6 @@ extension CosmosMessage {
         case delegateMessage = "MsgDelegate"
         case withdrawMessage = "MsgWithdrawDelegatorReward"
         case undelegateMessage = "MsgUndelegate"
+        case redelegate = "MsgBeginRedelegate"
     }
 }

@@ -89,7 +89,7 @@ struct ICPNetworkProvider: HostProvider {
             .tryMap { response in
                 try map(response.data)
             }
-            .mapError { _ in WalletError.empty }
+            .mapError { _ in BlockchainSdkError.empty }
             .eraseToAnyPublisher()
     }
 }

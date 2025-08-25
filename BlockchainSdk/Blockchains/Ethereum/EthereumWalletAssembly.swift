@@ -10,29 +10,46 @@ import Foundation
 
 struct EthereumWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        guard let chainId = input.wallet.blockchain.chainId else {
-            throw EthereumWalletAssemblyError.chainIdNotFound
+        let wallet = input.wallet
+        let blockchain = wallet.blockchain
+
+        guard let chainId = blockchain.chainId else {
+            throw ETHError.chainIdNotFound
         }
 
-        let txBuilder = EthereumTransactionBuilder(chainId: chainId)
+        // If you get an `invalidSourceAddress` error thrown here for a newly added EVM blockchain, double-check
+        // which address from `wallet.addresses` can be used as a source address for transactions.
+        // Almost always, it is the `wallet.defaultAddress`.
+        // If that is the case, add your blockchain to the `case` statement with `xdc`, `decimal`, and other cases.
+        switch (wallet.addresses.count, blockchain) {
+        case (_, .xdc),
+             (_, .decimal):
+            break
+        default:
+            if wallet.addresses.count > 1 {
+                throw ETHError.invalidSourceAddress
+            }
+        }
+
+        let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
+        let txBuilder = EthereumTransactionBuilder(
+            chainId: chainId,
+            sourceAddress: wallet.defaultAddress
+        )
         let networkService = EthereumNetworkService(
-            decimals: input.wallet.blockchain.decimalCount,
-            providers: networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput),
+            decimals: blockchain.decimalCount,
+            providers: providers,
             abiEncoder: WalletCoreABIEncoder()
         )
 
-        let addressConverter = EthereumAddressConverterFactory().makeConverter(for: input.wallet.blockchain)
+        let addressConverter = EthereumAddressConverterFactory().makeConverter(for: blockchain)
 
         return EthereumWalletManager(
-            wallet: input.wallet,
+            wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            allowsFeeSelection: input.wallet.blockchain.allowsFeeSelection
+            allowsFeeSelection: blockchain.allowsFeeSelection
         )
     }
-}
-
-enum EthereumWalletAssemblyError: Error {
-    case chainIdNotFound
 }

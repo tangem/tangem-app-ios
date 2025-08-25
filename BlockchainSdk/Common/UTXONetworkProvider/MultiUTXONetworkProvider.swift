@@ -10,15 +10,18 @@ import Combine
 
 /// Wrapper to support a switch between providers
 class MultiUTXONetworkProvider: MultiNetworkProvider, UTXONetworkProvider {
+    let blockchainName: String
     var providers: [AnyUTXONetworkProvider]
     var currentProviderIndex: Int = 0
 
-    init(providers: [Provider]) {
+    init(providers: [Provider], blockchainName: String) {
         self.providers = providers
+        self.blockchainName = blockchainName
     }
 
-    init(providers: [UTXONetworkProvider]) {
+    init(providers: [UTXONetworkProvider], blockchainName: String) {
         self.providers = providers.map { AnyUTXONetworkProvider(provider: $0) }
+        self.blockchainName = blockchainName
     }
 
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {

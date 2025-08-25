@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemNetworkUtils
 
 final class AlgorandTransactionHistoryProvider<Mapper> where
@@ -88,7 +89,7 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
                 return .init(records: records)
             }
             .mapError { moyaError -> Swift.Error in
-                return WalletError.failedToParseNetworkResponse()
+                return BlockchainSdkError.failedToParseNetworkResponse()
             }
             .eraseToAnyPublisher()
     }

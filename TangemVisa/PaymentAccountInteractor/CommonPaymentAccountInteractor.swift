@@ -103,7 +103,9 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
         ).async()
         let addressesList = try AddressParser(isTestnet: isTestnet).parseAddressesResponse(paymentAccountAddressesResponse)
 
-        guard addressesList.contains(cardWalletAddress) else {
+        guard let _ = addressesList.first(where: {
+            $0.caseInsensitiveEquals(to: cardWalletAddress)
+        }) else {
             throw VisaPaymentAccountError.cardNotRegisteredToAccount
         }
     }
