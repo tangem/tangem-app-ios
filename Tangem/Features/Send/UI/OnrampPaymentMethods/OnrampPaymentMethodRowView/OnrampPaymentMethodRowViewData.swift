@@ -7,12 +7,12 @@
 //
 
 import Foundation
+import TangemUIUtils
 
 struct OnrampPaymentMethodRowViewData: Identifiable {
     let id: String
     let name: String
     let iconURL: URL?
-    let isSelected: Bool
 
     let action: () -> Void
 }
@@ -28,6 +28,5 @@ extension OnrampPaymentMethodRowViewData: Hashable {
         hasher.combine(id)
         hasher.combine(name)
         hasher.combine(iconURL)
-        hasher.combine(isSelected)
     }
 }

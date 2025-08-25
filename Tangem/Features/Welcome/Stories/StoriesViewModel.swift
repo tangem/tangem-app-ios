@@ -81,6 +81,26 @@ class StoriesViewModel: ObservableObject {
         await didFinishCheckingPromotion()
     }
 
+    func onCreateWallet() {
+        delegate?.createWallet()
+    }
+
+    func onImportWallet() {
+        delegate?.importWallet()
+    }
+
+    func onScanCard() {
+        delegate?.scanCard()
+    }
+
+    func onOrderCard() {
+        delegate?.orderCard()
+    }
+
+    func onSearchTokens() {
+        delegate?.openTokenList()
+    }
+
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .sink { [weak self] _ in

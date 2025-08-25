@@ -13,7 +13,7 @@ struct ExpressAPIMapper {
 
     // MARK: - Map to DTO
 
-    func mapToDTOCurrency(currency: ExpressCurrency) -> ExpressDTO.Currency {
+    func mapToDTOCurrency(currency: ExpressWalletCurrency) -> ExpressDTO.Currency {
         ExpressDTO.Currency(contractAddress: currency.contractAddress, network: currency.network)
     }
 
@@ -72,7 +72,7 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressTransactionData(
-        item: ExpressSwappableItem,
+        item: ExpressSwappableDataItem,
         request: ExpressDTO.Swap.ExchangeData.Request,
         response: ExpressDTO.Swap.ExchangeData.Response
     ) throws -> ExpressTransactionData {
@@ -107,17 +107,17 @@ struct ExpressAPIMapper {
         switch item.providerInfo.type {
         case .cex:
             // For CEX we have txValue amount as value which have to be sent
-            txValue /= pow(10, item.source.decimalCount)
+            txValue /= pow(10, item.source.currency.decimalCount)
         case .dex, .dexBridge:
             // For DEX we have txValue amount as coin. Because it's EVM
-            txValue /= pow(10, item.source.feeCurrencyDecimalCount)
+            txValue /= pow(10, item.source.feeCurrency.decimalCount)
         case .onramp, .unknown:
             throw ExpressAPIMapperError.wrongProviderType
         }
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
-            .map { $0 / pow(10, item.source.feeCurrencyDecimalCount) }
+            .map { $0 / pow(10, item.source.feeCurrency.decimalCount) }
 
         return ExpressTransactionData(
             requestId: txDetails.requestId,

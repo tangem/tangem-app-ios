@@ -88,7 +88,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         )
     }
 
-    var tokenName: String { tokenInfo.name }
+    var tokenName: String
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -147,6 +147,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.dataProvider = dataProvider
         self.marketsQuotesUpdateHelper = marketsQuotesUpdateHelper
         self.coordinator = coordinator
+        tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
@@ -257,8 +258,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 private extension MarketsTokenDetailsViewModel {
     func handleLoadDetailedInfo(_ result: Result<MarketsTokenDetailsModel, Error>) async {
         defer {
-            DispatchQueue.main.async {
-                self.isLoading = false
+            runTask(in: self) { viewModel in
+                await viewModel.stopLoadingAsync()
             }
         }
 
@@ -283,6 +284,10 @@ private extension MarketsTokenDetailsViewModel {
         loadedTokenDetailsPriceChangeInfo = model.priceChangePercentage.compactMapValues { $0 }
         loadedInfo = model
 
+        if tokenName.isEmpty {
+            tokenName = model.name
+        }
+
         state = .loaded(model: model)
         numberOfExchangesListedOn = model.numberOfExchangesListedOn
 
@@ -296,6 +301,11 @@ private extension MarketsTokenDetailsViewModel {
         } else if state != .failedToLoadAllData {
             state = .failedToLoadDetails
         }
+    }
+
+    @MainActor
+    func stopLoadingAsync() {
+        isLoading = false
     }
 }
 
