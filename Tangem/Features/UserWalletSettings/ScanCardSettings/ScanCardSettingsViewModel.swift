@@ -6,43 +6,40 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Combine
-import SwiftUI
+import Foundation
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    @Published var icon: LoadingValue<CardImageResult> = .loading
+    @Published var icon: LoadingValue<ImageValue> = .loading
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
-    private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
+    private let cardImageProvider: WalletImageProviding
     private let cardScanner: CardScanner
     private weak var coordinator: ScanCardSettingsRoutable?
-
-    private var bag: Set<AnyCancellable> = []
 
     init(
         input: ScanCardSettingsViewModel.Input,
         coordinator: ScanCardSettingsRoutable
     ) {
-        cardImagePublisher = input.cardImagePublisher
+        cardImageProvider = input.cardImageProvider
         cardScanner = input.cardScanner
         self.coordinator = coordinator
 
-        bind()
+        loadImage()
     }
 
-    func bind() {
-        cardImagePublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, image in
+    func loadImage() {
+        runTask(in: self) { viewModel in
+            let image = await viewModel.cardImageProvider.loadLargeImage()
+
+            await runOnMain {
                 viewModel.icon = .loaded(image)
             }
-            .store(in: &bag)
+        }
     }
 
     func scanCard() {
@@ -64,6 +61,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
+
         cardScanner.scanCard { [weak self] result in
             self?.isLoading = false
 
@@ -87,10 +85,10 @@ extension ScanCardSettingsViewModel {
     }
 
     func processSuccessScan(for cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
 
         // We just allow to reset cards without keys via any wallet
-        let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0) } ?? UserWalletId(value: Data())
+        let userWalletId = UserWalletId(config: config) ?? UserWalletId(value: Data())
 
         let input = CardSettingsViewModel.Input(
             userWalletId: userWalletId,
@@ -130,7 +128,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     struct Input {
-        let cardImagePublisher: AnyPublisher<CardImageResult, Never>
+        let cardImageProvider: WalletImageProviding
         let cardScanner: CardScanner
     }
 }

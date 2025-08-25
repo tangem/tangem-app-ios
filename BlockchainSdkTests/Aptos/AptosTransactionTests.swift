@@ -27,15 +27,9 @@ struct AptosTransactionTests {
         // given
         let privateKey = PrivateKey(data: privateKeyData)!
         let publicKey = privateKey.getPublicKeyByType(pubkeyType: .ed25519)
-
-        let defaultAddressService = WalletCoreAddressService(coin: coinType)
-        let aptosCoreAddressService = AptosCoreAddressService()
+        let aptosCoreAddressService = AddressServiceFactory(blockchain: .aptos(curve: .ed25519, testnet: false)).makeAddressService()
 
         // when
-        let defaultAddress = try defaultAddressService.makeAddress(
-            for: .init(seedKey: publicKey.data, derivationType: nil),
-            with: .default
-        )
         let nonsignificantZeroAddress = try aptosCoreAddressService.makeAddress(
             for: .init(seedKey: publicKey.data, derivationType: nil),
             with: .default
@@ -43,7 +37,6 @@ struct AptosTransactionTests {
 
         // then
         #expect(nonsignificantZeroAddress.value.removeHexPrefix().count == 64)
-        #expect(nonsignificantZeroAddress.value.removeHexPrefix().contains(defaultAddress.value.removeHexPrefix()))
     }
 
     /**

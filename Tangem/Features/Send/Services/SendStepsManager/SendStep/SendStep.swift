@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 protocol SendStep {
     var title: String? { get }
@@ -16,6 +15,7 @@ protocol SendStep {
     var shouldShowBottomOverlay: Bool { get }
 
     var type: SendStepType { get }
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { get }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? { get }
     var sendStepViewAnimatable: any SendStepViewAnimatable { get }
 
@@ -31,11 +31,8 @@ protocol SendStep {
 extension SendStep {
     var subtitle: String? { .none }
     var shouldShowBottomOverlay: Bool { true }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
 
-    func canBeClosed(continueAction: @escaping () -> Void) -> Bool {
-        return true
-    }
+    func canBeClosed(continueAction: @escaping () -> Void) -> Bool { true }
 
     func initialAppear() {}
     func willAppear(previous step: any SendStep) {}

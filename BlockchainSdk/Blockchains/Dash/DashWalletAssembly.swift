@@ -56,7 +56,11 @@ struct DashWalletAssembly: WalletManagerAssembly {
             }
         }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.dash(testnet: false).displayName
+        )
+
         return BitcoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,

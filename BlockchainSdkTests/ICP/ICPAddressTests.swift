@@ -14,10 +14,11 @@ import class WalletCore.PrivateKey
 import Testing
 
 struct ICPAddressTests {
+    private let addressService = AddressServiceFactory(blockchain: .internetComputer).makeAddressService()
+
     @Test
     func addressGeneration() throws {
         // given
-        let addressService = WalletCoreAddressService(blockchain: .internetComputer)
         let expectedAddress = "270b15681e87d9d878ddfcf1aae4c3174295f2182efa0e533e9585c7fb940bdc"
 
         // when
@@ -35,7 +36,6 @@ struct ICPAddressTests {
 
     @Test
     func addressValidation() throws {
-        let addressService = WalletCoreAddressService(blockchain: .internetComputer)
         #expect(addressService.validate("f7b1299849420e082bbdd9de92cb36e0645e7870513a6eb833d5449a88799699"))
     }
 }
