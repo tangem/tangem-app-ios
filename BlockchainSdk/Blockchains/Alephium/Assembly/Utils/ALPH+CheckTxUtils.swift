@@ -38,15 +38,15 @@ extension ALPH {
             gasPrice: GasPrice
         ) -> Result<U256, Error> {
             guard gas >= Constants.minimalGasBox else {
-                return .failure(TxError.runtime("gas < minimalGas"))
+                return .failure(AlephiumError.runtime("gas < minimalGas"))
             }
 
             guard checkWithMaxTxInputNum(assets: inputs) else {
-                return .failure(TxError.runtime("Too many inputs for the transfer"))
+                return .failure(AlephiumError.runtime("Too many inputs for the transfer"))
             }
 
             guard checkUniqueInputs(assets: inputs) else {
-                return .failure(TxError.runtime("Inputs not unique"))
+                return .failure(AlephiumError.runtime("Inputs not unique"))
             }
 
             return .success(gasPrice * gas)

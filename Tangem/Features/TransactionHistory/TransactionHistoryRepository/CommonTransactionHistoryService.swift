@@ -126,7 +126,7 @@ private extension CommonTransactionHistoryService {
 
 extension CommonTransactionHistoryService: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(
+        objectDescription(
             self,
             userInfo: [
                 "name": tokenItem.name,

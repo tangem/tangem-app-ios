@@ -61,7 +61,7 @@ extension CommonSendDestinationValidator: SendDestinationValidator {
 
 // MARK: - Errors
 
-private enum SendAddressServiceError {
+enum SendAddressServiceError {
     case emptyAddress
     case sameAsWalletAddress
     case invalidAddress

@@ -22,11 +22,15 @@ struct UserWalletSettingsView: View {
         GroupedScrollView(alignment: .leading, spacing: 24) {
             nameSection
 
+            accessCodeSection
+
             backupSection
 
             commonSection
 
             nftSection
+
+            pushNotifySection
 
             forgetSection
         }
@@ -50,6 +54,18 @@ struct UserWalletSettingsView: View {
         .onTapGesture(perform: viewModel.onTapNameField)
     }
 
+    private var accessCodeSection: some View {
+        GroupedSection(
+            viewModel.hotAccessCodeViewModel,
+            content: {
+                DefaultRowView(viewModel: $0).appearance(.accentButton)
+            },
+            footer: {
+                DefaultFooterView(Localization.walletSettingsAccessCodeDescription)
+            }
+        )
+    }
+
     private var backupSection: some View {
         GroupedSection(viewModel.backupViewModel) {
             DefaultRowView(viewModel: $0)
@@ -65,6 +81,13 @@ struct UserWalletSettingsView: View {
     private var commonSection: some View {
         GroupedSection(viewModel.commonSectionModels) {
             DefaultRowView(viewModel: $0)
+        }
+    }
+
+    @ViewBuilder
+    private var pushNotifySection: some View {
+        if let pushNotificationsViewModel = viewModel.pushNotificationsViewModel {
+            TransactionNotificationsRowToggleView(viewModel: pushNotificationsViewModel)
         }
     }
 

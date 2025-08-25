@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class NEARProtocolConfigCache {
     static let shared = NEARProtocolConfigCache()

@@ -28,7 +28,7 @@ protocol WalletConnectUIDelegate {
     func getResponseFromUser<Result>(with request: WalletConnectAsyncUIRequest<Result>) async -> (() async throws -> Result)
 }
 
-class WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
+final class WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
     private let appPresenter: AppPresenter = .shared
     private let queue: DispatchQueue = .init(label: "com.tangem.wc.alertUIDelegate", qos: .userInitiated)
 
@@ -48,7 +48,7 @@ class WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
     @MainActor
     func getResponseFromUser<Result>(with request: WalletConnectAsyncUIRequest<Result>) async -> (() async throws -> Result) {
         await withCheckedContinuation { [weak self] continuation in
-            self?.queue.async { [weak self] in
+            self?.queue.async { [presenter = self?.appPresenter] in
                 let alert = WalletConnectUIBuilder.makeAlert(
                     for: request.event,
                     message: request.message,
@@ -60,7 +60,7 @@ class WalletConnectAlertUIDelegate: WalletConnectUIDelegate {
                     }
                 )
 
-                self?.appPresenter.show(alert)
+                presenter?.show(alert)
             }
         }
     }

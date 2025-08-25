@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampAmountView: View {
     @ObservedObject var viewModel: OnrampAmountViewModel
@@ -58,16 +59,17 @@ struct OnrampAmountView: View {
             }
         }
         .disabled(viewModel.isLoading)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorButton)
         .matchedGeometryEffect(id: namespace.names.tokenIcon, in: namespace.id)
     }
 
     private var textView: some View {
         VStack(spacing: 6) {
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                .initialFocusBehavior(.noFocus)
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.amountInputField)
                 .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                 .skeletonable(isShown: viewModel.isLoading, width: 100, height: 28)
                 .disabled(viewModel.isLoading)
@@ -81,6 +83,7 @@ struct OnrampAmountView: View {
             )
             .multilineTextAlignment(.center)
             .matchedGeometryEffect(id: namespace.names.amountFiatText, in: namespace.id)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.cryptoAmountLabel)
         }
     }
 }
