@@ -11,10 +11,13 @@ import Combine
 import TangemSdk
 import TangemUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
     var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
@@ -195,15 +198,21 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
-        loadMainImage(imageLoadInput: input.cardInput.imageLoadInput)
+        loadMainImage(imageProvider: input.cardInput.cardImageProvider)
 
+        incomingActionManager.becomeFirstResponder(self)
         bindAnalytics()
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        guard let userWallet = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo) else { return }
+        guard let userWallet = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        ) else {
+            return
+        }
 
-        userWalletRepository.initializeServices(for: userWallet)
+        globalServicesContext.initializeServices(userWalletModel: userWallet)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId)
 
@@ -215,14 +224,22 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
-        userWalletRepository.add(userWalletModel)
+        if AppSettings.shared.saveUserWallets {
+            try? userWalletRepository.add(userWalletModel: userWalletModel)
+        } else {
+            let currentUserWalletId = userWalletRepository.selectedModel?.userWalletId
+            try? userWalletRepository.add(userWalletModel: userWalletModel)
+
+            if let currentUserWalletId {
+                userWalletRepository.delete(userWalletId: currentUserWalletId)
+            }
+        }
     }
 
-    func loadImage(supportsOnlineImage: Bool, cardId: String, cardPublicKey: Data) -> AnyPublisher<Image, Never> {
-        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
-            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { $0.image }
-            .eraseToAnyPublisher()
+    func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
+        let imageProvider = CardImageProvider(input: imageLoadInput)
+        let imageValue = await imageProvider.loadLargeImage()
+        return imageValue.image
     }
 
     func setupContainer(with size: CGSize) {
@@ -314,18 +331,16 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    private func loadMainImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.mainImage = image
+    private func loadMainImage(imageProvider: WalletImageProviding) {
+        runTask(in: self) { model in
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.mainImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 
     private func bindAnalytics() {
@@ -391,7 +406,12 @@ extension OnboardingViewModel {
 
     func closeOnboarding() {
         // reset services before exit
-        userWalletRepository.updateSelection()
+
+        globalServicesContext.resetServices()
+        if let userWalletModel {
+            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
+        }
+
         coordinator?.closeOnboarding()
     }
 
@@ -443,5 +463,14 @@ extension OnboardingViewModel: OnboardingAddTokensDelegate {
 extension OnboardingViewModel: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         goToNextStep()
+    }
+}
+
+// MARK: - IncomingActionResponder
+
+extension OnboardingViewModel: IncomingActionResponder {
+    /// Intentionally ignore incoming actions until onboarding is complete
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        return true
     }
 }
