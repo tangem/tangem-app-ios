@@ -72,6 +72,8 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: .close(handler: { [weak self] in
+                    Analytics.log(.backupNoticeCanceled)
+
                     self?.closeOnboarding()
                 })
             )
@@ -99,7 +101,11 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
         let doneStep = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupContinue,
             onAppear: {},
-            onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openNext)
+            onComplete: { [weak self] in
+                Analytics.log(.settingAccessCodeStarted)
+
+                self?.openNext()
+            }
         )
         doneStep.configureNavBar(title: Localization.commonBackup)
         append(step: doneStep)
@@ -152,6 +158,7 @@ extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseR
 
 extension MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingSeedPhraseValidationDelegate {
     func didValidateSeedPhrase() {
+        Analytics.log(event: .backupFinished, params: [.cardsCount: String(0)])
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
     }
