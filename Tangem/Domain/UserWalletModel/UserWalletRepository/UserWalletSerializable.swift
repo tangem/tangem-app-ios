@@ -9,5 +9,6 @@
 import Foundation
 
 protocol UserWalletSerializable {
-    func serialize() -> StoredUserWallet
+    func serializePublic() -> StoredUserWallet
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo
 }
