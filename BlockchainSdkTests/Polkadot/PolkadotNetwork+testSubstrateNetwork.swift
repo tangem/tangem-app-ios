@@ -13,8 +13,8 @@ import Testing
 
 enum PolkadotNetworkTesting {
     static func testSubstrateNetwork(_ blockchain: Blockchain, publicKey: Data, expectedAddress: String) throws {
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
         let network = PolkadotNetwork(blockchain: blockchain)!
-        let service = PolkadotAddressService(network: network)
 
         let address = try! service.makeAddress(from: publicKey)
         let polkadotAddress = PolkadotAddress(string: expectedAddress, network: network)
