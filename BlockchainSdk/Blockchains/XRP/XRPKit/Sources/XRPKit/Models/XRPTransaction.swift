@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 let HASH_TX_SIGN: [UInt8] = [0x53, 0x54, 0x58, 0x00]
 let HASH_TX_SIGN_TESTNET: [UInt8] = [0x73, 0x74, 0x78, 0x00]
@@ -17,70 +18,8 @@ class XRPTransaction {
         self.fields = enforceJSONTypes(fields: fields)
     }
 
-//    [REDACTED_USERNAME](iOS 10.0, *)
-//    static func send(from wallet: XRPWallet, to address: String, amount: XRPAmount, completion: @escaping ((Result<NSDictionary, Error>) -> ())) {
-//
-//        // dictionary containing partial transaction fields
-//        let fields: [String:Any] = [
-//            "TransactionType" : "Payment",
-//            "Destination" : address,
-//            "Amount" : String(amount.drops),
-//            "Flags" : UInt64(2147483648),
-//        ]
-//
-//        // create the transaction from dictionary
-//        let partialTransaction = XRPTransaction(fields: fields)
-//
-//        // autofill missing transaction fields (online)
-//        _ = partialTransaction.autofill(address: wallet.address, completion: { (result) in
-//            switch result {
-//            case .success(let tx):
-//                // sign the transaction (offline)
-//                let signedTransaction = try! tx.sign(wallet: wallet)
-//
-//                // submit the transaction (online)
-//                _ = signedTransaction.submit(completion: { (result) in
-//                    switch result {
-//                    case .success(let dict):
-//                        completion(.success(dict))
-//                    case .failure(let error):
-//                        completion(.failure(error))
-//                    }
-//                })
-//
-//            case .failure(let error):
-//                completion(.failure(error))
-//            }
-//        })
-//    }
-
-    /// autofills account address, ledger sequence, fee, and sequence
-    @available(iOS 10.0, *)
-    func autofill(address: String, completion: @escaping ((Result<XRPTransaction, Error>) -> Void)) {
-        // network calls to retrive current account and ledger info
-        XRPLedger.currentLedgerInfo(completion: { result in
-            switch result {
-            case .success(let ledgerInfo):
-                XRPLedger.getAccountInfo(account: address) { result in
-                    switch result {
-                    case .success(let accountInfo):
-                        // dictionary containing transaction fields
-                        let filledFields: [String: Any] = [
-                            "Account": accountInfo.address,
-                            "LastLedgerSequence": ledgerInfo.index + 5,
-                            "Fee": "40", // [REDACTED_TODO_COMMENT]
-                            "Sequence": accountInfo.sequence,
-                        ]
-                        self.fields = self.fields.merging(self.enforceJSONTypes(fields: filledFields)) { _, new in new }
-                        completion(.success(self))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        })
+    init(params: XRPTransactionEncodable) {
+        fields = params.toAnyDictionary()
     }
 
     func dataToSign(publicKey: String) -> Data {
@@ -113,18 +52,6 @@ class XRPTransaction {
         return Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
     }
 
-    func submit(completion: @escaping ((Result<NSDictionary, Error>) -> Void)) {
-        let tx = Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
-        return XRPLedger.submit(txBlob: tx) { result in
-            switch result {
-            case .success(let tx):
-                completion(.success(tx))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-
     func getJSONString() -> String {
         let jsonData = try! JSONSerialization.data(withJSONObject: fields, options: .prettyPrinted)
         return String(data: jsonData, encoding: .utf8)!
@@ -134,5 +61,107 @@ class XRPTransaction {
         let jsonData = try! JSONSerialization.data(withJSONObject: fields, options: .prettyPrinted)
         let fields = try! JSONSerialization.jsonObject(with: jsonData, options: .mutableLeaves)
         return fields as! [String: Any]
+    }
+}
+
+protocol XRPTransactionEncodable {
+    func toAnyDictionary() -> [String: Any]
+}
+
+extension XRPTransaction {
+    enum TransactionType {
+        static let trustSet = "TrustSet"
+        static let payment = "Payment"
+    }
+
+    /// Flags used in XRPL TrustSet transactions.
+    ///
+    /// These flags control specific behaviors on the trust line, such as enabling or disabling rippling,
+    /// setting authorization requirements, or freezing trust lines.
+    /// Combine multiple flags using the bitwise OR (`|`) operator.
+    enum Flag: Int {
+        /// Disables the No Ripple flag on the trust line,
+        /// allowing rippling (value transfer through this trust line).
+        case tfClearNoRipple = 262144
+    }
+
+    /// Parameters for building a TrustSet transaction on the XRP Ledger
+    struct TrustSetParams: XRPTransactionEncodable {
+        /// Type of the transaction — always "TrustSet" for this struct
+        let transactionType: String = TransactionType.trustSet
+        /// XRP Ledger account address initiating the transaction
+        let account: String
+        /// Transaction fee in drops (1 drop = 0.000001 XRP).
+        /// Typically, a standard fee of 10 drops is used for TrustSet transactions.
+        let fee: Decimal
+        /// Current account sequence number — must match the sender's sequence
+        let sequence: Int
+        /// Specifies the asset and limit to which this trust line applies
+        let limitAmount: LimitAmount
+        /// Integer bitmask for TrustSet flags (e.g. tfClearNoRipple)
+        let flags: Set<Flag>
+
+        /// Represents the "LimitAmount" object in a TrustSet transaction
+        /// This defines the asset to trust and the maximum amount trusted
+        struct LimitAmount {
+            /// The currency this trust line applies to.
+            /// Must be a 3-letter ISO 4217 currency code or a 160-bit hex value (for tokens).
+            /// "XRP" is invalid — trust lines cannot be created for XRP.
+            let currency: String
+            /// The issuer address of the token/currency being trusted
+            let issuer: String
+            /// Maximum amount of the token this account is willing to hold from the issuer.
+            /// Typically set to a very high number like "9999999999999999e80".
+            /// This is scientific notation (value × 10^exponent) used in XRP Ledger for large amounts.
+            let value: String
+
+            var asDictionary: [String: Any] {
+                [
+                    "currency": currency,
+                    "issuer": issuer,
+                    "value": value,
+                ]
+            }
+        }
+
+        // MARK: - XRPTransactionEncodable
+
+        func toAnyDictionary() -> [String: Any] {
+            [
+                "TransactionType": transactionType,
+                "Account": account,
+                "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
+                "Sequence": sequence,
+                "LimitAmount": limitAmount.asDictionary,
+                "Flags": flags.reduce(0) { $0 | $1.rawValue },
+            ]
+        }
+    }
+}
+
+extension XRPTransaction {
+    struct PaymentParams: XRPTransactionEncodable {
+        let account: String
+        let destination: String
+        let amount: Any
+        let fee: Decimal
+        let sequence: Int
+        let destinationTag: UInt32?
+
+        // MARK: - XRPTransactionEncodable
+
+        func toAnyDictionary() -> [String: Any] {
+            var dict: [String: Any?] = [
+                "Account": account,
+                "TransactionType": TransactionType.payment,
+                "Destination": destination,
+                "Amount": amount,
+                "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
+                "Sequence": sequence,
+                "DestinationTag": destinationTag,
+            ]
+
+            return dict.compactMapValues { $0 }
+        }
     }
 }

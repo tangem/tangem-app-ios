@@ -81,11 +81,8 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             addressConverter.convertToETHAddressesPublisher(in: transaction),
             networkService.getPendingTxCount(transaction.sourceAddress)
         )
-        .map { convertedTransaction, nonce in
-            convertedTransaction.then { convertedTransaction in
-                let ethParams = convertedTransaction.params as? EthereumTransactionParams
-                convertedTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
-            }
+        .map { convertedTransaction, pendingNonce in
+            Self.enrichTransactionWithNonce(transaction: convertedTransaction, pendingNonce: pendingNonce)
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, convertedTransaction in
@@ -125,6 +122,23 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     .getGasLimit(to: to, from: from, value: value, data: data)
             }
             .eraseToAnyPublisher()
+    }
+
+    private static func enrichTransactionWithNonce(transaction: Transaction, pendingNonce: Int) -> Transaction {
+        let userNonce = (transaction.fee.parameters as? EthereumFeeParameters)?.nonce
+
+        let nonce: Int
+
+        if let userNonce, userNonce < pendingNonce {
+            nonce = userNonce
+        } else {
+            nonce = pendingNonce
+        }
+
+        var mutableTransaction = transaction
+        let ethParams = mutableTransaction.params as? EthereumTransactionParams
+        mutableTransaction.params = ethParams?.with(nonce: nonce) ?? EthereumTransactionParams(nonce: nonce)
+        return mutableTransaction
     }
 }
 
@@ -360,7 +374,7 @@ extension EthereumWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransaction in
                 walletManager.networkService.send(transaction: rawTransaction)
-                    .mapSendError(tx: rawTransaction)
+                    .mapAndEraseSendTxError(tx: rawTransaction)
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
@@ -370,8 +384,26 @@ extension EthereumWalletManager: TransactionSender {
 
                 return TransactionSendResult(hash: hash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - TransactionValidator
+
+extension EthereumWalletManager: TransactionValidator {
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        // This wallet manager still ignores `destination` parameter even in the custom implementation of this method
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
+
+        switch amount.type.token?.metadata.kind {
+        case .fungible, .none:
+            // Just calling the default implementation for the `TransactionValidator.validate(amount:fee:)` method
+            try validateAmounts(amount: amount, fee: fee.amount)
+        case .nonFungible:
+            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
+            try validate(fee: fee.amount)
+        }
     }
 }
 
@@ -405,6 +437,8 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
             .addHexPrefix()
     }
 }
+
+// MARK: - StakeKitTransactionDataBroadcaster
 
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {

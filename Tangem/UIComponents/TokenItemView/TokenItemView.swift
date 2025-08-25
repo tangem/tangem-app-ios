@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenItemView: View {
     @ObservedObject private var viewModel: TokenItemViewModel
@@ -35,6 +36,7 @@ struct TokenItemView: View {
                                 color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
                             )
                             .lineLimit(1)
+                            .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
                         if viewModel.hasPendingTransactions {
                             ProgressDots(style: .small)
