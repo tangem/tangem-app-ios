@@ -75,6 +75,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.walletSettingsScreenOpened)
+
         setupView()
     }
 
@@ -184,7 +186,7 @@ private extension UserWalletSettingsViewModel {
             case .accessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.MobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
                 )
             case .backup(let needsBackup):
                 let detailsType: DefaultRowViewModel.DetailsType?
@@ -204,7 +206,10 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
-    func MobileAccessCodeAction() {
+    func mobileAccessCodeAction() {
+        let hasAccessCode = userWalletModel.config.hasFeature(.userWalletAccessCode)
+        Analytics.log(.walletSettingsButtonAccessCode, params: [.action: hasAccessCode ? .changing : .set])
+
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
@@ -339,6 +344,8 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openMobileBackupTypes() {
+        Analytics.log(.walletSettingsButtonBackup)
+
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 }
