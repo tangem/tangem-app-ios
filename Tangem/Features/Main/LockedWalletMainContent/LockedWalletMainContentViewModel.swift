@@ -49,15 +49,18 @@ class LockedWalletMainContentViewModel: ObservableObject {
     private let contextData: AnalyticsContextData?
 
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
+    private weak var coordinator: ActionButtonsRoutable?
 
     init(
         userWalletModel: UserWalletModel,
         isMultiWallet: Bool,
-        lockedUserWalletDelegate: MainLockedUserWalletDelegate?
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate?,
+        coordinator: ActionButtonsRoutable?
     ) {
         self.userWalletModel = userWalletModel
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
+        self.coordinator = coordinator
 
         contextData = userWalletModel.analyticsContextData
 
@@ -82,8 +85,12 @@ class LockedWalletMainContentViewModel: ObservableObject {
 
 private extension LockedWalletMainContentViewModel {
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {
+        guard let coordinator else {
+            return nil
+        }
+
         return .init(
-            coordinator: MainCoordinator(dismissAction: {}, popToRootAction: { _ in }),
+            coordinator: coordinator,
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             userWalletModel: userWalletModel
         )

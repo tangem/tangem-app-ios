@@ -115,15 +115,11 @@ final class VisaUserWalletModel {
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
-        transactionHistoryService = .init()
+        transactionHistoryService = .init(cardId: cardInfo.card.cardId)
 
         let appUtilities = VisaAppUtilities()
-        if let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) {
-            cardWalletAddress = try? AddressServiceFactory(blockchain: appUtilities.blockchainNetwork.blockchain)
-                .makeAddressService()
-                .makeAddress(for: walletPublicKey, with: .default)
-                .value
-        }
+        let cardWalletAddress = appUtilities.makeAddress(using: userWalletModel.keysRepository.keys)?.value
+        self.cardWalletAddress = cardWalletAddress
 
         initialSetup()
     }
@@ -254,6 +250,12 @@ final class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
+            #if ALPHA || BETA || DEBUG
+            // [REDACTED_TODO_COMMENT]
+            // [REDACTED_INFO]
+            try await KYCService.start(getToken: customerCardInfoProvider.loadKYCAccessToken)
+            #endif // ALPHA || BETA || DEBUG
+
             await reloadHistoryAsync()
             let builder = await VisaPaymentAccountInteractorBuilder(
                 isTestnet: blockchain.isTestnet,
@@ -263,7 +265,15 @@ final class VisaUserWalletModel {
             )
             let interactor = try await builder.build(customerCardInfo: customerCardInfo)
             visaPaymentAccountInteractor = interactor
+
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
+            if let authorizationTokensHandler,
+               let customerInfo = customerCardInfo.customerInfo {
+                setupTransactionHistoryService(
+                    productInstanceId: customerInfo.productInstance.id,
+                    authorizationTokensHandler: authorizationTokensHandler
+                )
+            }
             await generalUpdateAsync()
         } catch let error as VisaAuthorizationTokensHandlerError {
             if error == .refreshTokenExpired {
@@ -367,7 +377,6 @@ extension VisaUserWalletModel {
         }
 
         self.authorizationTokensHandler = authorizationTokensHandler
-        setupTransactionHistoryService(with: authorizationTokensHandler)
     }
 
     func authorizeCard(completion: @escaping () -> Void) {
@@ -377,7 +386,7 @@ extension VisaUserWalletModel {
             apiType: featureStorage.visaAPIType,
             isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
         ).build(
-            isTestnet: featureStorage.isVisaTestnet,
+            isTestnet: featureStorage.visaAPIType.isTestnet,
             urlSessionConfiguration: .visaConfiguration,
             refreshTokenRepository: visaRefreshTokenRepository
         )
@@ -413,18 +422,21 @@ extension VisaUserWalletModel {
         }
     }
 
-    private func setupTransactionHistoryService(with authorizationTokensHandler: VisaAuthorizationTokensHandler) {
+    private func setupTransactionHistoryService(
+        productInstanceId: String,
+        authorizationTokensHandler: VisaAuthorizationTokensHandler
+    ) {
         let apiService = VisaAPIServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
             isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
         )
         .buildTransactionHistoryService(
             authorizationTokensHandler: authorizationTokensHandler,
-            isTestnet: FeatureStorage.instance.isVisaTestnet,
+            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet,
             urlSessionConfiguration: .defaultConfiguration
         )
 
-        transactionHistoryService.setupApiService(apiService)
+        transactionHistoryService.setupApiService(productInstanceId: productInstanceId, apiService: apiService)
     }
 }
 
@@ -545,13 +557,11 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { userWalletModel.cardImagePublisher }
-
-    var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
+    var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
 
     var name: String { userWalletModel.name }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.cardHeaderImagePublisher }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.walletHeaderImagePublisher }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
 
@@ -579,6 +589,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
 
+    var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
+        userWalletModel.userTokensPushNotificationsManager
+    }
+
     func validate() -> Bool { userWalletModel.validate() }
 
     func onBackupUpdate(type: BackupUpdateType) {}
@@ -587,20 +601,28 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.updateWalletName(name)
     }
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {}
 }
 
 extension VisaUserWalletModel: UserWalletSerializable {
-    func serialize() -> StoredUserWallet {
-        let name = name.isEmpty ? config.cardName : name
+    func serializePublic() -> StoredUserWallet {
+        let name = name.isEmpty ? config.defaultName : name
 
-        return StoredUserWallet(
+        var mutableCardInfo = cardInfo
+        mutableCardInfo.card.wallets = []
+
+        let newStoredUserWallet = StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
-            card: cardInfo.card,
-            associatedCardIds: [],
-            walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo
+            walletInfo: .cardWallet(mutableCardInfo)
         )
+
+        return newStoredUserWallet
+    }
+
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo {
+        return .cardWallet(keys: cardInfo.card.wallets)
     }
 }
