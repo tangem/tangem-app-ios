@@ -13,9 +13,9 @@ import TangemExpress
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 import enum TangemSdk.TangemSdkError
-import struct BlockchainSdk.Fee
 
 final class ExpressViewModel: ObservableObject {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
@@ -112,7 +112,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
-        TangemFoundation.runTask(in: self) { [weak self] viewModel in
+        runTask(in: self) { [weak self] viewModel in
             guard
                 let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider,
                 let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol
@@ -229,7 +229,7 @@ private extension ExpressViewModel {
             return
         }
 
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             guard let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider else {
                 return
             }
@@ -265,7 +265,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().tokenItem.decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -339,7 +339,7 @@ private extension ExpressViewModel {
                     self?.updateSendView(wallet: pair.sender)
                 }
 
-                if pair.destination.value?.id != prev.destination.value?.id {
+                if pair.destination?.value?.id != prev.destination?.value?.id {
                     self?.updateReceiveView(wallet: pair.destination)
                 }
 
@@ -352,7 +352,7 @@ private extension ExpressViewModel {
             .withWeakCaptureOf(self)
             .asyncMap { viewModel, pair -> Bool in
                 do {
-                    if let destination = pair.destination.value {
+                    if let destination = pair.destination?.value as? ExpressSourceWallet {
                         let oppositePair = ExpressManagerSwappingPair(source: destination, destination: pair.sender)
                         let oppositeProviders = try await viewModel.expressRepository.getAvailableProviders(for: oppositePair)
                         return oppositeProviders.isEmpty
@@ -375,7 +375,7 @@ private extension ExpressViewModel {
 
     // MARK: - Send view bubble
 
-    func updateSendView(wallet: any WalletModel) {
+    func updateSendView(wallet: any ExpressInteractorSourceWallet) {
         sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
 
         // If we have amount then we should round and update it with new decimalCount
@@ -384,7 +384,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+        let roundedAmount = amount.rounded(scale: wallet.tokenItem.decimalCount, roundingMode: .down)
 
         // Exclude unnecessary update
         guard roundedAmount != amount else {
@@ -417,7 +417,7 @@ private extension ExpressViewModel {
 
     // MARK: - Receive view bubble
 
-    func updateReceiveView(wallet: LoadingValue<any WalletModel>) {
+    func updateReceiveView(wallet: ExpressInteractor.Destination?) {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
@@ -440,7 +440,7 @@ private extension ExpressViewModel {
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
         let sendingMainToken = pair.sender.isMainToken
-        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination.value?.tokenItem.blockchainNetwork
+        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination?.value?.tokenItem.blockchainNetwork
 
         isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
@@ -503,7 +503,7 @@ private extension ExpressViewModel {
                 providerState = .loading
             }
         default:
-            TangemFoundation.runTask(in: self) { viewModel in
+            runTask(in: self) { viewModel in
                 let providerRowViewModel = await viewModel.mapToProviderRowViewModel()
                 await runOnMain {
                     if let providerRowViewModel {
@@ -611,7 +611,7 @@ private extension ExpressViewModel {
         case .idle, .loading(.full):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
-            TangemFoundation.runTask(in: self) { viewModel in
+            runTask(in: self) { viewModel in
                 let text = await viewModel.interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
                 await runOnMain {
                     viewModel.legalText = text
@@ -686,7 +686,7 @@ private extension ExpressViewModel {
 
         stopTimer()
         mainButtonIsLoading = true
-        TangemFoundation.runTask(in: self) { root in
+        runTask(in: self) { root in
             do {
                 let sentTransactionData = try await root.interactor.send()
 
@@ -698,6 +698,18 @@ private extension ExpressViewModel {
             } catch let error as ExpressAPIError {
                 await runOnMain {
                     let message = error.localizedMessage
+                    root.alert = AlertBinder(title: Localization.commonError, message: message)
+                }
+            } catch let error as ValidationError {
+                let factory = BlockchainSDKNotificationMapper(
+                    tokenItem: root.interactor.getSender().tokenItem,
+                    feeTokenItem: root.interactor.getSender().feeTokenItem
+                )
+
+                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent.description ?? error.localizedDescription
+
+                await runOnMain {
                     root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
@@ -741,7 +753,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
         case .leaveAmount(let amount, _):
-            guard let balance = try? interactor.getSender().getBalance() else {
+            guard let balance = interactor.getSender().availableBalanceProvider.balanceType.value else {
                 ExpressLogger.info("Couldn't find sender balance")
                 return
             }
@@ -771,7 +783,9 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupport2No,
              .seedSupport2Yes,
              .unlock,
-             .openReferralProgram:
+             .openReferralProgram,
+             .addTokenTrustline,
+             .openHotFinishActivation:
             return
         }
     }

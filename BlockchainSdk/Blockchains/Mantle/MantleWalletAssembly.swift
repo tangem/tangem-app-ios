@@ -10,26 +10,31 @@ import Foundation
 
 struct MantleWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        guard let chainId = input.wallet.blockchain.chainId else {
-            throw EthereumWalletAssemblyError.chainIdNotFound
+        let wallet = input.wallet
+
+        guard let chainId = wallet.blockchain.chainId else {
+            throw ETHError.chainIdNotFound
         }
 
         let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
-        let txBuilder = EthereumTransactionBuilder(chainId: chainId)
+        let txBuilder = EthereumTransactionBuilder(
+            chainId: chainId,
+            sourceAddress: wallet.defaultAddress
+        )
         let networkService = EthereumNetworkService(
-            decimals: input.wallet.blockchain.decimalCount,
+            decimals: wallet.blockchain.decimalCount,
             providers: providers,
             abiEncoder: WalletCoreABIEncoder()
         )
 
-        let addressConverter = EthereumAddressConverterFactory().makeConverter(for: input.wallet.blockchain)
+        let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
         return MantleWalletManager(
-            wallet: input.wallet,
+            wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
-            allowsFeeSelection: input.wallet.blockchain.allowsFeeSelection
+            allowsFeeSelection: wallet.blockchain.allowsFeeSelection
         )
     }
 }

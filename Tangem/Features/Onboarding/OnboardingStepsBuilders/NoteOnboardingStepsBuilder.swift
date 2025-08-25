@@ -12,18 +12,16 @@ import TangemSdk
 struct NoteOnboardingStepsBuilder {
     private let cardId: String
     private let hasWallets: Bool
-    private let isPushNotificationsAvailable: Bool
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
@@ -32,12 +30,10 @@ struct NoteOnboardingStepsBuilder {
 
     init(
         cardId: String,
-        hasWallets: Bool,
-        isPushNotificationsAvailable: Bool
+        hasWallets: Bool
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 

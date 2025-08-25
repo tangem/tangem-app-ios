@@ -15,6 +15,7 @@ class AlephiumNetworkService: MultiNetworkProvider {
 
     let providers: [AlephiumNetworkProvider]
     var currentProviderIndex: Int = 0
+    let blockchainName = Blockchain.alephium(testnet: false).displayName
 
     // MARK: - Init
 
@@ -80,7 +81,7 @@ class AlephiumNetworkService: MultiNetworkProvider {
                         let balance = Decimal(stringValue: $0.balance),
                         let lockedBalance = Decimal(stringValue: $0.lockedBalance)
                     else {
-                        throw WalletError.empty
+                        throw BlockchainSdkError.empty
                     }
 
                     return AlephiumBalanceInfo(value: balance, lockedValue: lockedBalance)
