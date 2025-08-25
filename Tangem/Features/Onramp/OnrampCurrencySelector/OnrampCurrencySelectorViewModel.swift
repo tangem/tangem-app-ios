@@ -45,7 +45,7 @@ final class OnrampCurrencySelectorViewModel: Identifiable, ObservableObject {
 
     func loadCurrencies() {
         currencies = .loading
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 let currencies = try await viewModel.dataRepository.currencies()
                 viewModel.currenciesSubject.send(currencies)

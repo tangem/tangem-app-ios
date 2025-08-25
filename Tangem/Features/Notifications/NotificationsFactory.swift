@@ -59,7 +59,12 @@ struct NotificationsFactory {
         }
 
         return .withButtons([
-            .init(action: action, actionType: buttonAction.type, isWithLoader: buttonAction.withLoader),
+            .init(
+                action: action,
+                actionType: buttonAction.type,
+                isWithLoader: buttonAction.withLoader,
+                isDisabled: buttonAction.isDisabled
+            ),
         ])
     }
 }

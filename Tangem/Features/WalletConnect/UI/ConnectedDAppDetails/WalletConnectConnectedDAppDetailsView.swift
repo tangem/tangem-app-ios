@@ -7,90 +7,114 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
 
 struct WalletConnectConnectedDAppDetailsView: View {
     @ObservedObject var viewModel: WalletConnectConnectedDAppDetailsViewModel
+    let kingfisherImageCache: ImageCache
+
+    @State private var navigationBarBottomSeparatorIsVisible = false
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(spacing: Layout.sectionsSpacing) {
-                dAppAndWalletSection
-                connectedNetworksSection(viewModel.state.connectedNetworksSection)
-            }
-            .padding(.horizontal, Layout.horizontalPadding)
+            contentStateView
+                .readGeometry(
+                    \.frame.minY,
+                    inCoordinateSpace: .named(Layout.scrollViewCoordinateSpace),
+                    throttleInterval: .proMotion,
+                    onChange: updateNavigationBarBottomSeparatorVisibility
+                )
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
-            navigationBar
+            header
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
-            disconnectButton
+            footer
         }
         .scrollBounceBehaviorBackport(.basedOnSize)
-        .background(Colors.Background.tertiary)
-        .frame(maxWidth: .infinity)
-        .frame(maxHeight: desiredContentHeight)
+        .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+            configuration.backgroundInteractionBehavior = .consumeTouches
+        }
     }
 
-    private var navigationBar: some View {
+    private var contentStateView: some View {
         ZStack {
-            navigationCloseButton
-
-            VStack(spacing: .zero) {
-                Text(viewModel.state.navigationBar.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                if let connectedTime = viewModel.state.navigationBar.connectedTime {
-                    Text(connectedTime)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            switch viewModel.state {
+            case .dAppDetails(let viewState):
+                VStack(spacing: 14) {
+                    dAppAndWalletSection(viewState)
+                    dAppVerificationWarningSection(viewState)
+                    connectedNetworksSection(viewState)
                 }
-            }
-        }
-        .frame(height: Layout.NavigationBar.height)
-        .padding(.top, Layout.NavigationBar.topPadding)
-        .padding(.bottom, Layout.NavigationBar.bottomPadding)
-        .background {
-            ListFooterOverlayShadowView(
-                colors: [
-                    Colors.Background.tertiary,
-                    Colors.Background.tertiary,
-                    Colors.Background.tertiary.opacity(0.95),
-                    Colors.Background.tertiary.opacity(0.0),
-                ]
-            )
-        }
-        .padding(.horizontal, 16)
-        .contentShape(.rect)
-    }
+                .padding(.top, Layout.contentTopPadding)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+                .onAppear {
+                    viewModel.handle(viewEvent: .dAppDetailsAppeared)
+                }
+                .transition(.content)
 
-    private var navigationCloseButton: some View {
-        HStack(spacing: .zero) {
-            Spacer()
-
-            Button(action: { viewModel.handle(viewEvent: .closeButtonTapped) }) {
-                Image(systemName: "multiply")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Colors.Icon.secondary)
-                    .frame(width: 28, height: 28)
-                    .background {
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    }
-                    .contentShape(.circle)
+            case .verifiedDomain(let viewModel):
+                WalletConnectDAppDomainVerificationView(viewModel: viewModel)
+                    .transition(.content)
             }
-            .buttonStyle(.plain)
         }
     }
 
-    private var dAppAndWalletSection: some View {
+    private var header: some View {
+        let title: String?
+        let subtitle: String?
+        let backgroundColor: Color
+        let closeButtonAction: () -> Void
+
+        switch viewModel.state {
+        case .dAppDetails(let viewState):
+            title = viewState.navigationBar.title
+            subtitle = viewState.navigationBar.connectedTime
+            backgroundColor = Colors.Background.tertiary
+            closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
+
+        case .verifiedDomain(let viewModel):
+            title = nil
+            subtitle = nil
+            backgroundColor = Color.clear
+            closeButtonAction = { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }
+        }
+
+        return WalletConnectNavigationBarView(
+            title: title,
+            subtitle: subtitle,
+            backgroundColor: backgroundColor,
+            bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
+            closeButtonAction: closeButtonAction
+        )
+        .id(viewModel.state.id)
+        .transition(.opacity)
+        .transformEffect(.identity)
+        .animation(.headerOpacity.delay(0.2), value: viewModel.state.id)
+    }
+
+    private func dAppAndWalletSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
         VStack(spacing: .zero) {
-            dAppSection
+            WalletConnectDAppDescriptionView(
+                viewModel: viewState.dAppDescriptionSection,
+                kingfisherImageCache: kingfisherImageCache,
+                verifiedDomainTapAction: {
+                    viewModel.handle(viewEvent: .verifiedDomainIconTapped)
+                }
+            )
+            .padding(.horizontal, 14)
+            .padding(.vertical, 16)
 
-            if let walletSectionState = viewModel.state.walletSection {
+            if let walletSectionState = viewState.walletSection {
                 Divider()
-                    .frame(height: Layout.DAppAndWalletSection.dilimiterHeight)
+                    .frame(height: 1)
                     .overlay(Colors.Stroke.primary)
 
                 walletSection(walletSectionState)
@@ -100,33 +124,14 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    private var dAppSection: some View {
-        HStack(spacing: 16) {
-            viewModel.state.dAppDescriptionSection.fallbackIconAsset.image
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-                .foregroundStyle(Colors.Icon.accent)
-                .frame(width: 56, height: 56)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.state.dAppDescriptionSection.name)
-                    .lineLimit(1)
-                    .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
-
-                Text(viewModel.state.dAppDescriptionSection.domain)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+    @ViewBuilder
+    private func dAppVerificationWarningSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
+        if let dAppVerificationWarningSection = viewState.dAppVerificationWarningSection {
+            WalletConnectWarningNotificationView(viewModel: dAppVerificationWarningSection)
         }
-        .frame(height: Layout.DAppAndWalletSection.dAppSectionHeight)
-        .padding(.horizontal, 14)
-        .padding(.vertical, Layout.DAppAndWalletSection.dAppVerticalPadding)
     }
 
-    private func walletSection(_ walletSectionState: WalletConnectConnectedDAppDetailsViewState.WalletSection) -> some View {
+    private func walletSection(_ walletSectionState: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection) -> some View {
         HStack(spacing: .zero) {
             HStack(spacing: 4) {
                 walletSectionState.labelAsset.image
@@ -144,65 +149,59 @@ struct WalletConnectConnectedDAppDetailsView: View {
             Text(walletSectionState.walletName)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
         }
-        .frame(height: Layout.DAppAndWalletSection.walletSectionHeight)
+        .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .padding(.vertical, Layout.DAppAndWalletSection.walletVerticalPadding)
     }
 
     @ViewBuilder
-    private func connectedNetworksSection(_ state: WalletConnectConnectedDAppDetailsViewState.ConnectedNetworksSection?) -> some View {
-        if let state {
+    private func connectedNetworksSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
+        if let connectedNetworksSection = viewState.connectedNetworksSection {
             LazyVStack(alignment: .leading, spacing: .zero) {
-                Text(state.title)
+                Text(connectedNetworksSection.headerTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .frame(height: Layout.ConnectedNetworks.titleHeight)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
 
-                Spacer()
-                    .frame(height: Layout.ConnectedNetworks.spacing)
-
-                ForEach(state.blockchains, content: blockchainRow)
+                ForEach(connectedNetworksSection.blockchains, content: blockchainRow)
             }
-            .padding(.top, Layout.ConnectedNetworks.titleTopPadding)
             .padding(.horizontal, 14)
             .background(Colors.Background.action)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
 
-    private func blockchainRow(_ blockchain: WalletConnectConnectedDAppDetailsViewState.BlockchainRowItem) -> some View {
+    private func blockchainRow(_ blockchain: WalletConnectConnectedDAppDetailsViewState.DAppDetails.BlockchainRowItem) -> some View {
         HStack(spacing: 12) {
-            blockchain.asset.image
+            blockchain.iconAsset.image
                 .resizable()
                 .frame(width: 24, height: 24)
 
-            HStack(spacing: 4) {
+            HStack(alignment: .bottom, spacing: 4) {
                 Text(blockchain.name)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                 Text(blockchain.currencySymbol)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+                Spacer(minLength: .zero)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(height: Layout.ConnectedNetworks.rowHeight)
+        .lineLimit(1)
+        .padding(.vertical, 14)
     }
 
-    private var disconnectButton: some View {
-        MainButton(
-            title: viewModel.state.disconnectButton.title,
-            subtitle: nil,
-            icon: nil,
-            style: .secondary,
-            size: .default,
-            isLoading: viewModel.state.disconnectButton.isLoading,
-            isDisabled: false,
-            handleActionWhenDisabled: false,
-            action: {
-                viewModel.handle(viewEvent: .disconnectButtonTapped)
+    private var footer: some View {
+        ZStack {
+            switch viewModel.state {
+            case .dAppDetails(let viewState):
+                dAppDetailsFooter(viewState)
+                    .transition(.footer)
+
+            case .verifiedDomain(let viewModel):
+                verifiedDomainFooter(viewModel)
+                    .transition(.footer)
             }
-        )
-        .padding(.top, Layout.DisconnectButton.topPadding)
-        .padding(.bottom, Layout.DisconnectButton.bottomPadding)
+        }
         .background {
             ListFooterOverlayShadowView(
                 colors: [
@@ -211,88 +210,89 @@ struct WalletConnectConnectedDAppDetailsView: View {
                     Colors.Background.tertiary,
                 ]
             )
-            .padding(.top, -12)
+            .padding(.top, 6)
         }
-        .padding(.horizontal, Layout.horizontalPadding)
+        .animation(.contentFrameUpdate, value: viewModel.state.id)
     }
 
-    private var desiredContentHeight: CGFloat {
-        var desiredHeight = Layout.NavigationBar.topPadding
-            + Layout.NavigationBar.height
-            + Layout.NavigationBar.bottomPadding
-            + Layout.DAppAndWalletSection.dAppVerticalPadding
-            + Layout.DAppAndWalletSection.dAppSectionHeight
-            + Layout.DAppAndWalletSection.dAppVerticalPadding
+    private func dAppDetailsFooter(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
+        MainButton(
+            title: viewState.disconnectButton.title,
+            style: .secondary,
+            isLoading: viewState.disconnectButton.isLoading,
+            action: {
+                viewModel.handle(viewEvent: .disconnectButtonTapped)
+            }
+        )
+        .padding(16)
+    }
 
-        if viewModel.state.walletSection != nil {
-            desiredHeight += Layout.DAppAndWalletSection.dilimiterHeight
-                + Layout.DAppAndWalletSection.walletVerticalPadding
-                + Layout.DAppAndWalletSection.walletSectionHeight
-                + Layout.DAppAndWalletSection.walletVerticalPadding
+    private func verifiedDomainFooter(_ viewModel: WalletConnectDAppDomainVerificationViewModel) -> some View {
+        VStack(spacing: 8) {
+            ForEach(viewModel.state.buttons, id: \.self) { buttonState in
+                MainButton(
+                    title: buttonState.title,
+                    style: buttonState.style.toMainButtonStyle,
+                    isLoading: buttonState.isLoading,
+                    action: {
+                        viewModel.handle(viewEvent: .actionButtonTapped(buttonState.role))
+                    }
+                )
+            }
         }
+        .padding(16)
+    }
 
-        desiredHeight += Layout.sectionsSpacing
-
-        if let connectedNetworksSection = viewModel.state.connectedNetworksSection {
-            desiredHeight += Layout.ConnectedNetworks.titleTopPadding
-                + Layout.ConnectedNetworks.titleHeight
-                + Layout.ConnectedNetworks.spacing
-                + Layout.ConnectedNetworks.rowHeight * CGFloat(connectedNetworksSection.blockchains.count)
-        }
-
-        desiredHeight += Layout.DisconnectButton.topPadding
-            + MainButton.Size.default.height
-            + Layout.DisconnectButton.bottomPadding
-
-        return desiredHeight
+    private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {
+        navigationBarBottomSeparatorIsVisible = scrollViewMinY < Layout.navigationBarHeight - Layout.contentTopPadding
     }
 }
 
 extension WalletConnectConnectedDAppDetailsView {
     private enum Layout {
-        enum NavigationBar {
-            /// 8
-            static let topPadding: CGFloat = 8
-            /// 12
-            static let bottomPadding: CGFloat = 12
-            /// 44
-            static let height: CGFloat = 44
-        }
+        /// 52
+        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
+        /// 12
+        static let contentTopPadding: CGFloat = 12
 
-        enum DAppAndWalletSection {
-            /// 16
-            static let dAppVerticalPadding: CGFloat = 16
-            /// 56
-            static let dAppSectionHeight: CGFloat = 56
-            /// 1
-            static let dilimiterHeight: CGFloat = 1
-            /// 12
-            static let walletVerticalPadding: CGFloat = 12
-            /// 24
-            static let walletSectionHeight: CGFloat = 24
-        }
+        static let scrollViewCoordinateSpace = "WalletConnectConnectedDAppDetailsView.ScrollView"
+    }
+}
 
-        enum ConnectedNetworks {
-            /// 12
-            static let titleTopPadding: CGFloat = 12
-            /// 18
-            static let titleHeight: CGFloat = 18
-            /// 8
-            static let spacing: CGFloat = 8
-            /// 52
-            static let rowHeight: CGFloat = 52
-        }
+private extension Animation {
+    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
+    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+    static let footerOpacity = Animation.curve(.easeOutEmphasized, duration: 0.3)
+}
 
-        enum DisconnectButton {
-            /// 24
-            static let topPadding: CGFloat = 24
-            /// 16
-            static let bottomPadding: CGFloat = 16
-        }
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
 
-        /// 16
-        static let horizontalPadding: CGFloat = 16
-        /// 14
-        static let sectionsSpacing: CGFloat = 14
+    static let footer = AnyTransition.asymmetric(
+        insertion: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity.delay(0.2))),
+        removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
+    )
+}
+
+private extension WalletConnectConnectedDAppDetailsViewState {
+    var id: String {
+        switch self {
+        case .dAppDetails:
+            "dAppDetails"
+        case .verifiedDomain:
+            "verifiedDomain"
+        }
+    }
+}
+
+private extension WalletConnectDAppDomainVerificationViewState.Button.Style {
+    var toMainButtonStyle: MainButton.Style {
+        switch self {
+        case .primary: .primary
+        case .secondary: .secondary
+        }
     }
 }
