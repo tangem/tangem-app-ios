@@ -10,7 +10,10 @@ import Foundation
 import Combine
 
 protocol SendDestinationInput: AnyObject {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> { get }
+    var destination: SendAddress? { get }
+    var destinationAdditionalField: SendDestinationAdditionalField { get }
+
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> { get }
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { get }
 }
 

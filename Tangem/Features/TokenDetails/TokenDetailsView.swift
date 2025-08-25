@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -30,12 +31,11 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.bannerNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.notificationTransition)
                 }
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.notificationTransition)
+                        .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
                 }
 
                 if viewModel.isMarketsDetailsAvailable {
@@ -57,7 +57,6 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
-                        .transition(.notificationTransition)
                 }
 
                 PendingTransactionsListView(
@@ -81,9 +80,6 @@ struct TokenDetailsView: View {
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
-        .animation(.default, value: viewModel.bannerNotificationInputs)
-        .animation(.default, value: viewModel.tokenNotificationInputs)
-        .animation(.default, value: viewModel.pendingExpressTransactions)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -108,7 +104,11 @@ struct TokenDetailsView: View {
                 .opacity(scrollOffsetHandler.state)
             }
 
-            ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                navbarTrailingButton
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
+            }
         })
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -123,6 +123,7 @@ struct TokenDetailsView: View {
 
                 if viewModel.canHideToken {
                     Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
+                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.hideTokenButton)
                 }
             } label: {
                 NavbarDotsImage()
@@ -177,6 +178,7 @@ private extension TokenDetailsView {
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
-        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator)
+        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator),
+        pendingTransactionDetails: nil
     ))
 }

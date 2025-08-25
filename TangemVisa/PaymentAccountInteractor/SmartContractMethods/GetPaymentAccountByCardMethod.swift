@@ -14,12 +14,12 @@ struct GetPaymentAccountByCardMethod: SmartContractMethod {
     let cardWalletAddress: String
     private let methodSignature = "paymentAccountByCard(address)"
 
-    var prefix: String {
-        SmartContractMethodPrefixCreator().createPrefixForMethod(with: methodSignature)
+    var methodId: String {
+        SmartContractMethodIdCreator().createIdForMethod(with: methodSignature)
     }
 
     var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let ownerData = Data(hexString: cardWalletAddress).leadingZeroPadding(toLength: 32)
         return prefixData + ownerData
     }

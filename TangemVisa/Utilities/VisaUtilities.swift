@@ -91,18 +91,21 @@ public struct VisaUtilities {
         }
     }
 
-    public func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
-        guard let derivationPath = visaDefaultDerivationPath else {
-            throw VisaActivationError.missingDerivationPath
+    public func makeAddress(walletPublicKey: Data) throws(VisaUtilitiesError) -> Address {
+        do {
+            let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: nil)
+            let walletAddress = try addressService.makeAddress(for: publicKey, with: .default)
+            return walletAddress
+        } catch {
+            throw .failedToCreateAddress(error)
         }
+    }
 
-        guard
-            let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }),
-            let derivedKey = wallet.derivedKeys[derivationPath]
-        else {
+    public func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
+        guard let wallet = cardActivationResponse.signedActivationOrder.cardSignedOrder.wallets.first(where: { $0.curve == mandatoryCurve }) else {
             throw VisaActivationError.missingWallet
         }
 
-        return try makeAddress(seedKey: wallet.publicKey, extendedKey: derivedKey)
+        return try makeAddress(walletPublicKey: wallet.publicKey)
     }
 }
