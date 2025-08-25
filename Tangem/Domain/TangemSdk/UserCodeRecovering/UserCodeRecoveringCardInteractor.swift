@@ -17,7 +17,7 @@ class UserCodeRecoveringCardInteractor {
 
     init(with cardInfo: CardInfo) {
         cardId = cardInfo.card.cardId
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
         _isUserCodeRecoveryAllowed = .init(cardInfo.card.userSettings.isUserCodeRecoveryAllowed)
     }
