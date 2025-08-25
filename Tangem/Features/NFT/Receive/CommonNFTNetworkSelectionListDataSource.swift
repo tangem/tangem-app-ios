@@ -35,7 +35,6 @@ final class CommonNFTNetworkSelectionListDataSource {
                 return NFTChainItem(
                     nftChain: nftChain,
                     isCustom: walletModel.isCustom,
-                    displayName: walletModel.tokenItem.networkName,
                     underlyingIdentifier: walletModel.id.id
                 )
             }
@@ -79,7 +78,7 @@ extension CommonNFTNetworkSelectionListDataSource: NFTNetworkSelectionListDataSo
             .filter { !availableNFTChains.contains($0) }
             .map { ($0, makeTokenItem(for: $0)) }
             .filter { nftAvailabilityUtil.isNFTAvailable(for: $0.1) }
-            .map { NFTChainItem(nftChain: $0.0, isCustom: false, displayName: $0.1.networkName, underlyingIdentifier: nil) }
+            .map { NFTChainItem(nftChain: $0.0, isCustom: false, underlyingIdentifier: nil) }
 
         return availableNFTChainItems + unavailableNFTChainItems
     }

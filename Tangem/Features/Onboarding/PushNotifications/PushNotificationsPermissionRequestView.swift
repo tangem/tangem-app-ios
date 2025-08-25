@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct PushNotificationsPermissionRequestView: View {
     @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
@@ -35,6 +36,7 @@ struct PushNotificationsPermissionRequestView: View {
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.title)
                 }
 
                 FixedSpacer(height: 44.0)
@@ -51,6 +53,15 @@ struct PushNotificationsPermissionRequestView: View {
                         iconImage: Assets.notificationBulletItemTwo.image,
                         description: Localization.userPushNotificationAgreementArgumentTwo
                     )
+
+                    if viewModel.isPushTransactionsAvailable {
+                        FixedSpacer(height: 28.0)
+
+                        OnboardingFeatureDescriptionView(
+                            iconImage: Assets.notificationBulletItemThree.image,
+                            description: Localization.userPushNotificationAgreementArgumentThree
+                        )
+                    }
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
             }
@@ -63,6 +74,7 @@ struct PushNotificationsPermissionRequestView: View {
             buttonsContainer
                 .layoutPriority(101) // Higher layout priority causes spacers to collapse if there is not enough vertical space
         }
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
@@ -85,12 +97,14 @@ struct PushNotificationsPermissionRequestView: View {
             title: viewModel.allowButtonTitle,
             action: viewModel.didTapAllow
         )
+        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.allowButton)
 
         MainButton(
             title: viewModel.laterButtonTitle,
             style: .secondary,
             action: viewModel.didTapLater
         )
+        .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.laterButton)
     }
 
     private var iconColor: Color {

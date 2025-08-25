@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+message CosmosProtoMessage {
+  CosmosMessageDelegateContainer delegate_container = 1;
+  CosmosMessageFeeAndKeyContainer fee_and_key_container = 2;
+  string chain_id = 3;
+  int32 account_number = 4;
+
+  message CosmosMessageDelegateContainer {
+    CosmosMessageDelegate delegate = 1;
+    string staking_provider = 2;
+
+    message DelegateData {
+      string delegator_address = 1;
+      string validator_address = 2;
+      DelegateAmount delegate_amount = 3;
+    }
+
+    message RedelegateData {
+      string delegator_address = 1;
+      string validator_src_address = 2;
+      string validator_dst_address = 3;
+      DelegateAmount delegate_amount = 4;
+      string type_prefix = 5;
+    }
+  }
+    
+  message DelegateAmount {
+    string denomination = 1;
+    string amount = 2;
+  }
+
+  message CosmosMessageDelegate {
+    string message_type = 1;
+    optional bytes delegate_data = 2;
+  }
+
+  message CosmosMessageFeeAndKeyContainer {
+    CosmosMessagePublicKeyContainer public_key_container = 1;
+    CosmosMessageFeeContainer fee_container = 2;
+
+    message CosmosMessagePublicKeyContainer {
+      CosmosMessagePublicKeyWrapper public_key_wrapper = 1;
+      CosmosMessagePublicKeyParamWrapper public_key_param_wrapper = 2;
+
+      message CosmosMessagePublicKeyWrapper {
+        string public_key_type = 1;
+        CosmosMessagePublicKey public_key = 2;
+
+        message CosmosMessagePublicKey {
+          bytes public_key = 1;
+        }
+      }
+
+      message CosmosMessagePublicKeyParamWrapper {
+        CosmosMessagePublicKeyParam public_key_param = 1;
+
+        message CosmosMessagePublicKeyParam {
+          int32 param = 1;
+        }
+      }
+    }
+
+    message CosmosMessageFeeContainer {
+      DelegateAmount fee_amount = 1;
+      uint64 gas = 2;
+    }
+  }
+}

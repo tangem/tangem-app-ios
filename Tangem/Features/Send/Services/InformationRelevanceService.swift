@@ -17,20 +17,24 @@ protocol InformationRelevanceService {
 }
 
 class CommonInformationRelevanceService {
-    private let sendFeeInteractor: SendFeeInteractor
+    private weak var input: SendFeeInput?
+    private weak var output: SendFeeOutput?
+    private let provider: SendFeeProvider
 
     private var lastUpdateStartTime = Date()
     private let informationValidityInterval: TimeInterval = 60
     private var bag: Set<AnyCancellable> = []
 
-    init(sendFeeInteractor: SendFeeInteractor) {
-        self.sendFeeInteractor = sendFeeInteractor
+    init(input: SendFeeInput, output: SendFeeOutput, provider: SendFeeProvider) {
+        self.input = input
+        self.output = output
+        self.provider = provider
 
         bind()
     }
 
     private func bind() {
-        sendFeeInteractor
+        input?
             .selectedFeePublisher
             .withWeakCaptureOf(self)
             .sink { service, _ in
@@ -50,7 +54,7 @@ class CommonInformationRelevanceService {
             return .ok
         }
 
-        sendFeeInteractor.update(selectedFee: newFee)
+        output?.feeDidChanged(fee: newFee)
         return .feeWasIncreased
     }
 }
@@ -68,24 +72,24 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
 
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, any Error> {
         defer {
-            sendFeeInteractor.updateFees()
+            provider.updateFees()
         }
 
-        let oldFee = sendFeeInteractor.selectedFee
+        let oldFee = input?.selectedFee
 
-        // Catch the subscribtions
-        return sendFeeInteractor
+        // Catch the subscriptions
+        return provider
             .feesPublisher
             // Skip the old values
             .dropFirst()
             .withWeakCaptureOf(self)
             .tryMap { service, fees in
-                if let error = fees.first(where: { $0.value.error != nil })?.value.error {
+                if let error = fees.value?.first(where: { $0.value.error != nil })?.value.error {
                     throw error
                 }
 
                 service.informationDidUpdated()
-                return service.compare(selected: oldFee, fees: fees)
+                return service.compare(selected: oldFee, fees: fees.value ?? [])
             }
             .eraseToAnyPublisher()
     }
