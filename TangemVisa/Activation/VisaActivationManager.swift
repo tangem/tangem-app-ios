@@ -88,11 +88,11 @@ final class CommonVisaActivationManager {
     /// This can be Tangem wallet or any other wallet that was used to order a Visa card
     /// - Returns: `nil` if no activation status is available or customer wallet address didn't registered for order (issue on backend side).
     public var targetApproveAddress: String? {
-        guard let activationStatus else {
+        guard let activationOrder = activationStatus?.activationOrder else {
             return nil
         }
 
-        return activationStatus.activationOrder.customerWalletAddress
+        return activationOrder.customerWalletAddress
     }
 
     public var activationRemoteState: VisaCardActivationRemoteState {
@@ -285,6 +285,10 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingActivationStatusInfo
         }
 
+        guard let activationOrder = activationStatus.activationOrder else {
+            throw .missingActivationOrder
+        }
+
         guard let walletAddress = activationInput?.walletAddress else {
             throw .missingWalletAddressInInput
         }
@@ -292,8 +296,8 @@ extension CommonVisaActivationManager: VisaActivationManager {
         VisaLogger.info("Attempting to get challenge to approve by customer wallet")
         do {
             let customerWalletApproveResponse = try await productActivationService.getCustomerWalletDeployAcceptance(
-                activationOrderId: activationStatus.activationOrder.id,
-                customerWalletAddress: activationStatus.activationOrder.customerWalletAddress,
+                activationOrderId: activationOrder.id,
+                customerWalletAddress: activationOrder.customerWalletAddress,
                 cardWalletAddress: walletAddress
             )
             return Data(hexString: customerWalletApproveResponse)
@@ -345,7 +349,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         guard
             let activationInput,
             let authorizationTokens = await authorizationTokensHandler.authorizationTokens,
-            let activationOrderId = activationStatus?.activationOrder.id
+            let activationOrderId = activationStatus?.activationOrder?.id
         else {
             throw .missingAccessToken
         }
@@ -612,7 +616,7 @@ private extension CommonVisaActivationManager {
     /// - Throws: `VisaActivationError` if token refresh fails.
     func saveActivatedCardRefreshToken() async throws(VisaActivationError) {
         do {
-            try await authorizationTokensHandler.forceRefreshToken()
+            try await authorizationTokensHandler.exchageTokens()
         } catch {
             VisaLogger.error("Failed to retreive activated card refresh token", error: error)
             throw .underlyingError(error)
@@ -631,7 +635,7 @@ private extension CommonVisaActivationManager {
         // mark selected PIN code as invalid and we need to show user an error of invalid PIN
         let invalidPinStepChangeCode = CardActivationOrderStepChangeCode.pinValidation.rawValue
         guard
-            newStatus.activationOrder.stepChangeCode == invalidPinStepChangeCode,
+            newStatus.activationOrder?.stepChangeCode == invalidPinStepChangeCode,
             newStatus.activationRemoteState == .waitingPinCode
         else {
             return
@@ -652,7 +656,7 @@ private extension CommonVisaActivationManager {
             return
         }
 
-        guard lastLoadedActivationStatus.activationOrder.updatedAt == newStatus.activationOrder.updatedAt else {
+        guard lastLoadedActivationStatus.activationOrder?.updatedAt == newStatus.activationOrder?.updatedAt else {
             throw .paymentologyPinError
         }
 
@@ -693,7 +697,7 @@ private extension CommonVisaActivationManager {
             } else {
                 activationLocalState = .notStartedActivation(activationInput: input)
             }
-        case .blockedForActivation:
+        case .blockedForActivation, .failed:
             activationLocalState = .blocked
         case .activated:
             activationLocalState = .activated(authTokens: authorizationTokens)

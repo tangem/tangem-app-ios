@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import Kingfisher
 
 public struct NFTEntrypointView: View {
     @ObservedObject var viewModel: NFTEntrypointViewModel
@@ -21,11 +22,11 @@ public struct NFTEntrypointView: View {
     public var body: some View {
         Button(action: viewModel.openCollections) {
             HStack(spacing: Constants.iconTextsHSpacing) {
-                imageContainer
+                image
+                    .frame(size: Constants.ImageContainer.size)
                 textsView
                 Spacer()
                 chevron
-                    .hidden(viewModel.state.isLoading)
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -33,80 +34,45 @@ public struct NFTEntrypointView: View {
             .cornerRadius(Constants.cornerRadius, corners: .allCorners)
         }
         .buttonStyle(.defaultScaled)
-        .disabled(viewModel.disabled)
-    }
-
-    private var imageContainer: some View {
-        image
-            .frame(size: Constants.ImageContainer.size)
-            .skeletonable(
-                isShown: viewModel.state.isLoading,
-                size: Constants.ImageContainer.size,
-                radius: Constants.imageCornerRadius
-            )
+        .onAppear(perform: viewModel.onViewAppear)
     }
 
     @ViewBuilder
     private var image: some View {
         switch viewModel.state {
-        case .loading:
-            Color.clear
-        case .failedToLoad:
-            imageForFailedState
-        case .loaded(let collectionsState):
-            imageForSuccess(collectionsState: collectionsState)
-        }
-    }
-
-    private var imageForFailedState: some View {
-        RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-            .fill(Colors.Field.primary)
-            .overlay {
-                Assets.failedCloud.image
-                    .resizable()
-                    .foregroundStyle(Colors.Icon.informative)
-                    .frame(size: Constants.Failed.imageSize)
-            }
-    }
-
-    @ViewBuilder
-    private func imageForSuccess(
-        collectionsState: NFTEntrypointViewModel.CollectionsViewState
-    ) -> some View {
-        switch collectionsState {
         case .noCollections:
             Assets.Nft.noNFT.image
 
-        case .oneCollection(let imageURL):
-            makeImage(url: imageURL, size: Constants.ImageContainer.size)
+        case .oneCollection(let media):
+            makeImage(media: media, size: Constants.ImageContainer.size)
 
-        case .twoCollections(let firstCollectionImageURL, let secondCollectionImageURL):
+        case .twoCollections(let firstCollectionMedia, let secondCollectionMedia):
             let size = Constants.TwoCollections.imageSize
 
             VStack(spacing: .zero) {
-                makeImage(url: firstCollectionImageURL, size: size)
+                makeImage(media: firstCollectionMedia, size: size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .offset(y: Constants.TwoCollections.pictureYOffset)
 
-                makeImage(url: secondCollectionImageURL, size: size, shouldStroke: true)
+                makeImage(media: secondCollectionMedia, size: size, shouldStroke: true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .offset(y: -Constants.TwoCollections.pictureYOffset)
             }
 
         case .threeCollections(
-            let firstCollectionImageURL,
-            let secondCollectionImageURL,
-            let thirdCollectionImageURL
+            let firstCollectionMedia,
+            let secondCollectionMedia,
+            let thirdCollectionMedia
         ):
             VStack(spacing: Constants.ThreeCollections.firstTwoImagesVSpacing) {
-                makeImage(url: firstCollectionImageURL, size: Constants.ThreeCollections.firstImageSize)
-                makeImage(url: secondCollectionImageURL, size: Constants.ThreeCollections.secondImageSize)
+                makeImage(media: firstCollectionMedia, size: Constants.ThreeCollections.firstImageSize)
+                makeImage(media: secondCollectionMedia, size: Constants.ThreeCollections.secondImageSize)
                     .offset(x: Constants.ThreeCollections.secondImageXOffset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .overlay(alignment: .trailing) {
                 makeImage(
-                    url: thirdCollectionImageURL,
+                    media: thirdCollectionMedia,
                     size: Constants.ThreeCollections.thirdImageSize,
                     shouldStroke: true
                 )
@@ -117,38 +83,38 @@ public struct NFTEntrypointView: View {
             }
 
         case .fourCollections(
-            let firstCollectionImageURL,
-            let secondCollectionImageURL,
-            let thirdCollectionImageURL,
-            let fourthCollectionImageURL
+            let firstCollectionMedia,
+            let secondCollectionMedia,
+            let thirdCollectionMedia,
+            let fourthCollectionMedia
         ):
             let size = Constants.FourCollections.imageSize
             let spacing = Constants.FourCollections.spacing
 
             VStack(spacing: spacing) {
                 HStack(spacing: spacing) {
-                    makeImage(url: firstCollectionImageURL, size: size)
-                    makeImage(url: secondCollectionImageURL, size: size)
+                    makeImage(media: firstCollectionMedia, size: size)
+                    makeImage(media: secondCollectionMedia, size: size)
                 }
 
                 HStack(spacing: spacing) {
-                    makeImage(url: thirdCollectionImageURL, size: size)
-                    makeImage(url: fourthCollectionImageURL, size: size)
+                    makeImage(media: thirdCollectionMedia, size: size)
+                    makeImage(media: fourthCollectionMedia, size: size)
                 }
             }
 
-        case .multipleCollections(let collectionsURLs):
+        case .multipleCollections(let collectionsMedias):
             let size = Constants.MultipleCollections.imageSize
             let spacing = Constants.FourCollections.spacing
 
             VStack(spacing: spacing) {
                 HStack(spacing: spacing) {
-                    makeImage(url: collectionsURLs[0], size: size)
-                    makeImage(url: collectionsURLs[1], size: size)
+                    makeImage(media: collectionsMedias[0], size: size)
+                    makeImage(media: collectionsMedias[1], size: size)
                 }
 
                 HStack(spacing: spacing) {
-                    makeImage(url: collectionsURLs[2], size: size)
+                    makeImage(media: collectionsMedias[2], size: size)
                     dotsImage(size: size)
                 }
             }
@@ -156,17 +122,12 @@ public struct NFTEntrypointView: View {
     }
 
     private var textsView: some View {
-        VStack(
-            alignment: .leading,
-            spacing: viewModel.state.isLoading ? Constants.Texts.loadingInteritemSpacing : Constants.Texts.interitemSpacing
-        ) {
+        VStack(alignment: .leading, spacing: Constants.Texts.interitemSpacing) {
             Text(viewModel.title)
-                .style(Fonts.Bold.subheadline, color: titleColor)
-                .skeletonable(isShown: viewModel.state.isLoading, size: Constants.Skeleton.titleSize)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             Text(viewModel.subtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .skeletonable(isShown: viewModel.state.isLoading, size: Constants.Skeleton.subtitleSize)
         }
     }
 
@@ -176,21 +137,43 @@ public struct NFTEntrypointView: View {
             .foregroundStyle(Colors.Icon.informative)
     }
 
-    private func makeImage(url: URL?, size: CGSize, shouldStroke: Bool = false) -> some View {
-        IconView(
-            url: url,
-            size: size,
-            cornerRadius: Constants.imageCornerRadius,
-            forceKingfisher: true,
-            placeholder: {
-                placeholder(size: size)
-            }
-        )
-        .if(shouldStroke) { icon in
-            icon.overlay(
-                RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-                    .strokeBorder(Colors.Background.primary, lineWidth: Constants.strokeLineWidth)
+    @ViewBuilder
+    private func makeImage(media: NFTMedia?, size: CGSize, shouldStroke: Bool = false) -> some View {
+        if let media {
+            makeMedia(media, size: size)
+                .if(shouldStroke) { icon in
+                    icon.overlay(
+                        RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
+                            .strokeBorder(Colors.Background.primary, lineWidth: Constants.strokeLineWidth)
+                    )
+                }
+        } else {
+            placeholder(size: size)
+        }
+    }
+
+    @ViewBuilder
+    private func makeMedia(_ media: NFTMedia, size: CGSize) -> some View {
+        switch media.kind {
+        case .image:
+            IconView(
+                url: media.url,
+                size: size,
+                cornerRadius: Constants.imageCornerRadius,
+                forceKingfisher: true,
+                placeholder: {
+                    placeholder(size: size)
+                }
             )
+
+        case .animation:
+            GIFImage(
+                url: media.url,
+                placeholder: placeholder(size: size)
+            )
+
+        case .video, .audio, .unknown:
+            placeholder(size: size)
         }
     }
 
@@ -204,17 +187,6 @@ public struct NFTEntrypointView: View {
                     .foregroundStyle(Colors.Text.secondary)
                     .frame(size: Constants.MultipleCollections.dotsImageSize)
             }
-    }
-
-    private var titleColor: Color {
-        switch viewModel.state {
-        case .loading:
-            .clear
-        case .failedToLoad:
-            Colors.Text.tertiary
-        case .loaded:
-            Colors.Text.primary1
-        }
     }
 
     private func placeholder(size: CGSize) -> some View {
@@ -256,17 +228,11 @@ extension NFTEntrypointView {
             static let dotsImageSize: CGSize = .init(bothDimensions: 9)
         }
 
-        enum Skeleton {
-            static let titleSize: CGSize = .init(width: 112, height: 12)
-            static let subtitleSize: CGSize = .init(width: 80, height: 12)
-        }
-
         enum Failed {
             static let imageSize: CGSize = .init(bothDimensions: 20)
         }
 
         enum Texts {
-            static let loadingInteritemSpacing: CGFloat = 9
             static let interitemSpacing: CGFloat = 2
         }
 
@@ -280,43 +246,14 @@ extension NFTEntrypointView {
 }
 
 #if DEBUG
-#Preview("Loading") {
-    ZStack {
-        Colors.Field.primary
-        NFTEntrypointView(
-            viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(
-                    state: .loading
-                ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
-                coordinator: nil
-            )
-        )
-        .padding(.horizontal, 16)
-    }
-}
-
-#Preview("Failed") {
-    ZStack {
-        Colors.Field.primary
-        NFTEntrypointView(
-            viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())),
-                navigationContext: NFTEntrypointNavigationContextMock(),
-                coordinator: nil
-            )
-        )
-        .padding(.horizontal, 16)
-    }
-}
-
 #Preview("No collections") {
     ZStack {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .loaded([])),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -331,22 +268,28 @@ extension NFTEntrypointView {
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        [.init(
-                            collectionIdentifier: "",
-                            chain: .solana,
-                            contractType: .erc1155,
-                            ownerAddress: "",
-                            name: "",
-                            description: "",
-                            logoURL: URL(
-                                string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-                            ),
-                            assetsCount: 2,
-                            assets: []
-                        )]
+                        .init(
+                            value: [
+                                .init(
+                                    collectionIdentifier: "",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "",
+                                    name: "",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: 2,
+                                    assetsResult: []
+                                ),
+                            ]
+                        )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -361,24 +304,28 @@ extension NFTEntrypointView {
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        (0 ... 1).map {
-                            .init(
-                                collectionIdentifier: "\($0)",
-                                chain: .solana,
-                                contractType: .erc1155,
-                                ownerAddress: "",
-                                name: "",
-                                description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-                                ),
-                                assetsCount: 2,
-                                assets: []
-                            )
-                        }
+                        .init(
+                            value: (0 ... 1).map {
+                                .init(
+                                    collectionIdentifier: "\($0)",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "",
+                                    name: "",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: 2,
+                                    assetsResult: []
+                                )
+                            }
+                        )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -393,24 +340,28 @@ extension NFTEntrypointView {
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        (0 ... 3).map {
-                            .init(
-                                collectionIdentifier: "\($0)",
-                                chain: .solana,
-                                contractType: .erc1155,
-                                ownerAddress: "",
-                                name: "",
-                                description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-                                ),
-                                assetsCount: 2,
-                                assets: []
-                            )
-                        }
+                        .init(
+                            value: (0 ... 3).map {
+                                .init(
+                                    collectionIdentifier: "\($0)",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "",
+                                    name: "",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: 2,
+                                    assetsResult: []
+                                )
+                            }
+                        )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -425,24 +376,28 @@ extension NFTEntrypointView {
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        (0 ... 3).map {
-                            .init(
-                                collectionIdentifier: "\($0)",
-                                chain: .solana,
-                                contractType: .erc1155,
-                                ownerAddress: "",
-                                name: "",
-                                description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-                                ),
-                                assetsCount: 2,
-                                assets: []
-                            )
-                        }
+                        .init(
+                            value: (0 ... 3).map {
+                                .init(
+                                    collectionIdentifier: "\($0)",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "",
+                                    name: "",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: 2,
+                                    assetsResult: []
+                                )
+                            }
+                        )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )
@@ -457,24 +412,28 @@ extension NFTEntrypointView {
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        (0 ... 5).map {
-                            .init(
-                                collectionIdentifier: "\($0)",
-                                chain: .solana,
-                                contractType: .erc1155,
-                                ownerAddress: "",
-                                name: "",
-                                description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
-                                ),
-                                assetsCount: 2,
-                                assets: []
-                            )
-                        }
+                        .init(
+                            value: (0 ... 5).map {
+                                .init(
+                                    collectionIdentifier: "\($0)",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "",
+                                    name: "",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: 2,
+                                    assetsResult: []
+                                )
+                            }
+                        )
                     )
                 ),
-                navigationContext: NFTEntrypointNavigationContextMock(),
+                navigationContext: NFTNavigationContextMock(),
+                analytics: .empty,
                 coordinator: nil
             )
         )

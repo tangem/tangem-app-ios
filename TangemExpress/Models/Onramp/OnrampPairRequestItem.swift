@@ -9,15 +9,18 @@
 public struct OnrampPairRequestItem {
     public let fiatCurrency: OnrampFiatCurrency
     public let country: OnrampCountry
-    public let destination: ExpressWallet
+    public let destination: ExpressWalletCurrency
+    public let address: String
 
     public init(
         fiatCurrency: OnrampFiatCurrency,
         country: OnrampCountry,
-        destination: ExpressWallet
+        destination: ExpressWalletCurrency,
+        address: String
     ) {
         self.fiatCurrency = fiatCurrency
         self.country = country
         self.destination = destination
+        self.address = address
     }
 }
