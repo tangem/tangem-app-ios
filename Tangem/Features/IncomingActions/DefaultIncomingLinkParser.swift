@@ -37,7 +37,8 @@ struct DefaultIncomingLinkParser {
             networkId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.networkId]?.lowercased(),
             userWalletId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.userWalletId],
             derivationPath: keyedQueryItems[IncomingActionConstants.DeeplinkParams.derivationPath],
-            transactionId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.transactionId]
+            transactionId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.transactionId],
+            entry: keyedQueryItems[IncomingActionConstants.DeeplinkParams.entry]
         )
     }
 
