@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemMobileWalletSdk
 
 protocol MobileBackupTypesRoutable: AnyObject {
     func openMobileOnboarding(input: MobileOnboardingInput)
-    func openMobileUpgrade()
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
 }
