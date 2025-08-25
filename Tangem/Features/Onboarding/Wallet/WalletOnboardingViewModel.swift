@@ -14,6 +14,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 import TangemUI
+import TangemMobileWalletSdk
+import struct TangemSdk.Mnemonic
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -124,7 +126,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .createWallet, .pushNotifications, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard:
+        case .createWallet, .pushNotifications, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard, .mobileUpgrade:
             return nil
         default:
             return MainButton.Settings(
@@ -183,7 +185,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var supplementButtonStyle: MainButton.Style {
         switch currentStep {
-        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success:
+        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .mobileUpgrade:
             return .primary
         default:
             return .secondary
@@ -288,6 +290,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private var backupServiceState: BackupService.State {
         return backupService.currentState
     }
+
+    private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let backupService: BackupService
     private var cardInitializer: CardInitializer?
@@ -459,6 +463,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             goToNextStep()
         case .scanPrimaryCard:
             readPrimaryCard()
+        case .mobileUpgrade:
+            upgradeMobileWallet()
         default:
             break
         }
@@ -589,6 +595,33 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         isMainButtonBusy = true
 
         createWalletOnPrimaryCard(using: nil, mnemonicPassphrase: nil, walletCreationType: .privateKey)
+    }
+
+    private func upgradeMobileWallet() {
+        guard let context = input.mobileContext else {
+            return
+        }
+
+        do {
+            let mnemonicPhrase = try mobileSdk.exportMnemonic(context: context).joined(separator: " ")
+            let mnemonic = try Mnemonic(with: mnemonicPhrase)
+            // [REDACTED_TODO_COMMENT]
+            let mnemonicPassphrase: String = .empty
+
+            isMainButtonBusy = true
+
+            createWalletOnPrimaryCard(
+                using: mnemonic,
+                mnemonicPassphrase: mnemonicPassphrase,
+                walletCreationType: .seedImport(
+                    length: mnemonicPhrase.count,
+                    isWithPassphrase: mnemonicPassphrase.isNotEmpty
+                )
+            )
+
+        } catch {
+            alert = error.alertBinder
+        }
     }
 
     private func readPrimaryCard() {
