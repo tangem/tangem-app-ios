@@ -12,6 +12,9 @@ import TangemFoundation
 import TangemUIUtils
 import TangemLocalization
 import TangemAssets
+import TangemSdk
+import TangemNetworkUtils
+import TangemMobileWalletSdk
 
 final class MobileUpgradeViewModel: ObservableObject {
     @Published var isScanning: Bool = false
@@ -28,9 +31,17 @@ final class MobileUpgradeViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private let userWalletModel: UserWalletModel
+    private let context: MobileWalletContext
     private weak var coordinator: MobileUpgradeRoutable?
 
-    init(coordinator: MobileUpgradeRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        context: MobileWalletContext,
+        coordinator: MobileUpgradeRoutable
+    ) {
+        self.userWalletModel = userWalletModel
+        self.context = context
         self.coordinator = coordinator
     }
 }
@@ -79,6 +90,42 @@ extension MobileUpgradeViewModel {
             traits: [keyTrait, fundsTrait, securityTrait]
         )
     }
+
+    func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
+        // Card for mobile backup must not have an access code set.
+        let backupFactory = GenericBackupServiceFactory(isAccessCodeSet: false)
+        let backupService = backupFactory.makeBackupService()
+
+        if let primaryCard = cardInfo.primaryCard {
+            backupService.setPrimaryCard(primaryCard)
+        }
+
+        let stepsBuilder = userWalletModel.config.makeOnboardingStepsBuilder(
+            backupService: backupService
+        )
+
+        guard let steps = stepsBuilder.buildBackupSteps() else {
+            return nil
+        }
+
+        // Card for tangem sdk does not have an access code set yet.
+        let sdkFactory = GenericTangemSdkFactory(isAccessCodeSet: false)
+        let tangemSdk = sdkFactory.makeTangemSdk()
+
+        let cardInitializer = CommonCardInitializer(tangemSdk: tangemSdk, cardInfo: cardInfo)
+
+        return OnboardingInput(
+            backupService: backupService,
+            primaryCardId: cardInfo.card.cardId,
+            cardInitializer: cardInitializer,
+            pushNotificationsPermissionManager: nil,
+            steps: steps,
+            cardInput: .userWalletModel(userWalletModel, cardId: cardInfo.card.cardId),
+            twinData: nil,
+            isStandalone: false,
+            mobileContext: context
+        )
+    }
 }
 
 // MARK: - Card operations
@@ -111,12 +158,11 @@ private extension MobileUpgradeViewModel {
                     viewModel.alert = error.alertBinder
                 }
 
-            case .onboarding:
-                viewModel.incomingActionManager.discardIncomingAction()
-
+            case .onboarding(_, let cardInfo):
                 await runOnMain {
+                    viewModel.incomingActionManager.discardIncomingAction()
                     viewModel.isScanning = false
-                    viewModel.alert = UpgradeError.cardBackupInProgress.alertBinder
+                    viewModel.handleScan(cardInfo: cardInfo)
                 }
 
             case .scanTroubleshooting:
@@ -128,29 +174,47 @@ private extension MobileUpgradeViewModel {
                     viewModel.openTroubleshooting()
                 }
 
-            case .success(let cardInfo):
+            case .success:
                 await runOnMain {
                     viewModel.isScanning = false
-                    viewModel.handleSuccessScan(cardInfo: cardInfo)
+                    viewModel.incomingActionManager.discardIncomingAction()
+                    viewModel.alert = UpgradeError.cardAlreadyHasWallet.alertBinder
                 }
             }
         }
     }
 
-    func handleSuccessScan(cardInfo: CardInfo) {
-        // [REDACTED_TODO_COMMENT]
-        // - if wallet is already created
-        // - if product type == wallet2
-        // - if settings.isKeysImportAllowed == true
+    func handleScan(cardInfo: CardInfo) {
+        do {
+            try validateCardForUpgrade(cardInfo: cardInfo)
+            if let input = makeOnboardingInput(cardInfo: cardInfo) {
+                openOnboarding(input: input)
+            }
+        } catch {
+            alert = error.alertBinder
+        }
+    }
+
+    func validateCardForUpgrade(cardInfo: CardInfo) throws {
+        guard cardInfo.card.wallets.isEmpty else {
+            throw UpgradeError.cardAlreadyHasWallet
+        }
+
+        guard cardInfo.card.firmwareVersion >= .ed25519Slip0010Available else {
+            throw UpgradeError.wallet2CardRequired
+        }
+
+        guard cardInfo.card.settings.isKeysImportAllowed else {
+            throw UpgradeError.cardDoesNotAllowKeyImport
+        }
     }
 }
 
 // MARK: - Navigation
 
 private extension MobileUpgradeViewModel {
-    func openOnboarding(cardInfo: CardInfo) {
-        // [REDACTED_TODO_COMMENT]
-        // coordinator?.openOnboarding(input: onboardingInput)
+    func openOnboarding(input: OnboardingInput) {
+        coordinator?.openOnboarding(input: input)
     }
 
     func openTroubleshooting() {
@@ -232,12 +296,16 @@ extension MobileUpgradeViewModel {
     }
 
     enum UpgradeError: LocalizedError {
-        case cardBackupInProgress
+        case cardAlreadyHasWallet
+        case wallet2CardRequired
+        case cardDoesNotAllowKeyImport
 
+        // [REDACTED_TODO_COMMENT]
         var errorDescription: String? {
             switch self {
-                // [REDACTED_TODO_COMMENT]
-            case .cardBackupInProgress: "This card can’t be used for upgrade. Error code:"
+            case .cardAlreadyHasWallet: "Card already has wallet."
+            case .wallet2CardRequired: "Wallet2 card is required."
+            case .cardDoesNotAllowKeyImport: "Card does not allow key import."
             }
         }
     }

@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Combine
 import TangemFoundation
+import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
 
 class UserWalletSettingsCoordinator: CoordinatorObject {
@@ -31,11 +32,11 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var referralCoordinator: ReferralCoordinator?
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator?
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
 
     // MARK: - Child view models
 
     @Published var mobileBackupTypesViewModel: MobileBackupTypesViewModel?
-    @Published var mobileUpgradeViewModel: MobileUpgradeViewModel?
     @Published var mailViewModel: MailViewModel?
 
     // MARK: - Helpers
@@ -67,8 +68,7 @@ extension UserWalletSettingsCoordinator:
     UserWalletSettingsRoutable,
     TransactionNotificationsModalRoutable,
     MobileBackupNeededRoutable,
-    MobileBackupTypesRoutable,
-    MobileUpgradeRoutable {
+    MobileBackupTypesRoutable {
     func openAddNewAccount() {
         // [REDACTED_TODO_COMMENT]
     }
@@ -170,26 +170,20 @@ extension UserWalletSettingsCoordinator:
 
     // MARK: - MobileBackupTypesRoutable
 
-    func openMobileUpgrade() {
-        mobileUpgradeViewModel = MobileUpgradeViewModel(coordinator: self)
-    }
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .dismiss:
+                self?.mobileUpgradeCoordinator = nil
+            case .finish:
+                self?.mobileUpgradeCoordinator = nil
+                self?.mobileBackupTypesViewModel = nil
+            }
+        }
 
-    // MARK: - MobileUpgradeRoutable
-
-    func openOnboarding(input: OnboardingInput) {
-        openOnboardingModal(with: .input(input))
-    }
-
-    func openMail(dataCollector: EmailDataCollector, recipient: String) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(
-            logsComposer: logsComposer,
-            recipient: recipient,
-            emailType: .failedToScanCard
-        )
-    }
-
-    func closeMobileUpgrade() {
-        mobileUpgradeViewModel = nil
+        let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+        let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+        coordinator.start(with: inputOptions)
+        mobileUpgradeCoordinator = coordinator
     }
 }

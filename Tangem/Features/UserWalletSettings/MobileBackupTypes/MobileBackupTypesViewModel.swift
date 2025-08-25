@@ -137,7 +137,7 @@ private extension MobileBackupTypesViewModel {
         runTask(in: self) { viewModel in
             do {
                 let context = try await viewModel.unlock()
-                await viewModel.openUpgrade()
+                await viewModel.openUpgrade(context: context)
             } catch where error.isCancellationError {
                 AppLogger.error("Unlock is canceled", error: error)
             } catch {
@@ -186,8 +186,8 @@ private extension MobileBackupTypesViewModel {
     }
 
     @MainActor
-    func openUpgrade() {
-        routable?.openMobileUpgrade()
+    func openUpgrade(context: MobileWalletContext) {
+        routable?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
     }
 }
 
