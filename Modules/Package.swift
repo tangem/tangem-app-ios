@@ -22,12 +22,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "7.11.0")),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.2")),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "8.3.2")),
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
-        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", revision: "fca095d5c57d65c066c06cab9aa588ac0e296fe2"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -37,6 +38,10 @@ let package = Package(
 /// Valid examples are `CommonUI`, `Utils`, `NetworkLayer`, `ModelData`, etc.
 var serviceModules: [PackageDescription.Target] {
     [
+        .tangemTarget(
+            name: "TangemAccessibilityIdentifiers",
+            dependencies: []
+        ),
         .tangemTarget(
             name: "TangemAssets",
             dependencies: [
@@ -102,11 +107,38 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemUIUtils",
+                "TangemLocalization",
+                "TangemAccessibilityIdentifiers",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemHotSdk",
+            path: "TangemHotSdk/Sources/swift",
+            dependencies: [
+                .product(name: "TangemSdk", package: "tangem-sdk-ios"),
+                .target(name: "TrezorCrypto"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        // TrezorCrypto library is from WalletCore repo, commit 6e9567b5f9efc965e4fc1af00ecf485c4bf040a1
+        .tangemTarget(
+            name: "TrezorCrypto",
+            path: "TangemHotSdk/Sources/TrezorCrypto",
+            exclude: [
+                "crypto/ed25519-donna/README.md",
+                "crypto/nist256p1.table",
+                "crypto/secp256k1.table",
+                "crypto/test.db",
+            ],
+            sources: ["crypto"],
+            publicHeadersPath: "include",
         ),
     ]
 }
@@ -160,6 +192,27 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
             ]
         ),
+        .tangemTestTarget(
+            name: "TangemNFTTests",
+            dependencies: [
+                "TangemNFT",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemLoggerTests",
+            dependencies: [
+                "TangemLogger",
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemHotSdkTests",
+            path: "TangemHotSdk/Tests",
+            dependencies: [
+                "TangemFoundation",
+                "TangemHotSdk",
+                "TrezorCrypto",
+            ]
+        ),
     ]
 }
 
@@ -180,6 +233,7 @@ private extension PackageDescription.Target {
     /// Just a dumb wrapper that sets the module `path` to the value of the module `name`.
     static func tangemTarget(
         name: String,
+        path: String? = nil,
         dependencies: [PackageDescription.Target.Dependency] = [],
         exclude: [String] = [],
         sources: [String]? = nil,
@@ -192,7 +246,7 @@ private extension PackageDescription.Target {
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
-        let path = name
+        let path = path ?? name
         let enrichedCSettings: [PackageDescription.CSetting]?
         let enrichedCXXSettings: [PackageDescription.CXXSetting]?
         let enrichedSwiftSettings: [PackageDescription.SwiftSetting]?
@@ -227,6 +281,7 @@ private extension PackageDescription.Target {
     /// Just a dumb wrapper that sets the module `path` to the value of the module `name`.
     static func tangemTestTarget(
         name: String,
+        path: String? = nil,
         dependencies: [PackageDescription.Target.Dependency] = [],
         exclude: [String] = [],
         sources: [String]? = nil,
@@ -238,7 +293,7 @@ private extension PackageDescription.Target {
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
-        let path = name
+        let path = path ?? name
         let enrichedCSettings: [PackageDescription.CSetting]?
         let enrichedCXXSettings: [PackageDescription.CXXSetting]?
         let enrichedSwiftSettings: [PackageDescription.SwiftSetting]?

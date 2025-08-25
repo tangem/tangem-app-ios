@@ -13,6 +13,15 @@ public enum VisaAPIType: String, CaseIterable, Codable {
     case stage
     case dev
 
+    public var isTestnet: Bool {
+        switch self {
+        case .prod:
+            return false
+        case .stage, .dev:
+            return true
+        }
+    }
+
     var baseURL: URL {
         switch self {
         case .dev:
@@ -22,7 +31,7 @@ public enum VisaAPIType: String, CaseIterable, Codable {
             return .init(string: "https://api.dev.paera.com/bff/v1")!
         case .prod:
             // [REDACTED_TODO_COMMENT]
-            return .init(string: "https://api.dev.paera.com/bff/v1")!
+            return .init(string: "https://api.paera.com/bff/v1")!
         }
     }
 }

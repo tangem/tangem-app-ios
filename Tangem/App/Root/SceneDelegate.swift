@@ -36,9 +36,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             handleActivities(connectionOptions.userActivities)
         }
 
-        servicesManager.initialize()
-        startApp(scene: scene, appCoordinatorOptions: .default)
-        appOverlaysManager.setup(with: scene)
+        runTask(in: self) { delegate in
+            await delegate.servicesManager.initialize()
+
+            runOnMain {
+                delegate.startApp(scene: scene, appCoordinatorOptions: .default)
+                delegate.appOverlaysManager.setup(with: scene)
+            }
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -96,8 +101,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let window = MainWindow(windowScene: windowScene)
+
+        sheetRegistry.registerWalletConnectFloatingSheets()
+
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
+
         let factory = RootViewControllerFactory()
         let rootViewController = factory.makeRootViewController(
             for: appCoordinatorView,
@@ -136,7 +145,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             switch activity.activityType {
             case NSUserActivityTypeBrowsingWeb:
                 if let url = activity.webpageURL {
-                    if incomingActionHandler.handleDeeplink(url) {
+                    if incomingActionHandler.handleIncomingURL(url) {
                         return true
                     }
                 }
@@ -154,7 +163,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @discardableResult
     private func handleUrlContexts(_ urlContexts: Set<UIOpenURLContext>) -> Bool {
         for context in urlContexts {
-            if incomingActionHandler.handleDeeplink(context.url) {
+            if incomingActionHandler.handleIncomingURL(context.url) {
                 return true
             }
         }

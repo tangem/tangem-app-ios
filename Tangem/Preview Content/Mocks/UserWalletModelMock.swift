@@ -9,13 +9,21 @@
 import Foundation
 import Combine
 import TangemAssets
-import TangemSdk
 import TangemNFT
+import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
+
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
+    }
+
     var name: String { "" }
     var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
@@ -31,6 +39,10 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
+    var walletImageProvider: WalletImageProviding {
+        CardImageProviderMock()
+    }
+
     var nftManager: NFTManager { NFTManagerStub() }
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
@@ -45,9 +57,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
-
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
 
@@ -73,13 +83,22 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: nil,
+            userTokenListManager: userTokenListManager
+        )
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
 
-    var totalSignedHashes: Int { 0 }
-
     func updateWalletName(_ name: String) {}
+
+    func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
@@ -87,5 +106,7 @@ class UserWalletModelMock: UserWalletModel {
 
     func onBackupUpdate(type: BackupUpdateType) {}
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {}
 }

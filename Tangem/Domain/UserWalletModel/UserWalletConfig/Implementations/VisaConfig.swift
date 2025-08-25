@@ -39,7 +39,7 @@ extension VisaConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Tangem Visa"
     }
 
@@ -122,8 +122,6 @@ extension VisaConfig: UserWalletConfig {
             return .hidden
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .hidden
         case .topup:
@@ -158,12 +156,10 @@ extension VisaConfig: UserWalletConfig {
 
 extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return VisaOnboardingStepsBuilder(
             cardId: card.cardId,
-            isPushNotificationsAvailable: isPushNotificationsAvailable,
             isAccessCodeSet: card.isAccessCodeSet,
             activationLocalState: activationLocalState
         )

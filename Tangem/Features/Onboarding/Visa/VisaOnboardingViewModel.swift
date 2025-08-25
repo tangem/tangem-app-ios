@@ -27,6 +27,7 @@ protocol VisaOnboardingRoutable: OnboardingRoutable, OnboardingBrowserRoutable {
 class VisaOnboardingViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+    @Injected(\.globalServicesContext) private var globalServicesContext: GlobalServicesContext
 
     @Published var shouldFireConfetti = false
     @Published var currentProgress: CGFloat = 0
@@ -127,7 +128,7 @@ class VisaOnboardingViewModel: ObservableObject {
             proceedToApproveWalletSelection(animated: false)
         }
 
-        loadImage(input.cardInput.imageLoadInput)
+        loadImage(imageProvider: input.cardInput.cardImageProvider)
 
         bindAnalytics()
     }
@@ -202,9 +203,14 @@ class VisaOnboardingViewModel: ObservableObject {
         let cardInfo = CardInfo(
             card: card,
             walletData: .visa(activationStatus),
-            name: "Visa"
+            associatedCardIds: [card.cardId],
         )
-        let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
+
+        let userWalletModel = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        )
+
         self.userWalletModel = userWalletModel
     }
 
@@ -302,7 +308,7 @@ private extension VisaOnboardingViewModel {
             return
         }
 
-        userWalletRepository.add(userWalletModel)
+        try? userWalletRepository.add(userWalletModel: userWalletModel)
         coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }
 }
@@ -324,7 +330,7 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             visaActivationManager.setupRefreshTokenSaver(visaRefreshTokenRepository)
 
             goToNextStep()
-        case .blockedForActivation:
+        case .blockedForActivation, .failed:
             // [REDACTED_TODO_COMMENT]
             await showAlertAsync("This card was blocked... Is this even possible?..".alertBinder)
         case .paymentAccountDeploying:
@@ -415,7 +421,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func showContactSupportAlert(for error: Error) async {
         let alert = AlertBuilder.makeAlert(
             title: Localization.commonError,
-            message: error.universalErrorMessage,
+            message: error.localizedDescription,
             primaryButton: .default(
                 Text(Localization.detailsRowTitleContactToSupport),
                 action: { [weak self] in
@@ -441,7 +447,11 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     }
 
     func closeOnboarding() {
-        userWalletRepository.updateSelection()
+        globalServicesContext.resetServices()
+        if let userWalletModel {
+            globalServicesContext.initializeServices(userWalletModel: userWalletModel)
+        }
+
         coordinator?.closeOnboarding()
     }
 }
@@ -558,18 +568,14 @@ private extension VisaOnboardingViewModel {
 // MARK: - Image loading
 
 private extension VisaOnboardingViewModel {
-    func loadImage(_ imageLoadInput: OnboardingInput.ImageLoadInput) {
-        runTask(in: self, isDetached: false) { viewModel in
-            do {
-                let image = try await CardImageProvider(supportsOnlineImage: imageLoadInput.supportsOnlineImage)
-                    .loadImage(cardId: imageLoadInput.cardId, cardPublicKey: imageLoadInput.cardPublicKey)
-                    .map { $0.image }
-                    .async()
-                await runOnMain {
-                    viewModel.cardImage = image
+    func loadImage(imageProvider: WalletImageProviding) {
+        runTask(in: self) { model in
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.cardImage = imageValue.image
                 }
-            } catch {
-                VisaLogger.error("Failed to load card image", error: error)
             }
         }
     }
@@ -606,13 +612,10 @@ extension VisaOnboardingViewModel {
         ))
         let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationLocalState: activationStatus)
         let inputFactory = OnboardingInputFactory(
-            cardInfo: cardMock.cardInfo,
-            userWalletModel: visaUserWalletModelMock,
             sdkFactory: cardMockConfig,
-            onboardingStepsBuilderFactory: cardMockConfig,
-            pushNotificationsInteractor: PushNotificationsInteractorMock()
+            onboardingStepsBuilderFactory: cardMockConfig
         )
-        guard let cardInput = inputFactory.makeOnboardingInput() else {
+        guard let cardInput = inputFactory.makeOnboardingInput(cardInfo: cardMock.cardInfo) else {
             fatalError("Failed to generate card input for visa onboarding")
         }
 
