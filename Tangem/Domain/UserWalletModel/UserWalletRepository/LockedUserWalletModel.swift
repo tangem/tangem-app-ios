@@ -11,24 +11,34 @@ import Combine
 import TangemAssets
 import TangemSdk
 import TangemNFT
+import BlockchainSdk
+import TangemVisa
 
 class LockedUserWalletModel: UserWalletModel {
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
+    let walletImageProvider: WalletImageProviding
     let config: UserWalletConfig
-    var signer: TangemSigner
 
     var tokensCount: Int? { nil }
 
     var cardsCount: Int { config.cardsCount }
 
-    var hasBackupCards: Bool { userWallet.cardInfo().card.backupStatus?.isActive ?? false }
+    var hasBackupCards: Bool {
+        userWallet.walletInfo.hasBackupCards
+    }
 
     var hasImportedWallets: Bool { false }
 
     var emailConfig: EmailConfig? { nil }
+
+    var signer: TangemSigner {
+        fatalError("Should not be called for locked wallets")
+    }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
@@ -44,23 +54,7 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
-        .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
-    }
-
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
-        let artwork: CardArtwork
-
-        if let artworkInfo = userWallet.artwork {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
-
-        return cardImageProvider.loadImage(
-            cardId: userWallet.card.cardId,
-            cardPublicKey: userWallet.card.cardPublicKey,
-            artwork: artwork
-        )
+        userWallet.walletInfo.tangemApiAuthData
     }
 
     var totalBalance: TotalBalanceState {
@@ -72,40 +66,47 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var analyticsContextData: AnalyticsContextData {
-        AnalyticsContextData(
-            card: userWallet.cardInfo().card,
-            productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain,
-            userWalletId: userWalletId
-        )
+        userWallet.walletInfo.analyticsContextData
     }
 
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { CommonUserTokensPushNotificationsManager(
+        userWalletId: userWalletId,
+        walletModelsManager: walletModelsManager,
+        derivationManager: nil,
+        userTokenListManager: userTokenListManager
+    )
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
 
-    var totalSignedHashes: Int {
-        0
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
     }
 
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
-    var keysDerivingInteractor: any KeysDeriving { KeysDerivingCardInteractor(with: userWallet.cardInfo()) }
+    var keysDerivingInteractor: any KeysDeriving {
+        fatalError("Should not be called for locked wallets")
+    }
 
-    var name: String { userWallet.cardInfo().name }
+    var name: String { userWallet.name }
 
     let backupInput: OnboardingInput? = nil
 
     private let userWallet: StoredUserWallet
-    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
-        config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
+        config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
+        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
     func updateWalletName(_ name: String) {
@@ -119,7 +120,26 @@ class LockedUserWalletModel: UserWalletModel {
 
     func onBackupUpdate(type: BackupUpdateType) {}
 
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+
+    func cleanup() {
+        switch userWallet.walletInfo {
+        case .cardWallet(let cardInfo):
+            try? visaRefreshTokenRepository.deleteToken(cardId: cardInfo.card.cardId)
+
+            if AppSettings.shared.saveAccessCodes {
+                do {
+                    let accessCodeRepository = AccessCodeRepository()
+                    try accessCodeRepository.deleteAccessCode(for: Array(cardInfo.associatedCardIds))
+                } catch {
+                    Analytics.error(error: error)
+                    AppLogger.error(error: error)
+                }
+            }
+        case .mobileWallet(let mobileWalletInfo):
+            return
+        }
+    }
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -129,7 +149,7 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
         .just(output: userWallet.name)
     }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 
@@ -138,7 +158,10 @@ extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
 
 extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
-        let cardInfo = userWallet.cardInfo()
+        guard case .cardWallet(let cardInfo) = userWallet.walletInfo else {
+            return nil
+        }
+
         let embeddedEntry = config.embeddedBlockchain
         let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
 
@@ -153,7 +176,11 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
 }
 
 extension LockedUserWalletModel: UserWalletSerializable {
-    func serialize() -> StoredUserWallet {
-        userWallet
+    func serializePublic() -> StoredUserWallet {
+        return userWallet
+    }
+
+    func serializePrivate() -> StoredUserWallet.SensitiveInfo {
+        fatalError("Should not be called for locked wallets")
     }
 }

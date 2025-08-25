@@ -19,7 +19,7 @@ protocol ExpressModulesFactory {
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel
 

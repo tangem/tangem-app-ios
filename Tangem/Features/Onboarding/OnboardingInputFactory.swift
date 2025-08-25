@@ -10,27 +10,20 @@ import Foundation
 import TangemSdk
 
 class OnboardingInputFactory {
-    private let cardInfo: CardInfo
-    private let userWalletModel: UserWalletModel?
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
-    private let pushNotificationsInteractor: PushNotificationsInteractor
 
     init(
-        cardInfo: CardInfo,
-        userWalletModel: UserWalletModel?,
         sdkFactory: TangemSdkFactory & BackupServiceFactory,
-        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
-        pushNotificationsInteractor: PushNotificationsInteractor
+        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
     ) {
-        self.cardInfo = cardInfo
-        self.userWalletModel = userWalletModel
         self.sdkFactory = sdkFactory
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
-        self.pushNotificationsInteractor = pushNotificationsInteractor
     }
 
-    func makeOnboardingInput() -> OnboardingInput? {
+    func makeOnboardingInput(cardInfo: CardInfo) -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {
@@ -38,12 +31,10 @@ class OnboardingInputFactory {
         }
 
         let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
         let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
-            backupService: backupService,
-            isPushNotificationsAvailable: availabilityProvider.isAvailable
+            backupService: backupService
         )
         let steps = stepsBuilder.buildOnboardingSteps()
 
@@ -60,14 +51,12 @@ class OnboardingInputFactory {
             cardInitializer: cardInitializer,
             pushNotificationsPermissionManager: permissionManager,
             steps: steps,
-            cardInput: makeCardInput(),
+            cardInput: makeCardInput(cardInfo: cardInfo),
             twinData: cardInfo.walletData.twinData
         )
     }
 
-    func makeBackupInput() -> OnboardingInput? {
-        guard let userWalletModel else { return nil }
-
+    func makeBackupInput(cardInfo: CardInfo, userWalletModel: UserWalletModel) -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
         if let primaryCard = cardInfo.primaryCard {
@@ -75,8 +64,7 @@ class OnboardingInputFactory {
         }
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
-            backupService: backupService,
-            isPushNotificationsAvailable: false
+            backupService: backupService
         )
         guard let steps = stepsBuilder.buildBackupSteps() else {
             return nil
@@ -94,8 +82,12 @@ class OnboardingInputFactory {
         )
     }
 
-    private func makeCardInput() -> OnboardingInput.CardInput {
-        if let userWalletModel {
+    private func makeCardInput(cardInfo: CardInfo) -> OnboardingInput.CardInput {
+        // onboarded previously
+        if let userWalletModel = CommonUserWalletModelFactory().makeModel(
+            walletInfo: .cardWallet(cardInfo),
+            keys: .cardWallet(keys: cardInfo.card.wallets)
+        ) {
             return .userWalletModel(userWalletModel)
         }
 
