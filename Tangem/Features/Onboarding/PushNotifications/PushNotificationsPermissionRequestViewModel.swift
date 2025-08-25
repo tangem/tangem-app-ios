@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 
 final class PushNotificationsPermissionRequestViewModel: ObservableObject, Identifiable {
     @Published private(set) var allowButtonTitle: String
     @Published private(set) var laterButtonTitle: String
+
+    let isPushTransactionsAvailable: Bool
 
     private let permissionManager: PushNotificationsPermissionManager
 
@@ -26,6 +29,12 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
 
         allowButtonTitle = Localization.commonAllow
         laterButtonTitle = Localization.commonLater
+
+        isPushTransactionsAvailable = FeatureProvider.isAvailable(.pushTransactionNotifications)
+    }
+
+    func onViewAppear() {
+        permissionManager.logPushNotificationScreenOpened()
     }
 
     func didTapAllow() {

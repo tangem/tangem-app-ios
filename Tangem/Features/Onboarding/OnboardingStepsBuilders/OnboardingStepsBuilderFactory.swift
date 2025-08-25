@@ -11,8 +11,7 @@ import TangemSdk
 
 protocol OnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder
 }
 
@@ -22,8 +21,7 @@ protocol WalletOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, Car
 
 extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return WalletOnboardingStepsBuilder(
             cardId: card.cardId,
@@ -33,7 +31,6 @@ extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
             canBackup: card.backupStatus?.canBackup ?? false,
             hasBackup: card.backupStatus?.isActive ?? false,
             canSkipBackup: canSkipBackup,
-            isPushNotificationsAvailable: isPushNotificationsAvailable,
             backupService: backupService
         )
     }
@@ -45,14 +42,12 @@ protocol SingleCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
 
 extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return SingleCardOnboardingStepsBuilder(
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
-            isMultiCurrency: hasFeature(.multiCurrency),
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            isMultiCurrency: hasFeature(.multiCurrency)
         )
     }
 }
@@ -63,13 +58,11 @@ protocol NoteCardOnboardingStepsBuilderFactory: OnboardingStepsBuilderFactory, C
 
 extension UserWalletConfig where Self: NoteCardOnboardingStepsBuilderFactory {
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return NoteOnboardingStepsBuilder(
             cardId: card.cardId,
-            hasWallets: !card.wallets.isEmpty,
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            hasWallets: !card.wallets.isEmpty
         )
     }
 }

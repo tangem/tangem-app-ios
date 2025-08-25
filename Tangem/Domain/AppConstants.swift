@@ -6,9 +6,10 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import FirebaseAnalytics
 import Foundation
 import UIKit
+import FirebaseAnalytics
+import TangemFoundation
 
 enum AppConstants {
     static var isSmallScreen: Bool {
@@ -20,11 +21,13 @@ enum AppConstants {
 
     static let defaultScrollViewKeyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
 
-    static let minusSign = "−" // shorter stick
-    static let dashSign = "—" // longer stick (em-dash)
+    static let minusSign: String = .minusSign // shorter stick
+    static let enDashSign: String = .enDashSign // medium stick (en-dash)
+    static let emDashSign: String = .emDashSign // longer stick (em-dash)
     static let unbreakableSpace = "\u{00a0}"
     static let infinitySign = "\u{221E}"
     static let tildeSign = "~"
+    static let approximatelyEqualSign = "≈"
     static let dotSign = "•"
     static let rubCurrencyCode = "RUB"
     static let rubSign = "₽"
