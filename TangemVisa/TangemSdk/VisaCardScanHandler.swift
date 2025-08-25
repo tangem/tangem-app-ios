@@ -32,7 +32,9 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         cardActivationStateProvider: VisaCardActivationStatusService,
         refreshTokenRepository: VisaRefreshTokenRepository
     ) {
-        visaUtilities = .init(isTestnet: isTestnet)
+        // - NOTE: We need to use this isTestnet = false, because in BlockchainSdk we have if for testnet `DerivationPath` generation
+        // that didn't work properly, and for Visa we must generate derive keys using polygon derivation
+        visaUtilities = .init(isTestnet: false)
         self.authorizationService = authorizationService
         self.cardActivationStateProvider = cardActivationStateProvider
         visaRefreshTokenRepository = refreshTokenRepository
@@ -105,16 +107,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
             return
         }
 
-        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
-            VisaLogger.info("Failed to create derivation path while handling wallet authorization")
-            completion(.failure(.underlying(error: HandlerError.failedToCreateDerivationPath)))
-            return
-        }
-
-        guard
-            let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }),
-            let extendedPublicKey = wallet.derivedKeys[derivationPath]
-        else {
+        guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }) else {
             VisaLogger.info("Failed to find extended public key while handling wallet authorization")
             completion(.failure(.underlying(error: HandlerError.failedToFindDerivedWalletKey)))
             return
@@ -123,7 +116,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         let walletAddress: String
         do {
             VisaLogger.info("Requesting challenge for wallet authorization")
-            walletAddress = try visaUtilities.makeAddress(seedKey: wallet.publicKey, extendedKey: extendedPublicKey).value
+            walletAddress = try visaUtilities.makeAddress(walletPublicKey: wallet.publicKey).value
         } catch {
             VisaLogger.info("Error during Wallet address generation process. Error: \(error)")
             completion(.failure(.underlying(error: error)))
@@ -133,13 +126,11 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         do {
             let challengeResponse = try await authorizationService.getWalletAuthorizationChallenge(
                 cardId: card.cardId,
-                walletAddress: walletAddress
+                walletPublicKey: wallet.publicKey.hexString
             )
 
             let signedChallengeResponse = try await signChallengeWithWallet(
                 walletPublicKey: wallet.publicKey,
-                derivationPath: derivationPath,
-                // Will be changed later after backend implementation
                 challenge: Data(hexString: challengeResponse.nonce),
                 in: session
             )
@@ -170,14 +161,16 @@ public final class VisaCardScanHandler: CardSessionRunnable {
             VisaLogger.info("Error during Wallet authorization process. Tangem Sdk Error: \(error)")
             completion(.failure(error))
         } catch let error as VisaAPIError {
-            // [REDACTED_TODO_COMMENT]
             VisaLogger.error("API error during wallet authorization process", error: error)
-            if error.code == 110200 {
+            switch error.code {
+            case 110206, 110208:
                 await handleCardAuthorization(
                     walletAddress: walletAddress,
                     session: session,
                     completion: completion
                 )
+            default:
+                completion(.failure(.underlying(error: error)))
             }
         } catch {
             VisaLogger.info("Error during Wallet authorization process. Error: \(error)")
@@ -251,12 +244,15 @@ public final class VisaCardScanHandler: CardSessionRunnable {
 
     private func signChallengeWithWallet(
         walletPublicKey: Data,
-        derivationPath: DerivationPath,
         challenge: Data,
         in session: CardSession
     ) async throws -> AttestWalletKeyResponse {
         try await withCheckedThrowingContinuation { [session] continuation in
-            let signHashCommand = AttestWalletKeyCommand(publicKey: walletPublicKey, challenge: challenge, confirmationMode: .dynamic)
+            let signHashCommand = AttestWalletKeyTask(
+                walletPublicKey: walletPublicKey,
+                challenge: challenge,
+                confirmationMode: .dynamic
+            )
             signHashCommand.run(in: session) { result in
                 switch result {
                 case .success(let signHashResponse):

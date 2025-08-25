@@ -13,24 +13,6 @@ import Sodium
 import class WalletCore.DataVector
 
 extension Data {
-    var bytes: [UInt8] {
-        return Array(self)
-    }
-
-    public func leadingZeroPadding(toLength newLength: Int) -> Data {
-        guard count < newLength else { return self }
-
-        let prefix = Data(repeating: UInt8(0), count: newLength - count)
-        return prefix + self
-    }
-
-    public func trailingZeroPadding(toLength newLength: Int) -> Data {
-        guard count < newLength else { return self }
-
-        let suffix = Data(repeating: UInt8(0), count: newLength - count)
-        return self + suffix
-    }
-
     func validateAsEdKey() throws {
         _ = try Curve25519.Signing.PublicKey(rawRepresentation: self)
     }

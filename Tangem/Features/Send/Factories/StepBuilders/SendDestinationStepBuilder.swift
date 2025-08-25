@@ -13,23 +13,23 @@ struct SendDestinationStepBuilder {
     typealias IO = (input: SendDestinationInput, output: SendDestinationOutput)
     typealias ReturnValue = (step: SendDestinationStep, interactor: SendDestinationInteractor, compact: SendDestinationCompactViewModel)
 
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
 
     func makeSendDestinationStep(
         io: IO,
-        sendFeeInteractor: any SendFeeInteractor,
+        sendFeeProvider: any SendFeeProvider,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: SendDestinationAnalyticsLogger,
         router: SendDestinationRoutable
     ) -> ReturnValue {
         let addressTextViewHeightModel = AddressTextViewHeightModel()
-        let interactor = makeSendDestinationInteractor(io: io)
+        let interactor = makeSendDestinationInteractor(io: io, analyticsLogger: analyticsLogger)
 
         let viewModel = makeSendDestinationViewModel(
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             addressTextViewHeightModel: addressTextViewHeightModel,
             router: router
         )
@@ -37,8 +37,8 @@ struct SendDestinationStepBuilder {
         let step = SendDestinationStep(
             viewModel: viewModel,
             interactor: interactor,
-            sendFeeInteractor: sendFeeInteractor,
-            tokenItem: walletModel.tokenItem
+            sendFeeProvider: sendFeeProvider,
+            analyticsLogger: analyticsLogger
         )
 
         let compact = makeSendDestinationCompactViewModel(
@@ -61,11 +61,12 @@ private extension SendDestinationStepBuilder {
     func makeSendDestinationViewModel(
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
+        analyticsLogger: any SendDestinationAnalyticsLogger,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         router: SendDestinationRoutable
     ) -> SendDestinationViewModel {
         let tokenItem = walletModel.tokenItem
-        let suggestedWallets = makeSuggestedWallets()
+        let suggestedWallets = builder.makeSuggestedWallets()
         let additionalFieldType = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain)
 
         let settings = SendDestinationViewModel.Settings(
@@ -78,6 +79,7 @@ private extension SendDestinationStepBuilder {
             settings: settings,
             interactor: interactor,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             addressTextViewHeightModel: addressTextViewHeightModel,
             router: router
         )
@@ -85,58 +87,16 @@ private extension SendDestinationStepBuilder {
         return viewModel
     }
 
-    func makeSendDestinationInteractor(io: IO) -> SendDestinationInteractor {
+    func makeSendDestinationInteractor(io: IO, analyticsLogger: SendDestinationAnalyticsLogger) -> SendDestinationInteractor {
         CommonSendDestinationInteractor(
             input: io.input,
             output: io.output,
-            validator: makeSendDestinationValidator(),
-            transactionHistoryProvider: makeSendDestinationTransactionHistoryProvider(),
-            transactionHistoryMapper: makeTransactionHistoryMapper(),
-            addressResolver: walletModel.addressResolver,
+            validator: builder.makeSendDestinationValidator(),
+            transactionHistoryProvider: builder.makeSendDestinationTransactionHistoryProvider(),
+            addressResolver: builder.makeAddressResolver(),
             additionalFieldType: .type(for: walletModel.tokenItem.blockchain),
-            parametersBuilder: builder.makeSendTransactionParametersBuilder()
+            parametersBuilder: builder.makeSendTransactionParametersBuilder(),
+            analyticsLogger: analyticsLogger
         )
-    }
-
-    func makeSendDestinationValidator() -> SendDestinationValidator {
-        let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
-        let validator = CommonSendDestinationValidator(
-            walletAddresses: walletModel.addresses.map { $0.value },
-            addressService: addressService,
-            supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
-        )
-
-        return validator
-    }
-
-    func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
-        CommonSendDestinationTransactionHistoryProvider(walletModel: walletModel)
-    }
-
-    func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
-        TransactionHistoryMapper(
-            currencySymbol: walletModel.tokenItem.currencySymbol,
-            walletAddresses: walletModel.addresses.map { $0.value },
-            showSign: false
-        )
-    }
-
-    func makeSuggestedWallets() -> [SendDestinationViewModel.Settings.SuggestedWallet] {
-        userWalletRepository.models.reduce([]) { result, userWalletModel in
-            let walletModels = userWalletModel.walletModelsManager.walletModels
-            return result + walletModels
-                .filter { walletModel in
-                    let ignoredAddresses = self.walletModel.addresses.map { $0.value }
-
-                    let shouldBeIncluded = walletModel.tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
-
-                    return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
-                        && walletModel.isMainToken
-                        && shouldBeIncluded
-                }
-                .map { walletModel in
-                    (name: userWalletModel.name, address: walletModel.defaultAddressString)
-                }
-        }
     }
 }

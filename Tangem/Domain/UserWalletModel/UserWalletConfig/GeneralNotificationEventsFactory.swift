@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import TangemFoundation
+import TangemHotSdk
 
 struct GeneralNotificationEventsFactory {
     func makeNotifications(for card: CardDTO) -> [GeneralNotificationEvent] {
@@ -19,14 +20,6 @@ struct GeneralNotificationEventsFactory {
             notifications.append(.failedToVerifyCard)
         }
 
-        for wallet in card.wallets {
-            if let remainingSignatures = wallet.remainingSignatures,
-               remainingSignatures <= 10 {
-                notifications.append(.lowSignatures(count: remainingSignatures))
-                break
-            }
-        }
-
         if AppEnvironment.current.isTestnet {
             notifications.append(.testnetCard)
         } else if card.firmwareVersion.type == .sdk, !DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -34,5 +27,9 @@ struct GeneralNotificationEventsFactory {
         }
 
         return notifications
+    }
+
+    func makeNotifications(for hotWallet: HotWallet) -> [GeneralNotificationEvent] {
+        []
     }
 }

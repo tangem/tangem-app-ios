@@ -38,7 +38,7 @@ extension NoteDemoConfig: UserWalletConfig {
         1
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Note"
     }
 
@@ -130,8 +130,6 @@ extension NoteDemoConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .hidden
         case .topup:

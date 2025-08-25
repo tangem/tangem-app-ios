@@ -48,18 +48,17 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         self.canChangeCurrency = canChangeCurrency
     }
 
-    func update(wallet: LoadingValue<any WalletModel>, initialWalletId: WalletModelId) {
+    func update(wallet: ExpressInteractor.Destination?, initialWalletId: WalletModelId) {
         switch wallet {
         case .loading:
             canChangeCurrency = false
             tokenIconState = .loading
             symbolState = .loading
             balanceState = .loading
-        case .loaded(let wallet):
+        case .success(let wallet as ExpressInteractorSourceWallet):
             canChangeCurrency = wallet.id != initialWalletId
-            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
-
+            tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
             walletDidChangeSubscription = wallet.availableBalanceProvider.balanceTypePublisher.sink { [weak self] state in
                 switch state {
                 case .loading:
@@ -72,7 +71,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
                     self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
-        case .failedToLoad:
+        case .none, .success, .failure:
             canChangeCurrency = true
             tokenIconState = .notAvailable
             symbolState = .noData

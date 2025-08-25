@@ -17,6 +17,7 @@ class AptosNetworkService: MultiNetworkProvider {
     let providers: [AptosNetworkProvider]
 
     var currentProviderIndex: Int = 0
+    let blockchainName: String = Blockchain.aptos(curve: .ed25519_slip0010, testnet: false).displayName
 
     // MARK: - Init
 
@@ -27,29 +28,23 @@ class AptosNetworkService: MultiNetworkProvider {
     // MARK: - Implementation
 
     func getAccount(address: String) -> AnyPublisher<AptosAccountInfo, Error> {
-        providerPublisher { provider in
-            provider
-                .getAccountResources(address: address)
-                .withWeakCaptureOf(self)
-                .tryMap { service, response in
-                    guard
-                        let accountJson = response.first(where: { $0.type == Constants.accountKeyPrefix }),
-                        let coinJson = response.first(where: { $0.type == Constants.coinStoreKeyPrefix })
-                    else {
-                        throw WalletError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
-                    }
+        getAccountInfo(address: address)
+            .combineLatest(getCoinBalance(address: address))
+            .withWeakCaptureOf(self)
+            .tryMap { service, args -> AptosAccountInfo in
+                let resources = args.0
+                let balanceValue = args.1
 
-                    guard
-                        let balanceValue = Decimal(stringValue: coinJson.data.coin?.value),
-                        let sequenceNumber = Decimal(stringValue: accountJson.data.sequenceNumber)
-                    else {
-                        throw WalletError.failedToParseNetworkResponse()
-                    }
+                let accountJson = resources.first(where: { $0.type == Constants.accountKeyPrefix })
 
-                    return AptosAccountInfo(sequenceNumber: sequenceNumber.int64Value, balance: balanceValue)
+                if accountJson == nil, balanceValue == .zero {
+                    throw BlockchainSdkError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
                 }
-                .eraseToAnyPublisher()
-        }
+
+                let sequenceNumber = Decimal(stringValue: accountJson?.data.sequenceNumber ?? "") ?? 0
+                return AptosAccountInfo(sequenceNumber: sequenceNumber.int64Value, balance: balanceValue)
+            }
+            .eraseToAnyPublisher()
     }
 
     func getGasUnitPrice() -> AnyPublisher<UInt64, Error> {
@@ -66,7 +61,7 @@ class AptosNetworkService: MultiNetworkProvider {
     func calculateUsedGasPriceUnit(info: AptosTransactionInfo) -> AnyPublisher<AptosFeeInfo, Error> {
         providerPublisher { [weak self] provider in
             guard let self = self else {
-                return .anyFail(error: WalletError.failedToGetFee)
+                return .anyFail(error: BlockchainSdkError.failedToGetFee)
             }
 
             let transactionBody = convertTransaction(info: info)
@@ -76,7 +71,7 @@ class AptosNetworkService: MultiNetworkProvider {
                 .withWeakCaptureOf(self)
                 .tryMap { service, response in
                     guard let gasUsed = Decimal(stringValue: response.first?.gasUsed) else {
-                        throw WalletError.failedToGetFee
+                        throw BlockchainSdkError.failedToGetFee
                     }
 
                     let maxGasAmount = gasUsed * Constants.successTransactionSafeFactor
@@ -100,7 +95,7 @@ class AptosNetworkService: MultiNetworkProvider {
                 .submitTransaction(data: data)
                 .tryMap { response in
                     guard let transactionHash = response.hash else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     return transactionHash
@@ -110,6 +105,39 @@ class AptosNetworkService: MultiNetworkProvider {
     }
 
     // MARK: - Private Implementation
+
+    private func getAccountInfo(address: String) -> AnyPublisher<[AptosResponse.AccountResource], Error> {
+        providerPublisher { provider in
+            provider
+                .getAccountResources(address: address)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    private func getCoinBalance(address: String) -> AnyPublisher<Decimal, Error> {
+        let payload = AptosRequest.View(
+            function: Constants.aptosCoinBalanceFunction,
+            type_arguments: [Constants.aptosCoinContract],
+            arguments: [address]
+        )
+
+        return providerPublisher { provider in
+            provider
+                .getAccountView(payload: payload)
+                .withWeakCaptureOf(self)
+                .tryMap { service, response in
+                    guard
+                        let balanceResponse = response.first,
+                        let balanceValue = Decimal(stringValue: balanceResponse)
+                    else {
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
+                    }
+
+                    return balanceValue
+                }
+                .eraseToAnyPublisher()
+        }
+    }
 
     private func convertTransaction(info: AptosTransactionInfo) -> AptosRequest.TransactionBody {
         let transferPayload = AptosRequest.TransferPayload(
@@ -150,6 +178,7 @@ private extension AptosNetworkService {
         static let transferPayloadType = "entry_function_payload"
         static let transferPayloadFunction = "0x1::aptos_account::transfer"
         static let aptosCoinContract = "0x1::aptos_coin::AptosCoin"
+        static let aptosCoinBalanceFunction = "0x1::coin::balance"
         static let signatureType = "ed25519_signature"
         static let successTransactionSafeFactor: Decimal = 1.5
     }

@@ -20,30 +20,28 @@ struct UnstakingFlowBaseBuilder {
     let builder: SendDependenciesBuilder
 
     func makeSendViewModel(manager: some StakingManager, action: UnstakingModel.Action, router: SendRoutable) -> SendViewModel {
-        let unstakingModel = builder.makeUnstakingModel(stakingManager: manager, action: action)
+        let actionType = builder.sendFlowActionType(actionType: action.displayType)
         let notificationManager = builder.makeStakingNotificationManager()
+        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: actionType)
+        let unstakingModel = builder.makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger, action: action)
+
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
         notificationManager.setupManager(with: unstakingModel)
-
-        let actionType = builder.sendFlowActionType(actionType: action.displayType)
-        let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
-            actionType: actionType,
-            stakingValidatorsInput: unstakingModel
-        )
+        analyticsLogger.setup(stakingValidatorsInput: unstakingModel)
 
         let io = (input: unstakingModel, output: unstakingModel)
 
         let amount = sendAmountStepBuilder.makeSendAmountStep(
             io: io,
             actionType: actionType,
-            sendFeeLoader: unstakingModel,
+            sendFeeProvider: unstakingModel,
             sendQRCodeService: .none,
             sendAmountValidator: builder.makeUnstakingSendAmountValidator(
                 stakingManager: manager,
                 stakedAmount: action.amount
             ),
             amountModifier: builder.makeStakingAmountModifier(actionType: actionType),
-            source: .staking
+            analyticsLogger: analyticsLogger
         )
 
         amount.interactor.externalUpdate(amount: action.amount)
@@ -58,16 +56,18 @@ struct UnstakingFlowBaseBuilder {
             actionType: actionType,
             descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: isPartialUnstakeAllowed ? .editable : .noEditable,
+            destinationEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,
+            amountEditableType: isPartialUnstakeAllowed ? .editable : .noEditable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: .none,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: unstakingModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             onrampAmountCompactViewModel: .none,
@@ -98,6 +98,7 @@ struct UnstakingFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: unstakingModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,

@@ -12,7 +12,7 @@ struct BittensorWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         guard let network = PolkadotNetwork(blockchain: input.wallet.blockchain),
               case .bittensor = network else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         return PolkadotWalletManager(network: network, wallet: input.wallet).then {

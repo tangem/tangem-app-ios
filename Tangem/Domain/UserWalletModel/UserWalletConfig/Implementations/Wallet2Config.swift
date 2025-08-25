@@ -41,7 +41,7 @@ extension Wallet2Config: UserWalletConfig {
         }
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Wallet"
     }
 
@@ -327,7 +327,6 @@ extension Wallet2Config: UserWalletConfig {
             return cardsCount == 2 ? Assets.Cards.pepeDouble : Assets.Cards.pepeTriple
         // Tangem Wallet 2.0
         default:
-
             var isUserWalletWithRing = false
 
             if let userWalletIdSeed {
@@ -399,8 +398,6 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .available
         case .topup:

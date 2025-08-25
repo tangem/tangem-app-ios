@@ -33,7 +33,6 @@ enum StorageType: String {
     case pendingBackups = "pending_backups"
     case pendingBackupsCurrentID = "pending_backups_current_id"
     case forcedDemoCardId = "forced_demo_card_id"
-    case didMigrateUserWalletNames = "did_migrate_user_wallet_names_again"
     case userWalletIdsWithRing = "tangem_userwalletIds_with_ring"
     case shownStoryIds = "shown_story_ids"
     case supportSeedNotificationShownDate = "support_seed_notification_shown_date"
@@ -41,4 +40,10 @@ enum StorageType: String {
     case showReferralProgramOnMain = "tangem_show_referral_program_on_main"
     case marketsTooltipWasShown = "tangem_markets_tooltip_was_shown"
     case startWalletUsageDate = "tangem_start_wallet_usage_date"
+    case tronWarningWithdrawTokenDisplayed = "tron_warning_withdraw_token_displayed"
+    case applicationUid = "application_uid"
+    case lastStoredFCMToken = "last_stored_FCM_token"
+    case didMigrateWalletConnectSavedSessions = "tangem_did_migrate_wallet_connect_saved_sessions"
+    case allowanceUserWalletIdTransactionsPush = "allowance_user_wallet_id_transactions_push"
+    case isSendWithSwapOnboardNotificationHidden = "is_send_with_swap_onboard_notification_hidden"
 }

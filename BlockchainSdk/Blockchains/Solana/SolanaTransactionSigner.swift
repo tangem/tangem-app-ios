@@ -39,4 +39,8 @@ class SolanaTransactionSigner: Signer {
             }
             .store(in: &subscriptions)
     }
+
+    func sign(message: Data) async throws -> Data {
+        try await transactionSigner.sign(hash: message, walletPublicKey: walletPublicKey).async()
+    }
 }

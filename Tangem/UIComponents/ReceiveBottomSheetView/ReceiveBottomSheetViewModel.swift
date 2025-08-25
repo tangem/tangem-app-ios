@@ -7,46 +7,32 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import CombineExt
+import TangemLocalization
 import TangemAssets
+import TangemUI
 
-class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
+final class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
+    let notificationInputs: [NotificationViewInput]
     let addressInfos: [ReceiveAddressInfo]
     let memoWarningMessage: String?
-
-    let id = UUID()
     let addressIndexUpdateNotifier = PassthroughSubject<Int, Never>()
 
-    let iconURL: URL?
-
-    var customTokenColor: Color? {
-        tokenItem.token?.customTokenColor
-    }
-
     private let tokenItem: TokenItem
+    private let flow: Flow
 
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
-    private let flow: Flow
 
-    var assetSymbol: String {
-        switch flow {
-        case .nft:
-            Localization.detailsNftTitle
-        case .crypto:
-            tokenItem.currencySymbol
-        }
-    }
-
-    var networkName: String {
-        tokenItem.networkName
-    }
-
-    init(flow: Flow, tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
+    init(
+        flow: Flow,
+        tokenItem: TokenItem,
+        notificationInputs: [NotificationViewInput],
+        addressInfos: [ReceiveAddressInfo]
+    ) {
         self.tokenItem = tokenItem
-        iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
+        self.notificationInputs = notificationInputs
         self.addressInfos = addressInfos
         self.flow = flow
         memoWarningMessage = tokenItem.blockchain.hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
@@ -91,10 +77,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func copyToClipboard() {
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.receive.rawValue,
-        ])
+        copyAnalytics()
         UIPasteboard.general.string = addressInfos[currentIndex].address
 
         Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
@@ -105,7 +88,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func share() {
-        Analytics.log(event: .buttonShareAddress, params: [.token: tokenItem.currencySymbol])
+        shareAnalytics()
         let address = addressInfos[currentIndex].address
         // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
@@ -115,6 +98,32 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
             .assign(to: \.currentIndex, on: self, ownership: .weak)
+    }
+
+    private func shareAnalytics() {
+        switch flow {
+        case .nft:
+            Analytics.log(event: .nftReceiveShareAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
+        case .crypto:
+            Analytics.log(event: .buttonShareAddress, params: [
+                .token: tokenItem.currencySymbol,
+                .blockchain: tokenItem.blockchain.displayName,
+            ])
+        }
+    }
+
+    private func copyAnalytics() {
+        switch flow {
+        case .nft:
+            Analytics.log(event: .nftReceiveCopyAddressButtonClicked, params: [.blockchain: tokenItem.blockchain.displayName])
+
+        case .crypto:
+            Analytics.log(event: .buttonCopyAddress, params: [
+                .token: tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.receive.rawValue,
+                .blockchain: tokenItem.blockchain.displayName,
+            ])
+        }
     }
 }
 

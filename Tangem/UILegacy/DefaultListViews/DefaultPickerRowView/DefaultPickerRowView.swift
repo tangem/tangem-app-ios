@@ -24,8 +24,8 @@ struct DefaultPickerRowView: View {
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
             Picker("", selection: $selection) {
-                ForEach(viewModel.options, id: \.self) {
-                    Text($0).tag($0)
+                ForEach(viewModel.options.indices, id: \.self) { index in
+                    Text(viewModel.displayOptions[index]).tag(viewModel.options[index])
                 }
             }
             .labelsHidden()
