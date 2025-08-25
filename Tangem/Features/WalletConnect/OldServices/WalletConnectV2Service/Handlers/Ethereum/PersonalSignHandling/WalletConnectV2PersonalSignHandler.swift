@@ -17,6 +17,7 @@ struct WalletConnectV2PersonalSignHandler {
     private let message: String
     private let signer: WalletConnectSigner
     private let walletModel: any WalletModel
+    private let request: AnyCodable
 
     private var dataToSign: Data {
         let hexData = Data(hex: message)
@@ -43,6 +44,7 @@ struct WalletConnectV2PersonalSignHandler {
 
             let targetAddress = castedParams[1]
             walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
+            self.request = request
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
@@ -61,7 +63,17 @@ struct WalletConnectV2PersonalSignHandler {
 }
 
 extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
+    var method: WalletConnectMethod { .personalSign }
+
     var event: WalletConnectEvent { .sign }
+
+    var requestData: Data {
+        Data(hex: message)
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
+    }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
         let message = Localization.walletConnectPersonalSignMessage(dApp.name, dataToSign.hexString)
@@ -71,12 +83,13 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
     func handle() async throws -> RPCResult {
         let personalMessageData = makePersonalMessageData(dataToSign)
         let hash = personalMessageData.sha3(.keccak256)
+
         do {
             let signedMessage = try await signer.sign(data: hash, using: walletModel)
             return .response(AnyCodable(signedMessage.hexString.addHexPrefix().lowercased()))
         } catch {
             WCLogger.error("Failed to sign message", error: error)
-            return .error(.internalError)
+            throw error
         }
     }
 }

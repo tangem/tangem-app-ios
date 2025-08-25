@@ -48,6 +48,9 @@ playground.xcworkspace
 Pods/
 tangem-ios-kit/Pods/
 
+# Python
+__pycache__
+
 # Carthage
 #
 # Add this line if you want to avoid checking in source code from Carthage dependencies.
@@ -68,11 +71,14 @@ Carthage/Build
 # Fastlane
 fastlane/test_output/
 fastlane/report.xml
+fastlane/uitest-artifacts/
 
 # Generated
-BlockchainSdk/Resources/Generated/**.swift
 Modules/TangemAssets/Generated/**.swift
 Modules/TangemLocalization/Generated/**.swift
 
 # Rubygems
 vendor/bundle
+
+# Public releases
+vendor/ios_dependencies

@@ -10,10 +10,12 @@ import Foundation
 
 extension CommonUserWalletModel {
     static let mock = CommonUserWalletModelFactory().makeModel(
-        cardInfo: CardMock.wallet.cardInfo
+        walletInfo: .cardWallet(CardMock.wallet.cardInfo),
+        keys: .cardWallet(keys: CardMock.wallet.cardInfo.card.wallets)
     )
 
     static let visaMock = CommonUserWalletModelFactory().makeModel(
-        cardInfo: CardMock.visa.cardInfo
+        walletInfo: .cardWallet(CardMock.visa.cardInfo),
+        keys: .cardWallet(keys: CardMock.wallet.cardInfo.card.wallets)
     )
 }
