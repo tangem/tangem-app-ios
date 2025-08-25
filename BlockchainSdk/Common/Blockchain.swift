@@ -729,7 +729,9 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ton,
              .cardano,
              .kaspa,
-             .sui:
+             .sui,
+             .stellar,
+             .xrp:
             return true
         case _ where isEvm:
             return true
@@ -840,6 +842,15 @@ public indirect enum Blockchain: Equatable, Hashable {
             return true
         default:
             return false
+        }
+    }
+
+    public var isTransactionAsync: Bool {
+        switch self {
+        case .ton:
+            true
+        default:
+            false
         }
     }
 }

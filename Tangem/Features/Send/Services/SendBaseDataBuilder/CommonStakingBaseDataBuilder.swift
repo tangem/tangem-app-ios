@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import BlockchainSdk
 import TangemStaking
+import TangemFoundation
 
 protocol StakingBaseDataBuilderInput: SendBaseDataBuilderInput {
     var selectedPolicy: ApprovePolicy? { get }
@@ -34,7 +35,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
         self.emailDataProvider = emailDataProvider
     }
 
-    func makeMailData(stakingRequestError error: Error) throws -> (dataCollector: EmailDataCollector, recipient: String) {
+    func makeMailData(stakingRequestError error: UniversalError) throws -> (dataCollector: EmailDataCollector, recipient: String) {
         guard let fee = input.bsdkFee?.amount else {
             throw SendBaseDataBuilderError.notFound("Fee")
         }

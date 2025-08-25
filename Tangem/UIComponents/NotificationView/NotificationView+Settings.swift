@@ -41,6 +41,19 @@ extension NotificationView {
         let action: NotificationButtonTapAction
         let actionType: NotificationButtonActionType
         let isWithLoader: Bool
+        let isDisabled: Bool
+
+        init(
+            action: @escaping NotificationButtonTapAction,
+            actionType: NotificationButtonActionType,
+            isWithLoader: Bool,
+            isDisabled: Bool = false
+        ) {
+            self.action = action
+            self.actionType = actionType
+            self.isWithLoader = isWithLoader
+            self.isDisabled = isDisabled
+        }
 
         var id: Int { actionType.id }
 
@@ -68,6 +81,13 @@ extension NotificationView {
     enum Title: Hashable {
         case string(String)
         case attributed(AttributedString)
+
+        var string: String? {
+            switch self {
+            case .string(let value): value
+            case .attributed: nil
+            }
+        }
     }
 
     enum ColorScheme {
