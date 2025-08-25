@@ -44,6 +44,7 @@ struct SendDestinationAddressSummaryView: View {
                 )
                 .disabled(true)
                 .matchedGeometryEffect(namespace.map { .init(id: $0.names.addressText, namespace: $0.id) })
+                .padding(.vertical, 8)
 
                 Assets.clear.image
                     .renderingMode(.template)

@@ -135,4 +135,6 @@ extension KoinosTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         type.method
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

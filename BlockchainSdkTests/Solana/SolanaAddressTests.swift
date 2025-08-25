@@ -19,7 +19,7 @@ struct SolanaAddressTests {
     func defaultAddressGeneration(curve: EllipticCurve) throws {
         let key = Data(hexString: "0300000000000000000000000000000000000000000000000000000000000000")
         let blockchain = Blockchain.solana(curve: curve, testnet: false)
-        let service = SolanaAddressService()
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
         let addrs = try service.makeAddress(from: key)
 
@@ -50,12 +50,8 @@ struct SolanaAddressTests {
         "EN2sCsJ1WDV8UFqsiTXHcUPUxQ4juE71eCknHYYMifkd",
     ])
     func validAddresses(addressHex: String) {
-        let walletCoreAddressValidator: AddressValidator = WalletCoreAddressService(coin: .solana, publicKeyType: CoinType.solana.publicKeyType)
-
         [EllipticCurve.ed25519, .ed25519_slip0010].forEach {
             let addressValidator = AddressServiceFactory(blockchain: .solana(curve: $0, testnet: false)).makeAddressService()
-
-            #expect(walletCoreAddressValidator.validate(addressHex))
             #expect(addressValidator.validate(addressHex))
         }
     }

@@ -144,7 +144,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
         walletSelectorViewModel = MarketsWalletSelectorViewModel(
             userWalletNamePublisher: userWalletModel.userWalletNamePublisher,
-            cardImagePublisher: userWalletModel.cardImagePublisher
+            walletImageProvider: userWalletModel.walletImageProvider
         )
     }
 
@@ -175,7 +175,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
                 self.isSaving = false
 
                 if case .failure(let error) = result {
-                    if !error.isUserCancelled {
+                    if !error.isCancellationError {
                         self.alert = error.alertBinder
                     }
 

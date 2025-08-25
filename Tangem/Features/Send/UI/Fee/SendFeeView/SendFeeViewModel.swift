@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 import SwiftUI
 import Combine
-import struct BlockchainSdk.Fee
+import BlockchainSdk
 import TangemFoundation
 
 class SendFeeViewModel: ObservableObject, Identifiable {
@@ -37,6 +37,8 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
     private let balanceFormatter = BalanceFormatter()
     private let balanceConverter = BalanceConverter()
+    private let tokenItem: TokenItem
+    private let analyticsLogger: SendFeeAnalyticsLogger
 
     private var bag: Set<AnyCancellable> = []
 
@@ -49,13 +51,16 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         settings: Settings,
         interactor: SendFeeInteractor,
         notificationManager: NotificationManager,
-        router: SendFeeRoutable
+        router: SendFeeRoutable,
+        analyticsLogger: SendFeeAnalyticsLogger
     ) {
         feeTokenItem = settings.feeTokenItem
+        tokenItem = settings.tokenItem
 
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.router = router
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -152,9 +157,7 @@ class SendFeeViewModel: ObservableObject, Identifiable {
     }
 
     private func userDidSelected(fee: SendFee) {
-        if fee.option == .custom {
-            Analytics.log(.sendCustomFeeClicked)
-        }
+        analyticsLogger.logSendFeeSelected(fee.option)
 
         selectedFeeOption = fee.option
         interactor.update(selectedFee: fee)
@@ -180,5 +183,6 @@ extension SendFeeViewModel: SendStepViewAnimatable {
 extension SendFeeViewModel {
     struct Settings {
         let feeTokenItem: TokenItem
+        let tokenItem: TokenItem
     }
 }
