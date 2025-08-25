@@ -23,7 +23,13 @@ class AppCoordinator: CoordinatorObject {
 
         marketsCoordinator = nil
         mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
-        setupWelcome()
+
+        let startupProcessor = StartupProcessor()
+        if startupProcessor.shouldOpenAuthScreen {
+            setupAuth(unlockOnAppear: false)
+        } else {
+            setupWelcome()
+        }
     }
 
     // MARK: - Injected
@@ -68,8 +74,8 @@ class AppCoordinator: CoordinatorObject {
              .auth where options == .locked:
             setupLock()
 
-            DispatchQueue.main.async {
-                self.tryUnlockWithBiometry()
+            runTask(in: self) { coordinator in
+                await coordinator.tryUnlockWithBiometry()
             }
         case .welcome:
             setupWelcome()
@@ -80,10 +86,10 @@ class AppCoordinator: CoordinatorObject {
         }
     }
 
-    private func tryUnlockWithBiometry() {
-        appLockController.unlockApp { [weak self] result in
-            guard let self else { return }
+    private func tryUnlockWithBiometry() async {
+        let result = await appLockController.unlockApp()
 
+        await runOnMain {
             switch result {
             case .openAuth:
                 setupAuth(unlockOnAppear: false)
@@ -100,14 +106,14 @@ class AppCoordinator: CoordinatorObject {
     }
 
     private func setupWelcome() {
-        let dismissAction: Action<ScanDismissOptions> = { [weak self] options in
+        let dismissAction: Action<WelcomeCoordinator.OutputOptions> = { [weak self] options in
             guard let self else { return }
 
             switch options {
             case .main(let model):
                 openMain(with: model)
             case .onboarding(let input):
-                openOnboarding(with: input)
+                openOnboarding(with: .input(input))
             }
         }
 
@@ -124,7 +130,7 @@ class AppCoordinator: CoordinatorObject {
             case .main(let model):
                 openMain(with: model)
             case .onboarding(let input):
-                openOnboarding(with: input)
+                openOnboarding(with: .input(input))
             }
         }
 
@@ -185,13 +191,34 @@ class AppCoordinator: CoordinatorObject {
             }
             .store(in: &bag)
 
+        let cardSessionDidStartPublisher = NotificationCenter.default
+            .publisher(for: .cardSessionDidStart)
+            .map { _ in true }
+
+        let cardSessionDidFinishPublisher = NotificationCenter.default
+            .publisher(for: .cardSessionDidFinish)
+            .map { _ in false }
+
+        let cardSessionIsActivePublisher = Publishers.Merge(cardSessionDidStartPublisher, cardSessionDidFinishPublisher)
+            .removeDuplicates()
+            .prepend(false)
+
         $viewState
             .dropFirst()
-            .combineLatest(userWalletRepository.eventProvider, AppSettings.shared.$marketsTooltipWasShown)
+            .combineLatest(
+                userWalletRepository.eventProvider,
+                AppSettings.shared.$marketsTooltipWasShown,
+                cardSessionIsActivePublisher
+            )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown in
+            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown, cardSessionIsActive in
                 MainActor.assumeIsolated {
-                    self?.updateFloatingSheetPresenterState(viewState, walletRepositoryEvent, marketsTooltipWasShown)
+                    self?.updateFloatingSheetPresenterState(
+                        viewState: viewState,
+                        userWalletRepositoryEvent: walletRepositoryEvent,
+                        marketsTooltipWasShown: marketsTooltipWasShown,
+                        cardSessionIsActive: cardSessionIsActive
+                    )
                 }
             }
             .store(in: &bag)
@@ -205,11 +232,12 @@ class AppCoordinator: CoordinatorObject {
 
     @MainActor
     private func updateFloatingSheetPresenterState(
-        _ viewState: ViewState?,
-        _ userWalletRepositoryEvent: UserWalletRepositoryEvent,
-        _ marketsTooltipWasShown: Bool
+        viewState: ViewState?,
+        userWalletRepositoryEvent: UserWalletRepositoryEvent,
+        marketsTooltipWasShown: Bool,
+        cardSessionIsActive: Bool
     ) {
-        guard marketsTooltipWasShown else {
+        guard !cardSessionIsActive, marketsTooltipWasShown else {
             floatingSheetPresenter.pauseSheetsDisplaying()
             return
         }
@@ -224,12 +252,7 @@ class AppCoordinator: CoordinatorObject {
             floatingSheetPresenter.removeAllSheets()
             floatingSheetPresenter.pauseSheetsDisplaying()
 
-        case .scan(let isScanning):
-            isScanning
-                ? floatingSheetPresenter.pauseSheetsDisplaying()
-                : floatingSheetPresenter.resumeSheetsDisplaying()
-
-        case .biometryUnlocked, .inserted, .updated, .deleted, .selected, .replaced:
+        case .unlockedBiometrics, .inserted, .unlocked, .deleted, .selected:
             floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }
@@ -278,7 +301,7 @@ extension AppCoordinator {
 // Navigation
 
 extension AppCoordinator {
-    func openOnboarding(with input: OnboardingInput) {
+    func openOnboarding(with inputOptions: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):
@@ -289,13 +312,24 @@ extension AppCoordinator {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
-        coordinator.start(with: options)
+        coordinator.start(with: inputOptions)
         setState(.onboarding(coordinator))
     }
 
     func openMain(with userWalletModel: UserWalletModel) {
-        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let coordinatorFactory = CommonMainCoordinatorChildFactory()
+        let navigationActionHandler = MainCoordinator.MainNavigationActionHandler()
+        let deeplinkPresenter = CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
+
+        let coordinator = MainCoordinator(
+            coordinatorFactory: coordinatorFactory,
+            navigationActionHandler: navigationActionHandler,
+            deeplinkPresenter: deeplinkPresenter,
+            dismissAction: { _ in },
+            popToRootAction: popToRootAction
+        )
+
+        navigationActionHandler.coordinator = coordinator
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
 

@@ -9,24 +9,15 @@
 import Foundation
 import TangemLocalization
 
-enum CardanoError: String, Error, LocalizedError {
+enum CardanoError: Error, LocalizedError {
     case noUnspents
     case lowAda
+    case derivationPathIsShort
+    case assetNotFound
+    case walletCoreError
+    case feeParametersNotFound
 
     var errorDescription: String? {
-        Localization.genericErrorCode(errorCodeDescription)
-    }
-
-    private var errorCodeDescription: String {
-        return "cardano_error \(errorCode)"
-    }
-
-    private var errorCode: Int {
-        switch self {
-        case .noUnspents:
-            return 1
-        case .lowAda:
-            return 2
-        }
+        Localization.genericErrorCode(errorCode)
     }
 }

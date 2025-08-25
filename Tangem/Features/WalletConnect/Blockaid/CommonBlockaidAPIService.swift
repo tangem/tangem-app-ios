@@ -9,6 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 import BlockchainSdk
+import ReownWalletKit
 
 final class CommonBlockaidAPIService: BlockaidAPIService {
     private let provider: TangemProvider<BlockaidTarget>
@@ -34,32 +35,20 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
 
     func scanEvm(
         address: String?,
-        blockchain: Blockchain,
+        blockchain: BlockchainSdk.Blockchain,
         method: String,
-        transaction: WalletConnectEthTransaction,
+        params: [AnyCodable],
         domain: URL
     ) async throws -> BlockaidDTO.EvmScan.Response {
         guard let blockchain = BlockaidDTO.Chain(blockchain: blockchain) else {
             throw BlockaidAPIServiceError.blockchainIsNotSupported
         }
 
-        guard let value = transaction.value else {
-            throw BlockaidAPIServiceError.missingTransactionValue
-        }
-
-        let params = BlockaidDTO.EvmScan.Request.Params(
-            from: transaction.from,
-            to: transaction.to,
-            data: transaction.data,
-            value: value
-        )
-
         let scanRequest = BlockaidDTO.EvmScan.Request(
             accountAddress: address,
             metadata: .init(domain: domain.absoluteString),
             chain: blockchain,
-            data: .init(params: [params], method: method),
-            block: nil
+            data: .init(params: params, method: method)
         )
 
         return try await request(target: .scanEvm(request: scanRequest))
@@ -73,7 +62,7 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
     ) async throws -> BlockaidDTO.SolanaScan.Response {
         let scanRequest = BlockaidDTO.SolanaScan.Request(
             accountAddress: address,
-            metadata: .init(domain: domain.absoluteString),
+            metadata: .init(url: domain.absoluteString),
             method: method,
             transactions: transactions
         )

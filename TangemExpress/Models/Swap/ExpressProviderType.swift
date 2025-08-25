@@ -15,4 +15,15 @@ public enum ExpressProviderType: String, Hashable, Decodable {
     case onramp
     /// For possible future types
     case unknown
+
+    public var title: String {
+        switch self {
+        case .dex, .cex, .onramp:
+            return rawValue.uppercased()
+        case .unknown:
+            return "unknown"
+        case .dexBridge:
+            return "DEX/Bridge"
+        }
+    }
 }

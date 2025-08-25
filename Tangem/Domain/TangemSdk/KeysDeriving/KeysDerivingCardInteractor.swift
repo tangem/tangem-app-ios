@@ -14,7 +14,7 @@ class KeysDerivingCardInteractor {
     private let filter: SessionFilter
 
     init(with cardInfo: CardInfo) {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
         filter = config.cardSessionFilter
     }
@@ -23,7 +23,7 @@ class KeysDerivingCardInteractor {
 // MARK: - KeysDeriving
 
 extension KeysDerivingCardInteractor: KeysDeriving {
-    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, TangemSdkError>) -> Void) {
+    func deriveKeys(derivations: [Data: [DerivationPath]], completion: @escaping (Result<DerivationResult, Error>) -> Void) {
         let task = DeriveMultipleWalletPublicKeysTask(derivations)
 
         tangemSdk.startSession(

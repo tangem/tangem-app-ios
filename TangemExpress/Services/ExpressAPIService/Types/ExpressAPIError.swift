@@ -22,7 +22,7 @@ public struct ExpressAPIError: Decodable, LocalizedError, Error, Hashable {
     }
 
     public var errorDescription: String? {
-        code?.description ?? description
+        "\(description ?? "Error"). Code: \(errorCode.errorDescription ?? "")"
     }
 }
 

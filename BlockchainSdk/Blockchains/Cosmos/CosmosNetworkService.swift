@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 class CosmosNetworkService: MultiNetworkProvider {
+    let blockchainName: String = Blockchain.cosmos(testnet: false).displayName
     let providers: [CosmosRestProvider]
     var currentProviderIndex: Int = 0
 
@@ -36,7 +37,7 @@ class CosmosNetworkService: MultiNetworkProvider {
                         let self,
                         let sequenceNumber = UInt64(accountInfo?.account.sequence ?? "0")
                     else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     let accountNumber: UInt64?
@@ -88,7 +89,7 @@ class CosmosNetworkService: MultiNetworkProvider {
                 .map(\.gasInfo.gasUsed)
                 .tryMap {
                     guard let gasUsed = UInt64($0) else {
-                        throw WalletError.failedToGetFee
+                        throw BlockchainSdkError.failedToGetFee
                     }
 
                     return gasUsed
@@ -103,7 +104,7 @@ class CosmosNetworkService: MultiNetworkProvider {
                 .map(\.txResponse)
                 .tryMap { txResponse in
                     guard txResponse.code == 0 else {
-                        throw WalletError.failedToSendTx
+                        throw BlockchainSdkError.failedToSendTx
                     }
 
                     return txResponse.txhash
@@ -118,7 +119,7 @@ class CosmosNetworkService: MultiNetworkProvider {
             .setFailureType(to: Error.self)
             .flatMap { [weak self] token -> AnyPublisher<(Token, Decimal), Error> in
                 guard let self = self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
 
                 return cw20TokenBalance(walletAddress: walletAddress, token: token)
@@ -133,16 +134,15 @@ class CosmosNetworkService: MultiNetworkProvider {
     private func cw20TokenBalance(walletAddress: String, token: Token) -> AnyPublisher<(Token, Decimal), Error> {
         let request = CosmosCW20BalanceRequest(address: walletAddress)
         guard let query = try? JSONEncoder().encode(request) else {
-            return .anyFail(error: WalletError.failedToParseNetworkResponse())
+            return .anyFail(error: BlockchainSdkError.failedToParseNetworkResponse())
         }
 
         return providerPublisher {
             $0.querySmartContract(contractAddress: token.contractAddress, query: query)
                 .tryMap {
                     (result: CosmosCW20QueryResult<CosmosCW20QueryBalanceData>) -> (Token, Decimal) in
-
                     guard let balanceInSmallestDenomination = Decimal(string: result.data.balance) else {
-                        throw WalletError.failedToParseNetworkResponse()
+                        throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     let balance = balanceInSmallestDenomination / token.decimalValue
@@ -158,7 +158,7 @@ class CosmosNetworkService: MultiNetworkProvider {
             .setFailureType(to: Error.self)
             .flatMap { [weak self] hash -> AnyPublisher<String?, Error> in
                 guard let self = self else {
-                    return .anyFail(error: WalletError.empty)
+                    return .anyFail(error: BlockchainSdkError.empty)
                 }
                 return transactionConfirmed(hash, with: provider)
             }
@@ -181,7 +181,7 @@ class CosmosNetworkService: MultiNetworkProvider {
                 }
             }
             .tryCatch { error -> AnyPublisher<String?, Error> in
-                if case WalletError.failedToParseNetworkResponse = error {
+                if case BlockchainSdkError.failedToParseNetworkResponse = error {
                     return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
                 }
                 throw error
@@ -195,7 +195,7 @@ class CosmosNetworkService: MultiNetworkProvider {
         }
 
         guard let balanceInSmallestDenomination = Int(balanceAmountString) else {
-            throw WalletError.failedToParseNetworkResponse()
+            throw BlockchainSdkError.failedToParseNetworkResponse()
         }
 
         return Decimal(balanceInSmallestDenomination) / decimalValue

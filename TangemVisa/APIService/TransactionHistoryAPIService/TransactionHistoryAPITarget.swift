@@ -15,7 +15,7 @@ struct TransactionHistoryAPITarget: TargetType {
     let apiType: VisaAPIType
 
     var baseURL: URL {
-        apiType.baseURL.appendingPathComponent("product_instance/")
+        apiType.baseURL.appendingPathComponent("customer/")
     }
 
     var path: String {
@@ -36,7 +36,7 @@ struct TransactionHistoryAPITarget: TargetType {
         switch target {
         case .txHistoryPage(let request):
             let requestParams = [
-                VisaConstants.customerIdKey: request.customerId,
+                VisaConstants.cardIdKey: request.cardId,
                 VisaConstants.productInstanceIdKey: request.productInstanceId,
                 ParameterKey.offset.rawValue: "\(request.offset)",
                 ParameterKey.limit.rawValue: "\(request.numberOfItems)",

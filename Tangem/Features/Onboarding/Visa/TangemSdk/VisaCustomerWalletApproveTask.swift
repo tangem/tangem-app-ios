@@ -9,6 +9,8 @@
 import Foundation
 import TangemSdk
 import TangemVisa
+import TangemFoundation
+import TangemNetworkUtils
 
 class VisaCustomerWalletApproveTask: CardSessionRunnable {
     typealias TaskResult = CompletionResult<VisaSignedApproveResponse>
@@ -50,7 +52,7 @@ class VisaCustomerWalletApproveTask: CardSessionRunnable {
 private extension VisaCustomerWalletApproveTask {
     func proceedApprove(card: Card, in session: CardSession, completion: @escaping TaskResult) {
         let cardDTO = CardDTO(card: card)
-        let config = UserWalletConfigFactory(CardInfo(card: cardDTO, walletData: .none, name: "")).makeConfig()
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: CardInfo(card: cardDTO, walletData: .none, associatedCardIds: []))
 
         guard let derivationStyle = config.derivationStyle else {
             proceedApproveWithLegacyCard(card: card, in: session, completion: completion)
@@ -157,7 +159,7 @@ private extension VisaCustomerWalletApproveTask {
     }
 
     func scanCard(signedResponse: VisaSignedApproveResponse, in session: CardSession, completion: @escaping TaskResult) {
-        let scanTask = ScanTask()
+        let scanTask = ScanTask(networkService: .init(session: TangemTrustEvaluatorUtil.sharedSession, additionalHeaders: DeviceInfo().asHeaders()))
 
         scanTask.run(in: session) { result in
             switch result {

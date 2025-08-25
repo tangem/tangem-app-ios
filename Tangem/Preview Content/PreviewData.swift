@@ -9,12 +9,13 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 /// Should be wrapped in DEBUG
 enum PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
@@ -26,7 +27,7 @@ enum PreviewData {
 
     static var previewTwinOnboardingInput: OnboardingInput {
         .init(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
@@ -45,7 +46,7 @@ enum PreviewData {
 
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(
-            backupService: .init(sdk: .init()),
+            backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
             primaryCardId: "",
             cardInitializer: nil,
             pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),

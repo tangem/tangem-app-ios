@@ -14,19 +14,19 @@ import SwiftUI
 class SendDestinationStep {
     private let viewModel: SendDestinationViewModel
     private let interactor: SendDestinationInteractor
-    private let sendFeeInteractor: SendFeeInteractor
-    private let tokenItem: TokenItem
+    private let sendFeeProvider: SendFeeProvider
+    private let analyticsLogger: SendDestinationAnalyticsLogger
 
     init(
         viewModel: SendDestinationViewModel,
         interactor: any SendDestinationInteractor,
-        sendFeeInteractor: any SendFeeInteractor,
-        tokenItem: TokenItem
+        sendFeeProvider: any SendFeeProvider,
+        analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeInteractor = sendFeeInteractor
-        self.tokenItem = tokenItem
+        self.sendFeeProvider = sendFeeProvider
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(stepRouter: SendDestinationStepRoutable) {
@@ -43,6 +43,7 @@ extension SendDestinationStep: SendStep {
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
     var navigationTrailingViewType: SendStepNavigationTrailingViewType? {
         .qrCodeButton { [weak self] in
             self?.viewModel.scanQRCode()
@@ -54,13 +55,11 @@ extension SendDestinationStep: SendStep {
     }
 
     func initialAppear() {
-        Analytics.log(.sendAddressScreenOpened)
+        analyticsLogger.logDestinationStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
-        if step.type.isSummary {
-            Analytics.log(.sendScreenReopened, params: [.source: .address])
-        }
+        step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
     }
 
     func willDisappear(next step: SendStep) {
@@ -68,6 +67,6 @@ extension SendDestinationStep: SendStep {
             return
         }
 
-        sendFeeInteractor.updateFees()
+        sendFeeProvider.updateFees()
     }
 }

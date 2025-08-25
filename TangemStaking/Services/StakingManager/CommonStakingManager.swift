@@ -65,7 +65,7 @@ extension CommonStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
         await updateState(.loading)
         do {
-            async let balances = provider.balances(wallet: wallet)
+            async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = provider.yield(integrationId: integrationId)
             async let actions = loadActions ? provider.actions(wallet: wallet) : []
             try await updateState(state(balances: balances, yield: yield, actions: actions))

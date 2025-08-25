@@ -13,12 +13,16 @@ import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
 class WalletConnectV2SendTransactionHandler {
-    private let wcTransaction: WalletConnectEthTransaction
+    private var wcTransaction: WalletConnectEthTransaction
+    private var sendableTransaction: WCSendableTransaction?
     private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
+    private let newEthTransactionBuilder: WCNewEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let transactionDispatcher: TransactionDispatcher
+    private let request: AnyCodable
+    private let encoder = JSONEncoder()
 
     private var transactionToSend: Transaction?
 
@@ -26,6 +30,7 @@ class WalletConnectV2SendTransactionHandler {
         requestParams: AnyCodable,
         blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
+        newEthTransactionBuilder: WCNewEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
@@ -47,12 +52,24 @@ class WalletConnectV2SendTransactionHandler {
 
         self.messageComposer = messageComposer
         self.transactionBuilder = transactionBuilder
+        self.newEthTransactionBuilder = newEthTransactionBuilder
         self.uiDelegate = uiDelegate
         transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        request = requestParams
     }
 }
 
-extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
+extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WCTransactionUpdatable {
+    var method: WalletConnectMethod { .sendTransaction }
+
+    var requestData: Data {
+        return (try? encoder.encode(wcTransaction)) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
+    }
+
     var event: WalletConnectEvent { .sendTx }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
@@ -64,6 +81,12 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
+            let transaction = try await newEthTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
+            transactionToSend = transaction
+        }
+
         guard let transaction = transactionToSend else {
             throw WalletConnectV2Error.missingTransaction
         }
@@ -72,15 +95,28 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceWalletConnect.rawValue,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
         ])
 
-        uiDelegate.showScreen(with: .init(
-            event: .success,
-            message: Localization.sendTransactionSuccess,
-            approveAction: {}
-        ))
+        if !FeatureProvider.isAvailable(.walletConnectUI) {
+            uiDelegate.showScreen(with: .init(
+                event: .success,
+                message: Localization.sendTransactionSuccess,
+                approveAction: {}
+            ))
+        }
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
+    }
+
+    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
+        wcTransaction = updatedTransaction
+        transactionToSend = nil
+    }
+
+    func updateSendableTransaction(_ updatedSendableTransaction: WCSendableTransaction) {
+        sendableTransaction = updatedSendableTransaction
     }
 }

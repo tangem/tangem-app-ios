@@ -48,11 +48,11 @@ class CommonSendNotificationManager {
 
 private extension CommonSendNotificationManager {
     func bind(input: SendNotificationManagerInput) {
-        input.feeValues
-            .filter { !$0.contains { $0.value.isLoading } }
+        input.selectedFeePublisher
+            .filter { !$0.value.isLoading }
             .withWeakCaptureOf(self)
-            .sink { manager, feeValues in
-                manager.updateNetworkFeeUnreachable(errors: feeValues.compactMap(\.value.error))
+            .sink { manager, fee in
+                manager.updateNetworkFeeUnreachable(error: fee.value.error)
             }
             .store(in: &bag)
 
@@ -102,24 +102,9 @@ private extension CommonSendNotificationManager {
 // MARK: - Fee
 
 private extension CommonSendNotificationManager {
-    func updateNetworkFeeUnreachable(errors: [Error]) {
-        if !errors.isEmpty {
-            if let oneSuiCoinRequiredError = errors.first(where: { ($0 as? SuiError) == .oneSuiCoinIsRequiredForTokenTransaction }) {
-                updateNotification(error: oneSuiCoinRequiredError)
-                return
-            }
-
-            let hasActivationError = errors.contains { error in
-                if case WalletError.accountNotActivated = error {
-                    return true
-                }
-                return false
-            }
-            let notification: SendNotificationEvent = hasActivationError
-                ? .accountNotActivated(assetName: tokenItem.name)
-                : .networkFeeUnreachable
-            show(notification: notification)
-        } else {
+    func updateNetworkFeeUnreachable(error: Error?) {
+        switch error {
+        case .none:
             hideAllNotification { event in
                 if case .networkFeeUnreachable = event {
                     return true
@@ -127,6 +112,12 @@ private extension CommonSendNotificationManager {
 
                 return false
             }
+        case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
+            updateNotification(error: error)
+        case .some(BlockchainSdkError.accountNotActivated):
+            show(notification: .accountNotActivated(assetName: tokenItem.name))
+        case .some:
+            show(notification: .networkFeeUnreachable)
         }
     }
 
@@ -231,6 +222,20 @@ private extension CommonSendNotificationManager {
 // MARK: - ValidationError
 
 private extension CommonSendNotificationManager {
+    func shouldShowWithdrawal(notification: WithdrawalNotificationEvent) -> Bool {
+        switch notification {
+        case .cardanoWillBeSendAlongToken, .reduceAmountBecauseFeeIsTooHigh:
+            return true
+        case .tronWillBeSendTokenFeeDescription:
+            if AppSettings.shared.tronWarningWithdrawTokenDisplayed < 3 {
+                AppSettings.shared.tronWarningWithdrawTokenDisplayed += 1
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+
     func updateWithdrawalNotification(notification: WithdrawalNotification?) {
         switch notification {
         case .none:
@@ -244,6 +249,11 @@ private extension CommonSendNotificationManager {
         case .some(let suggestion):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
             let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(suggestion)
+
+            guard shouldShowWithdrawal(notification: withdrawalNotification) else {
+                return
+            }
+
             show(notification: .withdrawalNotificationEvent(withdrawalNotification))
         }
     }
@@ -257,7 +267,8 @@ private extension CommonSendNotificationManager {
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             switch validationErrorEvent {
-            case .remainingAmountIsLessThanRentExemption:
+            case .remainingAmountIsLessThanRentExemption,
+                 .sendingAmountIsLessThanRentExemption:
                 hideFeeWillBeSubtractedNotification()
                 fallthrough
             case .dustRestriction,
@@ -272,7 +283,8 @@ private extension CommonSendNotificationManager {
                  .koinosInsufficientBalanceToSendKoin,
                  .insufficientAmountToReserveAtDestination,
                  .minimumRestrictAmount,
-                 .destinationMemoRequired:
+                 .destinationMemoRequired,
+                 .noTrustlineAtDestination:
                 show(notification: .validationErrorEvent(validationErrorEvent))
             case .invalidNumber:
                 hideAllValidationErrorEvent()
