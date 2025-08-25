@@ -14,37 +14,32 @@ struct NFTNetworkSelectionListDataSourceMock: NFTNetworkSelectionListDataSource 
             .init(
                 nftChain: .polygon(isTestnet: false),
                 isCustom: false,
-                displayName: "Polygon",
                 underlyingIdentifier: nil
             ),
             .init(
                 nftChain: .ethereum(isTestnet: false),
                 isCustom: false,
-                displayName: "Ethereum",
                 underlyingIdentifier: nil
             ),
             .init(
                 nftChain: .solana,
                 isCustom: false,
-                displayName: "Solana",
                 underlyingIdentifier: nil
             ),
             .init(
                 nftChain: .solana,
                 isCustom: true,
-                displayName: "Solana",
                 underlyingIdentifier: nil
             ),
             .init(
-                nftChain: .arbitrum,
+                nftChain: .arbitrum(isTestnet: false),
                 isCustom: false,
-                displayName: "Arbitrum",
                 underlyingIdentifier: nil
             ),
         ]
     }
 
     func isSupportedChainAvailable(_ nftChainItem: NFTChainItem) -> Bool {
-        return nftChainItem.nftChain != .arbitrum
+        return nftChainItem.nftChain != .arbitrum(isTestnet: false)
     }
 }

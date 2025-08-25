@@ -12,13 +12,15 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
+    @Injected(\.wcService) private var wcService: WCService
 
     // MARK: - ViewState
 
@@ -40,9 +42,6 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
-    private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
-    private var shouldRecreatePagesAfterAddingPendingWalletModels = false
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
@@ -115,17 +114,14 @@ final class MainViewModel: ObservableObject {
             Analytics.log(.mainScreenOpened)
         }
 
-        addPendingUserWalletModelsIfNeeded { [weak self] in
-            self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
-        }
-
+        swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
     }
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
-        incomingActionManager.resignFirstResponder(self)
         swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
+        coordinator?.resignHandlingIncomingActions()
     }
 
     /// Handles `UIKit.UIViewController.viewDidAppear(_:)`.
@@ -133,17 +129,6 @@ final class MainViewModel: ObservableObject {
         // The application is already in a locked state, so no attempts to show bottom sheet should be made
         guard !isLoggingOut else {
             return
-        }
-
-        if isReferralProgramSupported() {
-            let hasReferralNavigationAction = incomingActionManager.hasReferralNavigationAction()
-
-            incomingActionManager.becomeFirstResponder(self)
-
-            // skip bottom sheet display in case of referral navigation
-            guard !hasReferralNavigationAction else {
-                return
-            }
         }
 
         let uiManager = mainBottomSheetUIManager
@@ -159,6 +144,8 @@ final class MainViewModel: ObservableObject {
         } else {
             uiManager.show()
         }
+
+        coordinator?.beginHandlingIncomingActions()
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
@@ -220,7 +207,7 @@ final class MainViewModel: ObservableObject {
             return
         }
 
-        userWalletRepository.delete(userWalletModel.userWalletId)
+        userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
 
         if userWalletRepository.models.isEmpty {
             coordinator?.popToRoot()
@@ -229,70 +216,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - User wallets pages management
 
-    /// Marks the given user wallet as 'dirty' (needs to be updated).
-    private func setNeedsUpdateUserWallet(_ userWalletId: UserWalletId) {
-        pendingUserWalletIdsToUpdate.insert(userWalletId)
-    }
-
-    /// Checks if the given user wallet is 'dirty' (needs to be updated).
-    private func userWalletAwaitsPendingUpdate(_ userWalletId: UserWalletId) -> Bool {
-        return pendingUserWalletIdsToUpdate.contains(userWalletId)
-    }
-
-    /// Postpones the creation of a new page for a given user wallet model if its
-    /// user wallet is marked for update. Otherwise, the new page is added immediately.
-    private func processUpdatedUserWallet(_ userWalletId: UserWalletId) {
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
-            return
-        }
-
-        if userWalletAwaitsPendingUpdate(userWalletId) {
-            pendingUserWalletModelsToAdd.append(userWalletModel)
-        } else {
-            addNewPage(for: userWalletModel)
-        }
-    }
-
-    /// Adds new pages for pending user wallet models and performs the required clean-up
-    /// of 'dirty' (need to be updated) user wallets.
-    private func addPendingUserWalletModelsIfNeeded(completion: @escaping () -> Void) {
-        if pendingUserWalletModelsToAdd.isEmpty {
-            completion()
-            return
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pendingWalletsInsertionDelay) { [weak self] in
-            defer { completion() }
-
-            guard let self = self else { return }
-
-            let userWalletModels = pendingUserWalletModelsToAdd
-            pendingUserWalletModelsToAdd.removeAll()
-
-            var processedUserWalletIds: Set<UserWalletId> = []
-            for userWalletModel in userWalletModels {
-                processedUserWalletIds.insert(userWalletModel.userWalletId)
-                addNewPage(for: userWalletModel)
-            }
-            pendingUserWalletIdsToUpdate.subtract(processedUserWalletIds)
-
-            if shouldRecreatePagesAfterAddingPendingWalletModels {
-                shouldRecreatePagesAfterAddingPendingWalletModels = false
-                recreatePages()
-            }
-        }
-    }
-
     private func addNewPage(for userWalletModel: UserWalletModel) {
-        // [REDACTED_TODO_COMMENT]
-        // We need this check to prevent adding new pages after each
-        // UserWalletModel update in `CommonUserWalletRepository`.
-        // The problem itself not in `update` event from repository but
-        // in `inserted` event, which is sending `UserWallet` instead of `UserWalletModel`
-        if pages.contains(where: { $0.id == userWalletModel.userWalletId }) {
-            return
-        }
-
         let newPage = mainUserWalletPageBuilderFactory.createPage(
             for: userWalletModel,
             lockedUserWalletDelegate: self,
@@ -310,23 +234,13 @@ final class MainViewModel: ObservableObject {
         pages.removeAll { userWalletIds.contains($0.id) }
 
         guard
-            let newSelectedId = userWalletRepository.selectedUserWalletId,
+            let newSelectedId = userWalletRepository.selectedModel?.userWalletId,
             let index = pages.firstIndex(where: { $0.id == newSelectedId })
         else {
             return
         }
 
         selectedCardIndex = index
-    }
-
-    /// Postpones pages re-creation if a given user wallet is marked for update.
-    /// Otherwise, re-creates pages immediately.
-    private func recreatePagesIfNeeded(for userWalletId: UserWalletId) {
-        if userWalletAwaitsPendingUpdate(userWalletId) {
-            shouldRecreatePagesAfterAddingPendingWalletModels = true
-        } else {
-            recreatePages()
-        }
     }
 
     private func recreatePages() {
@@ -349,10 +263,7 @@ final class MainViewModel: ObservableObject {
                 guard let userWalletId = viewModel.pages[safe: newIndex]?.id else {
                     return
                 }
-                viewModel.userWalletRepository.setSelectedUserWalletId(
-                    userWalletId,
-                    reason: .userSelected
-                )
+                viewModel.userWalletRepository.select(userWalletId: userWalletId)
             }
             .store(in: &bag)
 
@@ -374,14 +285,18 @@ final class MainViewModel: ObservableObject {
                 guard let self else { return }
 
                 switch event {
+                case .unlockedBiometrics:
+                    unlockWalletBottomSheetViewModel = nil
+                    recreatePages()
                 case .locked:
                     isLoggingOut = true
-                case .scan:
-                    break
                 case .inserted(let userWalletId):
-                    setNeedsUpdateUserWallet(userWalletId)
-                case .updated(let userWalletId):
-                    processUpdatedUserWallet(userWalletId)
+                    if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
+                        addNewPage(for: userWalletModel)
+                    }
+                case .unlocked(let userWalletId):
+                    unlockWalletBottomSheetViewModel = nil
+                    userWalletUnlocked(userWalletId: userWalletId)
                 case .deleted(let userWalletIds):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
@@ -390,13 +305,7 @@ final class MainViewModel: ObservableObject {
                     }
                     removePages(with: userWalletIds)
                     swipeDiscoveryHelper.reset()
-                case .selected(let userWallet, let reason):
-                    if reason == .inserted {
-                        recreatePagesIfNeeded(for: userWallet)
-                    }
-                case .replaced(let userWallet):
-                    recreatePagesIfNeeded(for: userWallet)
-                case .biometryUnlocked:
+                case .selected:
                     break
                 }
             }
@@ -405,7 +314,7 @@ final class MainViewModel: ObservableObject {
         // We need to check if some pages are missing body model. This can happen due to not loaded API list
         // In this case we need to recreate this pages after API list loaded and WalletModelsManager publishes list of models
         let indexesToRecreate: [Int] = pages.indexed().compactMap { $1.missingBodyModel ? $0 : nil }
-        if !indexesToRecreate.isEmpty {
+        if indexesToRecreate.isNotEmpty {
             let walletModelPublishers = indexesToRecreate.map { userWalletRepository.models[$0].walletModelsManager.walletModelsPublisher }
             walletModelPublishers.combineLatest()
                 .combineLatest(apiListProvider.apiListPublisher)
@@ -448,6 +357,40 @@ final class MainViewModel: ObservableObject {
                 }
                 .store(in: &bag)
         }
+
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.transactionRequestPublisher
+                .receiveOnMain()
+                .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+                    MainActor.assumeIsolated {
+                        switch transactionHandleResult {
+                        case .success(let transactionData):
+                            let sheetViewModel = WCTransactionViewModel(
+                                transactionData: transactionData,
+                                feeManager: CommonWCTransactionFeeManager(
+                                    feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: transactionData.dAppData.name)
+                                ),
+                                analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
+                            )
+                            coordinator?.show(floatingSheetViewModel: sheetViewModel)
+
+                        case .failure(let error):
+                            if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
+                               let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
+                                   transactionRequestError,
+                                   closeAction: {
+                                       floatingSheetPresenter.removeActiveSheet()
+                                   }
+                               ) {
+                                coordinator?.show(floatingSheetViewModel: errorViewModel)
+                            } else {
+                                coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
+                            }
+                        }
+                    }
+                }
+                .store(in: &bag)
+        }
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
@@ -456,15 +399,6 @@ final class MainViewModel: ObservableObject {
                 self?.coordinator?.openPushNotificationsAuthorization()
             }
         }
-    }
-
-    private func isReferralProgramSupported() -> Bool {
-        guard let userWalletModel = userWalletRepository.selectedModel,
-              !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
-            return false
-        }
-
-        return true
     }
 }
 
@@ -480,13 +414,12 @@ extension MainViewModel: MainLockedUserWalletDelegate {
 }
 
 extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
-    func unlockedWithBiometry() {
-        unlockWalletBottomSheetViewModel = nil
-        recreatePages()
-    }
+    func userWalletUnlocked(userWalletId: UserWalletId) {
+        guard let index = pages.firstIndex(where: { $0.id == userWalletId }) else {
+            return
+        }
 
-    func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
-        guard let index = pages.firstIndex(where: { $0.id == userWalletModel.userWalletId }) else {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
@@ -497,6 +430,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             multiWalletContentDelegate: self,
             nftLifecycleHandler: nftFeatureLifecycleHandler
         )
+
         pages[index] = page
         unlockWalletBottomSheetViewModel = nil
     }
@@ -542,29 +476,6 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
-    }
-}
-
-extension MainViewModel: IncomingActionResponder {
-    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard case .referralProgram = action, let userWalletModel = userWalletRepository.selectedModel else {
-            return false
-        }
-
-        guard isReferralProgramSupported() else {
-            incomingActionManager.discardIncomingAction()
-            return false
-        }
-
-        let input = ReferralInputModel(
-            userWalletId: userWalletModel.userWalletId.value,
-            supportedBlockchains: userWalletModel.config.supportedBlockchains,
-            userTokensManager: userWalletModel.userTokensManager
-        )
-
-        coordinator?.openReferral(input: input)
-
-        return true
     }
 }
 

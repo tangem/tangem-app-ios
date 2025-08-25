@@ -16,6 +16,7 @@ class DetailsCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
     // MARK: - Main view model
 
@@ -62,10 +63,16 @@ extension DetailsCoordinator {
 
 extension DetailsCoordinator: DetailsRoutable {
     func openWalletConnect(with disabledLocalizedReason: String?) {
-        let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
-        coordinator.start(with: options)
-        walletConnectCoordinator = coordinator
+        Task { @MainActor in
+            let coordinator = WalletConnectCoordinator()
+
+            let options = WalletConnectCoordinator.Options(
+                disabledLocalizedReason: disabledLocalizedReason,
+                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
+            )
+            coordinator.start(with: options)
+            walletConnectCoordinator = coordinator
+        }
     }
 
     func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
@@ -88,7 +95,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options.input(input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }

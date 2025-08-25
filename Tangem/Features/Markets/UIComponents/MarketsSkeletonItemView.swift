@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsSkeletonItemView: View {
     private let iconSize = CGSize(bothDimensions: 36)
@@ -31,7 +32,7 @@ struct MarketsSkeletonItemView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 15)
-        .animation(nil) // Disable animations on scroll reuse
+        .disableAnimations() // Disable animations on scroll reuse
     }
 
     private var tokenInfoView: some View {

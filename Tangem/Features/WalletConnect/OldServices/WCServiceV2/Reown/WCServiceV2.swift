@@ -6,96 +6,34 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-import BlockchainSdk
-import TangemFoundation
 import ReownWalletKit
-import TangemLocalization
+import enum BlockchainSdk.Blockchain
+import TangemFoundation
 
 final class WCServiceV2 {
-    // MARK: - Dependencies
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
 
-    @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.keysManager) private var keysManager: KeysManager
+    private var sessionProposalContinuationStorage = SessionProposalContinuationsStorage()
 
-    // MARK: - Public properties
-
-    var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        canEstablishNewSessionSubject
-            .eraseToAnyPublisher()
-    }
-
-    var newSessions: AsyncStream<[WalletConnectSavedSession]> {
-        get async {
-            await sessionsStorage.sessions
-        }
-    }
-
-    // MARK: - Private properties
-
-    private var selectedWalletId: String?
-    private var currentConnectionProposal: Session.Proposal?
-
-    // MARK: - Subjects
-
-    private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private let selectedWalletIdSubject: PassthroughSubject<String, Never> = .init()
-    private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
+    private let transactionRequestSubject = PassthroughSubject<Result<WCHandleTransactionData, any Error>, Never>()
     private var bag = Set<AnyCancellable>()
 
-    private let utils = WCUtils()
-    private let factory = WalletConnectV2DefaultSocketFactory()
-    private let wcHandlersService: WalletConnectV2HandlersServicing
+    private let walletKitClient: ReownWalletKit.WalletKitClient
+    private let wcHandlersService: WCHandlersService
 
-    init(wcHandlersService: WalletConnectV2HandlersServicing) {
+    var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
+        transactionRequestSubject.eraseToAnyPublisher()
+    }
+
+    init(walletKitClient: WalletKitClient, wcHandlersService: WCHandlersService) {
+        self.walletKitClient = walletKitClient
         self.wcHandlersService = wcHandlersService
 
-        Networking.configure(
-            groupIdentifier: AppEnvironment.current.suiteName,
-            projectId: keysManager.walletConnectProjectId,
-            socketFactory: factory,
-            socketConnectionType: .automatic
-        )
-
-        do {
-            try configureWalletKit()
-        } catch {
-            WCLogger.error(LoggerStrings.walletConnectRedirectFailure, error: error)
-        }
+        guard FeatureProvider.isAvailable(.walletConnectUI) else { return }
 
         bind()
-    }
-
-    func initialize() {
-        TangemFoundation.runTask { [weak self] in
-            await self?.sessionsStorage.loadSessions()
-        }
-    }
-
-    private func configureWalletKit() throws {
-        let metadata = try AppMetadata(
-            name: AppMetadata.tangemAppName,
-            description: AppMetadata.tangemAppDescription,
-            url: AppMetadata.tangemURL,
-            icons: AppMetadata.tangemIconURLs,
-            redirect: AppMetadata.makeTangemAppRedirect()
-        )
-
-        WalletKit.configure(metadata: metadata, crypto: WalletConnectCryptoProvider())
-    }
-}
-
-// MARK: - Update session data
-
-extension WCServiceV2 {
-    func updateConnectionData(userWalletId: String) {
-        selectedWalletIdSubject.send(userWalletId)
-    }
-
-    func updateConnectionData(networks: [BlockchainNetwork]) {
-        selectedNetworksToConnectSubject.send(networks)
     }
 }
 
@@ -103,248 +41,145 @@ extension WCServiceV2 {
 
 private extension WCServiceV2 {
     func bind() {
-        subscribeToSelectedWalletId()
-        subscribeToSelectedNetwork()
         subscribeToWCPublishers()
+        setupMessagesSubscriptions()
     }
 
     func subscribeToWCPublishers() {
-        WalletKit.instance.sessionProposalPublisher
-            .sink { [weak self] sessionProposal, context in
-                WCLogger.info(LoggerStrings.sessionProposal(sessionProposal, context))
-                Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(name: sessionProposal.proposer.name, dAppURL: sessionProposal.proposer.url))
+        walletKitClient
+            .sessionProposalPublisher
+            .sink { [weak self] sessionProposal, verifyContext in
+                WCLogger.info(LoggerStrings.sessionProposal(sessionProposal, verifyContext))
+                Analytics.debugLog(
+                    eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(
+                        name: sessionProposal.proposer.name,
+                        dAppURL: sessionProposal.proposer.url
+                    )
+                )
 
-                guard let selectedWCModelProvider = self?.userWalletRepository.selectedModel?.wcWalletModelProvider else { return }
-
-                self?.validateProposal(sessionProposal, with: selectedWCModelProvider)
-                self?.currentConnectionProposal = sessionProposal
-            }
-            .store(in: &bag)
-
-        WalletKit.instance.sessionSettlePublisher
-            .asyncMap { [weak self] session in
-                guard let self else { return }
-
-                if selectedWalletId == nil {
-                    WCLogger.info(LoggerStrings.noSelectedWallet)
+                Task {
+                    await self?.sessionProposalContinuationStorage.resume(
+                        proposal: sessionProposal,
+                        context: verifyContext,
+                        for: sessionProposal.pairingTopic
+                    )
                 }
-
-                WCLogger.info(LoggerStrings.sessionEstablished(session))
-
-                let savedSession = session.mapToWCSavedSession(with: selectedWalletId ?? "")
-
-                canEstablishNewSessionSubject.send(true)
-
-                WCLogger.info(LoggerStrings.savedSession(savedSession.topic, savedSession.sessionInfo.dAppInfo.url))
-                await sessionsStorage.save(savedSession)
             }
-            .sink()
             .store(in: &bag)
 
-        WalletKit.instance.sessionDeletePublisher
-            .receive(on: DispatchQueue.main)
-            .asyncMap { [weak self] topic, reason in
+        walletKitClient
+            .sessionDeletePublisher
+            .asyncMap { [connectedDAppRepository] topic, reason in
                 WCLogger.info(LoggerStrings.receiveDeleteMessage(topic, reason))
 
-                guard
-                    let self,
-                    let session = await sessionsStorage.session(with: topic)
-                else {
+                do {
+                    try await connectedDAppRepository.deleteDApp(with: topic)
+                    WCLogger.info(LoggerStrings.sessionWasFound(topic))
+                } catch {
                     WCLogger.info(LoggerStrings.receiveDeleteMessageSessionNotFound(topic, reason))
-                    return
                 }
-
-                Analytics.log(
-                    event: .walletConnectDAppDisconnected,
-                    params: [
-                        .dAppName: session.sessionInfo.dAppInfo.name,
-                        .dAppUrl: session.sessionInfo.dAppInfo.url,
-                    ]
-                )
-
-                WCLogger.info(LoggerStrings.sessionWasFound(topic))
-                await sessionsStorage.remove(session)
             }
             .sink()
             .store(in: &bag)
     }
 
-    func subscribeToSelectedNetwork() {
-        selectedNetworksToConnectSubject
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { wcService, selectedNetworks in
-                guard
-                    let currentConnectionProposal = wcService.currentConnectionProposal,
-                    let wcModelProvider = wcService.userWalletRepository.models.first(where: { $0.userWalletId.stringValue == wcService.selectedWalletId }
-                    )?.wcWalletModelProvider
-                else {
-                    return
-                }
+    func setupMessagesSubscriptions() {
+        walletKitClient
+            .sessionRequestPublisher
+            .removeDuplicates { lhs, rhs in
+                lhs.request == rhs.request && lhs.context == rhs.context
+            }
+            .receiveOnMain()
+            .sink { [weak self, walletKitClient] request, context in
 
-                wcService.validateProposal(
-                    currentConnectionProposal,
-                    with: wcModelProvider,
-                    selectedNetworks: selectedNetworks
-                )
+                guard let self else { return }
+
+                WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
+
+                Task {
+                    if Self.checkIfShouldIgnore(transactionRequest: request) {
+                        WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
+                        await self.reject(transactionRequest: request)
+                        return
+                    }
+
+                    let connectedDApp: WalletConnectConnectedDApp
+
+                    do {
+                        connectedDApp = try await self.connectedDAppRepository.getDApp(with: request.topic)
+                    } catch {
+                        let errorMessage = "Session for topic \(request.topic) not found."
+                        WCLogger.error(error: errorMessage)
+                        await self.reject(transactionRequest: request)
+                        self.transactionRequestSubject.send(.failure(error))
+                        return
+                    }
+
+                    do {
+                        let validatedRequest = try self.wcHandlersService.validate(request: request, forConnectedDApp: connectedDApp)
+
+                        let transactionDTO = try self.wcHandlersService.makeHandleTransactionDTO(
+                            from: validatedRequest,
+                            connectedDApp: connectedDApp
+                        )
+
+                        let handleTransactionData = WCHandleTransactionData(
+                            from: transactionDTO,
+                            validatedRequest: validatedRequest,
+                            respond: walletKitClient.respond
+                        )
+
+                        self.transactionRequestSubject.send(.success(handleTransactionData))
+                    } catch {
+                        WCLogger.error("WCHandleTransactionDTO creation failed: ", error: error)
+                        await self.reject(transactionRequest: request)
+
+                        self.transactionRequestSubject.send(.failure(error))
+                        self.logSignatureRequestReceiveFailed(with: error, request: request, connectedDApp: connectedDApp)
+                    }
+                }
             }
             .store(in: &bag)
     }
 
-    func subscribeToSelectedWalletId() {
-        selectedWalletIdSubject
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { wcService, updatedId in
-                guard
-                    let currentConnectionProposal = wcService.currentConnectionProposal,
-                    let wcModelProvider = wcService.userWalletRepository.models.first(where: { $0.userWalletId.stringValue == updatedId })?.wcWalletModelProvider
-                else {
-                    return
-                }
-                wcService.selectedWalletId = updatedId
-                wcService.validateProposal(currentConnectionProposal, with: wcModelProvider)
-            }
-            .store(in: &bag)
+    private static func checkIfShouldIgnore(transactionRequest request: Request) -> Bool {
+        let methodIsNotSupported = WalletConnectMethod(rawValue: request.method) == nil
+        let methodHasWalletPrefix = request.method.hasPrefix("wallet_")
+
+        return methodIsNotSupported && methodHasWalletPrefix
     }
-}
 
-// MARK: - Validate proposal
-
-private extension WCServiceV2 {
-    func validateProposal(
-        _ proposal: Session.Proposal,
-        with wcModelProvider: some WalletConnectWalletModelProvider,
-        selectedNetworks: [BlockchainNetwork] = []
-    ) {
-        WCLogger.info(LoggerStrings.attemptingToApproveSession(proposal))
-
-        guard let selectedWalletId else { return }
-
-        guard DApps.isSupported(proposal.proposer.url) else {
-            //            floatingMessageService.send(.unsupportedDApp)
-            reject(with: proposal)
-            return
-        }
-
-        guard utils.allChainsSupported(in: proposal.requiredNamespaces) else {
-            let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
-            //            floatingMessageService.send(.unsupportedBlockchains(unsupportedBlockchains))
-            reject(with: proposal)
-            return
-        }
-
+    private func reject(transactionRequest: Request) async {
         do {
-            let newSessionsModel = try utils.createNewSessionModel(
-                proposal: proposal,
-                selectedWalletModelProvider: wcModelProvider,
-                selectedUserWalletModelId: selectedWalletId,
-                selectedOptionalNetworks: selectedNetworks
+            try await walletKitClient.respond(
+                topic: transactionRequest.topic,
+                requestId: transactionRequest.id,
+                response: .error(.init(code: 0, message: ""))
             )
-            //            floatingMessageService.send(newSessionsModel)
-            //            log request
-        } catch let error as WalletConnectV2Error {
-            //            floatingMessageService.send(error)
         } catch {
-            WCLogger.error(error: error)
-            //            floatingMessageService.send(.unknown(error.localizedDescription))
+            let errorMessage = "Failed to reject request with topic: \(transactionRequest.topic) for method: \(transactionRequest.method)"
+            WCLogger.error(errorMessage, error: error)
         }
-        canEstablishNewSessionSubject.send(true)
-    }
-}
-
-// MARK: - Connect
-
-extension WCServiceV2 {
-    func openSession(with uri: WalletConnectV2URI, source: Analytics.WalletConnectSessionSource) {
-        // [REDACTED_TODO_COMMENT]
-
-        canEstablishNewSessionSubject.send(false)
-        runTask(withTimeout: 20) { [weak self] in
-            await self?.pairClient(with: uri, source: source)
-        } onTimeout: { [weak self] in
-            // floatingMessageService.send(WalletConnectV2Error.sessionConnetionTimeout)
-            self?.canEstablishNewSessionSubject.send(true)
-        }
-    }
-
-    private func pairClient(with url: WalletConnectURI, source: Analytics.WalletConnectSessionSource) async {
-        WCLogger.info(LoggerStrings.tryingToPairClient(url))
-        Analytics.log(event: .walletConnectSessionInitiated, params: [Analytics.ParameterKey.source: source.rawValue])
-
-        do {
-            try await WalletKit.instance.pair(uri: url)
-
-            try Task.checkCancellation()
-
-            WCLogger.info(LoggerStrings.establishedPair(url))
-
-            // [REDACTED_TODO_COMMENT]
-            DispatchQueue.main.async {
-                Toast(view: SuccessToast(text: Localization.walletConnectToastAwaitingSessionProposal))
-                    .present(
-                        layout: .top(padding: 20),
-                        type: .temporary()
-                    )
-            }
-        } catch {
-            //            floatingMessageService.send(
-            //                WalletConnectV2Error.pairClientError(error.localizedDescription)
-            //            )
-            WCLogger.error(LoggerStrings.failedToConnect(url), error: error)
-            Analytics.log(.walletConnectSessionFailed)
-
-            // Hack to delete the topic from the user default storage inside the WC 2.0 SDK
-            await disconnect(topic: url.topic)
-        }
-        canEstablishNewSessionSubject.send(true)
     }
 }
 
 // MARK: - Disconnect
 
 extension WCServiceV2 {
-    func disconnectSession(with id: Int) async {
-        guard let session = await sessionsStorage.session(with: id) else {
-            WCLogger.error(error: LoggerStrings.failedToFindSession(id))
-            return
-        }
-
-        do {
-            WCLogger.info(LoggerStrings.attemptToDisconnect(session.topic))
-            try await WalletKit.instance.disconnect(topic: session.topic)
-
-            WCLogger.info(LoggerStrings.sessionDisconnected(session.topic))
-            await sessionsStorage.remove(session)
-        } catch {
-            let internalError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-
-            switch internalError {
-            case .sessionForTopicNotFound, .symmetricKeyForTopicNotFound:
-                WCLogger.error(LoggerStrings.failedToRemoveSession(session.topic), error: internalError)
-                await sessionsStorage.remove(session)
-                return
-            default:
-                break
-            }
-
-            WCLogger.error(LoggerStrings.failedToDisconnectSession(session.topic), error: error)
-        }
-    }
-
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
-        TangemFoundation.runTask { [weak self] in
+        runTask { [weak self, walletKitClient] in
             guard let self else { return }
 
-            let removedSessions = await sessionsStorage.removeSessions(for: userWalletId)
+            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletID: userWalletId)) ?? []
 
             await withTaskGroup(of: Void.self) { taskGroup in
-                for session in removedSessions {
+                for dApp in deletedDApps {
                     taskGroup.addTask {
                         do {
-                            try await WalletKit.instance.disconnect(topic: session.topic)
+                            try await walletKitClient.disconnect(topic: dApp.session.topic)
+                            self.logDAppDisconnected(dApp)
                         } catch {
-                            WCLogger.error(LoggerStrings.failedDisconnectSessions(userWalletId), error: error)
+                            WCLogger.error(LoggerStrings.failedToDisconnectSession(dApp.session.topic), error: error)
                         }
                     }
                 }
@@ -352,183 +187,165 @@ extension WCServiceV2 {
         }
     }
 
-    private func disconnect(topic: String) async {
+    func disconnectSession(withTopic topic: String) async throws {
         do {
-            try await WalletKit.instance.disconnect(topic: topic)
+            try await walletKitClient.disconnect(topic: topic)
             WCLogger.info(LoggerStrings.successDisconnectDelete(topic))
         } catch {
             WCLogger.error(LoggerStrings.failedDisconnectDelete(topic), error: error)
+            throw error
+        }
+    }
+
+    func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain) {
+        guard let selectedUserWallet = userWalletRepository.selectedModel else { return }
+
+        Task { [connectedDAppRepository] in
+            let connectedDApps = (try? await connectedDAppRepository.getDApps(for: selectedUserWallet.userWalletId.stringValue)) ?? []
+
+            let dAppsToDisconnect = connectedDApps.filter { dApp in
+                let hasOnlyOneHiddenBlockchain = dApp.dAppBlockchains.count == 1
+                    && dApp.dAppBlockchains[0].blockchain.networkId == blockchain.networkId
+
+                let hasRequiredHiddenBlockchain = dApp.dAppBlockchains
+                    .filter(\.isRequired)
+                    .contains(where: { $0.blockchain.networkId == blockchain.networkId })
+
+                return hasOnlyOneHiddenBlockchain || hasRequiredHiddenBlockchain
+            }
+
+            guard dAppsToDisconnect.isNotEmpty else {
+                return
+            }
+
+            let dAppsToDisconnectNames = dAppsToDisconnect.map(\.dAppData.name).joined(separator: ", ")
+
+            WCLogger.info("\(blockchain.displayName) blockchain causes \(dAppsToDisconnectNames) dApps to be disconnected.")
+
+            async let repositoryTask: Void = connectedDAppRepository.delete(dApps: dAppsToDisconnect)
+
+            async let walletKitTask: Void = withTaskGroup(of: Void.self) { [weak self] taskGroup in
+                for dApp in dAppsToDisconnect {
+                    taskGroup.addTask {
+                        try? await self?.disconnectSession(withTopic: dApp.session.topic)
+                    }
+                }
+            }
+
+            do {
+                try await repositoryTask
+            } catch {
+                WCLogger.error("Persistence update failed caused by hiding \(blockchain.displayName) blockchain.", error: error)
+            }
+
+            await walletKitTask
+            WCLogger.info("\(dAppsToDisconnectNames) dApps disconnect caused by hiding \(blockchain.displayName) blockchain finished.")
         }
     }
 }
 
-// MARK: - Session Actions
+// MARK: - Refac
 
-private extension WCServiceV2 {
-    func accept(with id: String, namespaces: [String: SessionNamespace]) {
-        TangemFoundation.runTask(in: self) { strongSelf in
-            do {
-                WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-                _ = try await WalletKit.instance.approve(proposalId: id, namespaces: namespaces)
-                // log
-            } catch let error as WalletConnectV2Error {
-                //                strongSelf.floatingMessageService.send(error)
-                // log
-            } catch {
-                let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-                //                strongSelf.floatingMessageService.send(error)
-                WCLogger.error(LoggerStrings.failedToApproveSession, error: error)
-                // log
+extension WCServiceV2 {
+    func openSession(with uri: WalletConnectV2URI) async throws -> (Session.Proposal, VerifyContext?) {
+        WCLogger.info(LoggerStrings.tryingToPairClient(uri))
+
+        return try await withCheckedThrowingContinuation { [weak self] continuation in
+            Task {
+                await self?.sessionProposalContinuationStorage.store(continuation: continuation, for: uri.topic)
+
+                do {
+                    try Task.checkCancellation()
+                    try await self?.walletKitClient.pair(uri: uri)
+                    WCLogger.info(LoggerStrings.establishedPair(uri))
+                } catch {
+                    await self?.sessionProposalContinuationStorage.resumeThrowing(error: error, for: uri.topic)
+                    try? await self?.disconnectSession(withTopic: uri.topic)
+                    WCLogger.error(LoggerStrings.failedToConnect(uri), error: error)
+                }
             }
         }
     }
 
-    func reject(with proposal: Session.Proposal) {
-        TangemFoundation.runTask(in: self) { strongSelf in
-            do {
-                try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: .userRejected)
-                WCLogger.info(LoggerStrings.userRejectWC)
-            } catch {
-                WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
-            }
-            strongSelf.canEstablishNewSessionSubject.send(true)
-        }
+    func approveSessionProposal(with proposalID: String, namespaces: [String: SessionNamespace]) async throws -> Session {
+        WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
+        let session = try await walletKitClient.approve(proposalId: proposalID, namespaces: namespaces)
+        WCLogger.info(LoggerStrings.sessionEstablished(session))
+        return session
     }
-}
 
-// MARK: - Handlers
-
-private extension WCServiceV2 {
-    func handle(_ request: Request) async {
-        func respond(with error: WalletConnectV2Error, session: WalletConnectSavedSession?) async {
-            WCLogger.error(error: error)
-
-//            logSignatureRequestEvent(
-//                .walletConnectSignatureRequestFailed,
-//                request: request,
-//                session: session,
-//                error: error
-//            )
-
-            try? await WalletKit.instance.respond(
-                topic: request.topic,
-                requestId: request.id,
-                response: .error(.init(code: 0, message: error.localizedDescription))
-            )
-        }
-
-        let session = await sessionsStorage.session(with: request.topic)
-
-//        logSignatureRequestEvent(
-//            .walletConnectSignatureRequestReceived,
-//            request: request,
-//            session: session,
-//            error: nil
-//        )
-
-        let logSuffix = " for request: \(request.id)"
-        let utils = OldWalletConnectV2Utils()
-
-        guard let session else {
-            WCLogger.warning("Failed to find session in storage \(logSuffix)")
-            await respond(with: .wrongCardSelected, session: nil)
-            return
-        }
-
-        guard let targetBlockchain = utils.createBlockchain(for: request.chainId) else {
-            WCLogger.warning("Failed to create blockchain \(logSuffix)")
-            await respond(with: .missingBlockchains([request.chainId.absoluteString]), session: session)
-            return
-        }
-
-        if userWalletRepository.models.isEmpty {
-            WCLogger.warning("User wallet repository is locked")
-            await respond(with: .userWalletRepositoryIsLocked, session: session)
-            return
-        }
-
-        guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == session.userWalletId }) else {
-            WCLogger.warning("Failed to find target user wallet")
-            await respond(with: .missingActiveUserWalletModel, session: session)
-            return
-        }
-
-        if userWallet.isUserWalletLocked {
-            WCLogger.warning("Attempt to handle message with locked user wallet")
-            await respond(with: .userWalletIsLocked, session: session)
-            return
-        }
-
+    func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws {
         do {
-            let result = try await wcHandlersService.handle(
-                request,
-                from: session.sessionInfo.dAppInfo,
-                blockchainId: targetBlockchain.id,
-                signer: userWallet.signer,
-                walletModelProvider: CommonWalletConnectWalletModelProvider(walletModelsManager: userWallet.walletModelsManager)
-            )
-
-            WCLogger.info("Receive result from user \(result) for \(logSuffix)")
-            try await WalletKit.instance.respond(topic: session.topic, requestId: request.id, response: result)
-
-//            logSignatureRequestEvent(
-//                .walletConnectSignatureRequestHandled,
-//                request: request,
-//                session: session,
-//                error: nil
-//            )
-
-        } catch let error as WalletConnectV2Error {
-            if case .unsupportedWCMethod = error {} else {
-//                floatingMessageService.send(error)
-            }
-            await respond(with: error, session: session)
+            try await walletKitClient.rejectSession(proposalId: proposalID, reason: reason)
+            WCLogger.info(LoggerStrings.userRejectWC)
         } catch {
-            let wcError: WalletConnectV2Error = .unknown(error.localizedDescription)
-//            floatingMessageService.send(wcError)
-            await respond(with: wcError, session: session)
+            WCLogger.error(LoggerStrings.failedToRejectWC, error: error)
+            throw error
         }
+    }
+
+    func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws {
+        try await walletKitClient.update(topic: topic, namespaces: namespaces)
     }
 }
 
-// MARK: - Unsupported dApps
+// MARK: - Analytics
 
-private enum DApps {
-    private static let unsupportedList: [String] = [
-        "dydx.exchange",
-        "pro.apex.exchange",
-        "sandbox.game",
-        "app.paradex.trade",
-    ]
-
-    static func isSupported(_ dAppURL: String) -> Bool {
-        for dApp in unsupportedList {
-            if dAppURL.contains(dApp) {
-                return false
-            }
+extension WCServiceV2 {
+    func logSignatureRequestReceiveFailed(with error: some Error, request: Request, connectedDApp: WalletConnectConnectedDApp) {
+        // [REDACTED_USERNAME], wallet_addEthereumChain and wallet_switchEthereumChain methods are heavily relying on error propagation.
+        // No need to report to analytics services.
+        switch WalletConnectMethod(rawValue: request.method) {
+        case .addChain, .switchChain:
+            return
+        default:
+            break
         }
 
-        return true
+        let blockchainName = WalletConnectBlockchainMapper.mapToDomain(request.chainId)?.displayName ?? request.chainId.absoluteString
+
+        let params: [Analytics.ParameterKey: String] = [
+            .methodName: request.method,
+            .walletConnectDAppName: connectedDApp.dAppData.name,
+            .walletConnectDAppUrl: connectedDApp.dAppData.domain.absoluteString,
+            .walletConnectBlockchain: blockchainName,
+            .errorCode: "\(error.universalErrorCode)",
+        ]
+
+        Analytics.log(event: .walletConnectSignatureRequestReceivedFailure, params: params)
     }
-}
 
-// MARK: - Constants
-
-private extension AppMetadata {
-    static let tangemAppName: String = "Tangem iOS"
-
-    static let tangemAppDescription: String = "Tangem is a card-shaped self-custodial cold hardware wallet"
-
-    static let tangemURL: String = "https://tangem.com"
-
-    static let tangemIconURLs = [
-        "https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png",
-    ]
-
-    static func makeTangemAppRedirect() throws -> AppMetadata.Redirect {
-        try AppMetadata.Redirect(
-            native: IncomingActionConstants.universalLinkScheme,
-            universal: IncomingActionConstants.tangemDomain
+    func logDAppDisconnected(_ dApp: WalletConnectConnectedDApp) {
+        Analytics.log(
+            event: .walletConnectDAppDisconnected,
+            params: [
+                .walletConnectDAppName: dApp.dAppData.name,
+                .walletConnectDAppUrl: dApp.dAppData.domain.absoluteString,
+            ]
         )
+    }
+}
+
+// MARK: - Session.Proposal continuations storage
+
+extension WCServiceV2 {
+    private actor SessionProposalContinuationsStorage {
+        typealias ProposalWithContext = (Session.Proposal, VerifyContext?)
+
+        private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
+
+        func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic] = continuation
+        }
+
+        func resume(proposal: Session.Proposal, context: VerifyContext?, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic]??.resume(returning: (proposal: proposal, context: context))
+            pairingTopicToSessionProposalContinuation[topic] = nil
+        }
+
+        func resumeThrowing(error: some Error, for topic: String) {
+            pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: error)
+            pairingTopicToSessionProposalContinuation[topic] = nil
+        }
     }
 }

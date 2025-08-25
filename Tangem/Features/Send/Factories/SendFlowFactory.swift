@@ -31,10 +31,63 @@ struct SendFlowFactory {
         let baseBuilder = SendFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,
+            sendSummaryStepBuilder: sendSummaryStepBuilder,
+            sendFinishStepBuilder: sendFinishStepBuilder,
+            builder: builder
+        )
+
+        return baseBuilder.makeSendViewModel(router: router)
+    }
+
+    func makeNFTSendViewModel(parameters: SendParameters.NonFungibleTokenParameters, router: SendRoutable) -> SendViewModel {
+        let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
+        let sendDestinationStepBuilder = SendDestinationStepBuilder(walletModel: walletModel, builder: builder)
+        let sendAmountStepBuilder = NFTSendAmountStepBuilder(
+            walletModel: walletModel,
+            builder: builder,
+            asset: parameters.asset,
+            collection: parameters.collection
+        )
+        let sendFeeStepBuilder = SendFeeStepBuilder(walletModel: walletModel, builder: builder)
+        let sendSummaryStepBuilder = SendSummaryStepBuilder(walletModel: walletModel, builder: builder)
+        let sendFinishStepBuilder = SendFinishStepBuilder(walletModel: walletModel)
+
+        let baseBuilder = NFTSendFlowBaseBuilder(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            coordinatorSource: source,
+            sendAmountStepBuilder: sendAmountStepBuilder,
+            sendDestinationStepBuilder: sendDestinationStepBuilder,
+            sendFeeStepBuilder: sendFeeStepBuilder,
+            sendSummaryStepBuilder: sendSummaryStepBuilder,
+            sendFinishStepBuilder: sendFinishStepBuilder,
+            builder: builder
+        )
+
+        return baseBuilder.makeSendViewModel(router: router)
+    }
+
+    func makeNewSendViewModel(router: SendRoutable) -> SendViewModel {
+        let builder = SendDependenciesBuilder(userWalletModel: userWalletModel, walletModel: walletModel)
+        let sendDestinationStepBuilder = SendNewDestinationStepBuilder(builder: builder)
+        let sendAmountStepBuilder = SendNewAmountStepBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        let sendFeeStepBuilder = SendNewFeeStepBuilder(feeTokenItem: walletModel.feeTokenItem, builder: builder)
+        let swapProvidersBuilder = SendSwapProvidersBuilder(tokenItem: walletModel.tokenItem, builder: builder)
+        let sendSummaryStepBuilder = SendNewSummaryStepBuilder(tokenItem: walletModel.tokenItem, builder: builder)
+        let sendFinishStepBuilder = SendNewFinishStepBuilder()
+
+        let baseBuilder = NewSendFlowBaseBuilder(
+            userWalletModel: userWalletModel,
+            walletModel: walletModel,
+            coordinatorSource: source,
+            sendAmountStepBuilder: sendAmountStepBuilder,
+            sendDestinationStepBuilder: sendDestinationStepBuilder,
+            sendFeeStepBuilder: sendFeeStepBuilder,
+            swapProvidersBuilder: swapProvidersBuilder,
             sendSummaryStepBuilder: sendSummaryStepBuilder,
             sendFinishStepBuilder: sendFinishStepBuilder,
             builder: builder
@@ -54,7 +107,7 @@ struct SendFlowFactory {
         let baseBuilder = SellFlowBaseBuilder(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            source: source,
+            coordinatorSource: source,
             sendDestinationStepBuilder: sendDestinationStepBuilder,
             sendAmountStepBuilder: sendAmountStepBuilder,
             sendFeeStepBuilder: sendFeeStepBuilder,

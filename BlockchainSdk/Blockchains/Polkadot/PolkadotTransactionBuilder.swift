@@ -10,13 +10,14 @@ import Foundation
 import Combine
 import ScaleCodec
 import TangemFoundation
+import Sodium
+import BigInt
 
 class PolkadotTransactionBuilder {
     private let walletPublicKey: Data
     private let blockchain: Blockchain
     private let network: PolkadotNetwork
     private let runtimeVersionProvider: SubstrateRuntimeVersionProvider
-    private let codec = SCALE.default
 
     /**
      Polkadot and Kusama indexes are taken from TrustWallet:
@@ -72,8 +73,8 @@ class PolkadotTransactionBuilder {
         message.append(try encodeCall(amount: amount, destination: destination, rawAddress: rawAddress))
         message.append(try encodeEraNonceTip(era: meta.era, nonce: meta.nonce, tip: 0))
         message.append(try encodeCheckMetadataHashExtensionModeIfNeeded(runtimeVersion: runtimeVersion))
-        message.append(try codec.encode(meta.specVersion))
-        message.append(try codec.encode(meta.transactionVersion))
+        message.append(try encode(meta.specVersion))
+        message.append(try encode(meta.transactionVersion))
         message.append(Data(hexString: meta.genesisHash))
         message.append(Data(hexString: meta.blockHash))
         message.append(try encodeCheckMetadataHashExtensionPayloadIfNeeded(runtimeVersion: runtimeVersion))
@@ -119,8 +120,9 @@ class PolkadotTransactionBuilder {
         call.append(addressBytes)
 
         let decimalValue = amount.value * blockchain.decimalValue
-        let intValue = BigUInt((decimalValue.rounded() as NSDecimalNumber).uint64Value)
-        call.append(try codec.encode(intValue, .compact))
+        let uintValue = (decimalValue.rounded() as NSDecimalNumber).uint64Value
+
+        call.append(try encode(uintValue, .compact))
 
         return call
     }
@@ -148,10 +150,10 @@ class PolkadotTransactionBuilder {
         let encodedEra = encodeEra(era)
         data.append(encodedEra)
 
-        let nonce = try codec.encode(nonce, .compact)
+        let nonce = try encode(nonce, .compact)
         data.append(nonce)
 
-        let tipData = try codec.encode(BigUInt(tip), .compact)
+        let tipData = try encode(tip, .compact)
         data.append(tipData)
 
         return data
@@ -173,7 +175,7 @@ class PolkadotTransactionBuilder {
 
     private func messageLength(_ message: Data) throws -> Data {
         let length = UInt64(message.count)
-        let encoded = try codec.encode(length, .compact)
+        let encoded = try encode(length, .compact)
         return encoded
     }
 
@@ -186,7 +188,7 @@ class PolkadotTransactionBuilder {
         case .v15:
             // Encoding `CheckMetadataHash::Mode` for runtime extension `CheckMetadataHash`
             // `CheckMetadataHash::Mode` is actually an enum (`Mode.Disabled`/`Mode.Enabled`), but encoded as uint8
-            let checkMetadataHashMode = try codec.encode(UInt8(0), .compact)
+            let checkMetadataHashMode = try encode(UInt8(0), .compact)
             data.append(checkMetadataHashMode)
         }
 
@@ -205,7 +207,7 @@ class PolkadotTransactionBuilder {
         case .v15:
             // Since we explicitly disabled `CheckMetadataHash` runtime extension (`Mode.Disabled`) on the client side -
             // no actual payload is constructed and null is encoded instead
-            let checkMetadataHashPayload = try codec.encode(UInt8(0), .compact)
+            let checkMetadataHashPayload = try encode(UInt8(0), .compact)
             data.append(checkMetadataHashPayload)
         }
 

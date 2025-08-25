@@ -70,12 +70,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
 
         let referralNotificationController = CommonReferralNotificationController(userWalletModel: model)
+        let hotNotificationsManager = CommonHotNotificationsManager(userWalletModel: model)
 
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
             rateAppController: rateAppController,
             contextDataProvider: model,
-            referralNotificationController: referralNotificationController
+            referralNotificationController: referralNotificationController,
+            hotNotificationsManager: hotNotificationsManager
         )
 
         if model.isUserWalletLocked {
@@ -85,7 +87,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 bodyModel: .init(
                     userWalletModel: model,
                     isMultiWallet: isMultiWalletPage,
-                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                    lockedUserWalletDelegate: lockedUserWalletDelegate,
+                    coordinator: coordinator
                 )
             )
         }
@@ -210,7 +213,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 bodyModel: .init(
                     userWalletModel: visaUserWalletModel,
                     isMultiWallet: false,
-                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                    lockedUserWalletDelegate: lockedUserWalletDelegate,
+                    coordinator: coordinator
                 )
             )
         }

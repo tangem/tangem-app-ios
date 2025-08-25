@@ -23,8 +23,10 @@ struct RestakingFlowBaseBuilder {
     func makeSendViewModel(manager: some StakingManager, action: RestakingModel.Action? = nil, router: SendRoutable) -> SendViewModel {
         // no pending action == full balance staking
         let action = action ?? builder.makeStakeAction()
+        let actionType = builder.sendFlowActionType(actionType: action.displayType)
+        let analyticsLogger = builder.makeStakingSendAnalyticsLogger(actionType: actionType)
 
-        let restakingModel = builder.makeRestakingModel(stakingManager: manager, action: action)
+        let restakingModel = builder.makeRestakingModel(stakingManager: manager, analyticsLogger: analyticsLogger, action: action)
         let notificationManager = builder.makeStakingNotificationManager()
         notificationManager.setup(provider: restakingModel, input: restakingModel)
         notificationManager.setupManager(with: restakingModel)
@@ -32,18 +34,13 @@ struct RestakingFlowBaseBuilder {
         let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: restakingModel)
         sendFeeCompactViewModel.bind(input: restakingModel)
 
-        let actionType = builder.sendFlowActionType(actionType: action.displayType)
-        let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
-            actionType: actionType,
-            stakingValidatorsInput: restakingModel
-        )
-
         let validators = stakingValidatorsStepBuilder.makeRestakingValidatorsStep(
             io: (input: restakingModel, output: restakingModel),
             manager: manager,
             currentValidator: action.validatorInfo,
             actionType: actionType,
-            sendFeeLoader: restakingModel
+            sendFeeProvider: restakingModel,
+            analyticsLogger: analyticsLogger
         )
 
         let validatorsCompact = stakingValidatorsStepBuilder.makeStakingValidatorsCompactViewModel(
@@ -57,16 +54,18 @@ struct RestakingFlowBaseBuilder {
             actionType: actionType,
             descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .noEditable,
+            destinationEditableType: .noEditable,
+            amountEditableType: .noEditable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: validatorsCompact,
-            sendFeeCompactViewModel: sendFeeCompactViewModel
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: restakingModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: .none,
@@ -92,6 +91,7 @@ struct RestakingFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
             dataBuilder: builder.makeStakingBaseDataBuilder(input: restakingModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,

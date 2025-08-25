@@ -141,7 +141,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         tokenSelectorState = .loading
 
         do {
-            try await expressRepository.updatePairs(for: token.walletModel)
+            try await expressRepository.updatePairs(for: token.walletModel.tokenItem.expressCurrency)
 
             destinationTokenSelectorViewModel = makeToSwapTokenSelectorViewModel(
                 from: token,
@@ -244,7 +244,8 @@ private extension ActionButtonsSwapViewModel {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
-                expressRepository: expressRepository
+                expressRepository: expressRepository,
+                userWalletModelConfig: userWalletModel.config
             )
         )
     }

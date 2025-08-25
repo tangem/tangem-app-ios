@@ -51,7 +51,8 @@ public struct TransactionHistoryProviderFactory {
                     networkAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock),
                     networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
                 ],
-                mapper: UTXOTransactionHistoryMapper(blockchain: blockchain)
+                mapper: UTXOTransactionHistoryMapper(blockchain: blockchain),
+                blockchainName: blockchain.displayName
             )
         case .bitcoinCash:
             return UTXOTransactionHistoryProvider(
@@ -59,7 +60,8 @@ public struct TransactionHistoryProviderFactory {
                     networkAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock),
                     networkAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes),
                 ],
-                mapper: UTXOTransactionHistoryMapper(blockchain: blockchain)
+                mapper: UTXOTransactionHistoryMapper(blockchain: blockchain),
+                blockchainName: blockchain.displayName
             )
         case .ethereum,
              .ethereumPoW,

@@ -59,7 +59,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
      */
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
         guard let amountBigIntValue = BigUInt(decimal: ALPH.Constants.dustAmountValue * wallet.blockchain.decimalValue) else {
-            return .anyFail(error: WalletError.failedToGetFee)
+            return .anyFail(error: BlockchainSdkError.failedToGetFee)
         }
 
         return networkService.getFee(
@@ -69,7 +69,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         )
         .withWeakCaptureOf(self)
         .tryMap { manager, gasPrice in
-            let gasAmount = try manager.calculateGasAmount()
+            let gasAmount = try manager.calculateGasAmount(amount: amount)
             let feeDecimalValue = (gasPrice * Decimal(gasAmount)) / manager.wallet.blockchain.decimalValue
 
             let feeAmount = Amount(with: manager.wallet.blockchain, value: feeDecimalValue)
@@ -84,7 +84,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         Result { try transactionBuilder.buildForSign(transaction: transaction) }
             .publisher
-            .mapError { SendTxError(error: $0) }
+            .mapSendTxError()
             .withWeakCaptureOf(self)
             .flatMap { manager, hashForSign -> AnyPublisher<TransactionSendResult, SendTxError> in
                 return signer
@@ -108,7 +108,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         walletManager.wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: transactionHash)
                     }
-                    .eraseSendError()
+                    .mapSendTxError()
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
@@ -138,14 +138,22 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func calculateGasAmount() throws -> Int {
-        let unspents = transactionBuilder.unspents
+    private func calculateGasAmount(amount: Amount) throws -> Int {
+        let unspents = transactionBuilder.getMaxUnspentsToSpend()
 
-        guard !unspents.isEmpty else {
-            throw WalletError.failedToGetFee
+        guard !unspents.isEmpty, let transactionAmount = amount.bigUIntValue else {
+            throw BlockchainSdkError.failedToGetFee
         }
 
-        let inputGas = ALPH.Constants.inputBaseGas * unspents.count
+        let inputs = try ALPH.SelectUtils().getMinimumRequiredUTXOsToSend(
+            unspentOutputs: unspents,
+            transactionAmount: transactionAmount,
+            transactionFeeAmount: .zero,
+            dustValue: ALPH.Constants.dustAmountValue,
+            unspentToAmount: { $0.output.amount.v.decimal ?? .zero }
+        ).get()
+
+        let inputGas = ALPH.Constants.inputBaseGas * inputs.count
         let outputGas = ALPH.Constants.outputBaseGas * 2
         let txGas = inputGas + outputGas + ALPH.Constants.baseGas + ALPH.Constants.p2pkUnlockGas
         let gasAmount = max(ALPH.Constants.minimalGas, txGas)
@@ -159,5 +167,26 @@ class AlephiumWalletManager: BaseManager, WalletManager {
 extension AlephiumWalletManager: DustRestrictable {
     var dustValue: Amount {
         Amount(with: wallet.blockchain, type: .coin, value: ALPH.Constants.dustAmountValue)
+    }
+}
+
+// MARK: - MaximumAmountRestrictable
+
+extension AlephiumWalletManager: MaximumAmountRestrictable {
+    func validateMaximumAmount(amount: Amount, fee: Amount) throws {
+        let maxUnspentsToSpendDecimal = transactionBuilder.getMaxUnspentsToSpendAmount()
+        let maxUnspentsToSpendAmount = maxUnspentsToSpendDecimal / wallet.blockchain.decimalValue
+
+        let amountAvailableToSend = Amount(with: amount, value: maxUnspentsToSpendAmount) - fee
+
+        if amount <= amountAvailableToSend {
+            return
+        }
+
+        throw ValidationError.maximumUTXO(
+            blockchainName: wallet.blockchain.displayName,
+            newAmount: amountAvailableToSend,
+            maxUtxo: transactionBuilder.getMaxUnspentsToSpendCount()
+        )
     }
 }

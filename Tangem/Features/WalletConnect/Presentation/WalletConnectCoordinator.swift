@@ -7,11 +7,9 @@
 //
 
 import SwiftUI
-import protocol TangemUI.FloatingSheetContentViewModel
 
 final class WalletConnectCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    private let moduleFactory = WalletConnectModuleFactory()
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -37,10 +35,13 @@ final class WalletConnectCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: WalletConnectCoordinator.Options) {
+    func start(with options: Options) {
         Task { @MainActor in
             if FeatureProvider.isAvailable(.walletConnectUI) {
-                viewModel = moduleFactory.makeWalletConnectViewModel(coordinator: self)
+                viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(
+                    coordinator: self,
+                    prefetchedConnectedDApps: options.prefetchedConnectedDApps
+                )
             } else {
                 legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
             }
@@ -51,13 +52,23 @@ final class WalletConnectCoordinator: CoordinatorObject {
 extension WalletConnectCoordinator {
     struct Options {
         let disabledLocalizedReason: String?
+        let prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
     }
 }
 
 extension WalletConnectCoordinator: WalletConnectRoutable {
-    func openQRScanner(clipboardURI: WalletConnectRequestURI?, completion: @escaping (WalletConnectQRScanResult) -> Void) {
-        let (coordinator, options) = moduleFactory.makeQRScanFlow(
-            clipboardURI: clipboardURI,
+    func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
+        guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: source) else { return }
+        viewModel.loadDAppProposal()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    func openConnectedDAppDetails(_ dApp: WalletConnectConnectedDApp) {
+        floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
+    }
+
+    func openQRScanner(completion: @escaping (WalletConnectQRScanResult) -> Void) {
+        let (coordinator, options) = WalletConnectModuleFactory.makeQRScanFlow(
             dismissAction: { [weak self] qrScanResult in
                 if let qrScanResult {
                     completion(qrScanResult)
@@ -80,12 +91,4 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         coordinator.start(with: options)
         legacyQRScanViewCoordinator = coordinator
     }
-
-    func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession) {
-        floatingSheetPresenter.enqueue(sheet: moduleFactory.makeConnectedDAppDetailsViewModel(dApp))
-    }
-}
-
-extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {
-    nonisolated var id: String { "WalletConnectConnectedDAppDetailsViewModel" }
 }

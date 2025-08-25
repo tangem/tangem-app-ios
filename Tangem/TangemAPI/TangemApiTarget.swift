@@ -88,6 +88,22 @@ struct TangemApiTarget: TargetType {
             return "/seedphrase-notification/\(userWalletId)/confirmed"
         case .walletInitialized:
             return "/user-tokens"
+        case .pushNotificationsEligible:
+            return "/notification/push_notifications_eligible_networks"
+
+        // MARK: Applications
+        case .createUserWalletsApplication:
+            return "/user-wallets/applications"
+        case .updateUserWalletsApplication(let uid, _):
+            return "/user-wallets/applications/\(uid)"
+
+        // MARK: - UserWallets
+        case .getUserWallets(let applicationUid):
+            return "/user-wallets/wallets/by-app/\(applicationUid)"
+        case .getUserWallet(let userWalletId), .updateUserWallet(let userWalletId, _):
+            return "/user-wallets/wallets/\(userWalletId)"
+        case .createAndConnectUserWallet(let applicationUid, _):
+            return "/user-wallets/wallets/create-and-connect-by-appuid/\(applicationUid)"
         }
     }
 
@@ -111,7 +127,10 @@ struct TangemApiTarget: TargetType {
              .hotCrypto,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
-             .story:
+             .story,
+             .pushNotificationsEligible,
+             .getUserWallets,
+             .getUserWallet:
             return .get
         case .saveUserWalletTokens,
              .seedNotifySetStatus,
@@ -123,10 +142,14 @@ struct TangemApiTarget: TargetType {
              .awardNewUser,
              .awardOldUser,
              .createAccount,
-             .walletInitialized:
+             .walletInitialized,
+             .createUserWalletsApplication,
+             .createAndConnectUserWallet:
             return .post
         case .resetAward:
             return .delete
+        case .updateUserWalletsApplication, .updateUserWallet:
+            return .patch
         }
     }
 
@@ -218,6 +241,18 @@ struct TangemApiTarget: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
+        case .pushNotificationsEligible:
+            return .requestPlain
+        case .createUserWalletsApplication(let requestModel):
+            return .requestJSONEncodable(requestModel)
+        case .updateUserWalletsApplication(_, let requestModel):
+            return .requestJSONEncodable(requestModel)
+        case .getUserWallet, .getUserWallets:
+            return .requestPlain
+        case .updateUserWallet(_, let requestModel):
+            return .requestJSONEncodable(requestModel)
+        case .createAndConnectUserWallet(_, let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -284,6 +319,19 @@ extension TangemApiTarget {
         case seedNotifyGetStatusConfirmed(userWalletId: String)
         case seedNotifySetStatusConfirmed(userWalletId: String, status: SeedNotifyStatus)
         case walletInitialized(userWalletId: String)
+
+        /// Notifications
+        case pushNotificationsEligible
+
+        // Applications
+        case createUserWalletsApplication(_ requestModel: ApplicationDTO.Request)
+        case updateUserWalletsApplication(uid: String, requestModel: ApplicationDTO.Update.Request)
+
+        // User Wallets
+        case getUserWallets(applicationUid: String)
+        case getUserWallet(userWalletId: String)
+        case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
+        case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
     }
 
     struct AuthData {
@@ -311,9 +359,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
     var shouldLogResponseBody: Bool {
         switch type {
         case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
-             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto:
+             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto, .createUserWalletsApplication, .updateUserWalletsApplication, .getUserWallets, .getUserWallet, .updateUserWallet, .createAndConnectUserWallet:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized:
+        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible:
             return true
         }
     }

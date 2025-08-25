@@ -12,6 +12,7 @@ import Combine
 class KoinosNetworkService: MultiNetworkProvider {
     let providers: [KoinosNetworkProvider]
     var currentProviderIndex = 0
+    let blockchainName: String = Blockchain.koinos(testnet: false).displayName
 
     init(providers: [KoinosNetworkProvider]) {
         self.providers = providers

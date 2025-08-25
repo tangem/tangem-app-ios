@@ -11,45 +11,34 @@ import Foundation
 import TangemUI
 import TangemLocalization
 import TangemAssets
+import TangemFoundation
 
 public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
-    private let asset: NFTAsset
-
-    private weak var coordinator: NFTAssetDetailsRoutable?
-
-    public init(asset: NFTAsset, coordinator: NFTAssetDetailsRoutable?) {
-        self.asset = asset
-        self.coordinator = coordinator
-    }
-
     var name: String {
         asset.name
     }
 
-    var imageURL: URL? {
-        asset.media?.url
+    var media: NFTMedia? {
+        NFTAssetMediaExtractor.extractMedia(from: asset)
     }
 
-    // [REDACTED_TODO_COMMENT]
     var headerState: NFTDetailsHeaderState? {
-        let rarityKeyValuePairs = makeRarity(from: asset.rarity)
+        let priceWithDescription = makePriceWithDescription()
+        let rarity = makeRarity(from: asset.rarity).nilIfEmpty
 
-        if let description = asset.description {
-            return .full(
-                .description(
-                    NFTDetailsHeaderState.DescriptionConfig(
-                        text: description,
-                        readMoreAction: { [weak self] in self?.openDescription() }
-                    )
-                ),
-                rarityKeyValuePairs
-            )
+        switch (priceWithDescription, rarity) {
+        case (.some(let priceWithDescription), .some(let rarity)):
+            return .full(priceWithDescription, rarity)
+        case (.some(let priceWithDescription), .none):
+            return .priceWithDescription(priceWithDescription)
+        case (.none, .some(let rarity)):
+            return .rarity(rarity)
+        case (.none, .none):
+            return nil
         }
-
-        return .rarity(rarityKeyValuePairs)
     }
 
-    var traits: KeyValuePanelConfig? {
+    var traits: KeyValuePanelViewData? {
         guard asset.traits.isNotEmpty else {
             return nil
         }
@@ -57,35 +46,117 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         let maximumTraits = asset.traits.prefix(Constants.maximumTraits)
 
         let header = if asset.traits.count > Constants.maximumTraits {
-            KeyValuePanelConfig.Header(
+            KeyValuePanelViewData.Header(
                 title: Localization.nftDetailsTraits,
-                actionConfig: KeyValuePanelConfig.Header.ActionConfig(
+                actionConfig: KeyValuePanelViewData.Header.ActionConfig(
                     buttonTitle: Localization.commonSeeAll,
                     image: nil,
                     action: { [weak self] in self?.openAllTraits() }
                 )
             )
         } else {
-            KeyValuePanelConfig.Header(title: Localization.nftDetailsTraits, actionConfig: nil)
+            KeyValuePanelViewData.Header(title: Localization.nftDetailsTraits, actionConfig: nil)
         }
 
-        return KeyValuePanelConfig(
+        return KeyValuePanelViewData(
             header: header,
             keyValues: makeTraits(from: Array(maximumTraits))
         )
     }
 
-    var baseInformation: KeyValuePanelConfig? {
-        let header = KeyValuePanelConfig.Header(
+    var baseInformation: KeyValuePanelViewData? {
+        let header = KeyValuePanelViewData.Header(
             title: Localization.nftDetailsBaseInformation,
-            actionConfig: KeyValuePanelConfig.Header.ActionConfig(
+            actionConfig: KeyValuePanelViewData.Header.ActionConfig(
                 buttonTitle: Localization.commonExplore,
                 image: Assets.compassExplore,
                 action: { [weak self] in self?.explore() }
             )
         )
 
-        return KeyValuePanelConfig(header: header, keyValues: makeInfoKeyPairs())
+        return KeyValuePanelViewData(header: header, keyValues: makeInfoKeyPairs())
+    }
+
+    private let asset: NFTAsset
+    private let collection: NFTCollection
+    private let navigationContext: NFTNavigationContext
+    private let nftChainNameProvider: NFTChainNameProviding
+    private let priceFormatter: NFTPriceFormatting
+    private let analytics: NFTAnalytics.Details
+
+    @Published private var fiatPrice: LoadingValue<String> = .loading
+    private var didAppear = false
+
+    private weak var coordinator: NFTAssetDetailsRoutable?
+
+    public init(
+        asset: NFTAsset,
+        collection: NFTCollection,
+        navigationContext: NFTNavigationContext,
+        dependencies: NFTAssetDetailsDependencies,
+        coordinator: NFTAssetDetailsRoutable?
+    ) {
+        self.asset = asset
+        self.collection = collection
+        self.navigationContext = navigationContext
+        nftChainNameProvider = dependencies.nftChainNameProvider
+        priceFormatter = dependencies.priceFormatter
+        analytics = dependencies.analytics
+        self.coordinator = coordinator
+    }
+
+    @MainActor
+    func onViewAppear() {
+        if didAppear {
+            return
+        }
+
+        didAppear = true
+        updateFiatPriceIfPossible()
+    }
+
+    func onSendButtonTap() {
+        coordinator?.openSend(for: asset, in: collection, navigationContext: navigationContext)
+        analytics.logSendTapped()
+    }
+
+    // MARK: Private implementation
+
+    private func makeDescription() -> NFTDetailsHeaderState.DescriptionConfig? {
+        guard let description = asset.description?.nilIfEmpty else {
+            return nil
+        }
+
+        return NFTDetailsHeaderState.DescriptionConfig(
+            text: description,
+            readMoreAction: { [weak self] in self?.openDescription() }
+        )
+    }
+
+    private func makePrice() -> NFTDetailsHeaderState.Price? {
+        guard let salePrice = asset.salePrice?.last else {
+            return nil
+        }
+
+        let cryptoPrice = priceFormatter.formatCryptoPrice(salePrice.value, in: asset.id.chain)
+
+        return NFTDetailsHeaderState.Price(crypto: cryptoPrice, fiat: fiatPrice)
+    }
+
+    private func makePriceWithDescription() -> NFTDetailsHeaderState.PriceWithDescriptionState? {
+        let description = makeDescription()
+        let price = makePrice()
+
+        switch (price, description) {
+        case (.some(let price), .some(let description)):
+            return .priceWithDescription(price, description)
+        case (.some(let price), .none):
+            return .price(price)
+        case (.none, .some(let description)):
+            return .description(description)
+        case (.none, .none):
+            return nil
+        }
     }
 
     private func makeRarity(from rarity: NFTAsset.Rarity?) -> [KeyValuePairViewData] {
@@ -94,14 +165,24 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         let label = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsRarityLabel,
             value: rarity.label,
-            action: { [weak self] in self?.openRarityLabelDetails() }
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsRarityLabel,
+                    text: Localization.nftDetailsInfoRarityLabel
+                )
+            }
         )
 
         let rankValue = rarity.rank
         let rank = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsRarityRank,
-            value: rankValue != nil ? "\(rankValue)" : nil,
-            action: { [weak self] in self?.openRarityRankDetails() }
+            value: rankValue?.description,
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsRarityRank,
+                    text: Localization.nftDetailsInfoRarityRank
+                )
+            }
         )
 
         return [
@@ -118,7 +199,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
             "ERC-1155"
         case .other(let string):
             string
-        case .unknown:
+        case .unknown, .analyticsOnly:
             nil
         }
     }
@@ -127,26 +208,46 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     private func makeInfoKeyPairs() -> [KeyValuePairViewData] {
         let tokenStandard = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsTokenStandard,
-            value: makeTokenStandard(from: asset.contractType),
-            action: { [weak self] in self?.opentTokenStandardDetails() }
+            value: makeTokenStandard(from: asset.id.contractType),
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsTokenStandard,
+                    text: Localization.nftDetailsInfoTokenStandard
+                )
+            }
         )
 
         let contractAddress = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsContractAddress,
-            value: asset.id.collectionIdentifier,
-            action: { [weak self] in self?.opentTokenAddressDetails() }
+            value: asset.id.contractAddress,
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsContractAddress,
+                    text: Localization.nftDetailsInfoContractAddress
+                )
+            }
         )
 
         let tokenID = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsTokenId,
-            value: asset.id.assetIdentifier,
-            action: { [weak self] in self?.opentTokenIDDetails() }
+            value: asset.id.identifier,
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsTokenId,
+                    text: Localization.nftDetailsInfoTokenId
+                )
+            }
         )
 
         let chain = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsChain,
-            value: "Ethereum", // [REDACTED_TODO_COMMENT]
-            action: { [weak self] in self?.opentChainDetails() }
+            value: nftChainNameProvider.provide(for: asset.id.chain),
+            action: { [weak self] in
+                self?.openAssetExtendedInfo(
+                    title: Localization.nftDetailsChain,
+                    text: Localization.nftDetailsInfoChain
+                )
+            }
         )
 
         return [
@@ -171,7 +272,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         value: String?,
         action: @escaping () -> Void
     ) -> KeyValuePairViewData? {
-        guard let value else { return nil }
+        guard let value = value?.nilIfEmpty else { return nil }
 
         return KeyValuePairViewData(
             key: KeyValuePairViewData.Key(text: key, action: action),
@@ -179,26 +280,49 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         )
     }
 
+    // MARK: Actions
+
     private func openAllTraits() {
         let traitsKeyValuePairs = makeTraits(from: asset.traits)
-        coordinator?.openTraits(with: KeyValuePanelConfig(header: nil, keyValues: traitsKeyValuePairs))
+        coordinator?.openTraits(with: KeyValuePanelViewData(header: nil, keyValues: traitsKeyValuePairs))
+        analytics.logSeeAllTapped()
     }
 
-    private func explore() {}
+    private func explore() {
+        coordinator?.openExplorer(for: asset)
+        analytics.logExploreTapped()
+    }
 
-    private func opentTokenStandardDetails() {}
+    private func openDescription() {
+        guard let description = asset.description?.nilIfEmpty else { return }
 
-    private func opentTokenAddressDetails() {}
+        coordinator?.openInfo(
+            with: NFTAssetExtendedInfoViewData(
+                title: Localization.nftAboutTitle,
+                text: description
+            )
+        )
 
-    private func opentChainDetails() {}
+        analytics.logReadMoreTapped()
+    }
 
-    private func opentTokenIDDetails() {}
+    private func openAssetExtendedInfo(title: String, text: String) {
+        coordinator?.openInfo(with: NFTAssetExtendedInfoViewData(title: title, text: text))
+    }
 
-    private func openDescription() {}
+    @MainActor
+    private func updateFiatPriceIfPossible() {
+        guard let salePrice = asset.salePrice?.last else {
+            return
+        }
 
-    private func openRarityLabelDetails() {}
-
-    private func openRarityRankDetails() {}
+        runTask(in: self) { viewModel in
+            let chain = viewModel.asset.id.chain
+            let fiatPrice = await viewModel.priceFormatter.convertToFiatAndFormatCryptoPrice(salePrice.value, in: chain)
+            // Since this is a non-detached task and inherits the Main Actor context, we can safely update the UI here
+            viewModel.fiatPrice = .loaded(fiatPrice)
+        }
+    }
 }
 
 private extension NFTAssetDetailsViewModel {

@@ -31,8 +31,10 @@ enum ValidationErrorEvent: Hashable {
 
     case minimumRestrictAmount(restrictAmountFormatted: String)
     case remainingAmountIsLessThanRentExemption(amount: String)
+    case sendingAmountIsLessThanRentExemption(amount: String)
 
     case destinationMemoRequired
+    case noTrustlineAtDestination
 }
 
 extension ValidationErrorEvent: NotificationEvent {
@@ -52,7 +54,9 @@ extension ValidationErrorEvent: NotificationEvent {
         case .koinosInsufficientBalanceToSendKoin: "koinosInsufficientBalanceToSendKoin".hashValue
         case .minimumRestrictAmount: "minimumRestrictAmount".hashValue
         case .remainingAmountIsLessThanRentExemption: "remainingAmountIsLessThanRentExemption".hashValue
+        case .sendingAmountIsLessThanRentExemption: "sendingAmountIsLessThanRentExemption".hashValue
         case .destinationMemoRequired: "destinationMemoRequired".hashValue
+        case .noTrustlineAtDestination: "noTrustlineAtDestination".hashValue
         }
     }
 
@@ -64,7 +68,7 @@ extension ValidationErrorEvent: NotificationEvent {
             return .string(Localization.sendNotificationExceedBalanceTitle)
         case .insufficientBalanceForFee(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
-        case .dustRestriction, .remainingAmountIsLessThanRentExemption:
+        case .dustRestriction, .remainingAmountIsLessThanRentExemption, .sendingAmountIsLessThanRentExemption:
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .existentialDeposit:
             return .string(Localization.sendNotificationExistentialDepositTitle)
@@ -86,6 +90,8 @@ extension ValidationErrorEvent: NotificationEvent {
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .destinationMemoRequired:
             return .string(Localization.sendValidationDestinationTagRequiredTitle)
+        case .noTrustlineAtDestination:
+            return .string(Localization.commonError)
         }
     }
 
@@ -125,8 +131,12 @@ extension ValidationErrorEvent: NotificationEvent {
             return Localization.transferNotificationInvalidMinimumTransactionAmountText(restrictAmountFormatted)
         case .remainingAmountIsLessThanRentExemption(let amount):
             return Localization.sendNotificationInvalidAmountRentFee(amount)
+        case .sendingAmountIsLessThanRentExemption(let amount):
+            return Localization.sendNotificationInvalidAmountRentDestination(amount)
         case .destinationMemoRequired:
             return Localization.sendValidationDestinationTagRequiredDescription
+        case .noTrustlineAtDestination:
+            return Localization.noTrustlineXlmAsset
         }
     }
 
@@ -155,8 +165,10 @@ extension ValidationErrorEvent: NotificationEvent {
              .manaLimit,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -176,8 +188,10 @@ extension ValidationErrorEvent: NotificationEvent {
              .manaLimit,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return .critical
         }
     }
@@ -209,8 +223,10 @@ extension ValidationErrorEvent {
              .notEnoughMana,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
+             .sendingAmountIsLessThanRentExemption,
              .minimumRestrictAmount,
-             .destinationMemoRequired:
+             .destinationMemoRequired,
+             .noTrustlineAtDestination:
             return nil
         }
     }

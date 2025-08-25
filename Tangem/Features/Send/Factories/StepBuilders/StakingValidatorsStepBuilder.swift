@@ -22,7 +22,8 @@ struct StakingValidatorsStepBuilder {
         manager: some StakingManager,
         currentValidator: ValidatorInfo? = nil,
         actionType: SendFlowActionType,
-        sendFeeLoader: SendFeeLoader
+        sendFeeProvider: SendFeeProvider,
+        analyticsLogger: any SendValidatorsAnalyticsLogger
     ) -> ReturnValue {
         let interactor = makeStakingValidatorsInteractor(
             io: io,
@@ -31,11 +32,11 @@ struct StakingValidatorsStepBuilder {
             actionType: actionType
         )
 
-        let viewModel = makeStakingValidatorsViewModel(interactor: interactor)
+        let viewModel = StakingValidatorsViewModel(interactor: interactor, analyticsLogger: analyticsLogger)
         var step: StakingValidatorsStep?
 
         if let validatorInfos = manager.state.yieldInfo?.preferredValidators, validatorInfos.count > 1 {
-            step = StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeLoader: sendFeeLoader)
+            step = StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeProvider: sendFeeProvider)
         }
 
         let compact = makeStakingValidatorsCompactViewModel(io: io)
@@ -48,7 +49,8 @@ struct StakingValidatorsStepBuilder {
         manager: some StakingManager,
         currentValidator: ValidatorInfo? = nil,
         actionType: SendFlowActionType,
-        sendFeeLoader: SendFeeLoader
+        sendFeeProvider: SendFeeProvider,
+        analyticsLogger: any SendValidatorsAnalyticsLogger
     ) -> StakingValidatorsStep {
         let interactor = makeStakingValidatorsInteractor(
             io: io,
@@ -56,8 +58,8 @@ struct StakingValidatorsStepBuilder {
             currentValidator: currentValidator,
             actionType: actionType
         )
-        let viewModel = makeStakingValidatorsViewModel(interactor: interactor)
-        return StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeLoader: sendFeeLoader)
+        let viewModel = StakingValidatorsViewModel(interactor: interactor, analyticsLogger: analyticsLogger)
+        return StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeProvider: sendFeeProvider)
     }
 
     func makeStakingValidatorsCompactViewModel(io: IO) -> StakingValidatorsCompactViewModel {
@@ -68,10 +70,6 @@ struct StakingValidatorsStepBuilder {
 // MARK: - Private
 
 private extension StakingValidatorsStepBuilder {
-    func makeStakingValidatorsViewModel(interactor: StakingValidatorsInteractor) -> StakingValidatorsViewModel {
-        StakingValidatorsViewModel(interactor: interactor)
-    }
-
     func makeStakingValidatorsInteractor(
         io: IO,
         manager: some StakingManager,

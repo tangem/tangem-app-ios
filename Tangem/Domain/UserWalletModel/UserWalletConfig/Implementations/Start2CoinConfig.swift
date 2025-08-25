@@ -42,7 +42,7 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Start2Coin"
     }
 
@@ -124,8 +124,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .hidden
         case .topup:
@@ -150,12 +148,10 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(
-        backupService: BackupService,
-        isPushNotificationsAvailable: Bool
+        backupService: BackupService
     ) -> OnboardingStepsBuilder {
         return Start2CoinOnboardingStepsBuilder(
-            hasWallets: !card.wallets.isEmpty,
-            isPushNotificationsAvailable: isPushNotificationsAvailable
+            hasWallets: !card.wallets.isEmpty
         )
     }
 

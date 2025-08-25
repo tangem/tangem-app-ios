@@ -10,12 +10,20 @@ import Foundation
 import TangemSdk
 
 struct CommonExpressRefcodeProvider: RefcodeProvider {
-    private let cardInfo: CardInfo
+    private let userWalletId: UserWalletId
+    private let batchId: String?
+    private let cardId: String?
 
     // MARK: - Init
 
-    init(cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
+    init(
+        userWalletId: UserWalletId,
+        cardId: String?,
+        batchId: String?
+    ) {
+        self.userWalletId = userWalletId
+        self.cardId = cardId
+        self.batchId = batchId
     }
 
     // MARK: - ExpressRefcodeProvider
@@ -39,15 +47,8 @@ struct CommonExpressRefcodeProvider: RefcodeProvider {
     // MARK: - Private Implementation
 
     private func tryGetByUserWalletId() -> Refcode? {
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        guard let seed = config.userWalletIdSeed else {
-            return nil
-        }
-
-        let userWalletId = UserWalletId(with: seed).stringValue
-
         // User wallet with ring
-        if AppSettings.shared.userWalletIdsWithRing.contains(userWalletId) {
+        if AppSettings.shared.userWalletIdsWithRing.contains(userWalletId.stringValue) {
             return .ring
         }
 
@@ -55,7 +56,7 @@ struct CommonExpressRefcodeProvider: RefcodeProvider {
     }
 
     private func tryGetByBatchId() -> Refcode? {
-        switch cardInfo.card.batchId {
+        switch batchId {
         case "AF990015":
             return .partner
         case "BB000013":
@@ -66,7 +67,7 @@ struct CommonExpressRefcodeProvider: RefcodeProvider {
     }
 
     private func tryGetByCardId() -> Refcode? {
-        let cardId = cardInfo.card.cardId
+        guard let cardId else { return nil }
 
         // ChangeNow stealth
         if let changeNowStealthRange = CardIdRange(start: "AF99001800554008", end: "AF99001800559994"),

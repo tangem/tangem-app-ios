@@ -147,7 +147,7 @@ private extension WebSocketConnection {
 
 extension WebSocketConnection: CustomStringConvertible {
     nonisolated var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
@@ -182,5 +182,6 @@ extension WebSocketConnection.Ping {
 
 enum WebSocketConnectionError: Error {
     case webSocketNotFound
+    case webSocketNotFoundTask
     case invalidResponse
 }

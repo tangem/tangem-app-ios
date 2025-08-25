@@ -14,6 +14,8 @@ class StellarNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
     let providers: [StellarNetworkProvider]
 
+    let blockchainName: String = Blockchain.stellar(curve: .ed25519_slip0010, testnet: false).displayName
+
     init(providers: [StellarNetworkProvider]) {
         self.providers = providers
     }
@@ -39,6 +41,12 @@ class StellarNetworkService: MultiNetworkProvider {
     func getFee() -> AnyPublisher<[Amount], Error> {
         providerPublisher {
             $0.getFee()
+        }
+    }
+
+    func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
+        providerPublisher { provider in
+            provider.checkIsMemoRequired(for: address)
         }
     }
 }

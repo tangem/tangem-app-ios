@@ -62,7 +62,7 @@ enum TokenActionType: String {
         case .send: return nil
         case .receive: return Localization.receiveTokenDescription
         case .exchange: return Localization.exсhangeTokenDescription
-        case .stake: return nil
+        case .stake: return Localization.stakeTokenDescription
         case .sell: return nil
         case .copyAddress: return nil
         case .marketsDetails: return nil

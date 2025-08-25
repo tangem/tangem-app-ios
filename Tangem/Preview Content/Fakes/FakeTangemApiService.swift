@@ -160,6 +160,34 @@ class FakeTangemApiService: TangemApiService {
     func setWalletInitialized(userWalletId: String) async throws {
         throw "Not implemented"
     }
+
+    func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
+        throw "Not implemented"
+    }
+
+    func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {
+        throw "Not implemented"
+    }
+
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+        throw "Not implemented"
+    }
+
+    func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response] {
+        throw "Not implemented"
+    }
+
+    func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response {
+        throw "Not implemented"
+    }
+
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO {
+        throw "Not implemented"
+    }
+
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {

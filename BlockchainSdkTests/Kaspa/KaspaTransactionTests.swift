@@ -12,188 +12,17 @@ import Testing
 
 struct KaspaTransactionTests {
     private let blockchain = Blockchain.kaspa(testnet: false)
-    private let walletPublicKey = Data(hexString: "04EB30400CE9D1DEED12B84D4161A1FA922EF4185A155EF3EC208078B3807B126FA22C335081AAEBF161095C11C7D8BD550EF8882A3125B0EE9AE96DDDE1AE743F")
 
-    @Test
-    func schnorrTransaction() async throws {
-        // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: walletPublicKey)
-        let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
-        // Will select deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb
-        let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 1, txId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb", index: 0, amount: 10000000),
-            UnspentOutput(blockId: 2, txId: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af", index: 0, amount: 10000000),
-            UnspentOutput(blockId: 3, txId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a", index: 0, amount: 500000000),
-        ]
-
-        unspentOutputManager.update(
-            outputs: outputs,
-            // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(
-                data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"),
-                type: .p2pk,
-                spendable: .publicKey(walletPublicKey)
-            )
-        )
-
-        let txBuilder = KaspaTransactionBuilder(
-            walletPublicKey: .empty,
-            unspentOutputManager: unspentOutputManager,
-            isTestnet: false
-        )
-
-        let destination = "kaspa:qpsqw2aamda868dlgqczeczd28d5nc3rlrj3t87vu9q58l2tugpjs2psdm4fv"
-        let transaction = Transaction(
-            amount: Amount(with: blockchain, value: Decimal(stringValue: "0.001")!),
-            fee: Fee(Amount(with: blockchain, value: Decimal(stringValue: "0.0003")!)),
-            sourceAddress: address.value,
-            destinationAddress: destination,
-            changeAddress: address.value
-        )
-
-        let signatures = [
-            Data(hexString: "E2747D4E00C55D69FA0B8ADFAFD07F41144F888E322D377878E83F25FD2E258B2E918EF79E151337D7F3BD0798D66FDCE04B07C30984424B13344F0A7CC40165"),
-            Data(hexString: "4BF71C43DF96FC6B46766CAE30E97BD9018E9B98BB2C3645744A696AD26ECC780157EA9D44DC41D0BCB420175A5D3F543079F4263AA2DBDE0EE2D33A877FC583"),
-            Data(hexString: "E2747D4E00C55D69FA0B8ADFAFD07F41144F888E322D377878E83F25FD2E258B2E918EF79E151337D7F3BD0798D66FDCE04B07C30984424B13344F0A7CC40168"),
-        ]
-
-        // when
-        let (kaspaTransaction, hashes) = try await txBuilder.buildForSign(transaction: transaction)
-        let builtTransaction = txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
-
-        // then
-
-        let expectedHashes = [
-            Data(hex: "90b94d04bd7ebf0edada8230a3181176bddf017fd730020d2dfb7a2f8dbf03f3"),
-        ]
-
-        let expectedTransaction = KaspaDTO.Send.Request.Transaction(
-            inputs: [
-                .init(
-                    previousOutpoint: .init(
-                        transactionId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb",
-                        index: 0
-                    ),
-                    signatureScript: "41e2747d4e00c55d69fa0b8adfafd07f41144f888e322d377878e83f25fd2e258b2e918ef79e151337d7f3bd0798d66fdce04b07c30984424b13344f0a7cc4016501"
-                ),
-            ],
-            outputs: [
-                .init(
-                    amount: 100000,
-                    scriptPublicKey: .init(
-                        scriptPublicKey: "2060072bbddb7a7d1dbf40302ce04d51db49e223f8e5159fcce14143fd4be20328ac"
-                    )
-                ),
-                .init(
-                    amount: 9870000,
-                    scriptPublicKey: .init(
-                        scriptPublicKey: "2103eb30400ce9d1deed12b84d4161a1fa922ef4185a155ef3ec208078b3807b126fab"
-                    )
-                ),
-            ]
-        )
-
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let encodedBuiltTransaction = try encoder.encode(builtTransaction)
-        let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
-
-        #expect(hashes == expectedHashes)
-        #expect(encodedBuiltTransaction == encodedExpectedTransaction)
-    }
-
-    @Test
-    func p2shTransaction() async throws {
-        // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: walletPublicKey)
-        let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
-        let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 2, txId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a", index: 0, amount: 500000000),
-        ]
-
-        unspentOutputManager.update(
-            outputs: outputs,
-            // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(
-                data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"),
-                type: .p2pk,
-                spendable: .publicKey(walletPublicKey)
-            )
-        )
-
-        let txBuilder = KaspaTransactionBuilder(
-            walletPublicKey: .empty,
-            unspentOutputManager: unspentOutputManager,
-            isTestnet: false
-        )
-
-        let destination = "kaspa:pqurku73qluhxrmvyj799yeyptpmsflpnc8pha80z6zjh6efwg3v2rrepjm5r"
-        let transaction = Transaction(
-            amount: Amount(with: blockchain, value: Decimal(stringValue: "0.001")!),
-            fee: Fee(Amount(with: blockchain, value: Decimal(stringValue: "0.0001")!)),
-            sourceAddress: address.value,
-            destinationAddress: destination,
-            changeAddress: address.value
-        )
-
-        let signatures = [
-            Data(hexString: "E2747D4E00C55D69FA0B8ADFAFD07F41144F888E322D377878E83F25FD2E258B2E918EF79E151337D7F3BD0798D66FDCE04B0704EB30400CE9D1DEED12B84D41"),
-        ]
-
-        // when
-        let (kaspaTransaction, hashes) = try await txBuilder.buildForSign(transaction: transaction)
-        let builtTransaction = txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
-
-        // then
-        let expectedHashes = [
-            Data(hex: "C550515D34A091D7F3D2827286E7AEF685ECE9C0BBCCB4B08BC65F6EBD83E8F2"),
-        ]
-
-        let expectedTransaction = KaspaDTO.Send.Request.Transaction(
-            inputs: [
-                .init(
-                    previousOutpoint: .init(
-                        transactionId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a",
-                        index: 0
-                    ),
-                    signatureScript: "41e2747d4e00c55d69fa0b8adfafd07f41144f888e322d377878e83f25fd2e258b2e918ef79e151337d7f3bd0798d66fdce04b0704eb30400ce9d1deed12b84d4101"
-                ),
-            ],
-            outputs: [
-                .init(
-                    amount: 100000,
-                    scriptPublicKey: .init(
-                        scriptPublicKey: "aa20383b73d107f9730f6c24bc5293240ac3b827e19e0e1bf4ef16852beb297222c587"
-                    )
-                ),
-                .init(
-                    amount: 499890000,
-                    scriptPublicKey: .init(
-                        scriptPublicKey: "2103eb30400ce9d1deed12b84d4161a1fa922ef4185a155ef3ec208078b3807b126fab"
-                    )
-                ),
-            ]
-        )
-
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let encodedBuiltTransaction = try encoder.encode(builtTransaction)
-        let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
-
-        #expect(hashes == expectedHashes)
-        #expect(encodedBuiltTransaction == encodedExpectedTransaction)
-    }
-
-    /// https://explorer.kaspa.org/txs/d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223
+    /// https://kas.fyi/transaction/113471470e4ad43324aad78880b092e153adee6cfc1236fbf17f715daa2071be
     @Test
     func coinTransaction() async throws {
         // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
+        let address = try AddressServiceFactory(blockchain: .kaspa(testnet: false)).makeAddressService().makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 2, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 3, txId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d", index: 1, amount: 39819474),
+            UnspentOutput(blockId: 2, txId: "5f7deb4c490de237e0dcc9dae4216f80247a671ca30eaab411d2963c6e070113", index: 1, amount: 19736854),
+            UnspentOutput(blockId: 3, txId: "c97e84228b68aa37a0c51c5a93f0005eb9543a353b6cf59c33052eab33f16e0b", index: 0, amount: 20000000),
         ]
 
         unspentOutputManager.update(outputs: outputs, for: address)
@@ -203,17 +32,19 @@ struct KaspaTransactionTests {
             isTestnet: false
         )
 
-        let destination = "kaspa:qypwtfhx630ujfau72akxgypfscdset2xe4v32j7xyyxw658glunexq9v4mmqhq"
+        let destination = "kaspa:qyptjw50kqcp6a7xmx8juv0xvmgtmem4fvlte88clt2kafas863narspv9sj34u"
         let transaction = Transaction(
             amount: Amount(with: blockchain, value: Decimal(stringValue: "0.2")!),
-            fee: Fee(Amount(with: blockchain, value: Decimal(stringValue: "0.00075342")!)),
+            fee: Fee(Amount(with: blockchain, value: Decimal(stringValue: "0.00004297")!)),
             sourceAddress: address.value,
             destinationAddress: destination,
             changeAddress: address.value
         )
 
         let signatures = [
-            Data(hexString: "b9e8176f4a914b6ade39994e548af271d8d04bd1c864e97cad9fd41f9757fcb1005ad38d0622cb7937e54da4d7a28fb2b45f2096e37ee37cf89e620287dccb07"),
+            Data(hexString: "401dc920bf148e0fcdcfae009b9dc805553f74f883aaff8a5c0445a1169d89196035a177eb33dc57076fe6c4453843e11e36d229ee895bfdd18f7b63131d5889"),
+            Data(hexString: "0a51d8d2e737f1cf8d3440e31736aa07a230a3ec4f811d50f8abc6f86369a27c3425813510a06f9f5648afda58d1e15a91be29d41779c16d49415cfe962c9095"),
+            Data(hexString: "c0aebb30e5638c7f98d870ab40f43fe2a6bdec0ed848f8e9622cb8733df9988278501064c5876e978e1c9fbd78bf96111b94487c5e9fbb99399342a9fb16667b"),
         ]
 
         // when
@@ -223,30 +54,46 @@ struct KaspaTransactionTests {
         // then
 
         let expectedHashes = [
-            Data(hex: "43ffd3b7abd1344e7e8a757c65e48e3639a93c4099a3f4e05daa6526061a7bcf"),
+            Data(hex: "80a72a2ba65dba21a64527015ceab6312f5da668cd83285fa63bcd55b6f5610d"),
+            Data(hex: "f48c41fa6d58273438278100ab0ae3e0a07bfedd1f00561030873a381421dd08"),
+            Data(hex: "9e4d470b5d4888d4b0e036281142af776f3a1b7d9a1c4b2d8550f2ecd41d7bea"),
         ]
 
         let expectedTransaction = KaspaDTO.Send.Request.Transaction(
             inputs: [
                 .init(
                     previousOutpoint: .init(
-                        transactionId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d",
+                        transactionId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134",
+                        index: 0
+                    ),
+                    signatureScript: "41401dc920bf148e0fcdcfae009b9dc805553f74f883aaff8a5c0445a1169d89196035a177eb33dc57076fe6c4453843e11e36d229ee895bfdd18f7b63131d588901"
+                ),
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "5f7deb4c490de237e0dcc9dae4216f80247a671ca30eaab411d2963c6e070113",
                         index: 1
                     ),
-                    signatureScript: "41b9e8176f4a914b6ade39994e548af271d8d04bd1c864e97cad9fd41f9757fcb1005ad38d0622cb7937e54da4d7a28fb2b45f2096e37ee37cf89e620287dccb0701"
+                    signatureScript: "410a51d8d2e737f1cf8d3440e31736aa07a230a3ec4f811d50f8abc6f86369a27c3425813510a06f9f5648afda58d1e15a91be29d41779c16d49415cfe962c909501"
+                ),
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "c97e84228b68aa37a0c51c5a93f0005eb9543a353b6cf59c33052eab33f16e0b",
+                        index: 0
+                    ),
+                    signatureScript: "41c0aebb30e5638c7f98d870ab40f43fe2a6bdec0ed848f8e9622cb8733df9988278501064c5876e978e1c9fbd78bf96111b94487c5e9fbb99399342a9fb16667b01"
                 ),
             ],
             outputs: [
                 .init(
                     amount: 20000000,
                     scriptPublicKey: .init(
-                        scriptPublicKey: "2102e5a6e6d45fc927bcf2bb6320814c30d8656a366ac8aa5e3108676a8747f93c98ab",
+                        scriptPublicKey: "2102b93a8fb0301d77c6d98f2e31e666d0bde7754b3ebc9cf8fad56ea7b03ea33e8eab",
                         version: 0
                     )
                 ),
                 // Change
                 .init(
-                    amount: 19744132,
+                    amount: 39732557,
                     scriptPublicKey: .init(
                         scriptPublicKey: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab",
                         version: 0
@@ -265,16 +112,15 @@ struct KaspaTransactionTests {
         #expect(encodedBuiltTransaction == encodedExpectedTransaction)
     }
 
-    /// https://explorer.kaspa.org/txs/c97e84228b68aa37a0c51c5a93f0005eb9543a353b6cf59c33052eab33f16e0b
+    /// https://kas.fyi/transaction/38db4297dd40486707e818c1aab331b9a25ae5d96f0c37f58b1f9a828cf34b70
     @Test
     func krc20TokenTransaction() async throws {
         // given
-        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
+        let address = try AddressServiceFactory(blockchain: .kaspa(testnet: false)).makeAddressService().makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 1, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 2, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 3, txId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223", index: 1, amount: 19744132),
+            UnspentOutput(blockId: 1, txId: "113471470e4ad43324aad78880b092e153adee6cfc1236fbf17f715daa2071be", index: 1, amount: 39732557),
+            UnspentOutput(blockId: 2, txId: "f8107be5d92cc4266a6def91fd30b3b8f7690a2f932eab6c254031caf8bbcacf", index: 0, amount: 39997245),
         ]
 
         unspentOutputManager.update(outputs: outputs, for: address)
@@ -285,14 +131,14 @@ struct KaspaTransactionTests {
         )
 
         let token = Token(name: "GGMF", symbol: "GGMF", contractAddress: "GGMF", decimalCount: 8)
-        let destination = "kaspa:qypwtfhx630ujfau72akxgypfscdset2xe4v32j7xyyxw658glunexq9v4mmqhq"
+        let destination = "kaspa:qyptjw50kqcp6a7xmx8juv0xvmgtmem4fvlte88clt2kafas863narspv9sj34u"
         let feeParams = KaspaKRC20.TokenTransactionFeeParams(
-            commitFee: Amount(with: blockchain, value: Decimal(stringValue: "0.00003178")!),
+            commitFee: Amount(with: blockchain, value: Decimal(stringValue: "0.00016573")!),
             revealFee: Amount(with: blockchain, value: Decimal(stringValue: "0.000041")!)
         )
 
         let fee = Fee(
-            Amount(with: blockchain, value: Decimal(stringValue: "0.00007278")!),
+            Amount(with: blockchain, value: Decimal(stringValue: "0.00020673")!),
             parameters: feeParams
         )
 
@@ -305,15 +151,15 @@ struct KaspaTransactionTests {
         )
 
         let signatures = [
-            Data(hexString: "c4af7290f10524058ca3e294700555f261f779555400eaa77faf5932d4376fb231cb92ea0b06a7b3bdbc65806366fbaca70e48de908f1d7aa5dc65a89ceea5bc"),
-            Data(hexString: "415ac1b76db22f4a7265ddaa239954bb574373192d05943fe83a19c4bc7ea3684a0596eca3bc2b54affdd2ca83b2cecfe62c2debfb287be0e77ce88b237405a9"),
+            Data(hexString: "be3464a493fa8e8d3a4f630464904336a3b542ec73e6fadade8a500151c9dbbc6c9e65ea768bd02f5924ae80854cb3fbff71cae5040e7b54afcabb32a8fabf8f"),
+            Data(hexString: "10da4a8a8424f3863a74cf99efdc6399717d84b44e054d711cf852c61b0de74f17e162d2d0fa4ddd7d34dda4d54e6d2c11e702900f8a5737aa55882188b2f64f"),
         ]
 
         let revealSignatures = [
-            Data(hexString: "f6d895c542c586c952a16c46df41f2bbd1056e84a52ac18ecb809500b51c9db92b29a824999bcbbf800a262f472bb28db13c258e8ca09afd5cd8ec1ab1377f98"),
+            Data(hexString: "0cc61353440a03bd3239c6183916c36d895512ebb23b52cfb937e1c54c0b216028718515855b0a5202488d396503c3e495f6e3b8f0760006c0bad5f8636ee2db"),
         ]
 
-        let commitRedeemScript = Data(hexString: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a7179707774666878363330756a6661753732616b7867797066736364736574327865347633326a377879797877363538676c756e6578713976346d6d716871227d68")
+        let commitRedeemScript = Data(hexString: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a717970746a7735306b716370366137786d78386a75763078766d67746d656d3466766c74653838636c74326b616661733836336e617273707639736a333475227d68")
 
         // when
         let (txgroup, meta) = try await txBuilder.buildForSignKRC20(transaction: transaction)
@@ -328,26 +174,26 @@ struct KaspaTransactionTests {
         // then
 
         let expectedHashes = [
-            Data(hex: "aae07366c0de5258af7b5a1b9b5fd5cfc8d07d1934945dc6205da1dc63d961f7"),
-            Data(hex: "a19910d935a92efbfb0a99fcb98982c2dfd5d7a90998eed033d9fe62d2abf357"),
-            Data(hex: "06ecad0c1d8efd05e62a0fa1fafc08c72d10495bf04cc6c13984b1102f2dfec7"),
+            Data(hex: "3f6807d0e927233f6e792db8f4e8b932836a80d45d386cba63b17850e0470fd4"),
+            Data(hex: "2788f1ddc6cbf080310d73d316702a5c61912ffdd86ea076db1c8f989ca48b84"),
+            Data(hex: "7b0180298292e4c6937377f8666d8b119778f61611f4e51afb2a5941ff4aa88c"),
         ]
 
         let expectedTransaction = KaspaDTO.Send.Request.Transaction(
             inputs: [
                 .init(
                     previousOutpoint: .init(
-                        transactionId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7",
-                        index: 0
+                        transactionId: "113471470e4ad43324aad78880b092e153adee6cfc1236fbf17f715daa2071be",
+                        index: 1
                     ),
-                    signatureScript: "41c4af7290f10524058ca3e294700555f261f779555400eaa77faf5932d4376fb231cb92ea0b06a7b3bdbc65806366fbaca70e48de908f1d7aa5dc65a89ceea5bc01"
+                    signatureScript: "41be3464a493fa8e8d3a4f630464904336a3b542ec73e6fadade8a500151c9dbbc6c9e65ea768bd02f5924ae80854cb3fbff71cae5040e7b54afcabb32a8fabf8f01"
                 ),
                 .init(
                     previousOutpoint: .init(
-                        transactionId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223",
-                        index: 1
+                        transactionId: "f8107be5d92cc4266a6def91fd30b3b8f7690a2f932eab6c254031caf8bbcacf",
+                        index: 0
                     ),
-                    signatureScript: "41415ac1b76db22f4a7265ddaa239954bb574373192d05943fe83a19c4bc7ea3684a0596eca3bc2b54affdd2ca83b2cecfe62c2debfb287be0e77ce88b237405a901"
+                    signatureScript: "4110da4a8a8424f3863a74cf99efdc6399717d84b44e054d711cf852c61b0de74f17e162d2d0fa4ddd7d34dda4d54e6d2c11e702900f8a5737aa55882188b2f64f01"
                 ),
             ],
             outputs: [
@@ -355,13 +201,13 @@ struct KaspaTransactionTests {
                 .init(
                     amount: 20004100,
                     scriptPublicKey: .init(
-                        scriptPublicKey: "aa20338345d892f8fb9066018754ac1d75cd8550ced29b55b4c9005d89a88f3e542a87",
+                        scriptPublicKey: "aa201775d37a12f5ae0835322a24ce3d99a4a7ba803ccbb4e0fc56498421fc5db94f87",
                         version: 0
                     )
                 ),
                 // Change
                 .init(
-                    amount: 19736854,
+                    amount: 59709129,
                     scriptPublicKey: .init(
                         scriptPublicKey: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab",
                         version: 0
@@ -374,10 +220,10 @@ struct KaspaTransactionTests {
             inputs: [
                 .init(
                     previousOutpoint: .init(
-                        transactionId: "5f7deb4c490de237e0dcc9dae4216f80247a671ca30eaab411d2963c6e070113",
+                        transactionId: "81425d682c91f2e6c7a59052d70fe30f127c7608977812ed8249dae985a634e0",
                         index: 0
                     ),
-                    signatureScript: "41f6d895c542c586c952a16c46df41f2bbd1056e84a52ac18ecb809500b51c9db92b29a824999bcbbf800a262f472bb28db13c258e8ca09afd5cd8ec1ab1377f98014cbe2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a7179707774666878363330756a6661753732616b7867797066736364736574327865347633326a377879797877363538676c756e6578713976346d6d716871227d68"
+                    signatureScript: "410cc61353440a03bd3239c6183916c36d895512ebb23b52cfb937e1c54c0b216028718515855b0a5202488d396503c3e495f6e3b8f0760006c0bad5f8636ee2db014cbe2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a717970746a7735306b716370366137786d78386a75763078766d67746d656d3466766c74653838636c74326b616661733836336e617273707639736a333475227d68"
                 ),
             ],
             outputs: [

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemNFT
 import TangemUI
+import TangemAssets
 
 struct NFTAssetDetailsCoordinatorView: View {
     @ObservedObject var coordinator: NFTAssetDetailsCoordinator
@@ -17,7 +18,8 @@ struct NFTAssetDetailsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 NavigationView {
-                    makeRootView(with: rootViewModel)
+                    NFTAssetDetailsView(viewModel: rootViewModel)
+                        .withCloseButton { coordinator.dismiss(with: nil) }
                         .navigationLinks(links)
                 }
             }
@@ -26,22 +28,37 @@ struct NFTAssetDetailsCoordinatorView: View {
         }
     }
 
-    private func makeRootView(with rootViewModel: NFTAssetDetailsViewModel) -> some View {
-        NFTAssetDetailsView(viewModel: rootViewModel)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: coordinator.dismiss)
-                }
-            }
-    }
-
     @ViewBuilder
     private var links: some View {
-        EmptyView()
+        NavHolder()
+            .navigation(item: $coordinator.tokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
+            .emptyNavigationLink()
     }
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.traitsViewData) { viewData in
+                NavigationView {
+                    NFTAssetExtendedTraitsView(viewData: viewData)
+                        .withCloseButton(action: coordinator.closeTraits)
+                }
+            }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
+
+        NavHolder()
+            .bottomSheet(
+                item: $coordinator.extendedInfoViewData,
+                settings: .init(backgroundColor: Colors.Background.action)
+            ) {
+                NFTAssetExtendedInfoView(
+                    viewData: $0,
+                    dismissAction: coordinator.closeInfo
+                )
+            }
     }
 }

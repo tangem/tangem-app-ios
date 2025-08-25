@@ -10,8 +10,7 @@ enum WalletConnectViewEvent {
     case viewDidAppear
     case newConnectionButtonTapped
     case disconnectAllDAppsButtonTapped
-    case dAppTapped(WalletConnectSavedSession)
-    case canConnectNewDAppStateChanged(Bool)
-    case connectedDAppsChanged([WalletConnectSavedSession])
+    case dAppTapped(WalletConnectConnectedDApp)
+    case connectedDAppsChanged([WalletConnectConnectedDApp])
     case closeDialogButtonTapped
 }

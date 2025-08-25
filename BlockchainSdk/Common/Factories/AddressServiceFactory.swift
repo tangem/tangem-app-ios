@@ -26,8 +26,9 @@ public struct AddressServiceFactory {
             return LitecoinAddressService(networkParams: LitecoinNetworkParams())
         case .stellar:
             return StellarAddressService()
-        case .ethereum,
-             .ethereumClassic,
+        case .ethereum:
+            return EthereumAddressService(ensProcessor: CommonENSProcessor())
+        case .ethereumClassic,
              .ethereumPoW,
              .disChain,
              .bsc,
@@ -68,7 +69,7 @@ public struct AddressServiceFactory {
              .sonic,
              .vanar,
              .zkLinkNova:
-            return EthereumAddressService()
+            return EVMAddressService()
         case .rsk:
             return RskAddressService()
         case .bitcoinCash:

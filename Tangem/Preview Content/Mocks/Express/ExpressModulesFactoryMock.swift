@@ -19,8 +19,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     private lazy var pendingTransactionRepository = ExpressPendingTransactionRepositoryMock()
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
-    private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
@@ -49,7 +47,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressTokensListAdapter: expressTokensListAdapter,
             expressRepository: expressRepository,
             expressInteractor: expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            userWalletModelConfig: userWalletModel.config
         )
     }
 
@@ -63,7 +62,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
@@ -145,7 +144,7 @@ private extension ExpressModulesFactoryMock {
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
-    var signer: TangemSigner { TangemSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
+    var signer: TangemSigner { CardSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -157,10 +156,6 @@ private extension ExpressModulesFactoryMock {
             walletModelsManager: walletModelsManager,
             expressRepository: expressRepository
         )
-    }
-
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
     }
 
     // MARK: - Methods
@@ -176,37 +171,24 @@ private extension ExpressModulesFactoryMock {
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: nil,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: .loading,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
 
         return interactor
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
-    }
-
-    func makeExpressFeeProvider() -> ExpressFeeProvider {
-        return CommonExpressFeeProvider(wallet: initialWalletModel)
     }
 
     func makeExpressRepository() -> ExpressRepository {

@@ -13,17 +13,10 @@ class UserWalletNameIndexationTests: XCTestCase {
     func testUserWalletNameIndexation() throws {
         for testCaseSet in testCaseSets {
             let existingNamesTestCases = testCaseSet.existingNamesTestCases
-            let existingNames = existingNamesTestCases.map(\.0)
-            let expectedNamesAfterMigration = existingNamesTestCases.map(\.1).sorted()
-
-            let wallets = existingNames.map(WalletMock.init)
-            let migratedWallets = try XCTUnwrap(UserWalletNameIndexationHelper.migratedWallets(wallets))
-            let migratedNames = migratedWallets.map(\.name).sorted()
-
-            XCTAssertEqual(migratedNames, expectedNamesAfterMigration)
+            let existingNames = existingNamesTestCases.map(\.1)
 
             for newNameTestCase in testCaseSet.newNameTestCases {
-                let name = UserWalletNameIndexationHelper.suggestedName(newNameTestCase.0, names: migratedNames)
+                let name = UserWalletNameIndexationHelper.suggestedName(newNameTestCase.0, names: existingNames)
                 XCTAssertEqual(name, newNameTestCase.1)
             }
         }
@@ -34,10 +27,6 @@ extension UserWalletNameIndexationTests {
     struct TestCasesSet {
         let existingNamesTestCases: [(String, String)]
         let newNameTestCases: [(String, String)]
-    }
-
-    struct WalletMock: NameableWallet {
-        var name: String
     }
 }
 

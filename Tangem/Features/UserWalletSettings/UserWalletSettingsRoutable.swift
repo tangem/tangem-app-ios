@@ -8,12 +8,18 @@
 
 import Foundation
 
-protocol UserWalletSettingsRoutable: AnyObject {
+protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
     func openAddNewAccount()
-    func openOnboardingModal(with input: OnboardingInput)
+    func openOnboardingModal(with options: OnboardingCoordinator.Options)
 
     func openScanCardSettings(with input: ScanCardSettingsViewModel.Input)
     func openReferral(input: ReferralInputModel)
     func openManageTokens(userWalletModel: UserWalletModel)
+
+    func openHotBackupNeeded()
+    func openHotBackupTypes()
+
+    func openAppSettings()
+
     func dismiss()
 }

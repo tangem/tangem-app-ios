@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemLogger
 import TangemFoundation
+import BlockchainSdk
 
 actor CommonExpressManager {
     // MARK: - Dependencies
@@ -22,7 +23,7 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ExpressApprovePolicy = .unlimited
+    private var _approvePolicy: ApprovePolicy = .unlimited
     private var _feeOption: ExpressFee.Option = .market
     private var _amount: Decimal?
 
@@ -65,8 +66,8 @@ extension CommonExpressManager: ExpressManager {
         return allProviders
     }
 
-    func updatePair(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
-        assert(pair.source.expressCurrency != pair.destination.expressCurrency, "Pair has equal currencies")
+    func update(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
+        assert(pair.source.currency != pair.destination.currency, "Pair has equal currencies")
         _pair = pair
 
         // Clear for reselected the best quote
@@ -75,7 +76,7 @@ extension CommonExpressManager: ExpressManager {
         return try await update(by: .pairChange)
     }
 
-    func updateAmount(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
+    func update(amount: Decimal?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
         _amount = amount
 
         return try await update(by: source)
@@ -87,7 +88,7 @@ extension CommonExpressManager: ExpressManager {
         return try await selectedProviderState()
     }
 
-    func update(approvePolicy: ExpressApprovePolicy) async throws -> ExpressManagerState {
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
             ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()

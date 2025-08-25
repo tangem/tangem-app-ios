@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct ReferralView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -55,6 +57,9 @@ struct ReferralView: View {
                 .frame(minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
             }
             .edgesIgnoringSafeArea(.bottom)
+        }
+        .onAppear {
+            viewModel.onAppear()
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.detailsReferralTitle), displayMode: .inline)
@@ -276,7 +281,7 @@ struct ReferralView: View {
                 icon: .trailing(Assets.tangemIcon),
                 style: .primary,
                 action: {
-                    runTask(viewModel.participateInReferralProgram)
+                    runTask(code: viewModel.participateInReferralProgram)
                 }
             )
         }
