@@ -44,7 +44,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published var transactionDescriptionIsVisible: Bool = false
 
     var destinationCompactViewType: SendCompactViewEditableType {
-        switch editableType {
+        switch destinationEditableType {
         case .disable: .disabled
         case .editable: .enabled(action: userDidTapDestination)
         case .noEditable: .enabled()
@@ -52,7 +52,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     var amountCompactViewType: SendCompactViewEditableType {
-        switch editableType {
+        switch amountEditableType {
         case .disable: .disabled
         case .editable: .enabled(action: userDidTapAmount)
         case .noEditable: .enabled()
@@ -60,9 +60,11 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     }
 
     private let tokenItem: TokenItem
-    private let editableType: EditableType
+    private let destinationEditableType: EditableType
+    private let amountEditableType: EditableType
     private let interactor: SendSummaryInteractor
     private let notificationManager: NotificationManager
+    private let analyticsLogger: SendSummaryAnalyticsLogger
     private let actionType: SendFlowActionType
     weak var router: SendSummaryStepsRoutable?
 
@@ -72,17 +74,20 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         settings: Settings,
         interactor: SendSummaryInteractor,
         notificationManager: NotificationManager,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
-        editableType = settings.editableType
+        destinationEditableType = settings.destinationEditableType
+        amountEditableType = settings.amountEditableType
         tokenItem = settings.tokenItem
         actionType = settings.actionType
 
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
@@ -97,19 +102,6 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         validatorVisible = true
         feeVisible = true
         transactionDescriptionIsVisible = true
-
-        if actionType == .send {
-            Analytics.log(.sendConfirmScreenOpened)
-        } else {
-            Analytics.log(
-                event: .stakingConfirmationScreenOpened,
-                params: [
-                    .validator: stakingValidatorsCompactViewModel?.selectedValidator?.address ?? "",
-                    .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
@@ -149,14 +141,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
         didTapSummary()
 
-        Analytics.log(
-            event: .stakingButtonValidator,
-            params: [
-                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
-
+        analyticsLogger.logUserDidTapOnValidator()
         router?.summaryStepRequestEditValidators()
     }
 
@@ -276,10 +261,12 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
 extension SendSummaryViewModel {
     struct Settings {
         let tokenItem: TokenItem
-        let editableType: EditableType
+        let destinationEditableType: EditableType
+        let amountEditableType: EditableType
         let actionType: SendFlowActionType
     }
 
+    /// - Note: The only difference between `.disable` and `.noEditable` is the background color in the UI.
     enum EditableType: Hashable {
         case disable
         case editable

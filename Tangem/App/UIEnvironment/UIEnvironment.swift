@@ -10,6 +10,7 @@ private final class UIEnvironment {
     let overlayContentAdapter = OverlayContentContainerViewControllerAdapter()
     let viewHierarchySnapshottingAdapter = ViewHierarchySnapshottingContainerViewControllerAdapter()
     let floatingSheetViewModel = FloatingSheetViewModel()
+    let alertPresenter = AlertPresenterViewModel()
 }
 
 private struct UIEnvironmentKey: InjectionKey {
@@ -64,5 +65,13 @@ extension InjectedValues {
 
     var floatingSheetPresenter: any FloatingSheetPresenter {
         environment.floatingSheetViewModel
+    }
+
+    var alertPresenterViewModel: AlertPresenterViewModel {
+        environment.alertPresenter
+    }
+
+    var alertPresenter: any AlertPresenter {
+        environment.alertPresenter
     }
 }

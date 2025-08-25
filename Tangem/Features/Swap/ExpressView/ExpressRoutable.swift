@@ -12,7 +12,7 @@ import TangemExpress
 protocol ExpressRoutable: AnyObject {
     func presentSwappingTokenList(swapDirection: ExpressTokensListViewModel.SwapDirection)
     func presentFeeSelectorView()
-    func presentApproveView(provider: ExpressProvider, selectedPolicy: ExpressApprovePolicy)
+    func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy)
     func presentProviderSelectorView()
     func presentFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel)
     func presentSuccessView(data: SentExpressTransactionData)

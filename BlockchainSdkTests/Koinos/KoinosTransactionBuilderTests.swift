@@ -122,7 +122,7 @@ extension KoinosTransactionBuilderTests {
 
     @Test
     func buildForSignThrowsWhenNoContractId() throws {
-        #expect(throws: KoinosTransactionBuilderError.contractIDIsMissing, performing: {
+        #expect(throws: KoinosError.contractIDIsMissing, performing: {
             try transactionBuilder.buildForSign(
                 transaction: makeTransaction(isTestnet: false),
                 currentNonce: KoinosAccountNonce(nonce: 10),

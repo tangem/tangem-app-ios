@@ -37,11 +37,18 @@ struct OldWalletConnectV2HandlersService {
 
     private func getHandler(for request: Request, blockchainId: String, signer: TangemSigner, walletModelProvider: WalletConnectWalletModelProvider) throws -> WalletConnectMessageHandler {
         let method = request.method
-        guard let wcAction = WalletConnectAction(rawValue: method) else {
+        guard let wcAction = WalletConnectMethod(rawValue: method) else {
             throw WalletConnectV2Error.unsupportedWCMethod(method)
         }
 
-        return try handlersCreator.createHandler(for: wcAction, with: request.params, blockchainId: blockchainId, signer: signer, walletModelProvider: walletModelProvider)
+        return try handlersCreator.createHandler(
+            for: wcAction,
+            with: request.params,
+            blockchainNetworkID: blockchainId,
+            signer: signer,
+            walletModelProvider: walletModelProvider,
+            connectedDApp: nil
+        )
     }
 }
 

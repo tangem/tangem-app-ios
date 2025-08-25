@@ -14,28 +14,31 @@ import SwiftUI
 class SendAmountStep {
     private let viewModel: SendAmountViewModel
     private let interactor: SendAmountInteractor
-    private let sendFeeLoader: SendFeeLoader
-    private let source: SendModel.PredefinedValues.Source
+    private let sendFeeProvider: SendFeeProvider
+    private let analyticsLogger: SendAmountAnalyticsLogger
 
     init(
         viewModel: SendAmountViewModel,
         interactor: SendAmountInteractor,
-        sendFeeLoader: SendFeeLoader,
-        source: SendModel.PredefinedValues.Source
+        sendFeeProvider: any SendFeeProvider,
+        analyticsLogger: SendAmountAnalyticsLogger
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
-        self.sendFeeLoader = sendFeeLoader
-        self.source = source
+        self.sendFeeProvider = sendFeeProvider
+        self.analyticsLogger = analyticsLogger
     }
 }
 
 // MARK: - SendStep
 
 extension SendAmountStep: SendStep {
-    var title: String? { Localization.sendAmountLabel }
+    var title: String? { Localization.commonAmount }
 
     var type: SendStepType { .amount(viewModel) }
+
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
@@ -44,31 +47,11 @@ extension SendAmountStep: SendStep {
     }
 
     func initialAppear() {
-        if case .staking = source {
-            Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
-        }
+        analyticsLogger.logAmountStepOpened()
     }
 
     func willAppear(previous step: any SendStep) {
-        switch (source, step.type.isSummary) {
-        case (.staking, false):
-            // Workaround initalAppear
-            break
-        case (.staking, true):
-            let tokenCurrencySymbol = viewModel.tokenCurrencySymbol
-
-            Analytics.log(
-                event: .stakingScreenReopened,
-                params: [
-                    .source: Analytics.ParameterValue.amount.rawValue,
-                    .token: tokenCurrencySymbol,
-                ]
-            )
-        case (_, true):
-            Analytics.log(.sendScreenReopened, params: [.source: .amount])
-        case (_, false):
-            Analytics.log(.sendAmountScreenOpened)
-        }
+        step.type.isSummary ? analyticsLogger.logAmountStepReopened() : analyticsLogger.logAmountStepOpened()
     }
 
     func willDisappear(next step: SendStep) {
@@ -76,7 +59,7 @@ extension SendAmountStep: SendStep {
             return
         }
 
-        sendFeeLoader.updateFees()
+        sendFeeProvider.updateFees()
     }
 }
 

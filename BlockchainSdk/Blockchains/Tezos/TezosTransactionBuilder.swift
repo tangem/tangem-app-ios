@@ -146,7 +146,7 @@ private extension String {
     /// Zarith encoding
     func encodeInt() throws -> String {
         guard var nn = UInt64(self) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         var result = ""

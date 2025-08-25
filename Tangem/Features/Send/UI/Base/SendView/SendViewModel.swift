@@ -8,7 +8,7 @@
 
 import Combine
 import SwiftUI
-import struct BlockchainSdk.SendTxError
+import BlockchainSdk
 import TangemAssets
 import TangemExpress
 import TangemFoundation
@@ -20,6 +20,10 @@ protocol SendViewAlertPresenter: AnyObject {
 }
 
 final class SendViewModel: ObservableObject {
+    // MARK: - Injections
+
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     // MARK: - ViewState
 
     @Published var step: SendStep
@@ -36,18 +40,16 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonLoading: Bool = false
     @Published var actionIsAvailable: Bool = false
 
-    @Published var alert: AlertBinder?
-
     var title: String? { step.title }
     var subtitle: String? { step.subtitle }
     var shouldShowBottomOverlay: Bool { step.shouldShowBottomOverlay }
 
-    var closeButtonColor: Color {
-        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
-    }
-
     var shouldShowDismissAlert: Bool {
         stepsManager.shouldShowDismissAlert
+    }
+
+    var shouldShowShareExploreButtons: Bool {
+        !tokenItem.blockchain.isTransactionAsync
     }
 
     private let interactor: SendBaseInteractor
@@ -55,6 +57,7 @@ final class SendViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let alertBuilder: SendAlertBuilder
     private let dataBuilder: SendGenericBaseDataBuilder
+    private let analyticsLogger: SendBaseViewAnalyticsLogger
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let source: SendCoordinator.Source
@@ -64,6 +67,7 @@ final class SendViewModel: ObservableObject {
 
     private var sendTask: Task<Void, Never>?
     private var isValidSubscription: AnyCancellable?
+    private var isValidContinueSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
@@ -71,6 +75,7 @@ final class SendViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         alertBuilder: SendAlertBuilder,
         dataBuilder: SendGenericBaseDataBuilder,
+        analyticsLogger: SendBaseViewAnalyticsLogger,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         source: SendCoordinator.Source,
@@ -80,6 +85,7 @@ final class SendViewModel: ObservableObject {
         self.stepsManager = stepsManager
         self.userWalletModel = userWalletModel
         self.alertBuilder = alertBuilder
+        self.analyticsLogger = analyticsLogger
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.dataBuilder = dataBuilder
@@ -98,26 +104,17 @@ final class SendViewModel: ObservableObject {
     }
 
     func onAppear() {
-        switch flowActionType {
-        case .onramp:
-            Analytics.log(event: .onrampBuyScreenOpened, params: [
-                .source: source.analytics.rawValue,
-                .token: tokenItem.currencySymbol,
-            ])
-        default:
-            break
-        }
+        analyticsLogger.logSendBaseViewOpened()
     }
 
     func onDisappear() {}
 
     func userDidTapActionButton() {
+        analyticsLogger.logMainActionButton(type: mainButtonType, flow: flowActionType)
+
         switch mainButtonType {
         case .next:
             stepsManager.performNext()
-            if flowActionType == .stake {
-                Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
-            }
         case .continue:
             stepsManager.performContinue()
         case .action where flowActionType == .approve:
@@ -127,7 +124,7 @@ final class SendViewModel: ObservableObject {
         case .action:
             performAction()
         case .close:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
@@ -137,7 +134,7 @@ final class SendViewModel: ObservableObject {
 
     func onAppear(newStep: any SendStep) {
         switch (step.type, newStep.type) {
-        case (_, .summary):
+        case (_, .summary), (_, .newSummary):
             isKeyboardActive = false
         default:
             break
@@ -153,7 +150,7 @@ final class SendViewModel: ObservableObject {
         // if the destination's TextField will be support @FocusState
         // case (_, .destination):
         //    isKeyboardActive = true
-        case (_, .amount):
+        case (_, .amount), (_, .newAmount), (_, .newDestination):
             isKeyboardActive = true
         default:
             break
@@ -161,74 +158,29 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
-        switch flowActionType {
-        case .send:
-            Analytics.log(.sendButtonClose, params: [
-                .source: step.type.analyticsSourceParameterValue,
-                .fromSummary: .affirmativeOrNegative(for: step.type.isSummary),
-                .valid: .affirmativeOrNegative(for: actionIsAvailable),
-            ])
-        case .onramp:
-            Analytics.log(.onrampButtonClose)
-        case .approve,
-             .stake,
-             .unstake,
-             .claimRewards,
-             .restakeRewards,
-             .withdraw, .claimUnstaked,
-             .restake,
-             .unlockLocked,
-             .stakeLocked,
-             .vote,
-             .revoke,
-             .voteLocked,
-             .revote,
-             .rebond,
-             .migrate:
-            Analytics.log(event: .stakingButtonCancel, params: [
-                .source: step.type.analyticsSourceParameterValue.rawValue,
-                .token: tokenItem.currencySymbol,
-            ])
-        }
+        analyticsLogger.logCloseButton(stepType: step.type, isAvailableToAction: actionIsAvailable)
 
-        // We perform the continue action
-        // When user'd like to return back step
-        // For destination, amount, fee do not close modal and open the summary
         switch mainButtonType {
         case .continue:
-            stepsManager.performContinue()
+            // When `mainButtonType == .continue` means we're in the `edit` mode
+            // We perform the back action with no save changes in new UI
+            stepsManager.performBack()
         case _ where shouldShowDismissAlert:
-            alert = alertBuilder.makeDismissAlert { [weak self] in
-                self?.coordinator?.dismiss()
-            }
+            showAlert(alertBuilder.makeDismissAlert { [weak self] in
+                self?.coordinator?.dismiss(reason: .other)
+            })
         case _:
-            coordinator?.dismiss()
+            coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
     }
 
     func share(url: URL) {
-        if flowActionType == .send {
-            Analytics.log(.sendButtonShare)
-        } else {
-            Analytics.log(
-                event: .stakingButtonShare,
-                params: [
-                    .token: tokenItem.currencySymbol,
-                ]
-            )
-        }
+        analyticsLogger.logShareButton()
         coordinator?.openShareSheet(url: url)
     }
 
     func explore(url: URL) {
-        if flowActionType == .send {
-            Analytics.log(.sendButtonExplore)
-        } else {
-            Analytics.log(
-                event: .stakingButtonExplore,
-                params: [.token: tokenItem.currencySymbol]
-            )
-        }
+        analyticsLogger.logExploreButton()
         coordinator?.openExplorer(url: url)
     }
 }
@@ -238,7 +190,7 @@ final class SendViewModel: ObservableObject {
 private extension SendViewModel {
     func performOnramp() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            showAlert(AlertBuilder.makeDemoAlert(disabledLocalizedReason))
             return
         }
 
@@ -247,7 +199,7 @@ private extension SendViewModel {
             let onrampRedirectingBuilder = try dataBuilder.onrampBuilder().makeDataForOnrampRedirecting()
             coordinator?.openOnrampRedirecting(onrampRedirectingBuilder: onrampRedirectingBuilder)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -256,13 +208,13 @@ private extension SendViewModel {
             let (settings, approveViewModelInput) = try dataBuilder.stakingBuilder().makeDataForExpressApproveViewModel()
             coordinator?.openApproveView(settings: settings, approveViewModelInput: approveViewModelInput)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
     func performAction() {
         sendTask?.cancel()
-        sendTask = TangemFoundation.runTask(in: self) { viewModel in
+        sendTask = runTask(in: self) { viewModel in
             do {
                 let result = try await viewModel.interactor.action()
                 await viewModel.proceed(result: result)
@@ -272,6 +224,17 @@ private extension SendViewModel {
                 await viewModel.proceed(error: error)
             } catch _ as CancellationError {
                 // Do nothing
+            } catch let error as ValidationError {
+                let factory = BlockchainSDKNotificationMapper(
+                    tokenItem: viewModel.tokenItem,
+                    feeTokenItem: viewModel.feeTokenItem
+                )
+
+                let validationErrorEvent = factory.mapToValidationErrorEvent(error)
+                let message = validationErrorEvent.description ?? error.localizedDescription
+                let alertBinder = AlertBinder(title: Localization.commonError, message: message)
+                AppLogger.error(error: error)
+                await runOnMain { viewModel.showAlert(alertBinder) }
             } catch {
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.showAlert(error.alertBinder) }
@@ -291,39 +254,39 @@ private extension SendViewModel {
         case .userCancelled, .transactionNotFound, .actionNotSupported:
             break
         case .informationRelevanceServiceError:
-            alert = alertBuilder.makeFeeRetryAlert { [weak self] in
+            showAlert(alertBuilder.makeFeeRetryAlert { [weak self] in
                 self?.interactor.actualizeInformation()
-            }
+            })
         case .informationRelevanceServiceFeeWasIncreased:
-            alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
+            showAlert(AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle))
         case .sendTxError(let transaction, let sendTxError):
-            alert = alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
+            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: sendTxError) { [weak self] in
                 self?.openMail(transaction: transaction, error: sendTxError)
-            }
+            })
         case .loadTransactionInfo(let error):
-            alert = alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
+            showAlert(alertBuilder.makeTransactionFailedAlert(sendTxError: .init(error: error)) { [weak self] in
                 self?.openMail(error: error)
-            }
+            })
         case .demoAlert:
-            alert = AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
-                self?.coordinator?.dismiss()
-            }
+            showAlert(AlertBuilder.makeDemoAlert(Localization.alertDemoFeatureDisabled) { [weak self] in
+                self?.coordinator?.dismiss(reason: .other)
+            })
         }
     }
 
-    func openMail(error: Error) {
-        Analytics.log(.requestSupport, params: [.source: .send])
+    func openMail(error: UniversalError) {
+        analyticsLogger.logRequestSupport()
 
         do {
             let (emailDataCollector, recipient) = try dataBuilder.stakingBuilder().makeMailData(stakingRequestError: error)
             coordinator?.openMail(with: emailDataCollector, recipient: recipient)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
     func openMail(transaction: SendTransactionType, error: SendTxError) {
-        Analytics.log(.requestSupport, params: [.source: .send])
+        analyticsLogger.logRequestSupport()
 
         do {
             switch transaction {
@@ -337,7 +300,7 @@ private extension SendViewModel {
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
             }
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -382,6 +345,25 @@ extension SendViewModel: SendModelRoutable {
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
+
+    func resetFlow() {
+        stepsManager.resetFlow()
+    }
+}
+
+// MARK: - SendNewAmountRoutable
+
+extension SendViewModel: SendNewAmountRoutable {
+    func openReceiveTokensList() {
+        do {
+            isKeyboardActive = false
+            let builder = try dataBuilder.sendBuilder()
+            let tokensListBuilder = try builder.makeSendReceiveTokensList()
+            coordinator?.openReceiveTokensList(tokensListBuilder: tokensListBuilder)
+        } catch {
+            showAlert(error.alertBinder)
+        }
+    }
 }
 
 // MARK: - OnrampModelRoutable
@@ -394,7 +376,7 @@ extension SendViewModel: OnrampModelRoutable {
             let (repository, dataRepository) = builder.makeDataForOnrampCountryBottomSheet()
             coordinator?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -407,7 +389,7 @@ extension SendViewModel: OnrampModelRoutable {
                 dataRepository: dataRepository
             )
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -429,7 +411,7 @@ extension SendViewModel: OnrampSummaryRoutable {
             let (providersBuilder, paymentMethodsBuilder) = builder.makeDataForOnrampProvidersPaymentMethodsView()
             coordinator?.openOnrampProviders(providersBuilder: providersBuilder, paymentMethodsBuilder: paymentMethodsBuilder)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -439,7 +421,7 @@ extension SendViewModel: OnrampSummaryRoutable {
             let (repository, _) = builder.makeDataForOnrampCountrySelectorView()
             coordinator?.openOnrampSettings(repository: repository)
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 
@@ -452,7 +434,7 @@ extension SendViewModel: OnrampSummaryRoutable {
                 dataRepository: dataRepository
             )
         } catch {
-            alert = error.alertBinder
+            showAlert(error.alertBinder)
         }
     }
 }
@@ -461,7 +443,7 @@ extension SendViewModel: OnrampSummaryRoutable {
 
 extension SendViewModel: SendViewAlertPresenter {
     func showAlert(_ alert: AlertBinder) {
-        self.alert = alert
+        alertPresenter.present(alert: alert)
     }
 }
 

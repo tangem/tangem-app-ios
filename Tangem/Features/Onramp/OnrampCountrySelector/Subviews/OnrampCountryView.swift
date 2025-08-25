@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampCountryView: View {
     let data: OnrampCountryViewData
@@ -18,6 +19,7 @@ struct OnrampCountryView: View {
         Button(action: data.action) {
             labelView
         }
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.countryItem(code: data.name))
         .disabled(!data.isAvailable)
         .opacity(data.isAvailable ? 1 : 0.4)
     }

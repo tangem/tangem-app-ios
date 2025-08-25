@@ -11,7 +11,7 @@ import Foundation
 struct SellFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -21,8 +21,10 @@ struct SellFlowBaseBuilder {
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
-        let sendModel = builder.makeSendModel(predefinedSellParameters: sellParameters)
-        let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger, predefinedSellParameters: sellParameters)
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
+        let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let sendDestinationCompactViewModel = sendDestinationStepBuilder.makeSendDestinationCompactViewModel(
             input: sendModel
@@ -35,6 +37,9 @@ struct SellFlowBaseBuilder {
         let fee = sendFeeStepBuilder.makeFeeSendStep(
             io: (input: sendModel, output: sendModel),
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
+            sendFeeProvider: sendFeeProvider,
+            customFeeService: customFeeService,
             router: router
         )
 
@@ -43,16 +48,18 @@ struct SellFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .disable,
+            destinationEditableType: .disable,
+            amountEditableType: .disable,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: .none,
@@ -61,14 +68,14 @@ struct SellFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
-        sendModel.sendFeeInteractor = fee.interactor
+        // We have to set dependencies here after all setups is completed
+        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            sendFeeInteractor: fee.interactor
+            input: sendModel, output: sendModel, provider: sendFeeProvider
         )
 
         // Update the fees in case we in the sell flow
-        fee.interactor.updateFees()
+        sendFeeProvider.updateFees()
 
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
@@ -92,9 +99,10 @@ struct SellFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
         stepsManager.set(output: viewModel)

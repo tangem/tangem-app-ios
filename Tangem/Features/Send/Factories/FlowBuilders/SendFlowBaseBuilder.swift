@@ -11,7 +11,7 @@ import Foundation
 struct SendFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
-    let source: SendCoordinator.Source
+    let coordinatorSource: SendCoordinator.Source
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
@@ -21,30 +21,36 @@ struct SendFlowBaseBuilder {
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
+        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
         let sendQRCodeService = builder.makeSendQRCodeService()
-        let sendModel = builder.makeSendModel()
-        let sendFinishAnalyticsLogger = builder.makeSendFinishAnalyticsLogger(sendFeeInput: sendModel)
+        let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger)
+        let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
+        let customFeeService = builder.makeCustomFeeService(input: sendModel)
 
         let fee = sendFeeStepBuilder.makeFeeSendStep(
             io: (input: sendModel, output: sendModel),
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
+            sendFeeProvider: sendFeeProvider,
+            customFeeService: customFeeService,
             router: router
         )
 
         let amount = sendAmountStepBuilder.makeSendAmountStep(
             io: (input: sendModel, output: sendModel),
             actionType: .send,
-            sendFeeLoader: fee.interactor,
+            sendFeeProvider: sendFeeProvider,
             sendQRCodeService: sendQRCodeService,
             sendAmountValidator: builder.makeSendAmountValidator(),
             amountModifier: .none,
-            source: .send
+            analyticsLogger: analyticsLogger
         )
 
         let destination = sendDestinationStepBuilder.makeSendDestinationStep(
             io: (input: sendModel, output: sendModel),
-            sendFeeInteractor: fee.interactor,
+            sendFeeProvider: sendFeeProvider,
             sendQRCodeService: sendQRCodeService,
+            analyticsLogger: analyticsLogger,
             router: router
         )
 
@@ -53,16 +59,18 @@ struct SendFlowBaseBuilder {
             actionType: .send,
             descriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            destinationEditableType: .editable,
+            amountEditableType: .editable,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: nil,
-            sendFeeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact,
+            analyticsLogger: analyticsLogger
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: sendModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: destination.compact,
             sendAmountCompactViewModel: amount.compact,
             onrampAmountCompactViewModel: .none,
@@ -71,15 +79,17 @@ struct SendFlowBaseBuilder {
             onrampStatusCompactViewModel: .none
         )
 
-        // We have to set dependicies here after all setups is completed
+        // We have to set dependencies here after all setups is completed
         sendModel.sendAmountInteractor = amount.interactor
-        sendModel.sendFeeInteractor = fee.interactor
+        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = builder.makeInformationRelevanceService(
-            sendFeeInteractor: fee.interactor
+            input: sendModel, output: sendModel, provider: sendFeeProvider
         )
 
         notificationManager.setup(input: sendModel)
         notificationManager.setupManager(with: sendModel)
+
+        analyticsLogger.setup(sendFeeInput: sendModel)
 
         // We have to do it after sendModel fully setup
         fee.compact.bind(input: sendModel)
@@ -103,9 +113,10 @@ struct SendFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: builder.makeSendBaseDataBuilder(input: sendModel),
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            source: source,
+            source: coordinatorSource,
             coordinator: router
         )
 

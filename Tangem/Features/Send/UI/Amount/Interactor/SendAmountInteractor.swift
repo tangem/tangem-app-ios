@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol SendAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
@@ -17,7 +18,7 @@ protocol SendAmountInteractor {
 
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
-    func updateToMaxAmount() -> SendAmount?
+    func updateToMaxAmount() -> SendAmount
 
     /// Use this method if have to updated from notification
     func externalUpdate(amount: Decimal?)
@@ -30,9 +31,9 @@ class CommonSendAmountInteractor {
 
     private weak var input: SendAmountInput?
     private weak var output: SendAmountOutput?
+
     private let validator: SendAmountValidator
     private let amountModifier: SendAmountModifier?
-
     private var type: SendAmountCalculationType
 
     private var _cachedAmount: CurrentValueSubject<SendAmount?, Never>
@@ -76,23 +77,22 @@ class CommonSendAmountInteractor {
     }
 
     private func validateAndUpdate(amount: SendAmount?) {
-        guard let amount, let crypto = amount.crypto, crypto > 0 else {
-            // Field is empty or zero
-            update(amount: .none, isValid: false, error: .none)
-            return
-        }
-
         do {
-            try validator.validate(amount: crypto)
+            // Validation is performed only when an initial amount is not empty
+            if let crypto = amount?.crypto {
+                try validator.validate(amount: crypto)
+            }
 
             let modifiedAmount = modifyIfNeeded(amount: amount)
 
-            if let modifiedCryptoAmount = modifiedAmount.crypto, modifiedCryptoAmount != amount.crypto {
+            if let modifiedCryptoAmount = modifiedAmount?.crypto, modifiedCryptoAmount != amount?.crypto {
                 // additional validation if amount has changed
                 try validator.validate(amount: modifiedCryptoAmount)
             }
 
-            update(amount: modifiedAmount, isValid: true, error: .none)
+            update(amount: modifiedAmount, isValid: modifiedAmount != .none, error: .none)
+        } catch SendAmountValidatorError.zeroAmount {
+            update(amount: .none, isValid: false, error: .none)
         } catch {
             update(amount: .none, isValid: false, error: error)
         }
@@ -111,12 +111,16 @@ class CommonSendAmountInteractor {
         }
 
         let mapper = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        if case .string(let title) = mapper.mapToValidationErrorEvent(validationError).title {
+            return title
+        }
+
         let description = mapper.mapToValidationErrorEvent(validationError).description
         return description
     }
 
-    private func modifyIfNeeded(amount: SendAmount) -> SendAmount {
-        guard let crypto = amountModifier?.modify(cryptoAmount: amount.crypto) else {
+    private func modifyIfNeeded(amount: SendAmount?) -> SendAmount? {
+        guard let crypto = amountModifier?.modify(cryptoAmount: amount?.crypto) else {
             return amount
         }
 
@@ -206,7 +210,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         return sendAmount
     }
 
-    func updateToMaxAmount() -> SendAmount? {
+    func updateToMaxAmount() -> SendAmount {
         switch type {
         case .crypto:
             let fiat = convertToFiat(cryptoValue: maxAmount)

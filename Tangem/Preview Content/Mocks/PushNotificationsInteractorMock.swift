@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class PushNotificationsInteractorMock: PushNotificationsInteractor {
     func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
@@ -17,9 +18,13 @@ class PushNotificationsInteractorMock: PushNotificationsInteractor {
 
     func postponeRequest(in flow: PushNotificationsPermissionRequestFlow) {}
 
+    func logRequest(in flow: PushNotificationsPermissionRequestFlow) {}
+
     func initialize() {}
 
     func registerForPushNotifications(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
     }
+
+    var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> { .just(output: .allow(.walletOnboarding)) }
 }

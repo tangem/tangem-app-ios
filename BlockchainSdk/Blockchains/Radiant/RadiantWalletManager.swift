@@ -89,7 +89,7 @@ private extension RadiantWalletManager {
         .flatMap { walletManager, rawTransactionHex in
             walletManager.networkService
                 .send(transaction: rawTransactionHex)
-                .mapSendError(tx: rawTransactionHex)
+                .mapAndEraseSendTxError(tx: rawTransactionHex)
         }
         .withWeakCaptureOf(self)
         .map { walletManager, result -> TransactionSendResult in
@@ -98,7 +98,7 @@ private extension RadiantWalletManager {
             walletManager.wallet.addPendingTransaction(record)
             return result
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 

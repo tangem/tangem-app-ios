@@ -13,7 +13,6 @@ import BlockchainSdk
 import TangemFoundation
 
 class CustomBitcoinFeeService {
-    private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
 
     private let tokenItem: TokenItem
@@ -31,13 +30,16 @@ class CustomBitcoinFeeService {
     }
 
     init(
+        input: CustomFeeServiceInput,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
-        bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
+        bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator,
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
+
+        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -75,13 +77,13 @@ class CustomBitcoinFeeService {
     }
 
     private func customFeeDidChanged(fee: Fee) {
-        let fortmatted = fortmatToFiat(value: fee.amount.value)
-        customFeeInFiat.send(fortmatted)
+        let formatted = formatToFiat(value: fee.amount.value)
+        customFeeInFiat.send(formatted)
 
         output?.customFeeDidChanged(fee)
     }
 
-    private func fortmatToFiat(value: Decimal?) -> String? {
+    private func formatToFiat(value: Decimal?) -> String? {
         guard let value,
               let currencyId = feeTokenItem.currencyId else {
             return nil
@@ -125,11 +127,8 @@ class CustomBitcoinFeeService {
 }
 
 extension CustomBitcoinFeeService: CustomFeeService {
-    func setup(input: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
-        self.input = input
+    func setup(output: any CustomFeeServiceOutput) {
         self.output = output
-
-        bind(input: input)
     }
 
     func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {

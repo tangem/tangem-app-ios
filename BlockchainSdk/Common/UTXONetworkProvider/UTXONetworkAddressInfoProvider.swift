@@ -17,7 +17,7 @@ extension UTXONetworkAddressInfoProvider {
     /// Convenient method for multi-addresses wallet
     func getInfo(addresses: [Address]) -> AnyPublisher<[UTXONetworkProviderUpdatingResponse], any Error> {
         if addresses.isEmpty {
-            return .anyFail(error: WalletError.addressesIsEmpty)
+            return .anyFail(error: BlockchainSdkError.addressesIsEmpty)
         }
 
         let publishers = addresses.map { address in

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUIUtils
 
 struct OnrampProviderRowViewData: Identifiable {
     var id: Int { hashValue }
@@ -17,7 +18,6 @@ struct OnrampProviderRowViewData: Identifiable {
     let formattedAmount: String?
     let state: State?
     let badge: Badge?
-    let isSelected: Bool
     let action: () -> Void
 
     var isTappable: Bool {
@@ -59,6 +59,5 @@ extension OnrampProviderRowViewData: Hashable {
         hasher.combine(formattedAmount)
         hasher.combine(state)
         hasher.combine(badge)
-        hasher.combine(isSelected)
     }
 }

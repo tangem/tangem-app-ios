@@ -16,12 +16,14 @@ import TangemFoundation
 class CustomEvmFeeService {
     private weak var output: CustomFeeServiceOutput?
 
+    private let sourceTokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
     private let gasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
     private let gasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
     private let maxFeePerGas = CurrentValueSubject<BigUInt?, Never>(nil)
     private let priorityFee = CurrentValueSubject<BigUInt?, Never>(nil)
+    private let nonce = CurrentValueSubject<Int?, Never>(nil)
 
     private let customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
     private let customFeeInFiat: CurrentValueSubject<String?, Never> = .init(.none)
@@ -31,6 +33,7 @@ class CustomEvmFeeService {
     private var customPriorityFeeBeforeEditing: BigUInt?
     private var customMaxLimitBeforeEditing: BigUInt?
     private var customGasPriceBeforeEditing: BigUInt?
+    private var customNonceBeforeEditing: Int?
 
     private var zeroFee: Fee {
         return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
@@ -38,7 +41,8 @@ class CustomEvmFeeService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(feeTokenItem: TokenItem) {
+    init(sourceTokenItem: TokenItem, feeTokenItem: TokenItem) {
+        self.sourceTokenItem = sourceTokenItem
         self.feeTokenItem = feeTokenItem
 
         bind()
@@ -48,7 +52,6 @@ class CustomEvmFeeService {
         customFee
             .compactMap { $0 }
             .dropFirst()
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { service, customFee in
                 service.customFeeInFiat.send(service.fortmatToFiat(value: customFee.amount.value))
@@ -94,21 +97,34 @@ class CustomEvmFeeService {
         customFee.send(recalculateFee())
     }
 
+    private func didChangeCustomNonce(_ value: Int?) {
+        nonce.send(value)
+        customFee.send(recalculateFee())
+    }
+
     private func recalculateFee() -> Fee {
         let parameters: EthereumFeeParameters
+        let nonce = nonce.value
 
         if feeTokenItem.blockchain.supportsEIP1559 {
-            guard let gasLimit = gasLimit.value, let maxFeePerGas = maxFeePerGas.value, let priorityFee = priorityFee.value else {
+            guard let gasLimit = gasLimit.value,
+                  let maxFeePerGas = maxFeePerGas.value,
+                  let priorityFee = priorityFee.value else {
                 return zeroFee
             }
 
-            parameters = EthereumEIP1559FeeParameters(gasLimit: gasLimit, maxFeePerGas: maxFeePerGas, priorityFee: priorityFee)
+            parameters = EthereumEIP1559FeeParameters(
+                gasLimit: gasLimit,
+                maxFeePerGas: maxFeePerGas,
+                priorityFee: priorityFee,
+                nonce: nonce
+            )
         } else {
             guard let gasLimit = gasLimit.value, let gasPrice = gasPrice.value else {
                 return zeroFee
             }
 
-            parameters = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice)
+            parameters = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice, nonce: nonce)
         }
 
         let fee = parameters.calculateFee(decimalValue: feeTokenItem.decimalValue)
@@ -119,6 +135,7 @@ class CustomEvmFeeService {
 
     private func calculateFee(for feeValue: Decimal?) -> Fee {
         let feeDecimalValue = feeTokenItem.decimalValue
+        let nonce = nonce.value
 
         guard let feeValue, let currentGasLimit = gasLimit.value else {
             return zeroFee
@@ -133,10 +150,15 @@ class CustomEvmFeeService {
 
         if feeTokenItem.blockchain.supportsEIP1559, let currentPriorityFee = priorityFee.value {
             let maxFeePerGas = (enteredFeeInSmallestDenomination / currentGasLimit)
-            parameters = EthereumEIP1559FeeParameters(gasLimit: currentGasLimit, maxFeePerGas: maxFeePerGas, priorityFee: currentPriorityFee)
+            parameters = EthereumEIP1559FeeParameters(
+                gasLimit: currentGasLimit,
+                maxFeePerGas: maxFeePerGas,
+                priorityFee: currentPriorityFee,
+                nonce: nonce
+            )
         } else {
             let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
-            parameters = EthereumLegacyFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
+            parameters = EthereumLegacyFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice, nonce: nonce)
         }
 
         let fee = parameters.calculateFee(decimalValue: feeTokenItem.decimalValue)
@@ -157,9 +179,11 @@ class CustomEvmFeeService {
             gasLimit.send(eip1559Parameters.gasLimit)
             maxFeePerGas.send(eip1559Parameters.maxFeePerGas)
             priorityFee.send(eip1559Parameters.priorityFee)
+            nonce.send(eip1559Parameters.nonce)
         case .legacy(let legacyParameters):
             gasLimit.send(legacyParameters.gasLimit)
             gasPrice.send(legacyParameters.gasPrice)
+            nonce.send(legacyParameters.nonce)
         }
     }
 }
@@ -167,7 +191,7 @@ class CustomEvmFeeService {
 // MARK: - EditableCustomFeeService
 
 extension CustomEvmFeeService: CustomFeeService {
-    func setup(input _: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
+    func setup(output: any CustomFeeServiceOutput) {
         self.output = output
     }
 
@@ -208,6 +232,21 @@ extension CustomEvmFeeService: CustomFeeService {
             self?.onGasLimitChanged(focused)
         }
 
+        let nonceModel = SendCustomFeeInputFieldModel(
+            title: Localization.sendNonce,
+            amountPublisher: nonce
+                .map { $0.map { NSDecimalNumber(value: $0).decimalValue } }
+                .eraseToAnyPublisher(),
+            fieldSuffix: nil,
+            fractionDigits: 0,
+            amountAlternativePublisher: .just(output: nil),
+            footer: Localization.sendNonceFooter
+        ) { [weak self] in
+            self?.didChangeCustomNonce($0?.intValue())
+        } onFocusChanged: { [weak self] focused in
+            self?.onNonceChanged(focused)
+        }
+
         if feeTokenItem.blockchain.supportsEIP1559 {
             let maxFeeModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendCustomEvmMaxFee,
@@ -237,7 +276,7 @@ extension CustomEvmFeeService: CustomFeeService {
                 self?.onProrityFeeChanged(focused)
             }
 
-            return [customFeeModel, maxFeeModel, priorityFeeModel, gasLimitModel]
+            return [customFeeModel, maxFeeModel, priorityFeeModel, gasLimitModel, nonceModel]
         } else {
             let gasPriceModel = SendCustomFeeInputFieldModel(
                 title: Localization.sendGasPrice,
@@ -253,7 +292,7 @@ extension CustomEvmFeeService: CustomFeeService {
                 self?.onGasPriceChanged(focused)
             }
 
-            return [customFeeModel, gasPriceModel, gasLimitModel]
+            return [customFeeModel, gasPriceModel, gasLimitModel, nonceModel]
         }
     }
 }
@@ -317,6 +356,24 @@ private extension CustomEvmFeeService {
             }
 
             customGasPriceBeforeEditing = nil
+        }
+    }
+
+    private func onNonceChanged(_ focused: Bool) {
+        if focused {
+            customNonceBeforeEditing = nonce.value
+        } else {
+            let customNonceAfterEditing = nonce.value
+            if customNonceAfterEditing != customNonceBeforeEditing {
+                let params: [Analytics.ParameterKey: String] = [
+                    .token: sourceTokenItem.currencySymbol,
+                    .blockchain: sourceTokenItem.blockchain.currencySymbol,
+                ]
+
+                Analytics.log(event: .sendNonceInserted, params: params)
+            }
+
+            customNonceBeforeEditing = nil
         }
     }
 }

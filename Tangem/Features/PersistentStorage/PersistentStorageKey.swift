@@ -11,8 +11,8 @@ import Foundation
 enum PersistentStorageKey {
     case cards
     case wallets(cid: String)
-    case allWalletConnectSessions
-    case walletConnectSessions(userWalletId: String)
+    case allWalletConnectSessionsOld
+    case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
     case pendingStakingTransactions
@@ -24,10 +24,10 @@ enum PersistentStorageKey {
             return "scanned_cards"
         case .wallets(let cid):
             return "wallets_\(cid)"
-        case .allWalletConnectSessions:
+        case .allWalletConnectSessionsOld:
             return "wc_sessions"
-        case .walletConnectSessions(let userWalletId):
-            return "wc_sessions_\(userWalletId)"
+        case .walletConnectSessions:
+            return "wallet_connect_sessions"
         case .pendingExpressTransactions:
             return "express_pending_transactions"
         case .pendingOnrampTransactions:

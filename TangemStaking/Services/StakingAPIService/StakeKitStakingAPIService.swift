@@ -34,7 +34,7 @@ class StakeKitStakingAPIService: StakingAPIService {
     }
 
     func getBalances(request: StakeKitDTO.Balances.Request) async throws -> [StakeKitDTO.Balances.Response] {
-        try await _request(target: .getBalances(request))
+        try await _request(target: .getBalances([request]))
     }
 
     func actions(request: StakeKitDTO.Actions.List.Request) async throws -> StakeKitDTO.Actions.List.Response {
@@ -121,11 +121,9 @@ private extension StakeKitStakingAPIService {
     }
 }
 
-public enum StakeKitHTTPError: Error {
+public enum StakeKitHTTPError: Error, LocalizedError {
     case badStatusCode(response: String?, code: Int)
-}
 
-extension StakeKitHTTPError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .badStatusCode(let response, let code): response ?? "HTTP error \(code)"

@@ -9,12 +9,13 @@
 import Combine
 import TangemFoundation
 
-public typealias NFTManagerState = LoadingValue<[NFTCollection]>
+public typealias NFTManagerState = LoadingValue<NFTPartialResult<[NFTCollection]>>
 
 public protocol NFTManager {
     var collections: [NFTCollection] { get }
-    var collectionsPublisher: AnyPublisher<[NFTCollection], Never> { get }
+    var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> { get }
     var statePublisher: AnyPublisher<NFTManagerState, Never> { get }
 
-    func update()
+    func update(cachePolicy: NFTCachePolicy)
+    func updateAssets(in collection: NFTCollection)
 }

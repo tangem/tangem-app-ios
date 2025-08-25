@@ -19,6 +19,13 @@ struct NFTNetworkServiceFactory {
             return nil
         }
 
+        let moralisNeworkHeaders = [
+            APIHeaderKeyInfo(
+                headerName: Constants.xAPIKeyHeaderName,
+                headerValue: keysManager.moralisAPIKey
+            ),
+        ]
+
         switch nftChain {
         case .ethereum,
              .polygon,
@@ -33,26 +40,16 @@ struct NFTNetworkServiceFactory {
              .optimism,
              .moonbeam,
              .moonriver:
-            return MoralisNFTNetworkService(
+
+            return MoralisEVMNFTNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
-                headers: [
-                    APIHeaderKeyInfo(
-                        headerName: Constants.xAPIKeyHeaderName,
-                        headerValue: keysManager.moralisAPIKey
-                    ),
-                ],
+                headers: moralisNeworkHeaders,
                 chain: nftChain
             )
         case .solana:
-            return NFTScanNFTNetworkService(
+            return MoralisSolanaNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
-                headers: [
-                    APIHeaderKeyInfo(
-                        headerName: Constants.xAPIKeyHeaderName,
-                        headerValue: ""
-                    ),
-                ],
-                chain: nftChain
+                headers: moralisNeworkHeaders
             )
         }
     }

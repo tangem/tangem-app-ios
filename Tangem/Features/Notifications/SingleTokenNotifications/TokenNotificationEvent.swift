@@ -24,7 +24,6 @@ enum TokenNotificationEvent: Hashable {
     case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
-    case kaspaTokensBeta
 
     static func event(
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
@@ -70,14 +69,14 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
-        case .staking(_, let earnUpToFormatted):
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
+            return .string(Localization.warningTokenTrustlineTitle)
+        case .staking:
             return .string(Localization.tokenDetailsStakingBlockTitle)
         case .manaLevel:
             return .string(Localization.koinosManaLevelTitle)
         case .maticMigration:
             return .string(Localization.warningMaticMigrationTitle)
-        case .kaspaTokensBeta:
-            return .string(Localization.betaModeWarningTitle)
         }
     }
 
@@ -120,14 +119,14 @@ extension TokenNotificationEvent: NotificationEvent {
                 revealTransaction.formattedValue,
                 revealTransaction.currencySymbol
             )
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+            return Localization.warningTokenTrustlineSubtitle(trustlineInfo.reserveCurrencySymbol, trustlineInfo.reserveAmount)
         case .staking:
             return Localization.stakingNotificationEarnRewardsText
         case .manaLevel(let currentMana, let maxMana):
             return Localization.koinosManaLevelDescription(currentMana, maxMana)
         case .maticMigration:
             return Localization.warningMaticMigrationMessage
-        case .kaspaTokensBeta:
-            return Localization.betaModeWarningMessage
         }
     }
 
@@ -140,13 +139,13 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
-             .maticMigration,
-             .kaspaTokensBeta:
+             .maticMigration:
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking:
             return .primary
         }
@@ -158,8 +157,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
-             .maticMigration,
-             .kaspaTokensBeta:
+             .maticMigration:
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -169,6 +167,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Tokens.hederaFill.image))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo)):
+            return .init(iconType: .image(trustlineInfo.icon.image))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
         }
@@ -181,15 +181,15 @@ extension TokenNotificationEvent: NotificationEvent {
              .existentialDepositWarning,
              .staking,
              .manaLevel,
-             .maticMigration,
-             .kaspaTokensBeta:
+             .maticMigration:
             return .info
         case .networkUnreachable,
              .networkNotUpdated,
              .notEnoughFeeForTransaction,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
-             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
+             .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline):
             return .warning
         }
     }
@@ -206,10 +206,10 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
-             .maticMigration,
-             .kaspaTokensBeta:
+             .maticMigration:
             return false
         }
     }
@@ -224,8 +224,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
-             .maticMigration,
-             .kaspaTokensBeta:
+             .maticMigration:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let eventConfig = configuration.eventConfiguration
@@ -239,6 +238,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.addHederaTokenAssociation)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(.retryKaspaTokenTransaction)
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config)):
+            return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
         case .staking:
             return .init(.stake)
         }
@@ -280,11 +281,17 @@ extension TokenNotificationEvent {
             }
         }
 
+        struct MissingTrustlineInfo: Hashable {
+            let reserveCurrencySymbol: String
+            let reserveAmount: String
+            let icon: ImageType
+            let trustlineOperationInProgress: Bool
+        }
+
         /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
         case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
         case incompleteKaspaTokenTransaction(revealTransaction: KaspaTokenRevealTransaction)
-        @available(*, unavailable, message: "Token trust lines support not implemented yet")
-        case missingTokenTrustline
+        case missingTokenTrustline(MissingTrustlineInfo)
     }
 }
 
@@ -302,10 +309,10 @@ extension TokenNotificationEvent {
         case .bnbBeaconChainRetirement: return nil
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation): return nil
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction): return .tokenNoticeRevealTransaction
+        case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline): return nil
         case .staking: return nil
         case .manaLevel: return nil
         case .maticMigration: return nil
-        case .kaspaTokensBeta: return nil
         }
     }
 
@@ -322,10 +329,10 @@ extension TokenNotificationEvent {
              .existentialDepositWarning,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
              .maticMigration,
-             .kaspaTokensBeta,
              .networkNotUpdated:
             return [:]
         }

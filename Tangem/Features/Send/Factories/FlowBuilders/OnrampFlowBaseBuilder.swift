@@ -23,22 +23,26 @@ struct OnrampFlowBaseBuilder {
             userWalletId: userWalletModel.userWalletId.stringValue
         )
 
+        let analyticsLogger = builder.makeOnrampSendAnalyticsLogger(source: source)
         let onrampModel = builder.makeOnrampModel(
             onrampManager: onrampManager,
             onrampDataRepository: onrampDataRepository,
-            onrampRepository: onrampRepository
+            onrampRepository: onrampRepository,
+            analyticsLogger: analyticsLogger
         )
+
         let notificationManager = builder.makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
-        let sendFinishAnalyticsLogger = builder.makeOnrampFinishAnalyticsLogger(onrampProvidersInput: onrampModel)
 
         let providersBuilder = OnrampProvidersBuilder(
             io: (input: onrampModel, output: onrampModel),
             tokenItem: walletModel.tokenItem,
-            paymentMethodsInput: onrampModel
+            paymentMethodsInput: onrampModel,
+            analyticsLogger: analyticsLogger
         )
 
         let paymentMethodsBuilder = OnrampPaymentMethodsBuilder(
-            io: (input: onrampModel, output: onrampModel)
+            io: (input: onrampModel, output: onrampModel),
+            analyticsLogger: analyticsLogger
         )
 
         let onrampRedirectingBuilder = OnrampRedirectingBuilder(
@@ -74,7 +78,7 @@ struct OnrampFlowBaseBuilder {
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
             input: onrampModel,
-            sendFinishAnalyticsLogger: sendFinishAnalyticsLogger,
+            sendFinishAnalyticsLogger: analyticsLogger,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: .none,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
@@ -106,6 +110,7 @@ struct OnrampFlowBaseBuilder {
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
+            analyticsLogger: analyticsLogger,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             source: source,

@@ -9,13 +9,16 @@
 import Foundation
 import Combine
 import Moya
+import stellarsdk
 import TangemNetworkUtils
+import TangemFoundation
 
 @available(iOS 13.0, *)
 protocol MultiNetworkProvider: AnyObject, HostProvider {
     associatedtype Provider: HostProvider
 
     var providers: [Provider] { get }
+    var blockchainName: String { get }
     var currentProviderIndex: Int { get set }
 }
 
@@ -46,11 +49,15 @@ extension MultiNetworkProvider {
                     NetworkLogger.error(error: error)
                 }
 
-                if case WalletError.noAccount = error {
+                if case BlockchainSdkError.noAccount = error {
                     return .anyFail(error: error)
                 }
 
-                if case WalletError.accountNotActivated = error {
+                if case HorizonRequestError.notFound = error {
+                    return .anyFail(error: error)
+                }
+
+                if case BlockchainSdkError.accountNotActivated = error {
                     return .anyFail(error: error)
                 }
 
@@ -64,7 +71,8 @@ extension MultiNetworkProvider {
                         ExceptionHandler.shared.handleAPISwitch(
                             currentHost: currentHost,
                             nextHost: nextHost,
-                            message: error.localizedDescription
+                            message: error.localizedDescription,
+                            blockchainName: blockchainName
                         )
                     }
 
@@ -72,7 +80,7 @@ extension MultiNetworkProvider {
                 }
 
                 // Need captured currentHost, to be able to get hosting after switching.
-                let returnedError = MultiNetworkProviderError(networkError: error, lastRetryHost: currentHost)
+                let returnedError = MultiNetworkProviderError(networkError: error.toUniversalError(), lastRetryHost: currentHost)
                 return .anyFail(error: returnedError)
             }
             .eraseToAnyPublisher()
@@ -98,29 +106,15 @@ extension MultiNetworkProvider {
     }
 }
 
-struct MultiNetworkProviderError: LocalizedError {
-    let networkError: Error
+struct MultiNetworkProviderError: UniversalError {
+    let networkError: UniversalError
     let lastRetryHost: String
 
-    // MARK: - LocalizedError
-
     var errorDescription: String? {
-        (networkError as? MoyaError)?.localizedDescription ?? defaultMoyaError.localizedDescription
+        networkError.localizedDescription
     }
 
-    var failureReason: String? {
-        (networkError as? MoyaError)?.failureReason ?? defaultMoyaError.failureReason
-    }
-
-    var recoverySuggestion: String? {
-        (networkError as? MoyaError)?.recoverySuggestion ?? defaultMoyaError.recoverySuggestion
-    }
-
-    var helpAnchor: String? {
-        (networkError as? MoyaError)?.helpAnchor ?? defaultMoyaError.helpAnchor
-    }
-
-    private var defaultMoyaError: MoyaError {
-        .underlying(networkError, nil)
+    var errorCode: Int {
+        networkError.errorCode
     }
 }

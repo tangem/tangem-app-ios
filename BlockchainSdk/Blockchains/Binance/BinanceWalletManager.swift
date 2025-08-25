@@ -56,22 +56,22 @@ class BinanceWalletManager: BaseManager, WalletManager {
 extension BinanceWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         guard let msg = txBuilder.buildForSign(transaction: transaction) else {
-            return .sendTxFail(error: WalletError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
         }
 
         let hash = msg.encodeForSignature()
         return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
             .tryMap { [weak self] signature -> Message in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 guard let tx = txBuilder.buildForSend(signature: signature) else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
                 return tx
             }
             .flatMap { [weak self] tx -> AnyPublisher<TransactionSendResult, Error> in
                 self?.networkService.send(transaction: tx).tryMap { [weak self] response in
-                    guard let self = self else { throw WalletError.empty }
+                    guard let self = self else { throw BlockchainSdkError.empty }
                     let hash = response.broadcast.first?.hash ?? response.tx.txHash
                     let mapper = PendingTransactionRecordMapper()
                     let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
@@ -79,10 +79,10 @@ extension BinanceWalletManager: TransactionSender {
                     latestTxDate = Date()
                     return TransactionSendResult(hash: hash)
                 }
-                .mapSendError(tx: tx.encodeForSignature().hex())
+                .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
                 .eraseToAnyPublisher() ?? .emptyFail
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
@@ -99,10 +99,10 @@ extension BinanceWalletManager: TransactionFeeProvider {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         return networkService.getFee()
             .tryMap { [weak self] feeString throws -> [Fee] in
-                guard let self = self else { throw WalletError.empty }
+                guard let self = self else { throw BlockchainSdkError.empty }
 
                 guard let feeValue = Decimal(stringValue: feeString) else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 let feeAmount = Amount(with: self.wallet.blockchain, value: feeValue)

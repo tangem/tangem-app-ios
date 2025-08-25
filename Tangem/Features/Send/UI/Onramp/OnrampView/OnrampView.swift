@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampView: View {
     @ObservedObject var viewModel: OnrampViewModel
@@ -46,6 +47,7 @@ struct OnrampView: View {
                 .padding(.horizontal, 14)
                 .hidden(keyboardActive)
                 .animation(.default, value: keyboardActive)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerToSLink)
         }
     }
 }

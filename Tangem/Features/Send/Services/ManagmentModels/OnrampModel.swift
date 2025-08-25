@@ -42,6 +42,7 @@ class OnrampModel {
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
+    private let analyticsLogger: OnrampSendAnalyticsLogger
 
     private var task: Task<Void, Never>?
     private var timerCancellable: AnyCancellable?
@@ -53,13 +54,15 @@ class OnrampModel {
         walletModel: any WalletModel,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
-        onrampRepository: OnrampRepository
+        onrampRepository: OnrampRepository,
+        analyticsLogger: OnrampSendAnalyticsLogger
     ) {
         self.userWalletId = userWalletId
         self.walletModel = walletModel
         self.onrampManager = onrampManager
         self.onrampDataRepository = onrampDataRepository
         self.onrampRepository = onrampRepository
+        self.analyticsLogger = analyticsLogger
 
         _currency = .init(
             onrampRepository.preferenceCurrency.map { .success($0) } ?? .loading
@@ -100,23 +103,7 @@ private extension OnrampModel {
             .compactMap { $0?.value }
             .withWeakCaptureOf(self)
             .sink { model, provider in
-                switch provider.state {
-                case .restriction(.tooSmallAmount):
-                    Analytics.log(.onrampErrorMinAmount)
-                case .restriction(.tooBigAmount):
-                    Analytics.log(.onrampErrorMaxAmount)
-                case .loaded:
-                    Analytics.log(
-                        event: .onrampProviderCalculated,
-                        params: [
-                            .token: model.walletModel.tokenItem.currencySymbol,
-                            .provider: provider.provider.name,
-                            .paymentMethod: provider.paymentMethod.name,
-                        ]
-                    )
-                default:
-                    break
-                }
+                model.analyticsLogger.logOnrampSelectedProvider(provider: provider)
             }
             .store(in: &bag)
 
@@ -248,7 +235,7 @@ private extension OnrampModel {
     // MARK: - Payment method
 
     func updatePaymentMethod(method: OnrampPaymentMethod) {
-        TangemFoundation.runTask(in: self) {
+        runTask(in: self) {
             let provider = try await $0.onrampManager.suggestProvider(in: $0.providersList(), paymentMethod: method)
             $0._selectedOnrampProvider.send(.success(provider))
         }
@@ -260,7 +247,7 @@ private extension OnrampModel {
 private extension OnrampModel {
     func preferenceDidChange(country: OnrampCountry?, currency: OnrampFiatCurrency?) {
         guard let country, let currency else {
-            TangemFoundation.runTask(in: self) {
+            runTask(in: self) {
                 await $0.initiateCountryDefinition()
             }
             return
@@ -301,6 +288,7 @@ private extension OnrampModel {
 
             // Clear repo
             onrampRepository.updatePreference(country: nil, currency: nil)
+
             await runOnMain {
                 router?.openOnrampCountryBottomSheet(country: country)
             }
@@ -333,12 +321,17 @@ private extension OnrampModel {
 
 private extension OnrampModel {
     func makeOnrampPairRequestItem(country: OnrampCountry, currency: OnrampFiatCurrency) -> OnrampPairRequestItem {
-        OnrampPairRequestItem(fiatCurrency: currency, country: country, destination: walletModel)
+        OnrampPairRequestItem(
+            fiatCurrency: currency,
+            country: country,
+            destination: walletModel.tokenItem.expressCurrency,
+            address: walletModel.defaultAddressString
+        )
     }
 
     func mainTask(code: @escaping (OnrampModel) async throws -> Void) {
         task?.cancel()
-        task = TangemFoundation.runTask(in: self) { model in
+        task = runTask(in: self) { model in
             do {
                 try await code(model)
             } catch _ as CancellationError {
@@ -478,6 +471,7 @@ extension OnrampModel: OnrampRedirectingOutput {
             txId: data.txId,
             provider: provider.provider,
             destinationTokenItem: walletModel.tokenItem,
+            destinationAddress: walletModel.defaultAddressString,
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
@@ -630,7 +624,7 @@ extension OnrampModel: NotificationTapDelegate {
 
 extension OnrampModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 

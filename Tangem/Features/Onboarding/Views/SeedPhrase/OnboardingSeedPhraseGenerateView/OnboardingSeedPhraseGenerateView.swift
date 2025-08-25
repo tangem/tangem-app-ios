@@ -14,8 +14,6 @@ import TangemUI
 struct OnboardingSeedPhraseGenerateView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseGenerateViewModel
 
-    @State var wordsColumnMaxWidth: CGFloat?
-
     var body: some View {
         VStack(spacing: 0) {
             Picker("", selection: $viewModel.selectedLength, content: {
@@ -97,43 +95,12 @@ struct OnboardingSeedPhraseGenerateView: View {
         }
     }
 
-    @ViewBuilder
     private func wordsVerticalView(indexRange: Range<Int>, verticalSpacing: CGFloat) -> some View {
-        // Do not remove Lazy Stack here; it updates its child views when they enter into the visible viewport,
-        // which in turn fixes an incorrect layout of `wordView` when `wordView` is initially placed outside
-        // the visible viewport. See [REDACTED_INFO] for details
-        LazyVStack(alignment: .leading, spacing: verticalSpacing) {
-            ForEach(indexRange, id: \.self) { index in
-                HStack(alignment: .center, spacing: 0) {
-                    Text("\(index + 1). ") // The space character after the dot is 'U+2009 THIN SPACE'
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                        .fixedSize()
-                        .readGeometry(\.size.width, onChange: updateWordsColumnMaxWidth(width:))
-                        .frame(width: wordsColumnMaxWidth, alignment: .leading)
-
-                    let wordView = Text("\(viewModel.words[index])")
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                    // The order of the `fixedSize` modifier must be different on iOS 15 and iOS 16+,
-                    // otherwise the layout will be broken
-                    if #available(iOS 16.0, *) {
-                        wordView
-                            .screenCaptureProtection()
-                            .fixedSize()
-                    } else {
-                        wordView
-                            .fixedSize()
-                            .screenCaptureProtection()
-                    }
-
-                    Spacer()
-                }
-            }
-        }
-    }
-
-    private func updateWordsColumnMaxWidth(width: CGFloat) {
-        wordsColumnMaxWidth = max(wordsColumnMaxWidth ?? .zero, width)
+        WordsCaptureProtectionView(
+            words: viewModel.words,
+            indexRange: indexRange,
+            verticalSpacing: verticalSpacing
+        )
     }
 }
 

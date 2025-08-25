@@ -28,6 +28,7 @@ struct ActionButtonView<ViewModel: ActionButtonViewModel>: View {
             .cornerRadiusContinuous(10)
             .onTapGesture(perform: viewModel.tap)
             .disabled(isDisabled)
+            .accessibilityIdentifier(viewModel.model.accessibilityIdentifier)
     }
 
     private var content: some View {

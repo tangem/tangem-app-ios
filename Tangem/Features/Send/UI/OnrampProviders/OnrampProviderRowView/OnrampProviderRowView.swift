@@ -10,8 +10,10 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
-struct OnrampProviderRowView: View {
+struct OnrampProviderRowView: SelectableSectionRow {
+    var isSelected: Bool
     let data: OnrampProviderRowViewData
 
     private var hasInfoBelowProviderName: Bool {
@@ -29,6 +31,7 @@ struct OnrampProviderRowView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(data.isTappable)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCard(name: data.name))
     }
 
     private var content: some View {
@@ -45,7 +48,9 @@ struct OnrampProviderRowView: View {
         .lineLimit(1)
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
-        .overlay { overlay }
+        .overlay {
+            if isSelected { SelectionOverlay() }
+        }
         .contentShape(Rectangle())
     }
 
@@ -64,26 +69,11 @@ struct OnrampProviderRowView: View {
         HStack(spacing: .zero) {
             Text(data.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerName(name: data.name))
 
             Spacer()
 
             trailingView
-        }
-    }
-
-    @ViewBuilder
-    private var overlay: some View {
-        if data.isSelected {
-            Color.clear.overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent, lineWidth: 1)
-            }
-            .padding(1)
-            .overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Colors.Icon.accent.opacity(0.15), lineWidth: 2.5)
-            }
-            .padding(2.5)
         }
     }
 
@@ -97,18 +87,21 @@ struct OnrampProviderRowView: View {
         )
         .opacity(data.isTappable ? 1 : 0.4)
         .saturation(data.isTappable ? 1 : 0)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerIcon(name: data.name))
     }
 
     private var topLineView: some View {
         HStack(spacing: 12) {
             Text(data.name)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerName(name: data.name))
 
             Spacer()
 
             if let formattedAmount = data.formattedAmount {
                 Text(formattedAmount)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: data.name))
             }
         }
     }
@@ -128,6 +121,7 @@ struct OnrampProviderRowView: View {
             if let formattedAmount = data.formattedAmount {
                 Text(formattedAmount)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: data.name))
             }
 
             badgeView
@@ -141,7 +135,7 @@ struct OnrampProviderRowView: View {
             EmptyView()
         case .percent(let text, let signType):
             Text(text)
-                .style(Fonts.Regular.subheadline, color: signType.textColor)
+                .style(Fonts.Regular.caption1, color: signType.textColor)
         case .bestRate:
             Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
@@ -179,7 +173,6 @@ struct OnrampProviderRowView: View {
                 formattedAmount: "0,00453 BTC",
                 state: .available,
                 badge: .bestRate,
-                isSelected: true,
                 action: {}
             ),
             OnrampProviderRowViewData(
@@ -189,11 +182,10 @@ struct OnrampProviderRowView: View {
                 formattedAmount: "0,00450 BTC",
                 state: .availableFromAmount(minAmount: "15 USD"),
                 badge: .percent("-0.03%", signType: .negative),
-                isSelected: false,
                 action: {}
             ),
         ]) {
-            OnrampProviderRowView(data: $0)
+            OnrampProviderRowView(isSelected: $0.name == "1Inch", data: $0)
         }
     }
     .padding()

@@ -72,7 +72,7 @@ class TokensListDataLoader {
 
         taskCancellable?.cancel()
 
-        taskCancellable = TangemFoundation.runTask(in: self) { provider in
+        taskCancellable = runTask(in: self) { provider in
             do {
                 let items = try await provider.loadItems(searchText)
                 provider.handle(result: .success(items))

@@ -44,13 +44,13 @@ final class SuiTransactionBuilder {
             try buildForInspectTokenTransaction(amount: amount, token: token, destination: destination, referenceGasPrice: referenceGasPrice)
 
         default:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
     }
 
     func buildForSign(transaction: Transaction) throws -> Data {
         guard let suiFeeParameters = transaction.fee.parameters as? SuiFeeParameters else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let signingInput: WalletCore.SuiSigningInput
@@ -72,7 +72,7 @@ final class SuiTransactionBuilder {
             )
 
         default:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let preImageHashes = try TransactionCompiler.preImageHashes(coinType: .sui, txInputData: signingInput.serializedData())
@@ -80,7 +80,7 @@ final class SuiTransactionBuilder {
 
         guard preSigningOutput.error == .ok else {
             BSDKLogger.error(error: "SuiPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return preSigningOutput.dataHash
@@ -88,7 +88,7 @@ final class SuiTransactionBuilder {
 
     func buildForSend(transaction: Transaction, signature: Data) throws -> (txBytes: String, signature: String) {
         guard let suiFeeParameters = transaction.fee.parameters as? SuiFeeParameters else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let signingInput: WalletCore.SuiSigningInput
@@ -110,7 +110,7 @@ final class SuiTransactionBuilder {
             )
 
         default:
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let compiled = try TransactionCompiler.compileWithSignaturesAndPubKeyType(
@@ -214,7 +214,7 @@ final class SuiTransactionBuilder {
         destination: String,
         fee: SuiFeeParameters
     ) throws -> WalletCore.SuiSigningInput {
-        guard let coinGas else { throw WalletError.failedToBuildTx }
+        guard let coinGas else { throw BlockchainSdkError.failedToBuildTx }
 
         let decimalAmount = amount * token.decimalValue
         let coinType = try SuiCoinObject.CoinType(string: token.contractAddress)

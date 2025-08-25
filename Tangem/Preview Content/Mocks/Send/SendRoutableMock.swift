@@ -9,9 +9,10 @@
 import Foundation
 import SwiftUI
 import TangemExpress
+import TangemUIUtils
 
 class SendRoutableMock: SendRoutable {
-    func dismiss() {}
+    func dismiss(reason: SendDismissReason) {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
     func openExplorer(url: URL) {}
@@ -27,4 +28,7 @@ class SendRoutableMock: SendRoutable {
     func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
+    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
+    func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
 }

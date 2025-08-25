@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampProvidersView: View {
     @ObservedObject private var viewModel: OnrampProvidersViewModel
@@ -45,6 +46,7 @@ struct OnrampProvidersView: View {
                 CloseButton(dismiss: viewModel.closeView)
             }
         )
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenTitle)
         .padding(.top, 8)
         .padding(.horizontal, 16)
     }
@@ -53,11 +55,16 @@ struct OnrampProvidersView: View {
     private var paymentSection: some View {
         if let data = viewModel.paymentViewData {
             OnrampProvidersPaymentView(data: data)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenPaymentMethodBlock)
         }
     }
 
     @ViewBuilder
     private var providersSection: some View {
-        ExpressProvidersList(providersViewData: viewModel.providersViewData)
+        ExpressProvidersList(
+            selectedProviderID: viewModel.selectedProviderID ?? -1,
+            providersViewData: viewModel.providersViewData
+        )
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenProvidersList)
     }
 }

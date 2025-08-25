@@ -73,22 +73,13 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
         storeCardsIds(savedCardIds)
     }
 
-    func clear(cardIdTokenToKeep: String?) {
+    func clearPersistent() {
         do {
-            var tokenToKeep: String?
-            if let cardIdTokenToKeep {
-                tokenToKeep = tokens[cardIdTokenToKeep]
-            }
             let savedCardIds = loadStoredCardIds()
-            tokens.removeAll()
             storeCardsIds([])
             for cardId in savedCardIds {
                 let storageKey = makeRefreshTokenStorageKey(cardId: cardId)
                 try biometricsStorage.delete(storageKey)
-            }
-
-            if let cardIdTokenToKeep, let tokenToKeep {
-                try save(refreshToken: tokenToKeep, cardId: cardIdTokenToKeep)
             }
         } catch {
             VisaLogger.error("Failed to clear repository", error: error)

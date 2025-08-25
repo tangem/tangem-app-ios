@@ -70,7 +70,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
             case .success:
                 self?.delegate?.goToNextStep()
             case .failure(let failure):
-                if failure.isUserCancelled {
+                if failure.isCancellationError {
                     return
                 }
 

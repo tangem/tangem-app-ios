@@ -14,6 +14,10 @@ public extension Publisher {
         receive(on: DispatchQueue.main)
     }
 
+    func receiveOnGlobal(qos: DispatchQoS.QoSClass = .default) -> Publishers.ReceiveOn<Self, DispatchQueue> {
+        receive(on: DispatchQueue.global(qos: qos))
+    }
+
     func withWeakCaptureOf<Object>(
         _ object: Object
     ) -> Publishers.CompactMap<Self, (Object, Self.Output)> where Object: AnyObject {
@@ -30,5 +34,10 @@ public extension Publisher {
         return map { [unowned object] output in
             return (object, output)
         }
+    }
+
+    static var empty: AnyPublisher<Output, Failure> {
+        return Empty()
+            .eraseToAnyPublisher()
     }
 }

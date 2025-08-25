@@ -119,7 +119,7 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         guard let transactionData = transaction.data(using: .utf8) else {
-            return .anyFail(error: WalletError.failedToSendTx)
+            return .anyFail(error: BlockchainSdkError.failedToSendTx)
         }
 
         return executeRequest(.sendBlockBook(tx: transactionData), responseType: JSONRPC.DefaultResponse<String>.self)

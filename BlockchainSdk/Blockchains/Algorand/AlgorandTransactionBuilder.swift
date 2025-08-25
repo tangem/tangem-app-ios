@@ -37,7 +37,7 @@ final class AlgorandTransactionBuilder {
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
@@ -45,7 +45,7 @@ final class AlgorandTransactionBuilder {
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error("AlgorandPreSigningOutput has a error", error: preSigningOutput.errorMessage)
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return preSigningOutput.data
@@ -56,7 +56,7 @@ final class AlgorandTransactionBuilder {
         let txInputData = try input.serializedData()
 
         guard !txInputData.isEmpty else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let compiledTransaction = TransactionCompiler.compileWithSignatures(
@@ -70,7 +70,7 @@ final class AlgorandTransactionBuilder {
 
         guard signingOutput.error == .ok, !signingOutput.encoded.isEmpty else {
             BSDKLogger.error("AlgorandSigningOutput has a error", error: signingOutput.errorMessage)
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return signingOutput.encoded
@@ -86,7 +86,7 @@ final class AlgorandTransactionBuilder {
         do {
             try publicKey.validateAsEdKey()
         } catch {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let transfer = AlgorandTransfer.with {

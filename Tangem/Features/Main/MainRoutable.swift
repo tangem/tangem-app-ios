@@ -9,12 +9,18 @@
 import Foundation
 import TangemNFT
 
-protocol MainRoutable: AnyObject {
+protocol MainRoutable: AnyObject & WCTransactionRoutable & MainDeepLinkRoutable {
     func openDetails(for userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
-    func openOnboardingModal(with input: OnboardingInput)
+    func openOnboardingModal(with options: OnboardingCoordinator.Options)
     func openScanCardManual()
     func openPushNotificationsAuthorization()
     func openReferral(input: ReferralInputModel)
     func popToRoot()
+}
+
+protocol MainDeepLinkRoutable {
+    func beginHandlingIncomingActions()
+    func resignHandlingIncomingActions()
+    func openDeepLink(_ deepLink: MainCoordinator.DeepLinkDestination)
 }

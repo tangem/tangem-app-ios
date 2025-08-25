@@ -24,6 +24,8 @@ public struct CustomSearchBar: View {
 
     @FocusState private var isFocused: Bool
 
+    private var innerPadding: CGFloat = 12
+
     public init(
         searchText: Binding<String>,
         placeholder: String,
@@ -72,8 +74,7 @@ public struct CustomSearchBar: View {
                 clearButton
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 12)
+        .padding(.all, innerPadding)
         .background(background)
         .onTapGesture {
             isFocused = true
@@ -140,6 +141,10 @@ public struct CustomSearchBar: View {
 extension CustomSearchBar: Setupable {
     public func onEditingChanged(_ closure: ((_ isEditing: Bool) -> Void)?) -> Self {
         map { $0.onEditingChanged = closure }
+    }
+
+    public func innerPadding(_ padding: CGFloat) -> Self {
+        map { $0.innerPadding = padding }
     }
 }
 

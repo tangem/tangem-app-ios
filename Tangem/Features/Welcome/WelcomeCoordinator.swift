@@ -12,7 +12,7 @@ import SwiftUI
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
-    var dismissAction: Action<ScanDismissOptions>
+    var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -28,6 +28,7 @@ class WelcomeCoordinator: CoordinatorObject {
 
     @Published var promotionCoordinator: PromotionCoordinator? = nil
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
+    @Published var newWalletSelectorCoordinator: NewWalletSelectorCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -48,7 +49,7 @@ class WelcomeCoordinator: CoordinatorObject {
             .eraseToAnyPublisher()
     }
 
-    required init(dismissAction: @escaping Action<ScanDismissOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
@@ -92,6 +93,11 @@ class WelcomeCoordinator: CoordinatorObject {
 
 extension WelcomeCoordinator {
     struct Options {}
+
+    enum OutputOptions {
+        case main(UserWalletModel)
+        case onboarding(OnboardingInput)
+    }
 }
 
 // MARK: - WelcomeRoutable
@@ -99,6 +105,19 @@ extension WelcomeCoordinator {
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboarding(with input: OnboardingInput) {
         dismiss(with: .onboarding(input))
+    }
+
+    func openNewWalletSelector(with input: NewWalletSelectorInput) {
+        let dismissAction: Action<NewWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let model):
+                self?.openMain(with: model)
+            }
+        }
+
+        let coordinator = NewWalletSelectorCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(input: input))
+        newWalletSelectorCoordinator = coordinator
     }
 
     func openMain(with userWalletModel: UserWalletModel) {

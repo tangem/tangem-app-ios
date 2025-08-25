@@ -11,6 +11,11 @@ struct SwapSourceTokenAvailabilitySorter {
 
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    private let userWalletModelConfig: UserWalletConfig
+
+    init(userWalletModelConfig: UserWalletConfig) {
+        self.userWalletModelConfig = userWalletModelConfig
+    }
 }
 
 // MARK: - TokenAvailabilitySorter
@@ -20,8 +25,9 @@ extension SwapSourceTokenAvailabilitySorter: TokenAvailabilitySorter {
         walletModels.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
+            let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
 
-            if expressAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem), !walletModel.isCustom, !walletModel.state.isBlockchainUnreachable {
+            if availabilityProvider.isSwapAvailable {
                 result.availableModels.append(walletModel)
             } else {
                 result.unavailableModels.append(walletModel)

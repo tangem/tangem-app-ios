@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct BalanceFormatter {
-    static var defaultEmptyBalanceString: String { "–" }
+    static var defaultEmptyBalanceString: String { AppConstants.enDashSign }
 
     private let decimalRoundingUtility = DecimalRoundingUtility()
 

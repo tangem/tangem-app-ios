@@ -21,6 +21,7 @@ public protocol IncomingActionURLHelper: IncomingActionURLBuilder & IncomingActi
 public enum IncomingActionScheme: CaseIterable {
     case redirectLink
     case universalLink
+    case withoutRedirectUniversalLink
 
     var baseScheme: String {
         switch self {
@@ -28,6 +29,8 @@ public enum IncomingActionScheme: CaseIterable {
             return IncomingActionConstants.externalRedirectURL
         case .universalLink:
             return IncomingActionConstants.universalLinkRedirectURL
+        case .withoutRedirectUniversalLink:
+            return IncomingActionConstants.universalLinkScheme
         }
     }
 }
