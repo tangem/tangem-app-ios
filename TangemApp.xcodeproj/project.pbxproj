@@ -151,6 +151,8 @@
 		0FB937512E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB937502E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift */; };
 		0FB938132E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB938122E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift */; };
 		0FB938152E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB938142E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift */; };
+		0FB93BB72E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93BB62E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift */; };
+		0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */; };
 		0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */; };
 		0FBB13F12E015F290086784A /* MobileOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */; };
@@ -4241,6 +4243,8 @@
 		0FB937502E4E216700DAB673 /* MobileMainHeaderProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMainHeaderProviderFactory.swift; sourceTree = "<group>"; };
 		0FB938122E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletBiometricsUnlockProvider.swift; sourceTree = "<group>"; };
 		0FB938142E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletBiometricsProvider.swift; sourceTree = "<group>"; };
+		0FB93BB62E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionMobileAccessCodeManager.swift; sourceTree = "<group>"; };
+		0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionMobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
@@ -8414,6 +8418,7 @@
 				0FA453AA2E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift */,
 				0FA453A82E1D3AFE0055B5BB /* MobileAccessCodeStorageManager.swift */,
 				0FA453A72E1D3AFE0055B5BB /* CommonMobileAccessCodeStorageManager.swift */,
+				0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */,
 			);
 			path = StorageManager;
 			sourceTree = "<group>";
@@ -8447,6 +8452,7 @@
 				0FA453A52E1D3AFE0055B5BB /* MobileAccessCodeState.swift */,
 				0FA453E32E2153850055B5BB /* MobileAccessCodeManager.swift */,
 				0FA453E52E21538F0055B5BB /* CommonMobileAccessCodeManager.swift */,
+				0FB93BB62E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift */,
 			);
 			path = Manager;
 			sourceTree = "<group>";
@@ -22340,6 +22346,7 @@
 				DCE2F7E22CE354A400BDE145 /* ActionButtonsSellCoordinatorView.swift in Sources */,
 				C2459EF32E4FB0820061785C /* WCTransactionAddressRowView.swift in Sources */,
 				B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */,
+				0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */,
 				B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
 				DA90396D2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift in Sources */,
@@ -23834,6 +23841,7 @@
 				DCA19BF12DDD95B00057BDA5 /* WCTransactionView.swift in Sources */,
 				B65C07A92AE2973E00127CCE /* OrganizeTokensPreviewConfiguration.swift in Sources */,
 				DA4055282ABDD3A300353F8A /* AddCustomTokenNetworksListViewModel.swift in Sources */,
+				0FB93BB72E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift in Sources */,
 				B0F1CC3C2C086B20000DE4A0 /* ManageTokensViewModel.swift in Sources */,
 				B0CFD6CB2A027E2E009DF4D5 /* TokenQuotesRepository.swift in Sources */,
 				DA7859E12AB0451F004FAE04 /* GenerateAddressesView.swift in Sources */,
