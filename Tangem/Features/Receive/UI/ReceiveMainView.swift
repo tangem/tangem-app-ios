@@ -37,7 +37,6 @@ struct ReceiveMainView: View {
                 EmptyView()
             }
         }
-        .padding(.bottom,)
         .safeAreaInset(edge: .top, spacing: .zero) {
             if let viewState = viewModel.viewState {
                 header(from: viewState)
