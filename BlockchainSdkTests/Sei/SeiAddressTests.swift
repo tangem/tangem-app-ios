@@ -11,11 +11,7 @@ import WalletCore
 import Testing
 
 struct SeiAddressTests {
-    private let addressService: WalletCoreAddressService
-
-    init() {
-        addressService = WalletCoreAddressService(blockchain: .sei(testnet: true))
-    }
+    private let addressService = AddressServiceFactory(blockchain: .sei(testnet: true)).makeAddressService()
 
     @Test
     func defaultAddressGeneration() throws {

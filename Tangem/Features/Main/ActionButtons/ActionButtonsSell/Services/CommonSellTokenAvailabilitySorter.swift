@@ -19,7 +19,6 @@ extension CommonSellTokenAvailabilitySorter: TokenAvailabilitySorter {
         walletModels.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
-
             guard
                 exchangeService.canSell(
                     walletModel.tokenItem.currencySymbol,
