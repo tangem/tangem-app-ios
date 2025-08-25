@@ -13,6 +13,7 @@ import TangemMobileWalletSdk
 class MobileWalletUnlocker: UserWalletModelUnlocker {
     let canUnlockAutomatically: Bool
     let canShowUnlockUIAutomatically: Bool
+    let analyticsSignInType: Analytics.SignInType
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -24,6 +25,7 @@ class MobileWalletUnlocker: UserWalletModelUnlocker {
         self.config = config
         canUnlockAutomatically = !info.isAccessCodeSet
         canShowUnlockUIAutomatically = info.isAccessCodeSet
+        analyticsSignInType = info.isAccessCodeSet ? .accessCode : .noSecurity
     }
 
     func unlock() async -> UserWalletModelUnlockerResult {
