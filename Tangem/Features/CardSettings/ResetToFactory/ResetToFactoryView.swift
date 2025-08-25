@@ -83,6 +83,9 @@ struct ResetToFactoryView: View {
 
                 Text(warning.type.title)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .lineLimit(nil)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .buttonStyle(PlainButtonStyle())
