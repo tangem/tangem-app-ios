@@ -18,6 +18,9 @@ protocol WalletConnectSessionsStorage: Actor {
     func session(with topic: String) -> WalletConnectSavedSession?
     func remove(_ session: WalletConnectSavedSession)
     func removeSessions(for userWalletId: String) -> [WalletConnectSavedSession]
+
+    func getAllSessions() -> [WalletConnectSavedSession]
+    func removeAllSessions()
 }
 
 private struct WalletConnectSessionsStorageKey: InjectionKey {
@@ -33,7 +36,6 @@ extension InjectedValues {
 
 actor CommonWalletConnectSessionsStorage {
     @Injected(\.persistentStorage) private var storage: PersistentStorageProtocol
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     var sessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
@@ -43,8 +45,7 @@ actor CommonWalletConnectSessionsStorage {
 
     private let allSessions: CurrentValueSubject<[WalletConnectSavedSession], Never> = .init([])
     func loadSessions() {
-        let savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessions)) ?? []
-        allSessions.value = savedSessions
+        allSessions.value = getAllSessions()
     }
 
     private func saveCachedSessions() {
@@ -53,7 +54,7 @@ actor CommonWalletConnectSessionsStorage {
 
     private func saveSessionsToFile(_ sessions: [WalletConnectSavedSession]) {
         do {
-            try storage.store(value: sessions, for: .allWalletConnectSessions)
+            try storage.store(value: sessions, for: .allWalletConnectSessionsOld)
         } catch {
             WCLogger.error("Failed to save session file to disk", error: error)
         }
@@ -106,8 +107,19 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
         WCLogger.info(self, "All sessions for \(userWalletId) was removed. Number of removed sessions: \(removedSessions.count)")
         return removedSessions
     }
+
+    func getAllSessions() -> [WalletConnectSavedSession] {
+        let allSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessionsOld)) ?? []
+        return allSessions
+    }
+
+    func removeAllSessions() {
+        let emptySessions = [WalletConnectSavedSession]()
+        saveSessionsToFile(emptySessions)
+        allSessions.value = emptySessions
+    }
 }
 
 extension CommonWalletConnectSessionsStorage: @preconcurrency CustomStringConvertible {
-    var description: String { TangemFoundation.objectDescription(self) }
+    var description: String { objectDescription(self) }
 }

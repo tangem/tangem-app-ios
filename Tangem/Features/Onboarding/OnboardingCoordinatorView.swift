@@ -33,6 +33,8 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletOnboardingViewModel)
         case .visa(let visaViewModel):
             VisaOnboardingView(viewModel: visaViewModel)
+        case .hot(let hotViewModel):
+            HotOnboardingView(viewModel: hotViewModel)
         case .none:
             EmptyView()
         }
