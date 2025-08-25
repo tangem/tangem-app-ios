@@ -171,6 +171,6 @@ extension MobileUserWalletConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder {
-        fatalError("Implementation not required")
+        MobileOnboardingStepsBuilder(backupService: backupService)
     }
 }

@@ -150,6 +150,9 @@
 		0FB93C9E2E5726C800DAB673 /* MobileUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */; };
 		0FB93CA02E5726D000DAB673 /* MobileUpgradeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */; };
 		0FB93CE22E57671900DAB673 /* MobileUpgradeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */; };
+		0FB93D852E58918600DAB673 /* MobileOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93D842E58918500DAB673 /* MobileOnboardingStepsBuilder.swift */; };
+		0FB93DE72E59A46900DAB673 /* MobileUpgradeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93DE62E59A46900DAB673 /* MobileUpgradeCoordinator.swift */; };
+		0FB93DE92E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93DE82E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift */; };
 		0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */; };
 		0FBB13F12E015F290086784A /* MobileOnboardingSeedPhraseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */; };
 		0FBB13F32E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */; };
@@ -4223,6 +4226,9 @@
 		0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeView.swift; sourceTree = "<group>"; };
 		0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeViewModel.swift; sourceTree = "<group>"; };
 		0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeRoutable.swift; sourceTree = "<group>"; };
+		0FB93D842E58918500DAB673 /* MobileOnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingStepsBuilder.swift; sourceTree = "<group>"; };
+		0FB93DE62E59A46900DAB673 /* MobileUpgradeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeCoordinator.swift; sourceTree = "<group>"; };
+		0FB93DE82E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeCoordinatorView.swift; sourceTree = "<group>"; };
 		0FBB13EA2E015D690086784A /* MobileOnboardingSeedPhraseIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroView.swift; sourceTree = "<group>"; };
 		0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroViewModel.swift; sourceTree = "<group>"; };
 		0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseIntroDelegate.swift; sourceTree = "<group>"; };
@@ -8438,9 +8444,11 @@
 		0FB93C9C2E57268D00DAB673 /* Upgrade */ = {
 			isa = PBXGroup;
 			children = (
+				0FB93DE62E59A46900DAB673 /* MobileUpgradeCoordinator.swift */,
+				0FB93DE82E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift */,
+				0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */,
 				0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */,
 				0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */,
-				0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */,
 			);
 			path = Upgrade;
 			sourceTree = "<group>";
@@ -16645,6 +16653,7 @@
 				DC7D39F829E007FF007BCD23 /* Start2CoinOnboardingStepsBuilder.swift */,
 				DC7254912A050C200003FE1B /* NoteOnboardingStepsBuilder.swift */,
 				B09381042B29E705001C11E4 /* VisaOnboardingStepsBuilder.swift */,
+				0FB93D842E58918500DAB673 /* MobileOnboardingStepsBuilder.swift */,
 			);
 			path = OnboardingStepsBuilders;
 			sourceTree = "<group>";
@@ -23268,6 +23277,7 @@
 				EF5D83E42B0CADEE00516B5F /* ExpressTransactionBuilder.swift in Sources */,
 				DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */,
 				EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */,
+				0FB93DE72E59A46900DAB673 /* MobileUpgradeCoordinator.swift in Sources */,
 				DC261CA8292CF56600875E64 /* AuthCoordinator.swift in Sources */,
 				EFC84B262C37FBB300546882 /* SendStep.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
@@ -23743,6 +23753,7 @@
 				0FB938132E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift in Sources */,
 				DA6C752C292909B20070EEFD /* UserWalletDataStorage.swift in Sources */,
 				DC7E3CC22C651BFC00DEAAF4 /* StakingMapper.swift in Sources */,
+				0FB93D852E58918600DAB673 /* MobileOnboardingStepsBuilder.swift in Sources */,
 				B07FDD3E2C23137400CBEFDE /* CustomTokenItemViewInfo.swift in Sources */,
 				D8DEEABB2E14252800DACD4B /* TangemAPIType.swift in Sources */,
 				DC2AB6EF2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift in Sources */,
@@ -23821,6 +23832,7 @@
 				DA559C3C2B0261F400F59584 /* SendSummaryView.swift in Sources */,
 				0F48DC4C2E44EA1B0095D3C8 /* MobileOnboardingSeedPhraseImportViewModel.swift in Sources */,
 				2DD322932E4DEF9A00994C2A /* TokenAlertReceiveAssetsView.swift in Sources */,
+				0FB93DE92E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift in Sources */,
 				2DD322942E4DEF9A00994C2A /* TokenAlertReceiveAssetsRoutable.swift in Sources */,
 				2DD322952E4DEF9A00994C2A /* TokenAlertReceiveAssetsViewModel.swift in Sources */,
 				B09381052B29E705001C11E4 /* VisaOnboardingStepsBuilder.swift in Sources */,
