@@ -9,7 +9,8 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
-import TangemFoundation
+import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensView: View {
     // MARK: - Model
@@ -30,12 +31,10 @@ struct OrganizeTokensView: View {
 
     @StateObject private var scrollState = OrganizeTokensScrollState(bottomInset: Constants.headerAdditionalBottomInset)
 
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Replace with native `.safeAreaInset()` ([REDACTED_INFO])")
     @State private var scrollViewTopContentInset: CGFloat = 0.0
 
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, introduced: 13.0, deprecated: 15.0, message: "Replace with native .safeAreaInset()")
+    @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Replace with native `.safeAreaInset()` ([REDACTED_INFO])")
     @State private var scrollViewBottomContentInset: CGFloat = 0.0
 
     @State private var scrollViewTopContentInsetSpacerIdentifier: UUID
@@ -140,6 +139,7 @@ struct OrganizeTokensView: View {
                             .id(scrollViewBottomContentInsetSpacerIdentifier)
                     }
                 }
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
                 .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
                     dragAndDropController.viewportSizeSubject.send(newValue.size)
                     visibleViewportFrame = newValue
@@ -375,6 +375,7 @@ struct OrganizeTokensView: View {
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(name: viewModel.name, section: indexPath.section, item: indexPath.item))
             .background(Colors.Background.primary)
             .cornerRadius(
                 parametersProvider.cornerRadius(forItemAt: indexPath),

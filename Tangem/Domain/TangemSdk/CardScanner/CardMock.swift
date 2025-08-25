@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemAccessibilityIdentifiers
 
 enum CardMock: String, CaseIterable {
     case wallet2
@@ -21,13 +22,40 @@ enum CardMock: String, CaseIterable {
     case walletDemo
     case ethNoteDemo
 
+    var accessibilityIdentifier: String {
+        switch self {
+        case .wallet2:
+            return CardMockAccessibilityIdentifiers.wallet2.rawValue
+        case .wallet:
+            return CardMockAccessibilityIdentifiers.wallet.rawValue
+        case .twin:
+            return CardMockAccessibilityIdentifiers.twin.rawValue
+        case .xrpNote:
+            return CardMockAccessibilityIdentifiers.xrpNote.rawValue
+        case .xlmBird:
+            return CardMockAccessibilityIdentifiers.xlmBird.rawValue
+        case .visa:
+            return CardMockAccessibilityIdentifiers.visa.rawValue
+        case .visaTestnet:
+            return CardMockAccessibilityIdentifiers.visaTestNet.rawValue
+        case .wallet2Demo:
+            return CardMockAccessibilityIdentifiers.wallet2Demo.rawValue
+        case .walletDemo:
+            return CardMockAccessibilityIdentifiers.walletDemo.rawValue
+        case .ethNoteDemo:
+            return CardMockAccessibilityIdentifiers.ethNoteDemo.rawValue
+        }
+    }
+
     var cardInfo: CardInfo {
-        .init(card: CardDTO(card: card), walletData: walletData, name: rawValue)
+        .init(card: CardDTO(card: card), walletData: walletData, associatedCardIds: [])
     }
 
     var card: Card {
         decodeFromURL(url)!
     }
+
+    var name: String { rawValue }
 
     var walletData: DefaultWalletData {
         switch self {

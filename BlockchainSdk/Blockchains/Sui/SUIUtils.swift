@@ -6,6 +6,8 @@
 // Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 enum SUIUtils {
     static let suiGasBudgetScaleUpConstant = Decimal(stringValue: "1000000")!
     static let suiGasMinimumGasBudgetComputationUnits = Decimal(stringValue: "1000")!

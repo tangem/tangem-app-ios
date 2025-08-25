@@ -46,7 +46,7 @@ final class RadiantTests {
         // given
         let blockchain = Blockchain.radiant(testnet: false)
         let publicKey = Data(hexString: "03a6c01a3c551b37488e8dc134ec27197054cbb9d9612b3a5546da7094ba9d36b6")
-        let address = try RadiantAddressService().makeAddress(from: publicKey)
+        let address = try AddressServiceFactory(blockchain: blockchain).makeAddressService().makeAddress(from: publicKey)
 
         let utxo = [
             UnspentOutput(

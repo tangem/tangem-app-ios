@@ -14,6 +14,9 @@
 // Config name
 ENVIRONMENT_NAME = Beta
 
+// Override PRODUCT_NAME to keep it as "Tangem" for test compatibility
+PRODUCT_NAME = $(PRODUCT_NAME_COMMON)
+
 // Path to *.entitlements file
 ENTITLEMENTS_PATH = Tangem/App/AppEnvironmentConfig/TangemBeta.entitlements
 

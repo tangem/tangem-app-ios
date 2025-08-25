@@ -10,8 +10,9 @@ import struct SwiftUI.Binding
 
 @MainActor
 protocol WalletConnectRoutable: AnyObject {
-    func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession)
-    func openQRScanner(clipboardURI: WalletConnectRequestURI?, completion: @escaping (WalletConnectQRScanResult) -> Void)
+    func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource)
+    func openConnectedDAppDetails(_ dApp: WalletConnectConnectedDApp)
+    func openQRScanner(completion: @escaping (WalletConnectQRScanResult) -> Void)
 
     func legacyOpenQRScanner(with codeBinding: Binding<String>)
 }

@@ -77,13 +77,13 @@ struct ChiaNetworkProvider: HostProvider {
             .map(T.self, using: decoder)
             .tryMap { response in
                 guard response.success else {
-                    throw WalletError.empty
+                    throw BlockchainSdkError.empty
                 }
 
                 return response
             }
             .mapError { error in
-                return WalletError.failedToParseNetworkResponse()
+                return BlockchainSdkError.failedToParseNetworkResponse()
             }
             .eraseToAnyPublisher()
     }

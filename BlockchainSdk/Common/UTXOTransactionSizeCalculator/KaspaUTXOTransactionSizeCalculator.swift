@@ -18,8 +18,8 @@ struct KaspaUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
     /// Dust
     /// https://kaspa-mdbook.aspectron.com/transactions/constraints/dust.html
     func dust(type: UTXOScriptType) -> Int {
-        let threshold = outputSize(scriptType: type) * network.dustRelayTxFee / 1000
-        return max(threshold, 546)
+        // Use the constant value
+        return KaspaTransactionBuilder.dustValue
     }
 
     /// Mass

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -74,9 +75,10 @@ struct MainView: View {
     var detailsNavigationButton: some View {
         Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
             NavbarDotsImage()
+                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
         }
         .buttonStyle(PlainButtonStyle())
-        .animation(nil)
+        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
         .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
     }
 

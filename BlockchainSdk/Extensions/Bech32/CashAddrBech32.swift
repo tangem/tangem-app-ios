@@ -146,7 +146,7 @@ public class CashAddrBech32 {
         return Data(converted)
     }
 
-    private enum DecodeError: Error {
+    enum DecodeError: Error {
         case invalidCharacter
         case invalidBits
     }

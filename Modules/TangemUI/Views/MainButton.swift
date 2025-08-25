@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct MainButton: View {
     private let title: String
@@ -72,6 +73,7 @@ public struct MainButton: View {
                 .cornerRadiusContinuous(style.cornerRadius(for: size))
         )
         .disabled(isInternalButtonDisabled)
+        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.buyCardButton)
     }
 
     var isInternalButtonDisabled: Bool {

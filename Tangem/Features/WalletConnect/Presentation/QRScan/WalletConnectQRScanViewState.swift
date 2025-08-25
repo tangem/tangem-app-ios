@@ -9,11 +9,9 @@
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectQRScanViewState {
     let navigationBar = NavigationBar()
-    let hint = "Open Web3 app and chose WalletConnect option"
-    let pasteFromClipboardButton: PasteFromClipboardButton?
+    let hint = Localization.wcQrScanHint
     var hasCameraAccess = false
     var confirmationDialog: ConfirmationDialog?
 }
@@ -24,59 +22,22 @@ extension WalletConnectQRScanViewState {
         let closeButtonTitle = Localization.commonClose
     }
 
-    struct PasteFromClipboardButton {
-        let clipboardURI: WalletConnectRequestURI
-        let title = Localization.walletConnectPasteFromClipboard
-        let asset = Assets.Glyphs.copy
-    }
-
     struct ConfirmationDialog {
         let title: String
         let subtitle: String
-        let buttons: [DialogButton]
+        let button: DialogButton
 
-        static func cameraAccessDenied(
-            openSystemSettingsAction: @escaping () -> Void,
-            pasteFromClipboardAction: (() -> Void)?
-        ) -> ConfirmationDialog {
-            var buttons = [
-                DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
-            ]
-
-            if let pasteFromClipboardAction {
-                buttons.append(
-                    DialogButton(
-                        title: Localization.walletConnectPasteFromClipboard,
-                        role: nil,
-                        action: pasteFromClipboardAction
-                    )
-                )
-            }
-
-            return ConfirmationDialog(
+        static func cameraAccessDenied(openSystemSettingsAction: @escaping () -> Void) -> ConfirmationDialog {
+            ConfirmationDialog(
                 title: Localization.commonCameraDeniedAlertTitle,
                 subtitle: Localization.commonCameraDeniedAlertMessage,
-                buttons: buttons
+                button: DialogButton(title: Localization.commonCameraAlertButtonSettings, action: openSystemSettingsAction)
             )
         }
     }
 
-    struct DialogButton: Hashable {
+    struct DialogButton {
         let title: String
-        let role: DialogButtonRole?
         let action: () -> Void
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(title)
-            hasher.combine(role)
-        }
-
-        static func == (lhs: WalletConnectQRScanViewState.DialogButton, rhs: WalletConnectQRScanViewState.DialogButton) -> Bool {
-            lhs.title == rhs.title && lhs.role == rhs.role
-        }
-    }
-
-    enum DialogButtonRole: Hashable {
-        case cancel
     }
 }
