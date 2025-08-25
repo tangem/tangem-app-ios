@@ -12,6 +12,9 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 final class MobileSettingsUtil {
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+
     private var isAccessCodeFeatureAvailable: Bool {
         userWalletConfig.isFeatureVisible(.userWalletAccessCode)
     }
@@ -28,12 +31,13 @@ final class MobileSettingsUtil {
         userWalletModel.config
     }
 
-    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-
-    private lazy var authUtil = MobileAuthUtil(
+    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
         userWalletId: userWalletModel.userWalletId,
-        config: userWalletModel.config
+        configuration: .default,
+        storageManager: accessCodeStorageManager
     )
+
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletModel: UserWalletModel
 
@@ -87,6 +91,12 @@ extension MobileSettingsUtil {
 private extension MobileSettingsUtil {
     func unlock() async -> UnlockResult {
         do {
+            let authUtil = MobileAuthUtil(
+                userWalletId: userWalletModel.userWalletId,
+                config: userWalletModel.config,
+                biometricsProvider: CommonUserWalletBiometricsProvider(),
+                accessCodeManager: accessCodeManager
+            )
             let result = try await authUtil.unlock()
 
             switch result {
@@ -97,7 +107,7 @@ private extension MobileSettingsUtil {
                 return .canceled
 
             case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return .failed
             }
 
