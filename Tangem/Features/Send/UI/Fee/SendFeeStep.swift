@@ -14,10 +14,9 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFeeStep {
     private let viewModel: SendFeeViewModel
-    private let interactor: SendFeeInteractor
+    private let feeProvider: SendFeeProvider
     private let notificationManager: NotificationManager
-    private let feeTokenItem: TokenItem
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendFeeAnalyticsLogger
 
     /// We have to use this `SendViewAlertPresenter`
     /// Because .alert(item:) doesn't work in the nested views
@@ -25,16 +24,14 @@ class SendFeeStep {
 
     init(
         viewModel: SendFeeViewModel,
-        interactor: SendFeeInteractor,
+        feeProvider: SendFeeProvider,
         notificationManager: NotificationManager,
-        feeTokenItem: TokenItem,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+        analyticsLogger: SendFeeAnalyticsLogger,
     ) {
         self.viewModel = viewModel
-        self.interactor = interactor
+        self.feeProvider = feeProvider
         self.notificationManager = notificationManager
-        self.feeTokenItem = feeTokenItem
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
     }
 
     func set(alertPresenter: SendViewAlertPresenter) {
@@ -49,6 +46,9 @@ extension SendFeeStep: SendStep {
 
     var type: SendStepType { .fee(viewModel) }
 
+    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .closeButton }
+    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .none }
+
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
@@ -60,10 +60,7 @@ extension SendFeeStep: SendStep {
         for event in events {
             switch event {
             case .customFeeTooLow:
-                Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
-                    .token: feeTokenItem.currencySymbol,
-                ])
-
+                analyticsLogger.logSendNoticeTransactionDelaysArePossible()
                 alertPresenter?.showAlert(
                     makeCustomFeeTooLowAlert(continueAction: continueAction)
                 )
@@ -83,20 +80,14 @@ extension SendFeeStep: SendStep {
         return true
     }
 
-    func willAppear(previous step: any SendStep) {
-        if step.type.isSummary {
-            Analytics.log(.sendScreenReopened, params: [.source: .fee])
-        } else {
-            Analytics.log(.sendFeeScreenOpened)
-        }
-
-        interactor.updateFees()
+    func initialAppear() {
+        analyticsLogger.logFeeStepOpened()
     }
 
-    func willDisappear(next step: SendStep) {
-        // We have to send this event when user move on the next step
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: interactor.selectedFee?.option)
-        Analytics.log(event: .sendFeeSelected, params: [.feeType: feeType.rawValue])
+    func willAppear(previous step: any SendStep) {
+        feeProvider.updateFees()
+
+        step.type.isSummary ? analyticsLogger.logFeeStepReopened() : analyticsLogger.logFeeStepOpened()
     }
 }
 

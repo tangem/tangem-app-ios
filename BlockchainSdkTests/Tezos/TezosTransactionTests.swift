@@ -68,7 +68,8 @@ extension TezosTests {
 
     private func makeTransaction(publickKey: Data, curve: EllipticCurve) throws -> Transaction {
         let blockchain = Blockchain.tezos(curve: curve)
-        let address = try TezosAddressService(curve: curve).makeAddress(
+        let service = AddressServiceFactory(blockchain: blockchain).makeAddressService()
+        let address = try service.makeAddress(
             for: Wallet.PublicKey(seedKey: publickKey, derivationType: .none),
             with: .default
         )
