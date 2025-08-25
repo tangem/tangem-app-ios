@@ -22,7 +22,11 @@ struct CloreWalletAssembly: WalletManagerAssembly {
                 networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .clore(nodeInfo.url))
             }
 
-        let networkService = MultiUTXONetworkProvider(providers: providers)
+        let networkService = MultiUTXONetworkProvider(
+            providers: providers,
+            blockchainName: Blockchain.clore.displayName
+        )
+
         return BitcoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,

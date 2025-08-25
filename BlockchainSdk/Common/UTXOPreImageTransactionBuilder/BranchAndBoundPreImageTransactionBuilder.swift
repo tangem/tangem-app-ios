@@ -42,7 +42,7 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             throw Error.wrongAmount
         }
 
-        guard fee.isCalculation || destination.amount > calculator.dust(type: destination.script) else {
+        guard fee.isCalculation || destination.amount >= calculator.dust(type: destination.script) else {
             throw Error.dustAmount
         }
 
@@ -200,7 +200,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
 extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 

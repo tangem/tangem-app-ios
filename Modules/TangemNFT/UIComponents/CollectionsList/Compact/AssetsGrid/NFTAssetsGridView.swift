@@ -7,16 +7,17 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct NFTAssetsGridView: View {
-    var viewModel: NFTAssetsGridViewModel
-
-    private let columns = [
-        GridItem(.adaptive(minimum: NFTCompactAssetView.Constants.imageSize.width), spacing: Constants.interitemSpacing),
+    private let gridItems = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
     ]
+    let viewModel: NFTAssetsGridViewModel
 
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: Constants.rowsSpacing) {
+        LazyVGrid(columns: gridItems, alignment: .leading, spacing: Constants.rowsSpacing) {
             ForEach(viewModel.assetsViewModels, id: \.id) { viewModel in
                 NFTCompactAssetView(viewModel: viewModel)
             }
@@ -35,18 +36,30 @@ extension NFTAssetsGridView {
 #Preview {
     ScrollView {
         NFTAssetsGridView(viewModel: NFTAssetsGridViewModel(assetsViewModels: (0 ... 10).map {
-            NFTCompactAssetViewModel(nftAsset: NFTAsset(
-                assetIdentifier: "some-\($0)",
-                collectionIdentifier: "some1",
-                chain: .solana,
-                contractType: .unknown,
-                ownerAddress: "",
-                name: "My asset",
-                description: "",
-                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                rarity: nil,
-                traits: []
-            ), openAssetDetailsAction: { _ in })
+            NFTCompactAssetViewModel(
+                state: .loaded(
+                    .init(
+                        asset: NFTAsset(
+                            assetIdentifier: "some-\($0)",
+                            assetContractAddress: "some1",
+                            chain: .solana,
+                            contractType: .unknown,
+                            decimalCount: 0,
+                            ownerAddress: "",
+                            name: "My asset",
+                            description: "",
+                            salePrice: nil,
+                            mediaFiles: [
+                                NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                            ],
+                            rarity: nil,
+                            traits: []
+                        ),
+                        priceFormatter: NFTPriceFormatterMock()
+                    )
+                ),
+                openAssetDetailsAction: { _ in }
+            )
         }))
         .padding(16)
     }

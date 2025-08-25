@@ -6,7 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 final class KaspaTransactionHistoryMapper {
+    typealias Input = KaspaTransactionHistoryResponse.Transaction.Input
+    typealias Output = KaspaTransactionHistoryResponse.Transaction.Output
+
     private let blockchain: Blockchain
 
     init(blockchain: Blockchain) {
@@ -26,7 +31,7 @@ final class KaspaTransactionHistoryMapper {
             .filter {
                 isOutgoing ? $0.scriptPublicKeyAddress != walletAddress : $0.scriptPublicKeyAddress == walletAddress
             }
-            .reduce(0) { $0 + $1.amount }
+            .reduce(0) { $0 + ($1.amount ?? 0) }
 
         let amountWithFee = if isOutgoing {
             amount + fee
@@ -44,9 +49,13 @@ final class KaspaTransactionHistoryMapper {
         walletAddress: String
     ) -> TransactionRecord.DestinationType? {
         if isOutgoing {
-            let outputAddresses = transaction.outputs
-                .filter { $0.scriptPublicKeyAddress != walletAddress }
-                .map { TransactionRecord.Destination(address: .user($0.scriptPublicKeyAddress), amount: amount) }
+            let outputAddresses = transaction.outputs.compactMap { output -> TransactionRecord.Destination? in
+                guard let address = output.scriptPublicKeyAddress, address != walletAddress else {
+                    return nil
+                }
+
+                return TransactionRecord.Destination(address: .user(address), amount: amount)
+            }
 
             switch outputAddresses.count {
             case 0: return nil
@@ -68,12 +77,20 @@ final class KaspaTransactionHistoryMapper {
         walletAddress: String
     ) -> TransactionRecord.SourceType? {
         if isOutgoing {
-            .single(.init(address: walletAddress, amount: amount))
+            return .single(.init(address: walletAddress, amount: amount))
+        } else if transaction.inputs.isNotEmpty {
+            return transaction.inputs
+                .first { $0.previousOutpointAddress != nil && $0.previousOutpointAddress != walletAddress }
+                .flatMap { $0.previousOutpointAddress.map { .single(.init(address: $0, amount: amount)) } }
         } else {
-            transaction.inputs
-                .first { $0.previousOutpointAddress != walletAddress }
-                .flatMap { .single(.init(address: $0.previousOutpointAddress, amount: amount)) }
+            return .single(.init(address: "", amount: amount))
         }
+    }
+
+    private func calculateFee(inputs: [Input], outputs: [Output]) -> Int {
+        let inputSum = inputs.compactMap { $0.previousOutpointAmount }.reduce(0, +)
+        let outputSum = outputs.compactMap { $0.amount }.reduce(0, +)
+        return max(0, inputSum - outputSum)
     }
 }
 
@@ -87,8 +104,18 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
     ) throws -> [TransactionRecord] {
         return response.compactMap { transaction -> TransactionRecord? in
             let isOutgoing = transaction.inputs.contains(where: { $0.previousOutpointAddress == walletAddress })
+            let fee = calculateFee(inputs: transaction.inputs, outputs: transaction.outputs)
+            var transactionStatus: TransactionRecord.TransactionStatus {
+                guard let status = transaction.isAccepted else {
+                    return .undefined
+                }
 
-            let fee = transaction.inputs.map(\.previousOutpointAmount).reduce(0, +) - transaction.outputs.map(\.amount).reduce(0, +)
+                return status ? .confirmed : .unconfirmed
+            }
+
+            guard let transactonId = transaction.transactionId?.nilIfEmpty else {
+                return nil
+            }
 
             guard let amount = extractTransactionAmount(
                 transaction: transaction,
@@ -113,15 +140,17 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 amount: amount,
                 isOutgoing: isOutgoing,
                 walletAddress: walletAddress
-            ) else { return nil }
+            ) else {
+                return nil
+            }
 
             return TransactionRecord(
-                hash: transaction.transactionId,
+                hash: transactonId,
                 index: 0,
                 source: source,
                 destination: destination,
                 fee: Fee(Amount(with: blockchain, value: Decimal(fee))),
-                status: transaction.isAccepted ? .confirmed : .unconfirmed,
+                status: transactionStatus,
                 isOutgoing: isOutgoing,
                 type: .transfer,
                 date: transaction.blockTime
