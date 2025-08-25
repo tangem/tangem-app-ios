@@ -119,6 +119,8 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileBackupNeeded(userWalletModel: UserWalletModel) {
+        Analytics.log(.walletSettingsNoticeBackupFirst)
+
         let viewModel = MobileBackupNeededViewModel(userWalletModel: userWalletModel, routable: self)
 
         Task { @MainActor in
@@ -127,6 +129,8 @@ extension UserWalletSettingsCoordinator:
     }
 
     func openMobileBackupTypes(userWalletModel: UserWalletModel) {
+        Analytics.log(.backupStarted)
+
         mobileBackupTypesViewModel = MobileBackupTypesViewModel(userWalletModel: userWalletModel, routable: self)
     }
 

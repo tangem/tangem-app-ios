@@ -28,11 +28,27 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     }
 }
 
+// MARK: - Internal methods
+
+extension MobileOnboardingSeedPhraseImportViewModel {
+    func onAppear() {
+        Analytics.log(
+            event: .onboardingSeedImportScreenOpened,
+            params: [.productType: Analytics.ProductType.mobileWallet.rawValue]
+        )
+    }
+}
+
 // MARK: - SeedPhraseImportDelegate
 
 extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
         isCreating = true
+
+        Analytics.log(
+            event: .onboardingSeedButtonImportWallet,
+            params: [.productType: Analytics.ProductType.mobileWallet.rawValue]
+        )
 
         runTask(in: self) { viewModel in
             do {
@@ -51,6 +67,10 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 await runOnMain {
                     viewModel.isCreating = false
+                    viewModel.trackWalletImported(
+                        seedLength: mnemonic.mnemonicComponents.count,
+                        isPassphraseEmpty: passphrase.isEmpty
+                    )
                     viewModel.delegate?.didImportSeedPhrase(userWalletModel: userWalletModel)
                 }
             } catch {
@@ -60,5 +80,24 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                 }
             }
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingSeedPhraseImportViewModel {
+    func trackWalletImported(seedLength: Int, isPassphraseEmpty: Bool) {
+        let params: [Analytics.ParameterKey: String] = [
+            .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
+            .seedLength: "\(seedLength)",
+            .passphrase: isPassphraseEmpty
+                ? Analytics.ParameterValue.empty.rawValue
+                : Analytics.ParameterValue.full.rawValue,
+        ]
+
+        Analytics.log(
+            event: .walletCreatedSuccessfully,
+            params: params
+        )
     }
 }
