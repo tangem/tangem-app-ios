@@ -12,6 +12,7 @@ struct SentOnrampTransactionData {
     let txId: String
     let provider: ExpressProvider
     let destinationTokenItem: TokenItem
+    let destinationAddress: String
     let date: Date
     let fromAmount: Decimal
     let fromCurrencyCode: String
