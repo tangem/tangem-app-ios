@@ -69,7 +69,7 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func refresh(completion: @escaping () -> Void = {}) {
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             async let updateState: Void = viewModel.stakingManager.updateState(loadActions: true)
 
             guard let accountInitializedStateProvider = viewModel.accountInitializedStateProvider else {
@@ -410,7 +410,8 @@ private extension StakingDetailsViewModel {
 
         let minAmount: Decimal? = switch constraint?.amount.minimum {
         // StakeKit didn't implement constraints for polygon yet, this code will be removed once done
-        case .none where yield.item.network == .polygon: 1
+        case .none where yield.item.network == .ethereum
+            && yield.item.contractAddress == StakingConstants.polygonContractAddress: 1
         case .none: .none
         case .some(let amount): amount
         }
@@ -423,8 +424,8 @@ private extension StakingDetailsViewModel {
         )
 
         alert = AlertBuilder.makeAlert(
-            title: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
-            message: "",
+            title: "",
+            message: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
             primaryButton: .default(Text(Localization.warningButtonOk), action: {})
         )
     }
@@ -611,7 +612,7 @@ extension DateComponentsFormatter {
 
 extension StakingDetailsViewModel {
     enum Constants {
-        static let tosURL = URL(string: "https://docs.stakek.it/docs/terms-of-use")!
-        static let privacyPolicyURL = URL(string: "https://docs.stakek.it/docs/privacy-policy")!
+        static let tosURL = URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")!
+        static let privacyPolicyURL = URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")!
     }
 }

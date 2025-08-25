@@ -8,15 +8,14 @@
 
 import Foundation
 import Combine
-import TangemSdk
 import BlockchainSdk
 
 struct LockedUserTokensManager: UserTokensManager {
     var derivationManager: DerivationManager? { nil }
 
-    func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {}
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
@@ -26,9 +25,9 @@ struct LockedUserTokensManager: UserTokensManager {
         return ""
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
 
-    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
+    func add(_ tokenItem: TokenItem, completion: @escaping (Result<Void, Error>) -> Void) {}
 
     func contains(_ tokenItem: TokenItem) -> Bool {
         return false
@@ -44,6 +43,10 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
         return false
+    }
+
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
+        false
     }
 
     func remove(_ tokenItem: TokenItem) {}
