@@ -10,27 +10,35 @@ import Foundation
 import Combine
 import TangemLocalization
 import TangemFoundation
+import CombineExt
 
 public final class NFTEntrypointViewModel: ObservableObject {
-    @Published private(set) var state: LoadingValue<CollectionsViewState>
+    @Published private(set) var state: CollectionsViewState
 
-    private var collections: [NFTCollection] = []
+    private var collections: [NFTCollection] {
+        nftManager.collections
+    }
+
     private let nftManager: NFTManager
-    private let navigationContext: NFTEntrypointNavigationContext
+    private let navigationContext: NFTNavigationContext
+    private let analytics: NFTAnalytics.Entrypoint
     private var bag: Set<AnyCancellable> = []
+    private var didAppear = false
+
     private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
         nftManager: NFTManager,
-        navigationContext: NFTEntrypointNavigationContext,
+        navigationContext: NFTNavigationContext,
+        analytics: NFTAnalytics.Entrypoint,
         coordinator: NFTEntrypointRoutable?
     ) {
         self.nftManager = nftManager
         self.navigationContext = navigationContext
         self.coordinator = coordinator
-        state = .loading
+        self.analytics = analytics
 
-        bind()
+        state = .noCollections
     }
 
     var title: String {
@@ -38,57 +46,53 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     var subtitle: String {
-        switch state {
-        case .loading:
-            return ""
-
-        case .loaded:
+        if collections.isEmpty {
+            return Localization.nftWalletReceiveNft
+        } else {
             let totalNFTs = collections.map(\.assetsCount).reduce(0, +)
-            return Localization.nftWalletCount(totalNFTs, collections.count)
-
-        case .failedToLoad:
-            return Localization.nftWalletUnableToLoad
+            return Localization.nftWalletCountIos(totalNFTs, collections.count)
         }
     }
 
-    var disabled: Bool {
-        switch state {
-        case .loading, .failedToLoad: true
-        case .loaded: false
+    func onViewAppear() {
+        if didAppear {
+            return
         }
+
+        didAppear = true
+        bind()
+        updateInternal()
+    }
+
+    func openCollections() {
+        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
+        let assetsWithoutCollectionCount = collections.reduce(into: 0) { sum, collection in
+            if collection.id.collectionIdentifier == NFTDummyCollectionMapper.dummyCollectionIdentifier {
+                sum += collection.assetsCount
+            }
+        }
+        analytics.logCollectionsOpen(
+            collections.isEmpty ? "Empty" : "Full",
+            collections.count,
+            collections.map(\.assetsCount).reduce(0, +),
+            assetsWithoutCollectionCount
+        )
     }
 
     private func bind() {
-        nftManager.statePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                guard let self else { return }
-                self.state = map(managerState: state)
-                collections = extractCollections(from: state)
+        nftManager
+            .collectionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, collections in
+                viewModel.makeCollectionsViewState(from: collections.value)
             }
+            .receiveOnMain()
+            .assign(to: \.state, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
-    private func map(managerState: NFTManagerState) -> LoadingValue<CollectionsViewState> {
-        switch managerState {
-        case .loading:
-            return .loading
-
-        case .failedToLoad(let error):
-            return .failedToLoad(error: error)
-
-        case .loaded(let collections):
-            let collectionsViewState = makeCollectionsViewState(from: collections)
-            return .loaded(collectionsViewState)
-        }
-    }
-
-    private func extractCollections(from managerState: NFTManagerState) -> [NFTCollection] {
-        switch managerState {
-        case .failedToLoad: []
-        case .loading: []
-        case .loaded(let collections): collections
-        }
+    private func updateInternal() {
+        nftManager.update(cachePolicy: .always)
     }
 
     private func makeCollectionsViewState(from collections: [NFTCollection]) -> CollectionsViewState {
@@ -97,60 +101,55 @@ public final class NFTEntrypointViewModel: ObservableObject {
             .noCollections
 
         case 1:
-            .oneCollection(imageURL: collections[0].logoURL)
+            .oneCollection(imageURL: collections[0].media)
 
         case 2:
             .twoCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media
             )
 
         case 3:
             .threeCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL,
-                thirdCollectionImageURL: collections[2].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media,
+                thirdCollectionImageURL: collections[2].media
             )
 
         case 4:
             .fourCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL,
-                thirdCollectionImageURL: collections[2].logoURL,
-                fourthCollectionImageURL: collections[3].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media,
+                thirdCollectionImageURL: collections[2].media,
+                fourthCollectionImageURL: collections[3].media
             )
 
         default:
-            .multipleCollections(collectionsURLs: collections.map(\.logoURL))
+            .multipleCollections(collectionsURLs: collections.map(\.media))
         }
-    }
-
-    @MainActor
-    func openCollections() {
-        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
     }
 }
 
-public extension NFTEntrypointViewModel {
+extension NFTEntrypointViewModel {
     enum CollectionsViewState {
         case noCollections
 
-        case oneCollection(imageURL: URL?)
+        case oneCollection(imageURL: NFTMedia?)
         case twoCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?
         )
         case threeCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?,
-            thirdCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?,
+            thirdCollectionImageURL: NFTMedia?
         )
         case fourCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?,
-            thirdCollectionImageURL: URL?,
-            fourthCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?,
+            thirdCollectionImageURL: NFTMedia?,
+            fourthCollectionImageURL: NFTMedia?
         )
-        case multipleCollections(collectionsURLs: [URL?])
+        case multipleCollections(collectionsURLs: [NFTMedia?])
     }
 }

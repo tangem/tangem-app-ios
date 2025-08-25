@@ -76,7 +76,6 @@ struct SendAmountView: View {
 
             VStack(spacing: 6) {
                 SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                    .initialFocusBehavior(.noFocus)
                     .alignment(.center)
                     .prefixSuffixOptions(viewModel.currentFieldOptions)
                     .minTextScale(SendAmountStep.Constants.amountMinTextScale)
