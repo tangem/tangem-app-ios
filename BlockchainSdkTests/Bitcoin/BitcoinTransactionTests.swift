@@ -10,6 +10,8 @@ import Testing
 @testable import BlockchainSdk
 
 struct BitcoinTransactionTests {
+    private let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+
     struct TestUTXOTransactionInputsSorter: UTXOTransactionInputsSorter {
         func sort(inputs: [ScriptUnspentOutput]) -> [ScriptUnspentOutput] {
             // Crutch to sort in the order which was used in the tx below
@@ -25,7 +27,6 @@ struct BitcoinTransactionTests {
         // given
         let networkParams = BitcoinNetworkParams()
         let pubKey = Data(hexString: "0256e4711ea6bf3309e039ee30b203b18783a8c7c78c68ff2e36acec3c6f51c884")
-        let addressService = BitcoinAddressService(networkParams: networkParams)
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
@@ -77,11 +78,12 @@ struct BitcoinTransactionTests {
     /// Twin cards
     @Test(arguments: [BitcoinTransactionBuilder.BuilderType.walletCore(.bitcoin), .custom])
     func p2msTransaction(builderType: BitcoinTransactionBuilder.BuilderType) async throws {
+        let addressService = addressService as! BitcoinScriptAddressesProvider
+
         // given
         let networkParams = BitcoinNetworkParams()
         let pubKey = Data(hexString: "0498bf2d8ebc710c1dece61ed077c10a08cc915a8757b42ace86c05443a96fe3f30488e234c426d01e1c10296e0dd9db3176a24e78bc30375428f5f363d79942aa")
         let pairPubKey = Data(hexString: "0463d452ff8a11ccaec8f567b6af7b0200fb764906f1fdada40545e8a9cd500d3900f17e544a4e97cf8d197a992e4e1febc388ef7393e9f865d6c260404c5a8247")
-        let addressService = BitcoinAddressService(networkParams: networkParams)
         let addresses = try addressService.makeAddresses(publicKey: .init(seedKey: pubKey, derivationType: .none), pairPublicKey: pairPubKey)
         let defaultAddress = try #require(addresses.first(where: { $0.type == .default }))
         let legacyAddress = try #require(addresses.first(where: { $0.type == .legacy }))
