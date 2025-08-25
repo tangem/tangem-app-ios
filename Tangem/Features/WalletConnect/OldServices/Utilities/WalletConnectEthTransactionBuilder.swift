@@ -23,7 +23,7 @@ struct CommonWalletConnectEthTransactionBuilder {
         using ethereumNetworkProvider: EthereumNetworkProvider,
         blockchain: Blockchain
     ) async throws -> BigUInt {
-        if let dappGasLimit = tx.gas?.hexToInteger ?? tx.gasLimit?.hexToInteger {
+        if let dappGasLimit = tx.gas?.hexToInteger {
             // This is a workaround for sending a Mantle transaction.
             // Unfortunately, Mantle's current implementation does not conform to our existing fee calculation rules.
             // [REDACTED_INFO]
@@ -99,7 +99,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
             destinationAddress: wcTransaction.to
         )
 
-        let contractDataString = wcTransaction.data.removeHexPrefix()
+        let contractDataString = wcTransaction.data?.removeHexPrefix() ?? "0x"
         let wcTxData = Data(hexString: String(contractDataString))
 
         transaction.params = EthereumTransactionParams(

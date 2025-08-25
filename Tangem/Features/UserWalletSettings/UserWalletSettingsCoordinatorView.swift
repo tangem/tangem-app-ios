@@ -39,6 +39,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.scanCardSettingsCoordinator) {
                 ScanCardSettingsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.hotBackupTypesViewModel) {
+                HotBackupTypesView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -50,6 +53,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
+            }
+            .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
+                TransactionNotificationsModalView(viewModel: $0)
+            }
+            .floatingSheetContent(for: HotBackupNeededViewModel.self) {
+                HotBackupNeededView(viewModel: $0)
             }
     }
 }
