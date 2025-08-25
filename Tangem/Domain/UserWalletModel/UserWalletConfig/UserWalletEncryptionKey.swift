@@ -23,4 +23,10 @@ extension UserWalletEncryptionKey {
 
         symmetricKey = SymmetricKey(data: tokensSymmetricKeyData)
     }
+
+    init?(config: UserWalletConfig) {
+        guard let seed = config.userWalletIdSeed else { return nil }
+
+        self.init(userWalletIdSeed: seed)
+    }
 }
