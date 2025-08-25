@@ -121,8 +121,10 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionsBuilder,
             await addPendingTransaction(record)
 
             return TransactionSendResult(hash: hash)
+        } catch let sendTxError as SendTxError {
+            throw sendTxError
         } catch {
-            throw SendTxErrorFactory().make(error: error, with: rawTransaction.description)
+            throw SendTxError(error: error.toUniversalError(), tx: rawTransaction.description)
         }
     }
 

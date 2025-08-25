@@ -14,7 +14,7 @@ import TangemExpress
 import TangemStaking
 import TangemFoundation
 import TangemLocalization
-import struct TangemUIUtils.ActionSheetBinder
+import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
@@ -35,6 +35,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
+    private let pendingTransactionDetails: PendingTransactionDetails?
     private var bag = Set<AnyCancellable>()
 
     var iconUrl: URL? {
@@ -63,11 +64,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
         coordinator: TokenDetailsRoutable,
-        tokenRouter: SingleTokenRoutable
+        tokenRouter: SingleTokenRoutable,
+        pendingTransactionDetails: PendingTransactionDetails?
     ) {
         self.coordinator = coordinator
         self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
+        self.pendingTransactionDetails = pendingTransactionDetails
+
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
@@ -86,7 +90,26 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: walletModel.tokenItem.currencySymbol])
+        let balanceState: Analytics.ParameterValue = switch walletModel.availableBalanceProvider.balanceType {
+        case .empty:
+            .empty
+        case .loading:
+            .loading
+        case .failure:
+            .error
+        case .loaded(let amount) where amount == .zero:
+            .empty
+        case .loaded:
+            .full
+        }
+
+        let params: [Analytics.ParameterKey: String] = [
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.tokenItem.blockchain.displayName,
+            .balance: balanceState.rawValue,
+        ]
+
+        Analytics.log(event: .detailsScreenOpened, params: params)
     }
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -119,7 +142,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupportYes,
              .seedSupport2No,
              .seedSupport2Yes,
-             .openReferralProgram:
+             .openReferralProgram,
+             .addTokenTrustline,
+             .openHotFinishActivation:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -170,7 +195,7 @@ extension TokenDetailsViewModel {
     func generateXPUBButtonAction() {
         guard let xpubGenerator else { return }
 
-        TangemFoundation.runTask { [weak self] in
+        runTask { [weak self] in
             do {
                 let xpub = try await xpubGenerator.generateXPUB()
                 let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
@@ -233,6 +258,25 @@ private extension TokenDetailsViewModel {
     }
 
     private func bind() {
+        // If a pending transaction was provided for deeplink-based presentation,
+        // wait for the first non-empty list of pending transactions,
+        // and if it contains a transaction matching the provided ID, present its status.
+        if let pendingTransactionDetails {
+            $pendingExpressTransactions
+                .filter { !$0.isEmpty }
+                .prefix(1)
+                .sink { [weak self] pendingTransactions in
+                    guard let self,
+                          let matchingTransaction = pendingTransactions.first(where: { $0.id == pendingTransactionDetails.id })
+                    else {
+                        return
+                    }
+
+                    didTapPendingExpressTransaction(id: matchingTransaction.id)
+                }
+                .store(in: &bag)
+        }
+
         bannerNotificationManager?.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -362,6 +406,10 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
     var shouldShowBalanceSelector: Bool {
         switch walletModel.stakingBalanceProvider.balanceType {
         case .empty:
+            return false
+        case .loaded(let amount) where amount == .zero:
+            return false
+        case .failure(let cached) where cached?.balance == .zero || cached == nil:
             return false
         case .failure, .loading, .loaded:
             return true
