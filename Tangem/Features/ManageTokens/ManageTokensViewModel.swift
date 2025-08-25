@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 class ManageTokensViewModel: ObservableObject {
@@ -60,7 +61,7 @@ class ManageTokensViewModel: ObservableObject {
                 adapter.resetAdapter()
                 showPortfolioUpdatedToast()
             case .failure(let failure):
-                if failure.isUserCancelled {
+                if failure.isCancellationError {
                     return
                 }
 

@@ -10,13 +10,15 @@ import Foundation
 import Combine
 import ScaleCodec
 import Sodium
+import BigInt
 
 class PolkadotNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
     let providers: [PolkadotJsonRpcProvider]
 
+    let blockchainName: String = Blockchain.polkadot(curve: .ed25519_slip0010, testnet: false).displayName
+
     private let network: PolkadotNetwork
-    private let codec = SCALE.default
 
     init(providers: [PolkadotJsonRpcProvider], network: PolkadotNetwork) {
         self.providers = providers
@@ -34,10 +36,9 @@ class PolkadotNetworkService: MultiNetworkProvider {
                 .flatMap { key -> AnyPublisher<String?, Error> in
                     provider.storage(key: key.hex().addHexPrefix())
                 }
-                .withWeakCaptureOf(self)
-                .tryMap { service, storage in
+                .tryMap { storage in
                     if let storage {
-                        let info = try service.codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+                        let info = try decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
                         return info.data.free
                     }
 
@@ -94,9 +95,8 @@ class PolkadotNetworkService: MultiNetworkProvider {
             let payload = extrinsic + extrinsic.count.bytes4LE
             return provider
                 .queryInfo(payload.hex().addHexPrefix())
-                .withWeakCaptureOf(self)
-                .tryMap { networkService, output in
-                    try networkService.codec.decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
+                .tryMap { output in
+                    try decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
                 }
                 .eraseToAnyPublisher()
         }
@@ -115,7 +115,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
             // [REDACTED_TODO_COMMENT]
             let addressHash = Sodium().genericHash.hash(message: addressBytes.bytes, outputLength: 16)
         else {
-            throw WalletError.empty
+            throw BlockchainSdkError.empty
         }
 
         // XXHash of "System" module and "Account" storage item.

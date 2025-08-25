@@ -7,10 +7,6 @@
 
 import Foundation
 
-enum EntropyError: Error {
-    case invalidBufferSize
-}
-
 class Entropy {
     private(set) var bytes: [UInt8]!
 

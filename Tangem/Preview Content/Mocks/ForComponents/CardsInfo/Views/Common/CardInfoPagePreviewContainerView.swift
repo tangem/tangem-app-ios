@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct CardInfoPagePreviewContainerView: View {
     @StateObject private var previewProvider = CardsInfoPagerPreviewProvider()

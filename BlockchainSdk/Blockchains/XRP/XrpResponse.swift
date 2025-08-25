@@ -19,4 +19,5 @@ struct XrpInfoResponse {
     let sequence: Int
     let unconfirmedBalance: Decimal
     let reserve: Decimal
+    let trustlines: Result<[XRPTrustLine], Error>
 }

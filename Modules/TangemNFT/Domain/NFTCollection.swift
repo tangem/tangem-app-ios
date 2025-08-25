@@ -7,18 +7,19 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct NFTCollection: Hashable, Identifiable, Sendable {
     public let id: NFTCollectionId
-    let contractType: NFTContractType
-    let name: String
+    public let contractType: NFTContractType
+    public let name: String
     let description: String?
-    let logoURL: URL?
+    let media: NFTMedia?
     /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
     /// therefore this property should always be used if you need to determine the number of assets.
     /// Do not use `assets.count` for this purpose.
     let assetsCount: Int
-    let assets: [NFTAsset]
+    let assetsResult: NFTPartialResult<[NFTAsset]>
 
     init(
         collectionIdentifier: String,
@@ -27,9 +28,9 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         ownerAddress: String,
         name: String,
         description: String?,
-        logoURL: URL?,
-        assetsCount: Int?,
-        assets: [NFTAsset]
+        media: NFTMedia?,
+        assetsCount: Int,
+        assetsResult: NFTPartialResult<[NFTAsset]>
     ) {
         id = .init(
             collectionIdentifier: collectionIdentifier,
@@ -40,9 +41,9 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         self.contractType = contractType
         self.name = name
         self.description = description
-        self.logoURL = logoURL
-        self.assetsCount = assetsCount ?? assets.count
-        self.assets = assets
+        self.media = media
+        self.assetsCount = assetsCount
+        self.assetsResult = assetsResult
     }
 }
 
@@ -51,10 +52,50 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
 public extension NFTCollection {
     struct NFTCollectionId: Hashable, Sendable {
         /// Collection's address.
-        let collectionIdentifier: String
+        public let collectionIdentifier: String
         /// The owner's address is intentionally a part of the collection identity
         /// to distinguish between identical collections but with different derivations.
-        let ownerAddress: String
-        let chain: NFTChain
+        public let ownerAddress: String
+        public let chain: NFTChain
+
+        public static let dummy = Self(
+            collectionIdentifier: UUID().uuidString,
+            ownerAddress: UUID().uuidString,
+            chain: .solana
+        )
+    }
+}
+
+// MARK: - Convenience extensions
+
+public extension NFTCollection {
+    /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
+    /// therefore, this helper can be used to enrich existing domain models of NFT collection with NFT assets fetched separately.
+    func enriched(with assetsResult: NFTPartialResult<[NFTAsset]>) -> Self {
+        return .init(
+            collectionIdentifier: id.collectionIdentifier,
+            chain: id.chain,
+            contractType: contractType,
+            ownerAddress: id.ownerAddress,
+            name: name,
+            description: description,
+            media: media,
+            assetsCount: assetsCount,
+            assetsResult: assetsResult
+        )
+    }
+
+    static var dummy: Self {
+        NFTCollection(
+            collectionIdentifier: "",
+            chain: .avalanche,
+            contractType: .erc1155,
+            ownerAddress: "",
+            name: "",
+            description: nil,
+            media: nil,
+            assetsCount: 0,
+            assetsResult: NFTPartialResult(value: [NFTAsset]())
+        )
     }
 }

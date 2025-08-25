@@ -34,14 +34,15 @@ protocol UserWalletModel:
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
-    var totalSignedHashes: Int { get }
+    var walletImageProvider: WalletImageProviding { get }
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
     func validate() -> Bool
     func onBackupUpdate(type: BackupUpdateType)
     func updateWalletName(_ name: String)
-    func addAssociatedCard(_ cardId: String)
+    func addAssociatedCard(cardId: String)
+    func cleanup()
 }
 
 enum BackupUpdateType {
