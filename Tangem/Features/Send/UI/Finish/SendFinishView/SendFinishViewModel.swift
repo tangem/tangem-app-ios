@@ -14,7 +14,6 @@ import struct TangemUIUtils.AlertBinder
 class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
     @Published var transactionSentTime: String?
-    @Published var alert: AlertBinder?
 
     @Published var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
     @Published var sendAmountCompactViewModel: SendAmountCompactViewModel?
@@ -48,7 +47,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        sendFinishAnalyticsLogger.onAppear()
+        sendFinishAnalyticsLogger.logFinishStepOpened()
 
         withAnimation(SendTransitionService.Constants.defaultAnimation) {
             showHeader = true

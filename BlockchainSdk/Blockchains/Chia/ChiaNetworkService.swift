@@ -17,6 +17,10 @@ class ChiaNetworkService: MultiNetworkProvider {
 
     private var blockchain: Blockchain
 
+    var blockchainName: String {
+        blockchain.displayName
+    }
+
     // MARK: - Init
 
     init(providers: [ChiaNetworkProvider], blockchain: Blockchain) {
@@ -46,7 +50,7 @@ class ChiaNetworkService: MultiNetworkProvider {
                         response.success,
                         response.status == ChiaSendTransactionResponse.Constants.successStatus
                     else {
-                        throw WalletError.failedToSendTx
+                        throw BlockchainSdkError.failedToSendTx
                     }
 
                     return ""

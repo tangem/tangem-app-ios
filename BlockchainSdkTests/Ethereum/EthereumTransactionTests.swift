@@ -10,10 +10,12 @@ import BigInt
 import TangemSdk
 @testable import BlockchainSdk
 import Testing
+import WalletCore
 
 struct EthereumTransactionTests {
     private let blockchain = Blockchain.ethereum(testnet: false)
     private let sizeTester = TransactionSizeTesterUtility()
+    private let privateKeyRaw = Data(hex: "e120fc1ef9d193a851926ebd937c3985dc2c4e642fb3d0832317884d5f18f3b3")
 
     @Test
     func defaultAddressGeneration() throws {
@@ -35,11 +37,13 @@ struct EthereumTransactionTests {
     @Test
     func legacyCoinTransfer() throws {
         // given
-        let walletPublicKey = Data(hex: "04EB30400CE9D1DEED12B84D4161A1FA922EF4185A155EF3EC208078B3807B126FA22C335081AAEBF161095C11C7D8BD550EF8882A3125B0EE9AE96DDDE1AE743F")
+        let rawPublicKey = Data(hex: "04EB30400CE9D1DEED12B84D4161A1FA922EF4185A155EF3EC208078B3807B126FA22C335081AAEBF161095C11C7D8BD550EF8882A3125B0EE9AE96DDDE1AE743F")
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let signature = Data(hex: "B945398FB90158761F6D61789B594D042F0F490F9656FBFFAE8F18B49D5F30054F43EE43CCAB2703F0E2E4E61D99CF3D4A875CD759569787CF0AED02415434C6")
         let destinationAddress = "0x7655b9b19ffab8b897f836857dae22a1e7f8d735"
         let nonce = 15
         let walletAddress = "0xb1123efF798183B7Cb32F62607D3D39E950d9cc3"
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
         let sendAmount = Amount(with: blockchain, type: .coin, value: 0.1)
         let feeParameters = EthereumLegacyFeeParameters(gasLimit: BigUInt(21000), gasPrice: BigUInt(476190476190))
 
@@ -56,9 +60,9 @@ struct EthereumTransactionTests {
         )
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
         let hashToSign = try transactionBuilder.buildForSign(transaction: transaction)
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(
             transaction: transaction,
             signatureInfo: signatureInfo
@@ -73,56 +77,67 @@ struct EthereumTransactionTests {
         #expect(signedTransaction == expectedSignedTransaction)
     }
 
-    @Test
-    func legacyTokenTransfer() throws {
+    @Test(arguments: [
+        LegacyTokenTransferTestCase.Success.usdcToken_correctData,
+        LegacyTokenTransferTestCase.Success.nftERC721Token_correctData,
+        LegacyTokenTransferTestCase.Success.nftERC1155Token_correctData,
+    ])
+    func legacyTokenTransfer_success(testCase: LegacyTokenTransferTestCase.Success) throws {
         // given
-        let walletPublicKey = Data(hex: "04EB30400CE9D1DEED12B84D4161A1FA922EF4185A155EF3EC208078B3807B126FA22C335081AAEBF161095C11C7D8BD550EF8882A3125B0EE9AE96DDDE1AE743F")
-        let signature = Data(hex: "F408C40F8D8B4A40E35502355C87FBBF218EC9ECB036D42DAA6211EAD4498A6FBC800E82CB2CC0FAB1D68FD3F8E895EC3E0DCB5A05342F5153210142E4224D4C")
-
-        let walletAddress = "0xb1123efF798183B7Cb32F62607D3D39E950d9cc3"
-        let contractAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-        let destinationAddress = "0x7655b9b19ffab8b897f836857dae22a1e7f8d735"
-        let token = Token(name: "USDC Coin", symbol: "USDC", contractAddress: contractAddress, decimalCount: 18)
-
-        let nonce = 15
-        let sendValue = Amount(with: blockchain, type: .token(value: token), value: 0.1)
-        let feeParameters = EthereumLegacyFeeParameters(gasLimit: BigUInt(21000), gasPrice: BigUInt(476190476190))
-        let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
+        let privateKey = WalletCore.PrivateKey(data: privateKeyRaw)!
+        let publicKey = privateKey.getPublicKeySecp256k1(compressed: false)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1)
-        let transaction = Transaction(
-            amount: sendValue,
-            fee: fee,
-            sourceAddress: walletAddress,
-            destinationAddress: destinationAddress,
-            changeAddress: walletAddress,
-            params: EthereumTransactionParams(nonce: nonce)
+        let (transaction, transactionBuilder) = try makeTransactionForLegacyTokenTransfer(
+            token: testCase.token,
+            publicKey: publicKey
         )
 
         // then
-        let expectedHashToSign = Data(hex: "2F47B058A0C4A91EC6E26372FA926ACB899235D7A639565B4FC82C7A9356D6C5")
-        let expectedSignedTransaction = Data(hex: "F8A90F856EDF2A079E82520894A0B86991C6218B36C1D19D4A2E9EB0CE3606EB4880B844A9059CBB0000000000000000000000007655B9B19FFAB8B897F836857DAE22A1E7F8D735000000000000000000000000000000000000000000000000016345785D8A000025A0F408C40F8D8B4A40E35502355C87FBBF218EC9ECB036D42DAA6211EAD4498A6FA0437FF17D34D33F054E29702C07176A127CA1118CAA1470EA6CB15D49EC13F3F5")
-
         let hashToSign = try transactionBuilder.buildForSign(transaction: transaction)
         sizeTester.testTxSize(hashToSign)
-        #expect(hashToSign == expectedHashToSign)
+        #expect(hashToSign == testCase.transactionData.expectedHashToSign)
 
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signature = try #require(privateKey.sign(digest: hashToSign, curve: .secp256k1))
+        let signature64 = signature.prefix(64)
+
+        let signatureInfo = SignatureInfo(signature: signature64, publicKey: publicKey.data, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
+        #expect(signedTransaction.hex() == testCase.transactionData.expectedSignedTransaction.hex(), testCase.name)
+    }
+
+    @Test(arguments: [
+        LegacyTokenTransferTestCase.Failure.nftUnknownStandardToken_throwsError,
+    ])
+    func legacyTokenTransfer_failure(testCase: LegacyTokenTransferTestCase.Failure) throws {
+        // given
+        let privateKey = WalletCore.PrivateKey(data: privateKeyRaw)!
+        let publicKey = privateKey.getPublicKeySecp256k1(compressed: false)
+
+        // when
+        let (transaction, transactionBuilder) = try makeTransactionForLegacyTokenTransfer(
+            token: testCase.token,
+            publicKey: publicKey
+        )
+
+        // then
+        #expect(throws: testCase.error) {
+            try transactionBuilder.buildForSign(transaction: transaction)
+        }
     }
 
     /// https://polygonscan.com/tx/0x8f7c7ffddfc9f45370cc5fbeb49df65bdf8976ba606d20705eea965ba96a1e8d
     @Test
     func EIP1559TokenTransfer() throws {
         // given
-        let walletPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
+        let rawPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let signature = Data(hex: "b8291b199416b39434f3c3b8cfd273afb41fa25f2ae66f8a4c56b08ad1749a122148b8bbbdeb7761031799ffbcbc7c0ee1dd4482f516bd6a33387ea5bce8cb7d")
 
         let walletAddress = "0x29010F8F91B980858EB298A0843264cfF21Fd9c9"
         let contractAddress = "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
         let token = Token(name: "Tether", symbol: "USDT", contractAddress: contractAddress, decimalCount: 6)
 
         let nonce = 195
@@ -135,7 +150,7 @@ struct EthereumTransactionTests {
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 137)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: sendValue,
             fee: fee,
@@ -153,7 +168,7 @@ struct EthereumTransactionTests {
         sizeTester.testTxSize(hashToSign)
         #expect(hashToSign == expectedHashToSign)
 
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
         #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
@@ -162,11 +177,13 @@ struct EthereumTransactionTests {
     @Test
     func EIP1559CoinTransfer() throws {
         // given
-        let walletPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
+        let rawPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let signature = Data(hex: "56DF71FF2A7FE93D2363056FE5FF32C51E5AC71733AF23A82F3974CB872537E95B60D6A0042CC34724DB84E949EEC8643761FE9027E9E7B1ED3DA23D8AB7C0A4")
 
         let walletAddress = "0x29010F8F91B980858EB298A0843264cfF21Fd9c9"
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
 
         let nonce = 196
         let sendValue = Amount(with: blockchain, type: .coin, value: 1)
@@ -178,7 +195,7 @@ struct EthereumTransactionTests {
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 137)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 137, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: sendValue,
             fee: fee,
@@ -196,7 +213,7 @@ struct EthereumTransactionTests {
         sizeTester.testTxSize(hashToSign)
         #expect(hashToSign == expectedHashToSign)
 
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
         #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
@@ -205,13 +222,15 @@ struct EthereumTransactionTests {
     @Test
     func EIP1559TokenApprove() throws {
         // given
-        let walletPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
+        let rawPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let signature = Data(hex: "0xcc6163663ccdadf4489e9753b0307c0fb1eed7fe92a7b0a6b3cb0f6d24f9109e7dd41e4e30c6777b27688527af3c4ec69ed053246ca05d1b3b8c3da127c30eb0")
 
         let walletAddress = "0xF686Cc42C39e942D5B4a237286C5A55B451bD6F0"
         let spenderAddress = "0x111111125421cA6dc452d289314280a0f8842A65"
         let contractAddress = "0x940181a94a35a4569e4529a3cdfb74e38fd98631"
         let destinationAddress = contractAddress
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
 
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: BigUInt(47000),
@@ -228,7 +247,7 @@ struct EthereumTransactionTests {
         let param = EthereumTransactionParams(data: tokenMethod.data, nonce: nonce)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: .zeroCoin(for: blockchain),
             fee: fee,
@@ -246,7 +265,7 @@ struct EthereumTransactionTests {
         sizeTester.testTxSize(hashToSign)
         #expect(hashToSign.hex() == expectedHashToSign.hex())
 
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
         #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
@@ -255,12 +274,14 @@ struct EthereumTransactionTests {
     @Test
     func EIP1559TokenSwap() throws {
         // given
-        let walletPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
+        let rawPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
         let signature = Data(hex: "0x0982b50e820042d00a51ac23029cd66bdd88c6300890120be54a05afedbe938943e0e8f475dba0d9cd9d4a38f02e29662ef106c3bede1938230a32a2f23e8106")
 
         let walletAddress = "0xF686Cc42C39e942D5B4a237286C5A55B451bD6F0"
         let contractAddress = "0x111111125421ca6dc452d289314280a0f8842a65"
         let destinationAddress = contractAddress
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
 
         let feeParameters = EthereumEIP1559FeeParameters(
             gasLimit: BigUInt(156360),
@@ -277,7 +298,7 @@ struct EthereumTransactionTests {
         let param = EthereumTransactionParams(data: payload, nonce: nonce)
 
         // when
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 8453, sourceAddress: sourceAddress)
         let transaction = Transaction(
             amount: .zeroCoin(for: blockchain),
             fee: fee,
@@ -295,7 +316,7 @@ struct EthereumTransactionTests {
         sizeTester.testTxSize(hashToSign)
         #expect(hashToSign.hex() == expectedHashToSign.hex())
 
-        let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
+        let signatureInfo = SignatureInfo(signature: signature, publicKey: rawPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
         #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
@@ -303,7 +324,11 @@ struct EthereumTransactionTests {
     @Test
     func buildDummyTransactionForL1() throws {
         // given
+        let rawPublicKey = Data(repeating: 0x0, count: 65) // Just a dummy value to satisfy the compiler
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
+        let walletAddress = Data(repeating: 0x0, count: 20).hexString // Just a dummy value to satisfy the compiler
         let destinationAddress = "0x90e4d59c8583e37426b37d1d7394b6008a987c67"
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
 
         let sendValue = EthereumUtils.mapToBigUInt(1 * blockchain.decimalValue).serialize()
         let feeParameters = EthereumEIP1559FeeParameters(
@@ -313,7 +338,7 @@ struct EthereumTransactionTests {
         )
         let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
 
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 1)
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
 
         // when
         let l1Data = try transactionBuilder.buildDummyTransactionForL1(
@@ -347,7 +372,12 @@ struct EthereumTransactionTests {
 
     @Test
     func buildingApproveTransactionPayload() throws {
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 10)
+        let rawPublicKey = Data(repeating: 0x0, count: 65) // Just a dummy value to satisfy the compiler
+        let walletPublicKey = Wallet.PublicKey(seedKey: rawPublicKey, derivationType: nil)
+        let walletAddress = Data(repeating: 0x0, count: 20).hexString // Just a dummy value to satisfy the compiler
+        let sourceAddress = PlainAddress(value: walletAddress, publicKey: walletPublicKey, type: .default)
+
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 10, sourceAddress: sourceAddress)
         let amount = try #require(Decimal(stringValue: "1146241"))
 
         let payload = transactionBuilder.buildForApprove(
@@ -362,32 +392,57 @@ struct EthereumTransactionTests {
         )
     }
 
-    @Test
-    func buildingTokenTransferTransactionPayload() throws {
-        let transactionBuilder = EthereumTransactionBuilder(chainId: 10)
-        let amount = try #require(Decimal(stringValue: "0.001"))
+    @Test(
+        arguments: [
+            // https://optimistic.etherscan.io/tx/0x89a6b62628d326902df50f543996e9403df9a5d2ae5be415f7cdaa1a98464fd4
+            TokenTransferPayloadTestCase.Success.usdcToken_correctPayload,
+            TokenTransferPayloadTestCase.Success.nftERC721Token_correctPayload,
+            TokenTransferPayloadTestCase.Success.nftERC1155Token_correctPayload,
+        ]
+    )
+    func buildingTokenTransferTransactionPayload_success(testCase: TokenTransferPayloadTestCase.Success) throws {
+        // given
+        let privateKey = WalletCore.PrivateKey(data: privateKeyRaw)!
+        let publicKey = privateKey.getPublicKeySecp256k1(compressed: false)
 
+        let (_, transactionBuilder) = try makeTransactionForLegacyTokenTransfer(token: testCase.token, publicKey: publicKey)
+
+        // when
         let payload = try transactionBuilder.buildForTokenTransfer(
             destination: "0x75739A5bd4B781cF38c59B9492ef9639e46688Bf",
             amount: .init(
                 with: .optimism(testnet: false),
-                type: .token(
-                    value: .init(
-                        name: "USD Coin",
-                        symbol: "USDC",
-                        contractAddress: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
-                        decimalCount: 6
-                    )
-                ),
-                value: amount
+                type: .token(value: testCase.token),
+                value: try #require(Decimal(stringValue: "0.001"))
             )
         )
 
-        // https://optimistic.etherscan.io/tx/0x89a6b62628d326902df50f543996e9403df9a5d2ae5be415f7cdaa1a98464fd4
-        #expect(
-            payload.hex().addHexPrefix() ==
-                "0xa9059cbb00000000000000000000000075739a5bd4b781cf38c59b9492ef9639e46688bf00000000000000000000000000000000000000000000000000000000000003e8"
-        )
+        // then
+        #expect(payload.hex().addHexPrefix() == testCase.refPayload, testCase.name)
+    }
+
+    @Test(arguments: [
+        TokenTransferPayloadTestCase.Failure.nftUnknownStandardToken_throwsError,
+    ])
+    func buildingTokenTransferTransactionPayload_failure(testCase: TokenTransferPayloadTestCase.Failure) throws {
+        // given
+        let privateKey = WalletCore.PrivateKey(data: privateKeyRaw)!
+        let publicKey = privateKey.getPublicKeySecp256k1(compressed: false)
+
+        let (_, transactionBuilder) = try makeTransactionForLegacyTokenTransfer(token: testCase.token, publicKey: publicKey)
+
+        // when
+        // then
+        #expect(throws: testCase.error) {
+            try transactionBuilder.buildForTokenTransfer(
+                destination: "0x75739A5bd4B781cF38c59B9492ef9639e46688Bf",
+                amount: .init(
+                    with: .optimism(testnet: false),
+                    type: .token(value: testCase.token),
+                    value: try #require(Decimal(stringValue: "0.001"))
+                )
+            )
+        }
     }
 
     @Test
@@ -468,5 +523,38 @@ struct EthereumTransactionTests {
         }
 
         #expect(fees[0] < fees[1] && fees[1] < fees[2])
+    }
+}
+
+// MARK: - Helpers
+
+extension EthereumTransactionTests {
+    func makeTransactionForLegacyTokenTransfer(token: Token, publicKey: PublicKey) throws -> (transaction: Transaction, builder: EthereumTransactionBuilder) {
+        let walletAddress = AnyAddress(publicKey: publicKey, coin: .ethereum).description
+
+        let destinationAddress = "0x7655b9b19ffab8b897f836857dae22a1e7f8d735"
+        let sourceAddress = PlainAddress(
+            value: walletAddress,
+            publicKey: Wallet.PublicKey(seedKey: publicKey.data, derivationType: .none),
+            type: .default
+        )
+
+        let nonce = 15
+        let sendValue = Amount(with: blockchain, type: .token(value: token), value: try #require(Decimal(stringValue: "0.1")))
+        let feeParameters = EthereumLegacyFeeParameters(gasLimit: BigUInt(21000), gasPrice: BigUInt(476190476190))
+        let fee = Fee(.zeroCoin(for: blockchain), parameters: feeParameters)
+
+        let transactionBuilder = EthereumTransactionBuilder(chainId: 1, sourceAddress: sourceAddress)
+
+        let transaction = Transaction(
+            amount: sendValue,
+            fee: fee,
+            sourceAddress: walletAddress,
+            destinationAddress: destinationAddress,
+            changeAddress: walletAddress,
+            params: EthereumTransactionParams(nonce: nonce)
+        )
+
+        return (transaction: transaction, builder: transactionBuilder)
     }
 }

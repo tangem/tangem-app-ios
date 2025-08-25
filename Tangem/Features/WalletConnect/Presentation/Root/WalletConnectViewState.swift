@@ -6,34 +6,72 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import enum TangemAssets.Assets
+import Foundation
+import TangemAssets
 import enum TangemLocalization.Localization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectViewState: Equatable {
-    let navigationBar: NavigationBar
+    let navigationBar = NavigationBar()
     var contentState: ContentState
     var dialog: ModalDialog?
-    var newConnectionButton: Button
+    var newConnectionButton: NewConnectionButton
 
-    static let initial = WalletConnectViewState(
-        navigationBar: NavigationBar(),
-        contentState: .empty(WalletConnectViewState.ContentState.EmptyContentState()),
+    static let loading = WalletConnectViewState(
+        contentState: .loading,
         dialog: nil,
-        newConnectionButton: WalletConnectViewState.Button(isLoading: true)
+        newConnectionButton: NewConnectionButton(isLoading: true)
+    )
+
+    static let empty = WalletConnectViewState(
+        contentState: .empty,
+        dialog: nil,
+        newConnectionButton: NewConnectionButton(isLoading: false)
     )
 }
 
 extension WalletConnectViewState {
     struct NavigationBar: Equatable {
-        let title = "Connections"
+        let title = Localization.wcConnections
         let trailingButtonAsset = Assets.verticalDots
         let disconnectAllMenuTitle = Localization.wcDisconnectAll
     }
 
     enum ContentState: Equatable {
         case empty(EmptyContentState)
-        case withConnectedDApps([WalletWithConnectedDApps])
+        case loading(LoadingContentState)
+        case content([WalletWithConnectedDApps])
+
+        var isEmpty: Bool {
+            switch self {
+            case .empty: true
+            case .loading: false
+            case .content: false
+            }
+        }
+
+        var isLoading: Bool {
+            switch self {
+            case .empty: false
+            case .loading: true
+            case .content: false
+            }
+        }
+
+        var isContent: Bool {
+            switch self {
+            case .empty: false
+            case .loading: false
+            case .content: true
+            }
+        }
+
+        static let empty = ContentState.empty(.init())
+        static let loading = ContentState.loading(LoadingContentState(dAppStubsCount: 5))
+    }
+
+    struct NewConnectionButton: Equatable {
+        let title = Localization.wcNewConnection
+        var isLoading: Bool
     }
 
     enum ModalDialog: Equatable {
@@ -68,26 +106,52 @@ extension WalletConnectViewState {
             }
         }
     }
-
-    struct Button: Equatable {
-        let title = "New connection"
-        var isLoading: Bool
-    }
 }
 
 extension WalletConnectViewState.ContentState {
     struct EmptyContentState: Equatable {
-        let title = "No sessions"
-        let subtitle = "Connect your wallet to a different dApps"
+        let title = Localization.wcNoSessionsTitle
+        let subtitle = Localization.wcNoSessionsDesc
         let asset = Assets.walletConnect
+    }
+
+    struct LoadingContentState: Equatable {
+        let dAppStubsCount: Int
     }
 
     struct WalletWithConnectedDApps: Identifiable, Equatable {
         let walletId: String
         let walletName: String
-        let dApps: [WalletConnectSavedSession]
+        let dApps: [ConnectedDApp]
 
         var id: String { walletId }
+    }
+
+    struct ConnectedDApp: Identifiable, Equatable {
+        let domainModel: WalletConnectConnectedDApp
+        let fallbackIconAsset = Assets.Glyphs.explore
+
+        var id: String {
+            domainModel.session.topic
+        }
+
+        var iconURL: URL? {
+            domainModel.dAppData.icon
+        }
+
+        var name: String {
+            domainModel.dAppData.name
+        }
+
+        var domain: String {
+            domainModel.dAppData.domain.host ?? ""
+        }
+
+        var verifiedDomainIconAsset: ImageType? {
+            domainModel.verificationStatus.isVerified
+                ? Assets.Glyphs.verified
+                : nil
+        }
     }
 }
 
@@ -97,28 +161,13 @@ extension WalletConnectViewState.ModalDialog {
         let subtitle: String
         let buttons: [DialogButton]
 
-        static func cameraAccessDenied(
-            openSystemSettingsAction: @escaping () -> Void,
-            establishConnectionFromClipboardURI: (() -> Void)?
-        ) -> Content {
-            var buttons = [
-                DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
-            ]
-
-            if let establishConnectionFromClipboardURI {
-                buttons.append(
-                    DialogButton(
-                        title: Localization.walletConnectPasteFromClipboard,
-                        role: nil,
-                        action: establishConnectionFromClipboardURI
-                    )
-                )
-            }
-
-            return Content(
+        static func cameraAccessDenied(openSystemSettingsAction: @escaping () -> Void) -> Content {
+            Content(
                 title: Localization.commonCameraDeniedAlertTitle,
                 subtitle: Localization.commonCameraDeniedAlertMessage,
-                buttons: buttons
+                buttons: [
+                    DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
+                ]
             )
         }
 

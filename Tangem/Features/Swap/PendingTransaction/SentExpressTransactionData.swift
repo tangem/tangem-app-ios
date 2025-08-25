@@ -10,9 +10,9 @@ import Foundation
 import TangemExpress
 
 struct SentExpressTransactionData {
-    let hash: String
-    let source: any WalletModel
-    let destination: any WalletModel
+    let result: TransactionDispatcherResult
+    let source: any ExpressInteractorSourceWallet
+    let destination: any ExpressInteractorDestinationWallet
     let fee: Decimal
     let feeOption: FeeOption
     let provider: ExpressProvider

@@ -85,7 +85,7 @@ class ClvmProgram {
                     result.append(Byte((size >> 8) & 0xFF))
                     result.append(Byte(size & 0xFF))
                 } else {
-                    throw EncoderError.tooManyBytesToEncode
+                    throw CasperError.tooManyBytesToEncode
                 }
 
                 result.append(contentsOf: atom)
@@ -94,13 +94,8 @@ class ClvmProgram {
         } else if let left = left, let right = right {
             return try Data(Byte(0xff)) + left.serialize() + right.serialize()
         } else {
-            throw EncoderError.undefinedEncodeException
+            throw CasperError.undefinedEncodeException
         }
-    }
-
-    enum EncoderError: Error {
-        case tooManyBytesToEncode
-        case undefinedEncodeException
     }
 }
 
@@ -128,7 +123,7 @@ extension ClvmProgram {
             var sizeBytes = [Byte]()
 
             guard let currentByte = programByteIterator.next() else {
-                throw DecoderError.errorEmptyCurrentByte
+                throw CasperError.errorEmptyCurrentByte
             }
 
             if currentByte <= 0x7F {
@@ -148,18 +143,13 @@ extension ClvmProgram {
                 let right = try deserialize(with: &programByteIterator)
                 return ClvmProgram(atom: nil, left: left, right: right)
             } else {
-                throw DecoderError.errorCompareCurrentByte
+                throw CasperError.errorCompareCurrentByte
             }
 
             let size = sizeBytes.toInt()
             let nextBytes = try programByteIterator.next(byteCount: size)
             return ClvmProgram(atom: nextBytes)
         }
-    }
-
-    enum DecoderError: Error {
-        case errorEmptyCurrentByte
-        case errorCompareCurrentByte
     }
 }
 
@@ -181,7 +171,7 @@ extension ClvmProgram {
             }
 
             guard let element = programBytes.first else {
-                throw IteratorError.undefinedElement
+                throw CasperError.undefinedElement
             }
 
             return element
@@ -190,15 +180,11 @@ extension ClvmProgram {
         mutating func next(byteCount: Int) throws -> [Element] {
             try (0 ..< byteCount).map { _ in
                 guard let next = next() else {
-                    throw IteratorError.undefinedElement
+                    throw CasperError.undefinedElement
                 }
 
                 return next
             }
         }
-    }
-
-    enum IteratorError: Error {
-        case undefinedElement
     }
 }

@@ -14,6 +14,16 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
+        NavigationView {
+            content
+                .navigationLinks(links)
+                .navigationBarHidden(true)
+        }
+        .navigationViewStyle(.stack)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 WelcomeView(viewModel: rootViewModel)
@@ -28,6 +38,15 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newWalletSelectorCoordinator) {
+                NewWalletSelectorCoordinatorView(coordinator: $0)
+            }
+            .emptyNavigationLink()
     }
 
     @ViewBuilder

@@ -51,7 +51,7 @@ extension GenericDemoConfig: UserWalletConfig {
         return .v2
     }
 
-    var cardName: String {
+    var defaultName: String {
         "Wallet"
     }
 
@@ -176,8 +176,6 @@ extension GenericDemoConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
-        case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
         case .staking:
             return .disabled(localizedReason: Localization.alertDemoFeatureDisabled)
         case .topup:

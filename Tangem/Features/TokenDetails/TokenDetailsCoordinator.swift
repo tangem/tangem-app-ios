@@ -88,7 +88,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
             pendingExpressTransactionsManager: pendingTransactionsManager,
             xpubGenerator: xpubGenerator,
             coordinator: self,
-            tokenRouter: tokenRouter
+            tokenRouter: tokenRouter,
+            pendingTransactionDetails: options.pendingTransactionDetails
         )
 
         notificationManager.interactionDelegate = tokenDetailsViewModel
@@ -102,6 +103,8 @@ extension TokenDetailsCoordinator {
         let userWalletModel: UserWalletModel
         let walletModel: any WalletModel
         let userTokensManager: UserTokensManager
+        /// Initialized when a deeplink is received for an onramp or exchange (swap) status update related to a specific transaction
+        let pendingTransactionDetails: PendingTransactionDetails?
     }
 }
 
@@ -138,9 +141,8 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
-        receiveBottomSheetViewModel = .init(
-            flow: .crypto,
-            tokenItem: tokenItem,
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(
+            for: tokenItem,
             addressInfos: addressInfos
         )
     }
@@ -152,11 +154,6 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             self?.safariHandle = nil
             action()
         }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        openTokenDetails(for: model)
     }
 
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void) {
@@ -173,17 +170,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -199,17 +186,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
-            self?.sendCoordinator = nil
-
-            if let navigationInfo {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    self?.openFeeCurrency(for: navigationInfo.walletModel, userWalletModel: navigationInfo.userWalletModel)
-                }
-            }
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
+        let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -278,7 +255,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
@@ -309,6 +286,16 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 }
 
+// MARK: - FeeCurrencyNavigating protocol conformance
+
+extension TokenDetailsCoordinator: FeeCurrencyNavigating {
+    // [REDACTED_TODO_COMMENT]
+    /// - Note: This coordinator uses a custom implementation of the `FeeCurrencyNavigating.openFeeCurrency(for:userWalletModel:)` method.
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
+        openTokenDetails(for: model)
+    }
+}
+
 // MARK: - Private
 
 private extension TokenDetailsCoordinator {
@@ -328,7 +315,8 @@ private extension TokenDetailsCoordinator {
             with: .init(
                 userWalletModel: options.userWalletModel,
                 walletModel: walletModel,
-                userTokensManager: options.userWalletModel.userTokensManager
+                userTokensManager: options.userWalletModel.userTokensManager,
+                pendingTransactionDetails: nil
             )
         )
 

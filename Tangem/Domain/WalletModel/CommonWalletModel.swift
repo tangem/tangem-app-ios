@@ -55,6 +55,9 @@ class CommonWalletModel {
     private var updateWalletModelSubscription: AnyCancellable?
     private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
 
+    private var assetRequirementsTaskCancellable: AnyCancellable?
+    private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
+
     private let amountType: Amount.AmountType
     private let blockchainNetwork: BlockchainNetwork
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
@@ -64,6 +67,10 @@ class CommonWalletModel {
     private lazy var formatter = BalanceFormatter()
 
     private var bag = Set<AnyCancellable>()
+
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
+        isAssetRequirementsTaskInProgressSubject.eraseToAnyPublisher()
+    }
 
     init(
         walletManager: WalletManager,
@@ -153,10 +160,10 @@ class CommonWalletModel {
             }
 
             return .failed(error: WalletModelError.balanceNotFound.localizedDescription)
-        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+        case .failed(BlockchainSdkError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            return .failed(error: error.detailedLocalizedDescription)
+            return .failed(error: error.toUniversalError().localizedDescription)
         case .loading:
             return .loading
         case .initial:
@@ -313,19 +320,10 @@ extension CommonWalletModel: WalletModel {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        // Update context menu for hedera after address creation
-        if wallet.address.isEmpty {
-            return Publishers.Merge3(
-                expressAvailabilityProvider.availabilityDidChangePublisher,
-                stakingManagerStatePublisher.mapToVoid(),
-                walletManager.walletPublisher.mapToVoid()
-            )
-            .eraseToAnyPublisher()
-        }
-
-        return Publishers.Merge(
+        Publishers.Merge3(
             expressAvailabilityProvider.availabilityDidChangePublisher,
-            stakingManagerStatePublisher.mapToVoid()
+            stakingManagerStatePublisher.mapToVoid(),
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
         )
         .eraseToAnyPublisher()
     }
@@ -352,6 +350,9 @@ extension CommonWalletModel: WalletModel {
 // MARK: - Updater
 
 extension CommonWalletModel: WalletModelUpdater {
+    /// Fire-and-forget — subscriptions are managed internally:
+    /// `update()` in CommonWalletModel uses `updateWalletModelSubscription`,
+    /// and `fetch()` in CommonTransactionHistoryService uses its own `cancellable`.
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         _transactionHistoryService?.clearHistory()
 
@@ -493,23 +494,36 @@ extension CommonWalletModel: WalletModelHelpers {
     /// A convenience wrapper for `AssetRequirementsManager.fulfillRequirements(for:signer:)`
     /// that automatically triggers the update of the internal state of this wallet model.
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> {
-        return assetRequirementsManager
+        let subject = PassthroughSubject<Void, Error>()
+        isAssetRequirementsTaskInProgressSubject.send(true)
+
+        assetRequirementsTaskCancellable?.cancel()
+        assetRequirementsTaskCancellable = assetRequirementsManager
             .publisher
             .withWeakCaptureOf(self)
             .flatMap { walletModel, assetRequirementsManager in
                 assetRequirementsManager.fulfillRequirements(for: walletModel.tokenItem.amountType, signer: signer)
             }
             .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { walletModel, _ in
-                walletModel.updateAfterSendingTransaction()
-            })
             .mapToVoid()
-            .eraseToAnyPublisher()
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    subject.send(completion: completion)
+
+                    if case .failure = completion {
+                        self?.isAssetRequirementsTaskInProgressSubject.send(false)
+                    }
+                },
+                receiveValue: { [weak self] in
+                    self?.updateAfterSendingTransaction()
+                }
+            )
+
+        return subject.eraseToAnyPublisher()
     }
 }
 
-// MARK: - Fee
+// MARK: - WalletModelFeeProvider
 
 extension CommonWalletModel: WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
@@ -523,6 +537,10 @@ extension CommonWalletModel: WalletModelFeeProvider {
         }
 
         return walletManager.getFee(amount: amount, destination: destination)
+    }
+
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+        wallet.feeCurrencyBalance(amountType: amountType)
     }
 
     func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
@@ -565,10 +583,6 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? EthereumTransactionDataBuilder
     }
 
-    var addressResolver: AddressResolver? {
-        walletManager as? AddressResolver
-    }
-
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
         walletManager as? WithdrawalNotificationProvider
     }
@@ -598,6 +612,16 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         return wallet.hasPendingTx(for: amountType)
+    }
+
+    var hasAnyPendingTransactions: Bool {
+        // For bitcoin we check only outgoing transaction
+        // because we will not use unconfirmed utxo
+        if case .bitcoin = blockchainNetwork.blockchain {
+            return wallet.pendingTransactions.contains { !$0.isIncoming }
+        }
+
+        return wallet.hasPendingTx
     }
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
@@ -730,14 +754,6 @@ extension CommonWalletModel: TransactionHistoryFetcher {
 
     func clearHistory() {
         _transactionHistoryService?.clearHistory()
-    }
-}
-
-// MARK: - Express
-
-extension CommonWalletModel: ExpressWallet {
-    func getFeeCurrencyBalance() -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
     }
 }
 

@@ -124,7 +124,6 @@ private extension AppSettingsViewModel {
                 updateView()
                 completion(false)
             } else {
-                userWalletRepository.setSaving(true)
                 completion(true)
             }
         }
@@ -267,11 +266,11 @@ private extension AppSettingsViewModel {
 
     func setSaveWallets(_ saveWallets: Bool) {
         isSavingWallet = saveWallets
+        userWalletRepository.onSaveUserWalletsChanged(enabled: saveWallets)
 
         // If saved wallets is turn off we should delete access codes too
         if !saveWallets {
-            setSaveAccessCodes(false)
-            userWalletRepository.setSaving(false)
+            isSavingAccessCodes = false
         }
     }
 

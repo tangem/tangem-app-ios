@@ -13,10 +13,17 @@ import BlockchainSdk
 import TangemAssets
 import TangemNFT
 
-class FakeUserWalletModel: UserWalletModel, ObservableObject {
+class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
+    var keysRepository: KeysRepository {
+        CommonKeysRepository(
+            userWalletId: userWalletId,
+            encryptionKey: .init(userWalletIdSeed: Data()),
+            keys: .cardWallet(keys: [])
+        )
+    }
+
     var name: String { "" }
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
@@ -25,14 +32,14 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
-    let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
+    let walletImageProvider: WalletImageProviding
+    let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
+    var cardsCount: Int
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
-    var cardsCount: Int
-    var totalSignedHashes: Int { 1 }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: "", cardPublicKey: Data())
@@ -52,6 +59,15 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        CommonUserTokensPushNotificationsManager(
+            userWalletId: userWalletId,
+            walletModelsManager: walletModelsManager,
+            derivationManager: nil,
+            userTokenListManager: userTokenListManager
+        )
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -60,7 +76,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
     var updatePublisher: AnyPublisher<Void, Never> { _updatePublisher.eraseToAnyPublisher() }
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never>
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
@@ -88,7 +103,14 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
             userTokenListManager: fakeUserTokenListManager
         )
         totalBalanceProvider = TotalBalanceProviderMock()
-        cardImagePublisher = Just(.cached(Assets.Cards.walletSingle.uiImage)).eraseToAnyPublisher()
+        walletImageProvider = CardImageProvider(
+            input: .init(
+                cardId: "",
+                cardPublicKey: Data(),
+                issuerPublicKey: Data(),
+                firmwareVersionType: .release
+            )
+        )
     }
 
     func updateWalletName(_ name: String) {
@@ -109,13 +131,14 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     }
 
     func onBackupUpdate(type: BackupUpdateType) {}
-    func addAssociatedCard(_ cardId: String) {}
+    func addAssociatedCard(cardId: String) {}
+    func cleanup() {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
         .just(output: config.cardHeaderImage)
     }
 

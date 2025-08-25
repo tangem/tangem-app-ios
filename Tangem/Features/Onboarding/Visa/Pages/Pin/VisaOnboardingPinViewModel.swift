@@ -53,7 +53,7 @@ class VisaOnboardingPinViewModel: ObservableObject {
                         .errorCode: "\(error.universalErrorCode)",
                         .source: Analytics.ParameterValue.onboarding.rawValue,
                     ])
-                    await viewModel.delegate?.showAlertAsync(error.universalErrorAlertBinder)
+                    await viewModel.delegate?.showAlertAsync(error.alertBinder)
                 }
             }
 

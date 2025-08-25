@@ -14,10 +14,10 @@ struct GetTotalBalanceMethod: SmartContractMethod {
     let paymentAccountAddress: String
     private let methodSignature = "balanceOf(address)"
 
-    var prefix: String { SmartContractMethodPrefixCreator().createPrefixForMethod(with: methodSignature) }
+    var methodId: String { SmartContractMethodIdCreator().createIdForMethod(with: methodSignature) }
 
     var data: Data {
-        let prefixData = Data(hexString: prefix)
+        let prefixData = Data(hexString: methodId)
         let ownerData = Data(hexString: paymentAccountAddress).leadingZeroPadding(toLength: 32)
         return prefixData + ownerData
     }
