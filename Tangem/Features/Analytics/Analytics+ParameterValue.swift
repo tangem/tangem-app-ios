@@ -21,8 +21,10 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case loading = "Loading"
         case available = "Available"
         case unavailable = "Unavailable"
+        case missingAssetRequirement = "Missing Asset Requirement"
         case mainToken = "Main Token"
         case customToken = "Custom Token"
         case noRate = "No Rate"
@@ -37,6 +39,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case mobileWallet = "MobileWallet"
         case visa = "Visa"
 
         case main = "Main"
@@ -224,6 +227,22 @@ extension Analytics {
 
         case onramp = "Onramp"
         case markets = "Markets"
+
+        // MARK: - Wallet Connect
+
+        case walletConnectSecurityAlertVerified = "Verified"
+        case walletConnectSecurityAlertRisky = "Risky"
+        case walletConnectSecurityAlertSourceDomain = "Domain"
+        case walletConnectSecurityAlertSourceSmartContract = "Smart Contract"
+
+        case walletConnectCancelButtonTypeDApp = "Connection"
+
+        case walletConnectTransactionEmulationStatusEmulated = "Emulated"
+        case walletConnectTransactionEmulationStatusCantEmulate = "Can`t Emulate"
+
+        // MARK: - NFT
+
+        case nft = "NFT"
 
         // MARK: - Common
 
