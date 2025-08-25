@@ -63,6 +63,8 @@ result_bundle_paths.each do |path|
   xcode_summary_result_json = JSON.parse(xcode_summary_result)
   errors_count += xcode_summary_result_json['errors'].to_i
   warnings_count += xcode_summary_result_json['warnings'].to_i
+rescue StandardError => e
+  puts "Cannot analyze build results for path '#{path}' due to error '#{e.message}'"
 end
 
 fail('The PR has introduced new compiler errors. Fix them to continue.') if errors_count.positive?
