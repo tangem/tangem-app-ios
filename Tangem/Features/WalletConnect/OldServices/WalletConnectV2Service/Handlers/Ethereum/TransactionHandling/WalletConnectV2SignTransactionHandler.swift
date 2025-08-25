@@ -12,17 +12,22 @@ import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
 class WalletConnectV2SignTransactionHandler {
-    private let ethTransaction: WalletConnectEthTransaction
+    private var wcTransaction: WalletConnectEthTransaction
+    private var sendableTransaction: WCSendableTransaction?
     private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
+    private let newTransactionBuilder: WCNewEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
     private let signer: TangemSigner
     private var transaction: Transaction?
+    private let request: AnyCodable
+    private let encoder = JSONEncoder()
 
     init(
         requestParams: AnyCodable,
         blockchainId: String,
         transactionBuilder: WalletConnectEthTransactionBuilder,
+        newTransactionBuilder: WCNewEthTransactionBuilder,
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider
@@ -33,7 +38,7 @@ class WalletConnectV2SignTransactionHandler {
                 throw WalletConnectV2Error.notEnoughDataInRequest(requestParams.description)
             }
 
-            self.ethTransaction = ethTransaction
+            wcTransaction = ethTransaction
             walletModel = try walletModelProvider.getModel(with: ethTransaction.from, blockchainId: blockchainId)
         } catch {
             WCLogger.error(error: error)
@@ -41,16 +46,28 @@ class WalletConnectV2SignTransactionHandler {
         }
 
         self.transactionBuilder = transactionBuilder
+        self.newTransactionBuilder = newTransactionBuilder
         self.messageComposer = messageComposer
         self.signer = signer
+        request = requestParams
     }
 }
 
-extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
+extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler, WCTransactionUpdatable {
+    var method: WalletConnectMethod { .signTransaction }
+
+    var requestData: Data {
+        (try? encoder.encode(wcTransaction)) ?? Data()
+    }
+
+    var rawTransaction: String? {
+        request.stringRepresentation
+    }
+
     var event: WalletConnectEvent { .sendTx }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
-        let transaction = try await transactionBuilder.buildTx(from: ethTransaction, for: walletModel)
+        let transaction = try await transactionBuilder.buildTx(from: wcTransaction, for: walletModel)
         self.transaction = transaction
 
         let message = messageComposer.makeMessage(for: transaction, walletModel: walletModel, dApp: dApp)
@@ -58,6 +75,12 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
     }
 
     func handle() async throws -> RPCResult {
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            let transactionToUse = sendableTransaction ?? WCSendableTransaction(from: wcTransaction)
+            let transaction = try await newTransactionBuilder.buildTx(from: transactionToUse, for: walletModel)
+            self.transaction = transaction
+        }
+
         guard let ethSigner = walletModel.ethereumTransactionSigner else {
             throw WalletConnectV2Error.missingEthTransactionSigner
         }
@@ -69,5 +92,9 @@ extension WalletConnectV2SignTransactionHandler: WalletConnectMessageHandler {
         async let signedHash = ethSigner.sign(transaction, signer: signer).async()
 
         return try await .response(AnyCodable(signedHash.lowercased()))
+    }
+
+    func updateSendableTransaction(_ updatedSendableTransaction: WCSendableTransaction) {
+        sendableTransaction = updatedSendableTransaction
     }
 }

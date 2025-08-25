@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import TangemFoundation
 import struct BlockchainSdk.Token
 
-class CommonTokenItemsRepository {
-    @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
+final class CommonTokenItemsRepository {
+    @Injected(\.persistentStorage) private var persistanceStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "com.tangem.CommonTokenItemsRepository.lockQueue")
     private let key: String
@@ -101,7 +102,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
         }
     }
 
-    func remove(_ blockchainNetworks: [BlockchainNetwork]) {
+    func remove(_ blockchainNetworks: [BlockchainNetwork], completion: (() -> Void)?) {
         lockQueue.sync {
             let networksToRemove = blockchainNetworks.toSet()
             let existingList = fetch()
@@ -118,6 +119,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
                     sorting: existingList.sorting
                 )
                 save(editedList)
+                completion?()
             }
         }
     }
