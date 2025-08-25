@@ -2423,6 +2423,11 @@
 		D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */; };
 		D8419D092E3C1EBB003C2866 /* StakingAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8419D082E3C1EBB003C2866 /* StakingAPIType.swift */; };
 		D8419D0B2E3C1ED7003C2866 /* StakingAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8419D0A2E3C1ED7003C2866 /* StakingAPI.swift */; };
+		D866EE622E5363210071311E /* shiba.json in Resources */ = {isa = PBXBuildFile; fileRef = D866EE612E5363210071311E /* shiba.json */; };
+		D866EE642E5384720071311E /* 4_12.json in Resources */ = {isa = PBXBuildFile; fileRef = D866EE632E5384500071311E /* 4_12.json */; };
+		D866EE882E54C0970071311E /* TwinOnboardingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D866EE872E54C0970071311E /* TwinOnboardingScreen.swift */; };
+		D866EE8A2E54E3DB0071311E /* v3seckp.json in Resources */ = {isa = PBXBuildFile; fileRef = D866EE892E54E3DB0071311E /* v3seckp.json */; };
+		D866EE8C2E55AD920071311E /* ring.json in Resources */ = {isa = PBXBuildFile; fileRef = D866EE8B2E55AD920071311E /* ring.json */; };
 		D8796D6B2E2847F20034ADAB /* XCTest+Allure.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */; };
 		D8796DAD2E2A4AF30034ADAB /* UITestOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */; };
 		D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */; };
@@ -6484,6 +6489,11 @@
 		D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScreen.swift; sourceTree = "<group>"; };
 		D8419D082E3C1EBB003C2866 /* StakingAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPIType.swift; sourceTree = "<group>"; };
 		D8419D0A2E3C1ED7003C2866 /* StakingAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPI.swift; sourceTree = "<group>"; };
+		D866EE612E5363210071311E /* shiba.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shiba.json; sourceTree = "<group>"; };
+		D866EE632E5384500071311E /* 4_12.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = 4_12.json; sourceTree = "<group>"; };
+		D866EE872E54C0970071311E /* TwinOnboardingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinOnboardingScreen.swift; sourceTree = "<group>"; };
+		D866EE892E54E3DB0071311E /* v3seckp.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = v3seckp.json; sourceTree = "<group>"; };
+		D866EE8B2E55AD920071311E /* ring.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ring.json; sourceTree = "<group>"; };
 		D8796D6A2E2847F20034ADAB /* XCTest+Allure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Allure.swift"; sourceTree = "<group>"; };
 		D8796DAC2E2A4AF30034ADAB /* UITestOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestOnrampRepository.swift; sourceTree = "<group>"; };
 		D88A53D92E1D45DA006F4F85 /* TokenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScreen.swift; sourceTree = "<group>"; };
@@ -10081,6 +10091,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D866EE872E54C0970071311E /* TwinOnboardingScreen.swift */,
 				D8E7CEA42E56102B00CD9726 /* Swap */,
 				D8E15EEE2E41155900E217BB /* Staking */,
 				D8E17CE02E37B6E600E9D791 /* CardSettingsScreen.swift */,
@@ -11700,6 +11711,8 @@
 		B0DC10CE292755BA00BBE854 /* CardMocks */ = {
 			isa = PBXGroup;
 			children = (
+				D866EE632E5384500071311E /* 4_12.json */,
+				D866EE612E5363210071311E /* shiba.json */,
 				DC4512772BD1641900DE6F94 /* ethNoteDemo.json */,
 				B0F319072A73954E009F131E /* twinCard.json */,
 				B66BCD2E2E25B308009BD357 /* visa.json */,
@@ -11710,6 +11723,8 @@
 				DC4512752BD1640500DE6F94 /* walletDemo.json */,
 				B0BEBED82AD3DF2900FD722C /* xlmBird.json */,
 				B0F319052A7394E2009F131E /* xrpNote.json */,
+				D866EE892E54E3DB0071311E /* v3seckp.json */,
+				D866EE8B2E55AD920071311E /* ring.json */,
 			);
 			path = CardMocks;
 			sourceTree = "<group>";
@@ -21984,12 +21999,15 @@
 				B0FB4EFA2A8512210057F4C2 /* walletUserWalletList.json in Resources */,
 				DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
+				D866EE8A2E54E3DB0071311E /* v3seckp.json in Resources */,
 				B00B58DA2BCFAA60007475F7 /* providers_order.json in Resources */,
 				B07C6A0C2A77E5AA00ACCBB0 /* twinCard.json in Resources */,
 				B098F3A42C04B65600F79989 /* coinsResponse.json in Resources */,
 				EF661E2E28BF41D6005769E5 /* Intents.strings in Resources */,
+				D866EE8C2E55AD920071311E /* ring.json in Resources */,
 				DC261CA1292CD3B800875E64 /* GoogleService-Info-Production.plist in Resources */,
 				B03662692B63D7660064E073 /* iso4217Codes.plist in Resources */,
+				D866EE622E5363210071311E /* shiba.json in Resources */,
 				DC4512782BD1641900DE6F94 /* ethNoteDemo.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
@@ -22011,6 +22029,7 @@
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */,
+				D866EE642E5384720071311E /* 4_12.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -24513,6 +24532,7 @@
 				D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */,
 				7982B0292DE70E1900C41EA5 /* ScreenBase+Extension.swift in Sources */,
 				D88A53DA2E1D45DA006F4F85 /* TokenScreen.swift in Sources */,
+				D866EE882E54C0970071311E /* TwinOnboardingScreen.swift in Sources */,
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
 				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
