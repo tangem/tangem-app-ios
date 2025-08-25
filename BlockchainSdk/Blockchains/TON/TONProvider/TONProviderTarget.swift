@@ -124,4 +124,6 @@ extension TONProviderTarget: TargetTypeLogConvertible {
             "runGetMethod"
         }
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

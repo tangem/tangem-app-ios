@@ -31,7 +31,7 @@ class BinanceNetworkService {
     func getInfo(address: String) -> AnyPublisher<BinanceInfoResponse, Error> {
         let future = Future<BinanceInfoResponse, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -57,7 +57,7 @@ class BinanceNetworkService {
     func getFee() -> AnyPublisher<String, Error> {
         let future = Future<String, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -88,7 +88,7 @@ class BinanceNetworkService {
     func send(transaction: Message) -> AnyPublisher<BinanceChain.Response, Error> {
         let future = Future<BinanceChain.Response, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(WalletError.empty))
+                promise(.failure(BlockchainSdkError.empty))
                 return
             }
 
@@ -108,7 +108,7 @@ class BinanceNetworkService {
 extension BinanceChain.Response {
     func getError() -> Error? {
         if error?.localizedDescription.lowercased().contains("account not found") ?? false {
-            return WalletError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
+            return BlockchainSdkError.noAccount(message: Localization.noAccountSendToCreate, amountToCreate: 0)
         } else {
             return error
         }

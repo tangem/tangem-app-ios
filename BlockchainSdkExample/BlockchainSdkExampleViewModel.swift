@@ -143,7 +143,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
     }
 
     func scanCardAndGetInfo() {
-        sdk.scanCard { [weak self] result in
+        sdk.scanCard(networkService: .init(session: .shared, additionalHeaders: [:])) { [weak self] result in
             switch result {
             case .failure(let error):
                 BSDKLogger.error(error: error)
@@ -207,7 +207,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    func sendTransaction() {
+    func sendTransaction() async {
         transactionResult = "--"
 
         guard
@@ -218,45 +218,25 @@ class BlockchainSdkExampleViewModel: ObservableObject {
             return
         }
 
-        walletManager
-            .getFee(amount: amount, destination: destination)
-            .flatMap { [weak self] fees -> AnyPublisher<TransactionSendResult, Error> in
-                guard let self, let fee = fees.first else {
-                    return Fail(error: WalletError.failedToGetFee)
-                        .eraseToAnyPublisher()
-                }
+        do {
+            let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
+            guard let fee = fees.first else {
+                return
+            }
 
-                do {
-                    let transaction = try walletManager.createTransaction(
-                        amount: amount,
-                        fee: fee,
-                        destinationAddress: destination
-                    )
-                    let signer = CommonSigner(sdk: sdk)
-                    return walletManager
-                        .send(transaction, signer: signer)
-                        .mapError {
-                            BSDKLogger.error(error: "sendTxError = \($0.localizedDescription)")
-                            return $0.error
-                        }
-                        .eraseToAnyPublisher()
-                } catch {
-                    return Fail(error: error)
-                        .eraseToAnyPublisher()
-                }
-            }
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                switch $0 {
-                case .failure(let error):
-                    BSDKLogger.error(error: error)
-                    self?.transactionResult = error.localizedDescription
-                case .finished:
-                    self?.transactionResult = "OK"
-                }
-            } receiveValue: { _ in
-            }
-            .store(in: &bag)
+            let transaction = try await walletManager.createTransaction(
+                amount: amount,
+                fee: fee,
+                destinationAddress: destination
+            )
+
+            let signer = CommonSigner(sdk: sdk)
+            _ = try await walletManager.send(transaction, signer: signer).async()
+            transactionResult = "OK"
+        } catch {
+            BSDKLogger.error(error: "sendTxError = \(error.localizedDescription)")
+            transactionResult = error.localizedDescription
+        }
     }
 
     // MARK: - Private Implementation

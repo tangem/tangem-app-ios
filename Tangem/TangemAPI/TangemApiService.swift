@@ -97,6 +97,40 @@ protocol TangemApiService: AnyObject {
     func loadAPIList() async throws -> APIListDTO
 
     func setAuthData(_ authData: TangemApiTarget.AuthData)
+
+    // MARK: - Notification
+
+    func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem]
+
+    // MARK: - Applications
+
+    /// Create application with new uid
+    func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response
+
+    /// Update application with new uid with pushToken
+    @discardableResult
+    func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws -> EmptyGenericResponseDTO
+
+    // MARK: - UserWallets
+
+    /// Retrieves all user wallets associated with the given application ID
+    /// - Returns: Array of user wallet details including ID, name and notification status
+    func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response]
+
+    /// Retrieves details for a specific user wallet
+    /// - Returns: User wallet details including ID, name and notification status
+    func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response
+
+    /// Update user wallet data model
+    @discardableResult
+    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws -> EmptyGenericResponseDTO
+
+    /// Creates a new user wallet and associates it with the given application
+    /// - Parameters:
+    ///   - requestModel: Details for creating the new wallet including ID and name
+    /// - Returns: Empty response indicating success
+    @discardableResult
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO
 }
 
 private struct TangemApiServiceKey: InjectionKey {

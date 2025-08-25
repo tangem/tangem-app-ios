@@ -8,32 +8,71 @@
 
 import Foundation
 
-final class NFTCompactAssetViewModel: Identifiable {
-    private let nftAsset: NFTAsset
+struct NFTCompactAssetViewModel: Identifiable {
+    let state: State
+
+    var id: AnyHashable {
+        switch state {
+        case .loading(let id):
+            id
+
+        case .loaded(let viewData):
+            viewData.asset.id
+        }
+    }
+
     private let openAssetDetailsAction: (NFTAsset) -> Void
 
-    init(nftAsset: NFTAsset, openAssetDetailsAction: @escaping (NFTAsset) -> Void) {
-        self.nftAsset = nftAsset
+    init(
+        state: State,
+        openAssetDetailsAction: @escaping (NFTAsset) -> Void
+    ) {
+        self.state = state
         self.openAssetDetailsAction = openAssetDetailsAction
     }
 
-    var id: String {
-        nftAsset.id.assetIdentifier
-    }
-
-    var mediaURL: URL? {
-        nftAsset.media?.url
-    }
-
-    var title: String {
-        nftAsset.name
-    }
-
-    var subtitle: String {
-        "0.15 ETH" // Price should be taken from somewhere
-    }
-
     func didClick() {
-        openAssetDetailsAction(nftAsset)
+        guard let viewData = state.viewData else {
+            return
+        }
+
+        openAssetDetailsAction(viewData.asset)
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension NFTCompactAssetViewModel {
+    struct ViewData {
+        var media: NFTMedia? { NFTAssetMediaExtractor.extractMedia(from: asset) }
+        var name: String { asset.name }
+        var price: String?
+
+        fileprivate let asset: NFTAsset
+
+        init(
+            asset: NFTAsset,
+            priceFormatter: NFTPriceFormatting
+        ) {
+            self.asset = asset
+
+            if let salePrice = asset.salePrice {
+                price = priceFormatter.formatCryptoPrice(salePrice.last.value, in: asset.id.chain)
+            }
+        }
+    }
+
+    enum State {
+        case loading(id: String)
+        case loaded(ViewData)
+
+        var viewData: ViewData? {
+            switch self {
+            case .loading:
+                return nil
+            case .loaded(let viewData):
+                return viewData
+            }
+        }
     }
 }

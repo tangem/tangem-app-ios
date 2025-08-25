@@ -11,9 +11,11 @@ import Combine
 import BlockchainSdk
 
 class SendDestinationInputOutputMock: SendDestinationInput, SendDestinationOutput {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> { .just(output: .init(value: "", source: .myWallet)) }
+    var destination: SendAddress? { .init(value: "", source: .myWallet) }
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> { .just(output: destination) }
 
-    var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { .just(output: .empty(type: .memo)) }
+    var destinationAdditionalField: SendDestinationAdditionalField { .empty(type: .memo) }
+    var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { .just(output: destinationAdditionalField) }
 
     func destinationDidChanged(_ address: SendAddress?) {}
 

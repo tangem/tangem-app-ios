@@ -12,13 +12,16 @@ import BlockchainSdk
 import TangemVisa
 
 struct UserWalletConfigFactory {
-    private let cardInfo: CardInfo
-
-    init(_ cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
+    func makeConfig(walletInfo: WalletInfo) -> UserWalletConfig {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            makeConfig(cardInfo: cardInfo)
+        case .mobileWallet(let hotWalletInfo):
+            makeConfig(hotWalletInfo: hotWalletInfo)
+        }
     }
 
-    func makeConfig() -> UserWalletConfig {
+    func makeConfig(cardInfo: CardInfo) -> UserWalletConfig {
         let isDemo = DemoUtil().isDemoCard(cardId: cardInfo.card.cardId)
         let isS2CCard = cardInfo.card.issuer.name.lowercased() == "start2coin"
 
@@ -59,5 +62,10 @@ struct UserWalletConfigFactory {
         case .visa(let activationLocalState):
             return VisaConfig(card: cardInfo.card, activationLocalState: activationLocalState)
         }
+    }
+
+    func makeConfig(hotWalletInfo: HotWalletInfo) -> HotUserWalletConfig {
+        #warning("provide implementation")
+        fatalError("Not implemented")
     }
 }

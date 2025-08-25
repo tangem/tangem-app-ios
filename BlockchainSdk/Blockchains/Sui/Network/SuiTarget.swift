@@ -70,4 +70,6 @@ extension SuiTarget: TargetTypeLogConvertible {
     var requestDescription: String {
         request.method
     }
+
+    var shouldLogResponseBody: Bool { true }
 }

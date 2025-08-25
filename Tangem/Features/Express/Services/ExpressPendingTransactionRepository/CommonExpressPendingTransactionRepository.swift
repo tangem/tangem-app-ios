@@ -62,14 +62,16 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             userWalletId: userWalletId,
             expressTransactionId: txData.expressTransactionData.expressTransactionId,
             transactionType: .type(from: txData.expressTransactionData.transactionType),
-            transactionHash: txData.hash,
+            transactionHash: txData.result.hash,
             sourceTokenTxInfo: .init(
                 tokenItem: txData.source.tokenItem,
+                address: txData.source.address ?? .unknown,
                 amountString: txData.expressTransactionData.fromAmount.stringValue,
                 isCustom: txData.source.isCustom
             ),
             destinationTokenTxInfo: .init(
                 tokenItem: txData.destination.tokenItem,
+                address: txData.destination.address ?? .unknown,
                 amountString: txData.expressTransactionData.toAmount.stringValue,
                 isCustom: txData.destination.isCustom
             ),

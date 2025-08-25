@@ -22,6 +22,8 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
     let providers: [XRPNetworkProvider]
     var currentProviderIndex: Int = 0
 
+    let blockchainName: String = Blockchain.xrp(curve: .ed25519_slip0010).displayName
+
     init(providers: [XRPNetworkProvider]) {
         self.providers = providers
     }
@@ -29,6 +31,12 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
     func getInfo(account: String) -> AnyPublisher<XrpInfoResponse, Error> {
         providerPublisher { provider in
             provider.getInfo(account: account)
+        }
+    }
+
+    func getSequence(account: String) -> AnyPublisher<Int, Error> {
+        providerPublisher { provider in
+            provider.getSequence(account: account)
         }
     }
 
@@ -53,6 +61,12 @@ class XRPNetworkService: MultiNetworkProvider, XRPNetworkServiceType {
     func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
         providerPublisher { provider in
             provider.checkAccountDestinationTag(account: account)
+        }
+    }
+
+    func getAccountTrustlines(account: String) -> AnyPublisher<Result<[XRPTrustLine], Error>, Error> {
+        providerPublisher { provider in
+            provider.getAccountTrustlines(account: account)
         }
     }
 }

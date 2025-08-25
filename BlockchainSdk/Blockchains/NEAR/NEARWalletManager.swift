@@ -99,7 +99,7 @@ final class NEARWalletManager: BaseManager {
         wallet.addPendingTransaction(pendingTransaction)
     }
 
-    private func makeNoAccountError(using protocolConfig: NEARProtocolConfig) -> WalletError {
+    private func makeNoAccountError(using protocolConfig: NEARProtocolConfig) -> BlockchainSdkError {
         let networkName = wallet.blockchain.displayName
         let decimalValue = wallet.blockchain.decimalValue
         let reserveValue = Constants.accountDefaultStorageUsageInBytes * protocolConfig.storageAmountPerByte / decimalValue
@@ -107,7 +107,7 @@ final class NEARWalletManager: BaseManager {
         let currencySymbol = wallet.blockchain.currencySymbol
         let errorMessage = Localization.noAccountGeneric(networkName, reserveValueString, currencySymbol)
 
-        return WalletError.noAccount(message: errorMessage, amountToCreate: reserveValue)
+        return BlockchainSdkError.noAccount(message: errorMessage, amountToCreate: reserveValue)
     }
 
     /// - Note: Never fails; if a network request fails, the local fallback value will be used.
@@ -182,7 +182,7 @@ extension NEARWalletManager: WalletManager {
             // The gas units on this next block (where the `execution` action takes place) could be multiplied
             // by a gas price that's up to 1% different, since gas price is recalculated on each block
             guard let nextBlockGasMultiplier = Decimal(string: "1.01") else {
-                throw WalletError.failedToGetFee
+                throw BlockchainSdkError.failedToGetFee
             }
 
             let (config, gasPrice) = input
@@ -222,7 +222,7 @@ extension NEARWalletManager: WalletManager {
             .getAccessKeyInfo(accountId: wallet.address, publicKey: wallet.publicKey)
             .tryMap { accessKeyInfo -> NEARAccessKeyInfo in
                 guard accessKeyInfo.canBeUsedForTransfer else {
-                    throw WalletError.failedToBuildTx
+                    throw BlockchainSdkError.failedToBuildTx
                 }
 
                 return accessKeyInfo
@@ -259,9 +259,9 @@ extension NEARWalletManager: WalletManager {
             .flatMap { walletManager, rawTransactionData in
                 return walletManager.networkService
                     .send(transaction: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
             }
-            .eraseSendError()
+            .mapSendTxError()
             .handleEvents(
                 receiveOutput: { [weak self] sendResult in
                     self?.updateWalletWithPendingTransaction(transaction, sendResult: sendResult)
@@ -290,7 +290,7 @@ extension NEARWalletManager: AddressResolver {
                 .tryMap { accountInfo in
                     switch accountInfo {
                     case .notInitialized:
-                        throw WalletError.empty // The particular type of this error doesn't matter
+                        throw BlockchainSdkError.empty // The particular type of this error doesn't matter
                     case .initialized(let account):
                         return account
                     }

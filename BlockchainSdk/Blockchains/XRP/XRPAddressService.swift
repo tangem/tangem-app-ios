@@ -57,6 +57,26 @@ extension XRPAddressService: AddressValidator {
 
         return false
     }
+
+    func validateCustomTokenAddress(_ address: String) -> Bool {
+        do {
+            let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: address)
+            guard validate(issuer) else {
+                return false
+            }
+
+            switch currency.count {
+            case 3:
+                return currency.range(of: "^[A-Za-z0-9?!@#$%^&*<>(){}\\[\\]|]{3}$", options: .regularExpression) != nil
+            case 40:
+                return currency.range(of: "^[A-Fa-f0-9]{40}$", options: .regularExpression) != nil
+            default:
+                return false
+            }
+        } catch {
+            return false
+        }
+    }
 }
 
 @available(iOS 13.0, *)

@@ -37,6 +37,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private var cardIds: [String]?
     private var stepPublisher: AnyCancellable?
 
+    private var isPrimaryCardRing: Bool {
+        // Case for scanning a card with created wallets. Scan primary card state
+        // Workaround by cardId.
+        let batchId = String(input.primaryCardId.prefix(8))
+        return RingUtil().isRing(batchId: batchId)
+    }
+
     private var cardIdDisplayFormat: CardIdDisplayFormat = .lastMasked(4)
 
     override var navbarTitle: String {
@@ -620,7 +627,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                 if let userWalletModel, userWalletModel.hasImportedWallets {
                     let userWalletId = userWalletModel.userWalletId.stringValue
-                    TangemFoundation.runTask(in: self) { model in
+                    runTask(in: self) { model in
                         try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
                     }
                 }
@@ -662,6 +669,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Future { [weak self] promise in
                 guard let self = self else { return }
 
+                // Ring onboarding. Set custom image for ring.
+                backupService.config.setupForProduct(isPrimaryCardRing ? .ring : .card)
                 backupService.readPrimaryCard(cardId: input.primaryCardId) { result in
                     switch result {
                     case .success:
@@ -715,17 +724,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func loadImage(for card: Card) {
-        let input = OnboardingInput.ImageLoadInput(
-            supportsOnlineImage: true,
-            cardId: card.cardId,
-            cardPublicKey: card.cardPublicKey
-        )
-
         switch backupService.addedBackupCardsCount {
         case 1:
-            loadSecondImage(imageLoadInput: input)
+            loadSecondImage(card: card)
         case 2:
-            loadThirdImage(imageLoadInput: input)
+            loadThirdImage(card: card)
         default:
             break
         }
@@ -760,7 +763,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            userWalletModel?.addAssociatedCard(updatedCard.cardId)
+                            userWalletModel?.addAssociatedCard(cardId: updatedCard.cardId)
                             pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == backupService.primaryCard?.cardId {
                                 userWalletModel?.onBackupUpdate(type: .primaryCardBackuped(card: updatedCard))
@@ -877,32 +880,30 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         }
     }
 
-    private func loadSecondImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.secondImage = image
+    private func loadSecondImage(card: Card) {
+        runTask(in: self) { model in
+            let imageProvider = CardImageProvider(card: CardDTO(card: card))
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.secondImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 
-    private func loadThirdImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.thirdImage = image
+    private func loadThirdImage(card: Card) {
+        runTask(in: self) { model in
+            let imageProvider = CardImageProvider(card: CardDTO(card: card))
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.thirdImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 }
 
