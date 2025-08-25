@@ -35,7 +35,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func unlockWithBiometry() {
-        Analytics.log(.buttonUnlockAllWithBiometrics)
+        Analytics.log(.mainButtonUnlockAllWithBiometrics)
 
         runTask(in: self) { viewModel in
             do {
