@@ -34,7 +34,7 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
                       let minFeeDecimal = Decimal(string: minFee),
                       let normalFeeDecimal = Decimal(string: normalFee),
                       let maxFeeDecimal = Decimal(string: maxFee) else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
 
                 return XRPFeeResponse(min: minFeeDecimal, normal: normalFeeDecimal, max: maxFeeDecimal)
@@ -46,18 +46,18 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
         return request(.submit(tx: blob))
             .tryMap { xrpResponse -> String in
                 guard let code = xrpResponse.result?.engine_result_code else {
-                    throw WalletError.failedToSendTx
+                    throw BlockchainSdkError.failedToSendTx
                 }
 
                 if code != 0 {
-                    let message = xrpResponse.result?.engine_result_message ?? WalletError.failedToSendTx.localizedDescription
+                    let message = xrpResponse.result?.engine_result_message ?? BlockchainSdkError.failedToSendTx.localizedDescription
                     if message != "Held until escalated fee drops." { // [REDACTED_TODO_COMMENT]
                         throw message
                     }
                 }
 
                 guard let hash = xrpResponse.result?.tx_json?.hash else {
-                    throw WalletError.failedToSendTx
+                    throw BlockchainSdkError.failedToSendTx
                 }
 
                 return hash
@@ -97,12 +97,13 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     func getAccountInfo(account: String) -> AnyPublisher<(balance: Decimal, sequence: Int), Error> {
         return request(.accountInfo(account: account))
             .tryMap { xrpResponse in
-                try xrpResponse.assertAccountCreated()
+                let accountResponse = try Self.validateXRPResponseAndGetAccountResponse(xrpResponse)
 
-                guard let accountResponse = xrpResponse.result?.account_data,
-                      let balanceString = accountResponse.balance,
-                      let sequence = accountResponse.sequence,
-                      let balance = Decimal(stringValue: balanceString) else {
+                guard
+                    let balanceString = accountResponse.balance,
+                    let sequence = accountResponse.sequence,
+                    let balance = Decimal(stringValue: balanceString)
+                else {
                     throw XRPError.failedLoadInfo
                 }
 
@@ -111,18 +112,34 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .eraseToAnyPublisher()
     }
 
+    func getSequence(account: String) -> AnyPublisher<Int, Error> {
+        return request(.accountInfo(account: account))
+            .tryMap { xrpResponse in
+                let accountResponse = try Self.validateXRPResponseAndGetAccountResponse(xrpResponse)
+
+                guard let sequence = accountResponse.sequence else {
+                    throw XRPError.failedLoadInfo
+                }
+
+                return sequence
+            }
+            .eraseToAnyPublisher()
+    }
+
     func getInfo(account: String) -> AnyPublisher<XrpInfoResponse, Error> {
-        return Publishers.Zip3(
+        return Publishers.Zip4(
             getUnconfirmed(account: account),
             getReserve(),
-            getAccountInfo(account: account)
+            getAccountInfo(account: account),
+            getAccountTrustlines(account: account)
         )
-        .map { unconfirmed, reserve, info -> XrpInfoResponse in
+        .map { unconfirmed, reserve, info, trustlines -> XrpInfoResponse in
             return XrpInfoResponse(
                 balance: info.balance,
                 sequence: info.sequence,
                 unconfirmedBalance: unconfirmed,
-                reserve: reserve
+                reserve: reserve,
+                trustlines: trustlines
             )
         }
         .eraseToAnyPublisher()
@@ -142,6 +159,18 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .eraseError()
     }
 
+    func getAccountTrustlines(account: String) -> AnyPublisher<Result<[XRPTrustLine], Error>, Error> {
+        request(.accountLines(account: account))
+            .map { response in
+                let trustlines = response.result?.lines ?? []
+                return .success(trustlines)
+            }
+            .catch { error in
+                Just(.failure(error)).setFailureType(to: Error.self)
+            }
+            .eraseToAnyPublisher()
+    }
+
     func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
         return request(.accountInfo(account: account))
             .map { xrpResponse -> Bool in
@@ -156,5 +185,15 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .requestPublisher(XRPTarget(node: node, target: target))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(XrpResponse.self)
+    }
+
+    private static func validateXRPResponseAndGetAccountResponse(_ xrpResponse: XrpResponse) throws -> XrpAccountData {
+        try xrpResponse.assertAccountCreated()
+
+        if let accountResponse = xrpResponse.result?.account_data {
+            return accountResponse
+        }
+
+        throw XRPError.failedLoadInfo
     }
 }

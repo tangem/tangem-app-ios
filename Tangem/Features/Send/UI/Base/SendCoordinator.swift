@@ -13,14 +13,21 @@ import SwiftUI
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
+import TangemUIUtils
 
 class SendCoordinator: CoordinatorObject {
-    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
+    enum DismissOptions {
+        case openFeeCurrency(walletModel: any WalletModel, userWalletModel: UserWalletModel)
+        case closeButtonTap
+    }
+
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -31,6 +38,7 @@ class SendCoordinator: CoordinatorObject {
     @Published var qrScanViewCoordinator: QRScanViewCoordinator?
     @Published var onrampProvidersCoordinator: OnrampProvidersCoordinator?
     @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
+    @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
 
     // MARK: - Child view models
 
@@ -45,7 +53,7 @@ class SendCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     required init(
-        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<DismissOptions?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -62,6 +70,10 @@ class SendCoordinator: CoordinatorObject {
         let stakingParams = StakingBlockchainParams(blockchain: options.walletModel.tokenItem.blockchain)
 
         switch options.type {
+        case .send where FeatureProvider.isAvailable(.newSendUI):
+            rootViewModel = factory.makeNewSendViewModel(router: self)
+        case .send(let parameters) where parameters.nonFungibleTokenParameters != nil:
+            rootViewModel = factory.makeNFTSendViewModel(parameters: parameters.nonFungibleTokenParameters!, router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
         case .sell(let parameters):
@@ -78,6 +90,16 @@ class SendCoordinator: CoordinatorObject {
             rootViewModel = factory.makeStakingSingleActionViewModel(manager: manager, action: action, router: self)
         case .onramp:
             rootViewModel = factory.makeOnrampViewModel(router: self)
+        }
+    }
+
+    private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
+        switch reason {
+        case .mainButtonTap(type: .close):
+            return .closeButtonTap
+        case .mainButtonTap,
+             .other:
+            return nil
         }
     }
 }
@@ -98,6 +120,7 @@ extension SendCoordinator {
         case stakingDetails
         case markets
         case actionButtons
+        case nft
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -106,42 +129,28 @@ extension SendCoordinator {
             case .stakingDetails: .token
             case .markets: .markets
             case .actionButtons: .main
+            case .nft: .nft
             }
         }
     }
 }
 
-// MARK: - SendRoutable
+// MARK: - SendFeeRoutable
 
-extension SendCoordinator: SendRoutable {
-    func dismiss() {
-        dismiss(with: nil)
-    }
-
-    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
-    }
-
+extension SendCoordinator: SendFeeRoutable {
     func openFeeExplanation(url: URL) {
         safariManager.openURL(url)
     }
+}
 
-    func openExplorer(url: URL) {
-        safariManager.openURL(url)
-    }
+// MARK: - SendDestinationRoutable
 
-    func openShareSheet(url: URL) {
-        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
-    }
-
+extension SendCoordinator: SendDestinationRoutable {
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
         guard qrScanViewCoordinator == nil else {
             AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
             return
         }
-
-        Analytics.log(.sendButtonQRCode)
 
         let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
             self?.qrScanViewCoordinator = nil
@@ -153,9 +162,31 @@ extension SendCoordinator: SendRoutable {
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
+}
+
+// MARK: - SendRoutable
+
+extension SendCoordinator: SendRoutable {
+    func dismiss(reason: SendDismissReason) {
+        let dismissOptions = mapDismissReasonToDismissOptions(reason)
+        dismiss(with: dismissOptions)
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+    }
+
+    func openExplorer(url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openShareSheet(url: URL) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
 
     func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        dismiss(with: (walletModel, userWalletModel))
+        dismiss(with: .openFeeCurrency(walletModel: walletModel, userWalletModel: userWalletModel))
     }
 
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
@@ -168,6 +199,30 @@ extension SendCoordinator: SendRoutable {
             approveViewModelInput: approveViewModelInput,
             coordinator: self
         )
+    }
+
+    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
+        let coordinator = SendReceiveTokenCoordinator(
+            receiveTokensListBuilder: tokensListBuilder,
+            dismissAction: { [weak self] in
+                self?.sendReceiveTokenCoordinator = nil
+            }, popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .default)
+        sendReceiveTokenCoordinator = coordinator
     }
 }
 

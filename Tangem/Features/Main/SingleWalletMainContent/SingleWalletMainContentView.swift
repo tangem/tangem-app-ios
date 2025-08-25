@@ -39,7 +39,6 @@ struct SingleWalletMainContentView: View {
 
             ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                 PendingExpressTransactionView(info: transactionInfo)
-                    .transition(.notificationTransition)
             }
 
             PendingTransactionsListView(

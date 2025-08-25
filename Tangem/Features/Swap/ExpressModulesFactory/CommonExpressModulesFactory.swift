@@ -23,8 +23,6 @@ class CommonExpressModulesFactory {
 
     private lazy var expressInteractor = makeExpressInteractor()
     private lazy var expressAPIProvider = makeExpressAPIProvider()
-    private lazy var allowanceProvider = makeAllowanceProvider()
-    private lazy var expressFeeProvider = makeExpressFeeProvider()
     private lazy var expressRepository = makeExpressRepository()
 
     init(inputModel: InputModel) {
@@ -63,7 +61,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressTokensListAdapter: expressTokensListAdapter,
             expressRepository: expressRepository,
             expressInteractor: expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            userWalletModelConfig: userWalletModel.config
         )
     }
 
@@ -77,7 +76,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
 
     func makeExpressApproveViewModel(
         providerName: String,
-        selectedPolicy: ExpressApprovePolicy,
+        selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         let tokenItem = expressInteractor.getSender().tokenItem
@@ -191,11 +190,14 @@ private extension CommonExpressModulesFactory {
         )
     }
 
-    var expressTransactionBuilder: ExpressTransactionBuilder {
-        CommonExpressTransactionBuilder()
-    }
-
     // MARK: - Methods
+
+    func makeExpressRepository() -> ExpressRepository {
+        CommonExpressRepository(
+            walletModelsManager: walletModelsManager,
+            expressAPIProvider: expressAPIProvider
+        )
+    }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
@@ -204,44 +206,24 @@ private extension CommonExpressModulesFactory {
     func makeExpressInteractor() -> ExpressInteractor {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
             userWalletId: userWalletId,
-            initialWallet: initialWalletModel,
-            destinationWallet: destinationWalletModel,
+            initialWallet: initialWalletModel.asExpressInteractorWallet,
+            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
             expressManager: expressManager,
-            allowanceProvider: allowanceProvider,
-            feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
-            expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
         )
 
         return interactor
-    }
-
-    func makeAllowanceProvider() -> UpdatableAllowanceProvider {
-        CommonAllowanceProvider(walletModel: initialWalletModel)
-    }
-
-    func makeExpressFeeProvider() -> ExpressFeeProvider {
-        return CommonExpressFeeProvider(wallet: initialWalletModel)
-    }
-
-    func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(
-            walletModelsManager: walletModelsManager,
-            expressAPIProvider: expressAPIProvider
-        )
     }
 }
 

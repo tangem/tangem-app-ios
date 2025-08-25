@@ -10,12 +10,11 @@ import SwiftUI
 
 extension Text {
     /// Taken from https://swiftui-lab.com/attributed-strings-with-swiftui/
-    @available(*, deprecated, message: "Use AttributedString instead of NSAttributedString")
+    @available(iOS, deprecated: 100000.0, message: "Use AttributedString instead of NSAttributedString")
     init(_ attributedString: NSAttributedString) {
         self.init("")
 
         attributedString.enumerateAttributes(in: NSRange(location: 0, length: attributedString.length), options: []) { attributes, range, _ in
-
             var text = Text(attributedString.attributedSubstring(from: range).string)
 
             if let color = attributes[NSAttributedString.Key.foregroundColor] as? UIColor {

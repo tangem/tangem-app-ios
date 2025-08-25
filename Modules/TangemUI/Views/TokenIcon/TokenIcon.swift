@@ -9,7 +9,7 @@
 import SwiftUI
 import Kingfisher
 import TangemAssets
-import TangemFoundation
+import TangemUIUtils
 
 public struct TokenIcon: View {
     private let tokenIconInfo: TokenIconInfo
@@ -19,12 +19,10 @@ public struct TokenIcon: View {
 
     private var imageURL: URL? { tokenIconInfo.imageURL }
     private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
-    private var blockchainIconAsset: ImageType? { tokenIconInfo.blockchainIconAsset }
+    private var blockchainIconAsset: ImageType? { isWithOverlays ? tokenIconInfo.blockchainIconAsset : nil }
     private var isCustom: Bool { tokenIconInfo.isCustom }
     private var networkBorderColor: Color { tokenIconInfo.networkBorderColor }
 
-    private let networkIconSize = CGSize(width: 14, height: 14)
-    private let networkIconBorderWidth: Double = 2
     private let customTokenIndicatorSize = CGSize(width: 8, height: 8)
     private let customTokenIndicatorBorderWidth: CGFloat = 2
     private let customTokenIconSizeRatio = 0.54
@@ -43,26 +41,10 @@ public struct TokenIcon: View {
 
     private var tokenIcon: some View {
         IconView(url: imageURL, size: size, forceKingfisher: forceKingfisher)
-            .overlay(networkIcon, alignment: .topTrailing)
+            .ifLet(blockchainIconAsset) { view, imageAsset in
+                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+            }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
-    }
-
-    @ViewBuilder
-    private var networkIcon: some View {
-        if let iconAsset = blockchainIconAsset, isWithOverlays {
-            NetworkIcon(
-                imageAsset: iconAsset,
-                isActive: true,
-                isMainIndicatorVisible: false,
-                size: networkIconSize
-            )
-            .background(
-                networkBorderColor
-                    .clipShape(Circle())
-                    .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
-            )
-            .offset(x: 4, y: -4)
-        }
     }
 
     @ViewBuilder
@@ -104,7 +86,9 @@ public struct TokenIcon: View {
                     )
             )
             .frame(size: size)
-            .overlay(networkIcon, alignment: .topTrailing)
+            .ifLet(blockchainIconAsset) { view, imageAsset in
+                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+            }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
     }
 }
@@ -115,7 +99,9 @@ public struct TokenIcon: View {
 struct TokenIcon_Preview: PreviewProvider {
     static let coins = [
         (id: "bitcoin", iconAsset: Tokens.bitcoin),
+        (id: "bitcoin-2", iconAsset: Tokens.bitcoinFill),
         (id: "ethereum", iconAsset: nil),
+        (id: "tether-2", iconAsset: Tokens.ethereumFill),
         (id: "tether", iconAsset: Tokens.ethereum),
         (id: "usd-coin", iconAsset: Tokens.ethereum),
         (id: "matic-network", iconAsset: Tokens.ethereum),

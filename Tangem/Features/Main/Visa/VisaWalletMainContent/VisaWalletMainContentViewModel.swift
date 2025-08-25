@@ -12,6 +12,8 @@ import UIKit
 import BlockchainSdk
 import TangemVisa
 import TangemLocalization
+import TangemFoundation
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 protocol VisaWalletRoutable: AnyObject {
@@ -26,7 +28,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
 
     @Published private(set) var transactionListViewState: TransactionsListView.State = .loading
-    @Published private(set) var isTransactoinHistoryReloading: Bool = true
+    @Published private(set) var isTransactionHistoryReloading: Bool = true
     @Published private(set) var cryptoLimitText: String = ""
     @Published private(set) var numberOfDaysLimitText: String = ""
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -97,7 +99,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     func reloadTransactionHistory() {
-        isTransactoinHistoryReloading = true
+        isTransactionHistoryReloading = true
         visaWalletModel.reloadHistory()
     }
 
@@ -116,13 +118,13 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        isTransactoinHistoryReloading = true
+        isTransactionHistoryReloading = true
         updateTask = Task { [weak self] in
             await self?.visaWalletModel.generalUpdateAsync()
             try await Task.sleep(seconds: 0.2)
 
             await runOnMain {
-                self?.isTransactoinHistoryReloading = false
+                self?.isTransactionHistoryReloading = false
                 completionHandler()
             }
 
@@ -141,6 +143,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                     return
                 case .idle:
                     self.updateLimits()
+                    self.setupNotifications(nil)
                 case .failedToLoad(let error):
                     Analytics.log(event: .visaErrors, params: [
                         .errorCode: "\(error.universalErrorCode)",
@@ -160,10 +163,10 @@ class VisaWalletMainContentViewModel: ObservableObject {
                 case .initial, .loading:
                     return .loading
                 case .loaded:
-                    viewModel.isTransactoinHistoryReloading = false
+                    viewModel.isTransactionHistoryReloading = false
                     return .loaded(viewModel.visaWalletModel.transactionHistoryItems)
                 case .failedToLoad(let error):
-                    viewModel.isTransactoinHistoryReloading = false
+                    viewModel.isTransactionHistoryReloading = false
                     return .error(error)
                 }
             }
@@ -171,7 +174,12 @@ class VisaWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError) {
+    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError?) {
+        guard let modelError else {
+            failedToLoadInfoNotificationInput = nil
+            return
+        }
+
         switch modelError {
         case .missingValidRefreshToken:
             failedToLoadInfoNotificationInput = .init(

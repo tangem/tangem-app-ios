@@ -18,7 +18,7 @@ class FakeBalanceWithButtonsInfoProvider {
         FakeTokenBalanceProvider(
             buttons: [],
             delay: 0,
-            cryptoBalanceInfo: (crypto: "1031232431232151004.435432 BTC", fiat: "–")
+            cryptoBalanceInfo: (crypto: "1031232431232151004.435432 BTC", fiat: AppConstants.enDashSign)
         ),
     ]
 
@@ -29,7 +29,7 @@ class FakeBalanceWithButtonsInfoProvider {
                 .init(title: "Send", icon: Assets.arrowUpMini, disabled: false, action: {}),
             ],
             delay: 5,
-            cryptoBalanceInfo: (crypto: "1034.435432 ETH", fiat: "–")
+            cryptoBalanceInfo: (crypto: "1034.435432 ETH", fiat: AppConstants.enDashSign)
         ),
         FakeTokenBalanceProvider(
             buttons: [
@@ -41,7 +41,7 @@ class FakeBalanceWithButtonsInfoProvider {
                 .init(title: "Dance", icon: Assets.swapHeart, disabled: false, action: {}),
             ],
             delay: 3,
-            cryptoBalanceInfo: (crypto: "-1 MATIC", fiat: "–")
+            cryptoBalanceInfo: (crypto: "-1 MATIC", fiat: AppConstants.enDashSign)
         ),
         FakeTokenBalanceProvider(
             buttons: [

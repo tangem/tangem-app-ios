@@ -16,23 +16,22 @@ struct AddressTextView: View {
     @ObservedObject var heightModel: AddressTextViewHeightModel
     @Binding var text: String
 
-    let placeholder: String
+    let placeholder: String?
     let font: UIFont
     let color: UIColor
 
-    @State private var showPlaceholder = false
+    private var showPlaceholder: Bool { text.isEmpty }
     @State private var width: CGFloat = 10
 
     var body: some View {
         ZStack(alignment: .leading) {
-            if showPlaceholder {
+            if let placeholder, showPlaceholder {
                 Text(placeholder)
                     .style(Fonts.Regular.body, color: Colors.Text.disabled)
             }
 
             TextViewWrapper(
                 text: $text,
-                showPlaceholder: $showPlaceholder,
                 currentHeight: $heightModel.height,
                 width: $width,
                 font: font,
@@ -40,15 +39,14 @@ struct AddressTextView: View {
             )
         }
         .readGeometry(\.size.width, bindTo: $width)
-        .frame(minHeight: heightModel.height, maxHeight: heightModel.height)
+        .frame(height: heightModel.height)
     }
 }
 
 // MARK: - SwiftUI wrapper of UITextView
 
-private struct TextViewWrapper: UIViewRepresentable {
+struct TextViewWrapper: UIViewRepresentable {
     @Binding var text: String
-    @Binding var showPlaceholder: Bool
     @Binding var currentHeight: CGFloat
     @Binding var width: CGFloat
 
@@ -64,6 +62,7 @@ private struct TextViewWrapper: UIViewRepresentable {
         textView.autocorrectionType = .no
         textView.backgroundColor = .clear
         textView.textContainer.lineFragmentPadding = 0
+        textView.textContainerInset = .zero
 
         let newAttributedText = attributedText(text)
         // UITextView instance won't use attributes from an empty NSAttributedString, so we temporarily
@@ -85,8 +84,6 @@ private struct TextViewWrapper: UIViewRepresentable {
                 uiView.attributedText = newAttributedText
             }
             uiView.textColor = color
-
-            showPlaceholder = text.isEmpty
 
             let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
             if currentHeight != size.height {
@@ -114,12 +111,17 @@ private struct TextViewWrapper: UIViewRepresentable {
 
 // MARK: - Coordinator
 
-private extension TextViewWrapper {
+extension TextViewWrapper {
     class Coordinator: NSObject, UITextViewDelegate {
         var parent: TextViewWrapper
 
         init(parent: TextViewWrapper) {
             self.parent = parent
+        }
+
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            // We always keep contentOffset is zero to avoid text jumping
+            scrollView.contentOffset = .zero
         }
 
         func textViewDidChange(_ textView: UITextView) {

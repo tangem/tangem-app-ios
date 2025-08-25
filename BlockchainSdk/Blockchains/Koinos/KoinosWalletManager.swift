@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BigInt
 import Combine
 import TangemSdk
@@ -126,7 +127,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId)
             }
-            .mapError { SendTxError(error: $0) }
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 
@@ -134,7 +135,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
         networkService.getRCLimit()
             .tryMap { [blockchain = wallet.blockchain] rcLimit in
                 guard let rcLimit = rcLimit.decimal else {
-                    throw WalletError.failedToGetFee
+                    throw BlockchainSdkError.failedToGetFee
                 }
                 return Fee(
                     Amount(

@@ -9,7 +9,7 @@
 import Foundation
 import TangemVisa
 
-class OnboardingCoordinator: CoordinatorObject {
+final class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -46,24 +46,13 @@ class OnboardingCoordinator: CoordinatorObject {
 
     func start(with options: OnboardingCoordinator.Options) {
         self.options = options
-        let input = options.input
-        switch input.steps {
-        case .singleWallet:
-            let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
-            onDismissalAttempt = model.backButtonAction
-            viewState = .singleCard(model)
-        case .twins:
-            let model = TwinsOnboardingViewModel(input: input, coordinator: self)
-            onDismissalAttempt = model.backButtonAction
-            viewState = .twins(model)
-        case .wallet:
-            let model = WalletOnboardingViewModel(input: input, coordinator: self)
-            onDismissalAttempt = model.backButtonAction
-            viewState = .wallet(model)
-        case .visa:
-            let model = VisaOnboardingViewModelBuilder().makeOnboardingViewModel(onboardingInput: input, coordinator: self)
-            onDismissalAttempt = model.backButtonAction
-            viewState = .visa(model)
+        switch options {
+        case .input(let onboardingInputput):
+            process(input: onboardingInputput)
+        case .hotInput(let hotOnboardingInput):
+            let model = HotOnboardingViewModel(input: hotOnboardingInput, coordinator: self)
+            onDismissalAttempt = model.onDismissalAttempt
+            viewState = .hot(model)
         }
 
         Analytics.log(.onboardingStarted)
@@ -73,8 +62,9 @@ class OnboardingCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension OnboardingCoordinator {
-    struct Options {
-        let input: OnboardingInput
+    enum Options {
+        case input(OnboardingInput)
+        case hotInput(HotOnboardingInput)
     }
 
     enum OutputOptions {
@@ -159,6 +149,38 @@ extension OnboardingCoordinator: OnboardingRoutable {
 
 extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
+// MARK: - HotOnboardingRoutable
+
+extension OnboardingCoordinator: HotOnboardingRoutable {}
+
+// MARK: - Private methods
+
+private extension OnboardingCoordinator {
+    func process(input: OnboardingInput) {
+        switch input.steps {
+        case .singleWallet:
+            let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
+            onDismissalAttempt = model.backButtonAction
+            viewState = .singleCard(model)
+        case .twins:
+            let model = TwinsOnboardingViewModel(input: input, coordinator: self)
+            onDismissalAttempt = model.backButtonAction
+            viewState = .twins(model)
+        case .wallet:
+            let model = WalletOnboardingViewModel(input: input, coordinator: self)
+            onDismissalAttempt = model.backButtonAction
+            viewState = .wallet(model)
+        case .visa:
+            let model = VisaOnboardingViewModelBuilder().makeOnboardingViewModel(
+                onboardingInput: input,
+                coordinator: self
+            )
+            onDismissalAttempt = model.backButtonAction
+            viewState = .visa(model)
+        }
+    }
+}
+
 // MARK: ViewState
 
 extension OnboardingCoordinator {
@@ -167,5 +189,6 @@ extension OnboardingCoordinator {
         case twins(TwinsOnboardingViewModel)
         case wallet(WalletOnboardingViewModel)
         case visa(VisaOnboardingViewModel)
+        case hot(HotOnboardingViewModel)
     }
 }

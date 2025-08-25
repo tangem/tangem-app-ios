@@ -109,7 +109,7 @@ final class TONTransactionBuilder {
 
         guard signingOutput.error == .ok, !signingOutput.encoded.isEmpty else {
             BSDKLogger.error(error: "TONSigningOutput has a error: \(signingOutput.errorMessage)")
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return signingOutput.encoded
@@ -146,7 +146,7 @@ final class TONTransactionBuilder {
         case .token(let token):
             guard let jettonWalletAddress else {
                 BSDKLogger.error(error: "Wallet address must be set for jetton trasaction")
-                throw WalletError.failedToBuildTx
+                throw BlockchainSdkError.failedToBuildTx
             }
 
             let jettonTransfer = try jettonTransfer(
@@ -227,7 +227,7 @@ final class TONTransactionBuilder {
         let decimalAmountValue = amount.value * tokenDecimalValue
 
         guard let bigUIntValue = BigUInt(decimal: decimalAmountValue) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let rawPayload = Data(bigUIntValue.serialize())

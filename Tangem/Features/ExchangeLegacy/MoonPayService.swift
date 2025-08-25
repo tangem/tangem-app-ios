@@ -93,6 +93,15 @@ class MoonPayService {
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
     private let darkThemeName = "dark"
+    private let session: URLSession
+
+    init() {
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+
+        session = TangemTrustEvaluatorUtil.makeSession(configuration: config)
+    }
 
     deinit {
         AppLogger.debug(self)
@@ -237,12 +246,6 @@ extension MoonPayService: ExchangeService {
         if initializeState == .initialized {
             return
         }
-
-        let config = URLSessionConfiguration.default
-        config.requestCachePolicy = .reloadIgnoringLocalCacheData
-        config.urlCache = nil
-
-        let session = TangemURLSessionBuilder.makeSession(configuration: config)
 
         Publishers.Zip(
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!),

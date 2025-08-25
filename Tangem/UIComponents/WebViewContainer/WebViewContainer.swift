@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct WebViewContainer: View {
     let viewModel: WebViewContainerViewModel
@@ -25,7 +26,7 @@ struct WebViewContainer: View {
                     content
                         .navigationBarItems(
                             leading: CloseButton { presentationMode.wrappedValue.dismiss() }
-                                .animation(nil)
+                                .disableAnimations()
                         )
                 }
             } else {

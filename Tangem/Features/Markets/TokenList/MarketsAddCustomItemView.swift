@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct MarketsAddCustomItemView: View {
     let didTapAction: () -> Void
@@ -27,7 +28,7 @@ struct MarketsAddCustomItemView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .contentShape(Rectangle())
-        .animation(nil) // Disable animations on scroll reuse
+        .disableAnimations() // Disable animations on scroll reuse
         .onTapGesture {
             didTapAction()
         }
