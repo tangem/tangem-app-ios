@@ -114,7 +114,7 @@ final class PolkadotAccountHealthChecker {
         AppLogger.info("Starting checking account '\(account)'")
 
         currentlyAnalyzedAccounts.insert(account)
-        healthCheckTasks[account] = TangemFoundation.runTask(in: self) {
+        healthCheckTasks[account] = runTask(in: self) {
             await $0.checkAccount(account, backgroundTask: backgroundTask)
         }
     }

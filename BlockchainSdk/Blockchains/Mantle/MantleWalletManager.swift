@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BigInt
 import Combine
 import TangemFoundation
@@ -65,7 +66,7 @@ private extension MantleWalletManager {
                 gasPrice: parameters.gasPrice
             )
         default:
-            throw WalletError.failedToGetFee
+            throw BlockchainSdkError.failedToGetFee
         }
 
         let blockchain = wallet.blockchain

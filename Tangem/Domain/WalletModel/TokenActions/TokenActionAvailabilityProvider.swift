@@ -41,6 +41,10 @@ struct TokenActionAvailabilityProvider {
         switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
+
+        case .requiresTrustline:
+            return false
+
         case .paidTransactionWithFee, .none:
             return true
         }
@@ -141,6 +145,10 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.receive)
         }
 
+        if isStakeAvailable {
+            availableActions.append(.stake)
+        }
+
         return availableActions
     }
 
@@ -168,6 +176,7 @@ extension TokenActionAvailabilityProvider {
         case expressUnreachable
         case expressLoading
         case expressNotLoaded
+        case missingAssetRequirement
     }
 
     var isSwapAvailable: Bool {
@@ -181,6 +190,10 @@ extension TokenActionAvailabilityProvider {
     var swapAvailability: SwapActionAvailabilityStatus {
         if walletModel.isCustom {
             return .customToken
+        }
+
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
         }
 
         switch walletModel.sendingRestrictions {
@@ -328,6 +341,7 @@ extension TokenActionAvailabilityProvider {
         case expressLoading
         case expressNotLoaded
         case demo(disabledLocalizedReason: String)
+        case missingAssetRequirement
     }
 
     var isBuyAvailable: Bool {
@@ -339,6 +353,10 @@ extension TokenActionAvailabilityProvider {
     }
 
     var buyAvailablity: BuyActionAvailabilityStatus {
+        if case .assetRequirement = receiveAvailability {
+            return .missingAssetRequirement
+        }
+
         if FeatureProvider.isAvailable(.onramp) {
             let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
             let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
@@ -374,32 +392,20 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
-        case assetRequirement(blockchain: Blockchain)
+        case assetRequirement
     }
 
     var isReceiveAvailable: Bool {
-        if case .available = receiveAvailablity {
+        if case .available = receiveAvailability {
             return true
         }
 
         return false
     }
 
-    var receiveAvailablity: ReceiveActionAvailabilityStatus {
-        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
-
-        switch requirementsCondition {
-        case .paidTransactionWithFee(let blockchain, _, _):
-
-            switch blockchain {
-            case .hedera:
-                return .assetRequirement(blockchain: blockchain)
-            default:
-                break
-            }
-
-        case .none:
-            break
+    var receiveAvailability: ReceiveActionAvailabilityStatus {
+        if let _ = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType) {
+            return .assetRequirement
         }
 
         return .available
