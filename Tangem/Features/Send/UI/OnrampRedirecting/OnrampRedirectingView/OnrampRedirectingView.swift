@@ -25,7 +25,6 @@ struct OnrampRedirectingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear {
-            viewModel.onAppear()
             viewModel.update(colorScheme: colorScheme)
         }
         .onChange(of: colorScheme) { viewModel.update(colorScheme: $0) }
