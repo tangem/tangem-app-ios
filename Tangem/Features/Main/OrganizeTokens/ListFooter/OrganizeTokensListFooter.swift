@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
@@ -49,6 +50,7 @@ struct OrganizeTokensListFooter: View {
                     size: buttonSize,
                     action: viewModel.onApplyButtonTap
                 )
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
             }
         }
         .padding(buttonsPadding)

@@ -18,7 +18,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -39,7 +39,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -63,7 +63,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -87,7 +87,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -113,13 +113,12 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
                 getTokenAccountsByOwner(pubkey: pubkey, mint: mint, programId: programId, configs: configs) {
                     (result: Result<[T], Error>) in
-
                     switch result {
                     case .failure(let error):
                         promise(.failure(error))
@@ -136,7 +135,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -161,7 +160,7 @@ extension Api {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -195,7 +194,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -230,7 +229,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -269,7 +268,7 @@ extension Action {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
-                    promise(.failure(WalletError.empty))
+                    promise(.failure(BlockchainSdkError.empty))
                     return
                 }
 
@@ -296,10 +295,35 @@ extension Action {
         }
         .eraseToAnyPublisher()
     }
-}
 
-extension NetworkingRouter: HostProvider {
-    var host: String {
-        endpoint.url.hostOrUnknown
+    func checkTokenAddressExists(
+        mintAddress: String,
+        tokenProgramId: PublicKey,
+        destinationAddress: String,
+        allowUnfundedRecipient: Bool
+    ) -> AnyPublisher<Bool, Error> {
+        Deferred {
+            Future { [weak self] promise in
+                guard let self = self else {
+                    promise(.failure(BlockchainSdkError.empty))
+                    return
+                }
+
+                findSPLTokenDestinationAddress(
+                    mintAddress: mintAddress,
+                    tokenProgramId: tokenProgramId,
+                    destinationAddress: destinationAddress,
+                    allowUnfundedRecipient: allowUnfundedRecipient
+                ) {
+                    switch $0 {
+                    case .failure(let error):
+                        promise(.failure(error))
+                    case .success(let response):
+                        promise(.success(!response.isUnregisteredAsocciatedToken))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }

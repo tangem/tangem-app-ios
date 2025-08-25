@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -116,22 +117,37 @@ struct WalletConnectQRScanView: View {
 
     @ViewBuilder
     private var pasteFromClipboardButton: some View {
-        if let pasteFromClipboardButton = viewModel.state.pasteFromClipboardButton {
-            Button(action: { viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(pasteFromClipboardButton.clipboardURI)) }) {
-                HStack(spacing: 10) {
-                    Text(pasteFromClipboardButton.title)
-                        .style(Fonts.Bold.callout, color: Colors.Text.constantWhite)
-
-                    pasteFromClipboardButton.asset.image
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Colors.Text.constantWhite)
+        if #available(iOS 16.0, *) {
+            PasteButton(payloadType: String.self) { clipboardStrings in
+                // [REDACTED_USERNAME], this handler may be called from background thread...
+                // Compiler @MainActor checks from both view and view model are simply ignored.
+                Task { @MainActor in
+                    viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(clipboardStrings.first))
                 }
-                .frame(height: 46)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 40)
-                .contentShape(.rect)
             }
+            .labelStyle(.titleAndIcon)
+            .tint(.clear)
+        } else {
+            Button(
+                action: {
+                    viewModel.handle(viewEvent: .pasteFromClipboardButtonTapped(UIPasteboard.general.string))
+                },
+                label: {
+                    HStack(spacing: 10) {
+                        Text(Localization.walletConnectPasteFromClipboard)
+                            .style(Fonts.Bold.callout, color: Colors.Text.constantWhite)
+
+                        Assets.Glyphs.copy.image
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(Colors.Text.constantWhite)
+                    }
+                    .frame(height: 46)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 40)
+                    .contentShape(.rect)
+                }
+            )
             .buttonStyle(.plain)
         }
     }
@@ -180,16 +196,6 @@ private extension View {
 
 private extension WalletConnectQRScanViewState.ConfirmationDialog {
     var actions: some View {
-        ForEach(buttons, id: \.self) { button in
-            Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
-        }
-    }
-}
-
-private extension WalletConnectQRScanViewState.DialogButtonRole {
-    var toSwiftUIButtonRole: ButtonRole {
-        switch self {
-        case .cancel: .cancel
-        }
+        Button(button.title, action: button.action)
     }
 }

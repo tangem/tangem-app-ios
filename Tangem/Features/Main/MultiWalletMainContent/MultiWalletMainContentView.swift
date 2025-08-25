@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemNFT
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
@@ -36,6 +37,7 @@ struct MultiWalletMainContentView: View {
             }
 
             tokensContent
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 NFTEntrypointView(viewModel: nftEntrypointViewModel)
@@ -49,6 +51,7 @@ struct MultiWalletMainContentView: View {
                     action: viewModel.onOpenOrganizeTokensButtonTap
                 )
                 .infinityFrame(axis: .horizontal)
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
             }
         }
         .padding(.horizontal, 16)

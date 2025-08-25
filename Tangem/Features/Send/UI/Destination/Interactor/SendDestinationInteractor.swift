@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import BlockchainSdk
 import Combine
+import BlockchainSdk
+import TangemFoundation
 
 protocol SendDestinationInteractor {
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
@@ -23,6 +24,8 @@ protocol SendDestinationInteractor {
 
     func update(destination: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
+    /// Fixing the issue where recent addresses are missing when opening Send from context actions.
+    func preloadTransactionsHistoryIfNeeded()
 }
 
 class CommonSendDestinationInteractor {
@@ -31,10 +34,10 @@ class CommonSendDestinationInteractor {
 
     private let validator: SendDestinationValidator
     private let transactionHistoryProvider: SendDestinationTransactionHistoryProvider
-    private let transactionHistoryMapper: TransactionHistoryMapper
     private let addressResolver: AddressResolver?
     private let additionalFieldType: SendDestinationAdditionalFieldType?
     private let parametersBuilder: TransactionParamsBuilder
+    private let analyticsLogger: SendDestinationAnalyticsLogger
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -45,24 +48,26 @@ class CommonSendDestinationInteractor {
     private let _additionalFieldValid: CurrentValueSubject<Bool, Never> = .init(true)
     private let _destinationAdditionalFieldError: CurrentValueSubject<Error?, Never> = .init(nil)
 
+    private var resolveDestinationTask: Task<Void, Never>?
+
     init(
         input: SendDestinationInput,
         output: SendDestinationOutput,
         validator: SendDestinationValidator,
         transactionHistoryProvider: SendDestinationTransactionHistoryProvider,
-        transactionHistoryMapper: TransactionHistoryMapper,
         addressResolver: AddressResolver?,
         additionalFieldType: SendDestinationAdditionalFieldType?,
-        parametersBuilder: TransactionParamsBuilder
+        parametersBuilder: TransactionParamsBuilder,
+        analyticsLogger: SendDestinationAnalyticsLogger
     ) {
         self.input = input
         self.output = output
         self.validator = validator
         self.transactionHistoryProvider = transactionHistoryProvider
-        self.transactionHistoryMapper = transactionHistoryMapper
         self.addressResolver = addressResolver
         self.additionalFieldType = additionalFieldType
         self.parametersBuilder = parametersBuilder
+        self.analyticsLogger = analyticsLogger
     }
 
     private func update(destination result: Result<String?, Error>, source: Analytics.DestinationAddressSource) {
@@ -77,13 +82,14 @@ class CommonSendDestinationInteractor {
 
             _destinationValid.send(true)
             _destinationError.send(.none)
-            Analytics.logDestinationAddress(isAddressValid: true, source: source)
+            analyticsLogger.logSendAddressEntered(isAddressValid: true, source: source)
             output?.destinationDidChanged(.init(value: address, source: source))
 
         case .failure(let error):
             _destinationValid.send(false)
+            _isValidatingDestination.send(false)
             _destinationError.send(error)
-            Analytics.logDestinationAddress(isAddressValid: false, source: source)
+            analyticsLogger.logSendAddressEntered(isAddressValid: false, source: source)
             output?.destinationDidChanged(.none)
         }
     }
@@ -125,16 +131,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
     }
 
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> {
-        transactionHistoryProvider
-            .transactionHistoryPublisher
-            .withWeakCaptureOf(self)
-            .map { interactor, records in
-                records
-                    .compactMap { interactor.transactionHistoryMapper.mapSuggestedRecord($0) }
-                    .prefix(Constants.numberOfRecentTransactions)
-                    .sorted { $0.date > $1.date }
-            }
-            .eraseToAnyPublisher()
+        transactionHistoryProvider.transactionHistoryPublisher
     }
 
     var isValidatingDestination: AnyPublisher<Bool, Never> {
@@ -176,12 +173,17 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             try validator.validate(destination: address)
 
             if let addressResolver = addressResolver {
-                runTask(in: self) { interactor in
+                resolveDestinationTask?.cancel()
+
+                resolveDestinationTask = runTask(in: self) { interactor in
                     do {
                         let resolved = try await interactor.resolve(destination: address, resolver: addressResolver)
                         interactor.update(destination: .success(resolved), source: source)
+                    } catch is CancellationError {
+                        // Do Nothig
                     } catch {
-                        interactor.update(destination: .failure(error), source: source)
+                        AppLogger.error("Failed to check resolve address with error:", error: error)
+                        interactor.update(destination: .failure(SendAddressServiceError.invalidAddress), source: source)
                     }
                 }
             } else {
@@ -217,6 +219,10 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
             output?.destinationAdditionalParametersDidChanged(.empty(type: type))
             _additionalFieldValid.send(false)
         }
+    }
+
+    func preloadTransactionsHistoryIfNeeded() {
+        transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
     }
 }
 

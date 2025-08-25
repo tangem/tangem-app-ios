@@ -10,12 +10,6 @@ import BigInt
 import TangemSdk
 import WalletCore
 
-enum FilecoinTransactionBuilderError: Error {
-    case filecoinFeeParametersNotFound
-    case failedToConvertAmountToBigUInt
-    case failedToGetDataFromJSON
-}
-
 final class FilecoinTransactionBuilder {
     private let decompressedPublicKey: Data
 
@@ -25,7 +19,7 @@ final class FilecoinTransactionBuilder {
 
     func buildForSign(transaction: Transaction, nonce: UInt64) throws -> Data {
         guard let feeParameters = transaction.fee.parameters as? FilecoinFeeParameters else {
-            throw FilecoinTransactionBuilderError.filecoinFeeParametersNotFound
+            throw FilecoinError.filecoinFeeParametersNotFound
         }
 
         let input = try makeSigningInput(transaction: transaction, nonce: nonce, feeParameters: feeParameters)
@@ -43,7 +37,7 @@ final class FilecoinTransactionBuilder {
         signatureInfo: SignatureInfo
     ) throws -> FilecoinSignedMessage {
         guard let feeParameters = transaction.fee.parameters as? FilecoinFeeParameters else {
-            throw FilecoinTransactionBuilderError.filecoinFeeParametersNotFound
+            throw FilecoinError.filecoinFeeParametersNotFound
         }
 
         let unmarshalledSignature = try SignatureUtils.unmarshalledSignature(
@@ -71,7 +65,7 @@ final class FilecoinTransactionBuilder {
         let signingOutput = try FilecoinSigningOutput(serializedData: compiledWithSignatures)
 
         guard let jsonData = signingOutput.json.data(using: .utf8) else {
-            throw FilecoinTransactionBuilderError.failedToGetDataFromJSON
+            throw FilecoinError.failedToGetDataFromJSON
         }
 
         return try JSONDecoder().decode(FilecoinSignedMessage.self, from: jsonData)
@@ -83,7 +77,7 @@ final class FilecoinTransactionBuilder {
         feeParameters: FilecoinFeeParameters
     ) throws -> FilecoinSigningInput {
         guard let value = transaction.amount.bigUIntValue else {
-            throw FilecoinTransactionBuilderError.failedToConvertAmountToBigUInt
+            throw FilecoinError.failedToConvertAmountToBigUInt
         }
 
         return FilecoinSigningInput.with { input in

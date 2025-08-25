@@ -14,10 +14,10 @@ import TangemStaking
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
-    AvailableTokenBalanceProviderInput, WalletModelUpdater, WalletModelBalancesProvider,
+    AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
-    WalletModelTransactionHistoryProvider, WalletModelRentProvider, TransactionHistoryFetcher,
-    ExpressWallet, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
+    WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
+    StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
     var addresses: [Address] { get }
@@ -34,6 +34,7 @@ protocol WalletModel:
     var shouldShowFeeSelector: Bool { get }
     var isCustom: Bool { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }
     var qrReceiveMessage: String { get }
     var balanceState: WalletModelBalanceState? { get }
     var isDemo: Bool { get }
@@ -50,17 +51,28 @@ protocol WalletModel:
 }
 
 extension WalletModel {
+    /// Default implementation provided because not all wallet models support fulfilling asset requirements
+    var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
     func exploreURL(for index: Int) -> URL? {
         return exploreURL(for: index, token: nil)
+    }
+
+    var defaultAddressString: String {
+        defaultAddress.value
     }
 }
 
 // MARK: - Update
 
 protocol WalletModelUpdater {
+    @discardableResult
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
     /// Do not use with flatMap.
+    @discardableResult
     func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
 
     func updateTransactionsHistory() -> AnyPublisher<Void, Never>
@@ -91,6 +103,7 @@ protocol WalletModelHelpers {
 protocol WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
+    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
     func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
 }
 
@@ -100,7 +113,6 @@ protocol WalletModelDependenciesProvider {
     var blockchainDataProvider: BlockchainDataProvider { get }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { get }
     var assetRequirementsManager: AssetRequirementsManager? { get }
-    var addressResolver: AddressResolver? { get }
 
     var transactionCreator: TransactionCreator { get }
     var transactionValidator: TransactionValidator { get }
@@ -115,9 +127,13 @@ protocol WalletModelDependenciesProvider {
 
 // MARK: - Tx history
 
+protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater {}
+
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
     var hasPendingTransactions: Bool { get }
+    /// Any pending transactions for the whole network. Coin, token, etc.
+    var hasAnyPendingTransactions: Bool { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { get }
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { get }
     var isEmptyIncludingPendingIncomingTxs: Bool { get }

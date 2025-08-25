@@ -22,12 +22,14 @@ final class StakingValidatorsViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let interactor: StakingValidatorsInteractor
+    private let analyticsLogger: SendValidatorsAnalyticsLogger
 
     private let percentFormatter = PercentFormatter()
     private var bag: Set<AnyCancellable> = []
 
-    init(interactor: StakingValidatorsInteractor) {
+    init(interactor: StakingValidatorsInteractor, analyticsLogger: SendValidatorsAnalyticsLogger) {
         self.interactor = interactor
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -40,7 +42,7 @@ final class StakingValidatorsViewModel: ObservableObject, Identifiable {
         auxiliaryViewsVisible = false
         if selectedValidator != initialSelectedValidator,
            let validator = validators.first(where: { $0.address == selectedValidator }) {
-            Analytics.log(event: .stakingValidatorChosen, params: [.validator: validator.name])
+            analyticsLogger.logStakingValidatorChosen()
         }
     }
 }

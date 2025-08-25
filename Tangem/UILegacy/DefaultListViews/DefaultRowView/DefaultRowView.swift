@@ -88,6 +88,8 @@ struct DefaultRowView: View {
             )
         case .icon(let imageType):
             imageType.image
+        case .badge(let item):
+            BadgeView(item: item)
         }
     }
 }

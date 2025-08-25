@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 public struct NetworkIcon: View {
     private let imageAsset: ImageType

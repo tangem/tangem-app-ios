@@ -10,6 +10,6 @@ import Combine
 import TangemAssets
 
 protocol MainHeaderSupplementInfoProvider: AnyObject {
-    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { get }
+    var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { get }
     var userWalletNamePublisher: AnyPublisher<String, Never> { get }
 }

@@ -19,6 +19,7 @@ struct WalletSelectorItemView: View {
         } label: {
             contentButton
         }
+        .accessibilityIdentifier(viewModel.name)
     }
 
     // MARK: - Private Implementation
@@ -118,7 +119,7 @@ extension WalletSelectorItemView {
             isUserWalletLocked: false,
             userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+            walletImageProvider: FakeUserWalletModel.wallet3Cards.walletImageProvider,
             isSelected: true,
             didTapWallet: { _ in }
         )
@@ -130,7 +131,7 @@ extension WalletSelectorItemView {
             isUserWalletLocked: false,
             userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+            walletImageProvider: FakeUserWalletModel.wallet3Cards.walletImageProvider,
             isSelected: false,
             didTapWallet: { _ in }
         )

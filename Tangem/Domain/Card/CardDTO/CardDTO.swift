@@ -169,6 +169,8 @@ extension CardDTO {
     }
 }
 
+extension CardDTO.Wallet: PublicKeyProvider {}
+
 extension CardDTO {
     struct UserSettings: Codable {
         /// Is allowed to recover user codes
@@ -176,7 +178,7 @@ extension CardDTO {
     }
 }
 
-extension Array where Element == CardDTO.Wallet {
+extension Array where Element: PublicKeyProvider {
     subscript(publicKey: Data) -> Element? {
         get {
             return first(where: { $0.publicKey == publicKey })

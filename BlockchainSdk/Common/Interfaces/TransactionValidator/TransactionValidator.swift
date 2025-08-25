@@ -27,7 +27,7 @@ public enum DestinationType: Hashable {
 
 public extension TransactionValidator {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validateAmounts(amount: amount, fee: fee.amount)
     }
 
@@ -103,7 +103,7 @@ public extension TransactionValidator {
 
 extension TransactionValidator where Self: DustRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -117,7 +117,7 @@ extension TransactionValidator where Self: DustRestrictable {
 
 extension TransactionValidator where Self: MinimumBalanceRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -131,7 +131,7 @@ extension TransactionValidator where Self: MinimumBalanceRestrictable {
 
 extension TransactionValidator where Self: MaximumAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -145,7 +145,7 @@ extension TransactionValidator where Self: MaximumAmountRestrictable {
 
 extension TransactionValidator where Self: MinimumAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -159,7 +159,7 @@ extension TransactionValidator where Self: MinimumAmountRestrictable {
 
 extension TransactionValidator where Self: MaximumAmountRestrictable, Self: DustRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -174,7 +174,7 @@ extension TransactionValidator where Self: MaximumAmountRestrictable, Self: Dust
 
 extension TransactionValidator where Self: DustRestrictable, Self: CardanoTransferRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -208,7 +208,7 @@ extension TransactionValidator where Self: RequiredMemoRestrictable, Self: Reser
 
 extension TransactionValidator where Self: FeeResourceRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
+        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
     }
 
@@ -222,12 +222,19 @@ extension TransactionValidator where Self: FeeResourceRestrictable {
 
 extension TransactionValidator where Self: RentExtemptionRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        BSDKLogger.debug("TransactionValidator \(self) doesn't checking destination. If you want it, make our own implementation")
         try validate(amount: amount, fee: fee)
+        try await validateDestinationForRentExemption(amount: amount, fee: fee, destination: destination)
     }
 
     func validate(amount: Amount, fee: Fee) throws {
-        try validateAmounts(amount: amount, fee: fee.amount)
-        try validateRentExtemption(amount: amount, fee: fee.amount)
+        switch amount.type.token?.metadata.kind {
+        case .fungible, .none:
+            try validateAmounts(amount: amount, fee: fee.amount)
+        case .nonFungible:
+            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
+            try validate(fee: fee.amount)
+        }
+
+        try validateRentExemption(amount: amount, fee: fee.amount)
     }
 }

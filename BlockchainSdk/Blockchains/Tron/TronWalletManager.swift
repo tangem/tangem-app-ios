@@ -53,12 +53,12 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapSendError(tx: data.hex())
+                .mapAndEraseSendTxError(tx: data.hex())
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
             guard broadcastResponse.result == true else {
-                throw WalletError.failedToSendTx
+                throw BlockchainSdkError.failedToSendTx
             }
 
             let hash = broadcastResponse.txid
@@ -67,7 +67,7 @@ class TronWalletManager: BaseManager, WalletManager {
             manager.wallet.addPendingTransaction(record)
             return TransactionSendResult(hash: hash)
         }
-        .eraseSendError()
+        .mapSendTxError()
         .eraseToAnyPublisher()
     }
 
@@ -312,5 +312,18 @@ extension TronWalletManager: StakeKitTransactionDataBroadcaster {
 private extension TronWalletManager {
     enum Constants {
         static let usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    }
+}
+
+// MARK: - WithdrawalNotificationProvider
+
+extension TronWalletManager: WithdrawalNotificationProvider {
+    func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
+        // We have to show the notification only when send the token
+        guard amount.type.isToken else {
+            return nil
+        }
+
+        return .tronWillBeSendTokenFeeDescription
     }
 }

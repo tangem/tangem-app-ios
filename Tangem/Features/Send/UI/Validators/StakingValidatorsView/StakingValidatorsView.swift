@@ -56,23 +56,3 @@ extension StakingValidatorsView {
         let names: any StakingValidatorsViewGeometryEffectNames
     }
 }
-
-struct StakingValidatorsView_Preview: PreviewProvider {
-    @Namespace static var namespace
-
-    static let viewModel = StakingValidatorsViewModel(
-        interactor: FakeStakingValidatorsInteractor()
-    )
-
-    static var previews: some View {
-        StakingValidatorsView(
-            viewModel: viewModel,
-            transitionService: .init(),
-            namespace: .init(
-                id: namespace,
-                names: SendGeometryEffectNames()
-            )
-        )
-        .background(Colors.Background.secondary)
-    }
-}

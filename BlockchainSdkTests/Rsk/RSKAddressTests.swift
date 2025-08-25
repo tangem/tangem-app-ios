@@ -14,7 +14,7 @@ import Testing
 struct RSKAddressTests {
     @Test
     func rskChecksum() {
-        let rskAddressService = RskAddressService()
+        let rskAddressService = AddressServiceFactory(blockchain: .rsk).makeAddressService()
         let publicKey = Data(hex: "04BAEC8CD3BA50FDFE1E8CF2B04B58E17041245341CD1F1C6B3A496B48956DB4C896A6848BCF8FCFC33B88341507DD25E5F4609386C68086C74CF472B86E5C3820")
         let chesksummed = try! rskAddressService.makeAddress(from: publicKey)
 
