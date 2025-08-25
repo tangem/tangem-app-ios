@@ -13,6 +13,7 @@ import BlockchainSdk
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
+    func resetFlow()
 }
 
 class SendModel {
@@ -31,7 +32,7 @@ class SendModel {
     // MARK: - Dependencies
 
     var sendAmountInteractor: SendAmountInteractor!
-    var sendFeeInteractor: SendFeeInteractor!
+    var sendFeeProvider: SendFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
     weak var router: SendModelRoutable?
 
@@ -43,9 +44,8 @@ class SendModel {
     private let transactionSigner: TransactionSigner
     private let transactionCreator: TransactionCreator
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
+    private let analyticsLogger: SendAnalyticsLogger
 
-    private let source: PredefinedValues.Source
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -57,7 +57,7 @@ class SendModel {
         transactionCreator: TransactionCreator,
         transactionSigner: TransactionSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
+        analyticsLogger: SendAnalyticsLogger,
         predefinedValues: PredefinedValues
     ) {
         self.tokenItem = tokenItem
@@ -66,9 +66,8 @@ class SendModel {
         self.transactionSigner = transactionSigner
         self.transactionCreator = transactionCreator
         self.feeIncludedCalculator = feeIncludedCalculator
-        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
+        self.analyticsLogger = analyticsLogger
 
-        source = predefinedValues.source
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
@@ -180,15 +179,13 @@ private extension SendModel {
 
     private func proceed(transaction: BSDKTransaction, result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
-        logTransactionAnalytics(signerType: result.signerType)
-
-        transaction.amount.type.token.map { token in
-            UserWalletFinder().addToken(
-                token,
-                in: tokenItem.blockchain,
-                for: transaction.destinationAddress
-            )
-        }
+        analyticsLogger.logTransactionSent(
+            amount: _amount.value,
+            additionalField: _destinationAdditionalField.value,
+            fee: _selectedFee.value,
+            signerType: result.signerType
+        )
+        addTokenFromTransactionIfNeeded(transaction)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -201,10 +198,25 @@ private extension SendModel {
              .loadTransactionInfo,
              .actionNotSupported:
             break
-        case .sendTxError:
-            Analytics.log(event: .sendErrorTransactionRejected, params: [
-                .token: tokenItem.currencySymbol,
-            ])
+        case .sendTxError(_, let error):
+            analyticsLogger.logTransactionRejected(error: error)
+        }
+    }
+
+    private func addTokenFromTransactionIfNeeded(_ transaction: BSDKTransaction) {
+        guard let token = transaction.amount.type.token else {
+            return
+        }
+
+        switch token.metadata.kind {
+        case .fungible:
+            UserWalletFinder().addToken(
+                token,
+                in: tokenItem.blockchain,
+                for: transaction.destinationAddress
+            )
+        case .nonFungible:
+            break // NFTs should never be shown in the token list
         }
     }
 }
@@ -212,10 +224,11 @@ private extension SendModel {
 // MARK: - SendDestinationInput
 
 extension SendModel: SendDestinationInput {
-    var destinationPublisher: AnyPublisher<SendAddress, Never> {
-        _destination
-            .compactMap { $0 }
-            .eraseToAnyPublisher()
+    var destination: SendAddress? { _destination.value }
+    var destinationAdditionalField: SendDestinationAdditionalField { _destinationAdditionalField.value }
+
+    var destinationPublisher: AnyPublisher<SendAddress?, Never> {
+        _destination.eraseToAnyPublisher()
     }
 
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
@@ -264,16 +277,20 @@ extension SendModel: SendFeeInput {
         _selectedFee.eraseToAnyPublisher()
     }
 
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
-        sendFeeInteractor.feesPublisher
+    var canChooseFeeOption: AnyPublisher<Bool, Never> {
+        sendFeeProvider.feesHasVariants
     }
+}
 
+// MARK: - SendFeeProviderInput
+
+extension SendModel: SendFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }
 
-    var destinationAddressPublisher: AnyPublisher<String?, Never> {
-        _destination.map { $0?.value }.eraseToAnyPublisher()
+    var destinationAddressPublisher: AnyPublisher<String, Never> {
+        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
     }
 }
 
@@ -324,7 +341,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
     }
 
     func actualizeInformation() {
-        sendFeeInteractor.updateFees()
+        sendFeeProvider.updateFees()
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
@@ -339,7 +356,10 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[SendFee], Never> {
-        sendFeeInteractor.feesPublisher
+        sendFeeProvider
+            .feesPublisher
+            .compactMap { $0.value }
+            .eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -361,7 +381,7 @@ extension SendModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendFeeInteractor.updateFees()
+            sendFeeProvider.updateFees()
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
@@ -392,6 +412,8 @@ extension SendModel: NotificationTapDelegate {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
+             .addTokenTrustline,
+             .openHotFinishActivation,
              .unlock:
             assertionFailure("Notification tap not handled")
         }
@@ -441,66 +463,12 @@ extension SendModel: SendBaseDataBuilderInput {
     }
 }
 
-// MARK: - Analytics
-
-private extension SendModel {
-    func logTransactionAnalytics(signerType: String) {
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-
-        Analytics.log(event: .transactionSent, params: [
-            .source: source.analyticsValue.rawValue,
-            .token: tokenItem.currencySymbol,
-            .blockchain: tokenItem.blockchain.displayName,
-            .feeType: feeType.rawValue,
-            .memo: additionalFieldAnalyticsParameter().rawValue,
-            .walletForm: signerType,
-        ])
-
-        switch amount?.type {
-        case .none:
-            break
-
-        case .typical:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
-
-        case .alternative:
-            Analytics.log(.sendSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
-        }
-    }
-
-    func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
-        // If the blockchain doesn't support additional field -- return null
-        // Otherwise return full / empty
-        switch _destinationAdditionalField.value {
-        case .notSupported: .null
-        case .empty: .empty
-        case .filled: .full
-        }
-    }
-}
-
 // MARK: - Models
 
 extension SendModel {
     struct PredefinedValues {
-        let source: Source
-
         let destination: SendAddress?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
-
-        enum Source {
-            case send
-            case sell
-            case staking
-
-            var analyticsValue: Analytics.ParameterValue {
-                switch self {
-                case .send: .send
-                case .sell: .sell
-                case .staking: .transactionSourceStaking
-                }
-            }
-        }
     }
 }

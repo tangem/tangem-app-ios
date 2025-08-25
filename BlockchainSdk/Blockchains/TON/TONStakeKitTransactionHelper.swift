@@ -18,7 +18,7 @@ class TONStakeKitTransactionHelper {
 
     func prepareForSign(_ stakingTransaction: StakeKitTransaction, expireAt: UInt32) throws -> TONPreSignData {
         guard let data = stakingTransaction.unsignedData.data(using: .utf8) else {
-            throw WalletError.failedToBuildTx
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         let compiledTransaction = try JSONDecoder().decode(TONCompiledTransaction.self, from: data)
@@ -136,5 +136,23 @@ private extension MessageRelaxed {
             )
         }
         return comment
+    }
+}
+
+private extension String {
+    /// Base64 encoding a string
+    func base64Encoded() -> String? {
+        if let data = data(using: .utf8) {
+            return data.base64EncodedString()
+        }
+        return nil
+    }
+
+    /// Base64 decoding a string
+    func base64Decoded() -> String? {
+        if let data = Data(base64Encoded: self) {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
     }
 }
