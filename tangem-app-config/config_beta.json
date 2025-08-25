@@ -1,0 +1,172 @@
+{
+	"amplitudeApiKey": "",
+	"appsFlyer": {
+		"appsFlyerDevKey": "",
+		"appsFlyerAppID": ""
+	},
+	"blockchairApiKeys": [
+		"",
+		""
+	],
+	"blockchairAuthorizationToken": "",
+	"blockcypherTokens": [
+		"",
+		"",
+		""
+	],
+	"bscQuiknodeApiKey": "",
+	"bscQuiknodeSubdomain": "",
+	"getBlockAccessTokens": {
+		"avalanche": {
+			"jsonRpc": ""
+		},
+		"ethereum": {
+			"jsonRpc": ""
+		},
+		"ethereumClassic":  {
+			"jsonRpc": ""
+		},
+		"fantom": {
+			"jsonRpc": ""
+		},
+		"rsk":  {
+			"jsonRpc": ""
+		},
+		"bsc": {
+			"jsonRpc": ""
+		},
+		"polygon":  {
+			"jsonRpc": ""
+		},
+		"xdai": {
+			"jsonRpc": ""
+		},
+		"cronos":  {
+			"jsonRpc": ""
+		},
+		"solana":  {
+			"jsonRpc": ""
+		},
+		"ton":  {
+			"jsonRpc": ""
+		},
+		"tron":  {
+			"rest": ""
+		},
+		"cosmos-hub": {
+			"rest": ""
+		},
+		"near": {
+			"jsonRpc": ""
+		},
+		"xrp": {
+			"jsonRpc": ""
+		},
+		"cardano": {
+			"rosetta": ""
+		},
+		"dogecoin": {
+			"blockBookRest": "",
+			"jsonRpc": ""
+		},
+		"litecoin": {
+			"blockBookRest": "",
+			"jsonRpc": ""
+		},
+		"dash": {
+			"blockBookRest": "",
+			"jsonRpc": ""
+		},
+		"bitcoin": {
+			"blockBookRest": "",
+			"jsonRpc": ""
+		},
+		"aptos": {
+			"rest": ""
+		},
+		"algorand": {
+			"rest": ""
+		},
+		"polygon-zkevm": {
+			"jsonRpc": ""
+		},
+		"zksync": {
+			"jsonRpc": ""
+		},
+		"base": {
+			"jsonRpc": ""
+		},
+		"blast": {
+			"jsonRpc": ""
+		},
+		"filecoin": {
+            "jsonRpc": ""
+        },
+        "arbitrum-one": {
+            "jsonRpc": ""
+        },
+        "bitcoinCash": {
+            "blockBookRest": "",
+            "jsonRpc": ""
+        },
+        "kusama": {
+            "jsonRpc": ""
+        },
+        "moonbeam": {
+            "jsonRpc": ""
+        },
+        "optimism": {
+            "jsonRpc": ""
+        },
+        "polkadot": {
+            "jsonRpc": ""
+        },
+        "shibarium": {
+            "jsonRpc": ""
+        },
+        "sui": {
+            "jsonRpc": ""
+        },
+        "telos": {
+            "jsonRpc": ""
+        },
+        "tezos": {
+            "rest": ""
+		}
+	},
+	"kaspaSecondaryApiUrl": "",
+	"infuraProjectId": "",
+	"mercuryoSecret": "",
+	"mercuryoWidgetId": "",
+	"moonPayApiKey": "",
+	"moonPayApiSecretKey": "",
+	"nowNodesApiKey": "",
+	"tonCenterApiKey": {
+		"mainnet": "",
+		"testnet": ""
+	},
+	"quiknodeApiKey": "",
+	"quiknodeSubdomain": "",
+	"tronGridApiKey": "",
+	"walletConnectProjectId": "",
+	"chiaFireAcademyApiKey": "",
+	"chiaTangemApiKey": "",
+	"express": {
+		"apiKey": "",
+		"signVerifierPublicKey": ""
+	},
+	"devExpress": {
+		"apiKey": "",
+		"signVerifierPublicKey": ""
+	},
+    "hederaArkhiaKey": "",
+    "polygonScanApiKey": "",
+    "koinosProApiKey": "",
+    "stakeKitApiKey": "",
+    "bittensorDwellirKey": "",
+    "bittensorOnfinalityKey": "",
+    "alephiumTangemApiKey": "",
+    "moralisApiKey": "",
+    "blockaidApiKey": "",
+    "tangemApiKey": ""
+}
