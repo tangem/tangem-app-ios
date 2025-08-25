@@ -28,6 +28,19 @@ extension UserWalletId {
         value = Data(authenticationCode)
         stringValue = value.hexString
     }
+
+    init?(cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+        self.init(config: config)
+    }
+
+    init?(config: UserWalletConfig) {
+        guard let seed = config.userWalletIdSeed else {
+            return nil
+        }
+
+        self.init(with: seed)
+    }
 }
 
 private extension UserWalletId {
