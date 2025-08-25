@@ -28,6 +28,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let expressRepository: ExpressRepository
     private let expressInteractor: ExpressInteractor
+    private let userWalletModelConfig: UserWalletConfig
     private weak var coordinator: ExpressTokensListRoutable?
 
     // MARK: - Internal
@@ -45,13 +46,15 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
         expressTokensListAdapter: ExpressTokensListAdapter,
         expressRepository: ExpressRepository,
         expressInteractor: ExpressInteractor,
-        coordinator: ExpressTokensListRoutable
+        coordinator: ExpressTokensListRoutable,
+        userWalletModelConfig: UserWalletConfig
     ) {
         self.swapDirection = swapDirection
         self.expressTokensListAdapter = expressTokensListAdapter
         self.expressRepository = expressRepository
         self.expressInteractor = expressInteractor
         self.coordinator = coordinator
+        self.userWalletModelConfig = userWalletModelConfig
 
         bind()
     }
@@ -108,7 +111,7 @@ private extension ExpressTokensListViewModel {
 
     func updateAvailablePairs(walletModels: [any WalletModel]) {
         updateTask?.cancel()
-        updateTask = TangemFoundation.runTask(in: self) { viewModel in
+        updateTask = runTask(in: self) { viewModel in
             let availablePairs = await viewModel.loadAvailablePairs()
             await runOnMain {
                 viewModel.updateWalletModels(
@@ -122,10 +125,10 @@ private extension ExpressTokensListViewModel {
     func loadAvailablePairs() async -> [ExpressCurrency] {
         switch swapDirection {
         case .fromSource(let wallet):
-            let pairs = await expressRepository.getPairs(from: wallet)
+            let pairs = await expressRepository.getPairs(from: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.destination }
         case .toDestination(let wallet):
-            let pairs = await expressRepository.getPairs(to: wallet)
+            let pairs = await expressRepository.getPairs(to: wallet.tokenItem.expressCurrency)
             return pairs.map { $0.source }
         }
     }
@@ -140,10 +143,11 @@ private extension ExpressTokensListViewModel {
         walletModels
             .forEach { walletModel in
                 guard walletModel.id != swapDirection.wallet.id else { return }
+                let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
+                let isAvailable = availableCurrenciesSet.contains(walletModel.tokenItem.expressCurrency.asCurrency)
+                let isSwapAvailable = availabilityProvider.isSwapAvailable
 
-                let isAvailable = availableCurrenciesSet.contains(walletModel.expressCurrency)
-                let isNotCustom = !walletModel.isCustom
-                if isAvailable, isNotCustom {
+                if isAvailable, isSwapAvailable {
                     availableWalletModels.append(walletModel)
                 } else {
                     unavailableWalletModels.append(walletModel)
@@ -206,9 +210,9 @@ private extension ExpressTokensListViewModel {
     func userDidTap(on walletModel: any WalletModel) {
         switch swapDirection {
         case .fromSource:
-            expressInteractor.update(destination: walletModel)
+            expressInteractor.update(destination: walletModel.asExpressInteractorWallet)
         case .toDestination:
-            expressInteractor.update(sender: walletModel)
+            expressInteractor.update(sender: walletModel.asExpressInteractorWallet)
         }
 
         selectedWallet = walletModel

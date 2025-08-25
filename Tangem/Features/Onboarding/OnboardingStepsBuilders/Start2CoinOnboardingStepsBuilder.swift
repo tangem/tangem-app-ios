@@ -11,30 +11,24 @@ import TangemSdk
 
 struct Start2CoinOnboardingStepsBuilder {
     private let hasWallets: Bool
-    private let isPushNotificationsAvailable: Bool
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
 
-        if BiometricsUtil.isAvailable,
-           !AppSettings.shared.saveUserWallets,
-           !AppSettings.shared.askedToSaveUserWallets {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.saveUserWallet)
         }
 
-        if isPushNotificationsAvailable {
+        if commonStepsBuilder.shouldAddPushNotificationsStep {
             steps.append(.pushNotifications)
         }
 
         return steps
     }
 
-    init(
-        hasWallets: Bool,
-        isPushNotificationsAvailable: Bool
-    ) {
+    init(hasWallets: Bool) {
         self.hasWallets = hasWallets
-        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 

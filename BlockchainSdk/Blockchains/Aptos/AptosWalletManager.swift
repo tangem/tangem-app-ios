@@ -68,7 +68,7 @@ extension AptosWalletManager: WalletManager {
                     gasUnitPrice: gasUnitPrice,
                     expirationTimestamp: expirationTimestamp
                 ) else {
-                    return .anyFail(error: WalletError.failedToGetFee)
+                    return .anyFail(error: BlockchainSdkError.failedToGetFee)
                 }
 
                 return walletManager
@@ -104,7 +104,7 @@ extension AptosWalletManager: WalletManager {
         do {
             dataForSign = try transactionBuilder.buildForSign(transaction: transaction, expirationTimestamp: expirationTimestamp)
         } catch {
-            return .sendTxFail(error: WalletError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
         }
 
         return signer
@@ -116,13 +116,13 @@ extension AptosWalletManager: WalletManager {
                     signature: signature,
                     expirationTimestamp: expirationTimestamp
                 ) else {
-                    return .anyFail(error: WalletError.failedToSendTx)
+                    return .anyFail(error: BlockchainSdkError.failedToSendTx)
                 }
 
                 return walletManager
                     .networkService
                     .submitTransaction(data: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -132,7 +132,7 @@ extension AptosWalletManager: WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: transactionHash)
             }
-            .eraseSendError()
+            .mapSendTxError()
             .eraseToAnyPublisher()
     }
 }
