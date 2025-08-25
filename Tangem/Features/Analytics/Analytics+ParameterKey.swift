@@ -49,6 +49,7 @@ extension Analytics {
         case commonType = "Type"
         case signInType = "Sign in type"
         case balance = "Balance"
+        case balanceState = "Balance State"
         case creationType = "Creation Type"
         case seedLength = "Seed Phrase Length"
         case status = "Status"
