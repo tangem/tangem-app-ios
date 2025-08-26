@@ -41,15 +41,7 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
             return
         }
 
-        var shouldAnimate: Bool {
-            if case .promo = deepLink {
-                return false
-            }
-
-            return true
-        }
-
-        AppPresenter.shared.show(viewController, animated: shouldAnimate)
+        AppPresenter.shared.show(viewController)
     }
 }
 
@@ -107,9 +99,6 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
-        case .promo(let promoCode):
-            return constructPromoViewController(promoCode: promoCode)
-
         case .onboardVisa(let entry):
             return constructOnboardVisaViewController(entry: entry)
 
@@ -120,15 +109,6 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
-    private func constructPromoViewController(promoCode: String) -> UIViewController {
-        let viewController = makeDeeplinkViewController(view: { PromocodeActivationView(promoCode: promoCode) }, embedInNavigationView: false)
-
-        viewController.view.backgroundColor = .clear
-        viewController.modalPresentationStyle = .overFullScreen
-
-        return viewController
-    }
-
     private func constructTokenDetailsViewControllerWithPendingTransaction(
         walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
