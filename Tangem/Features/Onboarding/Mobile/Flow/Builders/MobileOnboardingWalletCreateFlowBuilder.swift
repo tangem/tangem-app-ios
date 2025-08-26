@@ -39,6 +39,7 @@ private extension MobileOnboardingCreateWalletFlowBuilder {
 
 extension MobileOnboardingCreateWalletFlowBuilder: MobileOnboardingCreateWalletDelegate {
     func onCreateWallet(userWalletModel: UserWalletModel) {
+        Analytics.log(.onboardingFinished)
         coordinator?.openMain(userWalletModel: userWalletModel)
     }
 }
