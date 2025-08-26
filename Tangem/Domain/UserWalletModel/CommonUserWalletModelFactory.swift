@@ -116,8 +116,10 @@ private struct CommonUserWalletModelDependencies {
     let accountModelsManager: AccountModelsManager
 
     init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
-        guard let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
-              let keysRepositoryEncryptionKey = UserWalletEncryptionKey(config: config) else {
+        guard
+            let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
+            let keysRepositoryEncryptionKey = UserWalletEncryptionKey(config: config)
+        else {
             return nil
         }
 

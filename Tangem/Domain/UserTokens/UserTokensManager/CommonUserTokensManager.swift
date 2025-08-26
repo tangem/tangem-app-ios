@@ -17,6 +17,7 @@ class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     let derivationManager: DerivationManager?
+    weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
     private let shouldLoadExpressAvailability: Bool
@@ -25,10 +26,8 @@ class CommonUserTokensManager {
     private let derivationStyle: DerivationStyle?
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
-
-    weak var keysDerivingProvider: KeysDerivingProvider?
-
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
     init(
         userWalletId: UserWalletId,
         shouldLoadExpressAvailability: Bool,
@@ -93,7 +92,9 @@ class CommonUserTokensManager {
     }
 
     private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
-        guard shouldLoadExpressAvailability else { return }
+        guard shouldLoadExpressAvailability else {
+            return
+        }
 
         let converter = StorageEntryConverter()
         let tokenItems = converter.convertToTokenItem(userTokenListManager.userTokensList.entries)
@@ -131,8 +132,10 @@ class CommonUserTokensManager {
 
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
-        guard let derivationManager,
-              let interactor = keysDerivingProvider?.keysDerivingInteractor else {
+        guard
+            let derivationManager,
+            let interactor = keysDerivingProvider?.keysDerivingInteractor
+        else {
             completion(.success(()))
             return
         }
@@ -165,7 +168,9 @@ extension CommonUserTokensManager: UserTokensManager {
             $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
         }
 
-        guard targetsEntry.isNotEmpty else { return false }
+        guard targetsEntry.isNotEmpty else {
+            return false
+        }
 
         switch tokenItem {
         case .blockchain:
