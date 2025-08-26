@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class PreviewWalletSelectorDataSourceStub: WalletSelectorDataSource {
     private var _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
