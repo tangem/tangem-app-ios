@@ -49,10 +49,14 @@ final class ImportWalletSelectorViewModel: ObservableObject {
 
 extension ImportWalletSelectorViewModel {
     func onAppear() {
+        Analytics.log(.onboardingStarted)
+
         scheduleBuyAvailability()
     }
 
     func onBuyTap() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .importWallet])
+
         openBuyCard()
     }
 }
