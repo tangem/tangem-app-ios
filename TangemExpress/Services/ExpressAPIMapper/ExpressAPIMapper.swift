@@ -48,7 +48,7 @@ struct ExpressAPIMapper {
             termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
             privacyPolicy: provider.privacyPolicy.flatMap(URL.init(string:)),
             recommended: provider.recommended,
-            slippage: provider.slippage
+            slippage: provider.slippage.map { $0 / 100 }
         )
     }
 
