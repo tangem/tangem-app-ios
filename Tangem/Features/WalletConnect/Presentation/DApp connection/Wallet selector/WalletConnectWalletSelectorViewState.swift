@@ -8,6 +8,7 @@
 
 import struct SwiftUI.Image
 import TangemLocalization
+import TangemFoundation
 
 struct WalletConnectWalletSelectorViewState {
     let navigationTitle = Localization.commonChooseWallet
