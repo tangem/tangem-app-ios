@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
@@ -66,6 +67,7 @@ struct MainHeaderView: View {
                 (viewModel.cardImage ?? Assets.clearColor1px)
                     .image
                     .frame(size: imageSize)
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.headerCardImage)
             }
             .hidden(!contentSettings.shouldShowTrailingContent)
         })
