@@ -19,6 +19,7 @@ struct DefaultIncomingLinkParserTests {
         "Parses known valid deeplink kind",
         arguments: [
             "tangem://buy?type=income_transaction",
+            "tangem://sell?type=promo",
             "tangem://swap?type=onramp_status_update",
             "tangem://buy?type=swap_status_update",
         ]
