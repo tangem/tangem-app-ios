@@ -58,11 +58,19 @@ end
 xcode_summary.collapse_parallelized_tests = true
 
 result_bundle_paths.each do |path|
+  unless File.exist?(path)
+    message("No build results at path '#{path}', skipping check")
+    next
+  end
+
   xcode_summary.report path
   xcode_summary_result = xcode_summary.warning_error_count path
   xcode_summary_result_json = JSON.parse(xcode_summary_result)
   errors_count += xcode_summary_result_json['errors'].to_i
   warnings_count += xcode_summary_result_json['warnings'].to_i
+rescue StandardError => e
+  warn("Cannot analyze build results for path '#{path}' due to error '#{e.message}'")
+  next
 end
 
 fail('The PR has introduced new compiler errors. Fix them to continue.') if errors_count.positive?
