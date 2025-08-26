@@ -9,6 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemSdk
+import TangemFoundation
 
 class FileEncryptionUtility {
     private let keychain: SecureStorage = .init()
@@ -42,14 +43,6 @@ class FileEncryptionUtility {
 }
 
 extension ContiguousBytes {
-    /// A Data instance created safely from the contiguous bytes without making any copies.
-    var dataRepresentation: Data {
-        return withUnsafeBytes { bytes in
-            let cfdata = CFDataCreateWithBytesNoCopy(nil, bytes.baseAddress?.assumingMemoryBound(to: UInt8.self), bytes.count, kCFAllocatorNull)
-            return ((cfdata as NSData?) as Data?) ?? Data()
-        }
-    }
-
     /// For some reason when working with CryptoKit.SymmetricKey the data returned through `dataRepresentation` can
     /// sometimes be rubbish with a bunch of random zeros. This is a hack to stop that from happening.
     var dataRepresentationWithHexConversion: Data {
