@@ -20,8 +20,6 @@ struct TangemApiTarget: TargetType {
         switch type {
         case .rawData(let fullURL):
             fullURL
-        case .activatePromoCode:
-            AppEnvironment.current.activatePromoCodeBaseUrl
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -105,10 +103,6 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/\(userWalletId)"
         case .createAndConnectUserWallet(let applicationUid, _):
             return "/user-wallets/wallets/create-and-connect-by-appuid/\(applicationUid)"
-
-        // MARK: - Promo Code
-        case .activatePromoCode:
-            return "/promo-codes/activate"
         }
     }
 
@@ -149,8 +143,7 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .walletInitialized,
              .createUserWalletsApplication,
-             .createAndConnectUserWallet,
-             .activatePromoCode:
+             .createAndConnectUserWallet:
             return .post
         case .resetAward:
             return .delete
@@ -259,10 +252,6 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
         case .createAndConnectUserWallet(_, let requestModel):
             return .requestJSONEncodable(requestModel)
-
-        // MARK: - Promo Code
-        case .activatePromoCode(let requestModel):
-            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -292,7 +281,6 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
-        case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case story(_ id: String)
 
@@ -354,7 +342,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
         case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
              .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto, .createUserWalletsApplication, .updateUserWalletsApplication, .getUserWallets, .getUserWallet, .updateUserWallet, .createAndConnectUserWallet:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible, .activatePromoCode:
+        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible:
             return true
         }
     }
