@@ -44,6 +44,7 @@ private extension MobileOnboardingSeedPhraseRevealView {
         }
         .padding(.top, 32)
         .padding(.horizontal, 16)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {
