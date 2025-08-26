@@ -35,7 +35,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func unlockWithBiometry() {
-        Analytics.log(.buttonUnlockAllWithBiometrics)
+        Analytics.log(.mainButtonUnlockAllWithBiometrics)
 
         runTask(in: self) { viewModel in
             do {
@@ -115,8 +115,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                 }
 
             case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
-                break
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
             }
         }
     }
