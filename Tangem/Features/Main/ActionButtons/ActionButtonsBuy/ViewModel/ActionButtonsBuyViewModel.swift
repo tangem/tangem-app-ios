@@ -14,9 +14,6 @@ import struct TangemUIUtils.AlertBinder
 final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
 
-    @Injected(\.exchangeService)
-    private var exchangeService: ExchangeService
-
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
@@ -36,17 +33,6 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     private weak var coordinator: ActionButtonsBuyRoutable?
     private var bag = Set<AnyCancellable>()
-
-    private var disabledLocalizedReason: String? {
-        guard
-            !FeatureProvider.isAvailable(.onramp),
-            let reason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange)
-        else {
-            return nil
-        }
-
-        return reason
-    }
 
     private let userWalletModel: UserWalletModel
 
@@ -79,14 +65,8 @@ final class ActionButtonsBuyViewModel: ObservableObject {
     }
 
     private func handleTokenTap(_ token: ActionButtonsTokenSelectorItem) {
-        if let disabledLocalizedReason {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
-
-        openBuy(for: token.walletModel)
+        coordinator?.openOnramp(walletModel: token.walletModel, userWalletModel: userWalletModel)
     }
 }
 
@@ -144,11 +124,6 @@ extension ActionButtonsBuyViewModel {
     }
 
     func addTokenToPortfolio(_ hotToken: HotCryptoToken) {
-        if let disabledLocalizedReason {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
         guard let tokenItem = hotToken.tokenItem else { return }
 
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
@@ -174,7 +149,7 @@ extension ActionButtonsBuyViewModel {
 
                 return isCoinIdEquals && isNetworkIdEquals
             }),
-            canBuy(walletModel)
+            expressAvailabilityProvider.canOnramp(tokenItem: walletModel.tokenItem)
         else {
             coordinator?.closeAddToPortfolio()
             return
@@ -183,42 +158,7 @@ extension ActionButtonsBuyViewModel {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: walletModel.tokenItem.currencySymbol)
 
         coordinator?.closeAddToPortfolio()
-
-        openBuy(for: walletModel)
-    }
-}
-
-// MARK: - Helpers
-
-private extension ActionButtonsBuyViewModel {
-    func openBuy(for walletModel: any WalletModel) {
-        if FeatureProvider.isAvailable(.onramp) {
-            coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
-        } else if let buyUrl = makeBuyUrl(from: walletModel) {
-            coordinator?.openBuyCrypto(at: buyUrl)
-        }
-    }
-
-    func canBuy(_ walletModel: any WalletModel) -> Bool {
-        let canOnramp = FeatureProvider.isAvailable(.onramp) && expressAvailabilityProvider.canOnramp(tokenItem: walletModel.tokenItem)
-        let canBuy = !FeatureProvider.isAvailable(.onramp) && exchangeService.canBuy(
-            walletModel.tokenItem.currencySymbol,
-            amountType: walletModel.tokenItem.amountType,
-            blockchain: walletModel.tokenItem.blockchain
-        )
-
-        return canOnramp || canBuy
-    }
-
-    func makeBuyUrl(from walletModel: any WalletModel) -> URL? {
-        let buyUrl = exchangeService.getBuyUrl(
-            currencySymbol: walletModel.tokenItem.currencySymbol,
-            amountType: walletModel.tokenItem.amountType,
-            blockchain: walletModel.tokenItem.blockchain,
-            walletAddress: walletModel.defaultAddressString
-        )
-
-        return buyUrl
+        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
     }
 }
 

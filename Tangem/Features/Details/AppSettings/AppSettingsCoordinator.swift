@@ -17,6 +17,7 @@ class AppSettingsCoordinator: CoordinatorObject {
     // MARK: - Main view model
 
     @Published private(set) var rootViewModel: AppSettingsViewModel?
+    @Published private(set) var newRootViewModel: NewAppSettingsViewModel?
 
     // MARK: - Child view models
 
@@ -32,7 +33,11 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AppSettingsViewModel(coordinator: self)
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            newRootViewModel = NewAppSettingsViewModel(coordinator: self)
+        } else {
+            rootViewModel = AppSettingsViewModel(coordinator: self)
+        }
     }
 }
 

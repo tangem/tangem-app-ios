@@ -213,6 +213,18 @@ class EthereumNetworkService: MultiNetworkProvider {
         .eraseToAnyPublisher()
     }
 
+    func resolveDomainName(address: String) -> AnyPublisher<String, Error> {
+        let method = ReadEthereumNameFromReverseRecordMethod(address: address)
+
+        return providerPublisher {
+            $0.call(contractAddress: method.contractAddress, encodedData: method.encodedData)
+        }
+        .tryMap { response in
+            try ENSNameResponseConverter.convert(response)
+        }
+        .eraseToAnyPublisher()
+    }
+
     func read<Target: SmartContractTargetType>(target: Target) -> AnyPublisher<String, Error> {
         let encodedData = abiEncoder.encode(method: target.methodName, parameters: target.parameters)
 
