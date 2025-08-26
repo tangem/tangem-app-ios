@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 struct AnalyticsContextData {
     let productType: Analytics.ProductType
