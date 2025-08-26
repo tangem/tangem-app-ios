@@ -376,7 +376,6 @@ private extension WCCustomEvmFeeService {
         if focused {
             customGasPriceBeforeEditing = gasPrice
         } else {
-            let customGasPriceAfterEditing = gasPrice
             customGasPriceBeforeEditing = nil
         }
     }
