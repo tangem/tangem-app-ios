@@ -13,7 +13,6 @@ import struct TangemUIUtils.AlertBinder
 
 @MainActor
 final class PromocodeActivationViewModel: ObservableObject {
-    
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
