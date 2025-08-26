@@ -197,10 +197,12 @@ extension WelcomeViewModel: StoriesDelegate {
     }
 
     func createWallet() {
+        Analytics.log(.introductionProcessButtonCreateNewWallet)
         coordinator?.openCreateWallet()
     }
 
     func importWallet() {
+        Analytics.log(.introductionProcessButtonAddExistingWallet)
         coordinator?.openImportWallet()
     }
 
