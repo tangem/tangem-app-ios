@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
 struct SendNewAmountView: View {
     @ObservedObject var viewModel: SendNewAmountViewModel
@@ -32,7 +33,7 @@ struct SendNewAmountView: View {
     private var content: some View {
         VStack(alignment: .center, spacing: .zero) {
             VStack(alignment: .center, spacing: 12) {
-                Text(.init(Localization.sendFromWallet(viewModel.walletHeaderText)))
+                Text(viewModel.walletHeaderText)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
                 VStack(alignment: .center, spacing: .zero) {
@@ -40,14 +41,15 @@ struct SendNewAmountView: View {
 
                     bottomInfoText
                 }
+                .animation(Constants.animation, value: viewModel.amountType)
             }
             .padding(.vertical, 45)
-            .ignoresSafeArea()
 
             Separator(color: Colors.Stroke.primary)
 
-            SendNewAmountTokenView(data: viewModel.tokenWithAmountViewData)
-                .padding(.vertical, 14)
+            if let sendAmountTokenViewData = viewModel.sendAmountTokenViewData {
+                SendNewAmountTokenView(data: sendAmountTokenViewData)
+            }
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
     }
@@ -81,7 +83,7 @@ struct SendNewAmountView: View {
                     SendNewAmountTokenView(data: $0)
                 }
                 .backgroundColor(Colors.Background.action)
-                .innerContentPadding(14)
+                .innerContentPadding(0)
 
                 CircleButton(
                     content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
@@ -104,12 +106,7 @@ struct SendNewAmountView: View {
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
                 .focused($focused, equals: .crypto)
                 .frame(height: 42)
-                .transition(
-                    .asymmetric(
-                        insertion: Constants.textFieldTransition.animation(Constants.animation.delay(Constants.duration)),
-                        removal: Constants.textFieldTransition.animation(Constants.animation)
-                    )
-                )
+                .transition(Constants.textFieldTransition)
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
@@ -118,19 +115,14 @@ struct SendNewAmountView: View {
                 .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
                 .focused($focused, equals: .fiat)
                 .frame(height: 42)
-                .transition(
-                    .asymmetric(
-                        insertion: Constants.textFieldTransition.animation(Constants.animation.delay(Constants.duration)),
-                        removal: Constants.textFieldTransition.animation(Constants.animation)
-                    )
-                )
+                .transition(Constants.textFieldTransition)
         }
     }
 
     private var bottomInfoText: some View {
         Group {
             switch viewModel.bottomInfoText {
-            case .none where viewModel.possibleToChangeAmountType:
+            case .none where viewModel.possibleToConvertToFiat:
                 Button(action: {
                     // If keyboard was activated
                     // Update `focused` before change text filed to avoid the keyboard jumping
@@ -139,7 +131,7 @@ struct SendNewAmountView: View {
                     }
 
                     viewModel.useFiatCalculation.toggle()
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    FeedbackGenerator.heavy()
                 }) {
                     alternativeView
                 }
@@ -180,12 +172,7 @@ struct SendNewAmountView: View {
             }
             .id(viewModel.useFiatCalculation)
             .animation(.none, value: viewModel.alternativeAmount)
-            .transition(
-                .asymmetric(
-                    insertion: Constants.alternativeAmountTransition.animation(Constants.animation.delay(Constants.duration)),
-                    removal: Constants.alternativeAmountTransition.animation(Constants.animation)
-                )
-            )
+            .transition(Constants.alternativeAmountTransition)
         }
         .animation(Constants.animation, value: viewModel.alternativeAmount)
         // Expand tappable area
@@ -196,8 +183,19 @@ struct SendNewAmountView: View {
 extension SendNewAmountView {
     enum Constants {
         static let duration: TimeInterval = 0.2
-        static let animation: Animation = .linear(duration: duration)
-        static let textFieldTransition: AnyTransition = .opacity.combined(with: .scale(scale: duration, anchor: .bottom))
-        static let alternativeAmountTransition: AnyTransition = .opacity
+        static let animation: Animation = .easeOut(duration: duration)
+
+        static let textFieldTransition: AnyTransition = .asymmetric(
+            insertion: .offset(y: 30).animation(Constants.animation.delay(Constants.duration)),
+            removal: .offset(y: -30).animation(Constants.animation)
+        )
+        .combined(with: .scale(scale: 0.95, anchor: .bottom))
+        .combined(with: .opacity)
+
+        static let alternativeAmountTransition: AnyTransition = .asymmetric(
+            insertion: .offset(x: 50).animation(Constants.animation.delay(Constants.duration)),
+            removal: .offset(x: -50).animation(Constants.animation)
+        )
+        .combined(with: .opacity)
     }
 }

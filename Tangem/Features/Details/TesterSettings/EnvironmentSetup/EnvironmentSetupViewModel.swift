@@ -12,6 +12,7 @@ import TangemExpress
 import FirebaseMessaging
 import TangemVisa
 import struct TangemUIUtils.AlertBinder
+import TangemStaking
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -117,6 +118,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: VisaAPIType.prod.rawValue,
                     get: { $0.visaAPIType.rawValue },
                     set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "Staking API type",
+                options: StakingAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: StakingAPIType.prod.rawValue,
+                    get: { $0.stakingAPIType.rawValue },
+                    set: { $0.stakingAPIType = StakingAPIType(rawValue: $1) ?? .prod }
                 )
             ),
         ]

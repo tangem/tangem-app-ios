@@ -23,8 +23,14 @@ struct SimpleCustomFeeFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder {
 }
 
 struct SimpleAnalytics: FeeSelectorContentViewModelAnalytics {
+    func logFeeStepOpened() {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
     func logSendFeeSelected(_ feeOption: FeeOption) {
         // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
     }
 
     func didSelectFeeOption(_ feeOption: FeeOption) {

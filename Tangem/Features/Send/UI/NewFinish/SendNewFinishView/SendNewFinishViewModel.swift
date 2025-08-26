@@ -16,21 +16,24 @@ class SendNewFinishViewModel: ObservableObject, Identifiable {
     @Published var transactionSentTime: String?
 
     @Published private(set) var sendAmountFinishViewModel: SendNewAmountFinishViewModel?
+    @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
-    @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
+    @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
 
     private var sendFinishAnalyticsLogger: SendFinishAnalyticsLogger
 
     init(
         input: SendFinishInput,
         sendAmountFinishViewModel: SendNewAmountFinishViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
-        sendFeeCompactViewModel: SendFeeCompactViewModel?,
+        sendFeeFinishViewModel: SendFeeFinishViewModel?,
         sendFinishAnalyticsLogger: SendFinishAnalyticsLogger,
     ) {
         self.sendAmountFinishViewModel = sendAmountFinishViewModel
+        self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
-        self.sendFeeCompactViewModel = sendFeeCompactViewModel
+        self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.sendFinishAnalyticsLogger = sendFinishAnalyticsLogger
 
         bind(input: input)

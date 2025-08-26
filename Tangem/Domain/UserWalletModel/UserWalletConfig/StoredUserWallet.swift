@@ -9,7 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 struct StoredUserWallet: Identifiable, Encodable {
     var id = UUID()
@@ -80,7 +80,7 @@ extension StoredUserWallet: Decodable {
         case walletData
         case card
         case cardDTOv4
-        case hotWalletInfo
+        case mobileWalletInfo
     }
 
     init(from decoder: Decoder) throws {
@@ -89,8 +89,8 @@ extension StoredUserWallet: Decodable {
         userWalletId = try container.decode(Data.self, forKey: .userWalletId)
         name = try container.decode(String.self, forKey: .name)
 
-        if let hotWallet = try? container.decode(HotWalletInfo.self, forKey: .hotWalletInfo) {
-            walletInfo = .mobileWallet(hotWallet)
+        if let mobileWallet = try? container.decode(MobileWalletInfo.self, forKey: .mobileWalletInfo) {
+            walletInfo = .mobileWallet(mobileWallet)
         } else if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
             let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
             let walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
@@ -128,8 +128,8 @@ extension StoredUserWallet: Decodable {
             try container.encode(cardInfo.walletData, forKey: .walletData)
             try container.encode(cardInfo.associatedCardIds, forKey: .associatedCardIds)
             try container.encode(cardInfo.card, forKey: .card)
-        case .mobileWallet(let hotWalletInfo):
-            try container.encode(hotWalletInfo, forKey: .hotWalletInfo)
+        case .mobileWallet(let mobileWalletInfo):
+            try container.encode(mobileWalletInfo, forKey: .mobileWalletInfo)
         }
     }
 }
