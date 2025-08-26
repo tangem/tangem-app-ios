@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class SendDestinationInputOutputMock: SendDestinationInput, SendDestinationOutput {
-    var destination: SendAddress? { .init(value: "", source: .myWallet) }
+    var destination: SendAddress? { .init(value: .plain(""), source: .myWallet) }
     var destinationPublisher: AnyPublisher<SendAddress?, Never> { .just(output: destination) }
 
     var destinationAdditionalField: SendDestinationAdditionalField { .empty(type: .memo) }
