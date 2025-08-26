@@ -96,6 +96,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case duplicateWalletAdded
     case biometricsChanged
     case cardWithWrongUserWalletIdScanned
+    case notFound
     case cantSelectWallet
     case cantUnlockWithCard
     case sensitiveInfoIsMissing

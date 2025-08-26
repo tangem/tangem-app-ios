@@ -241,11 +241,13 @@
 "common_later" = "Позже";
 "common_learn_and_earn" = "Учись и зарабатывай";
 "common_left" = "Осталось %1$@";
+"common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
 "common_month" = "месяц";
 "common_network_fee_title" = "Комиссия сети";
 "common_network_fee_warning_content" = "Сумма отправки будет уменьшена на %1$@ (%2$@) для покрытия выбранного уровня комиссии";
+"common_new_address" = "New address";
 "common_next" = "Далее";
 "common_nft" = "NFT";
 "common_no_address" = "Нет адреса";
@@ -370,6 +372,7 @@
 "details_send_feedback" = "Отправить отзыв";
 "details_title" = "Подробности";
 "disclaimer_title" = "Условия использования";
+"domain_receive_assets_default_address" = "Default Address";
 "domain_receive_assets_navigation_title" = "Receive assets";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
