@@ -11,4 +11,5 @@ import Combine
 protocol MobileAccessCodeManager {
     var statePublisher: AnyPublisher<MobileAccessCodeState, Never> { get }
     func validate(accessCode: String)
+    func cleanWrongAccessCodes()
 }
