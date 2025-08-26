@@ -40,6 +40,10 @@ extension AppEnvironment {
         FeatureStorage.instance.tangemAPIType.tangemComBaseUrl
     }
 
+    var activatePromoCodeBaseUrl: URL {
+        FeatureStorage.instance.tangemAPIType.activatePromoCodeApiBaseUrl
+    }
+
     var isTestnet: Bool {
         FeatureStorage.instance.isTestnet
     }
