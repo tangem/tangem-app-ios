@@ -26,13 +26,13 @@ extension DeeplinkNavigationAction {
         var userWalletId: String?
         var derivationPath: String?
         var transactionId: String?
-        var promoCode: String?
         var url: URL?
         var entry: String?
 
         static let empty = Params()
 
         enum DeeplinkKind: String {
+            case promo
             case incomeTransaction = "income_transaction"
             case onrampStatusUpdate = "onramp_status_update"
             case swapStatusUpdate = "swap_status_update"
