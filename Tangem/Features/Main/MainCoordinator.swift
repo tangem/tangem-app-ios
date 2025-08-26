@@ -660,6 +660,7 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case market
         case promo(code: String)
+        case onboardVisa(entry: String)
     }
 }
 
