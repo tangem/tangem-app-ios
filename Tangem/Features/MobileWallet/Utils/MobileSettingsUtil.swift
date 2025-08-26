@@ -19,6 +19,10 @@ final class MobileSettingsUtil {
         userWalletConfig.isFeatureVisible(.userWalletAccessCode)
     }
 
+    private var isAccessCodeNeeded: Bool {
+        userWalletConfig.hasFeature(.userWalletAccessCode)
+    }
+
     private var isBackupFeatureAvailable: Bool {
         userWalletConfig.isFeatureVisible(.userWalletBackup)
     }
@@ -53,7 +57,7 @@ extension MobileSettingsUtil {
         var settings: [WalletSetting] = []
 
         if isAccessCodeFeatureAvailable {
-            settings.append(.accessCode)
+            settings.append(isAccessCodeNeeded ? .setAccessCode : .changeAccessCode)
         }
 
         if isBackupFeatureAvailable {
@@ -127,7 +131,8 @@ private extension MobileSettingsUtil {
 
 extension MobileSettingsUtil {
     enum WalletSetting {
-        case accessCode
+        case setAccessCode
+        case changeAccessCode
         case backup(needsBackup: Bool)
     }
 
