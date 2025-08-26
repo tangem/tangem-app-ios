@@ -9,7 +9,7 @@
 struct CommonSellTokenAvailabilitySorter {
     // MARK: - Dependencies
 
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.sellService) private var sellService: SellService
 }
 
 // MARK: - TokenAvailabilitySorter
@@ -20,7 +20,7 @@ extension CommonSellTokenAvailabilitySorter: TokenAvailabilitySorter {
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
             guard
-                exchangeService.canSell(
+                sellService.canSell(
                     walletModel.tokenItem.currencySymbol,
                     amountType: walletModel.tokenItem.amountType,
                     blockchain: walletModel.tokenItem.blockchain
