@@ -8,19 +8,25 @@
 
 import Foundation
 import Combine
+import UIKit
 import TangemFoundation
 import TangemLocalization
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MobileOnboardingSeedPhraseRevealViewModel: ObservableObject {
     @Published var state: State?
+    @Published var alert: AlertBinder?
 
     private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let context: MobileWalletContext
 
+    var bag: Set<AnyCancellable> = []
+
     init(context: MobileWalletContext) {
         self.context = context
+        bind()
         setup()
     }
 }
@@ -28,6 +34,16 @@ final class MobileOnboardingSeedPhraseRevealViewModel: ObservableObject {
 // MARK: - Private methods
 
 private extension MobileOnboardingSeedPhraseRevealViewModel {
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                Analytics.log(.onboardingSeedScreenCapture)
+            }
+            .store(in: &bag)
+    }
+
     func setup() {
         runTask(in: self) { viewModel in
             do {
