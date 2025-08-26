@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 
-@available(*, deprecated, message: "Test only for interop/development purposes, doesn't work correctly with main account, will be removed in the future")
+@available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
 final class AccountWalletManagersRepositoryAdapter {
     private let derivationIndex: Int
     private let walletManagersRepository: WalletManagersRepository
