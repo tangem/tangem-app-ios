@@ -20,12 +20,20 @@ final class MobileBackupTypesViewModel: ObservableObject {
 
     let navTitle = Localization.commonBackup
 
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
 
+    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
+        userWalletId: userWalletModel.userWalletId,
+        configuration: .default,
+        storageManager: accessCodeStorageManager
+    )
+
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
-    private lazy var authUtil = MobileAuthUtil(userWalletId: userWalletModel.userWalletId, config: userWalletModel.config)
 
     private let userWalletModel: UserWalletModel
     private weak var routable: MobileBackupTypesRoutable?
@@ -118,6 +126,12 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func unlock() async {
         do {
+            let authUtil = MobileAuthUtil(
+                userWalletId: userWalletModel.userWalletId,
+                config: userWalletModel.config,
+                biometricsProvider: CommonUserWalletBiometricsProvider(),
+                accessCodeManager: accessCodeManager
+            )
             let result = try await authUtil.unlock()
 
             switch result {
@@ -128,7 +142,7 @@ private extension MobileBackupTypesViewModel {
                 return
 
             case .userWalletNeedsToDelete:
-                // [REDACTED_TODO_COMMENT]
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
                 return
             }
         } catch {

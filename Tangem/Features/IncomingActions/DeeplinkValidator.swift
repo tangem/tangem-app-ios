@@ -80,6 +80,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .buy, .link, .sell, .swap, .referral, .markets, .promo:
             return paramsHaveOnlyValidCharacters([params.tokenId, params.networkId, params.promoCode].compactMap { $0 })
+
+        case .onboardVisa:
+            return paramsHaveOnlyValidCharacters([params.entry].compactMap { $0 })
         }
     }
 }

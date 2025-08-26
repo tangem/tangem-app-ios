@@ -19,10 +19,20 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func validateAmountValue(_ expectedAmount: String) -> Self {
         XCTContext.runActivity(named: "Validate amount value: \(expectedAmount)") { _ in
-            XCTAssertTrue(amountValue.waitForExistence(timeout: .robustUIUpdate), "Amount value element should exist")
-            XCTAssertTrue(amountValue.label.contains(expectedAmount), "Amount value should contain '\(expectedAmount)'")
-            return self
+            XCTAssertTrue(
+                amountValue.waitForExistence(timeout: .robustUIUpdate),
+                "Amount value element should exist"
+            )
+
+            let predicate = NSPredicate(format: "label CONTAINS %@", expectedAmount)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: amountValue)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Amount value should eventually contain '\(expectedAmount)'"
+            )
         }
+        return self
     }
 
     @discardableResult
