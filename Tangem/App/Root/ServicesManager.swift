@@ -35,7 +35,7 @@ class ServicesManager {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
-        mobileAccessCodeCleaner = MobileAccessCodeCleaner(manager: CommonMobileAccessCodeStorageManager())
+        mobileAccessCodeCleaner = MobileAccessCodeCleaner()
     }
 
     func initialize() {

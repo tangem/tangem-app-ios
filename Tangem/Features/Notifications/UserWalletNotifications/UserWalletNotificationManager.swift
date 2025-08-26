@@ -218,6 +218,12 @@ final class UserWalletNotificationManager {
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
         let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+
+        Analytics.log(
+            .noticeFinishActivation,
+            params: [.balanceState: hasPositiveBalance ? .full : .empty]
+        )
+
         let input = factory.buildNotificationInput(
             for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
             action: action,
