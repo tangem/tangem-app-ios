@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel
@@ -19,6 +20,7 @@ struct SettingsUserWalletRowView: View {
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!viewModel.isUserWalletLocked)
+        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
         .onAppear(perform: viewModel.onAppear)
     }
 
@@ -30,6 +32,10 @@ struct SettingsUserWalletRowView: View {
             textViews
 
             Spacer()
+
+            if viewModel.isUserWalletBackupNeeded {
+                BadgeView.noBackup
+            }
 
             if !viewModel.isUserWalletLocked {
                 Assets.chevron.image
@@ -77,7 +83,7 @@ struct SettingsUserWalletRowView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             HStack(spacing: 4) {
-                Text(viewModel.cardsCount)
+                Text(viewModel.cardSetLabel)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
                 if viewModel.balanceState != .empty {
@@ -97,15 +103,19 @@ struct SettingsUserWalletRowView: View {
 }
 
 #Preview("SettingsUserWalletRowView") {
+    let cardSetLabel = UserWalletModelMock().config.cardSetLabel
+
     ZStack {
         Colors.Background.tertiary.ignoresSafeArea()
 
         VStack {
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    cardsCount: 3,
+                    name: "My wallet",
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "My wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
@@ -114,9 +124,11 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    cardsCount: 2,
+                    name: "My wallet",
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "My wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
@@ -125,9 +137,11 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    cardsCount: 2,
+                    name: "Old wallet",
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: false,
                     isUserWalletLocked: false,
-                    userWalletNamePublisher: .just(output: "Old wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Old wallet")),
                     totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}
@@ -136,9 +150,11 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    cardsCount: 2,
+                    name: "Locked wallet",
+                    cardSetLabel: cardSetLabel,
+                    isUserWalletBackupNeeded: true,
                     isUserWalletLocked: true,
-                    userWalletNamePublisher: .just(output: "Locked wallet"),
+                    userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Locked wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     walletImageProvider: CardImageProviderMock(),
                     tapAction: {}

@@ -16,16 +16,16 @@ class VisaCustomerWalletApproveTask: CardSessionRunnable {
     typealias TaskResult = CompletionResult<VisaSignedApproveResponse>
     private let targetAddress: String
     private let approveData: Data
-
-    private let visaUtilities = VisaUtilities(isTestnet: false)
-    private let pubKeySearchUtility = VisaWalletPublicKeyUtility(isTestnet: false)
+    private let pubKeySearchUtility: VisaWalletPublicKeyUtility
 
     init(
         targetAddress: String,
-        approveData: Data
+        approveData: Data,
+        isTestnet: Bool
     ) {
         self.targetAddress = targetAddress
         self.approveData = approveData
+        pubKeySearchUtility = VisaWalletPublicKeyUtility(isTestnet: isTestnet)
     }
 
     deinit {
@@ -35,7 +35,7 @@ class VisaCustomerWalletApproveTask: CardSessionRunnable {
     func run(in session: CardSession, completion: @escaping TaskResult) {
         guard
             let card = session.environment.card,
-            !visaUtilities.isVisaCard(card)
+            !VisaUtilities.isVisaCard(card)
         else {
             completion(.failure(.underlying(error: VisaActivationError.wrongCard)))
             return
@@ -59,12 +59,12 @@ private extension VisaCustomerWalletApproveTask {
             return
         }
 
-        guard let derivationPath = visaUtilities.visaDerivationPath(style: derivationStyle) else {
+        guard let derivationPath = VisaUtilities.visaDerivationPath(style: derivationStyle) else {
             completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
             return
         }
 
-        let targetCurve = visaUtilities.visaBlockchain.curve
+        let targetCurve = VisaUtilities.mandatoryCurve
         guard let wallet = card.wallets.first(where: { $0.curve == targetCurve }) else {
             completion(.failure(.walletNotFound))
             return
