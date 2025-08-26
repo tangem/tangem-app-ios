@@ -21,6 +21,10 @@ enum CardMock: String, CaseIterable {
     case wallet2Demo
     case walletDemo
     case ethNoteDemo
+    case shiba
+    case four12
+    case v3seckp
+    case ring
 
     var accessibilityIdentifier: String {
         switch self {
@@ -44,6 +48,14 @@ enum CardMock: String, CaseIterable {
             return CardMockAccessibilityIdentifiers.walletDemo.rawValue
         case .ethNoteDemo:
             return CardMockAccessibilityIdentifiers.ethNoteDemo.rawValue
+        case .shiba:
+            return CardMockAccessibilityIdentifiers.shiba.rawValue
+        case .four12:
+            return CardMockAccessibilityIdentifiers.four12.rawValue
+        case .v3seckp:
+            return CardMockAccessibilityIdentifiers.v3seckp.rawValue
+        case .ring:
+            return CardMockAccessibilityIdentifiers.ring.rawValue
         }
     }
 
@@ -82,6 +94,14 @@ enum CardMock: String, CaseIterable {
             return .none
         case .ethNoteDemo:
             return .file(WalletData(blockchain: "ETH", token: nil))
+        case .shiba:
+            return .none
+        case .four12:
+            return .none
+        case .v3seckp:
+            return .none
+        case .ring:
+            return .none
         }
     }
 
@@ -107,6 +127,14 @@ enum CardMock: String, CaseIterable {
             return url(fileName: "walletDemo")
         case .ethNoteDemo:
             return url(fileName: "ethNoteDemo")
+        case .shiba:
+            return url(fileName: "shiba")
+        case .four12:
+            return url(fileName: "4_12")
+        case .v3seckp:
+            return url(fileName: "v3seckp")
+        case .ring:
+            return url(fileName: "ring")
         }
     }
 
