@@ -9,6 +9,7 @@
 import Foundation
 import WalletCore
 import BigInt
+import PotentCBOR
 
 /// You can decode your CBOR transaction here: https://cbor.me
 class CardanoTransactionBuilder {
@@ -39,8 +40,11 @@ extension CardanoTransactionBuilder {
     }
 
     func buildCompiledForSign(transaction: CardanoTransaction) throws -> Data {
-        let input = try buildCardanoStakingSigningInput(transaction: transaction)
-        return try preSignOutputHash(from: input)
+        let data = try CBORSerialization.data(from: transaction.body.cbor, options: [.deterministic])
+        guard let hash = data.hashBlake2b(outputLength: Constants.hashLength) else {
+            throw CardanoError.failedToHashTransactionData
+        }
+        return hash
     }
 
     func buildCompiledForSend(
@@ -48,8 +52,31 @@ extension CardanoTransactionBuilder {
         signatures: [SignatureInfo],
         ttl: UInt64 = Constants.ttl
     ) throws -> Data {
-        let input = try buildCardanoStakingSigningInput(transaction: transaction, ttl: ttl)
-        return try buildSigningOutput(from: input, signatures: signatures)
+        let witnessesArray: [CBOR] = signatures.enumerated().map { _, sigInfo in
+            let vKey = sigInfo.publicKey.prefix(Constants.publicKeyLength)
+
+            return CBOR.array(
+                [
+                    CBOR.byteString(vKey),
+                    CBOR.byteString(sigInfo.signature),
+                ]
+            )
+        }
+
+        let witnessesMap: CBOR = .map(
+            [CBOR.unsignedInt(0): CBOR.array(witnessesArray)]
+        )
+
+        let finalArray: CBOR = .array(
+            [
+                transaction.body.cbor,
+                witnessesMap,
+                CBOR.boolean(true),
+                CBOR.null,
+            ]
+        )
+
+        return try CBORSerialization.data(from: finalArray, options: [.deterministic])
     }
 
     func getFee(amount: Amount, destination: String, source: String) throws -> FeeResult {
@@ -242,63 +269,6 @@ private extension CardanoTransactionBuilder {
         )
     }
 
-    func buildCardanoStakingSigningInput(
-        transaction: CardanoTransaction,
-        ttl: UInt64 = Constants.ttl
-    ) throws -> CardanoSigningInput {
-        let stakingAddress = Cardano.getStakingAddress(baseAddress: address)
-
-        // staking is only enabled for extended keys
-        let params = StakingBlockchainParams(blockchain: .cardano(extended: true))
-
-        var input = try CardanoSigningInput.with {
-            $0.utxos = try buildTxInput()
-            $0.transferMessage.toAddress = address
-            $0.transferMessage.changeAddress = address
-            $0.transferMessage.amount = 1000000 // not relevant as we use MaxAmount
-            $0.transferMessage.useMaxAmount = true
-
-            for certificate in transaction.body.certificates {
-                switch certificate {
-                case .stakeRegistrationLegacy, .stakeRegistrationConway:
-                    // Register staking key, 2 ADA desposit
-                    $0.registerStakingKey.stakingAddress = stakingAddress
-                    $0.registerStakingKey.depositAmount = params.stakingDepositAmount
-                case .stakeDelegation(let stakeDelegation):
-                    // Delegate
-                    $0.delegate.depositAmount = 0
-                    $0.delegate.stakingAddress = stakingAddress
-                    $0.delegate.poolID = stakeDelegation.poolKeyHash
-                case .stakeDeregistrationLegacy, .stakeDeregistrationConway:
-                    // Deregister staking key, 2 ADA desposit
-                    $0.deregisterStakingKey.stakingAddress = address
-                    $0.deregisterStakingKey.undepositAmount = params.stakingDepositAmount
-                default: continue
-                }
-            }
-
-            if let withdrawals = transaction.body.withdrawals, !withdrawals.isEmpty {
-                $0.withdraw.stakingAddress = stakingAddress
-                $0.withdraw.withdrawAmount = withdrawals.values.reduce(0, +)
-            }
-
-            // Transaction validity time. Currently we are using absolute values.
-            // At 16 April 2023 was 90007700 slot number.
-            // We need to rework this logic to use relative validity time.
-            // [REDACTED_TODO_COMMENT]
-            // This can be constructed using absolute ttl slot from `/metadata` endpoint.
-            $0.ttl = ttl
-        }
-
-        input.plan = AnySigner.plan(input: input, coin: coinType)
-
-        if input.plan.error != .ok {
-            BSDKLogger.error("CardanoSigningInput has a error", error: "\(input.plan.error)")
-            throw CardanoError.walletCoreError
-        }
-        return input
-    }
-
     func buildCardanoSigningInput(
         source: String,
         destination: String,
@@ -454,5 +424,7 @@ private extension CardanoTransactionBuilder {
         // [REDACTED_TODO_COMMENT]
         // This can be constructed using absolute ttl slot from `/metadata` endpoint.
         static let ttl: UInt64 = 190000000
+        static let hashLength = 32
+        static let publicKeyLength = 32
     }
 }
