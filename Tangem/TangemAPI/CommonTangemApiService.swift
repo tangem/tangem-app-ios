@@ -228,6 +228,17 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .promotion(request: .init(programName: programName)))
     }
 
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
+        let target = TangemApiTarget(type: .activatePromoCode(requestModel: model), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(PromoCodeActivationDTO.Response.self)
+            .mapTangemAPIError()
+            .eraseToAnyPublisher()
+    }
+
     @discardableResult
     func validateNewUserPromotionEligibility(walletId: String, code: String) async throws -> PromotionValidationResult {
         try await request(for: .validateNewUserPromotionEligibility(walletId: walletId, code: code))
