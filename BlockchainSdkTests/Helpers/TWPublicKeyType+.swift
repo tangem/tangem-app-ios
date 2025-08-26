@@ -75,7 +75,8 @@ extension PublicKeyType {
              .apeChain,
              .sonic,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .hyperliquidEVM:
             self = PublicKeyType.secp256k1Extended
         case .stellar,
              .ton,
