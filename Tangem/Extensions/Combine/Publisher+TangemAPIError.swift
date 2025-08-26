@@ -28,8 +28,20 @@ extension Publisher where Failure == MoyaError {
                 return error
             }
 
+            if response.statusCode == TangemAPIError.ErrorCode.badRequest.rawValue {
+                return TangemAPIError(code: .badRequest)
+            }
+
+            if response.statusCode == TangemAPIError.ErrorCode.forbidden.rawValue {
+                return TangemAPIError(code: .forbidden)
+            }
+
             if response.statusCode == TangemAPIError.ErrorCode.notFound.rawValue {
                 return TangemAPIError(code: .notFound)
+            }
+
+            if response.statusCode == TangemAPIError.ErrorCode.conflict.rawValue {
+                return TangemAPIError(code: .conflict)
             }
 
             return TangemAPIError(code: .decode)
