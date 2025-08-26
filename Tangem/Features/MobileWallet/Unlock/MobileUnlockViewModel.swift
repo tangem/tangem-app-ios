@@ -115,6 +115,7 @@ private extension MobileUnlockViewModel {
     }
 
     func unlockWithBiometry() {
+        Analytics.log(.buttonBiometricSignIn)
         onAction(.biometricsRequest)
     }
 }
