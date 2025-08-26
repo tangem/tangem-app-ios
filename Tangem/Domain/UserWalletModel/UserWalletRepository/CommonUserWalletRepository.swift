@@ -132,19 +132,11 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
             }
         case .biometrics(let context):
-            let model = try handleUnlock(context: context)
-            logSignIn(method: method)
-            return model
-
+            try handleUnlock(context: context)
         case .biometricsUserWallet(let userWalletId, let context):
-            let model = try await handleUnlock(userWalletId: userWalletId, context: context)
-            logSignIn(method: method)
-            return model
-
+            try await handleUnlock(userWalletId: userWalletId, context: context)
         case .encryptionKey(let userWalletId, let encryptionKey):
-            let model = try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
-            logSignIn(method: method)
-            return model
+            try await handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
         }
     }
 
@@ -299,22 +291,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func logSignIn(method: UserWalletRepositoryUnlockMethod) {
-        guard let selectedModel else {
+    private func setStartWalletUsageDateIfNeeded() {
+        guard selectedModel != nil else {
             return
         }
-
-        let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: selectedModel.hasBackupCards)
 
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
         }
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: method.analyticsValue.rawValue,
-            .walletsCount: "\(models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
-        ])
     }
 
     private func _handleUnlock(context: LAContext) throws -> Int {
@@ -325,6 +309,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -367,6 +352,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         guard !targetUnlockedModel.isUserWalletLocked else {
+            Analytics.log(.signInErrorBiometricUpdated)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
