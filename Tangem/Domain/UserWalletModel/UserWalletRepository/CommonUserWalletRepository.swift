@@ -83,54 +83,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel {
-        switch method {
-        case .card(let cardInfo):
-            _ = try handleUnlock(cardInfo: cardInfo)
-        case .biometrics(let context):
-            let model = try handleUnlock(context: context)
-            if model.userWalletId != userWalletId {
-                throw UserWalletRepositoryError.biometricsChanged
-            }
-        case .mobileWallet(let userWalletId, let encryptionKey):
-            _ = try handleUnlock(userWalletId: userWalletId, encryptionKey: encryptionKey)
+        defer {
+            setStartWalletUsageDateIfNeeded()
         }
-    }
-
-    func unlock(with method: UserWalletRepositoryUnlockMethod) throws -> UserWalletModel {
-        switch method {
-        case .card(let cardInfo):
-            do {
-                let model = try handleUnlock(cardInfo: cardInfo)
-                logSignIn(method: method)
-                return model
-            } catch UserWalletRepositoryError.cardWithWrongUserWalletIdScanned {
-                // new card scanned, add it
-                if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                    walletInfo: .cardWallet(cardInfo),
-                    keys: .cardWallet(keys: cardInfo.card.wallets)
-                ) {
-                    try add(userWalletModel: newUserWalletModel)
-                    return newUserWalletModel
-                } else {
-                    throw UserWalletRepositoryError.cantUnlockWithCard
-                }
-            } catch UserWalletRepositoryError.sensitiveInfoIsMissing {
-                // existing locked card wallet scanned, but we can't unlock it because sensitive info is missing
-                let userWalletModel = CommonUserWalletModelFactory().makeModel(
-                    walletInfo: .cardWallet(cardInfo),
-                    keys: .cardWallet(keys: cardInfo.card.wallets),
-                )
-                let existingModelIndex = models.firstIndex(where: { $0.userWalletId == userWalletModel?.userWalletId })
-
-                if let userWalletModel, let existingModelIndex {
-                    models[existingModelIndex] = userWalletModel
-                    sendEvent(.unlocked(userWalletId: userWalletModel.userWalletId))
-                    select(userWalletId: userWalletModel.userWalletId)
-                    return userWalletModel
-                } else {
-                    throw UserWalletRepositoryError.cantUnlockWithCard
-                }
-            }
+        return switch method {
         case .biometrics(let context):
             try handleUnlock(context: context)
         case .biometricsUserWallet(let userWalletId, let context):
@@ -379,33 +335,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         // We have to refresh a key on every unlock because we are unable to check presence of the key
         encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
 
-        let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])
-
-        // unlock all locked and unprotected mobile wallets
-        for sensitiveInfo in sensitiveInfos.filter({ $0.key != userWalletId }) {
-            if let publicDataIndex = models.firstIndex(where: { $0.userWalletId == sensitiveInfo.key }),
-               models[publicDataIndex].isUserWalletLocked,
-               let publicData = models[publicDataIndex].serializePublic(),
-               let unlockedModel = CommonUserWalletModelFactory().makeModel(publicData: publicData, sensitiveData: sensitiveInfo.value) {
-                models[publicDataIndex] = unlockedModel
-            }
-        }
-
-        guard let existingModelIndex = models.firstIndex(where: { $0.userWalletId == userWalletId }) else {
-            throw UserWalletRepositoryError.cardWithWrongUserWalletIdScanned
-        }
-
-        let existingLockedModel = models[existingModelIndex]
-
-        if !existingLockedModel.isUserWalletLocked {
-            throw UserWalletRepositoryError.duplicateWalletAdded
-        }
-
-        guard let sensitiveInfo = sensitiveInfos[userWalletId] else {
-            throw UserWalletRepositoryError.sensitiveInfoIsMissing
-        }
-
-        guard let publicData = existingLockedModel.serializePublic(),
+        guard let sensitiveInfo = userWalletDataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])[userWalletId],
+              let publicData = existingLockedModel.serializePublic(),
               let unlockedModel = CommonUserWalletModelFactory().makeModel(
                   publicData: publicData,
                   sensitiveData: sensitiveInfo
