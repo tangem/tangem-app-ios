@@ -260,7 +260,7 @@ enum OnrampScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .title:
-            return OnrampAccessibilityIdentifiers.title
+            return SendAccessibilityIdentifiers.sendViewTitle
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
         case .settingsButton:
