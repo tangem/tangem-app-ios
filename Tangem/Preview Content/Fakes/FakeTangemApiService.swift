@@ -188,6 +188,10 @@ class FakeTangemApiService: TangemApiService {
     func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
         throw "Not implemented"
     }
+
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
+        .anyFail(error: .init(code: .notFound))
+    }
 }
 
 private struct FakeCoinListProvider {
