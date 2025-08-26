@@ -111,36 +111,18 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func updateHighPricePercentLabel(quote: ExpressQuote?, sourceCurrencyId: String?, destinationCurrencyId: String?) {
-        guard let fromAmount = quote?.fromAmount,
-              let expectAmount = quote?.expectAmount,
-              let sourceCurrencyId,
-              let destinationCurrencyId else {
+    func updateHighPricePercentLabel(quote: ExpressInteractor.Quote?) {
+        guard let highPriceImpact = quote?.highPriceImpact else {
             priceChangeState = nil
             return
         }
 
-        highPriceTask?.cancel()
-        highPriceTask = runTask(in: self) { viewModel in
-            let priceImpactCalculator = HighPriceImpactCalculator(sourceCurrencyId: sourceCurrencyId, destinationCurrencyId: destinationCurrencyId)
-            let result = try await priceImpactCalculator.isHighPriceImpact(
-                converting: fromAmount,
-                to: expectAmount
-            )
-
-            guard result.isHighPriceImpact else {
-                await runOnMain {
-                    viewModel.priceChangeState = .info
-                }
-                return
-            }
-
-            let percentFormatter = PercentFormatter()
-            let formatted = percentFormatter.format(-result.lossesInPercents, option: .express)
-            await runOnMain {
-                viewModel.priceChangeState = .percent(formatted)
-            }
+        guard highPriceImpact.isHighPriceImpact else {
+            priceChangeState = .info(message: highPriceImpact.infoMessage)
+            return
         }
+
+        priceChangeState = .percent(highPriceImpact.lossesInPercentsFormatted, message: highPriceImpact.infoMessage)
     }
 
     func update(titleState: TitleState) {
@@ -154,8 +136,15 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
 extension ExpressCurrencyViewModel {
     enum PriceChangeState: Hashable {
-        case info
-        case percent(_ formatted: String)
+        case info(message: String)
+        case percent(_ formatted: String, message: String)
+
+        var message: String {
+            switch self {
+            case .info(let message): message
+            case .percent(_, let message): message
+            }
+        }
     }
 
     enum TitleState: Hashable {
