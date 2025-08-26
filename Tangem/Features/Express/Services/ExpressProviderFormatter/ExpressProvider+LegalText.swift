@@ -17,7 +17,7 @@ extension ExpressProvider {
 
         func makeBaseAttributedString(for text: String) -> AttributedString {
             var attributedString = AttributedString(text)
-            attributedString.font = Fonts.Regular.footnote
+            attributedString.font = Fonts.Regular.caption1
             attributedString.foregroundColor = Colors.Text.tertiary
             return attributedString
         }
@@ -32,13 +32,9 @@ extension ExpressProvider {
         }
 
         if let termsOfUse = termsOfUse, let privacyPolicy = privacyPolicy {
-            var attributedString: AttributedString
-
-            switch branch {
-            case .swap:
-                attributedString = makeBaseAttributedString(for: Localization.expressLegalTwoPlaceholders(tos, policy))
-            case .onramp:
-                attributedString = makeBaseAttributedString(for: Localization.onrampLegal(tos, policy))
+            var attributedString: AttributedString = switch branch {
+            case .swap: makeBaseAttributedString(for: Localization.expressLegalTwoPlaceholders(tos, policy))
+            case .onramp: makeBaseAttributedString(for: Localization.onrampLegal(tos, policy))
             }
 
             formatLink(in: &attributedString, textToSearch: tos, url: termsOfUse)

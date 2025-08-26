@@ -14,6 +14,7 @@ import TangemFoundation
 protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeSendReceiveTokensList() throws -> SendReceiveTokensListBuilder
+    func makeFeeCurrencyData() -> (userWalletId: UserWalletId, feeTokenItem: TokenItem)
 }
 
 protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
@@ -27,6 +28,7 @@ protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
     func makeDataForOnrampCountrySelectorView() -> (repository: OnrampRepository, dataRepository: OnrampDataRepository)
     func makeDataForOnrampProvidersPaymentMethodsView() -> (providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder)
     func makeDataForOnrampRedirecting() -> OnrampRedirectingBuilder
+    func demoAlertMessage() -> String?
 }
 
 protocol SendGenericBaseDataBuilder {
