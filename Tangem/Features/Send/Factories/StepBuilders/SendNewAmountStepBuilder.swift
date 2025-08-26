@@ -28,7 +28,6 @@ struct SendNewAmountStepBuilder {
         receiveIO: ReceiveIO,
         receiveAmountIO: ReceiveAmountIO,
         swapProvidersInput: SendSwapProvidersInput,
-        actionType: SendFlowActionType,
         sendAmountValidator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
         notificationService: SendAmountNotificationService?,
@@ -36,7 +35,9 @@ struct SendNewAmountStepBuilder {
     ) -> ReturnValue {
         let interactorSaver = CommonSendNewAmountInteractorSaver(
             sourceTokenAmountInput: sourceAmountIO.input,
-            sourceTokenAmountOutput: sourceAmountIO.output
+            sourceTokenAmountOutput: sourceAmountIO.output,
+            receiveTokenInput: receiveIO.input,
+            receiveTokenOutput: receiveIO.output
         )
 
         let interactor = CommonSendNewAmountInteractor(
@@ -53,8 +54,7 @@ struct SendNewAmountStepBuilder {
         )
 
         let viewModel = SendNewAmountViewModel(
-            sourceTokenInput: sourceIO.input,
-            settings: .init(possibleToChangeAmountType: builder.possibleToChangeAmountType(), actionType: actionType),
+            sourceToken: sourceIO.input.sourceToken,
             interactor: interactor,
             analyticsLogger: analyticsLogger
         )
@@ -86,5 +86,37 @@ struct SendNewAmountStepBuilder {
         interactorSaver.updater = amountUpdater
 
         return (step: step, amountUpdater: amountUpdater, compact: compact, finish: finish)
+    }
+
+    func makeSendNewAmountCompactViewModel(
+        sourceTokenInput: SendSourceTokenInput,
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
+        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        swapProvidersInput: SendSwapProvidersInput,
+    ) -> SendNewAmountCompactViewModel {
+        SendNewAmountCompactViewModel(
+            sourceTokenInput: sourceTokenInput,
+            sourceTokenAmountInput: sourceTokenAmountInput,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
+            swapProvidersInput: swapProvidersInput,
+        )
+    }
+
+    func makeSendNewAmountFinishViewModel(
+        sourceTokenInput: SendSourceTokenInput,
+        sourceTokenAmountInput: SendSourceTokenAmountInput,
+        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
+        swapProvidersInput: SendSwapProvidersInput,
+    ) -> SendNewAmountFinishViewModel {
+        SendNewAmountFinishViewModel(
+            sourceTokenInput: sourceTokenInput,
+            sourceTokenAmountInput: sourceTokenAmountInput,
+            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
+            swapProvidersInput: swapProvidersInput,
+        )
     }
 }

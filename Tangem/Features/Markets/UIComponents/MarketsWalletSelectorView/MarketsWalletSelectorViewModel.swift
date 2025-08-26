@@ -15,27 +15,26 @@ class MarketsWalletSelectorViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var icon: LoadingValue<ImageValue> = .loading
 
-    private let userWalletNamePublisher: AnyPublisher<String, Never>
-    private let walletImageProvider: WalletImageProviding
+    private weak var infoProvider: WalletSelectorInfoProvider?
 
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
 
     init(
-        userWalletNamePublisher: AnyPublisher<String, Never>,
-        walletImageProvider: WalletImageProviding
+        infoProvider: WalletSelectorInfoProvider
     ) {
-        self.userWalletNamePublisher = userWalletNamePublisher
-        self.walletImageProvider = walletImageProvider
-
+        self.infoProvider = infoProvider
+        name = infoProvider.name
         bind()
         loadImage()
     }
 
     func loadImage() {
         runTask(in: self) { viewModel in
-            let image = await viewModel.walletImageProvider.loadSmallImage()
+            guard let image = await viewModel.infoProvider?.walletImageProvider.loadSmallImage() else {
+                return
+            }
 
             await runOnMain {
                 viewModel.icon = .loaded(image)
@@ -44,7 +43,9 @@ class MarketsWalletSelectorViewModel: ObservableObject {
     }
 
     func bind() {
-        userWalletNamePublisher
+        infoProvider?
+            .updatePublisher
+            .compactMap(\.newName)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, name in
