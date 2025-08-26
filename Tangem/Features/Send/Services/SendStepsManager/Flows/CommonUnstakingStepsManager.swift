@@ -7,13 +7,14 @@
 //
 
 import Foundation
-import Combine
 import TangemStaking
+import TangemLocalization
 
 class CommonUnstakingStepsManager {
     private let amountStep: SendAmountStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
+    private let summaryTitleProvider: SendSummaryTitleProvider
     private let action: UnstakingModel.Action
     private let isPartialUnstakeAllowed: Bool
 
@@ -24,12 +25,14 @@ class CommonUnstakingStepsManager {
         amountStep: SendAmountStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider,
         action: UnstakingModel.Action,
         isPartialUnstakeAllowed: Bool
     ) {
         self.amountStep = amountStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
         self.action = action
         self.isPartialUnstakeAllowed = isPartialUnstakeAllowed
 
@@ -38,36 +41,22 @@ class CommonUnstakingStepsManager {
 
     private func currentStep() -> SendStep {
         let last = stack.last
-
-        assert(last != nil, "Stack is empty")
-
-        return last ?? initialState.step
+        return last ?? initialStep
     }
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
         case .amount:
             return summaryStep
-        case .destination, .fee, .validators, .summary, .finish, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
+        default:
             assertionFailure("There is no next step")
             return nil
         }
     }
 
     private func next(step: SendStep) {
-        let isEditAction = stack.contains(where: { $0.type.isSummary })
         stack.append(step)
-
-        switch step.type {
-        case .amount where isEditAction:
-            output?.update(state: .init(step: step, action: .continue))
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        case .amount, .destination, .fee, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 
     private func back() {
@@ -77,21 +66,14 @@ class CommonUnstakingStepsManager {
         }
 
         stack.removeLast()
-        let step = currentStep()
-
-        switch step.type {
-        case .summary:
-            output?.update(state: .init(step: step, action: .action))
-        default:
-            assertionFailure("There is no back step")
-        }
+        output?.update(step: currentStep())
     }
 }
 
 // MARK: - SendStepsManager
 
 extension CommonUnstakingStepsManager: SendStepsManager {
-    var initialKeyboardState: Bool { true }
+    var initialKeyboardState: Bool { isPartialUnstakeAllowed }
 
     var initialFlowActionType: SendFlowActionType {
         switch action.type {
@@ -115,16 +97,37 @@ extension CommonUnstakingStepsManager: SendStepsManager {
         }
     }
 
-    var initialState: SendStepsManagerViewState {
-        if isPartialUnstakeAllowed {
-            .init(step: amountStep, action: .next, backButtonVisible: false)
-        } else {
-            .init(step: summaryStep, action: .action, backButtonVisible: false)
-        }
+    var initialStep: any SendStep {
+        isPartialUnstakeAllowed ? amountStep : summaryStep
     }
 
     var shouldShowDismissAlert: Bool {
         stack.contains(where: { $0.type.isSummary })
+    }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .amount:
+            return .init(title: Localization.commonAmount, trailingViewType: .closeButton)
+        case .summary:
+            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+        case .finish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
+    }
+
+    var bottomBarSettings: SendStepBottomBarSettings {
+        let isEditAction = stack.contains(where: { $0.type.isSummary })
+
+        switch currentStep().type {
+        case .amount where isEditAction: return .init(action: .continue)
+        case .amount: return .init(action: .next)
+        case .summary: return .init(action: .action)
+        case .finish: return .init(action: .close)
+        default: return .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
@@ -165,24 +168,12 @@ extension CommonUnstakingStepsManager: SendStepsManager {
 // MARK: - SendSummaryStepsRoutable
 
 extension CommonUnstakingStepsManager: SendSummaryStepsRoutable {
-    func summaryStepRequestEditValidators() {
-        assertionFailure("We can't edit validators in unstaking flow")
-    }
-
     func summaryStepRequestEditAmount() {
-        guard case .summary = currentStep().type else {
+        guard currentStep().type.isSummary else {
             assertionFailure("This code should only be called from summary")
             return
         }
 
         next(step: amountStep)
-    }
-
-    func summaryStepRequestEditDestination() {
-        assertionFailure("This steps is not tappable in this flow")
-    }
-
-    func summaryStepRequestEditFee() {
-        assertionFailure("This steps is not tappable in this flow")
     }
 }
