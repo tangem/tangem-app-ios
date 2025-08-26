@@ -26,19 +26,25 @@ struct QRCodeReceiveAssetsView: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 48) {
             VStack(spacing: 0) {
                 Text(viewModel.headerForAddress(with: viewModel.addressInfo))
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     .padding(.horizontal, 84)
-                    .padding(.top, 4)
-                    .animation(nil, value: viewModel.addressInfo)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Image(uiImage: viewModel.addressInfo.addressQRImage)
                     .resizable()
-                    .frame(width: 220, height: 220)
-                    .padding(.top, 18)
+                    .scaledToFit()
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(maxWidth: UIScreen.main.bounds.width * 0.8)
+                    .layoutPriority(0)
+                    .padding(.top, 32)
+                    .transaction { transaction in
+                        transaction.animation = nil
+                    }
 
                 VStack(alignment: .center, spacing: 4) {
                     Text(Localization.commonAddress)
@@ -64,9 +70,9 @@ struct QRCodeReceiveAssetsView: View {
                         .animation(nil, value: viewModel.addressInfo)
                 }
             }
-            .padding(.top, 24)
+            .padding(.top, 8)
             .padding(.bottom, 16)
-            .frame(width: containerWidth)
+            .frame(maxWidth: .infinity)
 
             HStack(spacing: 12) {
                 MainButton(
@@ -87,6 +93,5 @@ struct QRCodeReceiveAssetsView: View {
             .padding(.top, 12)
             .padding(.bottom, 16)
         }
-        .readGeometry(\.size.width, bindTo: $containerWidth)
     }
 }
