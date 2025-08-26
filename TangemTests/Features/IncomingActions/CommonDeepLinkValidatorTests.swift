@@ -172,6 +172,15 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
+    func tokenWithPromoTypeAndValidParams_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .token,
+            params: .init(type: .promo, tokenId: "eth-token", networkId: "eth-mainnet")
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
     func tokenWithIncomeTransactionTypeAndValidParams_shouldPass() {
         let action = DeeplinkNavigationAction(
             destination: .token,
@@ -285,7 +294,7 @@ struct CommonDeepLinkValidatorTests {
     // MARK: - Optional Param Destinations
 
     let optionalDestinations: [IncomingActionConstants.DeeplinkDestination] = [
-        .buy, .link, .sell, .swap, .referral, .markets, .promo,
+        .buy, .link, .sell, .swap, .referral, .markets,
     ]
 
     @Test
