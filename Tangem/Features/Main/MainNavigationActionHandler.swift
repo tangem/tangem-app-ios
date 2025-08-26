@@ -70,6 +70,9 @@ extension MainCoordinator {
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
+
+            case .onboardVisa:
+                return routeOnboardVisaAction(params: navigationAction.params)
             }
         }
 
@@ -254,6 +257,19 @@ extension MainCoordinator {
             )
 
             coordinator.openDeepLink(.staking(options: options))
+            return true
+        }
+
+        private func routeOnboardVisaAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let entry = params.entry,
+                  FeatureProvider.isAvailable(.visa)
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.onboardVisa(entry: entry))
             return true
         }
     }
