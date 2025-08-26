@@ -68,10 +68,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li network</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%liネットワーク</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
