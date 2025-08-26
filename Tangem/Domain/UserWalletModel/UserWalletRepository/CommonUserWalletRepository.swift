@@ -93,6 +93,22 @@ class CommonUserWalletRepository: UserWalletRepository {
                 } else {
                     throw UserWalletRepositoryError.cantUnlockWithCard
                 }
+            } catch UserWalletRepositoryError.sensitiveInfoIsMissing {
+                // existing locked card wallet scanned, but we can't unlock it because sensitive info is missing
+                let userWalletModel = CommonUserWalletModelFactory().makeModel(
+                    walletInfo: .cardWallet(cardInfo),
+                    keys: .cardWallet(keys: cardInfo.card.wallets),
+                )
+                let existingModelIndex = models.firstIndex(where: { $0.userWalletId == userWalletModel?.userWalletId })
+
+                if let userWalletModel, let existingModelIndex {
+                    models[existingModelIndex] = userWalletModel
+                    sendEvent(.unlocked(userWalletId: userWalletModel.userWalletId))
+                    select(userWalletId: userWalletModel.userWalletId)
+                    return userWalletModel
+                } else {
+                    throw UserWalletRepositoryError.cantUnlockWithCard
+                }
             }
         case .biometrics(let context):
             let model = try handleUnlock(context: context)
@@ -315,8 +331,11 @@ class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
-        guard let sensitiveInfo = sensitiveInfos[userWalletId],
-              let publicData = existingLockedModel.serializePublic(),
+        guard let sensitiveInfo = sensitiveInfos[userWalletId] else {
+            throw UserWalletRepositoryError.sensitiveInfoIsMissing
+        }
+
+        guard let publicData = existingLockedModel.serializePublic(),
               let unlockedModel = CommonUserWalletModelFactory().makeModel(
                   publicData: publicData,
                   sensitiveData: sensitiveInfo
