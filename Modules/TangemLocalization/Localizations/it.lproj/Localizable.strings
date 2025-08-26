@@ -125,8 +125,8 @@
 "biometry_touch_id_reason" = "Touch ID is used to save your cards and rings in the app";
 "bitcoin_promo_activation_error_title" = "Activation error";
 "bitcoin_promo_activation_error" = "An error occurred while processing your promo code. Please try again later.";
-"bitcoin_promo_activation_success_title" = "Promo code activated";
-"bitcoin_promo_activation_success" = "Your promo code has been successfully activated. A bonus of 10 USDT in Bitcoin will be credited in 14 days.";
+"bitcoin_promo_activation_success_title" = "Promo Code Activated";
+"bitcoin_promo_activation_success" = "Your promo code was successfully activated. A bonus of 10 USDT in Bitcoin will be credited to your account within 14 days.";
 "bitcoin_promo_already_activated_title" = "Code unavailable";
 "bitcoin_promo_already_activated" = "This promo code has already been used and cannot be activated again.";
 "bitcoin_promo_invalid_code_title" = "Invalid code";
