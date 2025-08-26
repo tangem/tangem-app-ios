@@ -10,6 +10,10 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
+let stateObject = RefreshScrollViewStateObject {
+    try? await Task.sleep(seconds: 5)
+}
+
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
     @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
@@ -21,6 +25,24 @@ struct AppCoordinatorView: CoordinatorView {
     @Namespace private var namespace
 
     var body: some View {
+        RefreshScrollView(stateObject: stateObject) {
+            ForEach(0 ... 50) { id in
+                Button(action: {}) {
+                    ZStack {
+                        Rectangle().fill(Color.orange.opacity(0.5))
+
+                        Text(id.description)
+                    }
+                    .frame(height: 80)
+                }
+            }
+        }
+//        .safeAreaInset(edge: .top) {
+//            BottomSheetHeaderView(title: "SUPER HEADER")
+//        }
+    }
+
+    var body2: some View {
         content
             .accentColor(Colors.Text.primary1)
             .overlayContentContainer(
