@@ -64,25 +64,4 @@ extension PersistentStorage: PersistentStorageProtocol {
         let data = try JSONEncoder().encode(value)
         try encryptAndWriteToDocuments(data, at: &documentPath)
     }
-
-    func readAllWallets<T: Decodable>() -> [String: T] {
-        var wallets: [String: T] = [:]
-
-        if let contents = try? fileManager.contentsOfDirectory(atPath: containerUrl.path) {
-            contents.forEach {
-                if $0.contains("wallets_") {
-                    let cardId = $0.remove("wallets_").remove(".json")
-                    let key: PersistentStorageKey = .wallets(cid: cardId)
-                    let documentPath = self.documentPath(for: key.path)
-                    if let data = try? Data(contentsOf: documentPath),
-                       let decryptedData = try? encryptionUtility.decryptData(data),
-                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData) {
-                        wallets[cardId] = decodedData
-                    }
-                }
-            }
-        }
-
-        return wallets
-    }
 }
