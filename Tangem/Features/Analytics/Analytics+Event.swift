@@ -299,9 +299,6 @@ extension Analytics {
         case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
         case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
 
-        case bitcoinPromoDeeplinkActivation = "[Promotion] Bitcoin Promo Deep Link Activation"
-        case bitcoinPromoActivation = "[Promotion] Bitcoin Promo Activation"
-
         // MARK: - Errors
 
         case cantScanTheCard = "[Errors] Cant Scan The Card"
