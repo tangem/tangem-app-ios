@@ -2020,10 +2020,14 @@
 		DCFEFE5A2CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */; };
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
+		EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032332E54C11E00573568 /* PromocodeActivationView.swift */; };
+		EA4032372E54C13C00573568 /* PromocodeActivationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */; };
+		EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */; };
 		EA6C829F2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */; };
 		EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */; };
 		EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */; };
 		EA728C392E0162FE0044145D /* DeeplinkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */; };
+		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
 		EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */; };
 		EAB55F612DF080730016BF78 /* MainNavigationActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */; };
 		EAB55F632DF0C3990016BF78 /* MainCoordinatorChildFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */; };
@@ -4855,10 +4859,14 @@
 		DCFEFE592CF5B49A002DFE58 /* ActionButtonsChooseTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsChooseTokenViewModel.swift; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
+		EA4032332E54C11E00573568 /* PromocodeActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationView.swift; sourceTree = "<group>"; };
+		EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationViewModel.swift; sourceTree = "<group>"; };
+		EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromoCodeActivationDTO.swift; sourceTree = "<group>"; };
 		EA6C829E2E11B03B00618C54 /* CommonDeepLinkValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeepLinkValidatorTests.swift; sourceTree = "<group>"; };
 		EA728C2E2E0054A30044145D /* IncomingURLValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidator.swift; sourceTree = "<group>"; };
 		EA728C332E0158930044145D /* CommonDeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDeeplinkPresenter.swift; sourceTree = "<group>"; };
 		EA728C382E0162FE0044145D /* DeeplinkPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkPresenter.swift; sourceTree = "<group>"; };
+		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
 		EAB55F5E2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParser.swift; sourceTree = "<group>"; };
 		EAB55F602DF080730016BF78 /* MainNavigationActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationActionHandler.swift; sourceTree = "<group>"; };
 		EAB55F622DF0C3990016BF78 /* MainCoordinatorChildFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorChildFactory.swift; sourceTree = "<group>"; };
@@ -10463,6 +10471,7 @@
 		DA91770F2A25F14A006CD67B /* Promotion */ = {
 			isa = PBXGroup;
 			children = (
+				EA4032342E54C11E00573568 /* Promocode */,
 				DAC37FB92A2DFB730068F3ED /* PromotionView.swift */,
 				DA5CD0952A25F4F2008FD876 /* PromotionCoordinator.swift */,
 				DA5CD0942A25F4F2008FD876 /* PromotionCoordinatorView.swift */,
@@ -12977,6 +12986,17 @@
 				DC60D0EE2CEAFB8500FF6BA8 /* View */,
 			);
 			path = ActionButtonsSwap;
+			sourceTree = "<group>";
+		};
+		EA4032342E54C11E00573568 /* Promocode */ = {
+			isa = PBXGroup;
+			children = (
+				EA4032332E54C11E00573568 /* PromocodeActivationView.swift */,
+				EA4032362E54C13C00573568 /* PromocodeActivationViewModel.swift */,
+				EA4032582E55F02E00573568 /* PromoCodeActivationDTO.swift */,
+				EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */,
+			);
+			path = Promocode;
 			sourceTree = "<group>";
 		};
 		EA53DA2F2DE0C0B300449AC9 /* PushNotificationSubscribers */ = {
@@ -17211,6 +17231,7 @@
 				B0A1BC152C296B6E00DECCFD /* MarketsTokenDetailsCoordinator.swift in Sources */,
 				DAAD053A2CE21B1600E53EF3 /* PendingExpressTxStatusView.swift in Sources */,
 				C274DFBB2DDBFA3C00B1D97B /* WalletConnectDAppProposalApprovalService.swift in Sources */,
+				EA4032372E54C13C00573568 /* PromocodeActivationViewModel.swift in Sources */,
 				B6E31B642C8A240400604C8F /* MainBottomSheetFooterViewModel.swift in Sources */,
 				EF4662302924DF0300346B6C /* DefaultWarningRow.swift in Sources */,
 				B018F304259204A200D8F89A /* GeneralNotificationEvent.swift in Sources */,
@@ -17286,6 +17307,7 @@
 				EFB7521D2C985F2600CB614C /* StakingFeeIncludedCalculator.swift in Sources */,
 				DC1D4C1A2C38289F00B2A422 /* BannerNotificationManager.swift in Sources */,
 				DC2911B22C623D1E00DF53CC /* SendTransactionDispatcher.swift in Sources */,
+				EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */,
 				B09684B42D82BA1900A4512D /* App+UniversalError.swift in Sources */,
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
@@ -17303,6 +17325,7 @@
 				B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */,
 				EFA5683C2C480D120064EBA1 /* SendTransactionType.swift in Sources */,
 				EFA23E732DEF6CBE004ADD0A /* SendNewFinishStep.swift in Sources */,
+				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
@@ -17872,6 +17895,7 @@
 				EFC84AC02C35CB2000546882 /* SendFinishView.swift in Sources */,
 				B6FCEE732C40E16100CA9252 /* CGAffineTransform+.swift in Sources */,
 				EFF2A52B2C60B70A007DB0C1 /* StakingNotificationManager.swift in Sources */,
+				EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */,
 				DA559C342B0261F400F59584 /* SendCoordinator.swift in Sources */,
 				2D5DCC312C3309F1000EE379 /* MarketsTokensNetworkSelectorViewModel.swift in Sources */,
 				DA4055292ABDD3A300353F8A /* AddCustomTokenNetworkSelectorView.swift in Sources */,
@@ -18021,7 +18045,6 @@
 				0FB934072E4A91D300DAB673 /* MobileOnboardingSeedPhraseValidationView.swift in Sources */,
 				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
 				0FE588522DEF2A1500E5663E /* MobileOnboardingViewModel.swift in Sources */,
-				C2CDA5492E328CFC0014C890 /* WalletConnectInteractor.swift in Sources */,
 				C207D5FA2DE60E8800A5FB2E /* WalletConnectSessionNamespaceMapper.swift in Sources */,
 				DC43E8662CE66DED00DD7B06 /* WalletPromoBannerView.swift in Sources */,
 				B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */,
