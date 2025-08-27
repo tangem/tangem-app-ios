@@ -165,18 +165,14 @@ private struct CommonUserWalletModelDependencies {
             derivationManager: derivationManager
         )
 
-        let derivationConfig = CommonUserTokensManager.DerivationConfig(
-            derivationIndex: CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex, // Always main account for compatibility purposes
-            derivationStyle: config.derivationStyle,
-            derivationManager: derivationManager
-        )
         userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
+            shouldLoadExpressAvailability: config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange),
             userTokenListManager: userTokenListManager,
             walletModelsManager: walletModelsManager,
-            derivationConfig: derivationConfig,
+            derivationStyle: config.derivationStyle,
+            derivationManager: derivationManager,
             existingCurves: config.existingCurves,
-            shouldLoadExpressAvailability: config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange),
             longHashesSupported: config.hasFeature(.longHashes)
         )
 
