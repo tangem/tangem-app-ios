@@ -246,6 +246,15 @@ extension Analytics {
 
         case nft = "NFT"
 
+        // MARK: - Mobile Wallet
+
+        case `import` = "Import"
+        case create = "Create Wallet"
+        case importWallet = "Import Wallet"
+
+        case set = "Set"
+        case changing = "Changing"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
