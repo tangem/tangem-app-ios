@@ -51,6 +51,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
 extension CreateWalletSelectorViewModel {
     func onAppear() {
+        Analytics.log(.onboardingStarted)
+
         scheduleScanAvailability()
     }
 
@@ -96,7 +98,7 @@ private extension CreateWalletSelectorViewModel {
 private extension CreateWalletSelectorViewModel {
     func scanCard() {
         isScanning = true
-        Analytics.beginLoggingCardScan(source: .welcome)
+        Analytics.beginLoggingCardScan(source: .createWallet)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -170,12 +172,15 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func openMobileWallet() {
+        Analytics.log(.buttonMobileWallet)
+
         let input = MobileOnboardingInput(flow: .walletCreate)
         let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }
 
     func openHardwareWallet() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
