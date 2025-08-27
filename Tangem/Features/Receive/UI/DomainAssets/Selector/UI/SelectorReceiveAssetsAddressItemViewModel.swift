@@ -10,13 +10,7 @@ import Combine
 import TangemAssets
 
 class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject {
-    var header: String {
-        if tokenItem.isToken {
-            return "\(tokenItem.name.capitalizingFirstLetter()) • \(tokenItem.blockchain.tokenTypeName ?? "")"
-        } else {
-            return "\(tokenItem.name.capitalizingFirstLetter())"
-        }
-    }
+    let header: String
 
     var address: String {
         addressInfo.address
@@ -24,14 +18,13 @@ class SelectorReceiveAssetsAddressItemViewModel: Identifiable, ObservableObject 
 
     // MARK: - Private Properties
 
-    private let tokenItem: TokenItem
     private let addressInfo: ReceiveAddressInfo
     private weak var coordinator: SelectorReceiveAssetItemRoutable?
 
     // MARK: - Init
 
-    init(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo, coordinator: SelectorReceiveAssetItemRoutable?) {
-        self.tokenItem = tokenItem
+    init(header: String, addressInfo: ReceiveAddressInfo, coordinator: SelectorReceiveAssetItemRoutable?) {
+        self.header = header
         self.addressInfo = addressInfo
         self.coordinator = coordinator
     }
