@@ -227,7 +227,10 @@ private extension CommonExpressManager {
     func updateIsBestFlag() async {
         let bestRate = await bestByRateProvider()
         availableProviders.forEach { provider in
-            provider.isBest = provider.provider == bestRate?.provider
+            // We set the `isBest` flag only if provider is not a single
+            let providersMoreThanOne: Bool = availableProviders.count > 1
+            provider.isBest = providersMoreThanOne && provider.provider == bestRate?.provider
+
             ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
     }
