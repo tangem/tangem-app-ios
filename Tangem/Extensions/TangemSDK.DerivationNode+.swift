@@ -18,4 +18,13 @@ extension DerivationNode {
             return index
         }
     }
+
+    func withRawIndex(_ rawIndex: UInt32) -> DerivationNode {
+        switch self {
+        case .hardened:
+            return .hardened(rawIndex)
+        case .nonHardened:
+            return .nonHardened(rawIndex)
+        }
+    }
 }
