@@ -18,6 +18,7 @@ enum MobileWalletError: Error, Equatable {
     case failedToCreateSeed
     case failedToSignHash
     case failedToExportMnemonic
+    case failedToExportPassphrase
     case accessCodeIsRequired
     case walletAlreadyExists
 
@@ -33,6 +34,7 @@ enum MobileWalletError: Error, Equatable {
              (.failedToSignHash, .failedToSignHash),
              (.accessCodeIsRequired, .accessCodeIsRequired),
              (.walletAlreadyExists, .walletAlreadyExists),
+             (.failedToExportPassphrase, .failedToExportPassphrase),
              (.failedToExportMnemonic, .failedToExportMnemonic): true
         case (.invalidCurve(let left), .invalidCurve(let right)) where left == right: true
         case (.tangemSdk(let left), .tangemSdk(let right)) where left.code == right.code: true
