@@ -30,6 +30,7 @@ enum IncomingActionConstants {
         static let derivationPath = "derivation_path"
         static let transactionId = "transaction_id"
         static let entry = "entry"
+        static let promoCode = "promo_code"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
@@ -43,12 +44,12 @@ enum IncomingActionConstants {
         case sell
         case link
         case onboardVisa = "onboard-visa"
+        case promo
     }
 
     enum DeeplinkType: String {
         case incomeTransaction = "income_transaction"
         case onrampStatusUpdate = "onramp_status_update"
         case swapStatusUpdate = "swap_status_update"
-        case promo
     }
 }
