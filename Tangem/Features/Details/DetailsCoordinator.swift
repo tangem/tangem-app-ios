@@ -38,7 +38,6 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var tosViewModel: TOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
-    @Published var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     // MARK: - Helpers
 
@@ -172,9 +171,5 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openLogs() {
         logsViewModel = .init()
-    }
-
-    func openTangemPayOfferViewModel() {
-        tangemPayOfferViewModel = TangemPayOfferViewModel()
     }
 }
