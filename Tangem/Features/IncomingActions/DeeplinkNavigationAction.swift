@@ -28,6 +28,7 @@ extension DeeplinkNavigationAction {
         var transactionId: String?
         var promoCode: String?
         var url: URL?
+        var entry: String?
 
         static let empty = Params()
 
