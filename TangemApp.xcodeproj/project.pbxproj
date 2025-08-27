@@ -348,6 +348,7 @@
 		2DA57BC12CD650E900C890DF /* CasperAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE72CD1414000581EA6 /* CasperAddressUtils.swift */; };
 		2DA57BC22CD650E900C890DF /* CasperWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FEA2CD1414000581EA6 /* CasperWalletManager.swift */; };
 		2DA57BC32CD650E900C890DF /* CasperAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE62CD1414000581EA6 /* CasperAddressService.swift */; };
+		2DA7C55F2E5DB51B00B0FE5C /* BitcoinSelectorReceiveAssetsSectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA7C55E2E5DB51B00B0FE5C /* BitcoinSelectorReceiveAssetsSectionFactory.swift */; };
 		2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */; };
 		2DAB6B6F2CE28E8500B4A10C /* MinimumAmountRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */; };
 		2DAD346A2D57CD5500C4BDA5 /* AlephiumTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAD34692D57CD5500C4BDA5 /* AlephiumTransactionTests.swift */; };
@@ -4445,6 +4446,7 @@
 		2DA1001F2E55DDD400EC2257 /* ENSProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENSProcessor.swift; sourceTree = "<group>"; };
 		2DA100252E55DFBD00EC2257 /* DomainNameAddressResolverFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainNameAddressResolverFactory.swift; sourceTree = "<group>"; };
 		2DA100272E55E7C200EC2257 /* ReceiveTokenWithdrawNoticeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveTokenWithdrawNoticeInteractor.swift; sourceTree = "<group>"; };
+		2DA7C55E2E5DB51B00B0FE5C /* BitcoinSelectorReceiveAssetsSectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSelectorReceiveAssetsSectionFactory.swift; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimumAmountRestrictable.swift; sourceTree = "<group>"; };
 		2DAD34692D57CD5500C4BDA5 /* AlephiumTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumTransactionTests.swift; sourceTree = "<group>"; };
@@ -8972,6 +8974,7 @@
 		2D96E9462E55D25300B69F91 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
+				2DA7C55E2E5DB51B00B0FE5C /* BitcoinSelectorReceiveAssetsSectionFactory.swift */,
 				2D96E9432E55D25300B69F91 /* CommonSelectorReceiveAssetsSectionFactory.swift */,
 				2D96E9442E55D25300B69F91 /* EthereumSelectorReceiveAssetsSectionFactory.swift */,
 				2D96E9452E55D25300B69F91 /* SelectorReceiveAssetsSectionFactory.swift */,
@@ -23822,6 +23825,7 @@
 				EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */,
 				DC3549D52E2DE4FF00641727 /* WCCustomEvmFeeService.swift in Sources */,
 				DC0DE2722B60392900E7247F /* SafariManager.swift in Sources */,
+				2DA7C55F2E5DB51B00B0FE5C /* BitcoinSelectorReceiveAssetsSectionFactory.swift in Sources */,
 				B6B1CCCA2C460BB9006C1B44 /* UIPanGestureRecognizer+.swift in Sources */,
 				EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
