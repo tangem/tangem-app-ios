@@ -20,6 +20,15 @@ enum ReceiveAddressType: Identifiable {
             return "\(Constants.domainPrefix)_\(addressName)_\(addressInfo.id)"
         }
     }
+
+    var info: ReceiveAddressInfo {
+        switch self {
+        case .address(let info):
+            return info
+        case .domain(_, let info):
+            return info
+        }
+    }
 }
 
 // MARK: - Constants
