@@ -44,6 +44,7 @@ class SendFeeStep {
 extension SendFeeStep: SendStep {
     var type: SendStepType { .fee(viewModel) }
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
+    var shouldShowBottomOverlay: Bool { false }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
