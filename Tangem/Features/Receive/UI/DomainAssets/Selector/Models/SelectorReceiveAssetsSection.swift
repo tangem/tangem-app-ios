@@ -24,6 +24,7 @@ extension SelectorReceiveAssetsSection {
 
         case domain
         case `default`
+        case legacy
     }
 }
 
