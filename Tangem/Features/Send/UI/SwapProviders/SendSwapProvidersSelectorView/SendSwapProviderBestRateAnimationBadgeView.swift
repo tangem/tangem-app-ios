@@ -53,7 +53,7 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
         Assets.Express.bestRateStarIcon.image
             .renderingMode(.original)
             .resizable()
-            .frame(width: 10, height: 10)
+            .frame(size: .init(bothDimensions: isOpen ? 10 : 8))
             .padding(.all, isOpen ? 4 : 2)
             .background(Circle().fill(Colors.Icon.accent))
     }
