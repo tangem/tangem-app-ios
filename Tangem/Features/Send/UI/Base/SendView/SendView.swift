@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct SendView: View {
@@ -20,16 +21,14 @@ struct SendView: View {
     @Namespace private var namespace
     @FocusState private var focused: Bool
 
-    @State private var bottomContainerMinY: CGFloat = 0
-    @State private var contentMaxYBiggerThanContainerMinY: Bool = true
-
     private let backButtonStyle: MainButton.Style = .secondary
     private let backButtonSize: MainButton.Size = .default
-    private let backgroundColor = Colors.Background.tertiary
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            Colors.Background.tertiary.ignoresSafeArea()
+
             currentPage
                 .focused($focused)
                 .allowsHitTesting(!viewModel.isUserInteractionDisabled)
@@ -47,10 +46,6 @@ struct SendView: View {
         .animation(SendTransitionService.Constants.defaultAnimation, value: viewModel.step.type)
         .animation(.none, value: viewModel.navigationBarSettings)
         .animation(.none, value: viewModel.bottomBarSettings)
-        .onPreferenceChange(MaxYPreferenceKey.self) { maxY in
-            contentMaxYBiggerThanContainerMinY = maxY > bottomContainerMinY
-        }
-        .background(backgroundColor.ignoresSafeArea())
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
@@ -272,23 +267,12 @@ struct SendView: View {
         .padding(.top, 8)
         .padding(.bottom, 14)
         .padding(.horizontal, 16)
-        .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
-            bottomContainerMinY = frame.minY
-        }
     }
 
     private var bottomOverlay: some View {
-        LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
-            .frame(maxHeight: bottomGradientHeight)
-            .padding(.horizontal, 16)
-            .allowsHitTesting(false)
-            .opacity(shouldShowBottomOverlay ? 1 : 0)
-            .animation(.default, value: shouldShowBottomOverlay)
-    }
-
-    private var shouldShowBottomOverlay: Bool {
-        contentMaxYBiggerThanContainerMinY && viewModel.shouldShowBottomOverlay
+        ListFooterOverlayShadowView()
+            .frame(height: bottomGradientHeight)
+            .visible(viewModel.shouldShowBottomOverlay)
     }
 }
 
