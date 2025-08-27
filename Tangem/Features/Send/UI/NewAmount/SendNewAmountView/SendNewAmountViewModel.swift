@@ -185,7 +185,7 @@ extension SendNewAmountViewModel {
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value
         if sourceToken.fiatAvailableBalanceProvider.balanceType.value != nil {
-            balanceFormatted += "\(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
+            balanceFormatted += " \(AppConstants.dotSign) \(sourceToken.fiatAvailableBalanceProvider.formattedBalanceType.value)"
         }
 
         sendAmountTokenViewData = .init(
