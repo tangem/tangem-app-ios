@@ -1540,7 +1540,10 @@ private extension Blockchain {
             case .coin: return "pepecoin-network"
             }
         case .hyperliquidEVM:
-            return "hyperliquid"
+            switch type {
+            case .network: return "hyperevm"
+            case .coin: return "hyperliquid"
+            }
         }
     }
 
