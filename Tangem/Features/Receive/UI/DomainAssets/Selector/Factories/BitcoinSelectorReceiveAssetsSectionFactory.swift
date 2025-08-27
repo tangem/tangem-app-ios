@@ -1,5 +1,5 @@
 //
-//  EthereumSelectorReceiveAssetsSectionFactory.swift
+//  BitcoinSelectorReceiveAssetsSectionFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemLocalization
 
-struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
+struct BitcoinSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionFactory {
     let analyticsLogger: ReceiveAnalyticsLogger
 
     // MARK: - Private Properties
@@ -27,31 +28,52 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
     // MARK: - Implementation
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection] {
-        var domainAssets: [SelectorReceiveAssetsContentItemViewModel] = []
         var defaultAssets: [SelectorReceiveAssetsContentItemViewModel] = []
+        var legacyAssets: [SelectorReceiveAssetsContentItemViewModel] = []
 
         for asset in assets {
             let stateView = makeStateViewModel(asset: asset, tokenItem: tokenItem, coordinator: coordinator)
             let viewModel = SelectorReceiveAssetsContentItemViewModel(stateView: stateView)
 
-            switch asset {
-            case .domain:
-                domainAssets.append(viewModel)
-            case .address:
+            switch asset.info.type {
+            case .default:
                 defaultAssets.append(viewModel)
+            case .legacy:
+                legacyAssets.append(viewModel)
             }
         }
 
-        return [
-            (id: SelectorReceiveAssetsSection.Key.domain, items: domainAssets),
+        let sections = [
             (id: SelectorReceiveAssetsSection.Key.default, items: defaultAssets),
+            (id: SelectorReceiveAssetsSection.Key.legacy, items: legacyAssets),
         ]
-        .compactMap { section in
+
+        return sections.compactMap { section in
             section.items.isEmpty ? nil : SelectorReceiveAssetsSection(
                 id: section.id,
-                header: nil,
+                header: makeHeader(by: section.id),
                 items: section.items
             )
+        }
+    }
+
+    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
+        switch addressInfo.type {
+        case .default:
+            Localization.commonNewAddress
+        case .legacy:
+            Localization.commonLegacyBitcoinAddress
+        }
+    }
+
+    // MARK: - Private Implementation
+
+    private func makeHeader(by key: SelectorReceiveAssetsSection.Key) -> SelectorReceiveAssetsSection.Header? {
+        switch key {
+        case .default:
+            return SelectorReceiveAssetsSection.Header.title(Localization.domainReceiveAssetsDefaultAddress)
+        case .legacy, .domain:
+            return nil
         }
     }
 }
