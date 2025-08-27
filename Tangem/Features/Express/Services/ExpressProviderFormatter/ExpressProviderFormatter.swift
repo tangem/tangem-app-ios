@@ -31,7 +31,10 @@ struct ExpressProviderFormatter {
             return .permissionNeeded
         }
 
-        return availableProvider.isBest ? .bestRate : .none
+        let canShowBest = !ukGeoDefiner.isUK
+        let isBest = availableProvider.isBest
+
+        return canShowBest && isBest ? .bestRate : .none
     }
 
     func mapToRateSubtitle(
