@@ -13,7 +13,7 @@ import TangemFoundation
 struct SendSwapProviderCompactViewData {
     let provider: LoadingResult<ProviderData, String>
 
-    var isTappable: Bool { provider.value != nil }
+    var isTappable: Bool { provider.value?.canSelectAnother == true }
     var isBest: Bool { provider.value?.badge == .bestRate }
     var isFCAWarningList: Bool { provider.value?.badge == .fcaWarning }
 }
@@ -21,6 +21,7 @@ struct SendSwapProviderCompactViewData {
 extension SendSwapProviderCompactViewData {
     struct ProviderData {
         let provider: ExpressProvider
+        let canSelectAnother: Bool
         let badge: ExpressProviderFormatter.ProviderBadge?
     }
 }
