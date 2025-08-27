@@ -209,12 +209,14 @@ extension ExpressInteractor: ApproveViewModelInput {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func send() async throws -> SentExpressTransactionData {
+    func send(shouldTrackAnalytics: Bool = true) async throws -> SentExpressTransactionData {
         guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
         }
 
-        logSwapTransactionAnalyticsEvent()
+        if shouldTrackAnalytics {
+            logSwapTransactionAnalyticsEvent()
+        }
 
         let result: TransactionSendResultState = try await {
             switch getState() {
@@ -258,7 +260,9 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
-        logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
+        if shouldTrackAnalytics {
+            logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
+        }
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
 
         return sentTransactionData
