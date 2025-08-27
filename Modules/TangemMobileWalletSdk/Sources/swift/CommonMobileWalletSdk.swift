@@ -78,6 +78,16 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         return mnemonic.mnemonicComponents
     }
 
+    public func exportPassphrase(context: MobileWalletContext) throws -> String {
+        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+
+        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+            throw MobileWalletError.failedToExportPassphrase
+        }
+
+        return privateInfo.passphrase
+    }
+
     public func exportBackup(context: MobileWalletContext) throws -> Data {
         // Placeholder for backup export logic
         return Data()
