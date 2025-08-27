@@ -21,11 +21,18 @@ final class MobileUnlockUtil {
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
     private let biometricsProvider: UserWalletBiometricsProvider
+    private let accessCodeManager: MobileAccessCodeManager
 
-    init(userWalletId: UserWalletId, config: UserWalletConfig, biometricsProvider: UserWalletBiometricsProvider) {
+    init(
+        userWalletId: UserWalletId,
+        config: UserWalletConfig,
+        biometricsProvider: UserWalletBiometricsProvider,
+        accessCodeManager: MobileAccessCodeManager,
+    ) {
         self.userWalletId = userWalletId
         self.config = config
         self.biometricsProvider = biometricsProvider
+        self.accessCodeManager = accessCodeManager
     }
 }
 
@@ -33,13 +40,7 @@ final class MobileUnlockUtil {
 
 extension MobileUnlockUtil {
     func unlock() async throws -> Result {
-        let manager = await CommonMobileAccessCodeManager(
-            userWalletId: userWalletId,
-            configuration: .default,
-            storageManager: CommonMobileAccessCodeStorageManager()
-        )
-
-        let viewModel = MobileUnlockViewModel(userWalletId: userWalletId, accessCodeManager: manager)
+        let viewModel = MobileUnlockViewModel(userWalletId: userWalletId, accessCodeManager: accessCodeManager)
         let view = MobileUnlockView(viewModel: viewModel)
         await presentAccessCode(view: view)
 
