@@ -566,26 +566,13 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
-        let badge: ProviderRowViewModel.Badge? = await {
-            let allProviders = await interactor.getAllProviders().filter { $0.isAvailable }
-
-            // We should show the "FCA" badge only when we have a UK geo
-            if ukGeoDefiner.isUK,
-               ExpressConstants.expressProvidersFCAWarningList.contains(selectedProvider.provider.id) {
-                return .fcaWarning
-            }
-
-            // We should show the "bestRate" badge only when we have a choose
-            guard allProviders.count > 1 else {
-                return .none
-            }
-
-            if selectedProvider.provider.recommended == true {
-                return .recommended
-            }
-
-            return selectedProvider.isBest ? .bestRate : .none
-        }()
+        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+        let badge: ProviderRowViewModel.Badge? = switch providerBadge {
+        case .none: .none
+        case .bestRate: .bestRate
+        case .fcaWarning: .fcaWarning
+        case .permissionNeeded: .permissionNeeded
+        }
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
