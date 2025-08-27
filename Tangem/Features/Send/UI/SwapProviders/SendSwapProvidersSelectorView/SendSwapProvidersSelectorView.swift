@@ -42,7 +42,7 @@ struct SendSwapProvidersSelectorView: View {
         .padding(.vertical, 4)
         .padding(.bottom, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.action
+            configuration.sheetBackgroundColor = Colors.Background.primary
             configuration.sheetFrameUpdateAnimation = .easeInOut
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
