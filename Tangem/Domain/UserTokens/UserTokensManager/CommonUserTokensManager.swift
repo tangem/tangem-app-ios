@@ -16,36 +16,35 @@ import TangemSdk
 class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    let derivationManager: DerivationManager?
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
+    private let shouldLoadExpressAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
-    private let derivationConfig: DerivationConfig
+    private let derivationStyle: DerivationStyle?
     private let existingCurves: [EllipticCurve]
-    private let shouldLoadExpressAvailability: Bool
     private let longHashesSupported: Bool
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
-    private var isMainAccountManager: Bool {
-        derivationConfig.derivationIndex == CommonCryptoAccountsRepository.Constants.mainAccountDerivationIndex
-    }
-
     init(
         userWalletId: UserWalletId,
+        shouldLoadExpressAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
-        derivationConfig: DerivationConfig,
+        derivationStyle: DerivationStyle?,
+        derivationManager: DerivationManager?,
         existingCurves: [EllipticCurve],
-        shouldLoadExpressAvailability: Bool,
         longHashesSupported: Bool
     ) {
         self.userWalletId = userWalletId
+        self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
-        self.derivationConfig = derivationConfig
+        self.derivationStyle = derivationStyle
+        self.derivationManager = derivationManager
         self.existingCurves = existingCurves
-        self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
         self.longHashesSupported = longHashesSupported
     }
 
@@ -56,7 +55,7 @@ class CommonUserTokensManager {
         }
 
         // Derivation unsupported
-        guard let derivationStyle = derivationConfig.derivationStyle else {
+        guard let derivationStyle else {
             return tokenItem
         }
 
@@ -132,10 +131,6 @@ class CommonUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
-    var derivationManager: DerivationManager? {
-        derivationConfig.derivationManager
-    }
-
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
         guard
             let derivationManager,
@@ -401,15 +396,7 @@ extension CommonUserTokensManager: UserTokensReordering {
     }
 }
 
-// MARK: - Auxiliary types
-
 extension CommonUserTokensManager {
-    struct DerivationConfig {
-        let derivationIndex: Int
-        let derivationStyle: DerivationStyle?
-        let derivationManager: DerivationManager?
-    }
-
     enum Error: LocalizedError {
         case addressNotFound
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
