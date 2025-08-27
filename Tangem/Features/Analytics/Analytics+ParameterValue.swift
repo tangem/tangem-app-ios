@@ -58,6 +58,7 @@ extension Analytics {
         case sell = "Sell"
         case swap = "Swap"
         case send = "Send"
+        case sendAndSwap = "Send&Swap"
         case backup = "Backup"
         case sign = "Sign"
 
