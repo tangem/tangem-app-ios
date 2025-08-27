@@ -26,18 +26,21 @@ struct AccountDerivationPathHelper {
         return derivationPath.nodes[safe: accountDerivationNodeIndex]
     }
 
-    /// Returns canonical derivation path for the main account (derivation index 0).
+    /// Returns canonical derivation path for the main account (account derivation index is unchanged).
     func canonicalDerivationPath(from derivationPath: DerivationPath) -> DerivationPath {
-        canonicalDerivationPath(from: derivationPath, derivationIndex: 0)
+        let currentNodes = derivationPath.nodes
+        let additionalNodesCount = min(0, DerivationPath.canonicalLength - currentNodes.count)
+        let canonicalNodes = currentNodes + Array(repeating: .hardened(0), count: additionalNodesCount) // [REDACTED_TODO_COMMENT]
+
+        return DerivationPath(nodes: canonicalNodes)
     }
 
     /// Returns canonical derivation path for the account with specified derivation index.
-    func canonicalDerivationPath(from derivationPath: DerivationPath, derivationIndex: Int) -> DerivationPath {
-        let rawIndex = UInt32(derivationIndex)
-        let nodes = derivationPath.nodes
-        let additionalNodesCount = min(0, DerivationPath.canonicalLength - nodes.count)
-        var canonicalNodes = nodes + Array(repeating: .hardened(0), count: additionalNodesCount) // [REDACTED_TODO_COMMENT]
-        canonicalNodes[accountDerivationNodeIndex] = canonicalNodes[accountDerivationNodeIndex].withRawIndex(rawIndex)
+    func canonicalDerivationPath(from derivationPath: DerivationPath, derivationIndexValue: Int) -> DerivationPath {
+        let rawIndexValue = UInt32(derivationIndexValue)
+        let canonicalDerivationPath = canonicalDerivationPath(from: derivationPath)
+        var canonicalNodes = canonicalDerivationPath.nodes
+        canonicalNodes[accountDerivationNodeIndex] = canonicalNodes[accountDerivationNodeIndex].withRawIndex(rawIndexValue)
 
         return DerivationPath(nodes: canonicalNodes)
     }
@@ -47,7 +50,7 @@ struct AccountDerivationPathHelper {
 
 private extension AccountDerivationPathHelper {
     enum Constants {
-        /// 3th node for UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
+        /// 3rd node for UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
         static let utxoDerivationNodeIndex = 2
         /// 5th node for non-UTXO blockchains (m / purpose' / coin_type' / account' / change / address_index)
         static let nonUTXODerivationNodeIndex = 4
