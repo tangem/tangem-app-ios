@@ -70,7 +70,22 @@ extension MainCoordinator {
 
             case .onboardVisa:
                 return routeOnboardVisaAction(params: navigationAction.params)
+
+            case .promo:
+                return routePromoAction(params: navigationAction.params)
             }
+        }
+
+        private func routePromoAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let promoCode = params.promoCode
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.promo(code: promoCode))
+            return true
         }
 
         private func routeLinkAction(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -185,7 +200,7 @@ extension MainCoordinator {
                 transactionType = .onramp
             case .swapStatusUpdate:
                 transactionType = .swap
-            case .incomeTransaction, .promo:
+            case .incomeTransaction:
                 // Transaction status deeplinks are not supported for these types
                 return false
             }
