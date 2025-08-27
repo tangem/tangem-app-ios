@@ -1,0 +1,120 @@
+{
+    "cardId": "AF02010000000002",
+    "isPasscodeSet": false,
+    "wallets": [
+        {
+            "chainCode": "28B5F94F998EA087C81591C03A9178D0BC7554B204A7CAA4E9F01D05E531AB0F",
+            "settings": {
+                "isPermanent": false
+            },
+            "curve": "secp256k1",
+            "publicKey": "027145A57C26832421FF8D7BB34F248DF1231462E9EA16D7643FB22DC041C86C50",
+            "index": 0,
+            "totalSignedHashes": 0,
+            "isImported": false,
+            "hasBackup": true,
+            "derivedKeys": {
+                "m/0'/1": {
+                    "publicKey": "037B710002048D83A9EE80546EC773EF1E297740106FD4B0F60196BE03D0EF7C39",
+                    "chainCode": "A3814F2174AFBE16B0E0F124AE95B8D1F540D4E1FD78D50E84CB228E2E5C40A7",
+                    "depth": 0,
+                    "parentFingerprint": "00000000",
+                    "childNumber": 0
+                }
+            }
+        },
+        {
+            "chainCode": "ECE5F48E6819F10C0E04056006DB2A7EB9FAA7F5939F3A05FA20AF2209815D8C",
+            "settings": {
+                "isPermanent": false
+            },
+            "curve": "ed25519",
+            "publicKey": "3B7DAC4F5E802639C0BE7BA2C91CBCD566C62311B0036030629052C0A9365335",
+            "index": 1,
+            "totalSignedHashes": 0,
+            "isImported": false,
+            "hasBackup": true,
+            "derivedKeys": {
+                "m/0'/1": {
+                    "publicKey": "2885DEDFE4100B0F954C2D51537CCCDC1CAFD3DA95879DECE78D8E2EF28EFA88",
+                    "chainCode": "4BBB4256C35BC14310D4FCA6264D01AE128D9073604671A2CCE39C06FABE8E0B",
+                    "depth": 0,
+                    "parentFingerprint": "00000000",
+                    "childNumber": 0
+                }
+            }
+        },
+        {
+            "curve": "bls12381_G2_AUG",
+            "settings": {
+                "isPermanent": false
+            },
+            "publicKey": "B7A7D6964D7F1BCB3BB0613CAFC31B9AE1307F0DC90482EC7238F71850DEBD2CD17E5A96827DE40BA8896FE433ABAA83",
+            "index": 2,
+            "totalSignedHashes": 0,
+            "isImported": false,
+            "hasBackup": true,
+            "derivedKeys": {}
+        }
+    ],
+    "cardPublicKey": "03B5EC6950BA1ADD6159464ED32C18E26460E9BBA02B519E0FB48E2440E206CEF1",
+    "attestation": {
+        "walletKeysAttestation": "skipped",
+        "cardKeyAttestation": "failed",
+        "firmwareAttestation": "skipped",
+        "cardUniquenessAttestation": "skipped"
+    },
+    "batchId": "AF02",
+    "linkedTerminalStatus": "none",
+    "settings": {
+        "isBackupAllowed": true,
+        "isHDWalletAllowed": true,
+        "supportedEncryptionModes": [
+            "strong",
+            "fast",
+            "none"
+        ],
+        "isRemovingUserCodesAllowed": true,
+        "isSettingAccessCodeAllowed": false,
+        "isSettingPasscodeAllowed": false,
+        "maxWalletsCount": 20,
+        "isFilesAllowed": true,
+        "isKeysImportAllowed": true,
+        "securityDelay": 15000,
+        "isLinkedTerminalEnabled": true,
+        "isPermanentWallet": false,
+        "isOverwritingIssuerExtraDataRestricted" : false,
+        "isIssuerDataProtectedAgainstReplay": true,
+        "isSelectBlockchainAllowed": true
+    },
+    "firmwareVersion": {
+        "patch": 0,
+        "stringValue": "6.21d SDK",
+        "major": 6,
+        "minor": 21,
+        "type": "d SDK"
+    },
+    "isAccessCodeSet": false,
+    "manufacturer": {
+        "name": "TANGEM",
+        "signature": "2C08746FC714A365986198F13AF829CB5F636B2FE38A2940165E21AF72D10AF0610E5EDCAE944AF723DA42438CC941E2C6DF1F78D32AFD88B69F619AF3E41DD7",
+        "manufactureDate": "2023-06-09"
+    },
+    "supportedCurves": [
+        "secp256k1",
+        "ed25519",
+        "secp256r1",
+        "bip0340",
+        "bls12381_G2",
+        "bls12381_G2_AUG",
+        "bls12381_G2_POP"
+    ],
+    "issuer": {
+        "name": "TANGEM SDK",
+        "publicKey": "025F16BD1D2EAFE463E62A335A09E6B2BBCBD04452526885CB679FC4D27AF1BD22"
+    },
+    "userSettings": {
+        "isUserCodeRecoveryAllowed": true
+    }
+}
+
