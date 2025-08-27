@@ -15,7 +15,7 @@ final class ChiaTransactionBuilder {
     // MARK: - Private Properties
 
     /// Max BLS hashes count to handle by single iOS NFS session. IPhone 7/7+ doesn’t support BLS signing due to hardware limitations.
-    let maxInputCount = 15
+    let maxInputCount = 1
 
     private let isTestnet: Bool
     private let walletPublicKey: Data

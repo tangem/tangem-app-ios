@@ -9,7 +9,7 @@
 import Foundation
 
 class KaspaUnspentOutputManager: CommonUnspentOutputManager {
-    static let maxOutputsCount: Int = 84
+    static let maxOutputsCount: Int = 1
 
     override func availableOutputs() -> [ScriptUnspentOutput] {
         let sorted = super.availableOutputs().sorted(by: { $0.amount > $1.amount })
