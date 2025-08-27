@@ -7,7 +7,17 @@
 //
 
 struct TangemPayOfferViewModel {
-    func orderCard() {
-        // [REDACTED_TODO_COMMENT]
+    let visaAccount: VisaAccount
+
+    func getCard() {
+        #if ALPHA || BETA || DEBUG
+        Task {
+            do {
+                try await visaAccount.launchKYC()
+            } catch {
+                // [REDACTED_TODO_COMMENT]
+            }
+        }
+        #endif // ALPHA || BETA || DEBUG
     }
 }

@@ -659,6 +659,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
+        case onboardVisa(entry: String)
         case promo(code: String)
     }
 }
