@@ -86,6 +86,15 @@
 		0AEE7DB42DA3FB590039B06D /* SolanaTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */; };
 		0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */; };
 		0AF14E7A2E435D0400D9B40F /* NewAppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */; };
+		0AF406262E5F064D006DC3DF /* ServiceFeeRateMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */; };
+		0AF406292E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406282E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift */; };
+		0AF4062B2E5F0A91006DC3DF /* YieldTokenDataMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */; };
+		0AF4062D2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */; };
+		0AF4062F2E5F1142006DC3DF /* InitYieldTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */; };
+		0AF406312E5F1A82006DC3DF /* EnterProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */; };
+		0AF406332E5F1DA5006DC3DF /* SendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406322E5F1DA5006DC3DF /* SendMethod.swift */; };
+		0AF406352E5F2A11006DC3DF /* ExitProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */; };
+		0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
 		0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786172E2AD9CE00742D0F /* LinkedList.swift */; };
@@ -4190,6 +4199,15 @@
 		0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHelper.swift; sourceTree = "<group>"; };
 		0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsViewModel.swift; sourceTree = "<group>"; };
 		0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsView.swift; sourceTree = "<group>"; };
+		0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceFeeRateMethod.swift; sourceTree = "<group>"; };
+		0AF406282E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldServiceFeeRateConverter.swift; sourceTree = "<group>"; };
+		0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTokenDataMethod.swift; sourceTree = "<group>"; };
+		0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeployYieldModuleMethod.swift; sourceTree = "<group>"; };
+		0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitYieldTokenMethod.swift; sourceTree = "<group>"; };
+		0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterProtocolMethod.swift; sourceTree = "<group>"; };
+		0AF406322E5F1DA5006DC3DF /* SendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMethod.swift; sourceTree = "<group>"; };
+		0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitProtocolMethod.swift; sourceTree = "<group>"; };
+		0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractMethod.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
 		0F2786172E2AD9CE00742D0F /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
@@ -8269,6 +8287,15 @@
 				0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */,
 			);
 			path = Notifications;
+			sourceTree = "<group>";
+		};
+		0AF406272E5F06C7006DC3DF /* Yield */ = {
+			isa = PBXGroup;
+			children = (
+				0AF406282E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift */,
+				0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */,
+			);
+			path = Yield;
 			sourceTree = "<group>";
 		};
 		0F2786162E2AD93400742D0F /* Flow */ = {
@@ -12774,6 +12801,13 @@
 				B62D3CC72CBC79D900C2460E /* TransferERC20TokenMethod.swift */,
 				B62AE31D2DCABD370037CEDB /* TransferERC721TokenMethod.swift */,
 				B62AE31F2DCAC0580037CEDB /* TransferERC1155TokenMethod.swift */,
+				0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */,
+				0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */,
+				0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */,
+				0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */,
+				0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */,
+				0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */,
+				0AF406322E5F1DA5006DC3DF /* SendMethod.swift */,
 			);
 			path = SmartContractMethods;
 			sourceTree = "<group>";
@@ -12884,24 +12918,25 @@
 		B62D3D0A2CBC79D900C2460E /* Ethereum */ = {
 			isa = PBXGroup;
 			children = (
+				2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */,
+				B62D3D052CBC79D900C2460E /* EthereumAddressService.swift */,
+				2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */,
+				B62D3CC52CBC79D900C2460E /* EthereumExternalLinkProvider.swift */,
+				B62D3D062CBC79D900C2460E /* EthereumStakeKitTransactionHelper.swift */,
+				B62D3D072CBC79D900C2460E /* EthereumTransactionBuilder.swift */,
+				B62D3D082CBC79D900C2460E /* EthereumWalletAssembly.swift */,
+				B62D3D092CBC79D900C2460E /* EthereumWalletManager.swift */,
+				2D9FAB922E13E118005AE305 /* EVMAddressService.swift */,
 				B62D3CC22CBC79D900C2460E /* ABI */,
-				B62D3CC82CBC79D900C2460E /* SmartContractMethods */,
+				2D9FAB9B2E13E51D005AE305 /* ENS */,
 				B62D3CCD2CBC79D900C2460E /* EthereumAddressConverter */,
 				B62D3CD22CBC79D900C2460E /* Interfaces */,
 				B62D3CD82CBC79D900C2460E /* Models */,
 				B62D3CDC2CBC79D900C2460E /* Network */,
 				B62D3CFE2CBC79D900C2460E /* OtherChains */,
 				B62D3D042CBC79D900C2460E /* SmartContract */,
-				2D9FAB9B2E13E51D005AE305 /* ENS */,
-				B62D3D052CBC79D900C2460E /* EthereumAddressService.swift */,
-				B62D3D062CBC79D900C2460E /* EthereumStakeKitTransactionHelper.swift */,
-				B62D3D072CBC79D900C2460E /* EthereumTransactionBuilder.swift */,
-				B62D3D082CBC79D900C2460E /* EthereumWalletAssembly.swift */,
-				B62D3D092CBC79D900C2460E /* EthereumWalletManager.swift */,
-				B62D3CC52CBC79D900C2460E /* EthereumExternalLinkProvider.swift */,
-				2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */,
-				2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */,
-				2D9FAB922E13E118005AE305 /* EVMAddressService.swift */,
+				B62D3CC82CBC79D900C2460E /* SmartContractMethods */,
+				0AF406272E5F06C7006DC3DF /* Yield */,
 			);
 			path = Ethereum;
 			sourceTree = "<group>";
@@ -23179,7 +23214,7 @@
 				EF15D62A2E30E5020080B000 /* SendNewDestinationInteractorSaver.swift in Sources */,
 				EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */,
 				EFA9FCA52C2AE91A00B0888A /* SendAmountInputOutput.swift in Sources */,
-                0A16965B2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift in Sources */,
+				0A16965B2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift in Sources */,
 				0F2786472E2BAB7E00742D0F /* MobileOnboardingRevealSeedPhraseFlowBuilder.swift in Sources */,
 				B6AA13762A2A37A800B53937 /* CardInfoPagePreviewView.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */,
@@ -24168,7 +24203,7 @@
 				EFAD02492A8274D500E9B959 /* CoinsResponseMapper.swift in Sources */,
 				C2E921382DD7ACC800ACE654 /* BlockaidWalletConnectDAppVerificationService.swift in Sources */,
 				DA81CF302B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift in Sources */,
-                0A2843BB2E4CDD7800BDE2D2 /* Analytics+SignInType.swift in Sources */,
+				0A2843BB2E4CDD7800BDE2D2 /* Analytics+SignInType.swift in Sources */,
 				0F84C10F2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift in Sources */,
 				EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */,
 				EFE54CD22D09DD1C00D803EB /* FakePendingExpressTransactionsManager.swift in Sources */,
@@ -24814,6 +24849,7 @@
 				B62D403E2CBC79DA00C2460E /* AdaliteNetworkProvider.swift in Sources */,
 				B62D41222CBC79DA00C2460E /* KoinosExternalLinkProvider.swift in Sources */,
 				B62D425D2CBC79DB00C2460E /* BlockchainSdkDependencies.swift in Sources */,
+				0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */,
 				B62D414D2CBC79DA00C2460E /* PolkadotTransaction.swift in Sources */,
 				B62D42D92CBC79DB00C2460E /* String+.swift in Sources */,
 				B62D42712CBC79DB00C2460E /* BitcoinTransactionFeeCalculator.swift in Sources */,
@@ -25000,6 +25036,8 @@
 				B62D40C72CBC79DA00C2460E /* EthereumStakeKitTransactionHelper.swift in Sources */,
 				B62D3FC92CBC79DA00C2460E /* OP_1SUB.swift in Sources */,
 				B62D424D2CBC79DB00C2460E /* HostProvider.swift in Sources */,
+				0AF406332E5F1DA5006DC3DF /* SendMethod.swift in Sources */,
+				0AF406262E5F064D006DC3DF /* ServiceFeeRateMethod.swift in Sources */,
 				B62D41322CBC79DA00C2460E /* NEARNetworkParams.Finality.swift in Sources */,
 				B62D41D22CBC79DB00C2460E /* Discover.pb.swift in Sources */,
 				B62D428F2CBC79DB00C2460E /* TransactionHistoryMapper.swift in Sources */,
@@ -25128,6 +25166,7 @@
 				2D665C2E2CDCA3FC00C9BA85 /* DeployExecutionResults.swift in Sources */,
 				EFF3038B2DA6ACFC00F3DC5E /* LitecoinAddressService.swift in Sources */,
 				2DA100262E55DFBD00EC2257 /* DomainNameAddressResolverFactory.swift in Sources */,
+				0AF4062F2E5F1142006DC3DF /* InitYieldTokenMethod.swift in Sources */,
 				2D665C2F2CDCA3FC00C9BA85 /* CLTypeSerializeHelper.swift in Sources */,
 				2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */,
 				EF669B112D8C183200F2E078 /* LockingScriptAddress.swift in Sources */,
@@ -25199,6 +25238,7 @@
 				2D53D24A2D95796D00865200 /* PepecoinMainnetNetworkParams.swift in Sources */,
 				B62D42092CBC79DB00C2460E /* XRPKeypair.swift in Sources */,
 				EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */,
+				0AF406312E5F1A82006DC3DF /* EnterProtocolMethod.swift in Sources */,
 				2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */,
 				2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */,
 				2DB1D6C02D56978D00AD43A3 /* ALPH+Blake2b.swift in Sources */,
@@ -25227,6 +25267,7 @@
 				EFF09E8D2DE75378008E4FE0 /* Secp256k1Key+.swift in Sources */,
 				2DB1D6D12D56978D00AD43A3 /* ALPH+Constants.swift in Sources */,
 				2DB1D6D22D56978D00AD43A3 /* ALPH+Serde.swift in Sources */,
+				0AF406292E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift in Sources */,
 				2DB1D6D32D56978D00AD43A3 /* ALPH+Hint.swift in Sources */,
 				2DB1D6D42D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift in Sources */,
 				2DB1D6D52D56978D00AD43A3 /* ALPH+.swift in Sources */,
@@ -25264,6 +25305,7 @@
 				2DB1D6F12D56978D00AD43A3 /* ALPH+TokenIdSerde.swift in Sources */,
 				2DB1D6F22D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift in Sources */,
 				2DB1D6F32D56978D00AD43A3 /* ALPH+TxInputInfo.swift in Sources */,
+				0AF4062B2E5F0A91006DC3DF /* YieldTokenDataMethod.swift in Sources */,
 				2DB1D6F42D56978D00AD43A3 /* ALPH+AssetOutput.swift in Sources */,
 				2DB1D6F52D56978D00AD43A3 /* ALPH+CheckTxUtils.swift in Sources */,
 				EFBAC3172D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift in Sources */,
@@ -25599,6 +25641,7 @@
 				B62D3FD72CBC79DA00C2460E /* OP_MIN.swift in Sources */,
 				EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */,
 				B62D401E2CBC79DA00C2460E /* OP_SWAP.swift in Sources */,
+				0AF4062D2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift in Sources */,
 				B62D41C12CBC79DB00C2460E /* TONTransactionBuilder.swift in Sources */,
 				B62D41DC2CBC79DB00C2460E /* TronNetworkProvider.swift in Sources */,
 				B62D40B02CBC79DA00C2460E /* GnosisExternalLinkProvider.swift in Sources */,
@@ -25701,6 +25744,7 @@
 				B62D407D2CBC79DA00C2460E /* DogecoinNetworkParams.swift in Sources */,
 				B62D41352CBC79DA00C2460E /* NEARNetworkParams.Transaction.swift in Sources */,
 				B62D41652CBC79DA00C2460E /* PolkadotNetworkService.swift in Sources */,
+				0AF406352E5F2A11006DC3DF /* ExitProtocolMethod.swift in Sources */,
 				2DB071EC2E2505CE00E9F789 /* SolanaALTTransactionService.swift in Sources */,
 				B62D416A2CBC79DA00C2460E /* SubstrateRuntimeVersion.swift in Sources */,
 				B62D40482CBC79DA00C2460E /* CardanoAPIResolver.swift in Sources */,
