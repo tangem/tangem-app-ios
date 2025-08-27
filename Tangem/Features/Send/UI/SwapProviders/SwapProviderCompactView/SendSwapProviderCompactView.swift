@@ -15,13 +15,12 @@ struct SendSwapProviderCompactView: View {
     let data: SendSwapProviderCompactViewData
     @Binding var shouldAnimateBestRateBadge: Bool
 
-    @State private var badgeViewSize: CGSize = .zero
-
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             BaseOneLineRow(icon: Assets.Glyphs.stackNew, title: Localization.expressProvider) {
                 providerView
             }
+            .isTappable(data.isTappable)
             // We use 11 to save default 46 row height
             .padding(.vertical, 11)
 
@@ -52,24 +51,23 @@ struct SendSwapProviderCompactView: View {
                 .frame(width: 20, height: 20)
         case .loading:
             ProgressView()
-        case .success(let data):
+        case .success(let provider):
             ZStack(alignment: .bottomLeading) {
                 HStack(spacing: 6) {
                     IconView(
-                        url: data.provider.imageURL,
+                        url: provider.provider.imageURL,
                         size: CGSize(width: 20, height: 20),
                         forceKingfisher: true
                     )
 
-                    Text(data.provider.name)
+                    Text(provider.provider.name)
                         .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                         .lineLimit(1)
                 }
 
-                if self.data.isBest {
+                if data.isBest {
                     SendSwapProviderBestRateAnimationBadgeView(shouldAnimate: $shouldAnimateBestRateBadge)
-                        .readGeometry(\.frame.size, bindTo: $badgeViewSize)
-                        .offset(x: 12.5, y: 7.5)
+                        .offset(x: 11.5, y: 5.5)
                 }
             }
         }
