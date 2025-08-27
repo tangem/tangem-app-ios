@@ -17,6 +17,8 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsInteractor) var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.pushNotificationsPermission) var pushNotificationsPermissionService: PushNotificationsPermissionService
 
     // MARK: - Private Properties
 
@@ -25,6 +27,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     @MainActor private var isInitialized = false
 
     private var initialSubscription: AnyCancellable?
+    private var permissionSubscription: AnyCancellable?
     private var reproducedBag: Set<AnyCancellable> = []
     private var updateStateTask: Task<Void, Never>?
 
@@ -84,6 +87,19 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             .receiveValue { service, event in
                 service.handleUserWalletUpdates(by: event)
             }
+
+        // It is used for existing versions in order to automatically show a notification to the user about transactions.
+        permissionSubscription = _syncEventSubject
+            .combineLatest(pushNotificationsInteractor.permissionRequestPublisher)
+            .map(\.1)
+            .withWeakCaptureOf(self)
+            .sink { service, request in
+                guard case .allow(.afterLogin) = request else {
+                    return
+                }
+
+                service.permissionRequestInitialPushAllowanceForExistingWallets()
+            }
     }
 
     /// Subscribes to changes in the wallet name state.
@@ -110,7 +126,7 @@ final class CommonUserTokensPushNotificationsService: NSObject {
 
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
         switch event {
-        case .inserted, .unlocked, .deleted:
+        case .inserted, .unlocked, .deleted, .unlockedBiometrics:
             updateState()
         default:
             return
@@ -118,8 +134,12 @@ final class CommonUserTokensPushNotificationsService: NSObject {
     }
 
     private func updateState() {
-        updateEntryByUserWalletModelIfNeeded()
-        bindWhenUserWalletRepositoryDidUpdated()
+        updateStateTask?.cancel()
+
+        updateStateTask = runTask(in: self) { @MainActor service in
+            await service.updateEntryByUserWalletModelIfNeeded()
+            service.bindWhenUserWalletRepositoryDidUpdated()
+        }
     }
 }
 
@@ -219,19 +239,27 @@ private extension CommonUserTokensPushNotificationsService {
         }
     }
 
-    func updateEntryByUserWalletModelIfNeeded() {
-        guard AppSettings.shared.saveUserWallets else {
-            createAndConnectWallet(entries: [])
+    func updateEntryByUserWalletModelIfNeeded() async {
+        guard await AppSettings.shared.saveUserWallets else {
+            await createAndConnectWallet(entries: [])
             return
         }
 
         let userWalletModels = userWalletRepository.models
 
+        let isAuthorizedPushNotifications = await pushNotificationsPermissionService.isAuthorized
+
         let toUpdateEntries = userWalletModels.map {
-            ApplicationWalletEntry(
+            let initialNotifyStatus = getInitialPushStatusWithAllowance(
+                userWalletId: $0.userWalletId,
+                status: $0.userTokensPushNotificationsManager.status,
+                isAuthorized: isAuthorizedPushNotifications
+            )
+
+            return ApplicationWalletEntry(
                 id: $0.userWalletId.stringValue,
                 name: $0.name,
-                notifyStatus: $0.userTokensPushNotificationsManager.status.isActive
+                notifyStatus: initialNotifyStatus
             )
         }
 
@@ -241,9 +269,41 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        createAndConnectWallet(entries: toUpdateEntries)
+        await createAndConnectWallet(entries: toUpdateEntries)
     }
 
+    func createAndConnectWallet(entries: [ApplicationWalletEntry]) async {
+        let toUpdateItems = entries.map {
+            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
+        }.toSet()
+
+        do {
+            try await tangemApiService.createAndConnectUserWallet(
+                applicationUid: applicationUid,
+                items: toUpdateItems
+            )
+
+            await update(entries: entries)
+        } catch {
+            // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
+            AppLogger.error(error: error)
+        }
+    }
+
+    @MainActor
+    func update(entries: [ApplicationWalletEntry]) async {
+        _applicationEntries.send(entries)
+    }
+
+    @MainActor
+    func update(isInitialized: Bool) async {
+        self.isInitialized = isInitialized
+    }
+}
+
+// MARK: - UserWalletModel with wallet name update implementation
+
+private extension CommonUserTokensPushNotificationsService {
     func findUserWalletsToUpdate() -> [PendingToUpdateUserWalletItem] {
         var pendingUpdates: [PendingToUpdateUserWalletItem] = []
         let userWalletModels = userWalletRepository.models
@@ -293,39 +353,51 @@ private extension CommonUserTokensPushNotificationsService {
 
         userWalletModel.update(type: .newName(name))
     }
+}
 
-    func createAndConnectWallet(entries: [ApplicationWalletEntry]) {
-        let toUpdateItems = entries.map {
-            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
-        }.toSet()
+// MARK: - Allowance with permissions requests
 
-        updateStateTask?.cancel()
+private extension CommonUserTokensPushNotificationsService {
+    func permissionRequestInitialPushAllowanceForExistingWallets() {
+        for userWalletModel in userWalletRepository.models {
+            let toUpdateNotifyStatus = allowancePushNotifyStatus(
+                for: userWalletModel.userWalletId,
+                currentNotifyStatus: true
+            )
 
-        updateStateTask = runTask(in: self) { service in
-            do {
-                try await service.tangemApiService.createAndConnectUserWallet(
-                    applicationUid: service.applicationUid,
-                    items: toUpdateItems
-                )
-
-                await service.update(entries: entries)
-            } catch {
-                // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
-                AppLogger.error(error: error)
-            }
+            updateLocalWalletNotifyStatus(toUpdateNotifyStatus, by: userWalletModel.userWalletId.stringValue)
         }
     }
 
-    @MainActor
-    func update(entries: [ApplicationWalletEntry]) async {
-        _applicationEntries.send(entries)
+    func getInitialPushStatusWithAllowance(
+        userWalletId: UserWalletId,
+        status: UserWalletPushNotifyStatus,
+        isAuthorized: Bool
+    ) -> Bool {
+        // Force enable Push Notifications if wallet did set status notInitialized and Push Permission service has status isAuthorized
+        if status.isNotInitialized, isAuthorized {
+            return allowancePushNotifyStatus(for: userWalletId, currentNotifyStatus: true)
+        }
+
+        // Fallback. Set with current status notifications manager
+        return status.isActive
     }
 
-    @MainActor
-    func update(isInitialized: Bool) async {
-        self.isInitialized = isInitialized
+    func allowancePushNotifyStatus(for userWalletId: UserWalletId, currentNotifyStatus: Bool) -> Bool {
+        let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
+
+        if !allowanceUserWalletIdTransactionsPush {
+            AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
+
+            // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
+            return true
+        }
+
+        return currentNotifyStatus
     }
 }
+
+// MARK: - Data Types
 
 extension CommonUserTokensPushNotificationsService {
     enum InitializeType {
@@ -341,6 +413,8 @@ extension CommonUserTokensPushNotificationsService {
         static let defaultNotifyStatus = false
     }
 }
+
+// MARK: - MessagingDelegate
 
 extension CommonUserTokensPushNotificationsService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
