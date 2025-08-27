@@ -42,6 +42,7 @@ struct SelectorReceiveAssetsView: View {
         } header: {
             if let header, case .title(let text) = header {
                 DefaultHeaderView(text)
+                    .padding(.init(top: 10, leading: 0, bottom: 6, trailing: 0))
             }
         }
         .backgroundColor(Colors.Background.action)
