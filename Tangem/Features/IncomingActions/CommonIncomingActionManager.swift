@@ -128,6 +128,12 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         responders.remove(responder)
     }
 
+    public func discardIncomingAction(if shouldDiscard: (IncomingAction) -> Bool) {
+        if let action = pendingAction, shouldDiscard(action) {
+            pendingAction = nil
+        }
+    }
+
     public func discardIncomingAction() {
         pendingAction = nil // discarded
     }
