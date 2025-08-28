@@ -196,13 +196,27 @@ private struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
 
-        accountModelsManager = FeatureProvider.isAvailable(.accounts)
-            ? CommonAccountModelsManager(
-                userWalletId: userWalletId,
-                walletManagersRepository: walletManagersRepository,
-                walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
-            )
-            : DummyCommonAccountModelsManager()
+        accountModelsManager = if FeatureProvider.isAvailable(.accounts) {
+            // [REDACTED_TODO_COMMENT]
+            {
+                let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+                let cryptoAccountsRepository = CommonCryptoAccountsRepository(tokenItemsRepository: tokenItemsRepository)
+                let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
+                let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
+                    walletManagersRepository: walletManagersRepository,
+                    walletModelsFactory: walletModelsFactory
+                )
+                let userTokensManagerFactory = CommonAccountUserTokensManagerFactory()
+                return CommonAccountModelsManager(
+                    userWalletId: userWalletId,
+                    cryptoAccountsRepository: cryptoAccountsRepository,
+                    walletModelsManagerFactory: walletModelsManagerFactory,
+                    userTokensManagerFactory: userTokensManagerFactory
+                )
+            }()
+        } else {
+            DummyCommonAccountModelsManager()
+        }
     }
 
     func update(from model: UserWalletModel) {
