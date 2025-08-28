@@ -15,7 +15,7 @@ protocol ReceiveAddressService: AnyObject {
     var addressTypes: [ReceiveAddressType] { get }
     var addressInfos: [ReceiveAddressInfo] { get }
 
-    func update() async
+    func update(with addresses: [Address]) async
     func clear()
 }
 
@@ -24,17 +24,19 @@ protocol ReceiveAddressService: AnyObject {
 class CommonReceiveAddressService {
     // MARK: - Private Properties
 
-    private let _addressInfos: [ReceiveAddressInfo]
+    private var _addressInfos: [ReceiveAddressInfo]
     private var _addressTypes: [ReceiveAddressType] = []
 
     private let domainAddressResolver: DomainNameAddressResolver?
 
     private var resolveDestinationTask: Task<Void, Error>?
 
+    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils()
+
     // MARK: - Init
 
     init(addresses: [Address], domainAddressResolver: DomainNameAddressResolver?) {
-        _addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
+        _addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
         self.domainAddressResolver = domainAddressResolver
     }
 }
@@ -50,7 +52,9 @@ extension CommonReceiveAddressService: ReceiveAddressService {
         _addressInfos
     }
 
-    func update() async {
+    func update(with addresses: [Address]) async {
+        _addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+
         resolveDestinationTask?.cancel()
 
         resolveDestinationTask = runTask(in: self) { service in
@@ -99,7 +103,7 @@ class DummyReceiveAddressService: ReceiveAddressService {
         _addressInfos
     }
 
-    func update() async {}
+    func update(with addresses: [Address]) async {}
 
     func clear() {}
 
