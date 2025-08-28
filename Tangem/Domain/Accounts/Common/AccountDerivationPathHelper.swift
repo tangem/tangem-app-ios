@@ -22,8 +22,8 @@ struct AccountDerivationPathHelper {
         self.blockchain = blockchain
     }
 
-    func extract(from derivationPath: DerivationPath) -> DerivationNode? {
-        return derivationPath.nodes[safe: accountDerivationNodeIndex]
+    func extractAccountDerivationNode(from derivationPath: DerivationPath?) -> DerivationNode? {
+        return derivationPath?.nodes[safe: accountDerivationNodeIndex]
     }
 
     /// Returns canonical derivation path for the main account (account derivation index is unchanged).
