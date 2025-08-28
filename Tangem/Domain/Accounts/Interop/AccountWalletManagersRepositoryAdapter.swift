@@ -41,7 +41,7 @@ final class AccountWalletManagersRepositoryAdapter {
 
                 let helper = AccountDerivationPathHelper(blockchain: key.blockchain)
 
-                guard let derivationNode = helper.extract(from: derivationPath) else {
+                guard let derivationNode = helper.extractAccountDerivationNode(from: derivationPath) else {
                     // The absence of a derivation node at the particular index in the paths means
                     // that this wallet manager has default derivation and belongs to the main account
                     return isMainAccountAdapter
