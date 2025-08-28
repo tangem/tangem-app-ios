@@ -36,7 +36,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
-    /// WIP - This will most likely be changed to state Enum describing Yield status (available, not available, attention needed)
+    /// YIELD [REDACTED_TODO_COMMENT]
     @Published private(set) var isYieldAvailable = false
 
     let tokenItem: TokenItem
