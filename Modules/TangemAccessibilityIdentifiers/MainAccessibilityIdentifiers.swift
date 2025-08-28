@@ -17,4 +17,8 @@ public enum MainAccessibilityIdentifiers {
     public static let tokenTitle = "mainTokenTitle"
     public static let detailsButton = "mainDetailsButton"
     public static let headerCardImage = "mainHeaderCardImage"
+
+    // MARK: - Token Item
+
+    public static let tokenItemEarnBadge = "tokenItemEarnBadge"
 }

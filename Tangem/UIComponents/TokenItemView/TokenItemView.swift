@@ -41,6 +41,10 @@ struct TokenItemView: View {
                         if viewModel.hasPendingTransactions {
                             ProgressDots(style: .small)
                         }
+
+                        if viewModel.isYieldAvailable, !viewModel.hasPendingTransactions {
+                            earnBadge.padding(.leading, -2)
+                        }
                     }
                     .frame(minWidth: 0.3 * textBlockSize.width, alignment: .leading)
 
@@ -118,6 +122,17 @@ struct TokenItemView: View {
         }
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private var earnBadge: some View {
+        TokenItemYearnBadgeView(percent: "5.1")
+    }
+
+    private var yieldWarningIcon: some View {
+        Assets.WalletConnect.yellowWarningCircle.image
+            .resizable()
+            .frame(width: 12, height: 12)
     }
 
     @ViewBuilder
