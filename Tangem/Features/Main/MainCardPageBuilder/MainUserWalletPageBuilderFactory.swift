@@ -112,11 +112,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 ? BannerNotificationManager(userWalletId: model.userWalletId, placement: .main, contextDataProvider: model)
                 : nil
 
+            let yiedldAcountNotificationManager = YieldAccountNotificationManager()
+
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                yiedldAcountNotificationManager: yiedldAcountNotificationManager,
                 rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
