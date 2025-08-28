@@ -368,10 +368,9 @@ extension CommonWalletModel: WalletModelUpdater {
         _receiveAddressService.clear()
 
         return Publishers
-            .CombineLatest3(
+            .CombineLatest(
                 update(silent: silent),
-                updateTransactionsHistory(),
-                updateReceiveAddressTypes()
+                updateTransactionsHistory()
             )
             .mapToVoid()
             .eraseToAnyPublisher()
@@ -400,9 +399,15 @@ extension CommonWalletModel: WalletModelUpdater {
             .updatePublisher()
             .combineLatest(
                 loadQuotes(),
-                updateStakingManagerState(),
-                updateReceiveAddressTypes()
+                updateStakingManagerState()
             )
+            .withWeakCaptureOf(self)
+            // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
+            .flatMap { walletModel, newState in
+                walletModel
+                    .updateReceiveAddressTypes()
+                    .map { newState }
+            }
             .withWeakCaptureOf(self)
             .sink { walletModel, newState in
                 let newState = walletModel.walletManager.state
@@ -433,7 +438,8 @@ extension CommonWalletModel: WalletModelUpdater {
 
     private func updateReceiveAddressTypes() -> AnyPublisher<Void, Never> {
         Future.async { [weak self] in
-            await self?._receiveAddressService.update()
+            let addresses = self?.addresses ?? []
+            await self?._receiveAddressService.update(with: addresses)
         }
         // Here we have to skip the error to let the PTR to complete
         .replaceError(with: ())
