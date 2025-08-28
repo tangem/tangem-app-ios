@@ -190,27 +190,3 @@ private extension CommonAccountModelsManager {
         }
     }
 }
-
-// MARK: - Temporary convenience extensions
-
-@available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
-extension CommonAccountModelsManager {
-    init(
-        userWalletId: UserWalletId,
-        walletManagersRepository: WalletManagersRepository,
-        walletModelsFactory: WalletModelsFactory
-    ) {
-        self.init(
-            userWalletId: userWalletId,
-            cryptoAccountsRepository: CommonCryptoAccountsRepository(
-                tokenItemsRepository: CommonTokenItemsRepository(
-                    key: userWalletId.stringValue
-                )
-            ),
-            walletModelsManagerFactory: CommonAccountWalletModelsManagerFactory(
-                walletManagersRepository: walletManagersRepository,
-                walletModelsFactory: walletModelsFactory
-            )
-        )
-    }
-}
