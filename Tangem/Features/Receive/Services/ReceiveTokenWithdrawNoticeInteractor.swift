@@ -17,11 +17,14 @@ class ReceiveTokenWithdrawNoticeInteractor {
     // MARK: - Public Implementation
 
     func shouldShowWithdrawalAlert(for tokenItem: TokenItem) -> Bool {
-        guard case .token(let token, let blockchainNetwork) = tokenItem else {
-            return false
-        }
+        let objectRepresentable: String
 
-        let objectRepresentable = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
+        switch tokenItem {
+        case .blockchain(let network):
+            objectRepresentable = "receive_shown_withdrawal_blockchain_\(network.blockchain.networkId)"
+        case .token(let token, let blockchainNetwork):
+            objectRepresentable = "receive_shown_withdrawal_token_\(token.contractAddress)_\(blockchainNetwork.blockchain.networkId)"
+        }
 
         let displayed = shownWithdrawalAlerts[objectRepresentable] ?? false
         shownWithdrawalAlerts[objectRepresentable] = true
