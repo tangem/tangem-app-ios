@@ -23022,7 +23022,6 @@
 				B0F318F62A738ACC009F131E /* LockedUserTokenListManager.swift in Sources */,
 				3086315A2E40E37500D58D37 /* AccountFormViewModel.swift in Sources */,
 				3086315B2E40E37500D58D37 /* AccountFormView.swift in Sources */,
-				0F2786552E2CECA900742D0F /* HotOnboardingFlowNavBarAction.swift in Sources */,
 				0F2786552E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift in Sources */,
 				C2F1B3402DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift in Sources */,
 				EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */,
