@@ -49,6 +49,7 @@ struct TokenAlertReceiveAssetsView: View {
             Text(Localization.domainReceiveAssetsOnboardingTitle)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
 
             HStack(alignment: .center) {
                 NetworkIcon(
