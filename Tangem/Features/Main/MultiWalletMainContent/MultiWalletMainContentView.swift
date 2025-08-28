@@ -36,6 +36,10 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
+            ForEach(viewModel.yieldAccountNotificationInputs) { input in
+                NotificationView(input: input)
+            }
+
             tokensContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
@@ -157,6 +161,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
+            yiedldAcountNotificationManager: FakeYieldAccountNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),

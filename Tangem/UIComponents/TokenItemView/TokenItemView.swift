@@ -124,11 +124,11 @@ struct TokenItemView: View {
         // [REDACTED_INFO]
     }
 
-    // [REDACTED_TODO_COMMENT]
     private var earnBadge: some View {
-        TokenItemYearnBadgeView(percent: "5.1")
+        TokenItemEarnBadgeView(percent: "5.1")
     }
 
+    /// YIELD [REDACTED_TODO_COMMENT]
     private var yieldWarningIcon: some View {
         Assets.WalletConnect.yellowWarningCircle.image
             .resizable()
