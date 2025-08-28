@@ -21,6 +21,7 @@ public protocol IncomingActionManaging: AnyObject {
     func becomeFirstResponder(_ responder: IncomingActionResponder)
     func resignFirstResponder(_ responder: IncomingActionResponder)
     func discardIncomingAction()
+    func discardIncomingAction(if shouldDiscard: (IncomingAction) -> Bool)
 }
 
 public protocol IncomingActionResponder: AnyObject {
