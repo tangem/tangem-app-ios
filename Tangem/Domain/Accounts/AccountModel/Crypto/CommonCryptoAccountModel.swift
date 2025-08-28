@@ -12,6 +12,7 @@ import TangemFoundation
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
+    let userTokensManager: UserTokensManager
 
     private(set) var name: String {
         didSet {
@@ -38,13 +39,15 @@ final class CommonCryptoAccountModel {
         accountName: String,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager
     ) {
         self.accountId = accountId
         name = accountName
         icon = accountIcon
         self.derivationIndex = derivationIndex
         self.walletModelsManager = walletModelsManager
+        self.userTokensManager = userTokensManager
     }
 }
 
@@ -57,7 +60,8 @@ extension CommonCryptoAccountModel {
         accountName: String,
         accountIcon: AccountModel.Icon,
         derivationIndex: Int,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
         self.init(
@@ -65,7 +69,8 @@ extension CommonCryptoAccountModel {
             accountName: accountName,
             accountIcon: accountIcon,
             derivationIndex: derivationIndex,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager
         )
     }
 }
@@ -89,11 +94,6 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
 
     var didChangePublisher: any Publisher<Void, Never> {
         didChangeSubject.eraseToAnyPublisher()
-    }
-
-    var userTokensManager: UserTokensManager {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
     }
 
     var userTokenListManager: UserTokenListManager {
