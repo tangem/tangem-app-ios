@@ -30,7 +30,8 @@ struct AccountDerivationPathHelper {
     func canonicalDerivationPath(from derivationPath: DerivationPath) -> DerivationPath {
         let currentNodes = derivationPath.nodes
         let additionalNodesCount = min(0, DerivationPath.canonicalLength - currentNodes.count)
-        let canonicalNodes = currentNodes + Array(repeating: .hardened(0), count: additionalNodesCount) // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        let canonicalNodes = currentNodes + Array(repeating: .hardened(0), count: additionalNodesCount)
 
         return DerivationPath(nodes: canonicalNodes)
     }
