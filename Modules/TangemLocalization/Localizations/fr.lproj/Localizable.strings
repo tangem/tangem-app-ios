@@ -241,11 +241,13 @@
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
 "common_left" = "Il reste %1$@";
+"common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked" = "Verrouillé";
 "common_main_network" = "Réseau principal";
 "common_month" = "mois";
 "common_network_fee_title" = "Commissions du réseau";
 "common_network_fee_warning_content" = "Le montant envoyé sera réduit de %1$@(%2$@) pour couvrir le niveau de frais sélectionné";
+"common_new_address" = "New address";
 "common_next" = "Suivant";
 "common_nft" = "NFT";
 "common_no_address" = "Aucune adresse";
@@ -297,6 +299,7 @@
 "common_supported_networks" = "Réseaux pris en charge";
 "common_swap" = "Échanger";
 "common_tangem_wallet" = "Tangem Wallet";
+"common_tangem" = "Tangem";
 "common_terms_and_conditions" = "termes et conditions";
 "common_terms_of_use" = "Conditions d'utilisation";
 "common_today" = "Aujourd'hui";
@@ -370,6 +373,7 @@
 "details_send_feedback" = "Envoyer un commentaire";
 "details_title" = "Détails";
 "disclaimer_title" = "Conditions d'utilisation";
+"domain_receive_assets_default_address" = "Default Address";
 "domain_receive_assets_navigation_title" = "Receive assets";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
@@ -506,6 +510,9 @@
 "hw_create_title" = "Create Mobile Wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
+"hw_upgrade_error_card_already_has_wallet" = "This device can’t be used for upgrade, it already contains another wallet.";
+"hw_upgrade_error_card_key_import" = "Choose another device, this one can’t be used for upgrade.";
+"hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Your funds stay safe and fully accessible during the process";
 "hw_upgrade_funds_access_title" = "Funds access";
 "hw_upgrade_general_security_description" = "All private wallet data will be removed from the mobile app and stored securely on your Tangem device only";
@@ -518,7 +525,7 @@
 "hw_upgrade_start_title" = "Tangem Wallet";
 "hw_upgrade_title" = "Upgrade to Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem’s best-in-class hardware wallet.";
-"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
+"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
 "information_generated_with_ai" = "Ces informations ont été générées avec l'IA.\nAppuyez ici si vous trouvez des erreurs.";
 "initial_message_change_access_code_body" = "Touchez, pour modifier le code d'accès";
 "initial_message_change_passcode_body" = "Touchez, pour modifier le mot de passe";
@@ -821,6 +828,7 @@
 "onramp_statuses_view_footer" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_via" = "Via";
+"onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Grouper";
 "organize_tokens_sort_by_balance" = "Par solde";
 "organize_tokens_title" = "Organiser les jetons";
