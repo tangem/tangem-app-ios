@@ -469,8 +469,8 @@ extension OnboardingViewModel: PushNotificationsPermissionRequestDelegate {
 // MARK: - IncomingActionResponder
 
 extension OnboardingViewModel: IncomingActionResponder {
-    /// Intentionally ignore incoming actions until onboarding is complete
+    /// Intentionally ignore all incoming actions except for promo deeplinks until onboarding is complete
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        return true
+        !action.isPromoDeeplink
     }
 }
