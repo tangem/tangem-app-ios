@@ -21,6 +21,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
     private let walletModelsManagerFactory: AccountWalletModelsManagerFactory
+    private let userTokensManagerFactory: AccountUserTokensManagerFactory
     private let userWalletId: UserWalletId
     private let executor: any SerialExecutor
 
@@ -31,11 +32,13 @@ actor CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
-        walletModelsManagerFactory: AccountWalletModelsManagerFactory
+        walletModelsManagerFactory: AccountWalletModelsManagerFactory,
+        userTokensManagerFactory: AccountUserTokensManagerFactory
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
         self.walletModelsManagerFactory = walletModelsManagerFactory
+        self.userTokensManagerFactory = userTokensManagerFactory
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
     }
@@ -89,12 +92,17 @@ actor CommonAccountModelsManager {
             let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
                 forAccountWithDerivationIndex: derivationIndex
             )
+            let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+                forAccountWithDerivationIndex: derivationIndex,
+                walletModelsManager: walletModelsManager
+            )
             let cryptoAccount = CommonCryptoAccountModel(
                 userWalletId: userWalletId,
                 accountName: storedCryptoAccount.name,
                 accountIcon: accountIcon,
                 derivationIndex: derivationIndex,
-                walletModelsManager: walletModelsManager
+                walletModelsManager: walletModelsManager,
+                userTokensManager: userTokensManager
             )
 
             // Updating `cache` within this `compactMap` loop to reduce the number of iterations
@@ -147,12 +155,17 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let walletModelsManager = walletModelsManagerFactory.makeWalletModelsManager(
             forAccountWithDerivationIndex: newDerivationIndex
         )
+        let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
+            forAccountWithDerivationIndex: newDerivationIndex,
+            walletModelsManager: walletModelsManager
+        )
         let newCryptoAccount = CommonCryptoAccountModel(
             userWalletId: userWalletId,
             accountName: name,
             accountIcon: icon,
             derivationIndex: newDerivationIndex,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager
         )
         cryptoAccountsRepository.addCryptoAccount(newCryptoAccount)
 
