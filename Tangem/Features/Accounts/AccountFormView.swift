@@ -54,10 +54,11 @@ struct AccountFormView: View {
                 contentHeight = height
             }
             .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { point in
-                let contentMaxY = contentHeight - point.y - buttonHeight + 16
-                shouldShowShadow = contentMaxY > buttonMinY
+                let contentMaxY = contentHeight - point.y
+                shouldShowShadow = contentMaxY > containerHeight
             }
         }
+        .coordinateSpace(name: coordinateSpaceName)
         .scrollDisabledBackport(contentHeight <= containerHeight)
         .readGeometry(\.size.height) { height in
             containerHeight = height
@@ -157,6 +158,7 @@ struct AccountFormView: View {
     }
 }
 
+#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(flowType: .create)
@@ -168,3 +170,4 @@ struct AccountFormView: View {
             }
         }
 }
+#endif

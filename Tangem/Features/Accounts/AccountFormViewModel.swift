@@ -161,9 +161,9 @@ final class AccountFormViewModel: ObservableObject {
         AlertBuilder.makeExitAlert(
             title: Localization.accountUnsavedDialogTitle,
             message: message,
-            primaryButtonText: Localization.accountUnsavedDialogActionFirst,
-            secondaryButtonText: Localization.accountUnsavedDialogActionSecond,
-            okAction: close
+            keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
+            discardButtonText: Localization.accountUnsavedDialogActionSecond,
+            discardAction: close
         )
     }
 }
