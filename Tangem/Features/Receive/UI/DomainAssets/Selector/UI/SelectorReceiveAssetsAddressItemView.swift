@@ -48,6 +48,7 @@ struct SelectorReceiveAssetsAddressItemView: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var buttonView: some View {
