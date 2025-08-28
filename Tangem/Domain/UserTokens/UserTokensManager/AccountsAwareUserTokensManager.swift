@@ -119,10 +119,33 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func validateDerivation(for tokenItem: TokenItem) throws {
-        if let derivationPath = tokenItem.blockchainNetwork.derivationPath,
-           tokenItem.blockchain.curve == .ed25519_slip0010,
-           derivationPath.nodes.contains(where: { !$0.isHardened }) {
+        let blockchain = tokenItem.blockchain
+        let derivationPath = tokenItem.blockchainNetwork.derivationPath
+
+        if let derivationPath, blockchain.curve == .ed25519_slip0010, derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
+
+        // Token items with custom derivations can be added to the main account as is
+        if isMainAccountManager {
+            return
+        }
+
+        let derivationPathHelper = AccountDerivationPathHelper(blockchain: tokenItem.blockchain)
+
+        guard let derivationNode = derivationPathHelper.extractAccountDerivationNode(from: derivationPath) else {
+            throw Error.derivationPathNotFound(tokenName: tokenItem.name)
+        }
+
+        let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
+        let actualDerivationIndex = derivationNode.rawIndex
+
+        if actualDerivationIndex != expectedDerivationIndex {
+            throw Error.accountDerivationNodeMismatch(
+                expected: expectedDerivationIndex,
+                actual: actualDerivationIndex,
+                tokenName: tokenItem.name
+            )
         }
     }
 
