@@ -58,7 +58,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
     private let bannerNotificationManager: NotificationManager?
-    private let yiedldAcountNotificationManager: NotificationManager
+    private let yieldAccountNotificationManager: NotificationManager
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -85,7 +85,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
-        yiedldAcountNotificationManager: NotificationManager,
+        yieldAccountNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -97,7 +97,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
         self.bannerNotificationManager = bannerNotificationManager
-        self.yiedldAcountNotificationManager = yiedldAcountNotificationManager
+        self.yieldAccountNotificationManager = yieldAccountNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -243,7 +243,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        yiedldAcountNotificationManager
+        yieldAccountNotificationManager
             .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
