@@ -8,7 +8,7 @@
 
 import Combine
 
-// YIELD [REDACTED_TODO_COMMENT]
+/// YIELD [REDACTED_TODO_COMMENT]
 final class YieldAccountNotificationManager {
     private let analyticsService = NotificationsAnalyticsService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
