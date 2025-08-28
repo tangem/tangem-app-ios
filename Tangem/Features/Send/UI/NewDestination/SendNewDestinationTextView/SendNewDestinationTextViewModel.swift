@@ -51,7 +51,7 @@ class SendNewDestinationAddressViewModel: ObservableObject, Identifiable {
     }
 
     func didTapPasteButton(string: String) {
-        FeedbackGenerator.success()
+        FeedbackGenerator.heavy()
         address = .init(string: string, source: .pasteButton)
     }
 
