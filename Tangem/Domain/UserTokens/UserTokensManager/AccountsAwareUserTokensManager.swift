@@ -15,8 +15,6 @@ import TangemLocalization
 
 /// Copy-paste of `CommonUserTokensManager`, but with accounts support.
 final class AccountsAwareUserTokensManager {
-    typealias Error = CommonUserTokensManager.Error
-
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     weak var keysDerivingProvider: KeysDerivingProvider?
@@ -421,5 +419,30 @@ extension AccountsAwareUserTokensManager {
         let derivationIndex: Int
         let derivationStyle: DerivationStyle
         let derivationManager: DerivationManager
+    }
+
+    enum Error: LocalizedError {
+        case addressNotFound
+        case derivationPathNotFound(tokenName: String)
+        case accountDerivationNodeMismatch(expected: UInt32, actual: UInt32, tokenName: String)
+        case failedSupportedLongHashesTokens(blockchainDisplayName: String)
+        case failedSupportedCurve(blockchainDisplayName: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .failedSupportedLongHashesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedCurve(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .addressNotFound:
+                return Localization.genericErrorCode(errorCode)
+            case .derivationPathNotFound:
+                // [REDACTED_TODO_COMMENT]
+                return Localization.genericErrorCode(errorCode)
+            case .accountDerivationNodeMismatch:
+                // [REDACTED_TODO_COMMENT]
+                return Localization.genericErrorCode(errorCode)
+            }
+        }
     }
 }
