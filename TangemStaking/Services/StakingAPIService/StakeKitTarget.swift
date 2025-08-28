@@ -12,12 +12,13 @@ import TangemNetworkUtils
 
 struct StakeKitTarget: Moya.TargetType {
     let apiKey: String
+    let apiType: StakingAPIType
     let target: Target
 
     enum Target {
         case enabledYields
         case getYield(id: String, StakeKitDTO.Yield.Info.Request)
-        case getBalances(StakeKitDTO.Balances.Request)
+        case getBalances([StakeKitDTO.Balances.Request])
 
         case enterAction(StakeKitDTO.Actions.Enter.Request)
         case exitAction(StakeKitDTO.Actions.Exit.Request)
@@ -35,7 +36,7 @@ struct StakeKitTarget: Moya.TargetType {
     }
 
     var baseURL: URL {
-        URL(string: "https://api.stakek.it/v1/")!
+        apiType.apiBaseUrl
     }
 
     var path: String {
@@ -45,7 +46,7 @@ struct StakeKitTarget: Moya.TargetType {
         case .getYield(let id, _):
             return "yields/\(id)"
         case .getBalances:
-            return "yields/balances/scan"
+            return "yields/balances"
         case .estimateGasEnterAction:
             return "actions/enter/estimate-gas"
         case .estimateGasExitAction:

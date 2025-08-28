@@ -45,7 +45,7 @@ class ExpressInteractor {
     init(
         userWalletId: String,
         initialWallet: Source,
-        destinationWallet: Destination,
+        destinationWallet: Destination?,
         expressManager: ExpressManager,
         expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
@@ -209,12 +209,14 @@ extension ExpressInteractor: ApproveViewModelInput {
 // MARK: - Send
 
 extension ExpressInteractor {
-    func send() async throws -> SentExpressTransactionData {
+    func send(shouldTrackAnalytics: Bool = true) async throws -> SentExpressTransactionData {
         guard let destination = getDestination() else {
             throw ExpressInteractorError.destinationNotFound
         }
 
-        logSwapTransactionAnalyticsEvent()
+        if shouldTrackAnalytics {
+            logSwapTransactionAnalyticsEvent()
+        }
 
         let result: TransactionSendResultState = try await {
             switch getState() {
@@ -258,7 +260,9 @@ extension ExpressInteractor {
             expressTransactionData: result.data
         )
 
-        logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
+        if shouldTrackAnalytics {
+            logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
+        }
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
 
         return sentTransactionData
@@ -531,7 +535,8 @@ private extension ExpressInteractor {
     func swappingPairDidChange() {
         updateTask { interactor in
             guard let destination = interactor.getDestination() else {
-                return .restriction(.noDestinationTokens, quote: .none)
+                let state = try await interactor.expressManager.update(pair: .none)
+                return try await interactor.mapState(state: state)
             }
 
             // If we have an amount to we will start the full update
@@ -601,11 +606,14 @@ private extension ExpressInteractor {
         do {
             try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
 
-            if _swappingPair.value.destination?.value == nil {
+            switch _swappingPair.value.destination {
+            case .none:
+                log("Destination loading is not needed")
+            case .loading, .failure:
                 _swappingPair.value.destination = .loading
                 let destination = try await expressDestinationService.getDestination(source: wallet)
                 update(destination: destination)
-            } else {
+            case .success:
                 swappingPairDidChange()
             }
 
@@ -681,7 +689,7 @@ private extension ExpressInteractor {
 
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.swap.rawValue,
-            .token: data.source.tokenItem.currencySymbol,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.source.tokenItem),
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
@@ -759,6 +767,13 @@ extension ExpressInteractor {
                 return true
             case .idle, .loading, .restriction:
                 return false
+            }
+        }
+
+        var isRefreshRates: Bool {
+            switch self {
+            case .loading(.refreshRates): true
+            default: false
             }
         }
     }

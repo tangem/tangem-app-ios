@@ -16,7 +16,7 @@ import TangemFoundation
 import UIKit
 
 class ServicesManager {
-    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
@@ -24,19 +24,24 @@ class ServicesManager {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+    @Injected(\.wcService) private var wcService: any WCService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
+    private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
         storyDataPrefetchService = StoryDataPrefetchService()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
+        mobileAccessCodeCleaner = MobileAccessCodeCleaner()
     }
 
     func initialize() {
-        handleUITestingArguments()
+        SettingsMigrator.migrateIfNeeded()
+
+        configureForUITests()
 
         TangemLoggerConfigurator().initialize()
 
@@ -52,16 +57,20 @@ class ServicesManager {
 
         configureBlockchainSdkExceptionHandler()
 
-        exchangeService.initialize()
+        sellService.initialize()
         accountHealthChecker.initialize()
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
         userTokensPushNotificationsService.initialize()
-        SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         ukGeoDefiner.initialize()
+        if FeatureProvider.isAvailable(.walletConnectUI) {
+            wcService.initialize()
+        }
+        mobileAccessCodeCleaner.initialize()
+        SendFeatureProvider.shared.loadFeaturesAvailability()
     }
 
     /// - Warning: DO NOT enable in debug mode.
@@ -100,7 +109,7 @@ class ServicesManager {
         return initialLaunches
     }
 
-    private func handleUITestingArguments() {
+    private func configureForUITests() {
         // Only process UI testing arguments when running in UI test mode
         guard AppEnvironment.current.isUITest else { return }
 

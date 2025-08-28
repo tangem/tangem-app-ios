@@ -61,7 +61,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressTokensListAdapter: expressTokensListAdapter,
             expressRepository: expressRepository,
             expressInteractor: expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            userWalletModelConfig: userWalletModel.config
         )
     }
 
@@ -199,7 +200,10 @@ private extension CommonExpressModulesFactory {
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
+        )
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
@@ -207,7 +211,8 @@ private extension CommonExpressModulesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap
+            supportedProviderTypes: .swap,
+            operationType: .swap
         )
 
         let interactor = ExpressInteractor(

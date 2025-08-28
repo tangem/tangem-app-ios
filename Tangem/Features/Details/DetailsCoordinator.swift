@@ -16,6 +16,7 @@ class DetailsCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
 
     // MARK: - Main view model
 
@@ -37,7 +38,6 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var tosViewModel: TOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
-    @Published var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
     // MARK: - Helpers
 
@@ -65,10 +65,16 @@ extension DetailsCoordinator {
 
 extension DetailsCoordinator: DetailsRoutable {
     func openWalletConnect(with disabledLocalizedReason: String?) {
-        let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
-        coordinator.start(with: options)
-        walletConnectCoordinator = coordinator
+        Task { @MainActor in
+            let coordinator = WalletConnectCoordinator()
+
+            let options = WalletConnectCoordinator.Options(
+                disabledLocalizedReason: disabledLocalizedReason,
+                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
+            )
+            coordinator.start(with: options)
+            walletConnectCoordinator = coordinator
+        }
     }
 
     func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
@@ -165,9 +171,5 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openLogs() {
         logsViewModel = .init()
-    }
-
-    func openTangemPayOfferViewModel() {
-        tangemPayOfferViewModel = TangemPayOfferViewModel()
     }
 }

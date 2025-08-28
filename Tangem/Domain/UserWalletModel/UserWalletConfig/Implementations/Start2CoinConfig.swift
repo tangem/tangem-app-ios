@@ -39,10 +39,6 @@ extension Start2CoinConfig: UserWalletConfig {
         1
     }
 
-    var cardSetLabel: String? {
-        nil
-    }
-
     var defaultName: String {
         "Start2Coin"
     }
@@ -144,6 +140,16 @@ extension Start2CoinConfig: UserWalletConfig {
         case .promotion:
             return .hidden
         case .nft:
+            return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
             return .hidden
         }
     }

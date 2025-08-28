@@ -39,10 +39,10 @@ final class AccountFormViewModel: ObservableObject {
 
     let images: [GridItemImage] = [
         Assets.Accounts.letter,
-        Assets.Accounts.star,
+        Assets.Accounts.starAccounts,
         Assets.Accounts.user,
         Assets.Accounts.family,
-        Assets.Accounts.wallet,
+        Assets.Accounts.walletAccounts,
         Assets.Accounts.money,
 
         Assets.Accounts.home,
@@ -111,13 +111,12 @@ final class AccountFormViewModel: ObservableObject {
         accountName.isEmpty
     }
 
-    // [REDACTED_TODO_COMMENT]
     var title: String {
         switch flowType {
         case .edit:
-            "Edit account"
+            Localization.accountFormTitleEdit
         case .create:
-            "Add account"
+            Localization.accountFormTitleCreate
         }
     }
 
@@ -126,13 +125,12 @@ final class AccountFormViewModel: ObservableObject {
         "Placeholder"
     }
 
-    // [REDACTED_TODO_COMMENT]
     var buttonTitle: String {
         switch flowType {
         case .edit:
             Localization.commonSave
         case .create:
-            "Add account"
+            Localization.accountFormTitleCreate
         }
     }
 
@@ -145,9 +143,9 @@ final class AccountFormViewModel: ObservableObject {
         if currentSnapshot != initialStateSnapshot {
             let message = switch flowType {
             case .edit:
-                "Are you sure you want to discard edits?"
+                Localization.accountUnsavedDialogMessageEdit
             case .create:
-                "Are you sure you want to discard new account?"
+                Localization.accountUnsavedDialogMessageCreate
             }
 
             alert = makeExitAlert(message: message)
@@ -159,13 +157,12 @@ final class AccountFormViewModel: ObservableObject {
 
     private func close() {}
 
-    // [REDACTED_TODO_COMMENT]
     private func makeExitAlert(message: String) -> AlertBinder {
         AlertBuilder.makeExitAlert(
-            title: "Unsaved Changes",
+            title: Localization.accountUnsavedDialogTitle,
             message: message,
-            primaryButtonText: "Keep Editing",
-            secondaryButtonText: "Discard",
+            primaryButtonText: Localization.accountUnsavedDialogActionFirst,
+            secondaryButtonText: Localization.accountUnsavedDialogActionSecond,
             okAction: close
         )
     }

@@ -61,8 +61,11 @@ class CommonUserTokensPushNotificationsManager {
         userTokensPushNotificationsService
             .entriesPublisher
             .removeDuplicates()
+            .combineLatest(userTokenListManager.initializedPublisher)
             .withWeakCaptureOf(self)
-            .sink { manager, entries in
+            .sink { manager, args in
+                let (entries, _) = args
+
                 // Need cancel update status when entries did update
                 manager.updateTask?.cancel()
 
@@ -78,7 +81,8 @@ class CommonUserTokensPushNotificationsManager {
             .hasPendingDerivations
             .dropFirst() // We synchronize only state changes and send them only when they change.
             .removeDuplicates()
-            .filter { !$0 }
+            .combineLatest(userTokenListManager.initializedPublisher)
+            .filter { !$0.0 }
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 manager.syncRemoteStatus()
@@ -87,6 +91,7 @@ class CommonUserTokensPushNotificationsManager {
 
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
+            .combineLatest(userTokenListManager.initializedPublisher)
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 guard let currentEntry = manager.currentEntry else {
@@ -96,39 +101,6 @@ class CommonUserTokensPushNotificationsManager {
                 manager.updateStatusIfNeeded(with: currentEntry.notifyStatus)
             }
             .store(in: &cancellables)
-
-        // It is used for existing versions in order to automatically show a notification to the user about transactions.
-        pushNotificationsInteractor
-            .permissionRequestPublisher
-            .withWeakCaptureOf(self)
-            .sink { manager, request in
-                guard case .allow(.afterLogin) = request else {
-                    return
-                }
-
-                // Need cancel allowance when permission did update
-                manager.allowanceTask?.cancel()
-
-                manager.checkAndUpdateInitialPushAllowanceForExistingWallet()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func checkAndUpdateInitialPushAllowanceForExistingWallet() {
-        allowanceTask = runTask(in: self) { @MainActor manager in
-            let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(manager.userWalletId.stringValue)
-
-            if !allowanceUserWalletIdTransactionsPush {
-                AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(manager.userWalletId.stringValue)
-
-                // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
-                manager.updateStatusIfNeeded(with: true)
-            }
-
-            if let currentEntry = manager.currentEntry {
-                manager.updateStatusIfNeeded(with: currentEntry.notifyStatus)
-            }
-        }
     }
 
     private func updateStatusIfNeeded(with remoteNotifyStatus: Bool) {
@@ -156,6 +128,10 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
+        guard userTokenListManager.initialized else {
+            return
+        }
+
         userTokenListManager.upload()
     }
 }

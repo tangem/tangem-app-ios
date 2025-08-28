@@ -23,28 +23,28 @@ struct WCTransactionSimulationView: View {
 
     var body: some View {
         if let displayModel {
-            VStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(displayModel.cardTitle)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(displayModel.cardTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                    switch displayModel.content {
-                    case .loading:
-                        loadingRow
-                            .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
-                    case .failed(let message):
-                        failedView(message: message)
-                            .transition(topEdgeTransition)
-                    case .success(let successContent):
-                        content(for: successContent)
-                            .transition(topEdgeTransition)
-                    }
+                switch displayModel.content {
+                case .loading:
+                    loadingRow
+                        .padding(.bottom, 12)
+                        .transition(.opacity.animation(.curve(.easeInOutRefined, duration: 0.3)))
+                case .failed(let message):
+                    failedView(message: message)
+                        .padding(.bottom, 12)
+                        .transition(topEdgeTransition)
+                case .success(let successContent):
+                    content(for: successContent)
+                        .transition(topEdgeTransition)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
-                .background(Colors.Background.action)
-                .cornerRadius(14)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.init(top: 12, leading: 14, bottom: 0, trailing: 14))
+            .background(Colors.Background.action)
+            .cornerRadius(14)
             .onAppear {
                 connectionRequestIconIsRotating = true
             }
@@ -79,14 +79,16 @@ struct WCTransactionSimulationView: View {
                 assetChangesSection(assetChanges)
             case .approvals(let approvals):
                 approvalsSection(approvals)
+                    .padding(.bottom, 12)
             case .noChanges:
                 noChangesView()
+                    .padding(.bottom, 12)
             }
         }
     }
 
     private func assetChangesSection(_ assetChanges: WCTransactionSimulationDisplayModel.AssetChangesSection) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             if !assetChanges.sendItems.isEmpty {
                 ForEach(Array(assetChanges.sendItems.enumerated()), id: \.offset) { index, item in
                     assetItemRow(item)
@@ -162,11 +164,16 @@ struct WCTransactionSimulationView: View {
 
             Spacer()
 
-            Text("\(directionSign(for: item.direction))\(item.formattedAmount) \(item.symbol)")
+            let direction = item.asset.isNFT ? "" : directionSign(for: item.direction)
+
+            Text("\(direction) \(item.formattedAmount) \(item.symbol)")
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                .multilineTextAlignment(.trailing)
+
+            if item.asset.isNFT, let iconURL = item.iconURL {
+                IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, forceKingfisher: true, placeholder: { EmptyView() })
+            }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -182,12 +189,13 @@ struct WCTransactionSimulationView: View {
                 editButton(onEdit: onEdit)
             }
         }
+        .lineLimit(1)
     }
 
     private func leftContentView(for content: WCTransactionSimulationDisplayModel.ApprovalItem.LeftContent) -> some View {
         HStack(spacing: 8) {
             switch content {
-            case .editable(let iconURL, let formattedAmount, let asset):
+            case .editable(_, let formattedAmount, _):
                 Text(formattedAmount)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
             case .nonEditable:
@@ -206,8 +214,13 @@ struct WCTransactionSimulationView: View {
         HStack(spacing: 8) {
             switch content {
             case .tokenInfo(let formattedAmount, let iconURL, let asset):
-                Text(formattedAmount)
+                Text(asset.isNFT ? (asset.symbol ?? formattedAmount) : formattedAmount)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+
+                if asset.isNFT, let iconURL {
+                    IconView(url: iconURL, size: .init(bothDimensions: 20), cornerRadius: 4, forceKingfisher: true, placeholder: { EmptyView() })
+                }
             case .empty:
                 EmptyView()
             }
@@ -231,7 +244,7 @@ struct WCTransactionSimulationView: View {
     }
 
     private func noChangesView() -> some View {
-        Text("No wallet changes detected")
+        Text(Localization.wcNoWalletChangesDetected)
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
     }
 

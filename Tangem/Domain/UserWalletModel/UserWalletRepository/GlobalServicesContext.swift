@@ -29,7 +29,6 @@ extension InjectedValues {
 }
 
 class CommonGlobalServicesContext: GlobalServicesContext {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.walletConnectService) private var walletConnectService: any OldWalletConnectService
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
@@ -47,13 +46,12 @@ class CommonGlobalServicesContext: GlobalServicesContext {
 
     func initializeServices(userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
-        tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
 
-        if FeatureProvider.isAvailable(.walletConnectUI) {
-            wcService.initialize()
-        } else {
-            walletConnectService.initialize(with: userWalletModel)
+        guard !FeatureProvider.isAvailable(.walletConnectUI) else {
+            return
         }
+
+        walletConnectService.initialize(with: userWalletModel)
     }
 
     /// we can initialize it right after scan for more accurate analytics

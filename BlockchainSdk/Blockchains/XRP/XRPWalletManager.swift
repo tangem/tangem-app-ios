@@ -20,13 +20,14 @@ class XRPWalletManager: BaseManager, WalletManager {
     /// Established trustlines fetched from the XRP wallet response.
     private var establishedTrustlines = Set<XRPTrustLine>()
 
-    /// Assets currently undergoing the trustline creation process.
-    /// This set tracks token identifiers (currency code + issuer) that have initiated trustline setup,
-    /// but have not yet completed it.
+    /// The timestamp of the most recent attempt to open a trustline on the Stellar network.
+    /// This is used to track the timing of user-initiated trustline creation requests.
     ///
-    /// Multiple tokens can be in this state simultaneously because XRP uses a single wallet and manager
-    /// for both the main coin and all tokens.
-    private var tokensOpeningTrustline = Set<String>()
+    /// Since XRP uses a unified wallet and manager for both the native coin and all tokens,
+    /// this timestamp helps avoid race conditions or duplicate operations during trustline setup.
+    ///
+    /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
+    private var lastTrustlineOpenAttemptDate: Date?
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = networkService
@@ -102,22 +103,6 @@ class XRPWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func buildIfSufficientFunds(transaction: Transaction, isAccountCreated: Bool) throws -> (XRPTransaction, Data) {
-        guard let walletReserve = wallet.amounts[.reserve] else {
-            throw XRPError.missingReserve
-        }
-
-        if !isAccountCreated, transaction.amount.value < walletReserve.value {
-            throw BlockchainSdkError.noAccount(
-                message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue),
-                amountToCreate: walletReserve.value
-            )
-        }
-
-        let buildResponse = try txBuilder.buildForSign(transaction: transaction)
-        return buildResponse
-    }
-
     private func signAndSend(
         transaction: Transaction,
         signer: TransactionSigner,
@@ -173,13 +158,11 @@ class XRPWalletManager: BaseManager, WalletManager {
                 let (xrpTransaction, hash) = txAndHash
                 let publisher = manager.signAndSend(transaction: transaction, signer: signer, xrpTransaction: xrpTransaction, hash: hash)
                 return publisher
-                    .handleEvents(
-                        receiveCompletion: { [weak manager] completion in
-                            if case .failure = completion {
-                                manager?.tokensOpeningTrustline.remove(token.contractAddress)
-                            }
+                    .handleEvents(receiveCompletion: { [weak manager] in
+                        if case .failure = $0 {
+                            manager?.lastTrustlineOpenAttemptDate = nil
                         }
-                    )
+                    })
                     .mapToVoid()
                     .mapError { $0 as Error }
             }
@@ -220,41 +203,37 @@ extension XRPWalletManager: TransactionSender {
     var allowsFeeSelection: Bool { true }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        Publishers.Zip(
-            networkService.checkAccountCreated(account: decodeAddress(address: transaction.destinationAddress)),
-            networkService.getSequence(account: decodeAddress(address: transaction.sourceAddress))
-        )
-        .withWeakCaptureOf(self)
-        .tryMap { manager, results in
-            let (isAccountCreated, sequence) = results
-            let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-            let txBuiltForSign = try manager.buildIfSufficientFunds(transaction: enrichedTx, isAccountCreated: isAccountCreated)
-            return txBuiltForSign
-        }
-        .mapSendTxError()
-        .withWeakCaptureOf(self)
-        .flatMap { manager, txBuiltForSign in
-            let (xrpTransaction, hash) = txBuiltForSign
+        return networkService
+            .getSequence(account: decodeAddress(address: transaction.sourceAddress))
+            .withWeakCaptureOf(self)
+            .tryMap { manager, sequence in
+                let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
+                let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx)
+                return txBuiltForSign
+            }
+            .mapSendTxError()
+            .withWeakCaptureOf(self)
+            .flatMap { manager, txBuiltForSign in
+                let (xrpTransaction, hash) = txBuiltForSign
 
-            if case .token(let token) = transaction.amount.type {
-                return manager.checkTrustlineAndSendToken(
-                    token: token,
+                if case .token(let token) = transaction.amount.type {
+                    return manager.checkTrustlineAndSendToken(
+                        token: token,
+                        transaction: transaction,
+                        signer: signer,
+                        xrpTransaction: xrpTransaction,
+                        hash: hash
+                    )
+                }
+
+                return manager.signAndSend(
                     transaction: transaction,
                     signer: signer,
                     xrpTransaction: xrpTransaction,
                     hash: hash
                 )
             }
-
-            return manager.signAndSend(
-                transaction: transaction,
-                signer: signer,
-                xrpTransaction: xrpTransaction,
-                hash: hash
-            )
             .eraseToAnyPublisher()
-        }
-        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -364,16 +343,19 @@ extension XRPWalletManager: AssetRequirementsManager {
     }
 
     func requirementsCondition(for asset: Asset) -> AssetRequirementsCondition? {
+        // If more than 10 seconds have passed, assume the trustline transaction has completed and clear the timestamp
+        if let startDate = lastTrustlineOpenAttemptDate, Date().timeIntervalSince(startDate) > 10 {
+            lastTrustlineOpenAttemptDate = nil
+        }
+
         switch asset {
         case .token(let token):
-            guard let (currency, issuer) = try? XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress),
-                  !XRPTrustlineUtils.containsTrustline(in: establishedTrustlines, currency: currency, issuer: issuer)
-            else {
-                tokensOpeningTrustline.remove(token.contractAddress)
+            guard !XRPTrustlineUtils.containsTrustline(in: establishedTrustlines, for: token) else {
                 return nil
             }
 
-            let isTrustlineOperationInProgress = tokensOpeningTrustline.contains(token.contractAddress)
+            // Used to determine whether to disable the "Open Trustline" button in the UI
+            let isTrustlineOperationInProgress = lastTrustlineOpenAttemptDate != nil || wallet.hasPendingTx
 
             // The base reserve (1 XRP) and reserves for existing entries are already accounted for.
             // This value represents only the incremental reserve required for the new entry.
@@ -391,7 +373,7 @@ extension XRPWalletManager: AssetRequirementsManager {
             return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
         }
 
-        tokensOpeningTrustline.insert(token.contractAddress)
+        lastTrustlineOpenAttemptDate = Date()
 
         return networkService.getFee()
             .tryMap { response -> Decimal in

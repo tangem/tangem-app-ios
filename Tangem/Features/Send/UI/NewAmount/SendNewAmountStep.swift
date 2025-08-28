@@ -40,17 +40,8 @@ class SendNewAmountStep {
 // MARK: - SendStep
 
 extension SendNewAmountStep: SendStep {
-    var title: String? { Localization.commonAmount }
-
     var type: SendStepType { .newAmount(viewModel) }
-
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { .none }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
-
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        interactor.isUpdatingPublisher
-    }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         interactor.isValidPublisher

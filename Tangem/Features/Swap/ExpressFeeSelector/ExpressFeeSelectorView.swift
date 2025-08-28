@@ -45,7 +45,7 @@ struct ExpressFeeSelectorView: View {
 
         if let range = attributed.range(of: readMore) {
             attributed[range].foregroundColor = Colors.Text.accent
-            attributed[range].link = AppConstants.feeExplanationTangemBlogURL
+            attributed[range].link = TangemBlogUrlBuilder().url(post: .fee)
         }
 
         return attributed

@@ -49,10 +49,14 @@ final class ImportWalletSelectorViewModel: ObservableObject {
 
 extension ImportWalletSelectorViewModel {
     func onAppear() {
+        Analytics.log(.onboardingStarted)
+
         scheduleBuyAvailability()
     }
 
     func onBuyTap() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .importWallet])
+
         openBuyCard()
     }
 }
@@ -127,7 +131,7 @@ private extension ImportWalletSelectorViewModel {
                     viewModel.error = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -146,13 +150,19 @@ private extension ImportWalletSelectorViewModel {
 
             case .success(let cardInfo):
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.openMain(userWalletModel: userWalletModel)
+                        await runOnMain {
+                            viewModel.isScanning = false
+                            viewModel.openMain(userWalletModel: newUserWalletModel)
+                        }
+                    } else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
                     }
-
                 } catch {
                     viewModel.incomingActionManager.discardIncomingAction()
 
@@ -170,8 +180,8 @@ private extension ImportWalletSelectorViewModel {
 
 private extension ImportWalletSelectorViewModel {
     func openImportSeedPhrase() {
-        let input = HotOnboardingInput(flow: .walletImport)
-        let options = OnboardingCoordinator.Options.hotInput(input)
+        let input = MobileOnboardingInput(flow: .walletImport)
+        let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }
 

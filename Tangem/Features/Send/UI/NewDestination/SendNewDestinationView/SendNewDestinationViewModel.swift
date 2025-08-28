@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
-import TangemFoundation
 import SwiftUI
+import TangemLocalization
+import TangemFoundation
 
 extension SendNewDestinationViewModel {
     enum DestinationAddressSectionType: Identifiable {
@@ -85,10 +85,32 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
+        destinationAddressViewModel.textViewModel.placeholder = makePlaceholder(tokenItem: tokenItem)
+        additionalFieldViewModel = makeAdditionalFieldViewModel(tokenItem: tokenItem)
+    }
 
-        additionalFieldViewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
-            .init(title: additionalFieldType.name)
+    private func makePlaceholder(tokenItem: TokenItem) -> String {
+        switch tokenItem.blockchain {
+        case .ethereum: Localization.sendEnterAddressFieldEns
+        default: Localization.sendEnterAddressField
         }
+    }
+
+    private func makeAdditionalFieldViewModel(tokenItem: TokenItem) -> SendNewDestinationAdditionalFieldViewModel? {
+        let viewModel = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain).map { additionalFieldType in
+            SendNewDestinationAdditionalFieldViewModel(title: additionalFieldType.name)
+        }
+
+        viewModel?.textPublisher()
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, field in
+                viewModel.interactor.update(additionalField: field)
+            }
+            .store(in: &bag)
+
+        return viewModel
     }
 
     private func bind() {
@@ -102,8 +124,10 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Destination
 
-        destinationAddressViewModel.addressPublisher()
+        destinationAddressViewModel
+            .addressPublisher()
             .dropFirst()
+            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
@@ -133,7 +157,8 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
 
         // MARK: - Transaction History
 
-        Publishers.CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
+        Publishers
+            .CombineLatest(interactor.transactionHistoryPublisher, interactor.suggestedWalletsPublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, args in
@@ -188,20 +213,12 @@ class SendNewDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        interactor.destinationAdditionalFieldError
+        interactor
+            .destinationAdditionalFieldError
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.additionalFieldViewModel?.update(error: error)
-            }
-            .store(in: &bag)
-
-        additionalFieldViewModel?.textPublisher()
-            .dropFirst()
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, field in
-                viewModel.interactor.update(additionalField: field)
             }
             .store(in: &bag)
     }

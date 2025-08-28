@@ -14,7 +14,7 @@ protocol WCTransactionViewModelDisplayData: AnyObject {
     var simulationState: TransactionSimulationState { get }
     var feeValidationInputs: [NotificationViewInput] { get }
     var selectedFee: WCFee? { get }
-    var currentTransaction: WalletConnectEthTransaction? { get }
+    var sendableTransaction: WCSendableTransaction? { get }
     var feeInteractor: (any WCFeeInteractorType)? { get }
     var feeManager: WCTransactionFeeManager { get }
 
@@ -34,8 +34,9 @@ protocol WCTransactionDisplayModel {
 
 @MainActor
 final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let transactionData: WCHandleTransactionData
-    private let userWalletRepository: UserWalletRepository
     private let simulationManager: WCTransactionSimulationManager
     private let securityManager: WCTransactionSecurityManager
 
@@ -43,13 +44,11 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
 
     init(
         transactionData: WCHandleTransactionData,
-        userWalletRepository: UserWalletRepository,
         simulationManager: WCTransactionSimulationManager,
         securityManager: WCTransactionSecurityManager = CommonWCTransactionSecurityManager(),
         viewModel: WCTransactionViewModelDisplayData
     ) {
         self.transactionData = transactionData
-        self.userWalletRepository = userWalletRepository
         self.simulationManager = simulationManager
         self.securityManager = securityManager
         self.viewModel = viewModel
@@ -79,6 +78,14 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var isActionButtonBlocked: Bool {
+        if case .failedToLoad = viewModel?.selectedFee?.value {
+            return true
+        }
+
+        if case .loading = viewModel?.selectedFee?.value {
+            return true
+        }
+
         return viewModel?.feeValidationInputs.contains { input in
             guard let event = input.settings.event as? WCNotificationEvent else { return false }
 
@@ -109,7 +116,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
 
         return simulationManager.createDisplayModel(
             from: viewModel.simulationState,
-            originalTransaction: viewModel.currentTransaction,
+            originalTransaction: viewModel.sendableTransaction,
             userWalletModel: transactionData.userWalletModel,
             onApprovalEdit: { [weak viewModel] approvalInfo, asset in
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))

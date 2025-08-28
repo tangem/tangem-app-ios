@@ -115,7 +115,7 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
             .map { userWalletModel in
                 WalletSelectorItemViewModel(
                     userWalletId: userWalletModel.userWalletId,
-                    cardsCount: userWalletModel.cardsCount,
+                    cardSetLabel: userWalletModel.config.cardSetLabel,
                     isUserWalletLocked: userWalletModel.isUserWalletLocked,
                     infoProvider: userWalletModel,
                     totalBalancePublisher: userWalletModel.totalBalancePublisher,
@@ -123,7 +123,7 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
                 ) { [weak self] userWalletId in
                     guard let self = self else { return }
 
-                    let selectedUserWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                    let selectedUserWalletModel = userWalletModels[userWalletId]
                     _selectedUserWalletModel.send(selectedUserWalletModel)
                 }
             }

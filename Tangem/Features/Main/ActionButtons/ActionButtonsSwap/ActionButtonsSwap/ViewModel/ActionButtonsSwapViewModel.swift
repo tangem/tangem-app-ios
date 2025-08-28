@@ -74,7 +74,8 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         sourceSwapTokenSelectorViewModel = sourceSwapTokeSelectorViewModel
 
         let expressAPIProviderFactory = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletModel: userWalletModel
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
         )
 
         expressRepository = CommonExpressRepository(
@@ -244,7 +245,8 @@ private extension ActionButtonsSwapViewModel {
             expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
-                expressRepository: expressRepository
+                expressRepository: expressRepository,
+                userWalletModelConfig: userWalletModel.config
             )
         )
     }

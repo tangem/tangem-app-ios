@@ -41,7 +41,15 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
             return
         }
 
-        AppPresenter.shared.show(viewController)
+        var shouldAnimate: Bool {
+            if case .promo = deepLink {
+                return false
+            }
+
+            return true
+        }
+
+        AppPresenter.shared.show(viewController, animated: shouldAnimate)
     }
 }
 
@@ -99,6 +107,12 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
+        case .onboardVisa(let entry):
+            return constructOnboardVisaViewController(entry: entry)
+
+        case .promo(let promoCode):
+            return constructPromoViewController(promoCode: promoCode)
+
         case .externalLink, .market:
             return nil
         }
@@ -106,6 +120,15 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
+    private func constructPromoViewController(promoCode: String) -> UIViewController {
+        let viewController = makeDeeplinkViewController(view: { PromocodeActivationView(promoCode: promoCode) }, embedInNavigationView: false)
+
+        viewController.view.backgroundColor = .clear
+        viewController.modalPresentationStyle = .overFullScreen
+
+        return viewController
+    }
+
     private func constructTokenDetailsViewControllerWithPendingTransaction(
         walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
@@ -117,7 +140,6 @@ private extension CommonDeeplinkPresenter {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: walletModel,
-                userTokensManager: userWalletModel.userTokensManager,
                 pendingTransactionDetails: pendingTransactionDetails
             )
         )
@@ -135,7 +157,6 @@ private extension CommonDeeplinkPresenter {
             with: .init(
                 userWalletModel: userWalletModel,
                 walletModel: walletModel,
-                userTokensManager: userWalletModel.userTokensManager,
                 pendingTransactionDetails: nil
             )
         )
@@ -164,7 +185,7 @@ private extension CommonDeeplinkPresenter {
                 options: .init(
                     userWalletModel: userWalletModel,
                     expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter()
+                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
                 )
             )
         )
@@ -248,6 +269,16 @@ private extension CommonDeeplinkPresenter {
                     .environment(\.mainWindowSize, windowSize ?? .zero)
             },
             embedInNavigationView: true
+        )
+    }
+
+    private func constructOnboardVisaViewController(entry: String) -> UIViewController {
+        return makeDeeplinkViewController(
+            view: {
+                // [REDACTED_TODO_COMMENT]
+                Text("entry=\(entry)")
+            },
+            embedInNavigationView: false
         )
     }
 }

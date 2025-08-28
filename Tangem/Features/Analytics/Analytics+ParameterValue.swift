@@ -18,6 +18,8 @@ extension Analytics {
         case off = "Off"
         case yes = "Yes"
         case no = "No"
+        case `true` = "True"
+        case `false` = "False"
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
@@ -56,6 +58,7 @@ extension Analytics {
         case sell = "Sell"
         case swap = "Swap"
         case send = "Send"
+        case sendAndSwap = "Send&Swap"
         case backup = "Backup"
         case sign = "Sign"
 
@@ -244,6 +247,15 @@ extension Analytics {
 
         case nft = "NFT"
 
+        // MARK: - Mobile Wallet
+
+        case `import` = "Import"
+        case create = "Create Wallet"
+        case importWallet = "Import Wallet"
+
+        case set = "Set"
+        case changing = "Changing"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
@@ -252,6 +264,10 @@ extension Analytics {
 
         static func affirmativeOrNegative(for boolean: Bool) -> ParameterValue {
             return boolean ? .yes : .no
+        }
+
+        static func boolState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .true : .false
         }
     }
 }

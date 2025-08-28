@@ -124,10 +124,12 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: HotFinishActivationNeededViewModel.self) {
-                HotFinishActivationNeededView(viewModel: $0)
+            .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
+                MobileFinishActivationNeededView(viewModel: $0)
             }
-            .registerWalletConnectFloatingSheets()
+            .floatingSheetContent(for: ReceiveMainViewModel.self) {
+                ReceiveMainView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(

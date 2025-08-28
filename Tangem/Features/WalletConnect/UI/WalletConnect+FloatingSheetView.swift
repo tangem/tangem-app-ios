@@ -8,25 +8,64 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAssets
 import TangemUI
 
-extension View {
-    private var kingfisherImageCache: ImageCache {
-        InjectedValues[\.walletConnectKingfisherImageCache]
-    }
+extension FloatingSheetRegistry {
+    func registerWalletConnectFloatingSheets() {
+        let kingfisherImageCache: ImageCache = InjectedValues[\.walletConnectKingfisherImageCache]
 
-    func registerWalletConnectFloatingSheets() -> some View {
-        floatingSheetContent(for: WalletConnectDAppConnectionViewModel.self) {
-            WalletConnectDAppConnectionView(viewModel: $0, kingfisherImageCache: kingfisherImageCache)
+        register(WalletConnectDAppConnectionViewModel.self) { viewModel in
+            WalletConnectDAppConnectionView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
         }
-        .floatingSheetContent(for: WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
+
+        register(WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
             WalletConnectConnectedDAppDetailsView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
         }
-        .floatingSheetContent(for: WCTransactionViewModel.self) {
-            WCTransactionView(viewModel: $0)
+
+        register(WCTransactionViewModel.self) { viewModel in
+            WCTransactionView(viewModel: viewModel, kingfisherImageCache: kingfisherImageCache)
+        }
+
+        register(WalletConnectErrorViewModel.self) { viewModel in
+            WalletConnectErrorView(viewModel: viewModel)
+                .includingHeaderAndFooter()
         }
     }
 }
 
 extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {}
 extension WalletConnectDAppConnectionViewModel: FloatingSheetContentViewModel {}
+extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {}
+
+private extension WalletConnectErrorView {
+    func includingHeaderAndFooter() -> some View {
+        safeAreaInset(edge: .top, spacing: .zero) {
+            WalletConnectNavigationBarView(
+                title: nil,
+                backgroundColor: Colors.Background.tertiary,
+                backButtonAction: nil,
+                closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) }
+            )
+        }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            MainButton(
+                title: viewModel.state.button.title,
+                style: viewModel.state.button.style.toMainButtonStyle,
+                action: { viewModel.handle(viewEvent: .buttonTapped) }
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .transformEffect(.identity)
+        }
+    }
+}
+
+private extension WalletConnectErrorViewState.Button.Style {
+    var toMainButtonStyle: MainButton.Style {
+        switch self {
+        case .primary: .primary
+        case .secondary: .secondary
+        }
+    }
+}

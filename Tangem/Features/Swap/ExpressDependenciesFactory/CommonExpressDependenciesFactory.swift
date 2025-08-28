@@ -7,12 +7,14 @@
 //
 
 import TangemExpress
+import TangemFoundation
 
 class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
-    private let userWalletModel: UserWalletModel
-    private let initialWalletModel: any WalletModel
-    private let destinationWalletModel: (any WalletModel)?
+    private let input: Input
+    private let initialWallet: any ExpressInteractorSourceWallet
+    private let destinationWallet: ExpressInteractor.Destination?
     private let supportedProviderTypes: [ExpressProviderType]
+    private let operationType: ExpressOperationType
 
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
     @Injected(\.expressPendingTransactionsRepository)
@@ -23,15 +25,17 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressRepository = makeExpressRepository()
 
     init(
-        userWalletModel: UserWalletModel,
-        initialWalletModel: any WalletModel,
-        destinationWalletModel: (any WalletModel)?,
-        supportedProviderTypes: [ExpressProviderType]
+        input: Input,
+        initialWallet: any ExpressInteractorSourceWallet,
+        destinationWallet: ExpressInteractor.Destination?,
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
     ) {
-        self.userWalletModel = userWalletModel
-        self.initialWalletModel = initialWalletModel
-        self.destinationWalletModel = destinationWalletModel
+        self.input = input
+        self.initialWallet = initialWallet
+        self.destinationWallet = destinationWallet
         self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
     }
 }
 
@@ -43,20 +47,21 @@ private extension CommonExpressDependenciesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: supportedProviderTypes
+            supportedProviderTypes: supportedProviderTypes,
+            operationType: operationType
         )
 
         let interactor = ExpressInteractor(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: destinationWalletModel.map { .success($0.asExpressInteractorWallet) } ?? .loading,
+            userWalletId: input.userWalletId.stringValue,
+            initialWallet: initialWallet,
+            destinationWallet: destinationWallet,
             expressManager: expressManager,
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
-            signer: userWalletModel.signer
+            signer: input.signer
         )
 
         return interactor
@@ -64,23 +69,41 @@ private extension CommonExpressDependenciesFactory {
 
     func makeExpressRepository() -> ExpressRepository {
         CommonExpressRepository(
-            walletModelsManager: userWalletModel.walletModelsManager,
+            walletModelsManager: input.walletModelsManager,
             expressAPIProvider: expressAPIProvider
         )
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
+        expressAPIProviderFactory.makeExpressAPIProvider(userWalletId: input.userWalletId, refcode: input.refcode)
     }
 
     /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
-    /// Becase there will be inly initial tokenItem without updating
-    var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger(tokenItem: initialWalletModel.tokenItem) }
+    /// Because there will be inly initial tokenItem without updating
+    var analyticsLogger: ExpressAnalyticsLogger {
+        CommonExpressAnalyticsLogger(tokenItem: initialWallet.tokenItem)
+    }
 
     var expressDestinationService: ExpressDestinationService {
         CommonExpressDestinationService(
-            walletModelsManager: userWalletModel.walletModelsManager,
+            walletModelsManager: input.walletModelsManager,
             expressRepository: expressRepository
         )
+    }
+}
+
+extension CommonExpressDependenciesFactory {
+    struct Input {
+        let userWalletId: UserWalletId
+        let refcode: Refcode?
+        let signer: TangemSigner
+        let walletModelsManager: WalletModelsManager
+
+        init(userWalletModel: UserWalletModel) {
+            userWalletId = userWalletModel.userWalletId
+            refcode = userWalletModel.refcodeProvider?.getRefcode()
+            signer = userWalletModel.signer
+            walletModelsManager = userWalletModel.walletModelsManager
+        }
     }
 }

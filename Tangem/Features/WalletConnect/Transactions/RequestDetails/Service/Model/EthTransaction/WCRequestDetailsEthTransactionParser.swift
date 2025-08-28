@@ -50,8 +50,8 @@ enum WCRequestDetailsEthTransactionParser {
     private static func createAdvancedDetailsSection(transaction: WalletConnectEthTransaction) -> WCTransactionDetailsSection? {
         var advancedItems: [WCTransactionDetailsSection.WCTransactionDetailsItem] = []
 
-        if !transaction.data.isEmpty, transaction.data != "0x" {
-            advancedItems.append(.init(title: "Data", value: formatData(transaction.data)))
+        if let data = transaction.data, data.isNotEmpty {
+            advancedItems.append(.init(title: "Data", value: formatData(data)))
         }
 
         if let gasPrice = transaction.gasPrice {
@@ -72,16 +72,6 @@ enum WCRequestDetailsEthTransactionParser {
         }
 
         return .init(sectionTitle: "Advanced", items: advancedItems)
-    }
-
-    private static func formatDecimalValue(_ amount: Decimal, currencySymbol: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 8
-        formatter.minimumFractionDigits = 0
-
-        let formattedValue = formatter.string(from: amount as NSDecimalNumber) ?? "\(amount)"
-        return "\(formattedValue) " + currencySymbol
     }
 
     private static func formatTokenValue(_ hexValue: String, currencySymbol: String) -> String {

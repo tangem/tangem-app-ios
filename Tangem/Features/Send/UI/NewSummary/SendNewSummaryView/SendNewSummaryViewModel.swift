@@ -12,6 +12,7 @@ import Combine
 
 class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountCompactViewModel: SendNewAmountCompactViewModel?
+    @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?
     @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
     @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -20,7 +21,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var notificationButtonIsLoading = false
 
-    @Published var transactionDescription: SummaryDescriptionType?
+    @Published var transactionDescription: AttributedString?
     @Published var transactionDescriptionIsVisible: Bool = false
 
     var destinationCompactViewType: SendCompactViewEditableType {
@@ -43,6 +44,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
     private let destinationEditableType: EditableType
     private let amountEditableType: EditableType
     private let notificationManager: NotificationManager
+    private let analyticsLogger: SendSummaryAnalyticsLogger
 
     weak var router: SendSummaryStepsRoutable?
 
@@ -53,7 +55,9 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         destinationEditableType: EditableType,
         amountEditableType: EditableType,
         notificationManager: NotificationManager,
+        analyticsLogger: SendSummaryAnalyticsLogger,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
@@ -62,7 +66,9 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
         self.destinationEditableType = destinationEditableType
         self.amountEditableType = amountEditableType
         self.notificationManager = notificationManager
+        self.analyticsLogger = analyticsLogger
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
+        self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
@@ -85,6 +91,7 @@ class SendNewSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapValidator() {
         didTapSummary()
+        analyticsLogger.logUserDidTapOnValidator()
         router?.summaryStepRequestEditValidators()
     }
 
@@ -109,6 +116,7 @@ extension SendNewSummaryViewModel: SendNewAmountCompactRoutable {
 
     func userDidTapSwapProvider() {
         didTapSummary()
+        analyticsLogger.logUserDidTapOnProvider()
         router?.summaryStepRequestEditProviders()
     }
 }

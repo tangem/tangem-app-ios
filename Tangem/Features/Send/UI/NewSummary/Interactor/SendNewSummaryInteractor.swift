@@ -11,22 +11,16 @@ import Combine
 import TangemLocalization
 
 protocol SendNewSummaryInteractor: AnyObject {
-    var title: String? { get }
-
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
-    var transactionDescription: AnyPublisher<SummaryDescriptionType?, Never> { get }
+    var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
-}
-
-enum SummaryDescriptionType {
-    case string(String)
-    case attributed(AttributedString)
 }
 
 class CommonSendNewSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
-    private weak var receiveTokenInput: SendReceiveTokenInput?
+    private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
@@ -34,31 +28,20 @@ class CommonSendNewSummaryInteractor {
     init(
         input: SendSummaryInput,
         output: SendSummaryOutput,
-        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
     ) {
         self.input = input
         self.output = output
-        self.receiveTokenInput = receiveTokenInput
+        self.receiveTokenAmountInput = receiveTokenAmountInput
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.swapDescriptionBuilder = swapDescriptionBuilder
     }
 }
 
 extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
-    var title: String? {
-        switch receiveTokenInput?.receiveToken {
-        case .same(let sendSourceToken):
-            return Localization.commonSend
-        case .swap(let sendReceiveToken):
-            return Localization.sendWithSwapTitle
-        case .none:
-            return nil
-        }
-    }
-
-    var transactionDescription: AnyPublisher<SummaryDescriptionType?, Never> {
+    var transactionDescription: AnyPublisher<AttributedString?, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
             return Empty().eraseToAnyPublisher()
@@ -80,6 +63,18 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
         return input.isNotificationButtonIsLoading
     }
 
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        guard let receiveTokenAmountInput else {
+            assertionFailure("ReceiveTokenAmountInput is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return receiveTokenAmountInput
+            .receiveAmountPublisher
+            .map { $0.isLoading }
+            .eraseToAnyPublisher()
+    }
+
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         guard let input else {
             assertionFailure("SendSummaryInput is not found")
@@ -93,16 +88,16 @@ extension CommonSendNewSummaryInteractor: SendNewSummaryInteractor {
 // MARK: - Private
 
 private extension CommonSendNewSummaryInteractor {
-    private func summaryDescription(data: SendSummaryTransactionData?) -> SummaryDescriptionType? {
+    private func summaryDescription(data: SendSummaryTransactionData?) -> AttributedString? {
         switch data {
         case .none, .staking:
             return nil
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
-            return description.map { .string($0) }
-        case .swap(let provider):
-            let description = swapDescriptionBuilder.makeDescription(provider: provider)
-            return description.map { .attributed($0) }
+            return description
+        case .swap(let amount, let fee, let provider):
+            let description = swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+            return description
         }
     }
 }

@@ -111,8 +111,6 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func setAuthData(_ authData: TangemApiTarget.AuthData) {}
-
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         throw "Not implemented"
     }
@@ -185,8 +183,12 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO {
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO {
         throw "Not implemented"
+    }
+
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
+        .anyFail(error: .init(code: .notFound))
     }
 }
 

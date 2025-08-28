@@ -218,9 +218,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             .fulfillRequirements(signer: userWalletModel.signer)
             .materialize()
             .failures()
-            .handleEvents(receiveCompletion: { [weak self] _ in
-                self?.isFulfillingAssetRequirements = false
-            })
             .withWeakCaptureOf(self)
             .map { viewModel, error in
                 let alertBuilder = AssetRequirementsAlertBuilder()
@@ -250,14 +247,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func fulfillAssetRequirements(with analyticsEvent: Analytics.Event) {
-        func sendAnalytics(isSuccessful: Bool) {
+        func sendAnalytics(isSuccessful: Bool, tokenSymbol: String, blockchainName: String) {
             let status: Analytics.ParameterValue = isSuccessful ? .sent : .error
 
             Analytics.log(
                 event: analyticsEvent,
                 params: [
-                    .token: walletModel.tokenItem.currencySymbol,
-                    .blockchain: blockchain.displayName,
+                    .token: tokenSymbol,
+                    .blockchain: blockchainName,
                     .status: status.rawValue,
                 ]
             )
@@ -265,21 +262,21 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
         isFulfillingAssetRequirements = true
         let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
+        let tokenSymbol = walletModel.tokenItem.currencySymbol
+        let blockchainName = blockchain.displayName
 
         walletModel.assetRequirementsManager?.feeStatusForRequirement(asset: amountType)
             .withWeakCaptureOf(self)
             .flatMap { viewModel, feeStatus -> AnyPublisher<AlertBinder?, Never> in
                 if let alert = viewModel.buildFulfillAssetRequirementsAlertIfNeeded(for: requirementsCondition, feeStatus: feeStatus) {
-                    sendAnalytics(isSuccessful: false)
+                    sendAnalytics(isSuccessful: false, tokenSymbol: tokenSymbol, blockchainName: blockchainName)
+                    viewModel.isFulfillingAssetRequirements = false
                     return Just(alert).eraseToAnyPublisher()
                 } else {
-                    sendAnalytics(isSuccessful: true)
+                    sendAnalytics(isSuccessful: true, tokenSymbol: tokenSymbol, blockchainName: blockchainName)
                     return viewModel.fulfillRequirementsPublisher()
                 }
             }
-            .handleEvents(receiveCompletion: { [weak self] _ in
-                self?.isFulfillingAssetRequirements = false
-            })
             .receiveOnMain()
             .assign(to: \.alert, on: self, ownership: .weak)
             .store(in: &bag)
@@ -311,6 +308,11 @@ extension SingleTokenBaseViewModel {
     }
 
     private func bind() {
+        walletModel.isAssetRequirementsTaskInProgressPublisher
+            .receiveOnMain()
+            .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)
+            .store(in: &bag)
+
         walletModel.totalTokenBalanceProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
@@ -546,11 +548,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        if FeatureProvider.isAvailable(.onramp) {
-            tokenRouter.openOnramp(walletModel: walletModel)
-        } else {
-            tokenRouter.openBuy(walletModel: walletModel)
-        }
+        tokenRouter.openOnramp(walletModel: walletModel)
     }
 
     func openSend() {

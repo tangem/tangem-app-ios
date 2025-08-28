@@ -234,7 +234,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
-        guard let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId }),
+        guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -260,7 +260,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
     }
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
-        let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId })
+        let userWalletModel = walletDataProvider.userWalletModels[userWalletId]
         let walletModel = userWalletModel?.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
 
         guard let userWalletModel, let walletModel, let coordinator else {
@@ -276,13 +276,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-
-            if FeatureProvider.isAvailable(.onramp) {
-                coordinator.openOnramp(for: walletModel, with: userWalletModel)
-            } else {
-                // Old code
-                coordinator.openBuyCryptoIfPossible(for: walletModel, with: userWalletModel)
-            }
+            coordinator.openOnramp(for: walletModel, with: userWalletModel)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)

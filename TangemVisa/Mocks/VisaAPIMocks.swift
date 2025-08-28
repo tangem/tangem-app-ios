@@ -304,7 +304,7 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
-    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
+    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return .init(
             id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
             state: .active,
@@ -322,6 +322,14 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
                 id: "5add5bde-04e7-4efd-9191-cb7f21956c00",
                 customerWalletAddress: "0xef08ea3531d219ede813fb521e6d89220198bcb1",
                 address: "0xd7d2d8266e79d22be3680a062e19484140e248d1"
+            ),
+            kyc: .init(
+                id: "",
+                provider: "",
+                status: .undefined,
+                risk: .undefined,
+                reviewAnswer: .undefined,
+                createdAt: Date()
             )
         )
     }

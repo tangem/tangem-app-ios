@@ -17,24 +17,31 @@ struct SendNewSummaryStepBuilder {
 
     func makeSendSummaryStep(
         io: IO,
-        receiveTokenInput: SendReceiveTokenInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput,
         sendFeeProvider: SendFeeProvider,
         destinationEditableType: SendSummaryViewModel.EditableType,
         amountEditableType: SendSummaryViewModel.EditableType,
         notificationManager: NotificationManager,
+        analyticsLogger: any SendSummaryAnalyticsLogger,
         sendDestinationCompactViewModel: SendNewDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendNewAmountCompactViewModel?,
+        nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
-        let interactor = makeSendNewSummaryInteractor(io: io, receiveTokenInput: receiveTokenInput)
+        let interactor = makeSendNewSummaryInteractor(
+            io: io,
+            receiveTokenAmountInput: receiveTokenAmountInput
+        )
 
         let viewModel = SendNewSummaryViewModel(
             interactor: interactor,
             destinationEditableType: destinationEditableType,
             amountEditableType: amountEditableType,
             notificationManager: notificationManager,
+            analyticsLogger: analyticsLogger,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
+            nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
@@ -43,6 +50,7 @@ struct SendNewSummaryStepBuilder {
         let step = SendNewSummaryStep(
             viewModel: viewModel,
             interactor: interactor,
+            analyticsLogger: analyticsLogger,
             sendFeeProvider: sendFeeProvider
         )
 
@@ -53,11 +61,14 @@ struct SendNewSummaryStepBuilder {
 // MARK: - Private
 
 private extension SendNewSummaryStepBuilder {
-    func makeSendNewSummaryInteractor(io: IO, receiveTokenInput: SendReceiveTokenInput) -> SendNewSummaryInteractor {
+    func makeSendNewSummaryInteractor(
+        io: IO,
+        receiveTokenAmountInput: any SendReceiveTokenAmountInput
+    ) -> SendNewSummaryInteractor {
         CommonSendNewSummaryInteractor(
             input: io.input,
             output: io.output,
-            receiveTokenInput: receiveTokenInput,
+            receiveTokenAmountInput: receiveTokenAmountInput,
             sendDescriptionBuilder: builder.makeSendTransactionSummaryDescriptionBuilder(),
             swapDescriptionBuilder: builder.makeSwapTransactionSummaryDescriptionBuilder()
         )

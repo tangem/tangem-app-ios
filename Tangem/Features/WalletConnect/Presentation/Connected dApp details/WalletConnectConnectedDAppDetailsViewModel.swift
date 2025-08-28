@@ -94,7 +94,6 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         guard case .dAppDetails(let dAppDetailsViewState) = state else { return }
 
         let viewModel = WalletConnectDAppDomainVerificationViewModel(
-            verifiedDAppName: connectedDApp.dAppData.name,
             closeAction: { [weak self] in
                 self?.state = .dAppDetails(dAppDetailsViewState)
             }
@@ -169,12 +168,12 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                 walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),
                 dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
                 connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
-                    blockchains: dApp.blockchains.map { blockchain in
+                    blockchains: dApp.dAppBlockchains.map { dAppBlockchain in
                         WalletConnectConnectedDAppDetailsViewState.DAppDetails.BlockchainRowItem(
-                            id: blockchain.networkId,
-                            iconAsset: imageProvider.provide(by: blockchain, filled: true),
-                            name: blockchain.displayName,
-                            currencySymbol: blockchain.currencySymbol
+                            id: dAppBlockchain.blockchain.networkId,
+                            iconAsset: imageProvider.provide(by: dAppBlockchain.blockchain, filled: true),
+                            name: dAppBlockchain.blockchain.displayName,
+                            currencySymbol: dAppBlockchain.blockchain.currencySymbol
                         )
                     }
                 )
@@ -183,10 +182,6 @@ extension WalletConnectConnectedDAppDetailsViewModel {
     }
 
     private static func connectedTime(for dApp: WalletConnectConnectedDApp, using dateFormatter: RelativeDateTimeFormatter) -> String {
-        let relativeDateString = dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
-        let delimiter = " • "
-        let timeString = dApp.connectionDate.formatted(.dateTime.hour().minute())
-
-        return relativeDateString + delimiter + timeString
+        dateFormatter.localizedString(for: dApp.connectionDate, relativeTo: Date.now)
     }
 }

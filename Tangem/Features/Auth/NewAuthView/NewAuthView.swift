@@ -18,10 +18,9 @@ struct NewAuthView: View {
     var body: some View {
         stateView
             .animation(.default, value: viewModel.state)
-            .alert(item: $viewModel.error, content: { $0.alert })
+            .alert(item: $viewModel.alert, content: { $0.alert })
             .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
             .background(Colors.Background.primary.ignoresSafeArea())
-            .ignoresSafeArea(.keyboard)
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
@@ -37,8 +36,9 @@ private extension NewAuthView {
             case .locked:
                 LockView(usesNamespace: false)
                     .transition(.opacity)
-            case .unlocked(let item):
-                unlockedView(item: item)
+            case .wallets(let item):
+                walletsView(item: item)
+                    .toolbar { navigationBarContent(item: item.addWallet) }
                     .transition(.opacity)
             case .none:
                 EmptyView()
@@ -46,19 +46,17 @@ private extension NewAuthView {
         }
     }
 
-    func unlockedView(item: ViewModel.UnlockedStateItem) -> some View {
-        ZStack(alignment: .bottom) {
+    func walletsView(item: ViewModel.WalletsStateItem) -> some View {
+        ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 32) {
-                topBar(item: item.addWallet)
-
                 infoView(item: item.info)
-                    .padding(.horizontal, 16)
-
                 walletsView(items: item.wallets)
-                    .padding(.horizontal, 16)
-                    .ignoresSafeArea(edges: .bottom)
             }
-
+            .padding(.top, 32)
+            .padding(.horizontal, 16)
+            .ignoresSafeArea(edges: .bottom)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 10) {
             item.unlock.map {
                 unlockButton(item: $0)
                     .padding(.horizontal, 16)
@@ -68,29 +66,41 @@ private extension NewAuthView {
     }
 }
 
+// MARK: - NavigationBar
+
+private extension NewAuthView {
+    @ToolbarContentBuilder
+    func navigationBarContent(item: ViewModel.AddWalletItem) -> some ToolbarContent {
+        ToolbarItem(
+            placement: .navigationBarLeading,
+            content: leadingNavigationBarItem
+        )
+        ToolbarItem(
+            placement: .navigationBarTrailing,
+            content: { trailingNavigationBarItem(item: item) }
+        )
+    }
+
+    func leadingNavigationBarItem() -> some View {
+        Assets.newTangemLogo.image
+            .resizable()
+            .renderingMode(.template)
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Colors.Icon.primary1)
+            .frame(width: 86, height: 18)
+    }
+
+    func trailingNavigationBarItem(item: ViewModel.AddWalletItem) -> some View {
+        Button(action: item.action) {
+            Text(item.title)
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+        }
+    }
+}
+
 // MARK: - WalletsState subviews
 
 private extension NewAuthView {
-    func topBar(item: ViewModel.AddWalletItem) -> some View {
-        HStack {
-            Assets.newTangemLogo.image
-                .resizable()
-                .renderingMode(.template)
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(Colors.Icon.primary1)
-                .frame(width: 86, height: 18)
-
-            Spacer()
-
-            Button(action: item.action) {
-                Text(item.title)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 16)
-    }
-
     func infoView(item: ViewModel.InfoItem) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(item.title)
@@ -103,46 +113,10 @@ private extension NewAuthView {
     }
 
     func walletsView(items: [ViewModel.WalletItem]) -> some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 8) {
-                ForEach(items) {
-                    walletView(item: $0)
-                }
+        VStack(spacing: 8) {
+            ForEach(items) {
+                NewAuthWalletView(item: $0)
             }
-        }
-    }
-
-    func walletView(item: ViewModel.WalletItem) -> some View {
-        Button(action: item.action) {
-            HStack(spacing: 12) {
-                item.icon.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 36, height: 36)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(item.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                    HStack(spacing: 4) {
-                        Text(item.description)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-
-                        if item.isSecured {
-                            Assets.stakingLockIcon.image
-                                .resizable()
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.informative)
-                                .frame(width: 12, height: 12)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 14)
-            .background(Colors.Field.primary)
-            .cornerRadius(14, corners: .allCorners)
         }
     }
 

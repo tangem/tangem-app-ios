@@ -263,12 +263,6 @@ private extension DetailsViewModel {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
         setupBuyWalletViewModel()
-
-        // [REDACTED_TODO_COMMENT]
-//        tangemPayRowViewModel = TangemPayRowViewModel(isKYCInProgress: false) { [weak coordinator] in
-//            coordinator?.openTangemPayOfferViewModel()
-//        }
-
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -319,7 +313,7 @@ private extension DetailsViewModel {
             }
         }
 
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
                 action: weakify(self, forFunction: DetailsViewModel.openAddNewUserWallet)
@@ -402,7 +396,7 @@ private extension DetailsViewModel {
                     viewModel.alert = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 await runOnMain {
                     viewModel.isScanning = false
                     viewModel.openOnboarding(with: input)
@@ -418,14 +412,21 @@ private extension DetailsViewModel {
 
             case .success(let cardInfo):
                 do {
+                    let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+                    guard let userWalletId = UserWalletId(config: config) else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+
+                    if viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) {
+                        throw UserWalletRepositoryError.duplicateWalletAdded
+                    }
+
                     guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) else {
-                        await runOnMain {
-                            viewModel.coordinator?.dismiss()
-                        }
-                        return
+                        throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
                     if await AppSettings.shared.saveUserWallets {

@@ -97,7 +97,7 @@ final class VisaUserWalletModel {
         return tokens.authTokens
     }
 
-    private let userWalletModel: UserWalletModel
+    let userWalletModel: UserWalletModel
     private var cardWalletAddress: String?
     private var cardInfo: CardInfo
     private let transactionHistoryService: VisaTransactionHistoryService
@@ -504,7 +504,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userWalletId: UserWalletId { userWalletModel.userWalletId }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData { userWalletModel.tangemApiAuthData }
+    var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
     var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
 
@@ -532,7 +532,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
 
-    var cardsCount: Int { 1 }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var hasImportedWallets: Bool { false }
 
@@ -556,6 +556,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.userTokensPushNotificationsManager
     }
 
+    var accountModelsManager: AccountModelsManager {
+        userWalletModel.accountModelsManager
+    }
+
     func validate() -> Bool { userWalletModel.validate() }
 
     func update(type: UpdateRequest) {
@@ -563,8 +567,6 @@ extension VisaUserWalletModel: UserWalletModel {
     }
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }
 
 extension VisaUserWalletModel: UserWalletSerializable {
@@ -585,5 +587,11 @@ extension VisaUserWalletModel: UserWalletSerializable {
 
     func serializePrivate() -> StoredUserWallet.SensitiveInfo {
         return .cardWallet(keys: cardInfo.card.wallets)
+    }
+}
+
+extension VisaUserWalletModel: AssociatedCardIdsProvider {
+    var associatedCardIds: Set<String> {
+        cardInfo.associatedCardIds
     }
 }

@@ -11,7 +11,7 @@ import TangemLocalization
 import Combine
 
 protocol MultiWalletMainHeaderSubtitleDataSource: AnyObject {
-    var cardsCount: Int { get }
+    var cardSetLabel: String { get }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var hasImportedWallets: Bool { get }
 }
@@ -64,7 +64,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] value in
                 switch value {
-                case .backupDidChange:
+                case .configurationChanged:
                     self?.formatSubtitle()
                 default:
                     break
@@ -73,9 +73,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     }
 
     private func formatSubtitle() {
-        let numberOfCards = dataSource.cardsCount
-        let numberOfCardsPrefix = Localization.cardLabelCardCount(numberOfCards)
-        var subtitle = [numberOfCardsPrefix]
+        var subtitle = [dataSource.cardSetLabel]
         if let suffix {
             subtitle.append(suffix)
         }

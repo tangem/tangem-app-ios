@@ -23,8 +23,8 @@ struct WCHandleTransactionData {
 
     weak var updatableHandler: WCTransactionUpdatable?
 
-    func updateTransaction(_ updatedTransaction: WalletConnectEthTransaction) {
-        updatableHandler?.updateTransaction(updatedTransaction)
+    func updateSendableTransaction(_ sendableTransaction: WCSendableTransaction) {
+        updatableHandler?.updateSendableTransaction(sendableTransaction)
     }
 }
 
@@ -50,7 +50,7 @@ extension WCHandleTransactionData {
         }
 
         reject = {
-            let result = try await dto.reject()
+            let result = try dto.reject()
             try await respond(validatedRequest.request.topic, validatedRequest.request.id, result)
         }
     }

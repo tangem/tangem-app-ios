@@ -9,7 +9,6 @@
 import TangemAssets
 import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
 struct WalletConnectWarningNotificationViewModel: Equatable {
     let containerStyle: ContainerStyle
     let severity: Severity
@@ -73,22 +72,6 @@ extension WalletConnectWarningNotificationViewModel {
         title: Localization.wcNotificationSecurityRiskTitle,
         body: Localization.wcNotificationSecurityRiskSubtitle
     )
-
-    static let dAppDomainMismatch = WalletConnectWarningNotificationViewModel(
-        containerStyle: .standAloneSection,
-        severity: .critical,
-        iconAsset: Assets.redCircleWarning,
-        title: "Domain mismatch",
-        body: "This website has a domain that does not match the sender or this request. Approving may lead to loss of funds"
-    )
-
-    static let dAppScamDomain = WalletConnectWarningNotificationViewModel(
-        containerStyle: .standAloneSection,
-        severity: .critical,
-        iconAsset: Assets.redCircleWarning,
-        title: "Scam domain",
-        body: "We have noticed that this domain is SCAM. We don’t advise you to connect your wallet."
-    )
 }
 
 // MARK: - DApp networks warnings
@@ -98,8 +81,8 @@ extension WalletConnectWarningNotificationViewModel {
         containerStyle: .embedded,
         severity: .attention,
         iconAsset: Assets.WalletConnect.yellowWarningCircle,
-        title: "Specify selected networks",
-        body: "At least one network is required for dApp connection"
+        title: Localization.wcSpecifyNetworksTitle,
+        body: Localization.wcSpecifyNetworksSubtitle
     )
 
     static func requiredNetworksAreUnavailableForSelectedWallet(_ blockchainNames: [String]) -> WalletConnectWarningNotificationViewModel {

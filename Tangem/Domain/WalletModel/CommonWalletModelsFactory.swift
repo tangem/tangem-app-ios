@@ -78,6 +78,13 @@ struct CommonWalletModelsFactory {
         )
         return StakingDependenciesFactory().makeStakingManager(integrationId: integrationId, wallet: wallet)
     }
+
+    private func makeReceiveAddressService(tokenItem: TokenItem, addresses: [Address]) -> ReceiveAddressService {
+        let factory = DomainNameAddressResolverFactoryProvider().factory
+        let domainAddressResolver = factory.makeAddressResolver(for: tokenItem.blockchain)
+
+        return CommonReceiveAddressService(addresses: addresses, domainAddressResolver: domainAddressResolver)
+    }
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
@@ -103,6 +110,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: tokenItem,
                 addresses: walletManager.wallet.addresses.map { $0.value }
             )
+            let receiveAddressService = makeReceiveAddressService(
+                tokenItem: tokenItem,
+                addresses: walletManager.wallet.addresses
+            )
             let featureManager = CommonWalletModelFeaturesManager(
                 userWalletId: userWalletId,
                 userWalletConfig: config,
@@ -110,6 +121,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             )
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = CommonWalletModel(
+                userWalletId: userWalletId,
                 walletManager: walletManager,
                 stakingManager: makeStakingManager(
                     publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -118,6 +130,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 ),
                 featureManager: featureManager,
                 transactionHistoryService: transactionHistoryService,
+                receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
                 tokenBalancesRepository: tokenBalancesRepository,
                 amountType: .coin,
@@ -136,6 +149,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     addresses: walletManager.wallet.addresses.map { $0.value }
                 )
+                let receiveAddressService = makeReceiveAddressService(
+                    tokenItem: tokenItem,
+                    addresses: walletManager.wallet.addresses
+                )
                 let featureManager = CommonWalletModelFeaturesManager(
                     userWalletId: userWalletId,
                     userWalletConfig: config,
@@ -143,6 +160,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 )
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = CommonWalletModel(
+                    userWalletId: userWalletId,
                     walletManager: walletManager,
                     stakingManager: makeStakingManager(
                         publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -151,6 +169,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     ),
                     featureManager: featureManager,
                     transactionHistoryService: transactionHistoryService,
+                    receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,
                     tokenBalancesRepository: tokenBalancesRepository,
                     amountType: amountType,

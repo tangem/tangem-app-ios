@@ -7,13 +7,7 @@
 //
 
 struct CommonBuyTokenAvailabilitySorter {
-    // MARK: - Dependencies
-
-    @Injected(\.expressAvailabilityProvider)
-    private var expressAvailabilityProvider: ExpressAvailabilityProvider
-
-    @Injected(\.exchangeService)
-    private var exchangeService: ExchangeService
+    let userWalletModelConfig: UserWalletConfig
 }
 
 // MARK: - TokenAvailabilitySorter
@@ -32,14 +26,7 @@ extension CommonBuyTokenAvailabilitySorter: TokenAvailabilitySorter {
     }
 
     private func tokenAvailableToBuy(_ walletModel: any WalletModel) -> Bool {
-        if FeatureProvider.isAvailable(.onramp) {
-            expressAvailabilityProvider.canOnramp(tokenItem: walletModel.tokenItem)
-        } else {
-            exchangeService.canBuy(
-                walletModel.tokenItem.currencySymbol,
-                amountType: walletModel.tokenItem.amountType,
-                blockchain: walletModel.tokenItem.blockchain
-            )
-        }
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
+        return availabilityProvider.isBuyAvailable
     }
 }

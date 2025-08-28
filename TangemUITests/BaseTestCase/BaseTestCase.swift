@@ -27,9 +27,13 @@ class BaseTestCase: XCTestCase {
         app.launchEnvironment.removeAll()
         app.terminate()
 
-        // Reset WireMock scenarios after each test
+        // Reset only active WireMock scenarios after each test
         if !activeScenarios.isEmpty {
-            wireMockClient.resetAllScenariosSync()
+            XCTContext.runActivity(named: "Reset active WireMock scenarios") { _ in
+                for scenarioName in activeScenarios.keys {
+                    wireMockClient.resetScenarioSync(scenarioName)
+                }
+            }
             activeScenarios.removeAll()
         }
 
@@ -39,6 +43,7 @@ class BaseTestCase: XCTestCase {
     func launchApp(
         tangemApiType: TangemAPI? = nil,
         expressApiType: ExpressAPI? = nil,
+        stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
         scenarios: [ScenarioConfig] = []
     ) {
@@ -47,6 +52,8 @@ class BaseTestCase: XCTestCase {
         arguments.append(contentsOf: ["-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue])
 
         arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
+
+        arguments.append(contentsOf: ["-staking_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")

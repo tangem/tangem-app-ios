@@ -13,7 +13,6 @@ import TangemNetworkUtils
 
 struct TangemApiTarget: TargetType {
     let type: TargetType
-    let authData: AuthData?
 
     // MARK: - TargetType
 
@@ -21,6 +20,8 @@ struct TangemApiTarget: TargetType {
         switch type {
         case .rawData(let fullURL):
             fullURL
+        case .activatePromoCode:
+            AppEnvironment.current.activatePromoCodeBaseUrl
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -104,6 +105,10 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/\(userWalletId)"
         case .createAndConnectUserWallet(let applicationUid, _):
             return "/user-wallets/wallets/create-and-connect-by-appuid/\(applicationUid)"
+
+        // MARK: - Promo Code
+        case .activatePromoCode:
+            return "/promo-codes/activate"
         }
     }
 
@@ -144,7 +149,8 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .walletInitialized,
              .createUserWalletsApplication,
-             .createAndConnectUserWallet:
+             .createAndConnectUserWallet,
+             .activatePromoCode:
             return .post
         case .resetAward:
             return .delete
@@ -253,23 +259,14 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
         case .createAndConnectUserWallet(_, let requestModel):
             return .requestJSONEncodable(requestModel)
+
+        // MARK: - Promo Code
+        case .activatePromoCode(let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
-    var headers: [String: String]? {
-        if case .rawData = type {
-            return nil
-        }
-
-        var headers: [String: String] = [:]
-
-        if let authData {
-            headers["card_id"] = authData.cardId
-            headers["card_public_key"] = authData.cardPublicKey.hexString
-        }
-
-        return headers
-    }
+    var headers: [String: String]? { nil }
 }
 
 extension TangemApiTarget {
@@ -295,6 +292,7 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
+        case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         case story(_ id: String)
 
@@ -331,12 +329,7 @@ extension TangemApiTarget {
         case getUserWallets(applicationUid: String)
         case getUserWallet(userWalletId: String)
         case updateUserWallet(userWalletId: String, requestModel: UserWalletDTO.Update.Request)
-        case createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request])
-    }
-
-    struct AuthData {
-        let cardId: String
-        let cardPublicKey: Data
+        case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
     }
 }
 
@@ -361,7 +354,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
         case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
              .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto, .createUserWalletsApplication, .updateUserWalletsApplication, .getUserWallets, .getUserWallet, .updateUserWallet, .createAndConnectUserWallet:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible:
+        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized, .pushNotificationsEligible, .activatePromoCode:
             return true
         }
     }

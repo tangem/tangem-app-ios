@@ -47,7 +47,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressTokensListAdapter: expressTokensListAdapter,
             expressRepository: expressRepository,
             expressInteractor: expressInteractor,
-            coordinator: coordinator
+            coordinator: coordinator,
+            userWalletModelConfig: userWalletModel.config
         )
     }
 
@@ -161,7 +162,8 @@ private extension ExpressModulesFactoryMock {
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
         expressAPIProviderFactory.makeExpressAPIProvider(
-            userWalletModel: userWalletModel
+            userWalletId: userWalletModel.userWalletId,
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
         )
     }
 
@@ -172,7 +174,8 @@ private extension ExpressModulesFactoryMock {
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
             analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap
+            supportedProviderTypes: .swap,
+            operationType: .swap
         )
 
         let interactor = ExpressInteractor(

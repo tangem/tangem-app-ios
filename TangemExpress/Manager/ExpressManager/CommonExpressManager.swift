@@ -20,6 +20,7 @@ actor CommonExpressManager {
     private let expressRepository: ExpressRepository
     private let analyticsLogger: ExpressAnalyticsLogger
     private let supportedProviderTypes: [ExpressProviderType]
+    private let operationType: ExpressOperationType
 
     // MARK: - State
 
@@ -40,13 +41,15 @@ actor CommonExpressManager {
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
         analyticsLogger: ExpressAnalyticsLogger,
-        supportedProviderTypes: [ExpressProviderType]
+        supportedProviderTypes: [ExpressProviderType],
+        operationType: ExpressOperationType
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.analyticsLogger = analyticsLogger
         self.supportedProviderTypes = supportedProviderTypes
+        self.operationType = operationType
     }
 }
 
@@ -69,8 +72,8 @@ extension CommonExpressManager: ExpressManager {
         return allProviders
     }
 
-    func update(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState {
-        assert(pair.source.currency != pair.destination.currency, "Pair has equal currencies")
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
+        pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
 
         // Clear for reselected the best quote
@@ -93,7 +96,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
         guard _approvePolicy != approvePolicy else {
-            ExpressLogger.info(self, "ApprovePolicy already is \(approvePolicy)")
+            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
             return try await selectedProviderState()
         }
 
@@ -106,7 +109,7 @@ extension CommonExpressManager: ExpressManager {
 
     func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerState {
         guard _feeOption != feeOption else {
-            ExpressLogger.info(self, "ExpressFeeOption already is \(feeOption)")
+            ExpressLogger.warning(self, "ExpressFeeOption already is \(feeOption)")
             return try await selectedProviderState()
         }
 
@@ -137,8 +140,8 @@ private extension CommonExpressManager {
     /// Return the state which checking the all properties
     func updateState(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerState {
         guard let pair = _pair else {
-            ExpressLogger.error(self, error: "ExpressManagerSwappingPair not found")
-            throw ExpressManagerError.pairNotFound
+            ExpressLogger.warning("Pair isn't set. Return .idle state")
+            return .idle
         }
 
         // Just update availableProviders for this pair
@@ -224,7 +227,10 @@ private extension CommonExpressManager {
     func updateIsBestFlag() async {
         let bestRate = await bestByRateProvider()
         availableProviders.forEach { provider in
-            provider.isBest = provider.provider == bestRate?.provider
+            // We set the `isBest` flag only if provider is not a single
+            let providersMoreThanOne: Bool = availableProviders.count > 1
+            provider.isBest = providersMoreThanOne && provider.provider == bestRate?.provider
+
             ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
     }
@@ -311,7 +317,8 @@ private extension CommonExpressManager {
             pair: pair,
             amount: amount,
             feeOption: _feeOption,
-            approvePolicy: _approvePolicy
+            approvePolicy: _approvePolicy,
+            operationType: operationType
         )
     }
 

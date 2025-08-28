@@ -17,9 +17,11 @@ struct FeeSelectorContentView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            BottomSheetHeaderView(title: Localization.commonNetworkFeeTitle, trailing: {
-                CircleButton.close(action: viewModel.dismiss)
-            })
+            BottomSheetHeaderView(
+                title: Localization.commonNetworkFeeTitle,
+                leading: backButton,
+                trailing: closeButton
+            )
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
 
@@ -37,10 +39,25 @@ struct FeeSelectorContentView: View {
                 .padding(.vertical, 16)
                 .padding(.horizontal, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.action
             configuration.sheetFrameUpdateAnimation = .easeInOut
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
+    }
+
+    @ViewBuilder
+    private func backButton() -> some View {
+        if case .back = viewModel.dismissButtonType {
+            CircleButton.back(action: viewModel.dismiss)
+        }
+    }
+
+    @ViewBuilder
+    private func closeButton() -> some View {
+        if case .close = viewModel.dismissButtonType {
+            CircleButton.close(action: viewModel.dismiss)
         }
     }
 }

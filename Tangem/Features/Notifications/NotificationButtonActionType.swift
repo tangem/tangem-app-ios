@@ -14,10 +14,12 @@ import TangemUI
 struct NotificationButtonAction {
     let type: NotificationButtonActionType
     let withLoader: Bool
+    let isDisabled: Bool
 
-    init(_ type: NotificationButtonActionType, withLoader: Bool = false) {
+    init(_ type: NotificationButtonActionType, withLoader: Bool = false, isDisabled: Bool = false) {
         self.type = type
         self.withLoader = withLoader
+        self.isDisabled = isDisabled
     }
 }
 
@@ -52,7 +54,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupport2No
     case unlock
     case openReferralProgram
-    case openHotFinishActivation(isWarning: Bool)
+    case openMobileFinishActivation(needsAttention: Bool)
 
     var id: Int { hashValue }
 
@@ -112,7 +114,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.referralButtonParticipate
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
-        case .openHotFinishActivation:
+        case .openMobileFinishActivation:
             return Localization.hwActivationNeedFinish
         }
     }
@@ -148,7 +150,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation:
+             .openMobileFinishActivation:
             return nil
         }
     }
@@ -184,8 +186,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openReferralProgram,
              .addTokenTrustline:
             return .secondary
-        case .openHotFinishActivation(let isWarning):
-            return isWarning ? .primary : .secondary
+        case .openMobileFinishActivation(let needsAttention):
+            return needsAttention ? .primary : .secondary
         }
     }
 }

@@ -33,7 +33,10 @@ class CommonSwapManager {
 
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
-        expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
+        let hasMemo = SendDestinationAdditionalFieldType.type(for: swappingPair.sender.tokenItem.blockchain) != nil
+
+        return canSwap && !hasMemo
     }
 
     var swappingPair: SwapManagerSwappingPair {
@@ -50,6 +53,14 @@ extension CommonSwapManager: SwapManager {
 
     var statePublisher: AnyPublisher<ExpressInteractor.State, Never> {
         interactor.state
+    }
+
+    var providers: [ExpressAvailableProvider] {
+        get async { await interactor.getAllProviders() }
+    }
+
+    var selectedProvider: ExpressAvailableProvider? {
+        get async { await interactor.getSelectedProvider() }
     }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
@@ -90,6 +101,10 @@ extension CommonSwapManager: SwapManager {
         interactor.updateProvider(provider: provider)
     }
 
+    func update(feeOption: FeeOption) {
+        interactor.updateFeeOption(option: feeOption)
+    }
+
     func update() {
         interactor.refresh(type: .full)
     }
@@ -99,7 +114,14 @@ extension CommonSwapManager: SwapManager {
     }
 
     func send() async throws -> TransactionDispatcherResult {
-        try await interactor.send().result
+        do {
+            let result = try await interactor.send(shouldTrackAnalytics: false).result
+            // Stop timer after send
+            stopTimer()
+            return result
+        } catch {
+            throw error
+        }
     }
 }
 
@@ -141,15 +163,6 @@ private extension CommonSwapManager {
 
             AppLogger.info("Timer call autoupdate")
             $0.interactor.refresh(type: .refreshRates)
-        }
-    }
-}
-
-private extension SwapManagerState {
-    var isRefreshRates: Bool {
-        switch self {
-        case .loading(.refreshRates): true
-        default: false
         }
     }
 }

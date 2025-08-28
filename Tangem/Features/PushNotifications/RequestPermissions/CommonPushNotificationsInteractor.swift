@@ -128,6 +128,11 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         logPostponedRequest(in: flow)
     }
 
+    func logRequest(in flow: PushNotificationsPermissionRequestFlow) {
+        let source = analyticsSourceValue(for: flow)
+        Analytics.log(.pushNotificationScreenOpened, params: [.source: source])
+    }
+
     var permissionRequestPublisher: AnyPublisher<PushNotificationsPermissionRequest, Never> {
         _permissionRequestEventSubject.eraseToAnyPublisher()
     }
@@ -146,7 +151,7 @@ extension CommonPushNotificationsInteractor: Initializable {
         let currentVersion = ResetVersion.current.rawValue
 
         if resetPushNotificationsAuthorizationRequestCounter < currentVersion {
-            hasSavedWalletsFromPreviousVersion = userWalletRepository.models.isNotEmpty
+            hasSavedWalletsFromPreviousVersion = AppSettings.shared.saveUserWallets
             canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
             resetPushNotificationsAuthorizationRequestCounter = currentVersion
         }

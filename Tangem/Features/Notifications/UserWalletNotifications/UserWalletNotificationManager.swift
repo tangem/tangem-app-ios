@@ -130,6 +130,7 @@ final class UserWalletNotificationManager {
 
         showAppRateNotificationIfNeeded()
         createIfNeededAndShowSupportSeedNotification()
+        showMobileActivationNotificationIfNeeded()
     }
 
     private func createIfNeededAndShowSupportSeedNotification() {
@@ -195,13 +196,51 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.value.insert(input, at: 0)
     }
 
+    private func showMobileActivationNotificationIfNeeded() {
+        let config = userWalletModel.config
+        let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
+        let needAccessCode = config.hasFeature(.userWalletAccessCode) && !MobileAccessCodeSkipHelper.has(userWalletId: userWalletModel.userWalletId)
+
+        guard needBackup || needAccessCode else {
+            return
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { [weak self] id in
+            self?.delegate?.didTapNotification(with: id, action: .empty)
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            self?.delegate?.didTapNotification(with: id, action: action)
+        }
+
+        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+
+        let hasPositiveBalance = userWalletModel.totalBalance.hasPositiveBalance
+
+        Analytics.log(
+            .noticeFinishActivation,
+            params: [.balanceState: hasPositiveBalance ? .full : .empty]
+        )
+
+        let input = factory.buildNotificationInput(
+            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+
+        addInputIfNeeded(input)
+    }
+
     private func bind() {
         bag.removeAll()
 
         userWalletModel.updatePublisher
             .filter { value in
                 switch value {
-                case .backupDidChange:
+                case .configurationChanged:
                     return true
                 case .nameDidChange:
                     return false
@@ -234,6 +273,17 @@ final class UserWalletNotificationManager {
 
                 showReferralNotification = value
                 createNotifications()
+            })
+            .store(in: &bag)
+
+        userWalletModel
+            .totalBalancePublisher
+            .map(\.hasPositiveBalance)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { manager, _ in
+                manager.createNotifications()
             })
             .store(in: &bag)
     }

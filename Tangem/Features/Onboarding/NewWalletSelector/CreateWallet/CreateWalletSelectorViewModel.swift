@@ -51,6 +51,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
 extension CreateWalletSelectorViewModel {
     func onAppear() {
+        Analytics.log(.onboardingStarted)
+
         scheduleScanAvailability()
     }
 
@@ -96,7 +98,7 @@ private extension CreateWalletSelectorViewModel {
 private extension CreateWalletSelectorViewModel {
     func scanCard() {
         isScanning = true
-        Analytics.beginLoggingCardScan(source: .welcome)
+        Analytics.beginLoggingCardScan(source: .createWallet)
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -121,7 +123,7 @@ private extension CreateWalletSelectorViewModel {
                     viewModel.error = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -140,13 +142,19 @@ private extension CreateWalletSelectorViewModel {
 
             case .success(let cardInfo):
                 do {
-                    let userWalletModel = try viewModel.userWalletRepository.unlock(with: .card(cardInfo))
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
-                    await runOnMain {
-                        viewModel.isScanning = false
-                        viewModel.openMain(userWalletModel: userWalletModel)
+                        await runOnMain {
+                            viewModel.isScanning = false
+                            viewModel.openMain(userWalletModel: newUserWalletModel)
+                        }
+                    } else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
                     }
-
                 } catch {
                     viewModel.incomingActionManager.discardIncomingAction()
 
@@ -164,12 +172,15 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func openMobileWallet() {
-        let input = HotOnboardingInput(flow: .walletCreate)
-        let options = OnboardingCoordinator.Options.hotInput(input)
+        Analytics.log(.buttonMobileWallet)
+
+        let input = MobileOnboardingInput(flow: .walletCreate)
+        let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }
 
     func openHardwareWallet() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 

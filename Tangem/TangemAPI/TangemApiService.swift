@@ -80,6 +80,8 @@ protocol TangemApiService: AnyObject {
     @discardableResult
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
 
+    func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
+
     func loadStory(storyId: String) async throws -> StoryDTO.Response
 
     // MARK: - Seed Notify
@@ -95,8 +97,6 @@ protocol TangemApiService: AnyObject {
     func loadFeatures() async throws -> [String: Bool]
 
     func loadAPIList() async throws -> APIListDTO
-
-    func setAuthData(_ authData: TangemApiTarget.AuthData)
 
     // MARK: - Notification
 
@@ -130,7 +130,7 @@ protocol TangemApiService: AnyObject {
     ///   - requestModel: Details for creating the new wallet including ID and name
     /// - Returns: Empty response indicating success
     @discardableResult
-    func createAndConnectUserWallet(applicationUid: String, items: [UserWalletDTO.Create.Request]) async throws -> EmptyGenericResponseDTO
+    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws -> EmptyGenericResponseDTO
 }
 
 private struct TangemApiServiceKey: InjectionKey {

@@ -62,7 +62,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         guard let loadedDAppProposal else { return }
 
         let previousBlockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
-        let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains()
+        let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains().map(\.blockchain)
             ?? Array(loadedDAppProposal.sessionProposal.optionalBlockchains)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
@@ -133,7 +133,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 // MARK: - DApp proposal connect / cancel
 
 extension WalletConnectDAppConnectionRequestViewModel {
-    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [Blockchain]) async {
+    private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
         analyticsLogger.logConnectButtonTapped()
 
         let dAppSession: WalletConnectDAppSession
@@ -141,11 +141,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
         do {
             dAppSession = try await interactor.approveDAppProposal(
                 sessionProposal: proposal.sessionProposal,
-                selectedBlockchains: selectedBlockchains,
+                selectedBlockchains: selectedBlockchains.map(\.blockchain),
                 selectedUserWallet: selectedUserWallet
             )
         } catch {
             analyticsLogger.logDAppConnectionFailed(with: error)
+            logger.error("Failed to approve \(proposal.dAppData.name) dApp proposal", error: error)
             hapticFeedbackGenerator.errorNotificationOccurred()
             coordinator?.display(proposalApprovalError: error)
             return
@@ -155,7 +156,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             try await interactor.persistConnectedDApp(
                 connectionProposal: proposal,
                 dAppSession: dAppSession,
-                blockchains: selectedBlockchains,
+                dAppBlockchains: selectedBlockchains,
                 userWallet: selectedUserWallet
             )
         } catch {
@@ -173,7 +174,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func rejectDAppProposal() {
         if let loadedDAppProposal {
-            Task { [rejectDAppProposal = interactor.rejectDAppProposal, analyticsLogger, logger] in
+            Task { [rejectDAppProposal = interactor.rejectDAppProposal, logger] in
                 do {
                     try await rejectDAppProposal(proposalID: loadedDAppProposal.sessionProposal.id)
                 } catch {
@@ -220,8 +221,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
     }
 
     private func handleVerifiedDomainIconTapped() {
-        guard !state.dAppDescriptionSection.isLoading, let dAppName = loadedDAppProposal?.dAppData.name else { return }
-        coordinator?.openVerifiedDomain(for: dAppName)
+        guard !state.dAppDescriptionSection.isLoading else { return }
+        coordinator?.openVerifiedDomain()
     }
 
     private func handleConnectionRequestSectionHeaderTapped() {
@@ -361,7 +362,7 @@ private extension WalletConnectDAppConnectionRequestViewState.NetworksSection {
         }
 
         let availableSelectionMode = AvailableSelectionMode(
-            blockchains: blockchainsAvailabilityResult.retrieveSelectedBlockchains()
+            blockchains: blockchainsAvailabilityResult.retrieveSelectedBlockchains().map(\.blockchain)
         )
         let contentState = ContentState(selectionMode: .available(availableSelectionMode))
         self.init(state: .content(contentState))

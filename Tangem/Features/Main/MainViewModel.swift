@@ -19,6 +19,7 @@ import TangemFoundation
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
 
@@ -291,7 +292,7 @@ final class MainViewModel: ObservableObject {
                 case .locked:
                     isLoggingOut = true
                 case .inserted(let userWalletId):
-                    if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
+                    if let userWalletModel = userWalletRepository.models[userWalletId] {
                         addNewPage(for: userWalletModel)
                     }
                 case .unlocked(let userWalletId):
@@ -361,18 +362,34 @@ final class MainViewModel: ObservableObject {
         if FeatureProvider.isAvailable(.walletConnectUI) {
             wcService.transactionRequestPublisher
                 .receiveOnMain()
-                .sink(
-                    receiveCompletion: { [weak self] result in
-                        if case .failure(let error) = result, let self {
-                            coordinator?.showWCTransactionRequest(with: error)
-                        }
-                    },
-                    receiveValue: { [weak self] transactionData in
-                        guard let self else { return }
+                .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+                    MainActor.assumeIsolated {
+                        switch transactionHandleResult {
+                        case .success(let transactionData):
+                            let sheetViewModel = WCTransactionViewModel(
+                                transactionData: transactionData,
+                                feeManager: CommonWCTransactionFeeManager(
+                                    feeRepository: CommonWCTransactionFeePreferencesRepository(dappName: transactionData.dAppData.name)
+                                ),
+                                analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
+                            )
+                            coordinator?.show(floatingSheetViewModel: sheetViewModel)
 
-                        coordinator?.showWCTransactionRequest(with: transactionData)
+                        case .failure(let error):
+                            if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
+                               let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
+                                   transactionRequestError,
+                                   closeAction: {
+                                       floatingSheetPresenter.removeActiveSheet()
+                                   }
+                               ) {
+                                coordinator?.show(floatingSheetViewModel: errorViewModel)
+                            } else {
+                                coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
+                            }
+                        }
                     }
-                )
+                }
                 .store(in: &bag)
         }
     }
@@ -403,7 +420,7 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             return
         }
 
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = userWalletRepository.models[userWalletId] else {
             return
         }
 

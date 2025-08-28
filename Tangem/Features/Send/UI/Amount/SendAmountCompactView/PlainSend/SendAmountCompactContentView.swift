@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactContentView: View {
     @ObservedObject var viewModel: SendAmountCompactContentViewModel
@@ -27,6 +28,7 @@ struct SendAmountCompactContentView: View {
             VStack(alignment: .center, spacing: 6) {
                 ZStack {
                     SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
                         .alignment(.center)
                         .prefixSuffixOptions(viewModel.amountFieldOptions)
                         .minTextScale(SendAmountStep.Constants.amountMinTextScale)

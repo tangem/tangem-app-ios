@@ -96,6 +96,8 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
             ]
         )
     }
+
+    func logUserDidTapOnProvider() {}
 }
 
 // MARK: - SendFinishAnalyticsLogger
@@ -199,7 +201,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
     func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String) {
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
-            .token: tokenItem.currencySymbol,
+            .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: fee.option.rawValue,
             .walletForm: signerType,

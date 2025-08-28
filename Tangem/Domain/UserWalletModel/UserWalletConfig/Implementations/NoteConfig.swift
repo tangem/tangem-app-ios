@@ -29,10 +29,6 @@ struct NoteConfig: CardContainer {
 }
 
 extension NoteConfig: UserWalletConfig {
-    var cardSetLabel: String? {
-        nil
-    }
-
     var cardsCount: Int {
         1
     }
@@ -146,6 +142,16 @@ extension NoteConfig: UserWalletConfig {
         case .promotion:
             return .hidden
         case .nft:
+            return .hidden
+        case .iCloudBackup:
+            return .hidden
+        case .mnemonicBackup:
+            return .hidden
+        case .userWalletAccessCode:
+            return .hidden
+        case .userWalletBackup:
+            return .hidden
+        case .isBalanceRestrictionActive:
             return .hidden
         }
     }

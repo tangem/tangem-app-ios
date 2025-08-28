@@ -19,7 +19,6 @@ struct DefaultIncomingLinkParserTests {
         "Parses known valid deeplink kind",
         arguments: [
             "tangem://buy?type=income_transaction",
-            "tangem://sell?type=promo",
             "tangem://swap?type=onramp_status_update",
             "tangem://buy?type=swap_status_update",
         ]
@@ -41,7 +40,7 @@ struct DefaultIncomingLinkParserTests {
         let urlString = "tangem://token?type=income_transaction&name=new%5Fstaking&token_id=bitcoin&network_id=bitcoin&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00&derivation_path=m%5C44%27%5C501%27%5C0%27&transaction_id=9244b376-123b-438b-ab2a-726bc9581d9b"
 
         guard let url = URL(string: urlString) else {
-            #expect(false, "URL is invalid")
+            #expect(Bool(false), "URL is invalid")
             return
         }
 
@@ -75,7 +74,7 @@ struct DefaultIncomingLinkParserTests {
             "transaction_id=9244b376-123b-438b-ab2a-726bc9581d9b"
 
         guard let url = URL(string: rawURL) else {
-            #expect(false, "URL is invalid")
+            #expect(Bool(false), "URL is invalid")
             return
         }
 

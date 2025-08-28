@@ -54,7 +54,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var emailData: [EmailCollectedData] { [] }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())
     }
 
@@ -64,7 +64,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
 
-    var cardsCount: Int { 3 }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var isUserWalletLocked: Bool { false }
 
@@ -93,6 +93,10 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
+    var accountModelsManager: AccountModelsManager {
+        AccountModelsManagerMock()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -106,6 +110,4 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }
