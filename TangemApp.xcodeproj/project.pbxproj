@@ -14705,9 +14705,8 @@
 		B63F2B3F2E4E3F6800AFC60C /* Interop */ = {
 			isa = PBXGroup;
 			children = (
-				B63F2B402E4E3F7500AFC60C /* AccountWalletManagersRepositoryAdapter.swift */,
-				B6DC54B92E4EBF65005C8EB9 /* AccountWalletModelsManagerFactory.swift */,
-				B6DC54BB2E4EBF8C005C8EB9 /* CommonAccountWalletModelsManagerFactory.swift */,
+				B6A2AB922E5FF33500A7CBFF /* WalletModelsManager */,
+				B6A2AB942E5FF35F00A7CBFF /* UserTokensManager */,
 			);
 			path = Interop;
 			sourceTree = "<group>";
@@ -15050,6 +15049,32 @@
 				B618A6822DDA03E3004043C9 /* NFTSendUtil.swift */,
 			);
 			path = Send;
+			sourceTree = "<group>";
+		};
+		B6A2AB922E5FF33500A7CBFF /* WalletModelsManager */ = {
+			isa = PBXGroup;
+			children = (
+				B6A2AB972E5FF39400A7CBFF /* Factory */,
+				B63F2B402E4E3F7500AFC60C /* AccountWalletManagersRepositoryAdapter.swift */,
+			);
+			path = WalletModelsManager;
+			sourceTree = "<group>";
+		};
+		B6A2AB942E5FF35F00A7CBFF /* UserTokensManager */ = {
+			isa = PBXGroup;
+			children = (
+				B6F06D182E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift */,
+			);
+			path = UserTokensManager;
+			sourceTree = "<group>";
+		};
+		B6A2AB972E5FF39400A7CBFF /* Factory */ = {
+			isa = PBXGroup;
+			children = (
+				B6DC54B92E4EBF65005C8EB9 /* AccountWalletModelsManagerFactory.swift */,
+				B6DC54BB2E4EBF8C005C8EB9 /* CommonAccountWalletModelsManagerFactory.swift */,
+			);
+			path = Factory;
 			sourceTree = "<group>";
 		};
 		B6AA135D2A2A36CF00B53937 /* Views */ = {
@@ -17183,7 +17208,6 @@
 			children = (
 				DC3DCAE72A49B5D500F72554 /* UserTokensManager.swift */,
 				DC3DCAE92A49B5E900F72554 /* CommonUserTokensManager.swift */,
-				B6F06D182E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift */,
 				B0E3381B2A7A809600D36727 /* LockedUserTokensManager.swift */,
 				DC70C0302B96129E002205BA /* KeysDerivingProvider.swift */,
 			);
