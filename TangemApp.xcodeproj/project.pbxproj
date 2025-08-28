@@ -3171,6 +3171,8 @@
 		EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */; };
 		EAF6A6842DF9C44A0094B883 /* IncomingURLValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67F2DF9C44A0094B883 /* IncomingURLValidatorTests.swift */; };
 		EAF6A6852DF9C44A0094B883 /* IncomingActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */; };
+		EAF8436B2E606AED000F7F5B /* YieldAccountNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF843692E606AED000F7F5B /* YieldAccountNotificationManager.swift */; };
+		EAF8436D2E607F81000F7F5B /* FakeYieldAccountNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF8436C2E607F81000F7F5B /* FakeYieldAccountNotificationManager.swift */; };
 		EAFC9E422E2F8EA2005AE9BF /* XRPAddressValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
@@ -7244,6 +7246,8 @@
 		EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParserTests.swift; sourceTree = "<group>"; };
 		EAF6A67F2DF9C44A0094B883 /* IncomingURLValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingURLValidatorTests.swift; sourceTree = "<group>"; };
 		EAF6A6802DF9C44A0094B883 /* IncomingActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingActionsTests.swift; sourceTree = "<group>"; };
+		EAF843692E606AED000F7F5B /* YieldAccountNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountNotificationManager.swift; sourceTree = "<group>"; };
+		EAF8436C2E607F81000F7F5B /* FakeYieldAccountNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeYieldAccountNotificationManager.swift; sourceTree = "<group>"; };
 		EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidationTests.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
@@ -10321,6 +10325,7 @@
 		B02FF9992A9A05A80073D93C /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
+				EAF8436A2E606AED000F7F5B /* YieldAccountNotifications */,
 				B05CCBB12CB40C6600134DA8 /* GeneralNotifications */,
 				EF9E38032B74E6B5004B694C /* BannerNotifications */,
 				EFEE22BD2BFCF2D10099917E /* BlockchainSDKNotifications */,
@@ -18572,6 +18577,15 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		EAF8436A2E606AED000F7F5B /* YieldAccountNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				EAF843692E606AED000F7F5B /* YieldAccountNotificationManager.swift */,
+				EAF8436C2E607F81000F7F5B /* FakeYieldAccountNotificationManager.swift */,
+			);
+			path = YieldAccountNotifications;
+			sourceTree = "<group>";
+		};
 		EF031A262C08E64F001535C9 /* StakingCalculator */ = {
 			isa = PBXGroup;
 			children = (
@@ -22318,6 +22332,7 @@
 				C207D5F42DE60E0200A5FB2E /* WalletConnectWalletSelectorViewEvent.swift in Sources */,
 				C207D5F52DE60E0200A5FB2E /* WalletConnectWalletSelectorViewState.swift in Sources */,
 				C207D5F62DE60E0200A5FB2E /* WalletConnectWalletSelectorViewModel.swift in Sources */,
+				EAF8436D2E607F81000F7F5B /* FakeYieldAccountNotificationManager.swift in Sources */,
 				EF9E2A592B56AA7F00418559 /* ExpressSuccessSentRoutableMock.swift in Sources */,
 				EF0FBB792C53BE630095A6BD /* SendFeeCompactViewModel.swift in Sources */,
 				0F27863B2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift in Sources */,
@@ -22569,6 +22584,7 @@
 				EFA9854F2947787F00D1FCB3 /* FeeFormatterMock.swift in Sources */,
 				DC60D0F02CEAFB9500FF6BA8 /* ActionButtonsSwapView.swift in Sources */,
 				EF799D092CFE124600BFB25C /* PendingOnrampTransactionFactory.swift in Sources */,
+				EAF8436B2E606AED000F7F5B /* YieldAccountNotificationManager.swift in Sources */,
 				B0290CDF2CAED9AF008ABBD2 /* MarketsTokenDetailsExchangesListView+Skeletons.swift in Sources */,
 				EFB23F3C2CBE914D005A6719 /* OnrampFlowBaseBuilder.swift in Sources */,
 				DCE814FB2DC90CBA00688DB1 /* TwinImageProvider.swift in Sources */,
