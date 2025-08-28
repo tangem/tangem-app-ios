@@ -161,7 +161,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
-            yiedldAcountNotificationManager: FakeYieldAccountNotificationManager(),
+            yieldAccountNotificationManager: FakeYieldAccountNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),
