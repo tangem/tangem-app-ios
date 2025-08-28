@@ -134,7 +134,7 @@ extension AnyWalletManagerFactoryError: UniversalError {
 extension MultipleAddressTransactionHistoryService.ServiceError: UniversalError {
     var errorCode: Int {
         switch self {
-        case .unknowProvider:
+        case .unknownProvider:
             100006000
         }
     }
