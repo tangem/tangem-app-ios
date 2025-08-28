@@ -10,19 +10,34 @@ import SwiftUI
 import TangemUIUtils
 import TangemFoundation
 
+// iOS 26: introspect - ok, custom header - ok
+// iOS 18: introspect - ok, custom header - ok
+// iOS 17: introspect - ok, custom header - ok
+// iOS 16: introspect - ok, custom header - ok
+// iOS 15: introspect - ok, custom header - ok
+
 public struct RefreshScrollView<Content: View>: View {
     // Init
 
     @ObservedObject private var stateObject: RefreshScrollViewStateObject
+    private let spacing: CGFloat?
+    private let showsIndicators: Bool
     private let content: () -> Content
 
     // Internal
 
     @State private var introspectResponderChainID = UUID()
-    private let spacename = UUID()
+    private let coordinateSpaceName = UUID()
 
-    public init(stateObject: RefreshScrollViewStateObject, content: @escaping () -> Content) {
+    public init(
+        stateObject: RefreshScrollViewStateObject,
+        spacing: CGFloat? = nil,
+        showsIndicators: Bool = false,
+        content: @escaping () -> Content
+    ) {
         self.stateObject = stateObject
+        self.spacing = spacing
+        self.showsIndicators = showsIndicators
         self.content = content
     }
 
@@ -30,53 +45,77 @@ public struct RefreshScrollView<Content: View>: View {
         ZStack(alignment: .top) {
             refreshControl()
 
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    content()
-                }
-                .offset(y: stateObject.contentOffset)
-                .readContentOffset(inCoordinateSpace: .named(spacename), bindTo: $stateObject.offset)
-            }
-            .coordinateSpace(name: spacename)
-            .introspectResponderChain(
-                introspectedType: UIScrollView.self,
-                includeSubviews: true,
-                updateOnChangeOf: introspectResponderChainID,
-                action: { introspectedInstance in
-                    introspectedInstance.delegate = stateObject.scrollViewDelegate
-                }
-            )
-//                .onScrollPhaseChange { oldPhase, newPhase, context in
-//                    print("oldphase: \(oldPhase), newPhase: \(newPhase)")
-//                }
-//                .onScrollGeometryChange(for: CGPoint.self, of: { geometry in
-//                    return geometry.contentOffset
-//                }, action: { oldValue, newValue in
-//                    print("geometry.contentOffset ->>", oldValue, newValue)
-//                })
-            .onDidAppear {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    introspectResponderChainID = .init()
-//                }
+            if #available(iOS 18.0, *) {
+                scrollView
+            } else {
+                legacyScrollView
             }
         }
-//        .readGeometry(bindTo: $stateObject.geometryInfo)
+        .introspectResponderChain(
+            introspectedType: UIScrollView.self,
+            includeSubviews: true,
+            updateOnChangeOf: introspectResponderChainID,
+            action: { scrollView in
+                stateObject.scrollViewDelegate.set(scrollView: scrollView)
+            }
+        )
+        .onAppear {
+            introspectResponderChainID = .init()
+        }
     }
 
-    var dragGesture: some Gesture {
-        DragGesture(coordinateSpace: .global)
-            .onChanged { value in stateObject.dragging = true }
-            .onEnded { _ in stateObject.dragging = false }
+    @available(iOS 18.0, *)
+    var scrollView: some View {
+        ScrollView(.vertical) {
+            scrollContent
+        }
+        .scrollIndicators(showsIndicators ? .automatic : .hidden)
+//        .onScrollPhaseChange { oldPhase, newPhase, context in
+//            switch (oldPhase, newPhase) {
+//            case (_, .interacting):
+//                stateObject.dragging = true
+//
+//            case (.interacting, _):
+//                stateObject.dragging = false
+//            // Ignore other phases like decelerating, idle etc.
+//            default:
+//                break
+//            }
+//        }
+        .onScrollGeometryChange(for: ScrollGeometry.self, of: \.self) { _, newValue in
+            let yOffset = newValue.contentOffset.y + newValue.contentInsets.top
+
+            stateObject.contentOffset = .init(x: newValue.contentOffset.x, y: yOffset)
+        }
+    }
+
+    var legacyScrollView: some View {
+        ScrollView(.vertical, showsIndicators: showsIndicators) {
+            scrollContent
+                .readContentOffset(
+                    inCoordinateSpace: .named(coordinateSpaceName),
+                    bindTo: $stateObject.contentOffset
+                )
+        }
+        .coordinateSpace(name: coordinateSpaceName)
+    }
+
+    var scrollContent: some View {
+        LazyVStack(spacing: spacing, content: content)
+            .refreshingPadding(length: stateObject.refreshingPadding)
     }
 
     @ViewBuilder
     func refreshControl() -> some View {
-        let progress = clamp(stateObject.correctYOffset / stateObject.settings.threshold, min: 0, max: 1)
-        RefreshControl(state: stateObject.state, settings: stateObject.settings, progress: progress)
+        RefreshControl(
+            state: stateObject.state,
+            settings: stateObject.settings,
+            progress: stateObject.progress
+        )
     }
 }
 
-struct RefreshControl: View {
+private struct RefreshControl: View {
     let state: RefreshScrollViewStateObject.RefreshState
     let settings: RefreshScrollViewStateObject.Settings
     let progress: CGFloat
@@ -89,13 +128,30 @@ struct RefreshControl: View {
                 switch state {
                 case .idle:
                     ProgressView(value: progress).padding(.horizontal, 16)
-                    // TangemRefreshableIcon(progress: progress, isAnimating: false)
+                // TangemRefreshableIcon(progress: progress, isAnimating: false)
                 case .refreshing:
                     ProgressView().scaleEffect(2)
-                    // TangemRefreshableIcon(progress: 1, isAnimating: true)
-                case .afterRefreshing:
+                // TangemRefreshableIcon(progress: 1, isAnimating: true)
+                case .stillDragging:
                     Text("STOP DRAGGING")
                 }
             }
+    }
+}
+
+private extension View {
+    /**
+     We have a few options:
+     - `offset(y: stateObject.contentOffset)`is not fitted because when refresh is ended the whole connect is moving up
+     - `safeAreaPadding(.top, stateObject.contentOffset)` semantically better to use. It's like imitation `UIScrollView.contentInset.top`
+     - `.padding(.top, stateObject.contentOffset)` - fallback to previous iOS versions.
+     */
+    @ViewBuilder
+    func refreshingPadding(length: CGFloat) -> some View {
+        if #available(iOS 17.0, *) {
+            safeAreaPadding(.top, length)
+        } else {
+            padding(.top, length)
+        }
     }
 }
