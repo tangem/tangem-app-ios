@@ -14,7 +14,6 @@ import TangemFoundation
 import TangemStaking
 import TangemNFT
 import TangemLocalization
-import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
