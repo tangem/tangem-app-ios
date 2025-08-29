@@ -40,87 +40,20 @@ public class RefreshScrollViewStateObject: ObservableObject {
         bind()
     }
 
-    // MARK: - Offset handling
-
-    func bind() {
-        $contentOffset
-            .withWeakCaptureOf(self)
-            .sink { $0.didChange(offset: $1) }
-            .store(in: &bag)
-    }
-
-    func didChange(offset: CGPoint) {
-        switch state {
-        case .idle where offset.y < -settings.threshold:
-            print("Start refreshing")
-            startRefreshing()
-        case .stillDragging where !scrollViewDelegate.dragging && offset.y.rounded() >= .zero:
-            state = .idle
-            print("Come back to idle state after stillDragging")
-        default:
-            break
-        }
-    }
-
-    func targetContentOffset(draggingWillEndAt targetOffset: CGPoint) -> DraggingScrollViewDelegate.TargetContentOffset? {
-        let targetOffsetInsideRefreshArea: Bool = (0 ... refreshingPadding).contains(targetOffset.y.rounded(.down))
-        let refreshingPaddingIsOpen = refreshingPadding > 0
-
-        switch state {
-        case .refreshing where !refreshingPaddingIsOpen:
-            onRefreshingPadding()
-            return .top
-
-        case .idle where refreshingPaddingIsOpen && targetOffsetInsideRefreshArea,
-             .stillDragging where refreshingPaddingIsOpen && targetOffsetInsideRefreshArea:
-            offRefreshingPadding()
-            return .top
-
-        default:
-            return .none
-        }
-    }
-
-    // MARK: - Refreshing Padding
-
-    func onRefreshingPadding() {
-        guard refreshingPadding.isZero else {
-            return
-        }
-
-        // Extreme easyOut animation
-        let animation = Animation.timingCurve(0, 0.5, 0.5, 1, duration: 0.3) // .easeOut(duration: 0.2)
-        withAnimation(animation) {
-            refreshingPadding = settings.refreshAreaHeight
-        }
-    }
-
-    func offRefreshingPadding() {
-        guard !refreshingPadding.isZero else {
-            return
-        }
-
-        let shouldScrollToTop = (1 ... refreshingPadding).contains(contentOffset.y)
-        withAnimation(.easeOut(duration: 0.2)) {
-            refreshingPadding = .zero
-        }
-
-        if shouldScrollToTop {
-            scrollViewDelegate.scrollToTop()
-        }
-    }
-
     // MARK: - Start / Stop refreshing
 
     func startRefreshing() {
         FeedbackGenerator.heavy()
 
-        let task = Task {
-            await refreshable()
-            await stopRefreshing()
+        // Clouser which start refresh
+        let refreshing: () -> Void = { [weak self] in
+            Task {
+                await self?.refreshable()
+                await self?.stopRefreshing()
+            }
         }
 
-        state = .refreshing(task)
+        state = .refreshing(refreshing)
     }
 
     @MainActor
@@ -128,7 +61,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
         print("Stop refreshing at", contentOffset)
 
         // Decide according on the current content offset
-        switch contentOffset.y.rounded() {
+        switch contentOffset.y.rounded(.down) {
         // Still dragging. The `refreshingPadding` will be update after dragging is end
         case _ where scrollViewDelegate.dragging:
             state = .stillDragging
@@ -143,12 +76,85 @@ public class RefreshScrollViewStateObject: ObservableObject {
             state = .idle
         }
     }
+
+    // MARK: - Offset handling
+
+    func bind() {
+        $contentOffset
+            .withWeakCaptureOf(self)
+            .sink { $0.didChange(offset: $1) }
+            .store(in: &bag)
+    }
+
+    func didChange(offset: CGPoint) {
+        switch state {
+        case .idle where offset.y < -settings.threshold:
+            print("Start refreshing")
+            startRefreshing()
+        case .stillDragging where !scrollViewDelegate.dragging && offset.y.rounded(.down) >= .zero:
+            state = .idle
+            print("Come back to idle state after stillDragging")
+        default:
+            break
+        }
+    }
+
+    func targetContentOffset(draggingWillEndAt targetOffset: CGPoint) -> DraggingScrollViewDelegate.TargetContentOffset? {
+        let targetOffsetInsideRefreshArea: Bool = (0 ... refreshingPadding).contains(targetOffset.y.rounded(.down))
+        let refreshingPaddingIsOpen = refreshingPadding > 0
+
+        switch state {
+        case .refreshing(let refresh) where !refreshingPaddingIsOpen:
+            onRefreshingPadding(done: refresh)
+            return .top
+
+        case .idle where refreshingPaddingIsOpen && targetOffsetInsideRefreshArea,
+             .stillDragging where refreshingPaddingIsOpen && targetOffsetInsideRefreshArea:
+            offRefreshingPadding()
+            return .top
+
+        default:
+            return .none
+        }
+    }
+
+    // MARK: - Refreshing Padding
+
+    func onRefreshingPadding(done: @escaping () -> Void) {
+        guard refreshingPadding.isZero else {
+            return
+        }
+
+        let duration: CGFloat = 0.3
+        // Extreme easeOut animation
+        let animation = Animation.timingCurve(0, 0.5, 0.5, 1, duration: duration)
+        withAnimation(animation) {
+            refreshingPadding = settings.refreshAreaHeight
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1, execute: done)
+    }
+
+    func offRefreshingPadding() {
+        guard !refreshingPadding.isZero else {
+            return
+        }
+
+        let shouldScrollToTop = (1 ... refreshingPadding).contains(contentOffset.y)
+        withAnimation(.easeOut(duration: 0.4)) {
+            refreshingPadding = .zero
+        }
+
+        if shouldScrollToTop {
+            scrollViewDelegate.scrollToTop()
+        }
+    }
 }
 
 public extension RefreshScrollViewStateObject {
-    enum RefreshState: Hashable {
+    enum RefreshState {
         case idle
-        case refreshing(_ task: Task<Void, Never>)
+        case refreshing(_ task: () -> Void)
         case stillDragging
     }
 
@@ -191,7 +197,7 @@ final class DraggingScrollViewDelegate: NSObject, UIScrollViewDelegate {
 
         let topInset = topInset(scrollView: scrollView)
         let top = CGPoint(x: scrollView.safeAreaInsets.left, y: -topInset)
-        UIView.animate(withDuration: 0.2) {
+        UIView.animate(withDuration: 0.4) {
             scrollView.setContentOffset(top, animated: false)
         }
     }
