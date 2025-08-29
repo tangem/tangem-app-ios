@@ -255,13 +255,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if AppSettings.shared.startWalletUsageDate == nil {
             AppSettings.shared.startWalletUsageDate = Date()
         }
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: method.analyticsValue.rawValue,
-            .walletsCount: "\(models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
-            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
-        ])
     }
 
     private func _handleUnlock(context: LAContext) throws -> Int {
