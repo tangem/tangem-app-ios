@@ -26,6 +26,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private(set) var name: String
     @Published var accountsSection: [AccountsSectionType] = []
+    @Published var mobileUpgradeNotificationInput: NotificationViewInput?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
@@ -109,6 +110,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func setupView() {
+        resetViewModels()
         // setupAccountsSection()
         setupViewModels()
         setupMobileViewModels()
@@ -119,14 +121,23 @@ private extension UserWalletSettingsViewModel {
         accountsSection = []
     }
 
+    func resetViewModels() {
+        backupViewModel = nil
+        manageTokensViewModel = nil
+        referralViewModel = nil
+        nftViewModel = nil
+        pushNotificationsViewModel = nil
+        mobileAccessCodeViewModel = nil
+        mobileBackupViewModel = nil
+        mobileUpgradeNotificationInput = nil
+    }
+
     func setupViewModels() {
         if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
             backupViewModel = DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.prepareBackup)
             )
-        } else {
-            backupViewModel = nil
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
@@ -148,8 +159,6 @@ private extension UserWalletSettingsViewModel {
                     accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.referralProgramButton,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
-        } else {
-            referralViewModel = nil
         }
 
         if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
@@ -162,8 +171,6 @@ private extension UserWalletSettingsViewModel {
                     set: { $0.isNFTEnabled = $1 }
                 )
             )
-        } else {
-            nftViewModel = nil
         }
 
         if FeatureProvider.isAvailable(.pushTransactionNotifications), userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
@@ -209,8 +216,22 @@ private extension UserWalletSettingsViewModel {
                     detailsType: detailsType,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openMobileBackupTypes)
                 )
+
+            case .upgrade:
+                mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
+                    onContext: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationContext),
+                    onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
+                )
             }
         }
+    }
+
+    func onMobileUpgradeNotificationContext(context: MobileWalletContext) {
+        coordinator?.openMobileUpgrade(userWalletModel: userWalletModel, context: context)
+    }
+
+    func onMobileUpgradeNotificationDismiss() {
+        setupView()
     }
 
     func mobileAccessCodeAction() {

@@ -147,6 +147,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .isBalanceRestrictionActive:
             return .available
+        case .userWalletUpgrade:
+            return .available
         }
     }
 
@@ -171,6 +173,6 @@ extension MobileUserWalletConfig: UserWalletConfig {
     }
 
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder {
-        fatalError("Implementation not required")
+        MobileOnboardingStepsBuilder(backupService: backupService)
     }
 }
