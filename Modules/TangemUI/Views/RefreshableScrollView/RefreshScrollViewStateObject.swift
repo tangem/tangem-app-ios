@@ -63,7 +63,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
     }
 
     func targetContentOffset(draggingWillEndAt targetOffset: CGPoint) -> DraggingScrollViewDelegate.TargetContentOffset? {
-        let targetOffsetInsideRefreshArea: Bool = (0 ... refreshingPadding).contains(targetOffset.y)
+        let targetOffsetInsideRefreshArea: Bool = (0 ... refreshingPadding).contains(targetOffset.y.rounded(.down))
         let refreshingPaddingIsOpen = refreshingPadding > 0
 
         switch state {
@@ -89,8 +89,8 @@ public class RefreshScrollViewStateObject: ObservableObject {
         }
 
         // Extreme easyOut animation
-        // .timingCurve(0, 0.5, 0.5, 1, duration: 0.3)
-        withAnimation(.easeOut(duration: 0.2)) {
+        let animation = Animation.timingCurve(0, 0.5, 0.5, 1, duration: 0.3) // .easeOut(duration: 0.2)
+        withAnimation(animation) {
             refreshingPadding = settings.refreshAreaHeight
         }
     }
