@@ -22,7 +22,9 @@ struct UserWalletSettingsView: View {
         GroupedScrollView(alignment: .leading, spacing: 24) {
             nameSection
 
-            accessCodeSection
+            mobileUpgradeSection
+
+            mobileAccessCodeSection
 
             backupSection
 
@@ -54,7 +56,13 @@ struct UserWalletSettingsView: View {
         .onTapGesture(perform: viewModel.onTapNameField)
     }
 
-    private var accessCodeSection: some View {
+    private var mobileUpgradeSection: some View {
+        viewModel.mobileUpgradeNotificationInput.map {
+            NotificationView(input: $0)
+        }
+    }
+
+    private var mobileAccessCodeSection: some View {
         GroupedSection(
             viewModel.mobileAccessCodeViewModel,
             content: {
