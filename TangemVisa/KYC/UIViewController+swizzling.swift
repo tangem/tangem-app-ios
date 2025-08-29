@@ -10,6 +10,7 @@
 import SwiftUI
 import IdensicMobileSDK
 import TangemAssets
+import UIKit
 
 extension UIViewController {
     static func toggleKYCSDKControllersSwizzling() {
@@ -25,51 +26,6 @@ extension UIViewController {
 }
 
 private extension UIViewController {
-    // [REDACTED_TODO_COMMENT]
-    // Current texts are just placeholders
-    var backButtonTitle: String {
-        "Back"
-    }
-
-    var closeButtonTitle: String {
-        "Close"
-    }
-
-    func kycScreenInfo() -> (title: String, isInitial: Bool) {
-        let title: String
-        var isInitial = false
-
-        switch String(describing: type(of: self)) {
-        case "AgreementViewController":
-            title = "Country of residence"
-            isInitial = true
-
-        case "SNSStatusVC":
-            title = "Account verification"
-            isInitial = true
-
-        case "QuestionnaireViewController":
-            title = "Personal information"
-
-        case "SNSDocTypePickerVC":
-            title = "Identity document"
-
-        case "SNSCameraVC":
-            title = "Upload document"
-
-        case "SNSPreviewVC":
-            title = "Upload document"
-
-        case "SNSFaceScanVC":
-            title = "Liveness check"
-
-        default:
-            title = ""
-        }
-
-        return (title, isInitial)
-    }
-
     static func toggleSwizzling(
         originalSelector: Selector,
         swizzledSelector: Selector
@@ -94,39 +50,26 @@ private extension UIViewController {
             return
         }
 
-        let color = UIColor(Colors.Text.primary1)
-        let titleFont = UIFonts.Bold.headline
-
         // By default there is a close button at the right side of nav bar,
         // but according to design it should be placed differently.
         // Calling setLeftBarButton results in losing button's click handler
         navigationController.navigationBar.semanticContentAttribute = .forceRightToLeft
-        navigationController.navigationBar.titleTextAttributes = [
-            .font: titleFont,
-            .foregroundColor: color,
-        ]
-
-        let (title, isInitialScreen) = kycScreenInfo()
-        self.title = title
 
         guard let rightBarButtonItem = navigationItem.rightBarButtonItem else {
             return
         }
 
-        rightBarButtonItem.title = isInitialScreen ? closeButtonTitle : backButtonTitle
-        rightBarButtonItem.image = nil
-        rightBarButtonItem.customView = nil
-        rightBarButtonItem.style = .plain
-        rightBarButtonItem.tintColor = color
+        if isInitialScreen {
+            rightBarButtonItem.image = closeIcon
+        } else {
+            rightBarButtonItem.image = backIcon
 
-        if !isInitialScreen {
             let closeButton = UIBarButtonItem(
-                title: closeButtonTitle,
+                image: closeIcon,
                 style: .plain,
                 target: service,
                 action: #selector(KYCService.dismiss)
             )
-            closeButton.tintColor = color
             navigationItem.setLeftBarButton(closeButton, animated: false)
         }
     }
@@ -152,6 +95,67 @@ private extension UIViewController {
 
         modifiedViewControllerToPresent = viewControllerToPresent
         modifiedViewControllerToPresent.modalPresentationStyle = .overFullScreen
+    }
+
+    var isInitialScreen: Bool {
+        switch String(describing: type(of: self)) {
+        case "AgreementViewController",
+             "SNSStatusVC":
+            true
+        default:
+            false
+        }
+    }
+
+    var backIcon: UIImage {
+        Assets.Glyphs.chevron20LeftButtonNew.uiImage
+            .withCircleBackground(
+                circleSize: 36,
+                iconSize: 20,
+                circleColor: UIColor(Colors.Button.secondary),
+                iconColor: UIColor(Colors.Icon.informative)
+            )
+    }
+
+    var closeIcon: UIImage {
+        Assets.Glyphs.cross20ButtonNew.uiImage
+            .withCircleBackground(
+                circleSize: 36,
+                iconSize: 20,
+                circleColor: UIColor(Colors.Button.secondary),
+                iconColor: UIColor(Colors.Icon.informative)
+            )
+    }
+}
+
+private extension UIImage {
+    func withCircleBackground(
+        circleSize: CGFloat,
+        iconSize: CGFloat,
+        circleColor: UIColor,
+        iconColor: UIColor
+    ) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: circleSize, height: circleSize))
+            .image { context in
+                let rect = CGRect(origin: .zero, size: CGSize(width: circleSize, height: circleSize))
+                circleColor.setFill()
+                context.cgContext.fillEllipse(in: rect)
+
+                let finalIcon = self
+                    .withRenderingMode(.alwaysOriginal)
+                    .withTintColor(iconColor, renderingMode: .alwaysOriginal)
+
+                let iconOffset = (circleSize - iconSize) / 2
+                finalIcon.draw(
+                    in: CGRect(
+                        x: iconOffset,
+                        y: iconOffset,
+                        width: iconSize,
+                        height: iconSize
+                    )
+                )
+            }
+            .withRenderingMode(.alwaysOriginal)
     }
 }
 #endif // ALPHA || BETA || DEBUG

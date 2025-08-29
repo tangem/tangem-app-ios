@@ -28,12 +28,12 @@ struct SendAmountCompactContentView: View {
             VStack(alignment: .center, spacing: 6) {
                 ZStack {
                     SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
                         .alignment(.center)
                         .prefixSuffixOptions(viewModel.amountFieldOptions)
                         .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                         .matchedGeometryEffect(id: namespace.names.amountCryptoText, in: namespace.id)
                         .allowsHitTesting(false) // This text field is read-only
-                        .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
                 }
                 // We have to keep frame until SendDecimalNumberTextField size fix
                 // Just on appear it has the zero height. Is cause break animation

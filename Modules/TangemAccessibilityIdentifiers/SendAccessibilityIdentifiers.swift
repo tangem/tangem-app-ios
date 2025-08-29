@@ -15,7 +15,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// SendView
     public static let sendViewTitle = "sendViewTitle"
-    public static let sendViewNextButton = "sendViewTitle"
+    public static let sendViewNextButton = "sendViewNextButton"
     public static let balanceLabel = "sendBalanceLabel"
 
     /// SendAmountCompactView
