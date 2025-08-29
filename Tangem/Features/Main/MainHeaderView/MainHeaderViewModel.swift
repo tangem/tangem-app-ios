@@ -20,12 +20,13 @@ final class MainHeaderViewModel: ObservableObject {
     @Published var isLoadingSubtitle: Bool = true
 
     var subtitleContainsSensitiveInfo: Bool {
-        subtitleProvider.containsSensitiveInfo
+        subtitleProviderSubject.value.containsSensitiveInfo
     }
 
     private weak var supplementInfoProvider: MainHeaderSupplementInfoProvider?
-    private let subtitleProvider: MainHeaderSubtitleProvider
+    private let subtitleProviderSubject: CurrentValueSubject<MainHeaderSubtitleProvider, Never>
     private let balanceProvider: MainHeaderBalanceProvider
+    private let updatePublisher: AnyPublisher<UpdateResult, Never>
 
     private var bag: Set<AnyCancellable> = []
 
@@ -33,12 +34,14 @@ final class MainHeaderViewModel: ObservableObject {
         isUserWalletLocked: Bool,
         supplementInfoProvider: MainHeaderSupplementInfoProvider,
         subtitleProvider: MainHeaderSubtitleProvider,
-        balanceProvider: MainHeaderBalanceProvider
+        balanceProvider: MainHeaderBalanceProvider,
+        updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
         self.isUserWalletLocked = isUserWalletLocked
         self.supplementInfoProvider = supplementInfoProvider
-        self.subtitleProvider = subtitleProvider
+        subtitleProviderSubject = CurrentValueSubject(subtitleProvider)
         self.balanceProvider = balanceProvider
+        self.updatePublisher = updatePublisher
         userWalletName = supplementInfoProvider.name
         balance = balanceProvider.balance
 
@@ -57,12 +60,16 @@ final class MainHeaderViewModel: ObservableObject {
             .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
 
-        subtitleProvider.isLoadingPublisher
+        subtitleProviderSubject
+            .map { $0.isLoadingPublisher }
+            .switchToLatest()
             .receive(on: DispatchQueue.main)
             .assign(to: \.isLoadingSubtitle, on: self, ownership: .weak)
             .store(in: &bag)
 
-        subtitleProvider.subtitlePublisher
+        subtitleProviderSubject
+            .map { $0.subtitlePublisher }
+            .switchToLatest()
             .receive(on: DispatchQueue.main)
             .assign(to: \.subtitleInfo, on: self, ownership: .weak)
             .store(in: &bag)
@@ -70,6 +77,22 @@ final class MainHeaderViewModel: ObservableObject {
         balanceProvider.balancePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.balance, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        updatePublisher
+            .receive(on: DispatchQueue.main)
+            .compactMap { event in
+                if case .configurationChanged(let model) = event {
+                    let containsDefaultToken = model.config.hasDefaultToken
+                    let isMultiWalletPage = model.config.hasFeature(.multiCurrency) || containsDefaultToken
+                    let providerFactory = model.config.makeMainHeaderProviderFactory()
+                    let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
+                    return subtitleProvider
+                } else {
+                    return nil
+                }
+            }
+            .subscribe(subtitleProviderSubject)
             .store(in: &bag)
     }
 }
