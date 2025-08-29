@@ -48,7 +48,7 @@ final class WCSolanaSignAllTransactionsHandler {
 
     /// Remove signatures placeholder from raw transaction
     func prepareTransactionToSign(hash: String) throws -> Data {
-        let data = try Data(hash.base64Decoded())
+        let data = try hash.base64DecodedData()
         let (signature, _) = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
         return signature
     }
