@@ -38,6 +38,8 @@ extension Analytics {
         case market = "Market"
         case chart = "Chart"
         case blocks = "Blocks"
+        case seedless = "Seedless"
+        case seedphrase = "Seed phrase"
 
         case card = "Card"
         case ring = "Ring"
@@ -53,6 +55,7 @@ extension Analytics {
         case settings = "Settings"
         case signIn = "Sign In"
         case receive = "Receive"
+        case qr = "QR"
         case stories = "Stories"
         case buy = "Buy"
         case sell = "Sell"
@@ -268,6 +271,10 @@ extension Analytics {
 
         static func boolState(for boolean: Bool) -> ParameterValue {
             return boolean ? .true : .false
+        }
+
+        static func seedState(for boolean: Bool) -> ParameterValue {
+            return boolean ? .seedphrase : .seedless
         }
     }
 }
