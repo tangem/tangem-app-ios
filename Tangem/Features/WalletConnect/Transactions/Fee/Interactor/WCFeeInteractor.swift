@@ -374,8 +374,8 @@ extension WCFeeInteractor: FeeSelectorContentViewModelInput {
 }
 
 extension WCFeeInteractor: FeeSelectorContentViewModelOutput {
-    func update(selectedSelectorFee: FeeSelectorFee) {
-        guard let wcFee = fees.first(where: { $0.option == selectedSelectorFee.option }) else {
+    func update(selectedFeeOption: FeeOption) {
+        guard let wcFee = fees.first(where: { $0.option == selectedFeeOption }) else {
             return
         }
 
