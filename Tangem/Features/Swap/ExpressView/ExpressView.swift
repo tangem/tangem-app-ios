@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUIUtils
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct ExpressView: View {
     @ObservedObject private var viewModel: ExpressViewModel
@@ -52,6 +53,7 @@ struct ExpressView: View {
 
                 bottomView
             }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.title)
             .scrollDismissesKeyboardCompat(.interactively)
         }
         .toolbar {
@@ -86,6 +88,7 @@ struct ExpressView: View {
                 GroupedSection(viewModel.sendCurrencyViewModel) {
                     SendCurrencyView(viewModel: $0)
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
+                        .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(Colors.Background.action)
@@ -94,6 +97,7 @@ struct ExpressView: View {
                     ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
                         .didTapNetworkFeeInfoButton(viewModel.userDidTapPriceChangeInfoButton)
+                        .accessibilityIdentifier(SwapAccessibilityIdentifiers.toAmountTextField)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(Colors.Background.action)
@@ -141,6 +145,7 @@ struct ExpressView: View {
     private var feeSection: some View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
         }
         .innerContentPadding(12)
         .backgroundColor(Colors.Background.action)
