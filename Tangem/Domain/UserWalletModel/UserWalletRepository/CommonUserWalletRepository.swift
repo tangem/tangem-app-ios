@@ -267,6 +267,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .signInType: method.analyticsValue.rawValue,
             .walletsCount: "\(models.count)",
             .walletHasBackup: walletHasBackup.rawValue,
+            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
         ])
     }
 
