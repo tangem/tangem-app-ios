@@ -32,6 +32,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case seedSupport2
     case referralProgram
     case mobileFinishActivation(needsAttention: Bool, hasBackup: Bool)
+    case mobileUpgrade
 }
 
 /// For Notifications
@@ -92,6 +93,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             } else {
                 return .string(text)
             }
+        case .mobileUpgrade:
+            return .string(Localization.hwUpgradeToColdBannerTitle)
         }
     }
 
@@ -140,6 +143,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.notificationReferralPromoText
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
+        case .mobileUpgrade:
+            return Localization.hwUpgradeToColdBannerDescription
         }
     }
 
@@ -152,7 +157,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .seedSupport2,
              .referralProgram,
              .backupErrors,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .mobileUpgrade:
             return .primary
         default:
             return .secondary
@@ -183,6 +189,8 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .mobileFinishActivation(let needsAttention, _):
             let imageType = needsAttention ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
+        case .mobileUpgrade:
+            return .init(iconType: .image(Assets.tangemInCircle.image), size: CGSize(width: 36, height: 36))
         }
     }
 
@@ -200,7 +208,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationTemporary,
              .missingDerivation,
              .referralProgram,
-             .rateApp:
+             .rateApp,
+             .mobileUpgrade:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -238,7 +247,8 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .referralProgram,
-             .rateApp:
+             .rateApp,
+             .mobileUpgrade:
             return true
         }
     }
@@ -258,7 +268,7 @@ extension GeneralNotificationEvent: NotificationEvent {
                 break
             }
 
-            return .tappable(action: tapAction)
+            return .tappable(hasChevron: true, action: tapAction)
         case .missingBackup:
             guard let buttonAction else {
                 break
@@ -310,6 +320,11 @@ extension GeneralNotificationEvent: NotificationEvent {
                     isWithLoader: false
                 ),
             ])
+        case .mobileUpgrade:
+            guard let tapAction else {
+                break
+            }
+            return .tappable(hasChevron: false, action: tapAction)
         default: break
         }
         return .plain
@@ -342,6 +357,7 @@ extension GeneralNotificationEvent {
         case .seedSupport2: return .mainNoticeSeedSupport2
         case .referralProgram: return .mainReferralProgram
         case .mobileFinishActivation: return nil
+        case .mobileUpgrade: return nil
         }
     }
 
