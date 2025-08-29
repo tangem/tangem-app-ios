@@ -28,6 +28,10 @@ final class MobileOnboardingSeedPhraseValidationViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileOnboardingSeedPhraseValidationViewModel {
+    func onAppear() {
+        Analytics.log(.backupSeedCheckingScreenOpened)
+    }
+
     func onCreateWallet() {
         delegate?.didValidateSeedPhrase()
     }
