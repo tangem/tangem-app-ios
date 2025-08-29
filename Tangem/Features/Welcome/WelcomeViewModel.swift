@@ -100,7 +100,7 @@ class WelcomeViewModel: ObservableObject {
                     viewModel.error = error.alertBinder
                 }
 
-            case .onboarding(let input):
+            case .onboarding(let input, _):
                 viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
