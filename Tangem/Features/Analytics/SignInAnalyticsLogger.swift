@@ -21,6 +21,7 @@ struct SignInAnalyticsLogger {
             .signInType: signInType.rawValue,
             .walletsCount: "\(userWalletRepository.models.count)",
             .walletHasBackup: walletHasBackup.rawValue,
+            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
         ])
     }
 }
