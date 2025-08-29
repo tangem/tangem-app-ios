@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class MarketsWalletDataProvider {
     // MARK: - Injected
@@ -114,16 +115,15 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
             .map { userWalletModel in
                 WalletSelectorItemViewModel(
                     userWalletId: userWalletModel.userWalletId,
-                    cardsCount: userWalletModel.cardsCount,
+                    cardSetLabel: userWalletModel.config.cardSetLabel,
                     isUserWalletLocked: userWalletModel.isUserWalletLocked,
-                    userWalletNamePublisher: userWalletModel.userWalletNamePublisher,
+                    infoProvider: userWalletModel,
                     totalBalancePublisher: userWalletModel.totalBalancePublisher,
-                    walletImageProvider: userWalletModel.walletImageProvider,
                     isSelected: userWalletModel.userWalletId == _selectedUserWalletModel.value?.userWalletId
                 ) { [weak self] userWalletId in
                     guard let self = self else { return }
 
-                    let selectedUserWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletId })
+                    let selectedUserWalletModel = userWalletModels[userWalletId]
                     _selectedUserWalletModel.send(selectedUserWalletModel)
                 }
             }
