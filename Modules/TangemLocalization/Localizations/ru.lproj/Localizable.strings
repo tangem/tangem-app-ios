@@ -299,6 +299,7 @@
 "common_supported_networks" = "Supported networks";
 "common_swap" = "Обменять";
 "common_tangem_wallet" = "Tangem Wallet";
+"common_tangem" = "Tangem";
 "common_terms_and_conditions" = "условия участия";
 "common_terms_of_use" = "Условиями использования";
 "common_today" = "Сегодня";
@@ -509,6 +510,9 @@
 "hw_create_title" = "Create Mobile Wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
+"hw_upgrade_error_card_already_has_wallet" = "This device can’t be used for upgrade, it already contains another wallet.";
+"hw_upgrade_error_card_key_import" = "Choose another device, this one can’t be used for upgrade.";
+"hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Your funds stay safe and fully accessible during the process";
 "hw_upgrade_funds_access_title" = "Funds access";
 "hw_upgrade_general_security_description" = "All private wallet data will be removed from the mobile app and stored securely on your Tangem device only";
@@ -521,7 +525,7 @@
 "hw_upgrade_start_title" = "Tangem Wallet";
 "hw_upgrade_title" = "Upgrade to Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem’s best-in-class hardware wallet.";
-"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
+"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
 "information_generated_with_ai" = "Эта информация была сгенерирована ИИ.\nНажмите здесь, если обнаружили ошибку.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
@@ -824,6 +828,7 @@
 "onramp_statuses_view_footer" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
 "onramp_via" = "Через";
+"onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Группы";
 "organize_tokens_sort_by_balance" = "По балансу";
 "organize_tokens_title" = "Упорядочить токены";
@@ -993,7 +998,7 @@
 "send_with_swap_convert_token_alert_title" = "Подтвердить конвертацию";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
 "send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
-"send_with_swap_notification_text" = "Отправьте любой токен, и мы конвертируем его по пути. Адресат получит именно то, что нужно — без лишних действий.";
+"send_with_swap_notification_text" = "Выберите любой токен к получению. Ваш адресат получит ровно то, что вы выбрали — без лишних сложностей.";
 "send_with_swap_recipient_amount_success_title" = "Будет получено";
 "send_with_swap_recipient_amount_text" = "Получателю";
 "send_with_swap_recipient_amount_title" = "Сумма к получению";
