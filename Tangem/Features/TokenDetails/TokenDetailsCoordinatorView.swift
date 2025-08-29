@@ -40,6 +40,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.yieldAccountPromoViewModel) {
+                YieldAccountPromoView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
