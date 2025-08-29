@@ -10,12 +10,12 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
+// YIELD [REDACTED_TODO_COMMENT]
 struct YieldAccountPromoView: View {
-    
     // MARK: - Properties
-    
-    private let annualYield = "5.1"
-    
+
+    let viewModel: YieldAccountPromoViewModel
+
     // MARK: - Sub Views
 
     private var background: some View {
@@ -37,7 +37,7 @@ struct YieldAccountPromoView: View {
     }
 
     private var title: some View {
-        Text("Earn \(annualYield)% yearly").style(Fonts.Bold.title1, color: Colors.Text.primary1)
+        Text("Earn \(viewModel.annualYield)% yearly").style(Fonts.Bold.title1, color: Colors.Text.primary1)
     }
 
     private var pillInfoButton: some View {
@@ -85,11 +85,15 @@ struct YieldAccountPromoView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
             HStack(spacing: 4) {
-                Text(.init("[Terms of Use](https://www.google.es/)")).style(Fonts.Regular.footnote, color: Colors.Text.accent)
+                Text(.init("[Terms of Use](https://www.google.es/)"))
+                    .font(Fonts.Regular.footnote)
+                    .tint(Colors.Text.accent)
 
                 Text("and").style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                Text(.init("[Privacy Policy](https://www.bbc.com/)")).style(Fonts.Regular.footnote, color: Colors.Text.accent)
+                Text(.init("[Privacy Policy](https://www.bbc.com/)"))
+                    .font(Fonts.Regular.footnote)
+                    .tint(Colors.Text.accent)
             }
         }
     }
@@ -101,7 +105,7 @@ struct YieldAccountPromoView: View {
         }
         .buttonStyle(.tangemStyle)
     }
-    
+
     // MARK: - View Body
 
     var body: some View {
@@ -129,11 +133,9 @@ struct YieldAccountPromoView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(Localization.commonClose) {
-                    UIApplication.dismissTop()
-                }
-                .foregroundColor(Colors.Text.primary1)
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("How It Works?") {}
+                    .foregroundColor(Colors.Text.primary1)
             }
         }
     }
@@ -144,7 +146,7 @@ private extension YieldAccountPromoView {
         let icon: Image
         let title: String
         let subtitle: String
-        
+
         private var iconView: some View {
             icon
                 .resizable()
@@ -152,17 +154,16 @@ private extension YieldAccountPromoView {
                 .frame(size: .init(bothDimensions: 24))
                 .contentShape(Rectangle())
         }
-        
+
         var body: some View {
             HStack(alignment: .top, spacing: 16) {
-                
                 iconView
-                
+
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title).style(Fonts.Bold.callout, color: Colors.Text.primary1)
                     Text(subtitle).style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 }
-                
+
                 Spacer()
             }
         }
@@ -170,5 +171,5 @@ private extension YieldAccountPromoView {
 }
 
 #Preview {
-    YieldAccountPromoView()
+    YieldAccountPromoView(viewModel: .init(annualYield: "5.1"))
 }
