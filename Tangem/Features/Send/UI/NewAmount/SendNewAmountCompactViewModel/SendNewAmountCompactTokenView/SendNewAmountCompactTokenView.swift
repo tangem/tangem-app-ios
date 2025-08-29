@@ -31,8 +31,8 @@ struct SendNewAmountCompactTokenView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: .zero) {
-            Text(.init(viewModel.walletNameTitle))
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            Text(viewModel.title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             Spacer()
 
@@ -49,17 +49,25 @@ struct SendNewAmountCompactTokenView: View {
     @ViewBuilder
     private var amountView: some View {
         VStack(alignment: .leading, spacing: 2) {
-            SendDecimalNumberTextField(viewModel: viewModel.amountTextFieldViewModel)
-                .alignment(.leading)
-                .prefixSuffixOptions(viewModel.amountFieldOptions)
-                .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                .appearance(.init(font: Fonts.Regular.title1))
-                .allowsHitTesting(false) // This text field is read-only
+            ZStack {
+                // We use hidden `Text` here to calculate constant height without `minimumScaleFactor`
+                Text(viewModel.amountText)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .hidden(true)
 
-            Text(viewModel.alternativeAmount ?? " ")
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                .lineLimit(1)
+                Text(viewModel.amountText)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
+            }
+
+            HStack(spacing: 8) {
+                Text(viewModel.alternativeAmount ?? " ")
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+
+                highPriceImpactWarningView
+            }
         }
+        .lineLimit(1)
     }
 
     private var tokenIcon: some View {
@@ -69,6 +77,31 @@ struct SendNewAmountCompactTokenView: View {
             Text(viewModel.tokenCurrencySymbol)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var highPriceImpactWarningView: some View {
+        if let highPriceImpactWarning = viewModel.highPriceImpactWarning {
+            HStack(spacing: 2) {
+                Text(highPriceImpactWarning.percent)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
+
+                if #available(iOS 16.4, *) {
+                    InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
+                        .color(Colors.Text.attention)
+                } else {
+                    Button(action: {
+                        viewModel.userDidTapHighPriceImpactWarning(highPriceImpactWarning: highPriceImpactWarning)
+                    }) {
+                        Assets.infoCircle16.image
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundStyle(Colors.Text.attention)
+                    }
+                }
+            }
         }
     }
 }
