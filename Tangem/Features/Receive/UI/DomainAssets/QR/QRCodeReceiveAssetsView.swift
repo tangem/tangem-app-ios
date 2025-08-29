@@ -20,7 +20,7 @@ struct QRCodeReceiveAssetsView: View {
 
     var body: some View {
         mainContent
-            .onAppear(perform: viewModel.onViewAppear)
+            .padding(.horizontal, 16)
             .id(viewModel.addressInfo.address)
     }
 
@@ -32,35 +32,35 @@ struct QRCodeReceiveAssetsView: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    .padding(.horizontal, 84)
+                    .padding(.horizontal, 68)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Image(uiImage: viewModel.addressInfo.addressQRImage)
+                    .renderingMode(.original)
                     .resizable()
                     .scaledToFit()
                     .aspectRatio(1, contentMode: .fit)
                     .frame(maxWidth: UIScreen.main.bounds.width * 0.8)
                     .layoutPriority(0)
                     .padding(.top, 32)
+                    .padding(.horizontal, 38)
                     .transaction { transaction in
                         transaction.animation = nil
                     }
 
                 VStack(alignment: .center, spacing: 4) {
                     Text(Localization.commonAddress)
-                        .padding(.horizontal, 32)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Bold.callout, color: Colors.Text.tertiary)
 
                     Button {
                         viewModel.copyToClipboard()
                     } label: {
                         SUILabel(viewModel.stringForAddress(viewModel.addressInfo.address))
-                            .padding(.horizontal, 32)
                             .contentShape(Rectangle())
                             .animation(nil, value: viewModel.addressInfo)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 32)
                 .padding(.top, 20)
 
                 if let memoWarningMessage = viewModel.memoWarningMessage {
@@ -89,7 +89,6 @@ struct QRCodeReceiveAssetsView: View {
                     action: viewModel.share
                 )
             }
-            .padding(.horizontal, 16)
             .padding(.top, 12)
             .padding(.bottom, 16)
         }
