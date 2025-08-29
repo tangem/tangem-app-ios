@@ -51,6 +51,7 @@ struct LoadableTokenBalanceView: View {
                 textView(text)
             }
         }
+        .animation(.none, value: state)
         .environment(\.isShimmerActive, true)
     }
 

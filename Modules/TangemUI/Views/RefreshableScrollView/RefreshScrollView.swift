@@ -101,7 +101,7 @@ public struct RefreshScrollView<Content: View>: View {
 
     @ViewBuilder
     func refreshControl() -> some View {
-        RefreshControl(
+        TangemIconRefreshControl(
             state: stateObject.state,
             settings: stateObject.settings,
             progress: stateObject.progress
@@ -158,5 +158,52 @@ private extension View {
         } else {
             padding(.top, length)
         }
+    }
+}
+
+import TangemAssets
+
+struct TangemIconRefreshControl: View {
+    let state: RefreshScrollViewStateObject.RefreshState
+    let settings: RefreshScrollViewStateObject.Settings
+    let progress: CGFloat
+
+    @State private var isPulsing: Bool = false
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(Color.red.opacity(0.5))
+                .frame(height: settings.refreshAreaHeight)
+
+            switch state {
+            case .idle:
+                icon
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .fill(Color.black.opacity(0.5))
+                            .frame(height: settings.refreshAreaHeight / 2 * (1 - progress))
+                    }
+            // TangemRefreshableIcon(progress: progress, isAnimating: false)
+            case .refreshing:
+                icon
+                    .scaleEffect(isPulsing ? 1.2 : 1)
+                    .animation(.default.repeatForever(), value: isPulsing)
+                    .onAppear { isPulsing = true }
+                    .onDisappear { isPulsing = true }
+            case .stillDragging:
+                VStack(spacing: 2) {
+                    icon
+
+                    Text("STOP DRAGGING")
+                        .font(.footnote)
+                }
+            }
+        }
+    }
+
+    var icon: some View {
+        Assets.tangemIconMedium.image
+            .frame(height: settings.refreshAreaHeight / 2)
     }
 }
