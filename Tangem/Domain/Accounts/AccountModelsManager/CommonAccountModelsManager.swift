@@ -94,6 +94,7 @@ actor CommonAccountModelsManager {
             )
             let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
                 forAccountWithDerivationIndex: derivationIndex,
+                userWalletId: userWalletId,
                 walletModelsManager: walletModelsManager
             )
             let cryptoAccount = CommonCryptoAccountModel(
@@ -157,6 +158,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
         let userTokensManager = userTokensManagerFactory.makeUserTokensManager(
             forAccountWithDerivationIndex: newDerivationIndex,
+            userWalletId: userWalletId,
             walletModelsManager: walletModelsManager
         )
         let newCryptoAccount = CommonCryptoAccountModel(
