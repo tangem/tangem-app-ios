@@ -70,18 +70,6 @@ public struct RefreshScrollView<Content: View>: View {
             scrollContent
         }
         .scrollIndicators(showsIndicators ? .automatic : .hidden)
-//        .onScrollPhaseChange { oldPhase, newPhase, context in
-//            switch (oldPhase, newPhase) {
-//            case (_, .interacting):
-//                stateObject.dragging = true
-//
-//            case (.interacting, _):
-//                stateObject.dragging = false
-//            // Ignore other phases like decelerating, idle etc.
-//            default:
-//                break
-//            }
-//        }
         .onScrollGeometryChange(for: ScrollGeometry.self, of: \.self) { _, newValue in
             let yOffset = newValue.contentOffset.y + newValue.contentInsets.top
 
@@ -91,11 +79,10 @@ public struct RefreshScrollView<Content: View>: View {
 
     var legacyScrollView: some View {
         ScrollView(.vertical, showsIndicators: showsIndicators) {
-            scrollContent
-                .readContentOffset(
-                    inCoordinateSpace: .named(coordinateSpaceName),
-                    bindTo: $stateObject.contentOffset
-                )
+            scrollContent.readContentOffset(
+                inCoordinateSpace: .named(coordinateSpaceName),
+                bindTo: $stateObject.contentOffset
+            )
         }
         .coordinateSpace(name: coordinateSpaceName)
     }

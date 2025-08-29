@@ -84,6 +84,10 @@ public class RefreshScrollViewStateObject: ObservableObject {
     // MARK: - Refreshing Padding
 
     func onRefreshingPadding() {
+        guard refreshingPadding.isZero else {
+            return
+        }
+
         // Extreme easyOut animation
         // .timingCurve(0, 0.5, 0.5, 1, duration: 0.3)
         withAnimation(.easeOut(duration: 0.2)) {
@@ -92,6 +96,10 @@ public class RefreshScrollViewStateObject: ObservableObject {
     }
 
     func offRefreshingPadding() {
+        guard !refreshingPadding.isZero else {
+            return
+        }
+
         let shouldScrollToTop = (1 ... refreshingPadding).contains(contentOffset.y)
         withAnimation(.easeOut(duration: 0.2)) {
             refreshingPadding = .zero
@@ -126,7 +134,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
             state = .stillDragging
 
         // Stop on the top area
-        case 0 ... refreshingPadding:
+        case ...refreshingPadding:
             state = .idle
             offRefreshingPadding()
 
@@ -181,7 +189,8 @@ final class DraggingScrollViewDelegate: NSObject, UIScrollViewDelegate {
             return
         }
 
-        let top = CGPoint(x: scrollView.safeAreaInsets.left, y: -scrollView.safeAreaInsets.top)
+        let topInset = topInset(scrollView: scrollView)
+        let top = CGPoint(x: scrollView.safeAreaInsets.left, y: -topInset)
         UIView.animate(withDuration: 0.2) {
             scrollView.setContentOffset(top, animated: false)
         }
@@ -197,8 +206,9 @@ final class DraggingScrollViewDelegate: NSObject, UIScrollViewDelegate {
         targetContentOffset: UnsafeMutablePointer<CGPoint>
     ) {
         dragging = false
+        let topInset = topInset(scrollView: scrollView)
 
-        let y = targetContentOffset.pointee.y + scrollView.safeAreaInsets.top
+        let y = targetContentOffset.pointee.y + topInset
         let point = CGPoint(x: targetContentOffset.pointee.x, y: y)
 
         print("scrollViewWillEndDragging: \(point)")
@@ -208,12 +218,20 @@ final class DraggingScrollViewDelegate: NSObject, UIScrollViewDelegate {
         case .top:
             targetContentOffset.pointee = .init(
                 x: targetContentOffset.pointee.x,
-                y: -scrollView.safeAreaInsets.top
+                y: -topInset
             )
         }
     }
 
     enum TargetContentOffset {
         case top
+    }
+
+    private func topInset(scrollView: UIScrollView) -> CGFloat {
+        if #available(iOS 17.0, *) {
+            scrollView.safeAreaInsets.top
+        } else {
+            scrollView.contentInset.top
+        }
     }
 }
