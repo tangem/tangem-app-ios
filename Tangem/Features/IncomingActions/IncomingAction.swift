@@ -15,3 +15,14 @@ public enum IncomingAction: Equatable {
     case referralProgram
     case navigation(DeeplinkNavigationAction)
 }
+
+public extension IncomingAction {
+    var isPromoDeeplink: Bool {
+        switch self {
+        case .navigation(let action) where action.destination == .promo:
+            true
+        default:
+            false
+        }
+    }
+}
