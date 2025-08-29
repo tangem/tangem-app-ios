@@ -53,6 +53,7 @@ extension Analytics {
         case settings = "Settings"
         case signIn = "Sign In"
         case receive = "Receive"
+        case qr = "QR"
         case stories = "Stories"
         case buy = "Buy"
         case sell = "Sell"
