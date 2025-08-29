@@ -59,6 +59,7 @@ class NewCustomEvmFeeService {
         return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
     }
 
+    private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
     init(sourceTokenItem: TokenItem, feeTokenItem: TokenItem) {
@@ -202,8 +203,19 @@ extension NewCustomEvmFeeService: CustomFeeService {
         customFee.send(fee)
         updateView(fee: fee)
     }
+}
 
-    func selectorCustomFeeRowViewModels() -> [FeeSelectorCustomFeeRowViewModel] {
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension NewCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
+        customFee
+            .withWeakCaptureOf(self)
+            .map { $0.zeroFee != $1 }
+            .eraseToAnyPublisher()
+    }
+
+    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
             tooltip: Localization.sendCustomAmountFeeFooter,
@@ -289,6 +301,17 @@ extension NewCustomEvmFeeService: CustomFeeService {
                 gasLimitRowViewModel,
                 nonceRowViewModel,
             ]
+        }
+    }
+
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            customFee.send(cachedCustomFee)
+            updateView(fee: cachedCustomFee)
         }
     }
 }
