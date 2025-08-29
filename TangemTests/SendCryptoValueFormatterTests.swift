@@ -34,10 +34,10 @@ class SendCryptoValueFormatterTests: XCTestCase {
         ]
 
         testData.forEach { value, expectedStandardResult, expectedTrimmedFractionsResult in
-            let standardResult = standardFormatter.string(from: value)!
+            let standardResult = standardFormatter.string(from: value)
             XCTAssertEqual(standardResult, expectedStandardResult)
 
-            let trimmedFractionsResult = trimmedFractionsFormatter.string(from: value)!
+            let trimmedFractionsResult = trimmedFractionsFormatter.string(from: value)
             XCTAssertEqual(trimmedFractionsResult, expectedTrimmedFractionsResult)
         }
     }
@@ -66,10 +66,10 @@ class SendCryptoValueFormatterTests: XCTestCase {
         ]
 
         testData.forEach { value, expectedStandardResult, expectedTrimmedFractionsResult in
-            let standardResult = standardFormatter.string(from: value)!
+            let standardResult = standardFormatter.string(from: value)
             XCTAssertEqual(standardResult, expectedStandardResult)
 
-            let trimmedFractionsResult = trimmedFractionsFormatter.string(from: value)!
+            let trimmedFractionsResult = trimmedFractionsFormatter.string(from: value)
             XCTAssertEqual(trimmedFractionsResult, expectedTrimmedFractionsResult)
         }
     }

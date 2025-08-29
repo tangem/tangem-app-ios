@@ -31,7 +31,7 @@ class CommonReceiveAddressService {
 
     private var resolveDestinationTask: Task<Void, Error>?
 
-    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils()
+    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .clearBlack)
 
     // MARK: - Init
 
