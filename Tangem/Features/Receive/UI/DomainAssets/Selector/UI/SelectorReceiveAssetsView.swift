@@ -30,7 +30,6 @@ struct SelectorReceiveAssetsView: View {
             }
         }
         .padding(.bottom, Layout.Container.paddingBottom)
-        .onAppear(perform: viewModel.onViewAppear)
     }
 
     private func sectionView(
