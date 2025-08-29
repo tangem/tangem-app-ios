@@ -51,9 +51,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.logsViewModel) {
                 LogsView(viewModel: $0)
             }
-            .navigation(item: $coordinator.tangemPayOfferViewModel) {
-                TangemPayOfferView(viewModel: $0)
-            }
     }
 
     @ViewBuilder
