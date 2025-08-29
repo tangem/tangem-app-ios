@@ -127,16 +127,16 @@
 "beta_mode_warning_message" = "Según los desarrolladores de la blockchain, los tokens de Kaspa se encuentran actualmente en fase beta. ¡Estén atentos a las actualizaciones!";
 "beta_mode_warning_title" = "Modo Beta";
 "biometry_touch_id_reason" = "Touch ID se utiliza para guardar sus tarjetas y anillos en la aplicación";
-"bitcoin_promo_activation_error_title" = "Activation error";
-"bitcoin_promo_activation_error" = "An error occurred while processing your promo code. Please try again later.";
-"bitcoin_promo_activation_success_title" = "Promo Code Activated";
-"bitcoin_promo_activation_success" = "Your promo code was successfully activated. A bonus of 10 USDT in Bitcoin will be credited to your account within 14 days.";
-"bitcoin_promo_already_activated_title" = "Code unavailable";
-"bitcoin_promo_already_activated" = "This promo code has already been used and cannot be activated again.";
-"bitcoin_promo_invalid_code_title" = "Invalid code";
-"bitcoin_promo_invalid_code" = "This promo code is not valid and cannot be activated.";
-"bitcoin_promo_no_address_title" = "Bitcoin address required";
-"bitcoin_promo_no_address" = "A Bitcoin address is required to receive the bonus. Please add one to your wallet and retry the activation.";
+"bitcoin_promo_activation_error_title" = "Error de activación";
+"bitcoin_promo_activation_error" = "Se produjo un error al procesar tu código promocional. Inténtalo de nuevo más tarde.";
+"bitcoin_promo_activation_success_title" = "Código promocional activado";
+"bitcoin_promo_activation_success" = "Su código promocional se ha activado correctamente. Un bono de 10 USDT en Bitcoin se abonará en su cuenta en un plazo de 14 días.";
+"bitcoin_promo_already_activated_title" = "Código no disponible";
+"bitcoin_promo_already_activated" = "Este código promocional ya ha sido utilizado y no puede activarse de nuevo.";
+"bitcoin_promo_invalid_code_title" = "Código inválido";
+"bitcoin_promo_invalid_code" = "Este código promocional no es válido y no puede activarse.";
+"bitcoin_promo_no_address_title" = "Se requiere una dirección de Bitcoin";
+"bitcoin_promo_no_address" = "Se requiere una dirección de Bitcoin para recibir el bono. Añade una a tu billetera y vuelve a intentar la activación.";
 "button_start_backup_process" = "Iniciar proceso de backup";
 "buy_token_description" = "Utilice una tarjeta bancaria u otros métodos de pago";
 "card_settings_access_code_recovery_disabled_description" = "Desactive esta opción si no quiere que esta tarjeta se use para reiniciar códigos de acceso en otras tarjetas de esta billetera. Tenga en cuenta que esto también evitará que reinicie el código de acceso en esta tarjeta.";
@@ -299,6 +299,7 @@
 "common_supported_networks" = "Redes compatibles";
 "common_swap" = "Swap";
 "common_tangem_wallet" = "Tangem Wallet";
+"common_tangem" = "Tangem";
 "common_terms_and_conditions" = "términos y condiciones";
 "common_terms_of_use" = "Condiciones de uso";
 "common_today" = "Hoy";
@@ -509,6 +510,9 @@
 "hw_create_title" = "Create Mobile Wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
+"hw_upgrade_error_card_already_has_wallet" = "This device can’t be used for upgrade, it already contains another wallet.";
+"hw_upgrade_error_card_key_import" = "Choose another device, this one can’t be used for upgrade.";
+"hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Your funds stay safe and fully accessible during the process";
 "hw_upgrade_funds_access_title" = "Funds access";
 "hw_upgrade_general_security_description" = "All private wallet data will be removed from the mobile app and stored securely on your Tangem device only";
@@ -521,7 +525,7 @@
 "hw_upgrade_start_title" = "Tangem Wallet";
 "hw_upgrade_title" = "Upgrade to Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem’s best-in-class hardware wallet.";
-"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
+"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
 "information_generated_with_ai" = "Esta información fue generada con IA.\nPulse aquí si encuentra algún error.";
 "initial_message_change_access_code_body" = "Para cambiar el código de acceso coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_change_passcode_body" = "Toque para cambiar la contraseña";
@@ -824,6 +828,7 @@
 "onramp_statuses_view_footer" = "Puede comprobar el estado de la transacción desde la página del token.";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
 "onramp_via" = "Vía";
+"onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Agrupar";
 "organize_tokens_sort_by_balance" = "Por saldo";
 "organize_tokens_title" = "Organizar tokens";
