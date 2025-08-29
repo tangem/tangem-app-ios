@@ -1,5 +1,5 @@
 //
-//  StakingSendScreen.swift
+//  SendScreen.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,11 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
+final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var titleLabel = staticText(.title)
     private lazy var amountTextField = textField(.amountTextField)
+    private lazy var destinationTextView = textView(.destinationTextView)
     private lazy var nextButton = button(.nextButton)
-    private lazy var balanceLabel = staticText(.balanceLabel)
 
     @discardableResult
     func validate() -> Self {
@@ -21,7 +21,6 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
             XCTAssertTrue(titleLabel.waitForExistence(timeout: .robustUIUpdate), "Title should exist")
             XCTAssertTrue(amountTextField.exists, "Amount text field should exist")
             XCTAssertTrue(nextButton.exists, "Next button should exist")
-            XCTAssertTrue(balanceLabel.exists, "Balance label should exist")
         }
         return self
     }
@@ -29,35 +28,36 @@ final class StakingSendScreen: ScreenBase<StakingSendScreenElement> {
     // MARK: - Action Methods
 
     @discardableResult
-    func enterStakingAmount(_ amount: String) -> Self {
+    func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount field") { _ in
-            amountTextField.waitAndTap()
             amountTextField.typeText(amount)
         }
         return self
     }
 
     @discardableResult
-    func gotToSummary() -> SendSummaryScreen {
+    func enterDestination(_ address: String) -> Self {
+        XCTContext.runActivity(named: "Enter amount '\(address)' in amount field") { _ in
+            destinationTextView.typeText(address)
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapNextButton() -> Self {
         XCTContext.runActivity(named: "Tap Next button") { _ in
             XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled")
             nextButton.waitAndTap()
         }
-        return SendSummaryScreen(app)
-    }
-
-    // MARK: - Helper Methods
-
-    func getBalanceText() -> String {
-        return balanceLabel.waitForExistence(timeout: .robustUIUpdate) ? balanceLabel.label : ""
+        return self
     }
 }
 
-enum StakingSendScreenElement: String, UIElement {
+enum SendScreenElement: String, UIElement {
     case title
     case amountTextField
+    case destinationTextView
     case nextButton
-    case balanceLabel
 
     var accessibilityIdentifier: String {
         switch self {
@@ -65,10 +65,10 @@ enum StakingSendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.sendViewTitle
         case .amountTextField:
             return SendAccessibilityIdentifiers.decimalNumberTextField
+        case .destinationTextView:
+            return SendAccessibilityIdentifiers.addressTextView
         case .nextButton:
             return SendAccessibilityIdentifiers.sendViewNextButton
-        case .balanceLabel:
-            return SendAccessibilityIdentifiers.balanceLabel
         }
     }
 }
