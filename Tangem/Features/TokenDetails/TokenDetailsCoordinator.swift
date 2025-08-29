@@ -35,6 +35,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
+    @Published var yieldAccountPromoViewModel: YieldAccountPromoViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
@@ -120,7 +121,11 @@ extension TokenDetailsCoordinator {
 
 // MARK: - TokenDetailsRoutable
 
-extension TokenDetailsCoordinator: TokenDetailsRoutable {}
+extension TokenDetailsCoordinator: TokenDetailsRoutable {
+    func openYieldAccountPromoView() {
+        yieldAccountPromoViewModel = .init(annualYield: "5.1")
+    }
+}
 
 // MARK: - PendingExpressTxStatusRoutable
 
