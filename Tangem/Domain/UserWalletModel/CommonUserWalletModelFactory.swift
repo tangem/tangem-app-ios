@@ -123,6 +123,10 @@ private struct CommonUserWalletModelDependencies {
             return nil
         }
 
+        let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
+        let areLongHashesSupported = config.hasFeature(.longHashes)
+        let areHDWalletsSupported = config.hasFeature(.hdWallets)
+
         let keysRepository = CommonKeysRepository(
             userWalletId: userWalletId,
             encryptionKey: keysRepositoryEncryptionKey,
@@ -134,7 +138,7 @@ private struct CommonUserWalletModelDependencies {
         let userTokenListManager = CommonUserTokenListManager(
             userWalletId: userWalletId.value,
             supportedBlockchains: config.supportedBlockchains,
-            hdWalletsSupported: config.hasFeature(.hdWallets),
+            hdWalletsSupported: areHDWalletsSupported,
             hasTokenSynchronization: config.hasFeature(.tokenSynchronization),
             defaultBlockchains: config.defaultBlockchains
         )
@@ -152,7 +156,7 @@ private struct CommonUserWalletModelDependencies {
             walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
         )
 
-        let derivationManager = config.hasFeature(.hdWallets)
+        let derivationManager = areHDWalletsSupported
             ? CommonDerivationManager(keysRepository: keysRepository, userTokenListManager: userTokenListManager)
             : nil
         self.derivationManager = derivationManager
@@ -162,9 +166,6 @@ private struct CommonUserWalletModelDependencies {
             walletModelsManager: walletModelsManager,
             derivationManager: derivationManager
         )
-
-        let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
-        let areLongHashesSupported = config.hasFeature(.longHashes)
 
         userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
