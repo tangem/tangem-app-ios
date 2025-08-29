@@ -23,8 +23,6 @@ struct FilecoinAddressTests {
 
     @Test
     func addressGeneration() throws {
-        let defaultAddressGeneration2 = Blockchain.filecoin
-
         let compressedKeyAddress = try addressService.makeAddress(from: Keys.AddressesKeys.secpCompressedKey, type: .default)
         let decompressedKeyAddress = try addressService.makeAddress(from: Keys.AddressesKeys.secpDecompressedKey, type: .default)
 

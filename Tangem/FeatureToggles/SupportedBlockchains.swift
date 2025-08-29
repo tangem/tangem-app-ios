@@ -160,6 +160,7 @@ struct SupportedBlockchains {
             .sonic(testnet: false),
             .alephium(testnet: false),
             .pepecoin(testnet: false),
+            .hyperliquidEVM(testnet: false),
         ]
     }
 
@@ -223,6 +224,7 @@ struct SupportedBlockchains {
             .vanar(testnet: true),
             .zkLinkNova(testnet: true),
             .pepecoin(testnet: true),
+            .hyperliquidEVM(testnet: true),
         ]
     }
 

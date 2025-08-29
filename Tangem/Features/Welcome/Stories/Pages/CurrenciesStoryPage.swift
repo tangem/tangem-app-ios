@@ -20,7 +20,7 @@ struct CurrenciesStoryPage: View {
     let orderCard: () -> Void
     let searchTokens: () -> Void
 
-    private let isHotWalletEnabled = FeatureProvider.isAvailable(.hotWallet)
+    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
 
     private let numberOfRows = 6
     private let rowImages = [
@@ -77,7 +77,7 @@ struct CurrenciesStoryPage: View {
                         }
                     )
 
-                if !isHotWalletEnabled {
+                if !isMobileWalletEnabled {
                     MainButton(
                         title: Localization.commonSearchTokens,
                         icon: .leading(Assets.search),

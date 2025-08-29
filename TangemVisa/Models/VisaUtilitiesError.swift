@@ -9,4 +9,5 @@
 public enum VisaUtilitiesError {
     case failedToCreateDerivation
     case failedToCreateAddress(Error)
+    case failedToCreateEIP191Message(content: String)
 }

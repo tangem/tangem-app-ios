@@ -14,8 +14,7 @@ struct SendNewDestinationStepBuilder {
     typealias ReturnValue = (
         step: SendNewDestinationStep,
         externalUpdater: SendExternalDestinationUpdater,
-        compact: SendNewDestinationCompactViewModel,
-        finish: SendDestinationCompactViewModel
+        compact: SendNewDestinationCompactViewModel
     )
 
     let builder: SendDependenciesBuilder
@@ -50,11 +49,14 @@ struct SendNewDestinationStepBuilder {
         )
         let externalUpdater = SendExternalDestinationUpdater(viewModel: viewModel)
         let compact = SendNewDestinationCompactViewModel(input: io.input)
-        let finish = SendDestinationCompactViewModel(input: io.input, addressTextViewHeightModel: .init())
 
         interactorSaver.updater = externalUpdater
 
-        return (step: step, externalUpdater: externalUpdater, compact: compact, finish: finish)
+        return (step: step, externalUpdater: externalUpdater, compact: compact)
+    }
+
+    func makeSendNewDestinationCompactViewModel(input: SendDestinationInput) -> SendNewDestinationCompactViewModel {
+        .init(input: input)
     }
 }
 
