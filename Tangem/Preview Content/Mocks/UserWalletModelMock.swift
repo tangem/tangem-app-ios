@@ -11,6 +11,7 @@ import Combine
 import TangemAssets
 import TangemNFT
 import BlockchainSdk
+import TangemFoundation
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -47,11 +48,13 @@ class UserWalletModelMock: UserWalletModel {
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 
-    var updatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
+    private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
+
+    var updatePublisher: AnyPublisher<UpdateResult, Never> { _updatePublisher.eraseToAnyPublisher() }
 
     var emailData: [EmailCollectedData] { [] }
 
-    var tangemApiAuthData: TangemApiTarget.AuthData {
+    var tangemApiAuthData: TangemApiAuthorizationData? {
         .init(cardId: "", cardPublicKey: Data())
     }
 
@@ -59,11 +62,9 @@ class UserWalletModelMock: UserWalletModel {
 
     var walletHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
-    var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
-
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { Empty().eraseToAnyPublisher() }
 
-    var cardsCount: Int { 3 }
+    var cardSetLabel: String { config.cardSetLabel }
 
     var isUserWalletLocked: Bool { false }
 
@@ -92,11 +93,13 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
+    var accountModelsManager: AccountModelsManager {
+        AccountModelsManagerMock()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
-
-    func updateWalletName(_ name: String) {}
 
     func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
 
@@ -104,9 +107,7 @@ class UserWalletModelMock: UserWalletModel {
 
     func validate() -> Bool { true }
 
-    func onBackupUpdate(type: BackupUpdateType) {}
+    func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
-
-    func cleanup() {}
 }

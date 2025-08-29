@@ -20,13 +20,9 @@ final class SignActivationOrderTask: CardSessionRunnable {
     typealias CompletionHandler = CompletionResult<SignedActivationOrder>
 
     private let orderToSign: VisaCardAcceptanceOrderInfo
-    private let isTestnet: Bool
-    private let visaUtilities: VisaUtilities
 
-    init(orderToSign: VisaCardAcceptanceOrderInfo, isTestnet: Bool) {
+    init(orderToSign: VisaCardAcceptanceOrderInfo) {
         self.orderToSign = orderToSign
-        self.isTestnet = isTestnet
-        visaUtilities = VisaUtilities(isTestnet: isTestnet)
     }
 
     func run(in session: CardSession, completion: @escaping CompletionHandler) {
@@ -42,7 +38,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
             return
         }
 
-        guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }) else {
+        guard let wallet = card.wallets.first(where: { $0.curve == VisaUtilities.mandatoryCurve }) else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
         }

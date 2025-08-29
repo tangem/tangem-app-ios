@@ -14,23 +14,24 @@ import TangemFoundation
 class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingValue<ImageValue> = .loading
-    @Published var cardsCount: String
-    @Published var tokensCount: Int
+    @Published var cardSetLabel: String
+    @Published var isUserWalletBackupNeeded: Bool
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     let tapAction: () -> Void
 
     let isUserWalletLocked: Bool
-    private let userWalletNamePublisher: AnyPublisher<String, Never>
+    private let userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
     private let walletImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
         self.init(
-            cardsCount: userWallet.cardsCount,
-            tokensCount: userWallet.userTokenListManager.userTokens.count,
+            name: userWallet.name,
+            cardSetLabel: userWallet.config.cardSetLabel,
+            isUserWalletBackupNeeded: userWallet.config.hasFeature(.mnemonicBackup) && userWallet.config.hasFeature(.iCloudBackup),
             isUserWalletLocked: userWallet.isUserWalletLocked,
-            userWalletNamePublisher: userWallet.userWalletNamePublisher,
+            userWalletUpdatePublisher: userWallet.updatePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
             walletImageProvider: userWallet.walletImageProvider,
             tapAction: tapAction
@@ -38,18 +39,20 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     }
 
     init(
-        cardsCount: Int,
-        tokensCount: Int = 0,
+        name: String,
+        cardSetLabel: String,
+        isUserWalletBackupNeeded: Bool,
         isUserWalletLocked: Bool,
-        userWalletNamePublisher: AnyPublisher<String, Never>,
+        userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
         walletImageProvider: WalletImageProviding,
         tapAction: @escaping () -> Void
     ) {
-        self.cardsCount = Localization.cardLabelCardCount(cardsCount)
-        self.tokensCount = tokensCount
+        self.name = name
+        self.cardSetLabel = cardSetLabel
+        self.isUserWalletBackupNeeded = isUserWalletBackupNeeded
         self.isUserWalletLocked = isUserWalletLocked
-        self.userWalletNamePublisher = userWalletNamePublisher
+        self.userWalletUpdatePublisher = userWalletUpdatePublisher
         self.totalBalancePublisher = totalBalancePublisher
         self.walletImageProvider = walletImageProvider
         self.tapAction = tapAction
@@ -71,11 +74,20 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     }
 
     func bind() {
-        userWalletNamePublisher
+        userWalletUpdatePublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { viewModel, name in
-                viewModel.name = name
+            .sink { viewModel, event in
+                switch event {
+                case .nameDidChange(let name):
+                    viewModel.name = name
+                case .configurationChanged(let model):
+                    viewModel.cardSetLabel = model.config.cardSetLabel
+                    if case .configurationChanged(let model) = event {
+                        let isUserWalletBackupNeeded = model.config.hasFeature(.mnemonicBackup) && model.config.hasFeature(.iCloudBackup)
+                        viewModel.isUserWalletBackupNeeded = isUserWalletBackupNeeded
+                    }
+                }
             }
             .store(in: &bag)
 
