@@ -55,6 +55,21 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
         }
     }
 
+    func openScanMenu() -> Self {
+        XCTContext.runActivity(named: "Open scan alert") { _ in
+            scanButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func cancelScan() -> Self {
+        XCTContext.runActivity(named: "Close scan alert") { _ in
+            app.buttons["Cancel"].waitAndTap()
+            return self
+        }
+    }
+
     private func handleTwinOnboarding() -> MainScreen {
         XCTContext.runActivity(named: "Handle Twin onboarding screen") { _ in
             let onboardingScreen = TwinOnboardingScreen(app)
