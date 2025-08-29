@@ -236,7 +236,7 @@ struct CustomTextField: UIViewRepresentable {
             if isResponder ?? false {
                 uiView.becomeFirstResponder()
             } else {
-                uiView.resignFirstResponder()
+//                uiView.resignFirstResponder()
             }
         }
     }

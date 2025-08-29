@@ -95,6 +95,16 @@
 		0AF406332E5F1DA5006DC3DF /* SendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406322E5F1DA5006DC3DF /* SendMethod.swift */; };
 		0AF406352E5F2A11006DC3DF /* ExitProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */; };
 		0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */; };
+		0AF406392E5F31CC006DC3DF /* EffectiveBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */; };
+		0AF4063B2E5F3203006DC3DF /* ProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */; };
+		0AF4063D2E6019A0006DC3DF /* YieldTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */; };
+		0AF4063F2E601A61006DC3DF /* YieldModuleMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063E2E601A61006DC3DF /* YieldModuleMethod.swift */; };
+		0AF406412E602F95006DC3DF /* YieldSmartContractRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */; };
+		0AF406432E605D7B006DC3DF /* YieldService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406422E605D7B006DC3DF /* YieldService.swift */; };
+		0AF406452E6070A5006DC3DF /* YieldTokenData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406442E6070A5006DC3DF /* YieldTokenData.swift */; };
+		0AF406472E607148006DC3DF /* YieldServiceYieldTokenDataConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406462E607148006DC3DF /* YieldServiceYieldTokenDataConverter.swift */; };
+		0AF406492E6080D6006DC3DF /* YieldServiceError.swift in Resources */ = {isa = PBXBuildFile; fileRef = 0AF406482E6080D6006DC3DF /* YieldServiceError.swift */; };
+		0AF4064B2E608220006DC3DF /* YieldBalances.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4064A2E608220006DC3DF /* YieldBalances.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
 		0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786172E2AD9CE00742D0F /* LinkedList.swift */; };
@@ -4208,6 +4218,16 @@
 		0AF406322E5F1DA5006DC3DF /* SendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMethod.swift; sourceTree = "<group>"; };
 		0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitProtocolMethod.swift; sourceTree = "<group>"; };
 		0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractMethod.swift; sourceTree = "<group>"; };
+		0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectiveBalanceMethod.swift; sourceTree = "<group>"; };
+		0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolBalanceMethod.swift; sourceTree = "<group>"; };
+		0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTokenService.swift; sourceTree = "<group>"; };
+		0AF4063E2E601A61006DC3DF /* YieldModuleMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleMethod.swift; sourceTree = "<group>"; };
+		0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractRequest.swift; sourceTree = "<group>"; };
+		0AF406422E605D7B006DC3DF /* YieldService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldService.swift; sourceTree = "<group>"; };
+		0AF406442E6070A5006DC3DF /* YieldTokenData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTokenData.swift; sourceTree = "<group>"; };
+		0AF406462E607148006DC3DF /* YieldServiceYieldTokenDataConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldServiceYieldTokenDataConverter.swift; sourceTree = "<group>"; };
+		0AF406482E6080D6006DC3DF /* YieldServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldServiceError.swift; sourceTree = "<group>"; };
+		0AF4064A2E608220006DC3DF /* YieldBalances.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldBalances.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
 		0F2786172E2AD9CE00742D0F /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
@@ -8292,8 +8312,15 @@
 		0AF406272E5F06C7006DC3DF /* Yield */ = {
 			isa = PBXGroup;
 			children = (
+				0AF406482E6080D6006DC3DF /* YieldServiceError.swift */,
 				0AF406282E5F0717006DC3DF /* YieldServiceFeeRateConverter.swift */,
+				0AF406462E607148006DC3DF /* YieldServiceYieldTokenDataConverter.swift */,
 				0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */,
+				0AF4063C2E6019A0006DC3DF /* YieldTokenService.swift */,
+				0AF406422E605D7B006DC3DF /* YieldService.swift */,
+				0AF406402E602F95006DC3DF /* YieldSmartContractRequest.swift */,
+				0AF406442E6070A5006DC3DF /* YieldTokenData.swift */,
+				0AF4064A2E608220006DC3DF /* YieldBalances.swift */,
 			);
 			path = Yield;
 			sourceTree = "<group>";
@@ -12802,12 +12829,15 @@
 				B62AE31D2DCABD370037CEDB /* TransferERC721TokenMethod.swift */,
 				B62AE31F2DCAC0580037CEDB /* TransferERC1155TokenMethod.swift */,
 				0AF406252E5F064D006DC3DF /* ServiceFeeRateMethod.swift */,
+				0AF4063E2E601A61006DC3DF /* YieldModuleMethod.swift */,
 				0AF4062A2E5F0A91006DC3DF /* YieldTokenDataMethod.swift */,
 				0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */,
 				0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */,
 				0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */,
 				0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */,
 				0AF406322E5F1DA5006DC3DF /* SendMethod.swift */,
+				0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */,
+				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
 			);
 			path = SmartContractMethods;
 			sourceTree = "<group>";
@@ -22140,6 +22170,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AF406492E6080D6006DC3DF /* YieldServiceError.swift in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -24732,6 +24763,7 @@
 				2D53D24C2D957A4E00865200 /* ElectrumScriptHashConverter.swift in Sources */,
 				B62D40462CBC79DA00C2460E /* CardanoAddressService.swift in Sources */,
 				B62D403D2CBC79DA00C2460E /* AdaliteUnspentOutputResponseDTO.swift in Sources */,
+				0AF4064B2E608220006DC3DF /* YieldBalances.swift in Sources */,
 				B62D40B72CBC79DA00C2460E /* OctaExternalLinkProvider.swift in Sources */,
 				EF798FEB2D6F8E4000B9B4A1 /* TransactionRecordMapper.swift in Sources */,
 				B62D40FE2CBC79DA00C2460E /* ICPWalletManager.swift in Sources */,
@@ -24810,6 +24842,7 @@
 				B62D40DF2CBC79DA00C2460E /* HederaNetworkResult.AccountBalance.swift in Sources */,
 				B62D40C22CBC79DA00C2460E /* SmartContractMethod.swift in Sources */,
 				B62D40442CBC79DA00C2460E /* RosettaResponse.swift in Sources */,
+				0AF4063B2E5F3203006DC3DF /* ProtocolBalanceMethod.swift in Sources */,
 				B62D40ED2CBC79DA00C2460E /* HederaAddressService.swift in Sources */,
 				B62D3FE32CBC79DA00C2460E /* OP_EQUAL.swift in Sources */,
 				B62D3FE52CBC79DA00C2460E /* OP_INVERT.swift in Sources */,
@@ -24902,6 +24935,7 @@
 				B62D40B92CBC79DA00C2460E /* Playa3ullGamesExternalLinkProvider.swift in Sources */,
 				B62D40122CBC79DA00C2460E /* OP_2SWAP.swift in Sources */,
 				B62D3FEB2CBC79DA00C2460E /* OP_CHECKMULTISIGVERIFY.swift in Sources */,
+				0AF4063D2E6019A0006DC3DF /* YieldTokenService.swift in Sources */,
 				B62D41862CBC79DA00C2460E /* RSKExternalLinkProvider.swift in Sources */,
 				B62D40752CBC79DA00C2460E /* DashMainNetworkParams.swift in Sources */,
 				EF798FDE2D6F8D0900B9B4A1 /* UTXOFee.swift in Sources */,
@@ -24918,6 +24952,7 @@
 				F9F62C8A2CC15FA8008A3EE6 /* (null) in Sources */,
 				B62D3FA12CBC79DA00C2460E /* AlgorandResponse+TransactionHistory.swift in Sources */,
 				B62D42BC2CBC79DB00C2460E /* Wallet.swift in Sources */,
+				0AF4063F2E601A61006DC3DF /* YieldModuleMethod.swift in Sources */,
 				B62D40892CBC79DA00C2460E /* ABIEncoder.swift in Sources */,
 				B62D41952CBC79DA00C2460E /* StellarExternalLinkProvider.swift in Sources */,
 				B62D40AA2CBC79DA00C2460E /* DisChainExternalLinkProvider.swift in Sources */,
@@ -25010,6 +25045,7 @@
 				2DA57BC22CD650E900C890DF /* CasperWalletManager.swift in Sources */,
 				2DA57BC32CD650E900C890DF /* CasperAddressService.swift in Sources */,
 				2D54FECA2CDBD696004FC466 /* CasperConstants.swift in Sources */,
+				0AF406432E605D7B006DC3DF /* YieldService.swift in Sources */,
 				2D54FECB2CDBD696004FC466 /* CasperTarget.swift in Sources */,
 				2D54FECC2CDBD696004FC466 /* CasperNetworkResponse.swift in Sources */,
 				2D54FECD2CDBD696004FC466 /* CasperNetworkRequest.QueryBalance.swift in Sources */,
@@ -25131,6 +25167,7 @@
 				B62D42B32CBC79DB00C2460E /* PendingTransactionRecordMapper.swift in Sources */,
 				0A2261802D9588F3004DC848 /* CardanoUnspentOutput.swift in Sources */,
 				C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */,
+				0AF406452E6070A5006DC3DF /* YieldTokenData.swift in Sources */,
 				DA8A38C62D09046400ADD81D /* Fact0rnMainNetworkParams.swift in Sources */,
 				B62D41AF2CBC79DA00C2460E /* TezosFee.swift in Sources */,
 				B62D3F972CBC79DA00C2460E /* AlgorandTransactionInfo.swift in Sources */,
@@ -25161,6 +25198,7 @@
 				2D665C292CDCA3FC00C9BA85 /* DeploySerialization.swift in Sources */,
 				2D665C2A2CDCA3FC00C9BA85 /* CasperError.swift in Sources */,
 				2D665C2B2CDCA3FC00C9BA85 /* CSPRDeployInfo.swift in Sources */,
+				0AF406392E5F31CC006DC3DF /* EffectiveBalanceMethod.swift in Sources */,
 				2D665C2C2CDCA3FC00C9BA85 /* CSPRDeploy.swift in Sources */,
 				2D665C2D2CDCA3FC00C9BA85 /* CSPRDeployHeader.swift in Sources */,
 				2D665C2E2CDCA3FC00C9BA85 /* DeployExecutionResults.swift in Sources */,
@@ -25441,6 +25479,7 @@
 				B62D3FAA2CBC79DA00C2460E /* AptosAccountInfo.swift in Sources */,
 				B62D42472CBC79DB00C2460E /* APINodeInfoResolver.swift in Sources */,
 				F990070A2CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift in Sources */,
+				0AF406412E602F95006DC3DF /* YieldSmartContractRequest.swift in Sources */,
 				B62D42AC2CBC79DB00C2460E /* ExternalLinkProvider.swift in Sources */,
 				B62D40D22CBC79DA00C2460E /* FilecoinNetworkService.swift in Sources */,
 				DCE6BE9A2E140C1C001DB530 /* BlockchainSDK+UniversalError.swift in Sources */,
@@ -25661,6 +25700,7 @@
 				B62D409A2CBC79DA00C2460E /* EthereumResponse.swift in Sources */,
 				30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */,
 				B62D418B2CBC79DA00C2460E /* SolanaExternalLinkProvider.swift in Sources */,
+				0AF406472E607148006DC3DF /* YieldServiceYieldTokenDataConverter.swift in Sources */,
 				B62D40C82CBC79DA00C2460E /* EthereumTransactionBuilder.swift in Sources */,
 				B62D425C2CBC79DB00C2460E /* AddressServiceFactory.swift in Sources */,
 				B62D40782CBC79DA00C2460E /* DecimalAddressConverter.swift in Sources */,
