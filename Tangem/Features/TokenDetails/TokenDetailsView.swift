@@ -34,6 +34,11 @@ struct TokenDetailsView: View {
                     NotificationView(input: input)
                 }
 
+                Button(action: viewModel.openYieldAccountPromo) {
+                    Text("Open promo")
+                }
+                .buttonStyle(.tangemStyle)
+
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
                         .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
