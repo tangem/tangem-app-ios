@@ -304,7 +304,7 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
-    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
+    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return .init(
             id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
             state: .active,
