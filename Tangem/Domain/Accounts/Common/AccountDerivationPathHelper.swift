@@ -29,7 +29,7 @@ struct AccountDerivationPathHelper {
     /// Returns canonical derivation path for the main account (account derivation index is unchanged).
     func canonicalDerivationPath(from derivationPath: DerivationPath) -> DerivationPath {
         let currentNodes = derivationPath.nodes
-        let additionalNodesCount = min(0, DerivationPath.canonicalLength - currentNodes.count)
+        let additionalNodesCount = max(0, DerivationPath.canonicalLength - currentNodes.count)
         // [REDACTED_TODO_COMMENT]
         let canonicalNodes = currentNodes + Array(repeating: .hardened(0), count: additionalNodesCount)
 
