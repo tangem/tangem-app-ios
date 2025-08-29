@@ -49,8 +49,11 @@ extension CommonReceiveAnalyticsLogger: QRCodeReceiveAssetsAnalyticsLogger {
     func logCopyButtonTapped() {
         switch flow {
         case .nft:
-            Analytics.log(event: .nftReceiveCopyAddressButtonClicked, params: [
-                .blockchain: tokenItem.blockchain.displayName]
+            Analytics.log(
+                event: .nftReceiveCopyAddressButtonClicked,
+                params: [
+                    .blockchain: tokenItem.blockchain.displayName,
+                ]
             )
         case .crypto:
             Analytics.log(event: .buttonCopyAddress, params: [
