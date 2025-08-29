@@ -9,14 +9,14 @@
 import Foundation
 import BigInt
 
-protocol YieldSmartContractMethod: SmartContractMethod { }
+protocol YieldSmartContractMethod: SmartContractMethod {}
 
 extension YieldSmartContractMethod {
-    var data: Data {
+    public var data: Data {
         var data = Data(hex: methodId)
-        
+
         let mirror = Mirror(reflecting: self)
-        
+
         for child in mirror.children {
             switch child.value {
             case let value as String:
@@ -27,7 +27,7 @@ extension YieldSmartContractMethod {
                 BSDKLogger.warning("Unsupported type in SmartContractMethod")
             }
         }
-        
+
         return data
     }
 }
