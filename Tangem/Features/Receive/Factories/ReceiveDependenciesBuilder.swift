@@ -28,23 +28,6 @@ struct ReceiveDependenciesBuilder {
 
     // MARK: - Builder
 
-    func makeSelectorReceiveAssetsSectionFactory(with coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsSectionFactory {
-        switch tokenItem.blockchain {
-        case .ethereum:
-            EthereumSelectorReceiveAssetsSectionFactory(
-                tokenItem: tokenItem,
-                analyticsLogger: makeAnalyticsLogger(),
-                coordinator: coordinator
-            )
-        default:
-            CommonSelectorReceiveAssetsSectionFactory(
-                tokenItem: tokenItem,
-                analyticsLogger: makeAnalyticsLogger(),
-                coordinator: coordinator
-            )
-        }
-    }
-
     func makeSelectorReceiveAssetsInteractor() -> SelectorReceiveAssetsInteractor {
         let notificationInputsFactory = ReceiveBottomSheetNotificationInputsFactory(flow: flow)
         let notificationInputs = notificationInputsFactory.makeNotificationInputs(for: tokenItem)
@@ -61,5 +44,24 @@ struct ReceiveDependenciesBuilder {
 
     func makeAnalyticsLogger() -> ReceiveAnalyticsLogger {
         CommonReceiveAnalyticsLogger(flow: flow, tokenItem: tokenItem)
+    }
+
+    func makeSelectorReceiveAssetsSectionFactory(with coordinator: SelectorReceiveAssetItemRoutable?) -> SelectorReceiveAssetsSectionFactory {
+        let analyticsLogger = makeAnalyticsLogger()
+
+        let input = SelectorReceiveAssetsSectionFactoryInput(
+            tokenItem: tokenItem,
+            analyticsLogger: analyticsLogger,
+            coordinator: coordinator
+        )
+
+        switch tokenItem.blockchain {
+        case .ethereum:
+            return EthereumSelectorReceiveAssetsSectionFactory(input)
+        case .bitcoin:
+            return BitcoinSelectorReceiveAssetsSectionFactory(input)
+        default:
+            return CommonSelectorReceiveAssetsSectionFactory(input)
+        }
     }
 }
