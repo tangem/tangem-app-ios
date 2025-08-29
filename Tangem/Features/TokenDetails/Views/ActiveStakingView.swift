@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct ActiveStakingViewData {
     let balance: BalanceState
@@ -32,8 +33,10 @@ struct ActiveStakingView: View {
         switch data.balance {
         case .loadingError:
             content
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         case .balance(_, let action):
             Button(action: action, label: { content })
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         }
     }
 
@@ -42,6 +45,7 @@ struct ActiveStakingView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.stakingNative)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 balanceView
 
@@ -100,6 +104,7 @@ struct ActiveStakingView: View {
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
                 .padding(.trailing, 2)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingChevron)
         }
     }
 }
