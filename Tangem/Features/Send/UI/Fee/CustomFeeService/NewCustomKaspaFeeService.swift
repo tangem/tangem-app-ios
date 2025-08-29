@@ -141,7 +141,7 @@ extension NewCustomKaspaFeeService: FeeSelectorCustomFeeFieldsBuilder {
     }
 
     func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value
+        cachedCustomFee = customFee.value ?? initialCustomFee
     }
 
     func resetCustomFeeFieldsValue() {
