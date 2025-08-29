@@ -16,19 +16,20 @@ struct SendNewSummaryView: View {
     let transitionService: SendTransitionService
 
     var body: some View {
-        VStack(alignment: .center, spacing: 14) {
-            GroupedScrollView(spacing: 14) {
-                amountSectionView
+        GroupedScrollView(spacing: 14) {
+            amountSectionView
 
-                destinationSectionView
+            nftSectionView
 
-                feeSectionView
+            destinationSectionView
 
-                notificationsView
-            }
+            feeSectionView
 
-            descriptionView
+            notificationsView
         }
+        .safeAreaInset(edge: .bottom, content: {
+            descriptionView
+        })
         .transition(transitionService.newSummaryViewTransition())
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -40,6 +41,16 @@ struct SendNewSummaryView: View {
     private var amountSectionView: some View {
         if let sendAmountCompactViewModel = viewModel.sendAmountCompactViewModel {
             SendNewAmountCompactView(viewModel: sendAmountCompactViewModel)
+                .allowsHitTesting(viewModel.amountCompactViewType.editable)
+        }
+    }
+
+    // MARK: - NFT
+
+    @ViewBuilder
+    private var nftSectionView: some View {
+        if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
+            NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
         }
     }
 
@@ -51,6 +62,7 @@ struct SendNewSummaryView: View {
             Button(action: viewModel.userDidTapDestination) {
                 SendNewDestinationCompactView(viewModel: destinationCompactViewModel)
             }
+            .allowsHitTesting(viewModel.destinationCompactViewType.editable)
         }
     }
 
@@ -59,10 +71,11 @@ struct SendNewSummaryView: View {
     @ViewBuilder
     private var feeSectionView: some View {
         if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
-            Button(action: viewModel.userDidTapFee) {
+            if feeCompactViewModel.canEditFee {
+                Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+            } else {
                 SendNewFeeCompactView(viewModel: feeCompactViewModel)
             }
-            .disabled(!feeCompactViewModel.canEditFee)
         }
     }
 
@@ -81,10 +94,12 @@ struct SendNewSummaryView: View {
     @ViewBuilder
     private var descriptionView: some View {
         if let transactionDescription = viewModel.transactionDescription {
-            Text(.init(transactionDescription))
-                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+            Text(transactionDescription)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .infinityFrame(axis: .horizontal)
+                .background(Colors.Background.tertiary)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }
