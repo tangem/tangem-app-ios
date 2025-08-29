@@ -93,6 +93,7 @@ extension Analytics {
         case buttonUnderstand = "[Token] Button - Understand"
         case tokenBought = "[Token] Token Bought"
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
+        case qrScreenOpened = "[Token / Receive] QR Screen Opened"
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
         case buttonENS = "[Token / Receive] Button - ENS"
