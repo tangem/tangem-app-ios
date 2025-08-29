@@ -132,7 +132,6 @@ private struct CommonUserWalletModelDependencies {
             encryptionKey: keysRepositoryEncryptionKey,
             keys: keys
         )
-
         self.keysRepository = keysRepository
 
         let userTokenListManager = CommonUserTokenListManager(
@@ -146,7 +145,7 @@ private struct CommonUserWalletModelDependencies {
         self.userTokenListManager = userTokenListManager
 
         let walletManagersRepository = CommonWalletManagersRepository(
-            keysProvider: self.keysRepository,
+            keysProvider: keysRepository,
             userTokenListManager: userTokenListManager,
             walletManagerFactory: walletManagerFactory
         )

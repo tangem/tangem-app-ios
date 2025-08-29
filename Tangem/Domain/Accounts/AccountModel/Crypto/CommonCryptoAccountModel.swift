@@ -75,8 +75,6 @@ extension CommonCryptoAccountModel {
     }
 }
 
-// MARK: - Inner types
-
 // MARK: - Identifiable protocol conformance
 
 extension CommonCryptoAccountModel: Identifiable {
