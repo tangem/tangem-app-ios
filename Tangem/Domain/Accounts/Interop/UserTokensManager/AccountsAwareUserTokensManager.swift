@@ -25,7 +25,7 @@ final class AccountsAwareUserTokensManager {
     private let derivationInfo: DerivationInfo
     private let existingCurves: [EllipticCurve]
     private let shouldLoadExpressAvailability: Bool
-    private let longHashesSupported: Bool
+    private let areLongHashesSupported: Bool
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
 
     private var isMainAccountManager: Bool {
@@ -39,7 +39,7 @@ final class AccountsAwareUserTokensManager {
         derivationInfo: DerivationInfo,
         existingCurves: [EllipticCurve],
         shouldLoadExpressAvailability: Bool,
-        longHashesSupported: Bool
+        areLongHashesSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.userTokenListManager = userTokenListManager
@@ -47,7 +47,7 @@ final class AccountsAwareUserTokensManager {
         self.derivationInfo = derivationInfo
         self.existingCurves = existingCurves
         self.shouldLoadExpressAvailability = shouldLoadExpressAvailability
-        self.longHashesSupported = longHashesSupported
+        self.areLongHashesSupported = areLongHashesSupported
     }
 
     private func withBlockchainNetwork(_ tokenItem: TokenItem) -> TokenItem {
@@ -230,7 +230,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
+        if AppUtils().hasLongHashesForSend(tokenItem), !areLongHashesSupported {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
@@ -440,8 +440,8 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
 extension AccountsAwareUserTokensManager {
     struct DerivationInfo {
         let derivationIndex: Int
-        let derivationStyle: DerivationStyle
-        let derivationManager: DerivationManager
+        let derivationStyle: DerivationStyle?
+        let derivationManager: DerivationManager?
     }
 
     enum Error: LocalizedError {
