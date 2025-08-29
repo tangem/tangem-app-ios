@@ -55,9 +55,11 @@ public struct BottomSheetErrorContentView: View {
                 VStack(spacing: 8) {
                     Text(title)
                         .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Text(subtitle)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
             }
