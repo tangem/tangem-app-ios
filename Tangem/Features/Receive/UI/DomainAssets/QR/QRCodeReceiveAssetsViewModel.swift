@@ -43,10 +43,8 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         memoWarningMessage = tokenItem.blockchain.hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
-    }
 
-    func onViewAppear() {
-        analyticsLogger.logQRCodeReceiveAssetsScreenOpened()
+        initialAppear()
     }
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
@@ -84,5 +82,9 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
     func share() {
         analyticsLogger.logShareButtonTapped()
         coordinator?.share(with: addressInfo.address)
+    }
+
+    private func initialAppear() {
+        analyticsLogger.logQRCodeReceiveAssetsScreenOpened()
     }
 }

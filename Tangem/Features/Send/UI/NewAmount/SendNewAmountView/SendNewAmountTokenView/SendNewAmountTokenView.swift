@@ -72,6 +72,7 @@ struct SendNewAmountTokenView: View {
                 }
             }
         }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.vertical, 14)
     }
 
