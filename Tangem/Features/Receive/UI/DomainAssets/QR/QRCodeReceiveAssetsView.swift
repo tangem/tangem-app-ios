@@ -20,7 +20,6 @@ struct QRCodeReceiveAssetsView: View {
 
     var body: some View {
         mainContent
-            .onAppear(perform: viewModel.onViewAppear)
             .id(viewModel.addressInfo.address)
     }
 
