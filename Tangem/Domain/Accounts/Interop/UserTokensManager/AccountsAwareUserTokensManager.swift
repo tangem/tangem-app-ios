@@ -61,7 +61,12 @@ final class AccountsAwareUserTokensManager {
             return makeTokenItem(from: tokenItem, with: canonicalDerivationPath)
         }
 
-        let originalDerivationPath = blockchain.derivationPath(for: derivationInfo.derivationStyle)
+        guard let derivationStyle = derivationInfo.derivationStyle else {
+            // [REDACTED_TODO_COMMENT]
+            return tokenItem
+        }
+
+        let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
 
         // [REDACTED_TODO_COMMENT]
         let canonicalDerivationPath = originalDerivationPath.map { path in
