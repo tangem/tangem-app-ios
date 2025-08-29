@@ -29,3 +29,14 @@ extension EthereumAddressResolver: AddressResolver {
         return try await networkService.resolveAddress(hash: nameHash, encode: encodedName).async()
     }
 }
+
+extension EthereumAddressResolver: DomainNameAddressResolver {
+    func resolveDomainName(_ address: String) async throws -> String {
+        // Reverse ENS: input is a hex address, output is a domain name
+        guard EthereumAddressUtils.isValidAddressHex(value: address) else {
+            throw ETHError.invalidSourceAddress
+        }
+
+        return try await networkService.resolveDomainName(address: address).async()
+    }
+}
