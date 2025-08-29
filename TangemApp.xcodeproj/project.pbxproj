@@ -2448,6 +2448,9 @@
 		D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */; };
 		D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */; };
 		D8E7CEA32E56102400CD9726 /* SwapStoriesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E7CEA22E56102400CD9726 /* SwapStoriesScreen.swift */; };
+		D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */; };
+		D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */; };
+		D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA17E2E60802000422CA7 /* SendScreen.swift */; };
 		D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */; };
 		DA0364B62E42E6EF00FDBDB7 /* TangemPayAvailabilityResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */; };
 		DA0364B92E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0364B82E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift */; };
@@ -6525,6 +6528,9 @@
 		D8E17CE12E37B6E600E9D791 /* DetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsScreen.swift; sourceTree = "<group>"; };
 		D8E17CE22E37B6E600E9D791 /* ReferralScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralScreen.swift; sourceTree = "<group>"; };
 		D8E7CEA22E56102400CD9726 /* SwapStoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStoriesScreen.swift; sourceTree = "<group>"; };
+		D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TroubleShootSheet.swift; sourceTree = "<group>"; };
+		D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailScreen.swift; sourceTree = "<group>"; };
+		D8EDA17E2E60802000422CA7 /* SendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendScreen.swift; sourceTree = "<group>"; };
 		D8FE50012DF84BF50017A0E3 /* PushPermissionRequestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionRequestScreen.swift; sourceTree = "<group>"; };
 		DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityResponse.swift; sourceTree = "<group>"; };
 		DA0364B82E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityAPITarget.swift; sourceTree = "<group>"; };
@@ -10127,6 +10133,8 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D8EDA17E2E60802000422CA7 /* SendScreen.swift */,
+				D8EDA0DD2E5F4AF800422CA7 /* Feedback */,
 				D866EE872E54C0970071311E /* TwinOnboardingScreen.swift */,
 				D8E7CEA42E56102B00CD9726 /* Swap */,
 				D8E15EEE2E41155900E217BB /* Staking */,
@@ -15725,6 +15733,15 @@
 				D89ABED82E31979900855B00 /* SwapScreen.swift */,
 			);
 			path = Swap;
+			sourceTree = "<group>";
+		};
+		D8EDA0DD2E5F4AF800422CA7 /* Feedback */ = {
+			isa = PBXGroup;
+			children = (
+				D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */,
+				D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */,
+			);
+			path = Feedback;
 			sourceTree = "<group>";
 		};
 		DA0364B72E42E73600FDBDB7 /* TangemPayAvailabilityService */ = {
@@ -24576,6 +24593,7 @@
 				7982B0032DE70DF300C41EA5 /* BaseTestCase.swift in Sources */,
 				7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */,
 				7982B00A2DE70E0100C41EA5 /* ScrollParameters.swift in Sources */,
+				D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */,
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				7982B0212DE70E1900C41EA5 /* StoriesScreen.swift in Sources */,
@@ -24587,6 +24605,8 @@
 				7982B0262DE70E1900C41EA5 /* ScreenBase.swift in Sources */,
 				D8E17CE32E37B6E600E9D791 /* CardSettingsScreen.swift in Sources */,
 				D8E15EF02E41156B00E217BB /* StakingSendScreen.swift in Sources */,
+				D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */,
+				D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */,
 				D8E15EED2E40FEB500E217BB /* StakingDetailsScreen.swift in Sources */,
 				D8E17CE42E37B6E600E9D791 /* ReferralScreen.swift in Sources */,
 				D8E17CE52E37B6E600E9D791 /* DetailsScreen.swift in Sources */,
