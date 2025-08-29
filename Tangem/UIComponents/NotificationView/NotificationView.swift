@@ -69,15 +69,16 @@ struct NotificationView: View {
         switch style {
         case .plain:
             messageIconContent
-        case .tappable(let action):
+        case .tappable(let hasChevron, let action):
             Button(action: { action(settings.id) }) {
                 HStack(spacing: 0) {
                     messageIconContent
 
-                    Spacer()
-
-                    Assets.chevronRight.image
-                        .foregroundColor(Colors.Icon.inactive)
+                    if hasChevron {
+                        Spacer()
+                        Assets.chevronRight.image
+                            .foregroundColor(Colors.Icon.inactive)
+                    }
                 }
             }
         case .withButtons(let buttonSettings):
