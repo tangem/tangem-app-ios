@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemFoundation
 import BlockchainSdk
 
 protocol SendBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { get }
-    var bsdkFee: Fee? { get }
+    var bsdkFee: BSDKFee? { get }
     var isFeeIncluded: Bool { get }
 }
 
@@ -57,5 +58,9 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
         }
 
         return sendReceiveTokensListBuilder
+    }
+
+    func makeFeeCurrencyData() -> (userWalletId: UserWalletId, feeTokenItem: TokenItem) {
+        (userWalletId: walletModel.userWalletId, feeTokenItem: walletModel.feeTokenItem)
     }
 }
