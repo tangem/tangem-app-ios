@@ -229,6 +229,7 @@ private struct CommonUserWalletModelDependencies {
     }
 
     func update(from model: UserWalletModel) {
+        // [REDACTED_TODO_COMMENT]
         userTokensManager.keysDerivingProvider = model
     }
 }
