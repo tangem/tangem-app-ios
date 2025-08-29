@@ -10,6 +10,7 @@ import TangemExpress
 import Combine
 
 struct CommonOnrampBaseDataBuilder {
+    private let config: UserWalletConfig
     private let onrampRepository: OnrampRepository
     private let onrampDataRepository: OnrampDataRepository
     private let providersBuilder: OnrampProvidersBuilder
@@ -17,12 +18,14 @@ struct CommonOnrampBaseDataBuilder {
     private let onrampRedirectingBuilder: OnrampRedirectingBuilder
 
     init(
+        config: UserWalletConfig,
         onrampRepository: OnrampRepository,
         onrampDataRepository: OnrampDataRepository,
         providersBuilder: OnrampProvidersBuilder,
         paymentMethodsBuilder: OnrampPaymentMethodsBuilder,
         onrampRedirectingBuilder: OnrampRedirectingBuilder
     ) {
+        self.config = config
         self.onrampRepository = onrampRepository
         self.onrampDataRepository = onrampDataRepository
         self.providersBuilder = providersBuilder
@@ -48,5 +51,9 @@ extension CommonOnrampBaseDataBuilder: OnrampBaseDataBuilder {
 
     func makeDataForOnrampRedirecting() -> OnrampRedirectingBuilder {
         onrampRedirectingBuilder
+    }
+
+    func demoAlertMessage() -> String? {
+        config.getDisabledLocalizedReason(for: .exchange)
     }
 }

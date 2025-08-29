@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 class ResetToFactoryService {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
