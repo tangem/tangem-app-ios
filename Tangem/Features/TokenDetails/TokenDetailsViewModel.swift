@@ -416,3 +416,9 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         }
     }
 }
+
+extension TokenDetailsViewModel {
+    func openYieldAccountPromo() {
+        coordinator?.openYieldAccountPromoView()
+    }
+}
