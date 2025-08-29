@@ -26,4 +26,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// SendFeeCompactView
     public static let networkFeeBlock = "sendNetworkFeeBlock"
+
+    /// AddressTextView
+    public static let addressTextView = "sendAddressTextView"
 }
