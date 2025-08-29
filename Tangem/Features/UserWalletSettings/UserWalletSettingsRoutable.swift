@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemMobileWalletSdk
 
 protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggleRoutable {
     func openAddNewAccount()
@@ -18,6 +19,7 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
 
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext)
 
     func openAppSettings()
 
