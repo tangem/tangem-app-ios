@@ -8,6 +8,9 @@
 
 import Foundation
 import Combine
+import TangemLocalization
+import TangemUI
+import TangemAssets
 
 class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
     struct ValidationInput {
@@ -26,10 +29,26 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
 
     @Published var isCreateWalletButtonEnabled = false
 
+    var actionTitle: String {
+        switch mode {
+        case .mobile: Localization.commonContinue
+        case .card: Localization.onboardingCreateWalletButtonCreateWallet
+        }
+    }
+
+    var actionIcon: MainButton.Icon? {
+        switch mode {
+        case .mobile: nil
+        case .card: MainButton.Icon.trailing(Assets.tangemIcon)
+        }
+    }
+
+    private let mode: Mode
     private let input: ValidationInput
     private var bag: Set<AnyCancellable> = []
 
-    init(validationInput: ValidationInput) {
+    init(mode: Mode, validationInput: ValidationInput) {
+        self.mode = mode
         input = validationInput
 
         bind()
@@ -74,5 +93,17 @@ class OnboardingSeedPhraseUserValidationViewModel: ObservableObject {
         isCreateWalletButtonEnabled = firstInputText == input.secondWord &&
             secondInputText == input.seventhWord &&
             thirdInputText == input.eleventhWord
+    }
+}
+
+// MARK: - Types
+
+extension OnboardingSeedPhraseUserValidationViewModel {
+    /// Represents the UI mode for seed phrase validation.
+    enum Mode {
+        /// Validation performed using a Tangem card.
+        case card
+        /// Validation performed using a mobile device only.
+        case mobile
     }
 }

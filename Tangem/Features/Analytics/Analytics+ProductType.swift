@@ -21,6 +21,6 @@ extension Analytics {
         case twin = "Twin"
         case wallet2 = "Wallet 2.0"
         case ring = "Ring"
-        case hotWallet = "Hot Wallet"
+        case mobileWallet = "Mobile Wallet"
     }
 }

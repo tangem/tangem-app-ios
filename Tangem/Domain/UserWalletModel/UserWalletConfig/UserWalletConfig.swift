@@ -11,13 +11,14 @@ import TangemLocalization
 import TangemAssets
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory {
     var emailConfig: EmailConfig? { get }
 
     var cardsCount: Int { get }
 
-    var cardSetLabel: String? { get }
+    var cardSetLabel: String { get }
 
     var defaultName: String { get }
 
@@ -72,6 +73,10 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 }
 
 extension UserWalletConfig {
+    var cardSetLabel: String {
+        Localization.cardLabelCardCount(cardsCount)
+    }
+
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
     }
