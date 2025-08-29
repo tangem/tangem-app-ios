@@ -66,7 +66,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
 
     /// Remove signatures placeholder from raw transaction
     func prepareTransactionToSign(_ transaction: String) throws -> (Data, Int) {
-        let data = try Data(transaction.base64Decoded())
+        let data = try transaction.base64DecodedData()
         return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
     }
 
