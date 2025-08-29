@@ -205,6 +205,8 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .isBalanceRestrictionActive:
             return .hidden
+        case .userWalletUpgrade:
+            return .hidden
         }
     }
 
