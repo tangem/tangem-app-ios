@@ -32,7 +32,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
             overlayContent
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.action
+            configuration.sheetBackgroundColor = Colors.Background.primary
             configuration.sheetFrameUpdateAnimation = .easeInOut
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -42,13 +42,20 @@ struct SendReceiveTokenNetworkSelectorView: View {
     private var scrollContent: some View {
         if case .success(let items) = viewModel.state {
             ScrollView(.vertical) {
-                GroupedSection(items) {
-                    SendReceiveTokenNetworkSelectorNetworkView(viewModel: $0)
+                VStack(spacing: .zero) {
+                    if let notification = viewModel.notification {
+                        NotificationView(input: notification)
+                            .padding(.horizontal, 16)
+                    }
+
+                    GroupedSection(items) {
+                        SendReceiveTokenNetworkSelectorNetworkView(viewModel: $0)
+                    }
+                    .backgroundColor(Colors.Background.primary)
+                    .interItemSpacing(16)
+                    .innerContentPadding(16)
+                    .padding(.horizontal, 16)
                 }
-                .backgroundColor(Colors.Background.action)
-                .interItemSpacing(16)
-                .innerContentPadding(16)
-                .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             }
             .scrollBounceBehaviorBackport(.basedOnSize)
@@ -67,10 +74,12 @@ struct SendReceiveTokenNetworkSelectorView: View {
             BottomSheetErrorContentView(
                 title: viewModel.notSupportedTitle,
                 subtitle: error,
-                gotItButtonAction: viewModel.dismiss
+                secondaryButton: .init(
+                    title: Localization.commonGotIt,
+                    style: .secondary,
+                    action: viewModel.dismiss
+                )
             )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
     }
 }
