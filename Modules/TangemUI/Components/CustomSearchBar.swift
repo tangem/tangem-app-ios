@@ -165,8 +165,10 @@ public extension CustomSearchBar {
 
 // MARK: - Previews
 
+#if DEBUG
+@available(iOS 17.0, *)
 #Preview("Light appearance") {
-    @State var text = ""
+    @Previewable @State var text = ""
     StatefulPreviewWrapper(text) { text in
         CustomSearchBar(
             searchText: text,
@@ -180,8 +182,9 @@ public extension CustomSearchBar {
     }
 }
 
-#Preview("Dark appearance") {
-    @State var text = ""
+@available(iOS 17.0, *)
+#Preview("Dark appearance", traits: .sizeThatFitsLayout) {
+    @Previewable @State var text = ""
     StatefulPreviewWrapper(text) { text in
         CustomSearchBar(
             searchText: text,
@@ -190,6 +193,6 @@ public extension CustomSearchBar {
         )
         .padding(.horizontal, 16)
     }
-    .previewLayout(.sizeThatFits)
     .preferredColorScheme(.dark)
 }
+#endif // DEBUG
