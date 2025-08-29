@@ -299,6 +299,7 @@
 "common_supported_networks" = "Supported networks";
 "common_swap" = "Обмін";
 "common_tangem_wallet" = "Tangem Wallet";
+"common_tangem" = "Tangem";
 "common_terms_and_conditions" = "умови участі";
 "common_terms_of_use" = "Умовами використання";
 "common_today" = "Сьогодні";
@@ -509,6 +510,9 @@
 "hw_create_title" = "Create Mobile Wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
+"hw_upgrade_error_card_already_has_wallet" = "This device can’t be used for upgrade, it already contains another wallet.";
+"hw_upgrade_error_card_key_import" = "Choose another device, this one can’t be used for upgrade.";
+"hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Your funds stay safe and fully accessible during the process";
 "hw_upgrade_funds_access_title" = "Funds access";
 "hw_upgrade_general_security_description" = "All private wallet data will be removed from the mobile app and stored securely on your Tangem device only";
@@ -521,7 +525,7 @@
 "hw_upgrade_start_title" = "Tangem Wallet";
 "hw_upgrade_title" = "Upgrade to Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem’s best-in-class hardware wallet.";
-"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
+"hw_upgrade_to_cold_banner_title" = "Upgrade wallet with a hardware backup";
 "information_generated_with_ai" = "Ця інформація була створена за допомогою ШІ.\nНатисніть тут, якщо знайшли помилку.";
 "initial_message_change_access_code_body" = "Щоб змінити код доступу, прикладіть картку або кільце, як показано вище, і не прибирайте її до закінчення операції";
 "initial_message_change_passcode_body" = "Щоб змінити пароль, прикладіть картку, як показано вище, і не прибирайте її до закінчення операції";
@@ -824,6 +828,7 @@
 "onramp_statuses_view_footer" = "Ви можете закрити цей екран і перевірити статус транзакції на екрані деталей токена.";
 "onramp_transaction_status_footer_text" = "Ви можете перевірити статус транзакції на сторінці токена";
 "onramp_via" = "Через";
+"onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Групами";
 "organize_tokens_sort_by_balance" = "За балансом";
 "organize_tokens_title" = "Сортування токенів";
@@ -993,7 +998,7 @@
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
 "send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
-"send_with_swap_notification_text" = "Send any token, and we’ll convert it on the way. Your recipient gets exactly what they need—seamlessly.";
+"send_with_swap_notification_text" = "Виберіть будь-який токен. Той, кому ви його надішлете, отримає саме те, що ви обрали — без жодних ускладнень.";
 "send_with_swap_recipient_amount_success_title" = "Recipient will receive";
 "send_with_swap_recipient_amount_text" = "To recipient";
 "send_with_swap_recipient_amount_title" = "Amount to receive";
