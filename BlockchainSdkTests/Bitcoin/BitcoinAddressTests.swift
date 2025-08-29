@@ -125,9 +125,7 @@ struct BitcoinAddressTests {
         }
 
         // then
-        #expect(addresses != nil)
         #expect(addresses.count == numberOfAddresses)
-        #expect(reversedPubkeysAddresses != nil)
         #expect(reversedPubkeysAddresses.count == numberOfAddresses)
 
         #expect(legacy?.value == expectedLegacyAddress)

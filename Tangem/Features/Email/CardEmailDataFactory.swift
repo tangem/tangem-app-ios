@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemSdk
-import TangemHotSdk
+import TangemMobileWalletSdk
 
 struct CardEmailDataFactory {
     func makeEmailData(for card: CardDTO, walletData: WalletData?) -> [EmailCollectedData] {
@@ -34,8 +34,8 @@ struct CardEmailDataFactory {
         return data
     }
 
-    func makeEmailData(for hotWallet: HotWallet) -> [EmailCollectedData] {
-        #warning("Provide implementation")
+    func makeEmailData(for mobileWallet: MobileWalletInfo) -> [EmailCollectedData] {
+        #warning("[REDACTED_TODO_COMMENT]")
         return []
     }
 }
