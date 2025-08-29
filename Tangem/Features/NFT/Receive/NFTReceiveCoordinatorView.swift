@@ -36,5 +36,8 @@ struct NFTReceiveCoordinatorView: CoordinatorView {
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: ReceiveMainViewModel.self) {
+                ReceiveMainView(viewModel: $0)
+            }
     }
 }
