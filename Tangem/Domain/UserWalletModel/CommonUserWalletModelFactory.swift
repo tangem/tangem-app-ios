@@ -152,12 +152,10 @@ private struct CommonUserWalletModelDependencies {
             walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
         )
 
-        derivationManager = config.hasFeature(.hdWallets)
-            ? CommonDerivationManager(
-                keysRepository: keysRepository,
-                userTokenListManager: userTokenListManager
-            )
+        let derivationManager = config.hasFeature(.hdWallets)
+            ? CommonDerivationManager(keysRepository: keysRepository, userTokenListManager: userTokenListManager)
             : nil
+        self.derivationManager = derivationManager
 
         totalBalanceProvider = TotalBalanceProvider(
             userWalletId: userWalletId,
@@ -165,15 +163,18 @@ private struct CommonUserWalletModelDependencies {
             derivationManager: derivationManager
         )
 
+        let shouldLoadExpressAvailability = config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange)
+        let areLongHashesSupported = config.hasFeature(.longHashes)
+
         userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
-            shouldLoadExpressAvailability: config.isFeatureVisible(.swapping) || config.isFeatureVisible(.exchange),
+            shouldLoadExpressAvailability: shouldLoadExpressAvailability,
             userTokenListManager: userTokenListManager,
             walletModelsManager: walletModelsManager,
             derivationStyle: config.derivationStyle,
             derivationManager: derivationManager,
             existingCurves: config.existingCurves,
-            longHashesSupported: config.hasFeature(.longHashes)
+            longHashesSupported: areLongHashesSupported
         )
 
         nftManager = CommonNFTManager(
@@ -206,7 +207,15 @@ private struct CommonUserWalletModelDependencies {
                     walletManagersRepository: walletManagersRepository,
                     walletModelsFactory: walletModelsFactory
                 )
-                let userTokensManagerFactory = CommonAccountUserTokensManagerFactory()
+                let userTokensManagerFactory = CommonAccountUserTokensManagerFactory(
+                    userTokenListManager: userTokenListManager,
+                    derivationStyle: config.derivationStyle,
+                    derivationManager: derivationManager,
+                    existingCurves: config.existingCurves,
+                    shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+                    areLongHashesSupported: areLongHashesSupported
+                )
+
                 return CommonAccountModelsManager(
                     userWalletId: userWalletId,
                     cryptoAccountsRepository: cryptoAccountsRepository,
