@@ -187,7 +187,7 @@ extension SendNewAmountView {
 
         static let textFieldTransition: AnyTransition = .asymmetric(
             insertion: .offset(y: 30).animation(Constants.animation.delay(Constants.duration)),
-            removal: .offset(y: -30).animation(Constants.animation)
+            removal: .offset(y: 30).animation(Constants.animation).combined(with: .opacity).animation(Constants.animation.speed(2))
         )
         .combined(with: .scale(scale: 0.95, anchor: .bottom))
         .combined(with: .opacity)
