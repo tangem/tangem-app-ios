@@ -198,35 +198,35 @@ private struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         userTokenListManager.externalParametersProvider = userTokensPushNotificationsManager
 
-        accountModelsManager = if FeatureProvider.isAvailable(.accounts) {
-            // [REDACTED_TODO_COMMENT]
-            {
-                let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
-                let cryptoAccountsRepository = CommonCryptoAccountsRepository(tokenItemsRepository: tokenItemsRepository)
-                let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
-                let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
-                    walletManagersRepository: walletManagersRepository,
-                    walletModelsFactory: walletModelsFactory
-                )
-                let userTokensManagerFactory = CommonAccountUserTokensManagerFactory(
-                    userTokenListManager: userTokenListManager,
-                    derivationStyle: config.derivationStyle,
-                    derivationManager: derivationManager,
-                    existingCurves: config.existingCurves,
-                    shouldLoadExpressAvailability: shouldLoadExpressAvailability,
-                    areLongHashesSupported: areLongHashesSupported
-                )
+        // Inline func is used here to avoid long parameter list in the method signature.
+        func makeAccountModelsManager() -> AccountModelsManager {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue)
+            let cryptoAccountsRepository = CommonCryptoAccountsRepository(tokenItemsRepository: tokenItemsRepository)
+            let walletModelsFactory = config.makeWalletModelsFactory(userWalletId: userWalletId)
+            let walletModelsManagerFactory = CommonAccountWalletModelsManagerFactory(
+                walletManagersRepository: walletManagersRepository,
+                walletModelsFactory: walletModelsFactory
+            )
+            let userTokensManagerFactory = CommonAccountUserTokensManagerFactory(
+                userTokenListManager: userTokenListManager,
+                derivationStyle: config.derivationStyle,
+                derivationManager: derivationManager,
+                existingCurves: config.existingCurves,
+                shouldLoadExpressAvailability: shouldLoadExpressAvailability,
+                areLongHashesSupported: areLongHashesSupported
+            )
 
-                return CommonAccountModelsManager(
-                    userWalletId: userWalletId,
-                    cryptoAccountsRepository: cryptoAccountsRepository,
-                    walletModelsManagerFactory: walletModelsManagerFactory,
-                    userTokensManagerFactory: userTokensManagerFactory
-                )
-            }()
-        } else {
-            DummyCommonAccountModelsManager()
+            return CommonAccountModelsManager(
+                userWalletId: userWalletId,
+                cryptoAccountsRepository: cryptoAccountsRepository,
+                walletModelsManagerFactory: walletModelsManagerFactory,
+                userTokensManagerFactory: userTokensManagerFactory
+            )
         }
+
+        accountModelsManager = FeatureProvider.isAvailable(.accounts)
+            ? makeAccountModelsManager()
+            : DummyCommonAccountModelsManager()
     }
 
     func update(from model: UserWalletModel) {
