@@ -34,8 +34,9 @@ struct SendNewFeeStepBuilder {
             input: interactor,
             output: interactor,
             analytics: analyticsLogger,
-            customFieldsBuilder: builder.makeFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService),
-            feeTokenItem: feeTokenItem
+            customFieldsBuilder: customFeeService as? FeeSelectorCustomFeeFieldsBuilder,
+            feeTokenItem: feeTokenItem,
+            savingType: .autosave
         )
         let compact = makeSendNewFeeCompactViewModel(input: io.input)
         let finish = makeSendFeeFinishViewModel(input: io.input)
