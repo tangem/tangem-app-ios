@@ -87,7 +87,7 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
     private func initializeModels() {
         models = infoProviders
             .map {
-                .init(
+                MainHeaderViewModel(
                     isUserWalletLocked: $0.walletModel.isUserWalletLocked,
                     supplementInfoProvider: $0.walletModel,
                     subtitleProvider: $0.headerSubtitleProvider,
@@ -95,7 +95,8 @@ final class FakeCardHeaderPreviewProvider: ObservableObject {
                         totalBalanceProvider: $0,
                         userWalletStateInfoProvider: $0.walletModel,
                         mainBalanceFormatter: CommonMainHeaderBalanceFormatter()
-                    )
+                    ),
+                    updatePublisher: $0.updatePublisher
                 )
             }
     }
@@ -107,6 +108,7 @@ extension FakeCardHeaderPreviewProvider {
 
         let walletModel: FakeUserWalletModel
         let headerSubtitleProvider: MainHeaderSubtitleProvider
+        let updatePublisher: AnyPublisher<UpdateResult, Never>
 
         var tapAction: (CardInfoProvider) -> Void
 
@@ -114,6 +116,7 @@ extension FakeCardHeaderPreviewProvider {
             self.walletModel = walletModel
             headerSubtitleProvider = CommonMainHeaderProviderFactory()
                 .makeHeaderSubtitleProvider(for: walletModel, isMultiWallet: walletModel.config.hasFeature(.multiCurrency))
+            updatePublisher = PassthroughSubject().eraseToAnyPublisher()
             self.tapAction = tapAction
         }
 
