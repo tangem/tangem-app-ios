@@ -322,8 +322,13 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         case .filled: .full
         }
 
+        let source: Analytics.ParameterValue = switch sendReceiveTokenInput?.receiveToken {
+        case .none, .same: .send
+        case .swap: .sendAndSwap
+        }
+
         Analytics.log(event: .transactionSent, params: [
-            .source: coordinatorSource.analytics.rawValue,
+            .source: source.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
