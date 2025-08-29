@@ -12,6 +12,7 @@ protocol SelectorReceiveAssetsSectionFactory {
     var analyticsLogger: ReceiveAnalyticsLogger { get }
 
     func makeSections(from assets: [ReceiveAddressType]) -> [SelectorReceiveAssetsSection]
+    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String
 }
 
 extension SelectorReceiveAssetsSectionFactory {
@@ -19,7 +20,7 @@ extension SelectorReceiveAssetsSectionFactory {
         switch asset {
         case .address(let addressInfo):
             let viewModel = SelectorReceiveAssetsAddressItemViewModel(
-                tokenItem: tokenItem,
+                header: makeHeaderItemStateView(tokenItem: tokenItem, addressInfo: addressInfo),
                 addressInfo: addressInfo,
                 coordinator: coordinator
             )
@@ -34,4 +35,18 @@ extension SelectorReceiveAssetsSectionFactory {
             return .domain(viewModel)
         }
     }
+
+    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
+        if tokenItem.isToken, let tokenTypeName = tokenItem.blockchain.tokenTypeName {
+            return "\(tokenItem.name.capitalizingFirstLetter()) • \(tokenTypeName)"
+        } else {
+            return "\(tokenItem.name.capitalizingFirstLetter())"
+        }
+    }
+}
+
+struct SelectorReceiveAssetsSectionFactoryInput {
+    let tokenItem: TokenItem
+    let analyticsLogger: ReceiveAnalyticsLogger
+    let coordinator: SelectorReceiveAssetItemRoutable?
 }
