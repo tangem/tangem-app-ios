@@ -24,7 +24,7 @@ struct AppCoordinatorView: CoordinatorView {
     @Environment(\.mainWindowSize) var mainWindowSize: CGSize
     @Namespace private var namespace
 
-    var body: some View {
+    var body2: some View {
         RefreshScrollView(stateObject: stateObject) {
             ForEach(0 ... 50) { id in
                 Button(action: {}) {
@@ -37,12 +37,12 @@ struct AppCoordinatorView: CoordinatorView {
                 }
             }
         }
-//        .safeAreaInset(edge: .top) {
-//            BottomSheetHeaderView(title: "SUPER HEADER")
-//        }
+        .safeAreaInset(edge: .top) {
+            BottomSheetHeaderView(title: "SUPER HEADER")
+        }
     }
 
-    var body2: some View {
+    var body: some View {
         content
             .accentColor(Colors.Text.primary1)
             .overlayContentContainer(

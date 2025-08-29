@@ -30,6 +30,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
     @Published private(set) var miniChartData: LoadingValue<[Double]?> = .loading
 
+    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(refreshable: { [weak self] in
+        await self?.onPullToRefresh()
+    })
+
     let notificationManager: NotificationManager
     let userWalletModel: UserWalletModel
     let walletModel: any WalletModel
@@ -45,7 +49,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private var priceChangeFormatter = PriceChangeFormatter()
     private var transactionHistoryBag: AnyCancellable?
-    private var updateSubscription: AnyCancellable?
+    private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
     var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
@@ -136,8 +140,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        guard updateSubscription == nil else {
+    func onPullToRefresh() async {
+        guard updateTask == nil else {
             return
         }
 
@@ -146,18 +150,21 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isReloadingTransactionHistory = true
-        updateSubscription = walletModel.generalUpdate(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                guard let self else {
-                    return
-                }
+        updateTask = runTask(in: self) { viewModel in
+            // Ignore the CancelationError() here
+            // WalletModel.generalUpdate() has not error throwing
+            try? await viewModel.walletModel.generalUpdate(silent: false).async()
+        }
 
-                AppLogger.info(self, "♻️ loading state changed")
-                isReloadingTransactionHistory = false
-                updateSubscription = nil
-                completionHandler()
-            })
+        // Wait while task is finished
+        await updateTask?.value
+
+        AppLogger.info(self, "♻️ loading state changed")
+        await runOnMain {
+            isReloadingTransactionHistory = false
+        }
+
+        updateTask = nil
     }
 
     /// This method should be overridden to send analytics events for navigation.
@@ -294,19 +301,6 @@ extension SingleTokenBaseViewModel {
         performLoadHistory()
     }
 
-    private func setupActionButtons() {
-        availableActions = tokenActionAvailabilityProvider.buildAvailableButtonsList()
-
-        if isButtonDisabled(with: .exchange) {
-            Analytics.log(event: .tokenActionButtonDisabled, params: [
-                .token: walletModel.tokenItem.currencySymbol,
-                .blockchain: walletModel.tokenItem.blockchain.displayName,
-                .action: Analytics.ParameterValue.swap.rawValue,
-                .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
-            ])
-        }
-    }
-
     private func bind() {
         walletModel.isAssetRequirementsTaskInProgressPublisher
             .receiveOnMain()
@@ -399,6 +393,19 @@ extension SingleTokenBaseViewModel {
                 self?.updateActionButtons()
             }
             .store(in: &bag)
+    }
+
+    private func setupActionButtons() {
+        availableActions = tokenActionAvailabilityProvider.buildAvailableButtonsList()
+
+        if isButtonDisabled(with: .exchange) {
+            Analytics.log(event: .tokenActionButtonDisabled, params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: walletModel.tokenItem.blockchain.displayName,
+                .action: Analytics.ParameterValue.swap.rawValue,
+                .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
+            ])
+        }
     }
 
     private func setupMiniChart() {

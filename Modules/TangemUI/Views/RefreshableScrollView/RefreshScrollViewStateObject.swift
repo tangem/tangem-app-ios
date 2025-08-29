@@ -29,7 +29,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
     )
 
     let settings: Settings
-    private let refreshable: () async -> Void
+    private var refreshable: () async -> Void
 
     private var bag = Set<AnyCancellable>()
 

@@ -20,7 +20,7 @@ public struct RefreshScrollView<Content: View>: View {
     // Init
 
     @ObservedObject private var stateObject: RefreshScrollViewStateObject
-    private let spacing: CGFloat?
+    private let contentSettings: ContentSettings
     private let showsIndicators: Bool
     private let content: () -> Content
 
@@ -31,13 +31,13 @@ public struct RefreshScrollView<Content: View>: View {
 
     public init(
         stateObject: RefreshScrollViewStateObject,
-        spacing: CGFloat? = nil,
         showsIndicators: Bool = false,
-        content: @escaping () -> Content
+        contentSettings: ContentSettings = .lazyVStack(),
+        @ViewBuilder content: @escaping () -> Content
     ) {
         self.stateObject = stateObject
-        self.spacing = spacing
         self.showsIndicators = showsIndicators
+        self.contentSettings = contentSettings
         self.content = content
     }
 
@@ -87,9 +87,16 @@ public struct RefreshScrollView<Content: View>: View {
         .coordinateSpace(name: coordinateSpaceName)
     }
 
+    @ViewBuilder
     var scrollContent: some View {
-        LazyVStack(spacing: spacing, content: content)
-            .refreshingPadding(length: stateObject.refreshingPadding)
+        switch contentSettings {
+        case .simpleContent:
+            content()
+                .refreshingPadding(length: stateObject.refreshingPadding)
+        case .lazyVStack(let alignment, let spacing, let pinnedViews):
+            LazyVStack(alignment: alignment, spacing: spacing, pinnedViews: pinnedViews, content: content)
+                .refreshingPadding(length: stateObject.refreshingPadding)
+        }
     }
 
     @ViewBuilder
@@ -98,6 +105,17 @@ public struct RefreshScrollView<Content: View>: View {
             state: stateObject.state,
             settings: stateObject.settings,
             progress: stateObject.progress
+        )
+    }
+}
+
+public extension RefreshScrollView {
+    enum ContentSettings {
+        case simpleContent
+        case lazyVStack(
+            alignment: HorizontalAlignment = .center,
+            spacing: CGFloat? = nil,
+            pinnedViews: PinnedScrollableViews = .init()
         )
     }
 }
