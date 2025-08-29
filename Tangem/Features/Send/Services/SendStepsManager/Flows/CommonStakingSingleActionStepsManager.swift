@@ -7,13 +7,14 @@
 //
 
 import Foundation
-import Combine
 import TangemStaking
+import TangemLocalization
 
 class CommonStakingSingleActionStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
-    private let action: UnstakingModel.Action
+    private let summaryTitleProvider: SendSummaryTitleProvider
+    private let action: StakingSingleActionModel.Action
 
     private var stack: [SendStep]
     private weak var output: SendStepsManagerOutput?
@@ -21,24 +22,25 @@ class CommonStakingSingleActionStepsManager {
     init(
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
+        summaryTitleProvider: SendSummaryTitleProvider,
         action: UnstakingModel.Action
     ) {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
+        self.summaryTitleProvider = summaryTitleProvider
         self.action = action
 
         stack = [summaryStep]
     }
 
+    private func currentStep() -> SendStep {
+        let last = stack.last
+        return last ?? initialStep
+    }
+
     private func next(step: SendStep) {
         stack.append(step)
-
-        switch step.type {
-        case .finish:
-            output?.update(state: .init(step: step, action: .close))
-        case .amount, .destination, .fee, .summary, .validators, .onramp, .newAmount, .newDestination, .newSummary, .newFinish:
-            assertionFailure("There is no next step")
-        }
+        output?.update(step: step)
     }
 }
 
@@ -61,41 +63,44 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
             return .stake
         case .pending(.unlockLocked):
             return .unlockLocked
-        case .stake, .pending(.stake):
-            assertionFailure("Doesn't support in UnstakingFlow")
-            return .unstake
         case .pending(.restake):
             return .restake
         case .pending(.claimUnstaked):
             return .claimUnstaked
+        case .stake, .pending(.stake):
+            assertionFailure("Doesn't support in StakingSingleAction flow")
+            return .unstake
         }
     }
 
-    var initialState: SendStepsManagerViewState {
-        .init(step: summaryStep, action: .action, backButtonVisible: false)
+    var initialStep: any SendStep { summaryStep }
+
+    var shouldShowDismissAlert: Bool { false }
+
+    var navigationBarSettings: SendStepNavigationBarSettings {
+        switch currentStep().type {
+        case .summary:
+            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+        case .finish:
+            return .init(trailingViewType: .closeButton)
+        default:
+            return .empty
+        }
     }
 
-    var shouldShowDismissAlert: Bool {
-        return false
+    var bottomBarSettings: SendStepBottomBarSettings {
+        switch currentStep().type {
+        case .summary: .init(action: .action)
+        case .finish: .init(action: .close)
+        default: .empty
+        }
     }
 
     func set(output: SendStepsManagerOutput) {
         self.output = output
     }
 
-    func performBack() {
-        assertionFailure("There's not back action in this flow")
-    }
-
-    func performNext() {
-        assertionFailure("There's not next action in this flow")
-    }
-
     func performFinish() {
         next(step: finishStep)
-    }
-
-    func performContinue() {
-        assertionFailure("There's not continue action in this flow")
     }
 }
