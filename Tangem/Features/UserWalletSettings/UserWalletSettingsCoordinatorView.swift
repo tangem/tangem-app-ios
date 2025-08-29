@@ -39,8 +39,8 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.scanCardSettingsCoordinator) {
                 ScanCardSettingsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.hotBackupTypesViewModel) {
-                HotBackupTypesView(viewModel: $0)
+            .navigation(item: $coordinator.mobileBackupTypesViewModel) {
+                MobileBackupTypesView(viewModel: $0)
             }
     }
 
@@ -57,8 +57,8 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TransactionNotificationsModalViewModel.self) {
                 TransactionNotificationsModalView(viewModel: $0)
             }
-            .floatingSheetContent(for: HotBackupNeededViewModel.self) {
-                HotBackupNeededView(viewModel: $0)
+            .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
+                MobileBackupNeededView(viewModel: $0)
             }
     }
 }

@@ -125,12 +125,13 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
             return
         }
 
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
+        let options = nftSendUtil.makeOptions(for: asset, in: collection)
+
         let coordinator = SendCoordinator(
             dismissAction: makeSendCoordinatorDismissActionInternal(for: asset),
             popToRootAction: makeSendCoordinatorPopToRootAction()
         )
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
-        let options = nftSendUtil.makeOptions(for: asset, in: collection)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }

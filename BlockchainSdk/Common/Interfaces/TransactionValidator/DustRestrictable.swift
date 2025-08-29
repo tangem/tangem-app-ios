@@ -26,7 +26,7 @@ extension DustRestrictable where Self: WalletProvider {
             throw ValidationError.balanceNotFound
         }
 
-        if amount < dustValue {
+        if amount.value > 0, amount < dustValue {
             throw ValidationError.dustAmount(minimumAmount: dustValue)
         }
 
