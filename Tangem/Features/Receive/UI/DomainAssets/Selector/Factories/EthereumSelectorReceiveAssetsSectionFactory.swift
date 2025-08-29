@@ -18,14 +18,10 @@ struct EthereumSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSection
 
     // MARK: - Init
 
-    init(
-        tokenItem: TokenItem,
-        analyticsLogger: ReceiveAnalyticsLogger,
-        coordinator: SelectorReceiveAssetItemRoutable?
-    ) {
-        self.tokenItem = tokenItem
-        self.analyticsLogger = analyticsLogger
-        self.coordinator = coordinator
+    init(_ input: SelectorReceiveAssetsSectionFactoryInput) {
+        tokenItem = input.tokenItem
+        analyticsLogger = input.analyticsLogger
+        coordinator = input.coordinator
     }
 
     // MARK: - Implementation
