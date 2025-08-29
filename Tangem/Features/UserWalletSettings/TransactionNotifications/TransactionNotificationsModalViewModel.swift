@@ -76,6 +76,9 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
                 }
             } catch {
                 AppLogger.error(error: error)
+
+                // Fallback as a last resort
+                displayAlert(error: error)
             }
         }
     }
@@ -97,7 +100,7 @@ private extension TransactionNotificationsModalViewModel {
                 networkName: blockchain.displayName,
                 networkSymbol: blockchain.currencySymbol,
                 iconImageAsset: imageProvider.provide(by: blockchain, filled: true),
-                isLoading: true
+                isLoading: false
             )
         }
 
