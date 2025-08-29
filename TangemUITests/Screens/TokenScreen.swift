@@ -35,7 +35,11 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
-            actionButtons.buttons[action.rawValue].waitAndTap()
+            XCTAssertTrue(actionButtons.waitForExistence(timeout: .robustUIUpdate), "Action buttons container should exist")
+
+            let button = actionButtons.buttons[action.rawValue]
+
+            button.waitAndTap()
             return self
         }
     }
@@ -45,9 +49,9 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return OnrampScreen(app)
     }
 
-    func tapSwapButton() -> SwapScreen {
+    func tapSwapButton() -> SwapStoriesScreen {
         tapActionButton(.swap)
-        return SwapScreen(app)
+        return SwapStoriesScreen(app)
     }
 
     func openStakeDetails() -> StakingDetailsScreen {

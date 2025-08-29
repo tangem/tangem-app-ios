@@ -15,6 +15,7 @@ import TangemVisa
 import TangemNFT
 import TangemFoundation
 import TangemUI
+import TangemMobileWalletSdk
 
 class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -53,6 +54,7 @@ class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -280,6 +282,22 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             floatingSheetPresenter.enqueue(
                 sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
             )
+        }
+    }
+
+    func openMobileUpgrade(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        Task { @MainActor in
+            let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+                switch options {
+                case .dismiss:
+                    self?.mobileUpgradeCoordinator = nil
+                }
+            }
+
+            let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+            let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+            coordinator.start(with: inputOptions)
+            mobileUpgradeCoordinator = coordinator
         }
     }
 }
@@ -659,6 +677,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
+        case onboardVisa(entry: String)
         case promo(code: String)
     }
 }
