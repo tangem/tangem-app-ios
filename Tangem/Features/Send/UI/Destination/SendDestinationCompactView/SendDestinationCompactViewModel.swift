@@ -34,7 +34,7 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
             .CombineLatest(input.destinationPublisher.compactMap { $0 }, input.additionalFieldPublisher)
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                viewModel.makeDestinationViewTypes(address: args.0.value, additionalField: args.1)
+                viewModel.makeDestinationViewTypes(address: args.0.value.transactionAddress, additionalField: args.1)
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.destinationViewTypes, on: self, ownership: .weak)
