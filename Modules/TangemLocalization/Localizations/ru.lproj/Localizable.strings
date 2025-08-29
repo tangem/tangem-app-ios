@@ -998,7 +998,7 @@
 "send_with_swap_convert_token_alert_title" = "Подтвердить конвертацию";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
 "send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
-"send_with_swap_notification_text" = "Отправьте любой токен, и мы конвертируем его по пути. Адресат получит именно то, что нужно — без лишних действий.";
+"send_with_swap_notification_text" = "Выберите любой токен к получению. Ваш адресат получит ровно то, что вы выбрали — без лишних сложностей.";
 "send_with_swap_recipient_amount_success_title" = "Будет получено";
 "send_with_swap_recipient_amount_text" = "Получателю";
 "send_with_swap_recipient_amount_title" = "Сумма к получению";
