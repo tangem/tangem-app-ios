@@ -10,18 +10,6 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-struct SimpleCustomFeeFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder {
-    let customFeeService: CustomFeeService?
-
-    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
-        guard let customFeeService else {
-            return []
-        }
-
-        return customFeeService.selectorCustomFeeRowViewModels()
-    }
-}
-
 struct SimpleAnalytics: FeeSelectorContentViewModelAnalytics {
     func logFeeStepOpened() {
         // [REDACTED_TODO_COMMENT]
@@ -50,9 +38,10 @@ final class WCFeeSelectorFactory {
             input: feeInteractor,
             output: feeInteractor,
             analytics: SimpleAnalytics(),
-            customFieldsBuilder: SimpleCustomFeeFieldsBuilder(customFeeService: customFeeService),
+            customFieldsBuilder: customFeeService,
             feeTokenItem: walletModel.feeTokenItem,
-            dismissButtonType: .back
+            dismissButtonType: .back,
+            savingType: .doneButton
         )
     }
 }
