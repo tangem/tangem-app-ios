@@ -14,16 +14,15 @@ enum TLSDetailsLogHelper {
     static func logTrustDetails(trust: SecTrust, forHost: String) {
         var log = "🔐 Host: \(forHost)"
 
-        let certCount = SecTrustGetCertificateCount(trust)
-        log += "\n--- Certificate Chain (\(certCount)) ---\n"
+        if let certificateRefs = SecTrustCopyCertificateChain(trust) as? [SecCertificate] {
+            log += "\n--- Certificate Chain (\(certificateRefs.count)) ---\n"
 
-        for i in 0 ..< certCount {
-            if let cert = SecTrustGetCertificateAtIndex(trust, i) {
+            for (index, cert) in certificateRefs.enumerated() {
                 let subject = SecCertificateCopySubjectSummary(cert) as String? ?? "Unknown Subject"
                 if let data = SecCertificateCopyData(cert) as Data? {
                     let base64 = data.base64EncodedString(options: [.lineLength64Characters])
                     log += """
-                    [Certificate \(i + 1)]
+                    [Certificate \(index + 1)]
                     Subject: \(subject)
                     Base64:
                     \(base64.prefix(80))... [truncated]
@@ -31,6 +30,8 @@ enum TLSDetailsLogHelper {
                     """
                 }
             }
+        } else {
+            log += "\n❗️ Failed to obtain certificate chains."
         }
 
         // MARK: - Trust Copy Result

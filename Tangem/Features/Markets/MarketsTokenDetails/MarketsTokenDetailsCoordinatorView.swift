@@ -50,6 +50,9 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             ) {
                 MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
             }
+            .floatingSheetContent(for: ReceiveMainViewModel.self) {
+                ReceiveMainView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
