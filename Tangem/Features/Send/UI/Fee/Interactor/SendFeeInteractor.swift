@@ -176,8 +176,8 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
 // MARK: - FeeSelectorContentViewModelOutput
 
 extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
-    func update(selectedSelectorFee: FeeSelectorFee) {
-        if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
+    func update(selectedFeeOption: FeeOption) {
+        if let fee = fees.first(where: { $0.option == selectedFeeOption }) {
             update(selectedFee: fee)
         }
     }
@@ -200,7 +200,6 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
 extension CommonSendFeeInteractor: CustomFeeServiceOutput {
     func customFeeDidChanged(_ customFee: Fee) {
         _customFee.send(customFee)
-        update(selectedFee: .init(option: .custom, value: .loaded(customFee)))
     }
 }
 
