@@ -68,7 +68,8 @@ public struct AddressServiceFactory {
              .apeChain,
              .sonic,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .hyperliquidEVM:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()

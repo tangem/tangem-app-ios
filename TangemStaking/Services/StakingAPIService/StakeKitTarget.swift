@@ -12,6 +12,7 @@ import TangemNetworkUtils
 
 struct StakeKitTarget: Moya.TargetType {
     let apiKey: String
+    let apiType: StakingAPIType
     let target: Target
 
     enum Target {
@@ -35,7 +36,7 @@ struct StakeKitTarget: Moya.TargetType {
     }
 
     var baseURL: URL {
-        URL(string: "https://api.stakek.it/v1/")!
+        apiType.apiBaseUrl
     }
 
     var path: String {

@@ -191,7 +191,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
         walletManager
             .getFee(amount: amount, destination: destination)
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 switch $0 {
@@ -286,7 +286,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
         $tokenEnabled
             .dropFirst()
-            .debounce(for: 1, scheduler: RunLoop.main)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 UserDefaults.standard.set($0, forKey: tokenEnabledKey)
@@ -296,7 +296,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
         $tokenSymbol
             .dropFirst()
-            .debounce(for: 1, scheduler: RunLoop.main)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 UserDefaults.standard.set($0, forKey: tokenSymbolKey)
@@ -306,7 +306,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
         $tokenContractAddress
             .dropFirst()
-            .debounce(for: 1, scheduler: RunLoop.main)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 UserDefaults.standard.set($0, forKey: tokenContractAddressKey)
@@ -316,7 +316,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
         $tokenDecimalPlaces
             .dropFirst()
-            .debounce(for: 1, scheduler: RunLoop.main)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
                 UserDefaults.standard.set($0, forKey: tokenDecimalPlacesKey)

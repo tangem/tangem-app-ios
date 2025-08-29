@@ -70,14 +70,8 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
-        let coordinator = makeSendCoordinator()
-        coordinator.start(with: .init(
-            walletModel: options.walletModel,
-            userWalletModel: options.userWalletModel,
-            type: .staking(manager: options.manager),
-            source: .stakingDetails
-        ))
-        sendCoordinator = coordinator
+        openFlow(options: options, sendType: .staking(manager: options.manager))
+
         Analytics.log(
             event: .stakingButtonStake,
             params: [
@@ -102,29 +96,26 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openUnstakingFlow(action: UnstakingModel.Action) {
         guard let options else { return }
 
-        openFlow(for: action, options: options, sendType: .unstaking(manager: options.manager, action: action))
+        openFlow(options: options, sendType: .unstaking(manager: options.manager, action: action))
     }
 
     func openRestakingFlow(action: RestakingModel.Action) {
         guard let options else { return }
 
-        openFlow(for: action, options: options, sendType: .restaking(manager: options.manager, action: action))
+        openFlow(options: options, sendType: .restaking(manager: options.manager, action: action))
     }
 
     func openStakingSingleActionFlow(action: StakingSingleActionModel.Action) {
         guard let options else { return }
 
-        openFlow(for: action, options: options, sendType: .stakingSingleAction(manager: options.manager, action: action))
+        openFlow(options: options, sendType: .stakingSingleAction(manager: options.manager, action: action))
     }
 
-    func openFlow(for action: StakingAction, options: Options, sendType: SendType) {
-        let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
-            self?.sendCoordinator = nil
-        })
+    func openFlow(options: Options, sendType: SendType) {
+        let coordinator = makeSendCoordinator()
 
         coordinator.start(with: .init(
-            walletModel: options.walletModel,
-            userWalletModel: options.userWalletModel,
+            input: .init(userWalletModel: options.userWalletModel, walletModel: options.walletModel),
             type: sendType,
             source: .stakingDetails
         ))

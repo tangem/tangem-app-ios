@@ -132,7 +132,8 @@ private extension CEXExpressProviderManager {
             pair: request.pair,
             amount: reducedAmount,
             feeOption: request.feeOption,
-            approvePolicy: request.approvePolicy
+            approvePolicy: request.approvePolicy,
+            operationType: request.operationType
         )
     }
 

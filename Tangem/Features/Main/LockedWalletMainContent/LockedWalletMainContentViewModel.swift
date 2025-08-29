@@ -48,8 +48,12 @@ class LockedWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let contextData: AnalyticsContextData?
 
+    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
+
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
     private weak var coordinator: ActionButtonsRoutable?
+
+    private var bag = Set<AnyCancellable>()
 
     init(
         userWalletModel: UserWalletModel,
@@ -61,11 +65,15 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
         self.coordinator = coordinator
+        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
+            userWalletConfig: userWalletModel.config,
+            totalBalanceProvider: userWalletModel
+        )
 
         contextData = userWalletModel.analyticsContextData
 
         if isMultiWallet {
-            actionButtonsViewModel = makeActionButtonsViewModel()
+            bindBalanceRestrictionsCheck()
         }
 
         Analytics.log(event: .mainNoticeWalletUnlock, params: contextData?.analyticsParams ?? [:])
@@ -84,6 +92,16 @@ class LockedWalletMainContentViewModel: ObservableObject {
 // MARK: - Action buttons
 
 private extension LockedWalletMainContentViewModel {
+    func bindBalanceRestrictionsCheck() {
+        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isAvailable in
+                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
+            }
+            .store(in: &bag)
+    }
+
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {
         guard let coordinator else {
             return nil

@@ -12,7 +12,7 @@ struct CommonOnboardingStepsBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     var shouldAddSaveWalletsStep: Bool {
-        if FeatureProvider.isAvailable(.hotWallet) {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             !AppSettings.shared.saveUserWallets
                 && !AppSettings.shared.askedToSaveUserWallets
         } else {
