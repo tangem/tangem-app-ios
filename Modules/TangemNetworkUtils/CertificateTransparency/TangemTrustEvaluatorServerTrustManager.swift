@@ -8,7 +8,7 @@
 
 import Alamofire
 
-public class TangemTrustEvaluatorServerTrustManager: ServerTrustManager {
+public class TangemTrustEvaluatorServerTrustManager: ServerTrustManager, @unchecked Sendable {
     public init() {
         super.init(allHostsMustBeEvaluated: true, evaluators: [Constants.wildcardMask: TangemTrustEvaluatorUtil.makeEvaluator()])
     }
