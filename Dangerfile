@@ -50,6 +50,7 @@ xcode_summary.ignored_results do |result|
   message.end_with?("Duplicate symbol '_ge25519_add' in:") || # Perhaps a false positive in the BlockchainSdkExample target
   message.end_with?("Duplicate symbol '_ge25519_scalarmult' in:") || # Perhaps a false positive in the BlockchainSdkExample target
   message.end_with?("Sendability of function types in instance method 'urlSession(_:didReceive:completionHandler:)' does not match requirement in protocol 'URLSessionDelegate'; this is an error in the Swift 6 language mode") || # IDK how to fix this
+  message.end_with?('DEFINES_MODULE was set, but no umbrella header could be found to generate the module map') || # Comes from the `CNIOWindows` target, completely unrelated to IOS (see https://forums.swift.org/t/24063 for details)
   (message.end_with?('Switch condition evaluates to a constant') && file == 'Blockchain+AllCases.swift') || # Expected
   (message.end_with?('Switch condition evaluates to a constant') && file == 'NFTContractType.swift') || # Expected
   (message.end_with?('Switch condition evaluates to a constant') && file == 'NFTChain.swift') # Expected
