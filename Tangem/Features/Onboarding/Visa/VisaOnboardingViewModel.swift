@@ -120,7 +120,7 @@ class VisaOnboardingViewModel: ObservableObject {
             currentStep = .welcome
         }
 
-        if case .userWalletModel(let userWalletModel, _) = input.cardInput {
+        if case .userWalletModel(let userWalletModel, _, _) = input.cardInput {
             self.userWalletModel = userWalletModel
         }
 
@@ -392,7 +392,7 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
             cardIdToSave = cardId
         case .cardInfo(let cardInfo):
             cardIdToSave = cardInfo.card.cardId
-        case .userWalletModel(_, let cardId):
+        case .userWalletModel(_, let cardId, _):
             cardIdToSave = cardId
         }
 
