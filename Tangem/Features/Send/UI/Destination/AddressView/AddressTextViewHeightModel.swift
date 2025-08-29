@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 /**
  This model is needed to synchronize the heights of the address text field on
@@ -22,4 +23,5 @@ import Foundation
  */
 class AddressTextViewHeightModel: ObservableObject {
     @Published var height: CGFloat = 10
+    @Published var placeholder: String = Localization.sendEnterAddressField
 }
