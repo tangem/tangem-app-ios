@@ -74,17 +74,6 @@ struct SendFeeView: View {
                     .transition(transitionService.customFeeTransition)
                 }
             }
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .preference(
-                            key: MaxYPreferenceKey.self,
-                            // It needs to be global because it communicates its maxY to parent which doesnt know anything
-                            // about local coordinateSpace
-                            value: proxy.frame(in: .global).maxY
-                        )
-                }
-            )
         }
         .coordinateSpace(name: coordinateSpaceName)
         .animation(SendTransitionService.Constants.auxiliaryViewAnimation, value: viewModel.auxiliaryViewsVisible)
@@ -154,11 +143,3 @@ extension SendFeeView {
      }
  }
  */
-
-struct MaxYPreferenceKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
