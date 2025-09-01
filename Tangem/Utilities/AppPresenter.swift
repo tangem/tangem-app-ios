@@ -16,9 +16,9 @@ final class AppPresenter: @unchecked Sendable {
 
     private init() {}
 
-    func show(_ controller: UIViewController, delay: TimeInterval = 0.3) {
+    func show(_ controller: UIViewController, delay: TimeInterval = 0.3, animated: Bool = true) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            UIApplication.modalFromTop(controller)
+            UIApplication.modalFromTop(controller, animated: animated)
         }
     }
 
