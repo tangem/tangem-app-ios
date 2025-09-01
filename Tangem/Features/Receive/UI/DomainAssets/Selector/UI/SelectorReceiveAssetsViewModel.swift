@@ -39,16 +39,13 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
 
         bind()
         interactor.update()
-    }
 
-    func onViewAppear() {
-        let hasDomainNameAddresses = interactor.hasDomainNameAddresses()
-        analyticsLogger.logSelectorReceiveAssetsScreenOpened(hasDomainNameAddresses)
+        initialAppear()
     }
 
     // MARK: - Private Implementation
 
-    func bind() {
+    private func bind() {
         interactor
             .notificationsPublisher
             .receiveOnMain()
@@ -64,6 +61,11 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
             }
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func initialAppear() {
+        let hasDomainNameAddresses = interactor.hasDomainNameAddresses()
+        analyticsLogger.logSelectorReceiveAssetsScreenOpened(hasDomainNameAddresses)
     }
 }
 
