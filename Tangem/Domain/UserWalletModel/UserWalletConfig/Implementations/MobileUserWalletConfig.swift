@@ -81,7 +81,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
     var embeddedBlockchain: StorageEntry? { nil }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: mobileWalletInfo)
+        EmailDataFactory().makeEmailData(for: mobileWalletInfo)
     }
 
     var userWalletIdSeed: Data? {
