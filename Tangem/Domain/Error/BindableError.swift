@@ -98,6 +98,7 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
     case cardWithWrongUserWalletIdScanned
     case cantSelectWallet
     case cantUnlockWithCard
+    case sensitiveInfoIsMissing
 
     var errorDescription: String? {
         rawValue
@@ -115,6 +116,8 @@ enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {
             return .init(title: "", message: Localization.genericErrorCode("cantSelectWallet"))
         case .cantUnlockWithCard:
             return .init(title: "", message: Localization.genericErrorCode("cantUnlockWithCard"))
+        case .sensitiveInfoIsMissing:
+            return .init(title: "", message: Localization.genericErrorCode("sensitiveInfoIsMissing"))
         }
     }
 }
