@@ -462,9 +462,13 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openReferral(input: input)
     }
 
-    private func openMobileFinishActivation() {
+    private func openMobileFinishActivation(needsAttention: Bool) {
         Analytics.log(.mainButtonFinishNow)
-        coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        if needsAttention {
+            coordinator?.openMobileFinishActivation(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {
@@ -526,8 +530,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .openReferralProgram:
             openReferralProgram()
-        case .openMobileFinishActivation:
-            openMobileFinishActivation()
+        case .openMobileFinishActivation(let needsAttention):
+            openMobileFinishActivation(needsAttention: needsAttention)
         case .openMobileUpgrade:
             openMobileUpgrade()
         default:
