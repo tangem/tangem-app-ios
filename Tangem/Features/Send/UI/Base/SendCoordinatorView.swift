@@ -23,11 +23,11 @@ struct SendCoordinatorView: CoordinatorView {
                         transitionService: .init(),
                         interactiveDismissDisabled: $interactiveDismissDisabled
                     )
-                    .navigationLinks(links)
                 }
 
                 sheets
             }
+            .navigationLinks(links)
         }
         .tint(Colors.Text.primary1)
         .interactiveDismissDisabled(interactiveDismissDisabled)
@@ -36,8 +36,8 @@ struct SendCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.onrampSettingsViewModel) {
-                OnrampSettingsView(viewModel: $0)
+            .navigation(item: $coordinator.onrampSettingsCoordinator) {
+                OnrampSettingsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.onrampRedirectingViewModel) {
                 OnrampRedirectingView(viewModel: $0)
@@ -81,9 +81,6 @@ struct SendCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.onrampProvidersCoordinator) {
                 OnrampProvidersCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.onrampCountrySelectorViewModel) {
-                OnrampCountrySelectorView(viewModel: $0)
             }
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
