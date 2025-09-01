@@ -20,18 +20,9 @@ final class MobileBackupTypesViewModel: ObservableObject {
 
     let navTitle = Localization.commonBackup
 
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
-
-    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
-        userWalletId: userWalletModel.userWalletId,
-        configuration: .default,
-        storageManager: accessCodeStorageManager
-    )
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -175,8 +166,7 @@ private extension MobileBackupTypesViewModel {
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletModel.userWalletId,
             config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider(),
-            accessCodeManager: accessCodeManager
+            biometricsProvider: CommonUserWalletBiometricsProvider()
         )
         let result = try await authUtil.unlock()
 
