@@ -158,6 +158,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .hidden
         case .userWalletUpgrade:
             return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 
