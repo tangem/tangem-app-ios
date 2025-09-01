@@ -100,7 +100,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
+        EmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
     var userWalletIdSeed: Data? {
