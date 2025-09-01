@@ -21948,7 +21948,6 @@
 				B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */,
 				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
 				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
-				B67758552E65C78F000E539D /* XCRemoteSwiftPackageReference "swift-numberkit" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -31966,14 +31965,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.6.7;
-			};
-		};
-		B67758552E65C78F000E539D /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
-			requirement = {
-				kind = exactVersion;
-				version = 2.4.2;
 			};
 		};
 		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
