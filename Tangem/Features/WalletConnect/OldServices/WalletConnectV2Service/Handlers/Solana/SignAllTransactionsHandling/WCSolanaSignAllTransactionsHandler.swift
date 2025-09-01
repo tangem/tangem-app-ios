@@ -31,7 +31,7 @@ final class WCSolanaSignAllTransactionsHandler {
 
         do {
             guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectV2Error.walletModelNotFound(blockchainId)
+                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainId)
             }
 
             self.walletModel = walletModel
@@ -39,7 +39,7 @@ final class WCSolanaSignAllTransactionsHandler {
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
-            throw WalletConnectV2Error.dataInWrongFormat(stringRepresentation)
+            throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat(stringRepresentation)
         }
 
         self.signer = signer
