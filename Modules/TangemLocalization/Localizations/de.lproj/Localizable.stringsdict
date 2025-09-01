@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%@ Karte</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%@ Karten</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -64,6 +64,22 @@
         <string>Tag</string>
         <key>other</key>
         <string>Tage</string>
+      </dict>
+    </dict>
+    <key>common_networks_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%1$@ Netzwerk</string>
+        <key>other</key>
+        <string>%1$@ Netzwerke</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
