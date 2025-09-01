@@ -40,7 +40,7 @@ class WalletConnectV2SendTransactionHandler {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
 
             guard let wcTransaction = params.first else {
-                throw WalletConnectV2Error.missingTransaction
+                throw WalletConnectTransactionRequestProcessingError.missingTransaction
             }
 
             self.wcTransaction = wcTransaction
@@ -88,7 +88,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
         }
 
         guard let transaction = transactionToSend else {
-            throw WalletConnectV2Error.missingTransaction
+            throw WalletConnectTransactionRequestProcessingError.missingTransaction
         }
 
         let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
