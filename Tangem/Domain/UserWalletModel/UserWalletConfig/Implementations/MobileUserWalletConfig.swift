@@ -149,6 +149,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .userWalletUpgrade:
             return .available
+        case .cardSettings:
+            return .hidden
         }
     }
 
