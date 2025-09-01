@@ -52,11 +52,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         return numberOfTokens >= requiredNumberOfTokens
     }
 
-    // MARK: - Injections
-
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     // MARK: - Dependencies
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
@@ -660,17 +655,10 @@ private extension MultiWalletMainContentViewModel {
 
 private extension MultiWalletMainContentViewModel {
     func unlock() async throws -> MobileWalletContext {
-        let accessCodeManager = SessionMobileAccessCodeManager(
-            userWalletId: userWalletModel.userWalletId,
-            configuration: .default,
-            storageManager: accessCodeStorageManager
-        )
-
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletModel.userWalletId,
             config: userWalletModel.config,
-            biometricsProvider: CommonUserWalletBiometricsProvider(),
-            accessCodeManager: accessCodeManager
+            biometricsProvider: CommonUserWalletBiometricsProvider()
         )
 
         let result = try await authUtil.unlock()

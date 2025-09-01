@@ -12,9 +12,6 @@ import TangemFoundation
 import TangemMobileWalletSdk
 
 final class MobileSettingsUtil {
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     @Injected(\.userWalletDismissedNotifications)
     private var dismissedNotifications: UserWalletDismissedNotifications
 
@@ -41,12 +38,6 @@ final class MobileSettingsUtil {
     private var userWalletConfig: UserWalletConfig {
         userWalletModel.config
     }
-
-    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
-        userWalletId: userWalletModel.userWalletId,
-        configuration: .default,
-        storageManager: accessCodeStorageManager
-    )
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -160,8 +151,7 @@ private extension MobileSettingsUtil {
             let authUtil = MobileAuthUtil(
                 userWalletId: userWalletModel.userWalletId,
                 config: userWalletModel.config,
-                biometricsProvider: CommonUserWalletBiometricsProvider(),
-                accessCodeManager: accessCodeManager
+                biometricsProvider: CommonUserWalletBiometricsProvider()
             )
             let result = try await authUtil.unlock()
 
