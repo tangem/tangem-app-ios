@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct SendNewAmountView: View {
     @ObservedObject var viewModel: SendNewAmountViewModel
@@ -100,6 +101,7 @@ struct SendNewAmountView: View {
         switch viewModel.amountType {
         case .crypto:
             SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
                 .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -109,6 +111,7 @@ struct SendNewAmountView: View {
                 .transition(Constants.textFieldTransition)
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -187,7 +190,7 @@ extension SendNewAmountView {
 
         static let textFieldTransition: AnyTransition = .asymmetric(
             insertion: .offset(y: 30).animation(Constants.animation.delay(Constants.duration)),
-            removal: .offset(y: -30).animation(Constants.animation)
+            removal: .offset(y: 30).animation(Constants.animation).combined(with: .opacity).animation(Constants.animation.speed(2))
         )
         .combined(with: .scale(scale: 0.95, anchor: .bottom))
         .combined(with: .opacity)
