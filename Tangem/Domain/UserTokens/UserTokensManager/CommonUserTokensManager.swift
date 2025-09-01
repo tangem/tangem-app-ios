@@ -218,7 +218,7 @@ extension CommonUserTokensManager: UserTokensManager {
         let walletModelId = WalletModelId(tokenItem: tokenItem)
 
         guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
-            throw CommonUserTokensManager.Error.addressNotFound
+            throw Error.addressNotFound
         }
 
         return walletModel.defaultAddressString
