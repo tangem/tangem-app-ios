@@ -16,7 +16,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
     private let secondLeadingView: () -> SecondLeadingView
     private let trailingView: () -> TrailingView
 
-    private var isTappable: Bool = true
+    private var shouldShowTrailingIcon: Bool = true
 
     public init(
         icon: ImageType,
@@ -39,7 +39,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
             HStack(alignment: .center, spacing: 4) {
                 trailingView()
 
-                if isTappable {
+                if shouldShowTrailingIcon {
                     trailingIcon
                 }
             }
@@ -85,7 +85,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TrailingView: View>: View 
 // MARK: - Setupable
 
 extension BaseOneLineRow: Setupable {
-    public func isTappable(_ isTappable: Bool) -> Self {
-        map { $0.isTappable = isTappable }
+    public func shouldShowTrailingIcon(_ shouldShowTrailingIcon: Bool) -> Self {
+        map { $0.shouldShowTrailingIcon = shouldShowTrailingIcon }
     }
 }
