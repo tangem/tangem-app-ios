@@ -42,6 +42,8 @@ final class MockedSecureEnclaveService: MobileWalletSecureEnclaveService {
     func decryptData(_ data: Data, keyTag: String) throws -> Data {
         Data(data.bytes.reversed())
     }
+
+    func delete(tag: String) {}
 }
 
 final class MockedBiometricsSecureEnclaveService: MobileWalletBiometricsSecureEnclaveService {
@@ -52,6 +54,8 @@ final class MockedBiometricsSecureEnclaveService: MobileWalletBiometricsSecureEn
     func decryptData(_ data: Data, keyTag: String, context: LAContext) throws -> Data {
         Data(data.bytes.reversed())
     }
+
+    func delete(tag: String) {}
 }
 
 final class MockedBiometricsStorage: MobileWalletBiometricsStorage {
