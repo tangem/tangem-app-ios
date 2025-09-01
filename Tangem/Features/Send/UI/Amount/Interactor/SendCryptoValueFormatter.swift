@@ -29,23 +29,31 @@ struct SendCryptoValueFormatter {
         self.locale = locale
     }
 
-    func string(from value: Decimal) -> String? {
-        guard let formatterInput = formatterInput(from: value) else { return nil }
+    func string(from value: Decimal) -> String {
+        string(from: value, prefixSuffixOptions: prefixSuffixOptions)
+    }
 
+    func string(
+        from value: Decimal,
+        prefixSuffixOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
+    ) -> String {
+        let formatterInput = formatterInput(from: value)
         let formattedAmount = decimalNumberFormatter.format(value: formatterInput)
         let nbsp = AppConstants.unbreakableSpace
 
         switch prefixSuffixOptions {
-        case .prefix(let text, let hasSpace):
-            guard let text else { return nil }
+        case .none:
+            return formattedAmount
+        case .prefix(.some(let text), let hasSpace):
             return text + (hasSpace ? nbsp : "") + formattedAmount
-        case .suffix(let text, let hasSpace):
-            guard let text else { return nil }
+        case .suffix(.some(let text), let hasSpace):
             return formattedAmount + (hasSpace ? nbsp : "") + text
+        default:
+            return formattedAmount
         }
     }
 
-    private func formatterInput(from value: Decimal) -> String? {
+    private func formatterInput(from value: Decimal) -> String {
         let fractionAfter2Digits: Decimal = (value * 100 - (value * 100).rounded())
         let canBeTrimmed = fractionAfter2Digits.isZero
 
@@ -54,7 +62,7 @@ struct SendCryptoValueFormatter {
             basicFormatter.locale = locale
             basicFormatter.minimumFractionDigits = trimFractions ? 0 : 2
             basicFormatter.maximumFractionDigits = 2
-            return basicFormatter.string(from: value as NSDecimalNumber)
+            return basicFormatter.string(from: value as NSDecimalNumber) ?? "\(value)"
         } else {
             let stringNumber = (value as NSDecimalNumber).stringValue
             return stringNumber.replacingOccurrences(of: ".", with: String(decimalNumberFormatter.decimalSeparator))
