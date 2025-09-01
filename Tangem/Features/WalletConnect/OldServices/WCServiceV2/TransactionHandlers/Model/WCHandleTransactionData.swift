@@ -18,6 +18,7 @@ struct WCHandleTransactionData {
     let rawTransaction: String?
     let requestData: Data
     let dAppData: WalletConnectDAppData
+    let verificationStatus: WalletConnectDAppVerificationStatus
     let accept: () async throws -> Void
     let reject: () async throws -> Void
 
@@ -40,7 +41,7 @@ extension WCHandleTransactionData {
         rawTransaction = dto.rawTransaction
         blockchain = dto.blockchain
         requestData = dto.requestData
-
+        verificationStatus = dto.verificationStatus
         dAppData = validatedRequest.dAppData
         updatableHandler = dto.updatableHandler
 
