@@ -12,6 +12,11 @@ import TangemSdk
 protocol MobileWalletSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String) throws -> Data
     func decryptData(_ data: Data, keyTag: String) throws -> Data
+    func delete(tag: String)
 }
 
-extension SecureEnclaveService: MobileWalletSecureEnclaveService {}
+extension SecureEnclaveService: MobileWalletSecureEnclaveService {
+    func delete(tag: String) {
+        SecureEnclaveHelper.delete(tag: tag)
+    }
+}
