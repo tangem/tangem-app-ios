@@ -39,7 +39,7 @@ struct WalletConnectV2PersonalSignHandler {
         do {
             castedParams = try request.get([String].self)
             if castedParams.count < 2 {
-                throw WalletConnectV2Error.notEnoughDataInRequest(String(describing: request))
+                throw WalletConnectTransactionRequestProcessingError.notEnoughDataInRequest(String(describing: request))
             }
 
             let targetAddress = castedParams[1]
@@ -48,7 +48,7 @@ struct WalletConnectV2PersonalSignHandler {
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectV2Error.dataInWrongFormat(stringRepresentation)
+            throw WalletConnectTransactionRequestProcessingError.dataInWrongFormat(stringRepresentation)
         }
 
         message = castedParams[0]
