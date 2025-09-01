@@ -101,7 +101,7 @@ class WelcomeViewModel: ObservableObject {
                 }
 
             case .onboarding(let input):
-                viewModel.incomingActionManager.discardIncomingAction()
+                viewModel.incomingActionManager.discardIncomingAction(if: { !$0.isPromoDeeplink })
 
                 await runOnMain {
                     viewModel.isScanningCard.send(false)
