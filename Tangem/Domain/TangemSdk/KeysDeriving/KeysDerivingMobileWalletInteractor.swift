@@ -15,15 +15,6 @@ class KeysDerivingMobileWalletInteractor {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
 
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
-    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
-        userWalletId: userWalletId,
-        configuration: .default,
-        storageManager: accessCodeStorageManager
-    )
-
     init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
@@ -61,8 +52,7 @@ private extension KeysDerivingMobileWalletInteractor {
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletId,
             config: userWalletConfig,
-            biometricsProvider: CommonUserWalletBiometricsProvider(),
-            accessCodeManager: accessCodeManager
+            biometricsProvider: CommonUserWalletBiometricsProvider()
         )
         let unlockResult = try await authUtil.unlock()
 
