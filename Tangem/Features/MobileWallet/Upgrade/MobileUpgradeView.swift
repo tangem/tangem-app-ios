@@ -31,10 +31,7 @@ private extension MobileUpgradeView {
             CloseButton(dismiss: viewModel.onCloseTap)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            ZStack(alignment: .bottom) {
-                info(item: viewModel.info)
-                actionButtons
-            }
+            info(item: viewModel.info)
         }
     }
 
@@ -54,6 +51,9 @@ private extension MobileUpgradeView {
                     .padding(.horizontal, 32)
             }
             .padding(.top, 40)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 16) {
+            actionButtons
         }
     }
 
