@@ -50,7 +50,10 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
 
         let specificSolanaCAIPReference = Self.parseSpecificSolanaCAIPReference(from: reownSessionProposal)
 
-        let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(from: reownSessionProposal)
+        let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(
+            from: reownSessionProposal,
+            context: reownVerifyContext
+        )
         let dAppIconURL = await dAppIconURLResolver.resolveURL(from: reownSessionProposal.proposer.icons)
 
         let dAppData = WalletConnectDAppData(
