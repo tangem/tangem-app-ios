@@ -38,7 +38,7 @@ enum CardSettingsScreenElement: String, UIElement {
         case .referralButton:
             return CardSettingsAccessibilityIdentifiers.referralProgramButton
         case .deviceSettings:
-            return "Device settings"
+            return CardSettingsAccessibilityIdentifiers.deviceSettingsButton
         }
     }
 }
