@@ -13,7 +13,16 @@ import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class MobileAuthUtil {
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var accessCodeStorageManager: MobileAccessCodeStorageManager
+
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+
+    private lazy var accessCodeManager = SessionMobileAccessCodeManager(
+        userWalletId: userWalletId,
+        configuration: .default,
+        storageManager: accessCodeStorageManager
+    )
 
     private var isAccessCodeSet: Bool {
         !config.hasFeature(.userWalletAccessCode)
@@ -32,18 +41,15 @@ final class MobileAuthUtil {
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
     private let biometricsProvider: UserWalletBiometricsProvider
-    private let accessCodeManager: MobileAccessCodeManager
 
     init(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
-        biometricsProvider: UserWalletBiometricsProvider,
-        accessCodeManager: MobileAccessCodeManager
+        biometricsProvider: UserWalletBiometricsProvider
     ) {
         self.userWalletId = userWalletId
         self.config = config
         self.biometricsProvider = biometricsProvider
-        self.accessCodeManager = accessCodeManager
     }
 }
 
