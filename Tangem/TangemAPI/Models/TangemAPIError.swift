@@ -47,6 +47,7 @@ extension TangemAPIError {
         case badRequest = 400
         case forbidden = 403
         case notFound = 404
+        case conflict = 409
 
         /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
@@ -62,7 +63,8 @@ extension TangemAPIError {
                  .promotionProgramNotFound,
                  .promotionProgramEnded,
                  .networkAccountServiceInternalError,
-                 .networkAccountsPerCardLimitReached:
+                 .networkAccountsPerCardLimitReached,
+                 .conflict:
                 return nil
             case .decode:
                 return "Decoding error"
