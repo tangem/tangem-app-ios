@@ -53,7 +53,7 @@ private extension WCServiceV2 {
                 Analytics.debugLog(
                     eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(
                         name: sessionProposal.proposer.name,
-                        dAppURL: sessionProposal.proposer.url
+                        dAppURL: verifyContext?.origin ?? sessionProposal.proposer.url
                     )
                 )
 
