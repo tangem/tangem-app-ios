@@ -22,15 +22,14 @@ struct SelectorReceiveAssetsView: View {
                         NotificationView(input: input)
                     }
                 }
-                .padding(.bottom, Layout.Notification.bottomPadding)
             }
 
             ForEach(viewModel.sections, id: \.id) { section in
                 sectionView(header: section.header, viewModels: section.items)
             }
         }
+        .padding(.top, Layout.Container.paddingTop)
         .padding(.bottom, Layout.Container.paddingBottom)
-        .onAppear(perform: viewModel.onViewAppear)
     }
 
     private func sectionView(
@@ -42,6 +41,7 @@ struct SelectorReceiveAssetsView: View {
         } header: {
             if let header, case .title(let text) = header {
                 DefaultHeaderView(text)
+                    .padding(.init(top: 10, leading: 0, bottom: 6, trailing: 0))
             }
         }
         .backgroundColor(Colors.Background.action)
@@ -57,12 +57,12 @@ extension SelectorReceiveAssetsView {
 
         enum Notification {
             static let verticalSpacing: CGFloat = 14.0
-            static let bottomPadding: CGFloat = 4
         }
 
         enum Container {
-            static let spacingContent: CGFloat = 8.0
+            static let spacingContent: CGFloat = 12.0
             static let paddingBottom: CGFloat = 16.0
+            static let paddingTop: CGFloat = 4.0
         }
     }
 }
