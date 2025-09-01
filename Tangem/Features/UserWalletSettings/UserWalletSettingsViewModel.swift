@@ -124,6 +124,7 @@ private extension UserWalletSettingsViewModel {
     func resetViewModels() {
         backupViewModel = nil
         manageTokensViewModel = nil
+        cardSettingsViewModel = nil
         referralViewModel = nil
         nftViewModel = nil
         pushNotificationsViewModel = nil
@@ -147,10 +148,12 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        cardSettingsViewModel = DefaultRowViewModel(
-            title: Localization.cardSettingsTitle,
-            action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
-        )
+        if userWalletModel.config.hasFeature(.cardSettings) {
+            cardSettingsViewModel = DefaultRowViewModel(
+                title: Localization.cardSettingsTitle,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
+            )
+        }
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             referralViewModel =
