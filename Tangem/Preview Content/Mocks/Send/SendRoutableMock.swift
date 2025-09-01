@@ -23,7 +23,7 @@ class SendRoutableMock: SendRoutable {
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
-    func openOnrampSettings(repository: any OnrampRepository) {}
+    func openOnrampSettings(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCurrencySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCurrencySelector() {}
     func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {}

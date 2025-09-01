@@ -39,15 +39,18 @@ class SendCoordinator: CoordinatorObject {
     @Published var qrScanViewCoordinator: QRScanViewCoordinator?
     @Published var onrampProvidersCoordinator: OnrampProvidersCoordinator?
     @Published var onrampCountryDetectionCoordinator: OnrampCountryDetectionCoordinator?
+    @Published var onrampSettingsCoordinator: OnrampSettingsCoordinator? {
+        didSet {
+            print("onrampSettingsCoordinator", onrampSettingsCoordinator.debugDescription)
+        }
+    }
+
     @Published var sendReceiveTokenCoordinator: SendReceiveTokenCoordinator?
 
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
-
-    @Published var onrampSettingsViewModel: OnrampSettingsViewModel?
-    @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
@@ -270,19 +273,14 @@ extension SendCoordinator: OnrampRoutable {
         onrampCountryDetectionCoordinator = coordinator
     }
 
-    func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {
-        onrampCountrySelectorViewModel = OnrampCountrySelectorViewModel(
-            repository: repository,
-            dataRepository: dataRepository,
-            coordinator: self
+    func openOnrampSettings(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {
+        let coordinator = OnrampSettingsCoordinator(
+            dismissAction: { [weak self] in self?.onrampSettingsCoordinator = nil },
+            popToRootAction: popToRootAction
         )
-    }
 
-    func openOnrampSettings(repository: any OnrampRepository) {
-        onrampSettingsViewModel = OnrampSettingsViewModel(
-            repository: repository,
-            coordinator: self
-        )
+        coordinator.start(with: .init(repository: repository, dataRepository: dataRepository))
+        onrampSettingsCoordinator = coordinator
     }
 
     func openOnrampCurrencySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {
@@ -329,22 +327,6 @@ extension SendCoordinator: ExpressApproveRoutable {
 
     func userDidCancel() {
         expressApproveViewModel = nil
-    }
-}
-
-// MARK: - OnrampCountrySelectorRoutable
-
-extension SendCoordinator: OnrampCountrySelectorRoutable {
-    func dismissCountrySelector() {
-        onrampCountrySelectorViewModel = nil
-    }
-}
-
-// MARK: - OnrampSettingsRoutable
-
-extension SendCoordinator: OnrampSettingsRoutable {
-    func openOnrampCountrySelector() {
-        rootViewModel?.openOnrampCountrySelectorView()
     }
 }
 
