@@ -153,6 +153,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .hidden
         case .userWalletUpgrade:
             return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 
