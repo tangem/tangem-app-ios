@@ -82,7 +82,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+        EmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
     var userWalletIdSeed: Data? {
