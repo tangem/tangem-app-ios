@@ -1,5 +1,5 @@
 {
-  "originHash" : "986eab6329e22bc5140a9f84501ceb5c8b8f15a7bc9f0ed43d28450fff5f0c12",
+  "originHash" : "1afb03b25492d3eafc1a845fe4803e5e08f939eabf37060c9c96cf2c56eeb0a1",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -213,8 +213,7 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "c2fa6bf2f470db5bc31fc4b3e23c6b327ee7b6a8",
-        "version" : "0.26.0-tangem5"
+        "revision" : "52e9fa1bb2474a80354fdca8382544ff93dd3b16"
       }
     },
     {
