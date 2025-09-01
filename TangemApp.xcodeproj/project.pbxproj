@@ -3288,6 +3288,8 @@
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
 		EF3A5E812E435D94007B0853 /* GenericTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3A5E802E435D93007B0853 /* GenericTransactionSummaryDescriptionBuilder.swift */; };
+		EF3C5FA02E58AF4A0086A77A /* OnrampSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3C5F9F2E58AF4A0086A77A /* OnrampSettingsCoordinator.swift */; };
+		EF3C5FA22E58B0420086A77A /* OnrampSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3C5FA12E58B0420086A77A /* OnrampSettingsCoordinatorView.swift */; };
 		EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */; };
 		EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */; };
 		EF3DBFCC2E40B46600AAE298 /* HighPriceImpactWarningSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3DBFCB2E40B46600AAE298 /* HighPriceImpactWarningSheetViewModel.swift */; };
@@ -7351,6 +7353,8 @@
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF3A5E802E435D93007B0853 /* GenericTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
+		EF3C5F9F2E58AF4A0086A77A /* OnrampSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampSettingsCoordinator.swift; sourceTree = "<group>"; };
+		EF3C5FA12E58B0420086A77A /* OnrampSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampSettingsCoordinatorView.swift; sourceTree = "<group>"; };
 		EF3CC86B2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactView.swift; sourceTree = "<group>"; };
 		EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactViewModel.swift; sourceTree = "<group>"; };
 		EF3DBFCB2E40B46600AAE298 /* HighPriceImpactWarningSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighPriceImpactWarningSheetViewModel.swift; sourceTree = "<group>"; };
@@ -16057,6 +16061,8 @@
 		DAE4BB072CD795F10020CE3F /* OnrampSettings */ = {
 			isa = PBXGroup;
 			children = (
+				EF3C5FA12E58B0420086A77A /* OnrampSettingsCoordinatorView.swift */,
+				EF3C5F9F2E58AF4A0086A77A /* OnrampSettingsCoordinator.swift */,
 				DAE4BB132CD796640020CE3F /* OnrampSettingsRoutable.swift */,
 				DAE4BB0F2CD7965A0020CE3F /* OnrampSettingsViewModel.swift */,
 				DAE4BB112CD796600020CE3F /* OnrampSettingsView.swift */,
@@ -22558,6 +22564,7 @@
 				DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */,
 				B06C084E2A73FB4D00D982BC /* MainView.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
+				EF3C5FA02E58AF4A0086A77A /* OnrampSettingsCoordinator.swift in Sources */,
 				0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */,
 				0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */,
 				DA559C4E2B02622600F59584 /* SendAmountInputMock.swift in Sources */,
@@ -24155,6 +24162,7 @@
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,
 				EFF763E12C4E38B600E846F4 /* SendStepViewAnimatable.swift in Sources */,
 				2D9FABA82E13F739005AE305 /* AddressResolverFactoryProvider.swift in Sources */,
+				EF3C5FA22E58B0420086A77A /* OnrampSettingsCoordinatorView.swift in Sources */,
 				EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */,
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
 				B0BDFD1D2A8B68B600479F53 /* NotificationViewInput.swift in Sources */,
