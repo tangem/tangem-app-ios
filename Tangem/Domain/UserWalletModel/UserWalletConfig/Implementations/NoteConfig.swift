@@ -155,6 +155,8 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .userWalletUpgrade:
             return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 
