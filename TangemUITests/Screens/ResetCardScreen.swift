@@ -11,34 +11,20 @@ import Foundation
 import TangemAccessibilityIdentifiers
 
 final class ResetCardScreen: ScreenBase<ResetCardScreenElement> {
-    private lazy var firstCheckbox = button(.firstCheckbox)
-    private lazy var secondCheckbox = button(.secondCheckbox)
+    private lazy var accessToCardCheckbox = button(.accessToCard)
+    private lazy var accessCodeRecoveryCheckbox = button(.accessCodeRecovery)
     private lazy var resetCardButton = button(.resetCardButton)
 
-    func selectFirstCheckbox() -> Self {
-        XCTContext.runActivity(named: "Select first checkbox") { _ in
-            firstCheckbox.waitAndTap()
+    func toggleAccessToCardCheckbox() -> Self {
+        XCTContext.runActivity(named: "Select access to card checkbox") { _ in
+            accessToCardCheckbox.waitAndTap()
             return self
         }
     }
 
-    func selectSecondCheckbox() -> Self {
-        XCTContext.runActivity(named: "Select second checkbox") { _ in
-            secondCheckbox.waitAndTap()
-            return self
-        }
-    }
-
-    func unselectFirstCheckbox() -> Self {
-        XCTContext.runActivity(named: "Unselect first checkbox") { _ in
-            firstCheckbox.waitAndTap()
-            return self
-        }
-    }
-
-    func unselectSecondCheckbox() -> Self {
-        XCTContext.runActivity(named: "Unselect second checkbox") { _ in
-            secondCheckbox.waitAndTap()
+    func toggleAccessCodeCheckbox() -> Self {
+        XCTContext.runActivity(named: "Select access code recovery checkbox") { _ in
+            accessCodeRecoveryCheckbox.waitAndTap()
             return self
         }
     }
@@ -61,8 +47,8 @@ final class ResetCardScreen: ScreenBase<ResetCardScreenElement> {
 
     func validateScreenElements() -> Self {
         XCTContext.runActivity(named: "Validate reset card screen elements") { _ in
-            XCTAssertTrue(firstCheckbox.waitForExistence(timeout: .robustUIUpdate), "First checkbox should exist")
-            XCTAssertTrue(secondCheckbox.waitForExistence(timeout: .robustUIUpdate), "Second checkbox should exist")
+            XCTAssertTrue(accessToCardCheckbox.waitForExistence(timeout: .robustUIUpdate), "Access to card checkbox should exist")
+            XCTAssertTrue(accessCodeRecoveryCheckbox.waitForExistence(timeout: .robustUIUpdate), "Access code recovery checkbox should exist")
             XCTAssertTrue(resetCardButton.waitForExistence(timeout: .robustUIUpdate), "Reset card button should exist")
             return self
         }
@@ -70,16 +56,16 @@ final class ResetCardScreen: ScreenBase<ResetCardScreenElement> {
 }
 
 enum ResetCardScreenElement: String, UIElement {
-    case firstCheckbox
-    case secondCheckbox
+    case accessToCard
+    case accessCodeRecovery
     case resetCardButton
 
     var accessibilityIdentifier: String {
         switch self {
-        case .firstCheckbox:
-            return CardSettingsAccessibilityIdentifiers.firstCheckbox
-        case .secondCheckbox:
-            return CardSettingsAccessibilityIdentifiers.secondCheckbox
+        case .accessToCard:
+            return CardSettingsAccessibilityIdentifiers.accessToCard
+        case .accessCodeRecovery:
+            return CardSettingsAccessibilityIdentifiers.accessCodeRecovery
         case .resetCardButton:
             return CardSettingsAccessibilityIdentifiers.resetCardButton
         }

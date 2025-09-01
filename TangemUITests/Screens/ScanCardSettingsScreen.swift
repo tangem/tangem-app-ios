@@ -24,16 +24,11 @@ final class ScanCardSettingsScreen: ScreenBase<ScanCardSettingsScreenElement> {
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> DeviceSettingsScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
             scanCardButton.waitAndTap()
-
-            // Find the mock wallet button in the alert
             let walletButton = app.buttons[name.rawValue]
-
             if !walletButton.isHittable {
                 app.swipeUp()
             }
-
             walletButton.waitAndTap()
-
             return DeviceSettingsScreen(app)
         }
     }
@@ -52,7 +47,7 @@ enum ScanCardSettingsScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .scanCardButton:
-            return "Scan card or ring" // Matches Localization.scanCardSettingsButton
+            return "Scan card or ring"
         }
     }
 }

@@ -13,8 +13,8 @@ public enum CardSettingsAccessibilityIdentifiers {
 
     // MARK: - Reset Card
 
-    public static let resetToFactorySettingsButton = "cardSettings_resetToFactorySettingsButton"
-    public static let resetCardButton = "cardSettings_resetCardButton"
-    public static let firstCheckbox = "cardSettings_firstCheckbox"
-    public static let secondCheckbox = "cardSettings_secondCheckbox"
+    public static let resetToFactorySettingsButton = "cardSettingsResetToFactorySettingsButton"
+    public static let resetCardButton = "cardSettingsResetCardButton"
+    public static let accessToCard = "cardSettingsAccessToCardCheckbox"
+    public static let accessCodeRecovery = "cardSettingsAccessCodeRecovery"
 }

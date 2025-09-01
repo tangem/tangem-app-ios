@@ -26,11 +26,11 @@ final class ResetCardUITests: BaseTestCase {
         ResetCardScreen(app)
             .validateScreenElements()
             .validateResetButtonIsDisabled()
-            .selectFirstCheckbox()
+            .toggleAccessToCardCheckbox()
             .validateResetButtonIsDisabled()
-            .selectSecondCheckbox()
+            .toggleAccessCodeCheckbox()
             .validateResetButtonIsEnabled()
-            .unselectFirstCheckbox()
+            .toggleAccessToCardCheckbox()
             .validateResetButtonIsDisabled()
     }
 }

@@ -108,9 +108,9 @@ struct ResetToFactoryView: View {
     private func warningAccessibilityIdentifier(for warningType: ResetToFactoryViewModel.WarningType) -> String {
         switch warningType {
         case .accessToCard:
-            return CardSettingsAccessibilityIdentifiers.firstCheckbox
+            return CardSettingsAccessibilityIdentifiers.accessToCard
         case .accessCodeRecovery:
-            return CardSettingsAccessibilityIdentifiers.secondCheckbox
+            return CardSettingsAccessibilityIdentifiers.accessCodeRecovery
         }
     }
 }
