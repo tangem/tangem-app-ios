@@ -36,6 +36,19 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         }
     }
 
+    public var activatePromoCodeApiBaseUrl: URL {
+        switch self {
+        case .prod:
+            return URL(string: "https://api.tangem.org/promo/v1")!
+        case .dev:
+            return URL(string: "https://api.tests-d.com/promo/v1")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com/promo/v1")!
+        case .mock:
+            return URL(string: "https://wiremock.tests-d.com/promo/v1")!
+        }
+    }
+
     public var tangemComBaseUrl: URL {
         switch self {
         case .prod:
