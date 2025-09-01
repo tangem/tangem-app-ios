@@ -236,8 +236,8 @@ extension Analytics {
 
         // MARK: - Wallet Connect
 
-        case walletConnectSecurityAlertVerified = "Verified"
-        case walletConnectSecurityAlertRisky = "Risky"
+        case walletConnectVerified = "Verified"
+        case walletConnectRisky = "Risky"
         case walletConnectSecurityAlertSourceDomain = "Domain"
         case walletConnectSecurityAlertSourceSmartContract = "Smart Contract"
 
