@@ -367,7 +367,20 @@ enum WalletConnectModuleFactory {
                 buttonStyle: .secondary
             )
 
-        case .invalidPayload, .blockchainToAddDuplicate, .userWalletNotFound:
+        case .invalidPayload,
+             .blockchainToAddDuplicate,
+             .userWalletNotFound,
+             .missingBlockchains,
+             .unsupportedMethod,
+             .notEnoughDataInRequest,
+             .dataInWrongFormat,
+             .missingTransaction,
+             .walletModelNotFound,
+             .wrongCardSelected,
+             .userWalletRepositoryIsLocked,
+             .missingActiveUserWalletModel,
+             .userWalletIsLocked:
+            // [REDACTED_TODO_COMMENT]
             return nil
         }
 
