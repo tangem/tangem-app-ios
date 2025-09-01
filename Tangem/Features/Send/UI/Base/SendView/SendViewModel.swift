@@ -381,19 +381,6 @@ extension SendViewModel: OnrampModelRoutable {
         }
     }
 
-    func openOnrampCountrySelectorView() {
-        do {
-            let builder = try dataBuilder.onrampBuilder()
-            let (repository, dataRepository) = builder.makeDataForOnrampCountrySelectorView()
-            coordinator?.openOnrampCountrySelector(
-                repository: repository,
-                dataRepository: dataRepository
-            )
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
         coordinator?.openOnrampWebView(url: url, onDismiss: onDismiss, onSuccess: onSuccess)
     }
@@ -419,8 +406,8 @@ extension SendViewModel: OnrampSummaryRoutable {
     func openOnrampSettingsView() {
         do {
             let builder = try dataBuilder.onrampBuilder()
-            let (repository, _) = builder.makeDataForOnrampCountrySelectorView()
-            coordinator?.openOnrampSettings(repository: repository)
+            let (repository, dataRepository) = builder.makeDataForOnrampCountrySelectorView()
+            coordinator?.openOnrampSettings(repository: repository, dataRepository: dataRepository)
         } catch {
             showAlert(error.alertBinder)
         }
