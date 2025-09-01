@@ -93,16 +93,10 @@ extension MobileWalletSigner: TangemSigner {
 
 private extension MobileWalletSigner {
     func unlock(userWalletId: UserWalletId) async throws -> MobileWalletContext {
-        let accessCodeManager = SessionMobileAccessCodeManager(
-            userWalletId: userWalletId,
-            configuration: .default,
-            storageManager: accessCodeStorageManager
-        )
         let authUtil = MobileAuthUtil(
             userWalletId: userWalletId,
             config: userWalletConfig,
-            biometricsProvider: CommonUserWalletBiometricsProvider(),
-            accessCodeManager: accessCodeManager
+            biometricsProvider: CommonUserWalletBiometricsProvider()
         )
         let unlockResult = try await authUtil.unlock()
 
