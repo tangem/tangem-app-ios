@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 
 final class StoriesScreen: ScreenBase<StoriesScreenElement> {
     private lazy var scanButton = button(.scanButton)
+    private lazy var tosAcceptButton = button(.tosAcceptButton)
 
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
@@ -55,6 +56,26 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
         }
     }
 
+    @discardableResult
+    func acceptToSIfNeeded() -> Self {
+        XCTContext.runActivity(named: "Accept ToS if needed") { _ in
+            if tosAcceptButton.waitForExistence(timeout: .conditional) {
+                tosAcceptButton.tap()
+            }
+            return self
+        }
+    }
+
+    @discardableResult
+    func allowPushNotificationsIfNeeded() -> Self {
+        XCTContext.runActivity(named: "Accept ToS if needed") { _ in
+            if app.buttons["Allow"].waitForExistence(timeout: .conditional) {
+                app.buttons["Allow"].tap()
+            }
+            return self
+        }
+    }
+
     func openScanMenu() -> Self {
         XCTContext.runActivity(named: "Open scan alert") { _ in
             scanButton.waitAndTap()
@@ -88,11 +109,14 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
 
 enum StoriesScreenElement: String, UIElement {
     case scanButton
+    case tosAcceptButton
 
     var accessibilityIdentifier: String {
         switch self {
         case .scanButton:
             StoriesAccessibilityIdentifiers.scanButton
+        case .tosAcceptButton:
+            TOSAccessibilityIdentifiers.acceptButton
         }
     }
 }
