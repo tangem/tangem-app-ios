@@ -12,9 +12,7 @@ import class TangemSdk.BackupService
 struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
     private let backupService: BackupService
 
-    private var hasUpgradeBiometricsStep: Bool {
-        !AppSettings.shared.saveUserWallets && !AppSettings.shared.askedToSaveUserWallets
-    }
+    private let commonStepsBuilder = CommonOnboardingStepsBuilder()
 
     init(backupService: BackupService) {
         self.backupService = backupService
@@ -35,7 +33,7 @@ struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
 
         steps.append(.backupCards)
 
-        if hasUpgradeBiometricsStep {
+        if commonStepsBuilder.shouldAddSaveWalletsStep {
             steps.append(.mobileUpgradeBiometrics)
         }
 
