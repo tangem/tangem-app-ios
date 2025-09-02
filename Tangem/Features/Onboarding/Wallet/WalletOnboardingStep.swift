@@ -78,7 +78,7 @@ enum WalletOnboardingStep: Equatable {
         case .mobileUpgradeIntro:
             return Localization.commonTangem
         case .mobileUpgradeBiometrics:
-            return "Use biometrics"
+            return Localization.onboardingNavbarUpgradeWalletBiometrics
         }
     }
 
