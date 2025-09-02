@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ActionSheetBinder
+import BigInt
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
@@ -168,17 +169,61 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     override func openMarketsTokenDetails() {
-        guard isMarketsDetailsAvailable else {
+        let transactionDispatcher = TransactionDispatcherFactory(
+            walletModel: walletModel,
+            signer: userWalletModel.signer
+        ).makeSendDispatcher()
+
+        guard case .token(let token, _) = walletModel.tokenItem else {
             return
         }
 
-        let analyticsParams: [Analytics.ParameterKey: String] = [
-            .source: Analytics.ParameterValue.token.rawValue,
-            .token: walletModel.tokenItem.currencySymbol.uppercased(),
-            .blockchain: walletModel.tokenItem.blockchain.displayName,
-        ]
-        Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
-        super.openMarketsTokenDetails()
+        Task {
+            let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
+
+            let smartContract = DeployYieldModuleMethod(
+                sourceAddress: walletModel.defaultAddressString,
+                tokenAddress: token.contractAddress,
+                maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * walletModel.tokenItem.blockchain.decimalValue)!
+            )
+
+            let fees = try await walletModel.ethereumNetworkProvider?.getFee(
+                destination: YieldConstants.yieldModuleFactoryContractAddress,
+                value: amount.encodedForSend,
+                data: smartContract.data
+            ).async()
+
+            guard let fee = fees?.first else {
+                return
+            }
+
+            let transaction = try await walletModel.transactionCreator.buildTransaction(
+                tokenItem: walletModel.tokenItem,
+                feeTokenItem: walletModel.feeTokenItem,
+                amount: 0,
+                fee: fee,
+                destination: .contractCall(contract: YieldConstants.yieldModuleFactoryContractAddress, data: smartContract.data)
+            )
+
+            do {
+                let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
+                print(result)
+            } catch {
+                print(error)
+            }
+        }
+
+//        guard isMarketsDetailsAvailable else {
+//            return
+//        }
+//
+//        let analyticsParams: [Analytics.ParameterKey: String] = [
+//            .source: Analytics.ParameterValue.token.rawValue,
+//            .token: walletModel.tokenItem.currencySymbol.uppercased(),
+//            .blockchain: walletModel.tokenItem.blockchain.displayName,
+//        ]
+//        Analytics.log(event: .marketsChartScreenOpened, params: analyticsParams)
+//        super.openMarketsTokenDetails()
     }
 }
 
@@ -194,19 +239,70 @@ extension TokenDetailsViewModel {
     }
 
     func generateXPUBButtonAction() {
-        guard let xpubGenerator else { return }
-
-        runTask { [weak self] in
-            do {
-                let xpub = try await xpubGenerator.generateXPUB()
-                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
-                AppPresenter.shared.show(viewController)
-            } catch {
-                let sdkError = error.toTangemSdkError()
-                if !sdkError.isUserCancelled {
-                    self?.alert = error.alertBinder
-                }
-            }
+//        openMarketsTokenDetails()
+//        return
+        guard case .token(let token, _) = walletModel.tokenItem else {
+            return
+        }
+        Task {
+            let apy = try await walletModel.yieldService?.getAPY(for: token.contractAddress)
+            print(apy)
+//            if case .notInitialized(let yieldToken) = yieldBalanceInfo?.state, let yieldToken {
+//                let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
+//
+//                let smartContract = InitYieldTokenMethod(
+//                    yieldTokenAddress: token.contractAddress,
+//                    maxNetworkFee: BigUInt(decimal: YieldConstants.maxNetworkFee * walletModel.tokenItem.blockchain.decimalValue)!
+//                )
+//
+//                do {
+//                    let fees = try await walletModel.ethereumNetworkProvider?.getFee(
+//                        destination: yieldToken,
+//                        value: amount.encodedForSend,
+//                        data: smartContract.data
+//                    ).async()
+//
+//                    guard let fee = fees?.first else {
+//                        return
+//                    }
+//
+//                    let transaction = try await walletModel.transactionCreator.buildTransaction(
+//                        tokenItem: walletModel.tokenItem,
+//                        feeTokenItem: walletModel.feeTokenItem,
+//                        amount: 0,
+//                        fee: fee,
+//                        destination: .contractCall(contract: yieldToken, data: smartContract.data)
+//                    )
+//
+//                    let transactionDispatcher = TransactionDispatcherFactory(
+//                        walletModel: walletModel,
+//                        signer: userWalletModel.signer
+//                    ).makeSendDispatcher()
+//
+//                    let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
+//                    print(result)
+//                } catch {
+//                    print(error)
+//                }
+//            } else {
+//                print(yieldBalanceInfo)
+//            }
+//        }
+//        openMarketsTokenDetails()
+//        return
+//        guard let xpubGenerator else { return }
+//
+//        runTask { [weak self] in
+//            do {
+//                let xpub = try await xpubGenerator.generateXPUB()
+//                let viewController = await UIActivityViewController(activityItems: [xpub], applicationActivities: nil)
+//                AppPresenter.shared.show(viewController)
+//            } catch {
+//                let sdkError = error.toTangemSdkError()
+//                if !sdkError.isUserCancelled {
+//                    self?.alert = error.alertBinder
+//                }
+//            }
         }
     }
 
