@@ -9,12 +9,12 @@
 import Foundation
 
 public struct YieldTokenDataMethod {
-    let yieldTokenAddress: String
+    let contractAddress: String
 }
 
 // MARK: - SmartContractMethod
 
 extension YieldTokenDataMethod: YieldSmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `yieldTokensData(address)` method.
-    public var methodId: String { "0x8f2b1f2d" }
+    public var methodId: String { "0xf8e8be9c" }
 }
