@@ -81,7 +81,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
     var embeddedBlockchain: StorageEntry? { nil }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: mobileWalletInfo)
+        EmailDataFactory().makeEmailData(for: mobileWalletInfo)
     }
 
     var userWalletIdSeed: Data? {
@@ -149,6 +149,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .available
         case .userWalletUpgrade:
             return .available
+        case .cardSettings:
+            return .hidden
         }
     }
 
