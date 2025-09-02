@@ -12,6 +12,10 @@ import class TangemSdk.BackupService
 struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
     private let backupService: BackupService
 
+    private var hasUpgradeBiometricsStep: Bool {
+        !AppSettings.shared.saveUserWallets && !AppSettings.shared.askedToSaveUserWallets
+    }
+
     init(backupService: BackupService) {
         self.backupService = backupService
     }
@@ -23,13 +27,17 @@ struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
     func buildBackupSteps() -> OnboardingSteps? {
         var steps: [WalletOnboardingStep] = []
 
-        steps.append(.mobileUpgrade)
+        steps.append(.mobileUpgradeIntro)
 
         if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
 
         steps.append(.backupCards)
+
+        if hasUpgradeBiometricsStep {
+            steps.append(.mobileUpgradeBiometrics)
+        }
 
         return .wallet(steps + [.success])
     }
