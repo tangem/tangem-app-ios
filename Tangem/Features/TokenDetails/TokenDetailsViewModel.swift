@@ -245,8 +245,12 @@ extension TokenDetailsViewModel {
             return
         }
         Task {
-            let apy = try await walletModel.yieldService?.getAPY(for: token.contractAddress)
-            print(apy)
+            do {
+                let info = try await walletModel.yieldService?.getYieldBalanceInfo(for: walletModel.defaultAddressString, contractAddress: token.contractAddress)
+                print(info)
+            } catch {
+                print(error)
+            }
 //            if case .notInitialized(let yieldToken) = yieldBalanceInfo?.state, let yieldToken {
 //                let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
 //
