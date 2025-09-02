@@ -421,7 +421,14 @@ extension TokenDetailsViewModel {
     func openYieldAccountPromo() {
         coordinator?.openYieldAccountPromoView(
             startEarningAction: {},
-            info: .init(annualYield: 5.1, currentFee: 1.5, maxFee: 2, networkName: "Ethereum", lastYearReturns: [:])
+            info: .init(
+                annualYield: 5.1,
+                currentFee: 1.5,
+                maxFee: 2,
+                networkName: walletModel.tokenItem.networkId,
+                lastYearReturns: [:],
+                tokenImage: NetworkImageProvider().provide(by: walletModel.tokenItem.blockchain, filled: true).image
+            )
         )
     }
 }
