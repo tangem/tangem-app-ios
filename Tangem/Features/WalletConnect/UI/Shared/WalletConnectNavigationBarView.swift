@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectNavigationBarView: View {
     var title: String?
@@ -26,6 +27,7 @@ struct WalletConnectNavigationBarView: View {
                 if let title {
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.headerTitle)
                 }
 
                 if let subtitle {
