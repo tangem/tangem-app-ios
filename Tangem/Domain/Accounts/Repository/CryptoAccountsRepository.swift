@@ -15,6 +15,6 @@ protocol CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int { get }
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
 
-    func getAccounts() -> [StoredCryptoAccount] // [REDACTED_TODO_COMMENT]
+    func initialize() async
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel)
 }
