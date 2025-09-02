@@ -166,7 +166,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             return
         }
 
-        analyticsLogger.logDAppConnected(with: proposal.dAppData)
+        analyticsLogger.logDAppConnected(with: proposal.dAppData, verificationStatus: proposal.verificationStatus)
         hapticFeedbackGenerator.successNotificationOccurred()
         coordinator?.displaySuccessfulDAppConnection(with: proposal.dAppData.name)
         coordinator?.dismiss()
