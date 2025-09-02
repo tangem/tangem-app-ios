@@ -74,7 +74,7 @@ struct YieldAccountPromoView: View {
             BenefitRow(
                 icon: Assets.YieldAccount.yieldPromoGuard.image,
                 title: "Decentralized and self-custodial",
-                subtitle: "Aave is trusted by millions worldwide. Total lended value is $10.4B. "
+                subtitle: "Aave is trusted by millions worldwide. Total lended value is $10.4B."
             )
         }
     }
