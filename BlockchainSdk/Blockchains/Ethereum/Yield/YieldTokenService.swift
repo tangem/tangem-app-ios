@@ -60,7 +60,7 @@ public final class CommonYieldTokenService: YieldTokenService {
 
             if yieldTokenData.initialized {
                 if yieldTokenData.active {
-                    let balance = try await getYieldBalance(for: yieldModuleAddress, contractAddress: contractAddress)
+                    let balance = try await getYieldBalances(for: yieldModuleAddress, contractAddress: contractAddress)
                     return YieldBalanceInfo(state: .initialized(state: .active(balance), maxNetworkFee: maxNetworkFee))
                 } else {
                     return YieldBalanceInfo(state: .initialized(state: .notActive, maxNetworkFee: maxNetworkFee))
@@ -104,17 +104,32 @@ public final class CommonYieldTokenService: YieldTokenService {
         return try YieldServiceYieldTokenDataConverter.convert(tokenData)
     }
 
-    private func getYieldBalance(for yieldToken: String, contractAddress: String) async throws -> BigUInt {
-        let method = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
+    public func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
+        let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
 
         let effectiveRequest = YieldSmartContractRequest(
             contractAddress: yieldToken,
-            method: method
+            method: effectiveMethod
         )
-        let effectiveBalanceData = try await evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
+
+        let protocolMethod = ProtocolBalanceMethod(yieldTokenAddress: contractAddress)
+
+        let protocolRequest = YieldSmartContractRequest(
+            contractAddress: yieldToken,
+            method: protocolMethod
+        )
+
+        async let effectiveBalanceRequest = evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
+        async let protocolBalanceRequest = evmSmartContractInteractor.ethCall(request: protocolRequest).async()
+
+        let (effectiveBalanceData, protocolBalanceData) = try await (effectiveBalanceRequest, protocolBalanceRequest)
 
         let effectiveBalance = BigUInt(Data(hexString: effectiveBalanceData))
+        let protocolBalance = BigUInt(Data(hexString: protocolBalanceData))
 
-        return effectiveBalance
+        return YieldBalances(
+            effective: effectiveBalance,
+            protocol: protocolBalance
+        )
     }
 }
