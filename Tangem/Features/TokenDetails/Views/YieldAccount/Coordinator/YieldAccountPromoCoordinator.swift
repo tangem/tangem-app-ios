@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 
 final class YieldAccountPromoCoordinator: CoordinatorObject {
     // MARK: - Injected
@@ -33,6 +33,9 @@ final class YieldAccountPromoCoordinator: CoordinatorObject {
         rootViewModel = .init(
             annualYield: options.annualYield.formatted(),
             lastYearReturns: options.lastYearReturns,
+            tokenImage: options.tokenImage,
+            networkFee: options.currentFee,
+            maximumFee: options.maxFee,
             coordinator: self
         )
     }
@@ -43,7 +46,13 @@ final class YieldAccountPromoCoordinator: CoordinatorObject {
         }
     }
 
-    func showStartEarningSheet() {}
+    func openStartEarningSheet(networkFee: String, tokenImage: Image, maximumFee: String) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: YieldPromoBottomSheetViewModel(state: .startYearing, tokenImage: tokenImage, networkFee: networkFee, maximumFee: maximumFee)
+            )
+        }
+    }
 }
 
 // MARK: - Options
@@ -56,5 +65,6 @@ extension YieldAccountPromoCoordinator {
         let maxFee: Double
         let networkName: String
         let lastYearReturns: [String: Double]
+        let tokenImage: Image
     }
 }
