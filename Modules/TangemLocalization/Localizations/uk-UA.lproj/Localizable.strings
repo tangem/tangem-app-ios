@@ -373,11 +373,12 @@
 "details_send_feedback" = "Надіслати відгук";
 "details_title" = "Деталі";
 "disclaimer_title" = "Умови використання";
-"domain_receive_assets_default_address" = "Default Address";
-"domain_receive_assets_navigation_title" = "Receive assets";
-"domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
+"domain_receive_assets_default_address" = "Основна адреса";
+"domain_receive_assets_legacy_address" = "Legacy адреса";
+"domain_receive_assets_navigation_title" = "Отримати активи";
+"domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
-"domain_receive_assets_onboarding_title" = "Send funds using only";
+"domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
@@ -917,7 +918,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Тег призначення";
 "send_dismiss_message" = "Ви дійсно хочете закрити екран надсилання транзакції?";
-"send_enter_address_field_ens" = "Enter ENS name or address";
+"send_enter_address_field_ens" = "Ім’я ENS або адреса";
 "send_enter_address_field" = "Введіть адресу";
 "send_error_address_same_as_wallet" = "Адреса збігається з адресою гаманця";
 "send_error_dust_change" = "Решта занадто мала";
@@ -926,6 +927,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Перевірте підключення до мережі";
 "send_fee_unreachable_error_title" = "Інформація щодо комісії в мережі недоступна";
+"send_from_title" = "Ви надсилаєте";
 "send_from_wallet_name" = "From %@";
 "send_from_wallet" = "Від **%@**";
 "send_gas_limit_footer" = "Це максимальна кількість газу, яка буде витрачена на здійснення транзакції чи контракту. Ліміт газу запобігає несподіваним або необмеженим стягненням під час виконання транзакції.";
@@ -994,7 +996,7 @@
 "send_with_swap_change_token_alert_message" = "Are you sure you want to change the receiving token? This will reset your previously entered data.";
 "send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Swap and send";
-"send_with_swap_convert_token_alert_message" = "Proceed with conversion? This will clear your previous data.";
+"send_with_swap_convert_token_alert_message" = "Proceed with swap? This will clear your previous data.";
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
 "send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
@@ -1168,7 +1170,7 @@
 "swap_story_second_title" = "Найкращі тарифи";
 "swap_story_third_subtitle" = "Просто та зручно — обмін токенів в декілька дотиків";
 "swap_story_third_title" = "Легше, ніж будь-коли";
-"swap_via_provider" = "Swap via provider";
+"swap_via_provider" = "Обмін через провайдера";
 "swapping_alert_cex_description_with_slippage" = "У суму входить:\n- комісія провайдера\n- мережева комісія за відправку %1$@ з біржі назад на адресу користувача. \n\nПроскакування провайдера становить до %2$@";
 "swapping_alert_cex_description" = "Сума включає: \n• комісію постачальника послуг\n• комісію мережі за відправлення %@ з біржі назад на адресу користувача.";
 "swapping_alert_dex_description_with_slippage" = "Сума включає комісію провайдера послуг. \n\nПроскакування провайдера до %@";
@@ -1488,7 +1490,7 @@
 "warning_some_networks_unreachable_message" = "Проведіть пальцем вниз для оновлення або спробуйте пізніше.";
 "warning_some_networks_unreachable_title" = "Деякі мережі недоступні";
 "warning_some_token_balances_not_updated" = "Деякі баланси токенів не вдалося оновити";
-"warning_stellar_token_trustline_not_enough_xlm" = "Not enough %@. Top up your XLM account to open trustline.";
+"warning_stellar_token_trustline_not_enough_xlm" = "Недостатньо %@. Поповніть свій XLM-рахунок, щоб відкрити trustline.";
 "warning_system_deprecation_title" = "Потрібне оновлення системи";
 "warning_system_deprecation_with_date_message" = "Підтримка вашої версії операційної системи буде припинена %@. Щоб отримувати майбутні оновлення програми, ви повинні оновити її до останньої версії.";
 "warning_system_update_message" = "Tangem рекомендує встановити останнє оновлення iOS для стабільної та безпечної роботи";
@@ -1564,7 +1566,7 @@
 "wc_estimated_wallet_changes_not_simulated" = "The transaction couldn't be simulated. Please proceed with caution.";
 "wc_estimated_wallet_changes" = "Прогнозовані зміни";
 "wc_estimation_is_not_supported" = "Estimation is not supported for %@";
-"wc_fee_suggested" = "Suggested by %@";
+"wc_fee_suggested" = "Пропоновано %@";
 "wc_insufficient_warning_subtitle" = "Поповніть баланс, щоб покрити комісію мережі";
 "wc_insufficient_warning_title" = "Недостатньо %1$@";
 "wc_malicious_transaction" = "Malicious transaction";
@@ -1573,7 +1575,7 @@
 "wc_new_connection" = "Нове з'єднання";
 "wc_no_sessions_desc" = "Підключайте свій гаманець до різних dApps";
 "wc_no_sessions_title" = "Немає підключень";
-"wc_no_wallet_changes_detected" = "No wallet changes detected";
+"wc_no_wallet_changes_detected" = "Змін у гаманці не виявлено";
 "wc_notification_security_risk_subtitle" = "Виявлено потенційні ризики або шкідливу активність. Підключення чи підпис транзакцій можуть призвести до втрати коштів.";
 "wc_notification_security_risk_title" = "Відомий ризик безпеки";
 "wc_qr_scan_hint" = "Відкрийте програму Web3 та виберіть опцію WalletConnect";
