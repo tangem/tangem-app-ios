@@ -57,22 +57,21 @@ struct BitcoinSelectorReceiveAssetsSectionFactory: SelectorReceiveAssetsSectionF
         }
     }
 
-    func makeHeaderItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
+    func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
         switch addressInfo.type {
         case .default:
-            Localization.commonNewAddress
+            Localization.domainReceiveAssetsDefaultAddress
         case .legacy:
-            Localization.commonLegacyBitcoinAddress
+            Localization.domainReceiveAssetsLegacyAddress
         }
     }
 
     // MARK: - Private Implementation
 
+    // [REDACTED_TODO_COMMENT]
     private func makeHeader(by key: SelectorReceiveAssetsSection.Key) -> SelectorReceiveAssetsSection.Header? {
         switch key {
-        case .default:
-            return SelectorReceiveAssetsSection.Header.title(Localization.domainReceiveAssetsDefaultAddress)
-        case .legacy, .domain:
+        case .default, .legacy, .domain:
             return nil
         }
     }

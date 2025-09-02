@@ -374,6 +374,7 @@
 "details_title" = "Details";
 "disclaimer_title" = "Nutzungsbedingungen";
 "domain_receive_assets_default_address" = "Standardadresse";
+"domain_receive_assets_legacy_address" = "Legacy adresse";
 "domain_receive_assets_navigation_title" = "Empfangen von Vermögenswerten";
 "domain_receive_assets_onboarding_description" = "Das Senden von Vermögenswerten in anderen Netzwerken führt zu dauerhaftem Verlust.";
 "domain_receive_assets_onboarding_network_name" = "%@ Netzwerk";
@@ -917,7 +918,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Ziel-Tag";
 "send_dismiss_message" = "Möchtest du den Sendebildschirm wirklich schließen?";
-"send_enter_address_field_ens" = "ENS-Name oder Adresse eingeben";
+"send_enter_address_field_ens" = "ENS-Name oder Adresse";
 "send_enter_address_field" = "Adresse eingeben";
 "send_error_address_same_as_wallet" = "Die Adresse stimmt mit der Adresse Ihrer Brieftasche überein";
 "send_error_dust_change" = "Die Veränderung ist zu gering";
@@ -926,6 +927,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Überprüfe deine Netzwerkverbindung";
 "send_fee_unreachable_error_title" = "Informationen zur Netzwerkgebühr nicht erreichbar";
+"send_from_title" = "Sie senden";
 "send_from_wallet_name" = "Von %@";
 "send_from_wallet" = "Von **%@**";
 "send_gas_limit_footer" = "Dies ist die maximale Gasgebühr, die für den Abschluss einer Transaktion oder eines Vertrags ausgegeben wird. Ein Gaslimit verhindert unerwartete oder unbegrenzte Gebühren bei der Ausführung einer Transaktion.";

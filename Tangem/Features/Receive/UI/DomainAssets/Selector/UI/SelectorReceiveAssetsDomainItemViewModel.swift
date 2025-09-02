@@ -37,10 +37,6 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Actions
 
-    func itemButtonDidTap() {
-        coordinator?.routeOnReceiveQR(with: addressInfo)
-    }
-
     func copyAddressButtonDidTap() {
         analyticsLogger.logCopyDomainNameAddressButtonTapped()
         coordinator?.copyToClipboard(with: domainName)
