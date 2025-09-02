@@ -23,7 +23,7 @@ struct NewSendFlowBaseBuilder {
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let sendQRCodeService = builder.makeSendQRCodeService()
         let swapManager: SwapManager = builder.makeSwapManager()
-        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .send)
         let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger)
         let notificationManager = builder.makeSendNewNotificationManager(receiveTokenInput: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
