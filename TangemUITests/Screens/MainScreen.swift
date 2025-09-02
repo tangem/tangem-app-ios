@@ -50,6 +50,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
     func organizeTokens() -> OrganizeTokensScreen {
         XCTContext.runActivity(named: "Open organize tokens screen") { _ in
             // Ensure tokens list is loaded first
@@ -157,6 +158,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    @discardableResult
     func openDetails() -> DetailsScreen {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()

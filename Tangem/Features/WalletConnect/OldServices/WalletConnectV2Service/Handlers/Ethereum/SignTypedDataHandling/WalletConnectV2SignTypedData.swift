@@ -28,7 +28,7 @@ struct WalletConnectV2SignTypedDataHandler {
         let params = try requestParams.get([String].self)
 
         guard params.count >= 2 else {
-            throw WalletConnectV2Error.notEnoughDataInRequest(requestParams.description)
+            throw WalletConnectTransactionRequestProcessingError.notEnoughDataInRequest(requestParams.description)
         }
 
         message = params[1]
@@ -39,7 +39,7 @@ struct WalletConnectV2SignTypedDataHandler {
             let messageData = message.data(using: .utf8),
             let typedData = try? JSONDecoder().decode(EIP712TypedData.self, from: messageData)
         else {
-            throw WalletConnectV2Error.notEnoughDataInRequest(requestParams.description)
+            throw WalletConnectTransactionRequestProcessingError.notEnoughDataInRequest(requestParams.description)
         }
 
         self.typedData = typedData
