@@ -51,16 +51,7 @@ struct SelectorReceiveAssetsDomainItemView: View {
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
             Button(action: viewModel.copyAddressButtonDidTap) {
-                Assets.copyNew.image
-                    .renderingMode(.template)
-                    .frame(size: .init(bothDimensions: 20))
-                    .foregroundStyle(Colors.Icon.informative)
-                    .padding(Layout.ButtomView.paddingIcon)
-                    .background(
-                        Circle()
-                            .fill(Colors.Button.secondary)
-                    )
-                    .padding(.leading, Layout.ButtomView.paddingIconCircle)
+                SelectorReceiveRoundButtonView(actionType: .copy)
             }
         }
     }
@@ -81,8 +72,6 @@ private extension SelectorReceiveAssetsDomainItemView {
 
         enum ButtomView {
             static let horizontalSpacing: CGFloat = 8
-            static let paddingIcon: CGFloat = 8
-            static let paddingIconCircle: CGFloat = 2
         }
 
         enum AddressIcon {
