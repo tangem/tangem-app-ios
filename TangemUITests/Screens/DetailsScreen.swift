@@ -22,6 +22,14 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    func openWalletConnections() -> WalletConnectionsScreen {
+        XCTContext.runActivity(named: "Open WalletConnect") { _ in
+            let walletConnectButton = button(.walletConnectButton)
+            walletConnectButton.waitAndTap()
+            return WalletConnectionsScreen(app)
+        }
+    }
+
     func scanCardOrRing() -> Self {
         XCTContext.runActivity(named: "Add new wallet") { _ in
             scanCardOrRingButton.waitAndTap()
@@ -47,11 +55,14 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
 }
 
 enum DetailsScreenElement: UIElement {
+    case walletConnectButton
     case scanCardOrRing
     case contactSupport
 
     var accessibilityIdentifier: String {
         switch self {
+        case .walletConnectButton:
+            return WalletConnectAccessibilityIdentifiers.detailsButton
         case .scanCardOrRing:
             return "Scan card or ring"
         case .contactSupport:

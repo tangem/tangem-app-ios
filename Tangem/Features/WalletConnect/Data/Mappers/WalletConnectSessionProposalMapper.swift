@@ -11,8 +11,11 @@ import ReownWalletKit
 import enum BlockchainSdk.Blockchain
 
 enum WalletConnectDAppSessionProposalMapper {
-    static func mapDomainURL(from reownSessionProposal: ReownWalletKit.Session.Proposal) throws(WalletConnectDAppProposalLoadingError) -> URL {
-        guard let domainURL = URL(string: reownSessionProposal.proposer.url) else {
+    static func mapDomainURL(
+        from reownSessionProposal: ReownWalletKit.Session.Proposal,
+        context: ReownWalletKit.VerifyContext?
+    ) throws(WalletConnectDAppProposalLoadingError) -> URL {
+        guard let domainURL = URL(string: context?.origin ?? reownSessionProposal.proposer.url) else {
             throw WalletConnectDAppProposalLoadingError.invalidDomainURL(reownSessionProposal.proposer.url)
         }
 
