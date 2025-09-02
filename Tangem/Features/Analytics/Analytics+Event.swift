@@ -168,8 +168,6 @@ extension Analytics {
         case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
         case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
 
-        case walletConnectSecurityAlertShown = "[Wallet Connect] Notice - Security Alert"
-
         case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
         case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
         case walletConnectDAppDisconnected = "[Wallet Connect] dApp Disconnected"
