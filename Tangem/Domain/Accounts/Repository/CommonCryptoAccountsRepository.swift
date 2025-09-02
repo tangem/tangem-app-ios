@@ -8,13 +8,24 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
     // [REDACTED_TODO_COMMENT]
-    private let tokenItemsRepository: TokenItemsRepository
+    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
-    init(tokenItemsRepository: TokenItemsRepository) {
+    private let userWalletId: UserWalletId
+    private let tokenItemsRepository: TokenItemsRepository
+    private let networkService: CryptoAccountsService
+
+    init(
+        userWalletId: UserWalletId,
+        tokenItemsRepository: TokenItemsRepository,
+        networkService: CryptoAccountsService
+    ) {
+        self.userWalletId = userWalletId
         self.tokenItemsRepository = tokenItemsRepository
+        self.networkService = networkService
     }
 }
 
@@ -28,10 +39,11 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         // [REDACTED_TODO_COMMENT]
-        return .just(output: getAccounts())
+        return .just(output: _getAccounts())
     }
 
-    func getAccounts() -> [StoredCryptoAccount] {
+    // [REDACTED_TODO_COMMENT]
+    private func _getAccounts() -> [StoredCryptoAccount] {
         // [REDACTED_TODO_COMMENT]
         return [
             StoredCryptoAccount(
@@ -54,6 +66,8 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             ),
         ]
     }
+
+    func initialize() {}
 
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
         // [REDACTED_TODO_COMMENT]

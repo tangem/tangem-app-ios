@@ -41,10 +41,13 @@ actor CommonAccountModelsManager {
         self.userTokensManagerFactory = userTokensManagerFactory
         executor = Executor(label: userWalletId.stringValue)
         criticalSection = Lock(isRecursive: false)
+        initialize() // [REDACTED_TODO_COMMENT]
     }
 
-    private func initialize() {
-        // [REDACTED_TODO_COMMENT]
+    private nonisolated func initialize() {
+        runTask(in: self, isDetached: true) { manager in
+            manager.initialize()
+        }
     }
 
     private func makeCryptoAccountModels(
