@@ -64,7 +64,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
+        EmailDataFactory().makeEmailData(for: card, walletData: noteData)
     }
 
     var userWalletIdSeed: Data? {
@@ -155,6 +155,8 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .userWalletUpgrade:
             return .hidden
+        case .cardSettings:
+            return .available
         }
     }
 
