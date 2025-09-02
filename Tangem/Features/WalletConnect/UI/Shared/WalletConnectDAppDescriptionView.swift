@@ -11,6 +11,7 @@ import Kingfisher
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectDAppDescriptionView: View {
     let viewModel: WalletConnectDAppDescriptionViewModel
@@ -87,6 +88,7 @@ struct WalletConnectDAppDescriptionView: View {
                 .lineLimit(2)
                 .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
                 .transition(.opacity)
+                .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.providerName)
 
         case .loading:
             SkeletonView()
