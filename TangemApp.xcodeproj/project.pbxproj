@@ -3171,6 +3171,8 @@
 		EAD2AA6E2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */; };
 		EAD2AA702E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6F2E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift */; };
 		EAD2AA742E66C30300AAAFBB /* YieldAccountCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA732E66C30300AAAFBB /* YieldAccountCoordinatorView.swift */; };
+		EAD2AA762E66FCB700AAAFBB /* StartEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */; };
+		EAD2AA782E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */; };
 		EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */; };
 		EAF545FC2E0C803000CF7343 /* DeeplinkValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */; };
 		EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */; };
@@ -3179,7 +3181,6 @@
 		EAFC9E422E2F8EA2005AE9BF /* XRPAddressValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */; };
 		EAFCD5E32E65A7FE0038169B /* YieldPromoBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFCD5E12E65A7FE0038169B /* YieldPromoBottomSheetView.swift */; };
 		EAFCD5E52E65A80B0038169B /* YieldPromoBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFCD5E42E65A80B0038169B /* YieldPromoBottomSheetViewModel.swift */; };
-		EAFCD6092E65E2F50038169B /* InterestRateInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFCD6082E65E2F50038169B /* InterestRateInfoView.swift */; };
 		EAFCD60B2E65E3F30038169B /* FeePolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFCD60A2E65E3F30038169B /* FeePolicyView.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF031A272C08E65A001535C9 /* StakingCalculator.swift */; };
@@ -7253,6 +7254,8 @@
 		EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldInterestRateSheetView.swift; sourceTree = "<group>"; };
 		EAD2AA6F2E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountPromoCoordinator.swift; sourceTree = "<group>"; };
 		EAD2AA732E66C30300AAAFBB /* YieldAccountCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountCoordinatorView.swift; sourceTree = "<group>"; };
+		EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartEarningView.swift; sourceTree = "<group>"; };
+		EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountBottomSheetContainer.swift; sourceTree = "<group>"; };
 		EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigationAction.swift; sourceTree = "<group>"; };
 		EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkValidator.swift; sourceTree = "<group>"; };
 		EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParserTests.swift; sourceTree = "<group>"; };
@@ -7261,7 +7264,6 @@
 		EAFC9E412E2F8EA2005AE9BF /* XRPAddressValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressValidationTests.swift; sourceTree = "<group>"; };
 		EAFCD5E12E65A7FE0038169B /* YieldPromoBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldPromoBottomSheetView.swift; sourceTree = "<group>"; };
 		EAFCD5E42E65A80B0038169B /* YieldPromoBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldPromoBottomSheetViewModel.swift; sourceTree = "<group>"; };
-		EAFCD6082E65E2F50038169B /* InterestRateInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestRateInfoView.swift; sourceTree = "<group>"; };
 		EAFCD60A2E65E3F30038169B /* FeePolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeePolicyView.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF031A272C08E65A001535C9 /* StakingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCalculator.swift; sourceTree = "<group>"; };
@@ -18616,9 +18618,10 @@
 			children = (
 				EAFCD5E12E65A7FE0038169B /* YieldPromoBottomSheetView.swift */,
 				EAFCD5E42E65A80B0038169B /* YieldPromoBottomSheetViewModel.swift */,
-				EAFCD6082E65E2F50038169B /* InterestRateInfoView.swift */,
 				EAFCD60A2E65E3F30038169B /* FeePolicyView.swift */,
 				EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */,
+				EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */,
+				EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -23446,7 +23449,6 @@
 				B600F4E02C50F7D8008E53FE /* LineChartViewData.swift in Sources */,
 				EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */,
 				EF41A3C82D37FE3000FA7020 /* CommonTokenBalancesStorage.swift in Sources */,
-				EAFCD6092E65E2F50038169B /* InterestRateInfoView.swift in Sources */,
 				DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */,
 				DC261CAC292CF56600875E64 /* AuthRoutable.swift in Sources */,
 				B09E518C2981825C0042998A /* DeprecationService.swift in Sources */,
@@ -23525,6 +23527,7 @@
 				EFADE7962E0ED8E200CA7916 /* SendNewAmountInteractor.swift in Sources */,
 				EFEE22BA2BFCE3D10099917E /* WithdrawalNotificationEvent.swift in Sources */,
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
+				EAD2AA782E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift in Sources */,
 				EF6883122CF8B6C400658644 /* OnrampStatusCompactView.swift in Sources */,
 				EFF9A2FD2BD6B45E007C63D2 /* UserWalletSettingsViewModel.swift in Sources */,
 				B6EFF1382D83ACCA00D168AC /* NFTAvailabilityUtil.swift in Sources */,
@@ -24213,6 +24216,7 @@
 				B6F8529B2DC995790064BCB0 /* NFTSendStepsManager.swift in Sources */,
 				EFF763E32C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift in Sources */,
 				B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */,
+				EAD2AA762E66FCB700AAAFBB /* StartEarningView.swift in Sources */,
 				2D6167202C763500006FCEA6 /* MarketsTokenNetworkSelectorCoordinator.swift in Sources */,
 				B6D274E82C38318900FEFCDC /* OnboardingLayoutConstants.swift in Sources */,
 				B67688EF2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift in Sources */,
