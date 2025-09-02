@@ -27,6 +27,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
 
+    // [REDACTED_TODO_COMMENT]
+//    [REDACTED_USERNAME] var tangemPayNotificationInputs: [NotificationViewInput] = []
+//    [REDACTED_USERNAME] var tangemPayStatusPolling: Bool = false
+
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
@@ -107,6 +111,35 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             totalBalanceProvider: userWalletModel
         )
         bind()
+
+        // [REDACTED_TODO_COMMENT]
+//        tangemPayNotificationInputs = [
+//            .init(
+//                style: .withButtons([.init(
+//                    action: { _, _ in
+//                        // [REDACTED_TODO_COMMENT]
+//                    },
+//                    actionType: .tangemPayViewKYCStatus,
+//                    isWithLoader: false
+//                )]),
+//                severity: .info,
+//                settings: .init(event: TangemPayNotificationEvent.viewKYCStatus, dismissAction: nil)
+//            ),
+//
+//            .init(
+//                style: .withButtons([.init(
+//                    action: { [weak self] _, _ in
+//                        guard let self, !tangemPayStatusPolling else { return }
+//                        tangemPayStatusPolling = true
+//                        // [REDACTED_TODO_COMMENT]
+//                    },
+//                    actionType: .tangemPayCreateAccountAndIssueCard,
+//                    isWithLoader: true
+//                )]),
+//                severity: .info,
+//                settings: .init(event: TangemPayNotificationEvent.createAccountAndIssueCard, dismissAction: nil)
+//            ),
+//        ]
     }
 
     deinit {

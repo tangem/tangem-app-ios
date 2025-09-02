@@ -57,6 +57,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
 
+    case tangemPayCreateAccountAndIssueCard
+    case tangemPayViewKYCStatus
+
     var id: Int { hashValue }
 
     var title: String {
@@ -119,6 +122,11 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
+        case .tangemPayCreateAccountAndIssueCard:
+            return Localization.commonContinue
+        case .tangemPayViewKYCStatus:
+            // [REDACTED_TODO_COMMENT]
+            return "View Status"
         }
     }
 
@@ -154,7 +162,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return nil
         }
     }
@@ -189,7 +199,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .addTokenTrustline:
+             .addTokenTrustline,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             return .secondary
         case .openMobileFinishActivation(let needsAttention):
             return needsAttention ? .primary : .secondary

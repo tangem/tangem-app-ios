@@ -416,7 +416,9 @@ extension SendModel: NotificationTapDelegate {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .unlock:
+             .unlock,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }

@@ -793,7 +793,9 @@ extension SendWithSwapModel: NotificationTapDelegate {
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
-             .openMobileUpgrade:
+             .openMobileUpgrade,
+             .tangemPayCreateAccountAndIssueCard,
+             .tangemPayViewKYCStatus:
             assertionFailure("Notification tap not handled")
         }
     }

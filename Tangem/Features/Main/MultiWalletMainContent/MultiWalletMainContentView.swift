@@ -23,6 +23,16 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
+            // [REDACTED_TODO_COMMENT]
+//            ForEach(viewModel.tangemPayNotificationInputs) { input in
+//                NotificationView(input: input)
+//                    .if(input.id == TangemPayNotificationEvent.createAccountAndIssueCard.id) {
+//                        $0.setButtonsLoadingState(to: viewModel.tangemPayStatusPolling)
+//                    }
+//            }
+//
+//            TangemPayAccountView()
+
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
             }
