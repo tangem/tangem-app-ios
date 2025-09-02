@@ -20,7 +20,7 @@ struct SelectorReceiveAssetsAddressItemView: View {
             HStack(spacing: Layout.Container.contentSpacing) {
                 addressIconView(with: viewModel.address)
 
-                addressContentView(header: viewModel.header, value: viewModel.address)
+                addressContentView(header: viewModel.title, value: viewModel.address)
 
                 buttonView
             }
