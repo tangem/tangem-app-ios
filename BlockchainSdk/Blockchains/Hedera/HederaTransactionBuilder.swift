@@ -18,7 +18,7 @@ final class HederaTransactionBuilder {
     private let isTestnet: Bool
     private let timeout: TimeInterval
 
-    private lazy var client: Client = isTestnet ? Client.forTestnet() : Client.forMainnet()
+    private lazy var client: Client = isTestnet ? Client.forTestnetWithImmediateUpdate() : Client.forMainnetWithImmediateUpdate()
 
     init(publicKey: Data, curve: EllipticCurve, isTestnet: Bool, timeout: TimeInterval = 60) {
         self.publicKey = publicKey
