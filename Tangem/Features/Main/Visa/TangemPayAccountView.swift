@@ -14,12 +14,6 @@ struct TangemPayAccountView: View {
     let cardNumber: String
     let balanceString: String
 
-    /// Input example, will be removed later
-    init(cardNumber: String = "*3123", balanceString: String = "$ 0.00") {
-        self.cardNumber = cardNumber
-        self.balanceString = balanceString
-    }
-
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Assets.Visa.usa.image

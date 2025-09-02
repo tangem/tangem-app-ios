@@ -31,7 +31,7 @@ struct MultiWalletMainContentView: View {
 //                    }
 //            }
 //
-//            TangemPayAccountView()
+//            TangemPayAccountView(cardNumber: "*3123", balanceString: "$ 0.00")
 
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)

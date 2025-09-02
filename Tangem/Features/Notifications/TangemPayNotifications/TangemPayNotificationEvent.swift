@@ -11,21 +11,9 @@ import TangemLocalization
 import TangemFoundation
 import TangemAssets
 
-enum TangemPayNotificationEvent {
+enum TangemPayNotificationEvent: Equatable {
     case createAccountAndIssueCard
     case viewKYCStatus
-}
-
-extension TangemPayNotificationEvent {
-    static func == (lhs: TangemPayNotificationEvent, rhs: TangemPayNotificationEvent) -> Bool {
-        switch (lhs, rhs) {
-        case (.createAccountAndIssueCard, .createAccountAndIssueCard): return true
-        case (.viewKYCStatus, .viewKYCStatus): return true
-        case (.createAccountAndIssueCard, _),
-             (.viewKYCStatus, _):
-            return false
-        }
-    }
 }
 
 // [REDACTED_TODO_COMMENT]
@@ -65,9 +53,9 @@ extension TangemPayNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .createAccountAndIssueCard:
-            return .init(iconType: .image(Assets.Visa.promo.image), size: .init(bothDimensions: 36))
+            return .init(iconType: .image(Assets.Visa.promo.image), size: Constants.defaultIconSize)
         case .viewKYCStatus:
-            return .init(iconType: .image(Assets.Visa.kyc.image), size: .init(bothDimensions: 36))
+            return .init(iconType: .image(Assets.Visa.kyc.image), size: Constants.defaultIconSize)
         }
     }
 
@@ -97,5 +85,11 @@ extension TangemPayNotificationEvent {
 
     var isOneShotAnalyticsEvent: Bool {
         false
+    }
+}
+
+private extension TangemPayNotificationEvent {
+    enum Constants {
+        static let defaultIconSize = CGSize(bothDimensions: 36)
     }
 }
