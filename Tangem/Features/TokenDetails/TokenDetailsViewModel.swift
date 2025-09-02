@@ -419,6 +419,9 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func openYieldAccountPromo() {
-        coordinator?.openYieldAccountPromoView()
+        coordinator?.openYieldAccountPromoView(
+            startEarningAction: {},
+            info: .init(annualYield: 5.1, currentFee: 1.5, maxFee: 2, networkName: "Ethereum", lastYearReturns: [:])
+        )
     }
 }
