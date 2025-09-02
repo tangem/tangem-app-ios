@@ -374,6 +374,7 @@
 "details_title" = "Requisiti";
 "disclaimer_title" = "Termini del servizio";
 "domain_receive_assets_default_address" = "Default Address";
+"domain_receive_assets_legacy_address" = "Legacy Address";
 "domain_receive_assets_navigation_title" = "Receive assets";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
@@ -917,7 +918,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Destination Tag";
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
-"send_enter_address_field_ens" = "Enter ENS name or address";
+"send_enter_address_field_ens" = "ENS name or address";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
 "send_error_dust_change" = "L'importo residuo è molto basso";
@@ -926,6 +927,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Check your network connection";
 "send_fee_unreachable_error_title" = "Network fee info unreachable";
+"send_from_title" = "You send";
 "send_from_wallet_name" = "From %@";
 "send_from_wallet" = "From **%@**";
 "send_gas_limit_footer" = "This is the maximum amount of gas that will be spent to complete a transaction or contract. A gas limit prevents unexpected or unlimited charges when executing a transaction.";
@@ -994,7 +996,7 @@
 "send_with_swap_change_token_alert_message" = "Are you sure you want to change the receiving token? This will reset your previously entered data.";
 "send_with_swap_change_token_alert_title" = "Changing token";
 "send_with_swap_confirm_title" = "Swap and send";
-"send_with_swap_convert_token_alert_message" = "Proceed with conversion? This will clear your previous data.";
+"send_with_swap_convert_token_alert_message" = "Proceed with swap? This will clear your previous data.";
 "send_with_swap_convert_token_alert_title" = "Confirm Conversion";
 "send_with_swap_correct_recipient_network_notification_message" = "Sending any other currency will result in its irreversible loss.";
 "send_with_swap_correct_recipient_network_notification_title" = "Select the correct recipient network";
