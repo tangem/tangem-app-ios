@@ -58,14 +58,17 @@ class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Implementation
 
     private func bind() {
+        let readyUserTokenListPublisher = userTokenListManager
+            .userTokensListPublisher
+            .dropFirst()
+
         userTokensPushNotificationsService
             .entriesPublisher
             .removeDuplicates()
-            .combineLatest(userTokenListManager.initializedPublisher)
+            .combineLatest(readyUserTokenListPublisher)
+            .map(\.0)
             .withWeakCaptureOf(self)
-            .sink { manager, args in
-                let (entries, _) = args
-
+            .sink { manager, entries in
                 // Need cancel update status when entries did update
                 manager.updateTask?.cancel()
 
@@ -81,8 +84,9 @@ class CommonUserTokensPushNotificationsManager {
             .hasPendingDerivations
             .dropFirst() // We synchronize only state changes and send them only when they change.
             .removeDuplicates()
-            .combineLatest(userTokenListManager.initializedPublisher)
-            .filter { !$0.0 }
+            .combineLatest(readyUserTokenListPublisher)
+            .map(\.0)
+            .filter { !$0 }
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 manager.syncRemoteStatus()
@@ -91,7 +95,7 @@ class CommonUserTokensPushNotificationsManager {
 
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
-            .combineLatest(userTokenListManager.initializedPublisher)
+            .combineLatest(readyUserTokenListPublisher)
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 guard let currentEntry = manager.currentEntry else {
@@ -156,9 +160,16 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
     }
 
     func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
+        let currentStatus = _userWalletPushStatusSubject.value
+
+        // Must call before syncRemoteStatus, because syncRemoteStatus use upload tokens, with UserTokenListExternalParametersProvider
         _userWalletPushStatusSubject.send(status)
-        syncRemoteStatus()
-        userTokensPushNotificationsService.updateWallet(notifyStatus: status.isActive, by: userWalletId.stringValue)
+
+        // Remove duplicates call to update remote status
+        if currentStatus.isActive != status.isActive {
+            syncRemoteStatus()
+            userTokensPushNotificationsService.updateWallet(notifyStatus: status.isActive, by: userWalletId.stringValue)
+        }
     }
 }
 
