@@ -20,7 +20,7 @@ struct NFTSendFlowBaseBuilder {
 
     func makeSendViewModel(router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
-        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .nft)
         let sendQRCodeService = builder.makeSendQRCodeService()
         let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger)
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
