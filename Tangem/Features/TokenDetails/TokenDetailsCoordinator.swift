@@ -124,13 +124,15 @@ extension TokenDetailsCoordinator {
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openYieldAccountPromoView(startEarningAction: @escaping () -> Void, info: YieldAccountPromoInfo) {
         let coordinator = YieldAccountPromoCoordinator()
+
         let options = YieldAccountPromoCoordinator.Options(
             startEarningAction: startEarningAction,
             annualYield: info.annualYield,
             currentFee: info.currentFee,
             maxFee: info.maxFee,
             networkName: info.networkName,
-            lastYearReturns: info.lastYearReturns
+            lastYearReturns: info.lastYearReturns,
+            tokenImage: info.tokenImage
         )
 
         coordinator.start(with: options)
