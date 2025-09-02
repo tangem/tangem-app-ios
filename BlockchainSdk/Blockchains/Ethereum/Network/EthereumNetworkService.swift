@@ -45,20 +45,8 @@ class EthereumNetworkService: MultiNetworkProvider {
             getTxCount(address),
             getPendingTxCount(address)
         )
-        .withWeakCaptureOf(self)
-        .asyncMap { result in
-            let (networkService, (balance, tokenBalances, txCount, pendingTxCount)) = result
-            let yieldModuleAddress = try await networkService.getYieldModule(for: address)
-            
-            if let yieldModuleAddress {
-                let yieldTokenData = try await networkService.getYieldTokenData(for: yieldModuleAddress)
-                
-                if yieldTokenData.active {
-                    let balances = try await networkService.getYieldBalances(for: yieldModuleAddress)
-                }
-            }
-
-            return EthereumInfoResponse(
+        .map { balance, tokenBalances, txCount, pendingTxCount in
+            EthereumInfoResponse(
                 balance: balance,
                 tokenBalances: tokenBalances,
                 txCount: txCount,

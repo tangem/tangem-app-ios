@@ -36,21 +36,24 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService
-                    .getInfo(address: convertedAddress, tokens: walletManager.cardTokens)
-            }
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
+        ConcurrencyTask {
+            let convertedAddress = try await addressConverter.convertToETHAddressPublisher(wallet.address).async()
+
+//            async let yieldBalanceInfo = yieldService?.getYieldBalanceInfo(for: convertedAddress, contractAddress: "")
+
+            do {
+                let info: EthereumInfoResponse = try await networkService.getInfo(
+                    address: convertedAddress,
+                    tokens: cardTokens
+                ).async()
+//                let (infoResponse, yieldBalanceInfo) = try await (info, yieldBalanceInfo)
+                updateWallet(with: info)
                 completion(.success(()))
-            })
+            } catch {
+                wallet.clearAmounts()
+                completion(.failure(error))
+            }
+        }
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
@@ -443,5 +446,13 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
 extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
+    }
+}
+
+// MARK: - YieldsServiceProvider
+
+extension EthereumWalletManager: YieldServiceProvider {
+    var yieldService: (any YieldTokenService)? {
+        CommonYieldTokenService(evmSmartContractInteractor: networkService)
     }
 }

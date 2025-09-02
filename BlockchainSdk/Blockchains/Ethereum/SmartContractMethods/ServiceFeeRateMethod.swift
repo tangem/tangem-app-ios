@@ -8,13 +8,15 @@
 
 import Foundation
 
-public struct ServiceFeeRateMethod {}
+public struct ServiceFeeRateMethod {
+    public init() {}
+}
 
 // MARK: - SmartContractMethod
 
 extension ServiceFeeRateMethod: SmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `serviceFeeRate()` method.
-    public var methodId: String { "0x1e5b6c6f" }
+    public var methodId: String { "0x61d1bc94" }
 
     public var data: Data {
         // No inputs, so just the methodId

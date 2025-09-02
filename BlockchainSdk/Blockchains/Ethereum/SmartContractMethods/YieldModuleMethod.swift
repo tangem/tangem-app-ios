@@ -16,5 +16,5 @@ public struct YieldModuleMethod {
 
 extension YieldModuleMethod: YieldSmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `yieldModules(address)` method.
-    public var methodId: String { "0x6a627842" }
+    public var methodId: String { "0x36571e2c" }
 }

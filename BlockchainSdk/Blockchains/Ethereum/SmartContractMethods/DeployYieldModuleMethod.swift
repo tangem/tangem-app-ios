@@ -9,17 +9,23 @@
 import Foundation
 import BigInt
 
-struct DeployYieldModuleMethod {
+public struct DeployYieldModuleMethod {
     let sourceAddress: String
     let tokenAddress: String
     let maxNetworkFee: BigUInt
+
+    public init(sourceAddress: String, tokenAddress: String, maxNetworkFee: BigUInt) {
+        self.sourceAddress = sourceAddress
+        self.tokenAddress = tokenAddress
+        self.maxNetworkFee = maxNetworkFee
+    }
 }
 
 extension DeployYieldModuleMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `deployYieldModule(address,address,uint240)` method.
-    var methodId: String { "0x4b7e7f15" }
+    /// - Note: First 4 bytes of Keccak-256 hash for the `deployYieldModule(address owner, address yieldToken, uint240 maxNetworkFee)` method.
+    public var methodId: String { "0xcbeda14c" }
 
-    var data: Data {
+    public var data: Data {
         let methodId = Data(hex: methodId)
         let sourceAddress = Data(hexString: sourceAddress).leadingZeroPadding(toLength: 32)
         let tokenAddress = Data(hexString: tokenAddress).leadingZeroPadding(toLength: 32)
