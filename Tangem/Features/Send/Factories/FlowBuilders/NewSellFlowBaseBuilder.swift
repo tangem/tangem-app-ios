@@ -18,7 +18,7 @@ struct NewSellFlowBaseBuilder {
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
-        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .sell)
         let predefinedValues = builder.mapToPredefinedValues(sellParameters: sellParameters)
         let swapManager = builder.makeSwapManager()
         let sendModel = builder.makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: predefinedValues)
