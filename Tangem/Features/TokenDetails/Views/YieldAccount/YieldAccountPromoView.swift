@@ -99,7 +99,7 @@ struct YieldAccountPromoView: View {
     }
 
     private var continueButton: some View {
-        Button(action: {}) {
+        Button(action: { viewModel.onContinueButtonTapped() }) {
             Text(Localization.commonContinue)
                 .frame(maxWidth: .infinity)
         }
@@ -168,17 +168,4 @@ private extension YieldAccountPromoView {
             }
         }
     }
-}
-
-#Preview {
-    YieldAccountPromoView(
-        viewModel: .init(
-            annualYield: "5.1",
-            lastYearReturns: [:],
-            coordinator: .init(
-                dismissAction: {},
-                popToRootAction: { _ in }
-            )
-        )
-    )
 }

@@ -40,38 +40,18 @@ struct YieldInterestRateSheetView: View {
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: .zero) {
-            toolBar
-                .padding(.bottom, 20)
-
-            title
-                .padding(.horizontal, 16)
-                .padding(.bottom, 6)
-
-            subtitle
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
-
-            provider.padding(.bottom, 32)
-
-            Spacer()
-
-            chart.padding(.bottom, 24)
-
-            gotItButton
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 16)
+        YieldAccountBottomSheetContainer(
+            title: { title },
+            subtitle: { subtitle },
+            content: { chart },
+            buttonLabel: { Text(Localization.commonGotIt) },
+            buttonStyle: TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth),
+            closeAction: { viewModel.closeSheet() },
+            buttonAction: { viewModel.closeSheet() }
+        )
     }
 
     // MARK: - Sub Views
-
-    private var toolBar: some View {
-        HStack {
-            Spacer()
-            CircleButton.close(action: viewModel.closeSheet)
-        }
-    }
 
     private var title: some View {
         // YIELD [REDACTED_TODO_COMMENT]
@@ -80,6 +60,13 @@ struct YieldInterestRateSheetView: View {
     }
 
     private var subtitle: some View {
+        VStack(spacing: 16) {
+            subtitleTextView
+            provider
+        }
+    }
+
+    private var subtitleTextView: some View {
         // YIELD [REDACTED_TODO_COMMENT]
         Text("Current interest rate is always variable and  automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.")
             .multilineTextAlignment(.center)
@@ -105,12 +92,5 @@ struct YieldInterestRateSheetView: View {
             .fill(Color.white)
             .frame(maxWidth: .infinity)
             .frame(height: 200)
-    }
-
-    private var gotItButton: some View {
-        Button(action: viewModel.closeSheet) {
-            Text(Localization.commonGotIt).frame(maxWidth: .infinity)
-        }
-        .buttonStyle(TangemButtonStyle(colorStyle: .gray))
     }
 }

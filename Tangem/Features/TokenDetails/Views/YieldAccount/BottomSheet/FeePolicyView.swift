@@ -18,34 +18,15 @@ extension YieldPromoBottomSheetView {
         let backAction: () -> Void
 
         var body: some View {
-            VStack(spacing: .zero) {
-                toolBar.padding(.bottom, 20)
-
-                title
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
-
-                subtitle
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 24)
-
-                groupedSection().padding(.bottom, 22)
-
-                groupedSection()
-
-                Spacer()
-
-                gotItButton
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-        }
-
-        private var toolBar: some View {
-            HStack {
-                CircleButton.back { backAction() }
-                Spacer()
-            }
+            YieldAccountBottomSheetContainer(
+                title: { title },
+                subtitle: { subtitle },
+                content: { content },
+                buttonLabel: { Text(Localization.commonGotIt) },
+                buttonStyle: TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth),
+                backAction: { backAction() },
+                buttonAction: { backAction() }
+            )
         }
 
         private var title: some View {
@@ -60,18 +41,26 @@ extension YieldPromoBottomSheetView {
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
         }
 
-        private var gotItButton: some View {
-            Button(action: backAction) {
-                Text(Localization.commonGotIt).frame(maxWidth: .infinity)
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: .gray))
-        }
-
-        private func groupedSection() -> some View {
+        private var currentFeeSection: some View {
             GroupedSection(FeeModel(fee: currentFee)) { fee in
-                DefaultRowView(viewModel: .init(title: fee.fee))
+                DefaultRowView(viewModel: .init(title: "Current fee", detailsType: .text(fee.fee)))
             } footer: {
                 DefaultFooterView("This is the current supply fee on Ethereum. The live cost will be shown on the Recieve Screen.")
+            }
+        }
+
+        private var maximumFeeSection: some View {
+            GroupedSection(FeeModel(fee: currentFee)) { fee in
+                DefaultRowView(viewModel: .init(title: "Maximum fee", detailsType: .text(fee.fee)))
+            } footer: {
+                DefaultFooterView("If network fees rise above maximum fee, the transaction won’t go through until they decrease. You can change this limit later.")
+            }
+        }
+
+        private var content: some View {
+            VStack(spacing: 14) {
+                currentFeeSection
+                maximumFeeSection
             }
         }
     }
