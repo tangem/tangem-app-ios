@@ -33,8 +33,8 @@ struct YieldAccountPromoCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: YieldInterestRateSheetViewModel.self) {
                 YieldInterestRateSheetView(viewModel: $0)
             }
-//            .floatingSheetContent(for: YieldInterestRateSheetViewModel.self) {
-//                YieldInterestRateSheet(viewModel: $0)
-//            }
+            .floatingSheetContent(for: YieldPromoBottomSheetViewModel.self) {
+                YieldPromoBottomSheetView(viewModel: $0)
+            }
     }
 }
