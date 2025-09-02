@@ -8,13 +8,13 @@
 
 import Foundation
 
-struct YieldSmartContractRequest: SmartContractRequest {
-    let contractAddress: String
+public struct YieldSmartContractRequest: SmartContractRequest {
+    public let contractAddress: String
     private let method: SmartContractMethod
 
-    var encodedData: String { method.encodedData }
+    public var encodedData: String { method.encodedData }
 
-    init(contractAddress: String, method: SmartContractMethod) {
+    public init(contractAddress: String, method: SmartContractMethod) {
         self.contractAddress = contractAddress
         self.method = method
     }

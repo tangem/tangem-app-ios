@@ -10,74 +10,111 @@ import Foundation
 import BigInt
 
 public protocol YieldTokenService {
-    func getYieldModule(for address: String) async throws -> String?
-    func getYieldTokenData(for yieldToken: String) async throws -> YieldTokenData
-    func getYieldBalances(for yieldToken: String) async throws -> YieldBalances
+    func getAPY(for contractAddress: String) async throws -> Decimal
+    func getYieldBalanceInfo(for address: String, contractAddress: String) async throws -> YieldBalanceInfo
 }
 
-extension EthereumNetworkService: YieldTokenService {
-    public func getYieldModule(for address: String) async throws -> String? {
+public final class CommonYieldTokenService: YieldTokenService {
+    private let evmSmartContractInteractor: EVMSmartContractInteractor
+
+    init(evmSmartContractInteractor: EVMSmartContractInteractor) {
+        self.evmSmartContractInteractor = evmSmartContractInteractor
+    }
+
+    public func getAPY(for contractAddress: String) async throws -> Decimal {
+        let supplyAPYMethod = ReservedDataMethod(contractAddress: contractAddress)
+
+        let supplyAPYRequest = YieldSmartContractRequest(
+            contractAddress: YieldConstants.aavePoolContractAddress,
+            method: supplyAPYMethod
+        )
+
+        async let supplyAPYResult = evmSmartContractInteractor.ethCall(request: supplyAPYRequest).async()
+
+        let serviceFeeRateMethod = ServiceFeeRateMethod()
+
+        let serviceFeeRateRequest = YieldSmartContractRequest(
+            contractAddress: YieldConstants.yieldProcessorContractAddress,
+            method: serviceFeeRateMethod
+        )
+
+        async let serviceFeeRateResult = evmSmartContractInteractor.ethCall(
+            request: serviceFeeRateRequest
+        ).async()
+
+        let (supplyAPYData, serviceFeeRateData) = try await (supplyAPYResult, serviceFeeRateResult)
+
+        let supplyAPYPercent = try YieldServiceAPYConverter.convert(supplyAPYData)
+        let serviceFeeRate = try YieldServiceFeeRateConverter.convert(serviceFeeRateData)
+
+        return supplyAPYPercent * (1 - serviceFeeRate)
+    }
+
+    public func getYieldBalanceInfo(for address: String, contractAddress: String) async throws -> YieldBalanceInfo {
+        let yieldModuleAddress = try await getYieldModule(for: address)
+
+        if let yieldModuleAddress {
+            let yieldTokenData = try await getYieldTokenData(for: yieldModuleAddress, contractAddress: contractAddress)
+
+            let maxNetworkFee = yieldTokenData.maxNetworkFee
+
+            if yieldTokenData.initialized {
+                if yieldTokenData.active {
+                    let balance = try await getYieldBalance(for: yieldModuleAddress, contractAddress: contractAddress)
+                    return YieldBalanceInfo(state: .initialized(state: .active(balance), maxNetworkFee: maxNetworkFee))
+                } else {
+                    return YieldBalanceInfo(state: .initialized(state: .notActive, maxNetworkFee: maxNetworkFee))
+                }
+            } else {
+                return YieldBalanceInfo(state: .notInitialized(yieldToken: yieldModuleAddress))
+            }
+        } else {
+            return YieldBalanceInfo(state: .notInitialized(yieldToken: nil))
+        }
+    }
+
+    private func getYieldModule(for address: String) async throws -> String? {
         let method = YieldModuleMethod(address: address)
 
         let request = YieldSmartContractRequest(
-            contractAddress: Constants.yieldModuleFactoryContractAddress,
+            contractAddress: YieldConstants.yieldModuleFactoryContractAddress,
             method: method
         )
 
-        let result = try await ethCall(request: request).async()
-        
-        if result.removeHexPrefix().isEmpty {
+        let result = try await evmSmartContractInteractor.ethCall(request: request).async()
+
+        let resultNoHex = result.removeHexPrefix()
+        if resultNoHex.isEmpty || BigUInt(resultNoHex) == 0 {
             return nil
         }
-        
-        return result
+
+        return resultNoHex.stripLeadingZeroes().addHexPrefix()
     }
 
-    public func getYieldTokenData(for yieldToken: String) async throws -> YieldTokenData {
-        let method = YieldTokenDataMethod(yieldTokenAddress: yieldToken)
+    private func getYieldTokenData(for yieldToken: String, contractAddress: String) async throws -> YieldTokenData {
+        let method = YieldTokenDataMethod(contractAddress: contractAddress)
 
         let request = YieldSmartContractRequest(
-            contractAddress: Constants.yieldModuleFactoryContractAddress,
+            contractAddress: yieldToken,
             method: method
         )
-        
-        let tokenData = try await ethCall(request: request).async()
+
+        let tokenData = try await evmSmartContractInteractor.ethCall(request: request).async()
 
         return try YieldServiceYieldTokenDataConverter.convert(tokenData)
     }
-    
-    public func getYieldBalances(for yieldToken: String) async throws -> YieldBalances {
-        let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: yieldToken)
+
+    private func getYieldBalance(for yieldToken: String, contractAddress: String) async throws -> BigUInt {
+        let method = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
 
         let effectiveRequest = YieldSmartContractRequest(
-            contractAddress: Constants.yieldModuleFactoryContractAddress,
-            method: effectiveMethod
+            contractAddress: yieldToken,
+            method: method
         )
-        
-        let protocolMethod = ProtocolBalanceMethod(yieldTokenAddress: yieldToken)
+        let effectiveBalanceData = try await evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
 
-        let protocolRequest = YieldSmartContractRequest(
-            contractAddress: Constants.yieldModuleFactoryContractAddress,
-            method: effectiveMethod
-        )
-        
-        async let effectiveBalanceRequest = ethCall(request: effectiveRequest).async()
-        async let protocolBalanceRequest = ethCall(request: protocolRequest).async()
-        
-        let (effectiveBalanceData, protocolBalanceData) = try await (effectiveBalanceRequest, protocolBalanceRequest)
-        
         let effectiveBalance = BigUInt(Data(hexString: effectiveBalanceData))
-        let protocolBalance = BigUInt(Data(hexString: effectiveBalanceData))
 
-        return YieldBalances(
-            effective: effectiveBalance,
-            protocol: protocolBalance
-        )
-    }
-}
-
-private extension EthereumNetworkService {
-    enum Constants {
-        static let yieldModuleFactoryContractAddress = "0xE21829B57f1D8d5461d3F38340A6e491c62A6990"
+        return effectiveBalance
     }
 }
