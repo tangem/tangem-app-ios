@@ -10,7 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-// YIELD [REDACTED_TODO_COMMENT]
+/// YIELD [REDACTED_TODO_COMMENT]
 struct YieldAccountPromoView: View {
     // MARK: - Properties
 
@@ -41,7 +41,7 @@ struct YieldAccountPromoView: View {
     }
 
     private var pillInfoButton: some View {
-        Button(action: {}) {
+        Button(action: { viewModel.openInterestRateInfo() }) {
             HStack(spacing: 4) {
                 Text("Aave • Variable Interest Rate").style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
@@ -159,7 +159,7 @@ private extension YieldAccountPromoView {
             HStack(alignment: .top, spacing: 16) {
                 iconView
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(title).style(Fonts.Bold.callout, color: Colors.Text.primary1)
                     Text(subtitle).style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 }
@@ -171,5 +171,14 @@ private extension YieldAccountPromoView {
 }
 
 #Preview {
-    YieldAccountPromoView(viewModel: .init(annualYield: "5.1"))
+    YieldAccountPromoView(
+        viewModel: .init(
+            annualYield: "5.1",
+            lastYearReturns: [:],
+            coordinator: .init(
+                dismissAction: {},
+                popToRootAction: { _ in }
+            )
+        )
+    )
 }
