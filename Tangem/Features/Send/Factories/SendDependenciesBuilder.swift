@@ -410,12 +410,12 @@ struct SendDependenciesBuilder {
         SendFeeSelectorCustomFeeFieldsBuilder(customFeeService: customFeeService)
     }
 
-    func makeSendAnalyticsLogger(coordinatorSource: SendCoordinator.Source) -> SendAnalyticsLogger {
+    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
         CommonSendAnalyticsLogger(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
-            coordinatorSource: coordinatorSource
+            sendType: sendType
         )
     }
 
