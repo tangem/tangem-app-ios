@@ -83,6 +83,9 @@ extension XRPTransaction {
         /// Disables the No Ripple flag on the trust line,
         /// allowing rippling (value transfer through this trust line).
         case tfClearNoRipple = 262144
+
+        /// Allows partial payment (used in Payment transactions).
+        case tfPartialPayment = 131072
     }
 
     /// Parameters for building a TrustSet transaction on the XRP Ledger
@@ -147,6 +150,7 @@ extension XRPTransaction {
         let fee: Decimal
         let sequence: Int
         let destinationTag: UInt32?
+        let flags: Set<Flag>
 
         // MARK: - XRPTransactionEncodable
 
@@ -159,6 +163,7 @@ extension XRPTransaction {
                 "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
                 "Sequence": sequence,
                 "DestinationTag": destinationTag,
+                "Flags": flags.reduce(0) { $0 | $1.rawValue },
             ]
 
             return dict.compactMapValues { $0 }
