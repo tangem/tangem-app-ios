@@ -11,23 +11,21 @@ import BigInt
 
 public struct EnterProtocolMethod {
     let yieldTokenAddress: String
-    let networkFee: BigUInt
 
-    public init(yieldTokenAddress: String, networkFee: BigUInt) {
+    public init(yieldTokenAddress: String) {
         self.yieldTokenAddress = yieldTokenAddress
-        self.networkFee = networkFee
     }
 }
 
-extension EnterProtocolMethod: SmartContractMethod {
-    /// - Note: First 4 bytes of Keccak-256 hash for the `enterProtocol(address,uint256)` method.
-    public var methodId: String { "0x1c0a33d0" }
+extension EnterProtocolMethod: YieldSmartContractMethod {
+    /// - Note: First 4 bytes of Keccak-256 hash for the `enterProtocolByOwner(address)` method.
+    public var methodId: String { "0x79be55f7" }
 
-    public var data: Data {
-        let methodId = Data(hex: methodId)
-        let yieldTokenAddress = Data(hexString: yieldTokenAddress).leadingZeroPadding(toLength: 32)
-        let networkFee = networkFee.serialize().leadingZeroPadding(toLength: 32)
-
-        return methodId + yieldTokenAddress + networkFee
-    }
+//    public var data: Data {
+//        let methodId = Data(hex: methodId)
+//        let yieldTokenAddress = Data(hexString: yieldTokenAddress).leadingZeroPadding(toLength: 32)
+//        let networkFee = networkFee.serialize().leadingZeroPadding(toLength: 32)
+//
+//        return methodId + yieldTokenAddress + networkFee
+//    }
 }
