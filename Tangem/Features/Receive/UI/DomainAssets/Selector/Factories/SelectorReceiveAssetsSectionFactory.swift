@@ -38,7 +38,7 @@ extension SelectorReceiveAssetsSectionFactory {
     }
 
     func makeTitleItemStateView(tokenItem: TokenItem, addressInfo: ReceiveAddressInfo) -> String {
-        Localization.domainReceiveAssetsOnboardingNetworkName(tokenItem.name.capitalizingFirstLetter())
+        Localization.domainReceiveAssetsNetworkNameAddress(tokenItem.name.capitalizingFirstLetter())
     }
 }
 
