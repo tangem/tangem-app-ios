@@ -17,4 +17,5 @@ protocol CryptoAccountsRepository {
 
     func initialize() async
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel)
+    func removeCryptoAccount(withIdentifier identifier: AnyHashable)
 }

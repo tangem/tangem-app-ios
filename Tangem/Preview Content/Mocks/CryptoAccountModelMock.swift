@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 final class CryptoAccountModelMock {
+    let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager = WalletModelsManagerMock()
     let userTokensManager: UserTokensManager = UserTokensManagerMock()
@@ -38,6 +39,18 @@ final class CryptoAccountModelMock {
 
     init(isMainAccount: Bool) {
         self.isMainAccount = isMainAccount
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension CryptoAccountModelMock {
+    struct AccountId: Hashable, AccountModelPersistentIdentifierConvertible {
+        let id = UUID()
+
+        func toPersistentIdentifier() -> AnyHashable {
+            id
+        }
     }
 }
 

@@ -42,16 +42,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         return newAccount
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
-        guard let account = cryptoAccounts.accounts[safe: index] else {
-            throw CommonError.noData
-        }
-
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
         var existingAccounts = cryptoAccounts.accounts
-        existingAccounts.remove(at: index)
+        existingAccounts.removeAll { $0.id.toPersistentIdentifier() == identifier.toPersistentIdentifier() }
         cryptoAccounts = .init(accounts: existingAccounts)
-
-        return account
     }
 }
 

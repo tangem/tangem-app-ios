@@ -19,6 +19,5 @@ protocol AccountModelsManager {
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws -> any CryptoAccountModel
 
     /// - Returns: The archived account model.
-    @discardableResult
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws
 }

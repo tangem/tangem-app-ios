@@ -177,9 +177,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
         return newCryptoAccount
     }
 
-    func archiveCryptoAccount(with index: Int) async throws -> any CryptoAccountModel {
-        // [REDACTED_TODO_COMMENT]
-        fatalError()
+    func archiveCryptoAccount(withIdentifier identifier: some AccountModelPersistentIdentifierConvertible) async throws {
+        cryptoAccountsRepository.removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
     }
 }
 
