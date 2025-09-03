@@ -17,7 +17,7 @@ public protocol YieldTokenService {
 public final class CommonYieldTokenService: YieldTokenService {
     private let evmSmartContractInteractor: EVMSmartContractInteractor
 
-    init(evmSmartContractInteractor: EVMSmartContractInteractor) {
+    public init(evmSmartContractInteractor: EVMSmartContractInteractor) {
         self.evmSmartContractInteractor = evmSmartContractInteractor
     }
 
@@ -51,25 +51,30 @@ public final class CommonYieldTokenService: YieldTokenService {
     }
 
     public func getYieldBalanceInfo(for address: String, contractAddress: String) async throws -> YieldBalanceInfo {
-        let yieldModuleAddress = try await getYieldModule(for: address)
+        let yieldToken = try await getYieldModule(for: address)
 
-        if let yieldModuleAddress {
-            let yieldTokenData = try await getYieldTokenData(for: yieldModuleAddress, contractAddress: contractAddress)
+        if let yieldToken {
+            let yieldTokenData = try await getYieldTokenData(for: yieldToken, contractAddress: contractAddress)
 
             let maxNetworkFee = yieldTokenData.maxNetworkFee
 
             if yieldTokenData.initialized {
                 if yieldTokenData.active {
-                    let balance = try await getYieldBalances(for: yieldModuleAddress, contractAddress: contractAddress)
-                    return YieldBalanceInfo(state: .initialized(state: .active(balance), maxNetworkFee: maxNetworkFee))
+                    async let balances = getYieldBalances(for: yieldToken, contractAddress: contractAddress)
+                    let activeStateInfo = try await YieldBalanceInfo.ActiveStateInfo(
+                        yieldToken: yieldToken,
+                        maxNetworkFee: maxNetworkFee,
+                        balances: balances,
+                    )
+                    return YieldBalanceInfo(state: .initialized(activeState: .active(activeStateInfo)))
                 } else {
-                    return YieldBalanceInfo(state: .initialized(state: .notActive, maxNetworkFee: maxNetworkFee))
+                    return YieldBalanceInfo(state: .initialized(activeState: .notActive))
                 }
             } else {
-                return YieldBalanceInfo(state: .notInitialized(yieldToken: yieldModuleAddress))
+                return YieldBalanceInfo(state: .notInitialized(yieldToken: yieldToken))
             }
         } else {
-            return YieldBalanceInfo(state: .notInitialized(yieldToken: nil))
+            return YieldBalanceInfo(state: .notDeployed)
         }
     }
 
