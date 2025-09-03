@@ -58,13 +58,6 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func updateCryptoAccount<T, each U>(
-        withID id: T.ID,
-        updates: repeat KeyPath<T, each U>
-    ) where T: CryptoAccountModel {
-        // [REDACTED_TODO_COMMENT]
-    }
-
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
         // [REDACTED_TODO_COMMENT]
     }
@@ -108,31 +101,58 @@ private extension CommonCryptoAccountsRepository {
 
         func getList() -> [StoredCryptoAccount] {
             workingQueue.sync {
-                return fetch()
+                return unsafeFetch()
             }
         }
 
-        func remove(account: StoredCryptoAccount) {
+        func edit(accountWithDerivationIndex derivationIndex: Int, editBlock: @escaping (inout StoredCryptoAccount) -> Void) {
             // This combined read-write operation must be atomic, hence the barrier flag
             workingQueue.async(flags: .barrier) {
-                var currentItems = self.fetch()
+                let  currentItems = self.unsafeFetch()
+
                 // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
-                currentItems.removeAll(where: { $0.derivationIndex == account.derivationIndex })
-                self.save(currentItems)
+                guard let targetIndex = currentItems.firstIndex(where: { $0.derivationIndex == derivationIndex }) else {
+                    assertionFailure("CommonCryptoAccountsRepository.Storage: No account with derivation index \(derivationIndex) found")
+                    return
+                }
+
+                var editedItems = currentItems
+                editBlock(&editedItems[targetIndex])
+
+                if editedItems[targetIndex] != currentItems[targetIndex] {
+                    self.unsafeSave(currentItems)
+                }
+            }
+        }
+
+        func remove(accountWithDerivationIndex derivationIndex: Int) {
+            // This combined read-write operation must be atomic, hence the barrier flag
+            workingQueue.async(flags: .barrier) {
+                let currentItems = self.unsafeFetch()
+                var editedItems = currentItems
+
+                // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
+                editedItems.removeAll(where: { $0.derivationIndex == derivationIndex })
+
+                if editedItems.count != currentItems.count {
+                    self.unsafeSave(currentItems)
+                }
             }
         }
 
         func removeAll() {
             workingQueue.async(flags: .barrier) {
-                self.save([])
+                self.unsafeSave([])
             }
         }
 
-        private func fetch() -> [StoredCryptoAccount] {
+        /// Unsafe because it must be called from `workingQueue` only.
+        private func unsafeFetch() -> [StoredCryptoAccount] {
             return (try? persistentStorage.value(for: key)) ?? []
         }
 
-        private func save(_ items: [StoredCryptoAccount]) {
+        /// Unsafe because it must be called from `workingQueue` only.
+        private func unsafeSave(_ items: [StoredCryptoAccount]) {
             do {
                 try persistentStorage.store(value: items, for: key)
                 storageDidUpdateSubject.send()
