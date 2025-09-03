@@ -23,8 +23,8 @@ extension YieldSmartContractMethod {
                 data.append(Data(hexString: value).leadingZeroPadding(toLength: 32))
             case let value as BigUInt:
                 data.append(value.serialize().leadingZeroPadding(toLength: 32))
-            default:
-                BSDKLogger.warning("Unsupported type in SmartContractMethod")
+            case let value:
+                BSDKLogger.warning("Unsupported type \(value.self) in SmartContractMethod")
             }
         }
 
