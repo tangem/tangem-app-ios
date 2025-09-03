@@ -20,13 +20,11 @@ final class CommonCryptoAccountsRepository {
     private let storage: Storage
     private let storageDidUpdateSubject: StorageDidUpdateSubject
 
-    private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = {
-        storageDidUpdateSubject
-            .withWeakCaptureOf(self)
-            .map { $0.0.storage.getList() }
-            .share(replay: 1)
-            .eraseToAnyPublisher()
-    }()
+    private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = storageDidUpdateSubject
+        .withWeakCaptureOf(self)
+        .map { $0.0.storage.getList() }
+        .share(replay: 1)
+        .eraseToAnyPublisher()
 
     init(
         userWalletId: UserWalletId,
@@ -38,7 +36,7 @@ final class CommonCryptoAccountsRepository {
         self.userWalletId = userWalletId
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
-        self.storage = Storage(
+        storage = Storage(
             storageIdentifier: userWalletId.stringValue,
             storageDidUpdateSubject: storageDidUpdateSubject
         )
@@ -99,7 +97,7 @@ private extension CommonCryptoAccountsRepository {
             storageIdentifier: String,
             storageDidUpdateSubject: StorageDidUpdateSubject
         ) {
-            self.key = .accounts(cid: storageIdentifier)
+            key = .accounts(cid: storageIdentifier)
             self.storageDidUpdateSubject = storageDidUpdateSubject
             workingQueue = DispatchQueue(
                 label: "com.tangem.CommonCryptoAccountsRepository.Storage.workingQueue_\(storageIdentifier)",
@@ -115,7 +113,7 @@ private extension CommonCryptoAccountsRepository {
         }
 
         func remove(account: StoredCryptoAccount) {
-            /// The entire read-write operation should be atomic, hence the barrier flag
+            // This combined read-write operation must be atomic, hence the barrier flag
             workingQueue.async(flags: .barrier) {
                 var currentItems = self.fetch()
                 // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
