@@ -453,6 +453,8 @@ extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
 
 extension EthereumWalletManager: YieldServiceProvider {
     var yieldService: (any YieldTokenService)? {
-        CommonYieldTokenService(evmSmartContractInteractor: networkService)
+        CommonYieldTokenService(
+            evmSmartContractInteractor: networkService
+        )
     }
 }
