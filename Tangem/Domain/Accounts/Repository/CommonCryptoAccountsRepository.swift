@@ -8,24 +8,40 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 
 final class CommonCryptoAccountsRepository {
-    // [REDACTED_TODO_COMMENT]
-    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
+    fileprivate typealias StorageDidUpdateSubject = PassthroughSubject<Void, Never>
 
     private let userWalletId: UserWalletId
     private let tokenItemsRepository: TokenItemsRepository
     private let networkService: CryptoAccountsService
+    private let storage: Storage
+    private let storageDidUpdateSubject: StorageDidUpdateSubject
+
+    private lazy var _cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> = {
+        storageDidUpdateSubject
+            .withWeakCaptureOf(self)
+            .map { $0.0.storage.getList() }
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+    }()
 
     init(
         userWalletId: UserWalletId,
         tokenItemsRepository: TokenItemsRepository,
         networkService: CryptoAccountsService
     ) {
+        let storageDidUpdateSubject = StorageDidUpdateSubject()
+        self.storageDidUpdateSubject = storageDidUpdateSubject
         self.userWalletId = userWalletId
         self.tokenItemsRepository = tokenItemsRepository
         self.networkService = networkService
+        self.storage = Storage(
+            storageIdentifier: userWalletId.stringValue,
+            storageDidUpdateSubject: storageDidUpdateSubject
+        )
     }
 }
 
@@ -33,41 +49,23 @@ final class CommonCryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     var totalCryptoAccountsCount: Int {
-        // [REDACTED_TODO_COMMENT]
-        return 1
+        storage.getList().count
     }
 
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
-        // [REDACTED_TODO_COMMENT]
-        return .just(output: _getAccounts())
+        _cryptoAccountsPublisher
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func _getAccounts() -> [StoredCryptoAccount] {
+    func initialize() {
         // [REDACTED_TODO_COMMENT]
-        return [
-            StoredCryptoAccount(
-                derivationIndex: Constants.mainAccountDerivationIndex,
-                name: Constants.mainAccountName,
-                icon: .init(
-                    iconName: Constants.mainAccountIconName,
-                    iconColor: Constants.mainAccountIconColor
-                ),
-                tokenList: tokenItemsRepository.getList()
-            ),
-            StoredCryptoAccount(
-                derivationIndex: 1,
-                name: "Test account",
-                icon: .init(
-                    iconName: AccountModel.Icon.Name.airplane.rawValue,
-                    iconColor: AccountModel.Icon.Color.coralRed.rawValue
-                ),
-                tokenList: tokenItemsRepository.getList()
-            ),
-        ]
     }
 
-    func initialize() {}
+    func updateCryptoAccount<T, each U>(
+        withID id: T.ID,
+        updates: repeat KeyPath<T, each U>
+    ) where T: CryptoAccountModel {
+        // [REDACTED_TODO_COMMENT]
+    }
 
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
         // [REDACTED_TODO_COMMENT]
@@ -83,5 +81,66 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         static let mainAccountName = "Main Account" // [REDACTED_TODO_COMMENT]
         static let mainAccountIconName = AccountModel.Icon.Name.star.rawValue
         static let mainAccountIconColor = AccountModel.Icon.Color.brightBlue.rawValue
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonCryptoAccountsRepository {
+    // [REDACTED_TODO_COMMENT]
+    final class Storage {
+        @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
+
+        private let key: PersistentStorageKey
+        private let workingQueue: DispatchQueue
+        private let storageDidUpdateSubject: StorageDidUpdateSubject
+
+        init(
+            storageIdentifier: String,
+            storageDidUpdateSubject: StorageDidUpdateSubject
+        ) {
+            self.key = .accounts(cid: storageIdentifier)
+            self.storageDidUpdateSubject = storageDidUpdateSubject
+            workingQueue = DispatchQueue(
+                label: "com.tangem.CommonCryptoAccountsRepository.Storage.workingQueue_\(storageIdentifier)",
+                attributes: .concurrent,
+                target: .global(qos: .userInitiated)
+            )
+        }
+
+        func getList() -> [StoredCryptoAccount] {
+            workingQueue.sync {
+                return fetch()
+            }
+        }
+
+        func remove(account: StoredCryptoAccount) {
+            /// The entire read-write operation should be atomic, hence the barrier flag
+            workingQueue.async(flags: .barrier) {
+                var currentItems = self.fetch()
+                // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
+                currentItems.removeAll(where: { $0.derivationIndex == account.derivationIndex })
+                self.save(currentItems)
+            }
+        }
+
+        func removeAll() {
+            workingQueue.async(flags: .barrier) {
+                self.save([])
+            }
+        }
+
+        private func fetch() -> [StoredCryptoAccount] {
+            return (try? persistentStorage.value(for: key)) ?? []
+        }
+
+        private func save(_ items: [StoredCryptoAccount]) {
+            do {
+                try persistentStorage.store(value: items, for: key)
+                storageDidUpdateSubject.send()
+            } catch {
+                assertionFailure("CommonCryptoAccountsRepository.Storage saving error: \(error)")
+            }
+        }
     }
 }
