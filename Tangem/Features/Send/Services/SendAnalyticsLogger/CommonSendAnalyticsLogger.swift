@@ -17,18 +17,18 @@ class CommonSendAnalyticsLogger {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
-    private let coordinatorSource: SendCoordinator.Source
+    private let sendType: SendType
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder,
-        coordinatorSource: SendCoordinator.Source
+        sendType: SendType
     ) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
-        self.coordinatorSource = coordinatorSource
+        self.sendType = sendType
     }
 }
 
@@ -231,7 +231,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         }
 
         Analytics.log(event: .transactionSent, params: [
-            .source: coordinatorSource.analytics.rawValue,
+            .source: sendType.analytics.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
             .blockchain: tokenItem.blockchain.displayName,
             .feeType: feeType.rawValue,
@@ -256,5 +256,23 @@ extension CommonSendAnalyticsLogger: SendAnalyticsLogger {
 
     func setup(sendSourceTokenInput: any SendSourceTokenInput) {
         self.sendSourceTokenInput = sendSourceTokenInput
+    }
+}
+
+// MARK: - SendAnalyticsLogger + Type
+
+extension CommonSendAnalyticsLogger {
+    enum SendType {
+        case send
+        case sell
+        case nft
+
+        var analytics: Analytics.ParameterValue {
+            switch self {
+            case .send: .send
+            case .sell: .sell
+            case .nft: .nft
+            }
+        }
     }
 }
