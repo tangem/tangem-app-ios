@@ -46,7 +46,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated func initialize() {
         runTask(in: self, isDetached: true) { manager in
-            manager.initialize()
+            await manager.cryptoAccountsRepository.initialize()
         }
     }
 
