@@ -61,6 +61,12 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     func addCryptoAccount(_ cryptoAccountModel: any CryptoAccountModel) {
         // [REDACTED_TODO_COMMENT]
     }
+
+    func removeCryptoAccount(withIdentifier identifier: AnyHashable) {
+        storage.remove { storedCryptoAccount in
+            AnyHashable(storedCryptoAccount.derivationIndex) == identifier
+        }
+    }
 }
 
 // MARK: - Constants
@@ -108,7 +114,7 @@ private extension CommonCryptoAccountsRepository {
         func edit(accountWithDerivationIndex derivationIndex: Int, editBlock: @escaping (inout StoredCryptoAccount) -> Void) {
             // This combined read-write operation must be atomic, hence the barrier flag
             workingQueue.async(flags: .barrier) {
-                let  currentItems = self.unsafeFetch()
+                let currentItems = self.unsafeFetch()
 
                 // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
                 guard let targetIndex = currentItems.firstIndex(where: { $0.derivationIndex == derivationIndex }) else {
@@ -125,14 +131,14 @@ private extension CommonCryptoAccountsRepository {
             }
         }
 
-        func remove(accountWithDerivationIndex derivationIndex: Int) {
+        func remove(accountUsingPredicate predicate: @escaping (StoredCryptoAccount) -> Bool) {
             // This combined read-write operation must be atomic, hence the barrier flag
             workingQueue.async(flags: .barrier) {
                 let currentItems = self.unsafeFetch()
                 var editedItems = currentItems
 
                 // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
-                editedItems.removeAll(where: { $0.derivationIndex == derivationIndex })
+                editedItems.removeAll(where: predicate)
 
                 if editedItems.count != currentItems.count {
                     self.unsafeSave(currentItems)
