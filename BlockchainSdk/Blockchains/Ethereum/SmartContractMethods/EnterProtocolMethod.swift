@@ -12,6 +12,11 @@ import BigInt
 public struct EnterProtocolMethod {
     let yieldTokenAddress: String
     let networkFee: BigUInt
+
+    public init(yieldTokenAddress: String, networkFee: BigUInt) {
+        self.yieldTokenAddress = yieldTokenAddress
+        self.networkFee = networkFee
+    }
 }
 
 extension EnterProtocolMethod: SmartContractMethod {
