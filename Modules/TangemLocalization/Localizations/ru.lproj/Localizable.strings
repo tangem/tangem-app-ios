@@ -376,8 +376,9 @@
 "domain_receive_assets_default_address" = "Основной адрес";
 "domain_receive_assets_legacy_address" = "Legacy адрес";
 "domain_receive_assets_navigation_title" = "Получить активы";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "Отправка средств в другой сети может повлечь потерю средств.";
-"domain_receive_assets_onboarding_network_name" = "%@ сети";
+"domain_receive_assets_onboarding_network_name" = "%@ сеть";
 "domain_receive_assets_onboarding_title" = "Отправляйте средства, используя только";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
 "email_subject_wc_error" = "Ошибка WalletConnect";
@@ -399,7 +400,7 @@
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
 "express_exchange_notification_failed_title" = "Операция не выполнена провайдером";
-"express_exchange_notification_long_transaction_time_text" = "Ваш обмен занимает больше времени, чем ожидалось. Пожалуйста, обратитесь в службу поддержки провайдера для уточнения.";
+"express_exchange_notification_long_transaction_time_text" = "Ваш обмен занимает больше времени, чем обычно, но ваши средства полностью в безопасности и будут доставлены. Если возникли вопросы, вы всегда можете связаться с поддержкой провайдера.";
 "express_exchange_notification_long_transaction_time_title" = "Long transaction time";
 "express_exchange_notification_refund_text" = "Отправленные средства были возвращены в %1$@ на ваш кошелек в соответствии с правилами OKX или моста обмена. %2$@";
 "express_exchange_notification_refund_title" = "Сумма была возвращена в %1$@ (%2$@ сети)";
@@ -432,7 +433,7 @@
 "express_fetch_best_rates" = "Получение наилучших курсов...";
 "express_floating_rate" = "Плавающая ставка";
 "express_legal_one_placeholder" = "Пользуясь сервисом, вы соглашаетесь с %@";
-"express_legal_two_placeholders" = "Пользуясь сервисом, вы соглашаетесь с %1$@ и %2$@";
+"express_legal_two_placeholders" = "Пользуясь сервисом, вы соглашаетесь с %1$@ и %2$@.";
 "express_more_providers_soon" = "Больше провайдеров на подходе.\nСледите за обновлениями!";
 "express_provider_best_rate" = "Лучший курс";
 "express_provider_fca_warning_list" = "FCA Warning List";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Если на нем есть средства, пожалуйста сначала выведите их, а затем сделайте сброс до заводских настроек и используйте как резервную.";
 "onboarding_navbar_save_wallet" = "Сохраните ваш кошелек";
 "onboarding_navbar_title_creating_backup" = "Резервная копия";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "Прочитать о seed-фразе";
 "onboarding_seed_generate_title" = "Ваша seed-фраза";
 "onboarding_seed_import_message" = "Чтобы импортировать кошелек, введите seed-фразу в поле ниже";
@@ -987,7 +989,7 @@
 "send_summary_transaction_description_suffix_fee_covered" = "Комиссия сети будет покрыта за счет использования %1$@ энергии";
 "send_summary_transaction_description_suffix_fee_reduced" = "Комиссия сети будет снижена за счет использования %1$@ энергии";
 "send_summary_transaction_description_suffix_including" = "включая комиссию сети в размере %1$@";
-"send_summary_transaction_description" = "Вы отправляете **%1$@**, включая комиссию сети %2$@";
+"send_summary_transaction_description" = "Вы отправляете **%1$@**, включая комиссию сети %2$@.";
 "send_to_address" = "To address";
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_tron_account_activation_error" = "%1$@ — это монета в сети Tron. Чтобы рассчитать комиссию и совершить транзакцию, вам необходимо внести немного Tron (TRX) на свой адрес.";

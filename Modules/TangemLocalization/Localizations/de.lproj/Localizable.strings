@@ -376,6 +376,7 @@
 "domain_receive_assets_default_address" = "Standardadresse";
 "domain_receive_assets_legacy_address" = "Legacy adresse";
 "domain_receive_assets_navigation_title" = "Empfangen von Vermögenswerten";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "Das Senden von Vermögenswerten in anderen Netzwerken führt zu dauerhaftem Verlust.";
 "domain_receive_assets_onboarding_network_name" = "%@ Netzwerk";
 "domain_receive_assets_onboarding_title" = "Sende Geld nur mit";
@@ -432,7 +433,7 @@
 "express_fetch_best_rates" = "Aktuelle Preise werden abgerufen ...";
 "express_floating_rate" = "Variabler Zinssatz";
 "express_legal_one_placeholder" = "Durch die Nutzung der Swap-Funktion erklärst du dich mit den folgenden Bedingungen des Anbieters einverstanden %@";
-"express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden";
+"express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden.";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "Für die Karte oder Ring, die du hinzufügen möchtest, wurde bereits eine andere Wallets erstellt. Wenn du Guthaben auf dieser Wallets hast, hebe es bitte ab, setze diese Karte oder Ring zurück und füge sie als Backup hinzu.";
 "onboarding_navbar_save_wallet" = "Sicher deine Wallet";
 "onboarding_navbar_title_creating_backup" = "Backups anlegen";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "Lese mehr über die Seed-Phrase";
 "onboarding_seed_generate_title" = "Deine Seed-Phrase";
 "onboarding_seed_import_message" = "Um deine Wallets zu importieren, gib bitte deine Seed-Phrase in das folgende Feld ein";
@@ -987,7 +989,7 @@
 "send_summary_transaction_description_suffix_fee_covered" = "Die Netzwerkgebühr wird durch die Nutzung von %1$@ Energieträgern gedeckt.";
 "send_summary_transaction_description_suffix_fee_reduced" = "Die Netzwerkgebühr wird durch den Verbrauch von %1$@ Energie reduziert";
 "send_summary_transaction_description_suffix_including" = "inklusive einer Netzgebühr von %1$@";
-"send_summary_transaction_description" = "Du sendest **%1$@** inklusive der Netzwerkgebühr %2$@";
+"send_summary_transaction_description" = "Du sendest **%1$@** inklusive der Netzwerkgebühr %2$@.";
 "send_to_address" = "Zur Adresse";
 "send_transaction_success" = "Die Transaktion wurde erfolgreich signiert und an den Blockchain-Knoten gesendet. Die Walletbilanz wird aktualisiert";
 "send_tron_account_activation_error" = "%1$@ ist ein Vermögenswert im Tron-Netzwerk. Um die Gebühr zu berechnen und eine Transaktion durchzuführen, musst du etwas Tron (TRX) auf deinem Konto einzahlen.";

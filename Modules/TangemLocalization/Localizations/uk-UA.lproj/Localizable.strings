@@ -233,7 +233,7 @@
 "common_generate_addresses" = "Синхронізувати адреси";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
-"common_got_it" = "Got it";
+"common_got_it" = "Зrozуміло";
 "common_hide" = "Приховати";
 "common_hour" = "година";
 "common_import" = "Імпортувати";
@@ -376,8 +376,9 @@
 "domain_receive_assets_default_address" = "Основна адреса";
 "domain_receive_assets_legacy_address" = "Legacy адреса";
 "domain_receive_assets_navigation_title" = "Отримати активи";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
-"domain_receive_assets_onboarding_network_name" = "%@ network";
+"domain_receive_assets_onboarding_network_name" = "%@ мережа";
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
@@ -399,7 +400,7 @@
 "express_exchange_by" = "Обмін через %@";
 "express_exchange_notification_failed_text" = "Щоб повернути ваші кошти, відвідайте сайт провайдера";
 "express_exchange_notification_failed_title" = "Операція не виконана провайдером";
-"express_exchange_notification_long_transaction_time_text" = "Ваш обмін триває довше, ніж очікувалося. Будь ласка, зверніться до служби підтримки постачальника послуг, для уточнення.";
+"express_exchange_notification_long_transaction_time_text" = "Ваш обмін триває довше, ніж зазвичай, але ваші кошти повністю в безпеці та будуть доставлені. Якщо ви хвилюєтесь, ви завжди можете звернутися до служби підтримки провайдера.";
 "express_exchange_notification_long_transaction_time_title" = "Тривалий час транзакції";
 "express_exchange_notification_refund_text" = "Сума транзакції була повернута в %1$@ на ваш гаманець відповідно до правил OKX або мосту обміну. %2$@";
 "express_exchange_notification_refund_title" = "Сума була повернута в %1$@ (%2$@ мережі)";
@@ -432,7 +433,7 @@
 "express_fetch_best_rates" = "Шукаємо найвигідніший курс...";
 "express_floating_rate" = "Плаваюча ставка";
 "express_legal_one_placeholder" = "Використовуючи сервіс обміну, ви погоджуєтеся з його %@";
-"express_legal_two_placeholders" = "Використовуючи сервіс обміну, ви погоджуєтеся з його %1$@ та %2$@";
+"express_legal_two_placeholders" = "Використовуючи сервіс обміну, ви погоджуєтеся з його %1$@ та %2$@.";
 "express_more_providers_soon" = "Незабаром з'являться нові провайдери.\nСлідкуйте за новинами!";
 "express_provider_best_rate" = "Найкращий курс";
 "express_provider_fca_warning_list" = "Список попереджень FCA";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "На картці, яку ви намагаєтеся додати, вже створено інший гаманець. Якщо у вас є кошти на цьому гаманці, будь ласка, виведіть їх, а потім скиньте цю картку до заводських налаштувань і додайте її як резервну.";
 "onboarding_navbar_save_wallet" = "Збережіть ваш гаманець";
 "onboarding_navbar_title_creating_backup" = "Резервна копія";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "Дізнатися більше про seed-фразу";
 "onboarding_seed_generate_title" = "Ваша seed-фраза";
 "onboarding_seed_import_message" = "Щоб імпортувати гаманець, введіть seed-фразу в поле нижче";
@@ -987,7 +989,7 @@
 "send_summary_transaction_description_suffix_fee_covered" = "комісія мережі буде покрита, використовуючи %1$@ енергію";
 "send_summary_transaction_description_suffix_fee_reduced" = "Комісія мережі буде зменшена, за рахунок використання %1$@ енергії";
 "send_summary_transaction_description_suffix_including" = "включно з комісією мережі %1$@";
-"send_summary_transaction_description" = "Ви надсилаєте **%1$@**, включно з комісію мережі %2$@";
+"send_summary_transaction_description" = "Ви надсилаєте **%1$@**, включно з комісію мережі %2$@.";
 "send_to_address" = "To address";
 "send_transaction_success" = "Транзакція успішно підписана і відправлена до блокчейну. Баланс гаманця буде оновлено через деякий час";
 "send_tron_account_activation_error" = "%1$@ — це монета у мережі Tron. Щоб розрахувати комісію та здійснити транзакцію, вам необхідно внести певну кількість Tron (TRX) на свій рахунок.";

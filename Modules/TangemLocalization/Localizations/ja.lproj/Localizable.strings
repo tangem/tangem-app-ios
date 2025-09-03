@@ -376,6 +376,7 @@
 "domain_receive_assets_default_address" = "デフォルトアドレス";
 "domain_receive_assets_legacy_address" = "レガシーアドレス";
 "domain_receive_assets_navigation_title" = "資金を受け取る";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "他のネットワークで資産を送金すると、永久に失われます。";
 "domain_receive_assets_onboarding_network_name" = "%@ネットワーク";
 "domain_receive_assets_onboarding_title" = "下記のみを使用して資金を送金する";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "追加しようとしているカードには、すでに別のウォレットが作成されています。このウォレットに資金がある場合は、それを引き出してからこのカードをリセットし、バックアップとして追加してください。";
 "onboarding_navbar_save_wallet" = "ウォレットを保存する";
 "onboarding_navbar_title_creating_backup" = "バックアップの作成";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "シードフレーズについてもっと読む";
 "onboarding_seed_generate_title" = "あなたのシードフレーズ";
 "onboarding_seed_import_message" = "ウォレットをインポートするには、下のフィールドにシードフレーズを入力してください。";

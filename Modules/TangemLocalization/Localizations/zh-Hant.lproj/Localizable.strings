@@ -376,6 +376,7 @@
 "domain_receive_assets_default_address" = "Default Address";
 "domain_receive_assets_legacy_address" = "Legacy Address";
 "domain_receive_assets_navigation_title" = "Receive assets";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
@@ -399,7 +400,7 @@
 "express_exchange_by" = "Exchange by %@";
 "express_exchange_notification_failed_text" = "Visit provider’s website to refund your money";
 "express_exchange_notification_failed_title" = "Operation failed by provider";
-"express_exchange_notification_long_transaction_time_text" = "Your swap is taking longer than expected. Please go to provider support for assistance.";
+"express_exchange_notification_long_transaction_time_text" = "Your swap is taking longer than usual, but your funds are completely safe and will be delivered. For any questions, you can contact the provider’s support team.";
 "express_exchange_notification_long_transaction_time_title" = "Long transaction time";
 "express_exchange_notification_refund_text" = "The transaction amount was refunded in %1$@ to your wallet due to OKX or bridge rules. %2$@";
 "express_exchange_notification_refund_title" = "The amount was refunded in %1$@ (%2$@ network)";
@@ -432,7 +433,7 @@
 "express_fetch_best_rates" = "Fetching current rates...";
 "express_floating_rate" = "Floating rate";
 "express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
-"express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@";
+"express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@.";
 "express_more_providers_soon" = "More providers will be available soon";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. If you have funds in this wallet, please withdraw it and then reset this card and add it as a backup.";
 "onboarding_navbar_save_wallet" = "儲存你的錢包";
 "onboarding_navbar_title_creating_backup" = "創建備份";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "閱讀更多關於助記詞的訊息";
 "onboarding_seed_generate_title" = "Your seed phrase";
 "onboarding_seed_import_message" = "To import your wallet, enter your seed phrase in the field below";
@@ -987,7 +989,7 @@
 "send_summary_transaction_description_suffix_fee_covered" = "network fee will be covered by using %1$@ energy";
 "send_summary_transaction_description_suffix_fee_reduced" = "network fee will be reduced by spending %1$@ energy";
 "send_summary_transaction_description_suffix_including" = "including a network fee of %1$@";
-"send_summary_transaction_description" = "You are sending **%1$@** including a network fee of %2$@";
+"send_summary_transaction_description" = "You are sending **%1$@** including a network fee of %2$@.";
 "send_to_address" = "To address";
 "send_transaction_success" = "交易已成功簽署並發送至區塊鏈節點。錢包餘額稍後更新";
 "send_tron_account_activation_error" = "%1$@ is an asset in the Tron network. To calculate the fee and make a transaction you need to deposit some Tron (TRX) in your account.";

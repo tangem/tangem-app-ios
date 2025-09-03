@@ -376,8 +376,9 @@
 "domain_receive_assets_default_address" = "Adresse par défaut";
 "domain_receive_assets_legacy_address" = "Legacy adresse";
 "domain_receive_assets_navigation_title" = "Recevoir des actifs";
+"domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "L’envoi d’actifs sur d’autres réseaux entraînera une perte définitive.";
-"domain_receive_assets_onboarding_network_name" = "%@ network";
+"domain_receive_assets_onboarding_network_name" = "%@ réseau";
 "domain_receive_assets_onboarding_title" = "Envoyez des fonds en utilisant uniquement";
 "email_preface_wc_error" = "Bonjour équipe de support, j’ai rencontré une erreur avec le code : %@";
 "email_subject_wc_error" = "Erreur WalletConnect";
@@ -432,7 +433,7 @@
 "express_fetch_best_rates" = "En cherche des meilleurs taux";
 "express_floating_rate" = "Taux flottant";
 "express_legal_one_placeholder" = "En utilisant la fonctionnalité d'échange, vous acceptez les %@";
-"express_legal_two_placeholders" = "En utilisant la fonctionnalité d'échange, vous acceptez les conditions %1$@ et %2$@ du fournisseur";
+"express_legal_two_placeholders" = "En utilisant la fonctionnalité d'échange, vous acceptez les conditions %1$@ et %2$@ du fournisseur.";
 "express_more_providers_soon" = "D'autres fournisseurs arriveront bientôt.\nRestez branchés !";
 "express_provider_best_rate" = "Meilleur taux";
 "express_provider_fca_warning_list" = "Liste d’avertissement de la FCA";
@@ -759,6 +760,7 @@
 "onboarding_linking_error_card_with_wallets" = "Un autre portefeuille a déjà été créé sur la carte que vous essayez d'ajouter. Si vous avez des fonds dans ce portefeuille, veuillez les retirer, puis réinitialiser cette carte et l'ajouter comme sauvegarde.";
 "onboarding_navbar_save_wallet" = "Enregistrer votre portefeuille";
 "onboarding_navbar_title_creating_backup" = "Sauvegarde en cours";
+"onboarding_navbar_upgrade_wallet_biometrics" = "Use biometrics";
 "onboarding_seed_button_read_more" = "En savoir plus sur les seed phrases";
 "onboarding_seed_generate_title" = "Votre seed phrase";
 "onboarding_seed_import_message" = "Pour importer votre portefeuille, entrez votre seed phrase dans le champ ci-dessous";
@@ -987,7 +989,7 @@
 "send_summary_transaction_description_suffix_fee_covered" = "les frais de réseau seront couverts en utilisant %1$@ énergie";
 "send_summary_transaction_description_suffix_fee_reduced" = "les frais de réseau seront réduits en utilisant %1$@ énergie";
 "send_summary_transaction_description_suffix_including" = "y compris des frais de réseau de %1$@";
-"send_summary_transaction_description" = "Vous envoyez **%1$@** incluant des frais de réseau de %2$@";
+"send_summary_transaction_description" = "Vous envoyez **%1$@** incluant des frais de réseau de %2$@.";
 "send_to_address" = "À l'adresse";
 "send_transaction_success" = "La transaction a été signée avec succès et envoyée au nœud de blockchain. Le solde du portefeuille sera mis à jour après un certain temps";
 "send_tron_account_activation_error" = "%1$@ est un actif du réseau Tron. Pour calculer les frais et effectuer une transaction, déposez du Tron (TRX) sur votre compte.";
@@ -1005,8 +1007,8 @@
 "send_with_swap_recipient_amount_text" = "Un destinataire sera envoyé";
 "send_with_swap_recipient_amount_title" = "Montant à recevoir";
 "send_with_swap_recipient_get_amount" = "Le destinataire reçoit %@";
-"send_with_swap_remove_convert_alert_message" = "Are you sure you want to cancel the conversion? Your previous data will be cleared.";
-"send_with_swap_remove_convert_alert_title" = "Remove Conversion";
+"send_with_swap_remove_convert_alert_message" = "Êtes-vous sûr de vouloir annuler la conversion ? Vos données précédentes seront effacées.";
+"send_with_swap_remove_convert_alert_title" = "Supprimer la conversion";
 "send_with_swap_title" = "Envoyer avec swap";
 "sent_transaction_sent_title" = "Transaction envoyée";
 "settings_card_settings_footer" = "Scannez la carte/ bague que vous souhaitez configurer.";
