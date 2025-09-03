@@ -14,24 +14,31 @@ public struct YieldBalanceInfo {
 
     public var balances: YieldBalances? {
         switch state {
-        case .initialized(.active(let balances), _): balances
+        case .initialized(.active(let activeStateInfo)): activeStateInfo.balances
         default: nil
         }
-    }
-
-    public var hasActiveYield: Bool {
-        balances?.protocol != nil && balances?.protocol != 0
     }
 }
 
 public extension YieldBalanceInfo {
     enum State {
-        case notInitialized(yieldToken: String?)
-        case initialized(state: ActiveState, maxNetworkFee: BigUInt)
+        case notDeployed
+        case notInitialized(yieldToken: String)
+        case initialized(activeState: ActiveState)
     }
 
     enum ActiveState {
         case notActive
-        case active(YieldBalances?)
+        case active(ActiveStateInfo)
+    }
+
+    struct ActiveStateInfo {
+        public let yieldToken: String
+        public let maxNetworkFee: BigUInt
+        public let balances: YieldBalances?
+
+        public var hasActiveYield: Bool {
+            balances?.protocol != nil && balances?.protocol != 0
+        }
     }
 }
