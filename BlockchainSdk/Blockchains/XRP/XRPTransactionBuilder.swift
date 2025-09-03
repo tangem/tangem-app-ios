@@ -109,7 +109,8 @@ class XRPTransactionBuilder {
             amount: amountField,
             fee: feeDrops,
             sequence: sequence,
-            destinationTag: destinationTag
+            destinationTag: destinationTag,
+            flags: [.tfPartialPayment]
         )
 
         return XRPTransaction(params: params)
