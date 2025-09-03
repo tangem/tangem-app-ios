@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
 protocol CryptoAccountsRepository {
     /// Includes all crypto accounts, including archived ones.
     var totalCryptoAccountsCount: Int { get }
