@@ -567,7 +567,7 @@ private extension VisaOnboardingViewModel {
     func showCloseOnboardingAlert() {
         alert = AlertBuilder.makeExitAlert(
             message: Localization.visaOnboardingCloseAlertMessage,
-            okAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding)
+            discardAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding)
         )
     }
 }
