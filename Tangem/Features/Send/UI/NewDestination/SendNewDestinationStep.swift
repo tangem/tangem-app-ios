@@ -17,8 +17,6 @@ class SendNewDestinationStep {
     private let interactorSaver: SendNewDestinationInteractorSaver
     private let analyticsLogger: SendDestinationAnalyticsLogger
 
-    private var isEditMode: Bool = false
-
     init(
         viewModel: SendNewDestinationViewModel,
         interactor: any SendNewDestinationInteractor,
@@ -43,11 +41,7 @@ class SendNewDestinationStep {
 // MARK: - SendStep
 
 extension SendNewDestinationStep: SendStep {
-    var title: String? { Localization.sendRecipientLabel }
-
     var type: SendStepType { .newDestination(viewModel) }
-    var navigationLeadingViewType: SendStepNavigationLeadingViewType? { isEditMode ? .none : .backButton }
-    var navigationTrailingViewType: SendStepNavigationTrailingViewType? { .closeButton }
 
     var sendStepViewAnimatable: any SendStepViewAnimatable { viewModel }
 
@@ -60,8 +54,7 @@ extension SendNewDestinationStep: SendStep {
     }
 
     func willAppear(previous step: any SendStep) {
-        isEditMode = step.type.isSummary
-        isEditMode ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
+        step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
 
         interactorSaver.captureValue()
     }

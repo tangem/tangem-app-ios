@@ -54,7 +54,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupport2No
     case unlock
     case openReferralProgram
-    case openHotFinishActivation
+    case openMobileFinishActivation(needsAttention: Bool)
 
     var id: Int { hashValue }
 
@@ -114,7 +114,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.referralButtonParticipate
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
-        case .openHotFinishActivation:
+        case .openMobileFinishActivation:
             return Localization.hwActivationNeedFinish
         }
     }
@@ -150,7 +150,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2No,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation:
+             .openMobileFinishActivation:
             return nil
         }
     }
@@ -184,9 +184,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupport2Yes,
              .seedSupport2No,
              .openReferralProgram,
-             .addTokenTrustline,
-             .openHotFinishActivation:
+             .addTokenTrustline:
             return .secondary
+        case .openMobileFinishActivation(let needsAttention):
+            return needsAttention ? .primary : .secondary
         }
     }
 }
