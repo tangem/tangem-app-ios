@@ -23,7 +23,6 @@ class ServicesManager {
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
     @Injected(\.wcService) private var wcService: any WCService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
@@ -61,7 +60,6 @@ class ServicesManager {
         accountHealthChecker.initialize()
         apiListProvider.initialize()
         pushNotificationsInteractor.initialize()
-        userTokensPushNotificationsService.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
@@ -128,8 +126,10 @@ class ServicesManager {
 /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
 class KeychainSensitiveServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
 
     func initialize() async {
+        await userTokensPushNotificationsService.initialize() // Must initialize before init UserWalletRepository. Becase we must listen event provider flow
         await userWalletRepository.initialize()
     }
 }
