@@ -235,7 +235,7 @@
 "common_generate_addresses" = "Sincronizar direcciones";
 "common_go_to_provider" = "Ir al proveedor";
 "common_go_to_token" = "Ir al token";
-"common_got_it" = "Entiendo";
+"common_got_it" = "Entendido";
 "common_hide" = "Ocultar";
 "common_hour" = "hora";
 "common_import" = "Importe";
@@ -828,7 +828,6 @@
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Disponible hasta %@";
 "onramp_provider_min_amount" = "Disponible desde %@";
-"onramp_providers_count" = "%d providers";
 "onramp_providers_subtitle" = "Providers";
 "onramp_recently_used_title" = "Recently used";
 "onramp_recommended_title" = "Recommended";
@@ -1269,7 +1268,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Esta acción es irreversible. No tendrá acceso la billetera antigua.";
 "twins_scan_twin_with_number" = "Toque la tarjeta gemela con el número %@ y no la retira hasta el final de la operación";
-"unexpected_error_description" = "Por favor, inténtelo de nuevo más tarde. Si el problema persiste, póngase en contacto con el servicio de asistencia.";
+"unexpected_error_description" = "Por favor, inténtelo de nuevo más tarde. Si el problema persiste, póngase en contacto con el servicio de soporte.";
 "unexpected_error_title" = "¡Algo salió mal!";
 "universal_error" = "Hemos encontrado un error. Código de error: %@. Póngase en contacto con nuestro servicio de soporte.";
 "unlock_wallet_description_full" = "Use %@ o escanee una tarjeta/anillo para tener acceso a su billetera";
@@ -1491,7 +1490,7 @@
 "warning_rate_app_message" = "Su opinión nos motiva a hacer Tangem Wallet aún mejor";
 "warning_rate_app_title" = "¿Disfrutando de Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Deba asociar su token antes de recibir tokens";
-"warning_receive_blocked_token_trustline_required_message" = "Debe abrir una trustline para su token antes de recibirlo";
+"warning_receive_blocked_token_trustline_required_message" = "Debe abrir una trustline (línea de confianza) para su token antes de recibirlo";
 "warning_rent_fee_title" = "Se requiere tarifa de alquiler de red";
 "warning_seedphrase_action_required_title" = "Acción requerida";
 "warning_seedphrase_contacted_support" = "¿Se puso en contacto con el servicio de soporte a través de la app en los 7 días posteriores a la creación de la billetera? Si lo hizo o no está seguro, pulse en \"Sí\" y complete las instrucciones.";
@@ -1513,7 +1512,7 @@
 "warning_testnet_card_message" = "Esta es una tarjeta de Testnet. No puede procesar transacciones y solo deba usarse para pruebas y desarrollo.";
 "warning_testnet_card_title" = "Solo para fines de prueba";
 "warning_token_required_min_coin_reserve" = "No hay suficiente %1$@. Recargue su cuenta %2$@ para asociar este token";
-"warning_token_trustline_button_title" = "Habilitar Trustline";
+"warning_token_trustline_button_title" = "Habilitar Trustline (línea de confianza)";
 "warning_token_trustline_subtitle" = "Una trustline (línea de confianza) debe estar habilitada para recibir este token. La red requiere un %1$@ %2$@ reserva.";
 "warning_token_trustline_title" = "Se requiere trustline (línea de confianza)";
 "wc_alert_add_network_to_portfolio_description" = "La red requerida %@ no está añadida a su portafolio. Añádala primero y luego continúe con la conexión.";
@@ -1663,7 +1662,7 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
 "yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Maximize your savings";
+"yield_module_promo_screen_title" = "Earn %@% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
