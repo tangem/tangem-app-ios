@@ -31,6 +31,8 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case exchange
     case staking
 
+    case cardSettings
+
     case walletConnect
     case multiCurrency
     case resetToFactory
