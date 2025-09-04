@@ -9,11 +9,25 @@
 import SwiftUI
 
 public extension View {
-    func withCloseButton(placement: ToolbarItemPlacement = .topBarLeading, action: @escaping () -> Void) -> some View {
+    func withCloseButton(
+        placement: ToolbarItemPlacement = .topBarLeading,
+        style: CloseButtonStyle = .text,
+        action: @escaping () -> Void
+    ) -> some View {
         toolbar {
             ToolbarItem(placement: placement) {
-                CloseButton(dismiss: action)
+                switch style {
+                case .text:
+                    CloseButton(dismiss: action)
+                case .crossImage:
+                    CircleButton.close(action: action)
+                }
             }
         }
     }
+}
+
+public enum CloseButtonStyle {
+    case text
+    case crossImage
 }
