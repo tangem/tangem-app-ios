@@ -71,6 +71,7 @@ class CommonSendFeeInteractor {
                 }
             }
             .share()
+            .removeDuplicates()
 
         suggestedFeeToUse
             // Only once when the fee has value
@@ -175,8 +176,8 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelInput {
 // MARK: - FeeSelectorContentViewModelOutput
 
 extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
-    func update(selectedSelectorFee: FeeSelectorFee) {
-        if let fee = fees.first(where: { $0.option == selectedSelectorFee.option }) {
+    func update(selectedFeeOption: FeeOption) {
+        if let fee = fees.first(where: { $0.option == selectedFeeOption }) {
             update(selectedFee: fee)
         }
     }
@@ -199,7 +200,6 @@ extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
 extension CommonSendFeeInteractor: CustomFeeServiceOutput {
     func customFeeDidChanged(_ customFee: Fee) {
         _customFee.send(customFee)
-        update(selectedFee: .init(option: .custom, value: .loaded(customFee)))
     }
 }
 
@@ -233,8 +233,10 @@ private extension CommonSendFeeInteractor {
     }
 
     private func feeForAutoupdate(fees: [SendFee]) -> SendFee? {
-        let option = input?.selectedFee.option ?? .market
-        let market = fees.first(where: { $0.option == option })
-        return market
+        if let selected = fees.first(where: { $0.option == input?.selectedFee.option }) {
+            return selected
+        }
+
+        return fees.first(where: { $0.option == .market })
     }
 }
