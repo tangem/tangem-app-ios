@@ -14,7 +14,4 @@ public enum ExpressAmount {
 
     /// For `DEX` / `DEX/Bridge` operations
     case dex(txValue: Decimal, txData: Data)
-    
-    /// For `DEX` specify operations
-    case solanaDEX(txValue: Decimal?, txData: Data)
 }

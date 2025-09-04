@@ -113,8 +113,3 @@ private extension CommonExpressFeeProvider {
         return Fee(amount, parameters: newParameters)
     }
 }
-
-enum ExpressFeeProviderError: Error {
-    case feeNotFound
-    case ethereumNetworkProviderNotFound
-}
