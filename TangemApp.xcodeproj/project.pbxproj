@@ -24100,7 +24100,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = revision;
-				revision = 874ead183dce9fc2c8a5f069444d5fa5198d64df;
+				revision = b9b875e1d995cda7c334ec339e7a4c3336b2aeb6;
 			};
 		};
 		B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
