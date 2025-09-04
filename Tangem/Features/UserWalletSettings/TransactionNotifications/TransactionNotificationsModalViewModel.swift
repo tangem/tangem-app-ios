@@ -27,7 +27,6 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private var loadableTask: Task<Void, Error>?
-    private let supportedBlockchains: Set<Blockchain>
 
     private weak var coordinator: TransactionNotificationsModalRoutable?
 
@@ -35,9 +34,6 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
 
     init(coordinator: TransactionNotificationsModalRoutable?) {
         self.coordinator = coordinator
-
-        supportedBlockchains = SupportedBlockchains(version: .v2).blockchains()
-
         setupUI()
         loadAndDisplayNetworkItems()
     }
@@ -55,9 +51,12 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
     // MARK: - Private Implementation
 
     private func setupUI() {
-        tokenItemViewModels = supportedBlockchains.map {
+        let imageProvider = NetworkImageProvider()
+        tokenItemViewModels = SupportedBlockchains.all.map { blockchain in
             TransactionNotificationsItemViewModel(
-                blockchainNetwork: .init($0, derivationPath: nil),
+                networkName: blockchain.displayName,
+                networkSymbol: blockchain.currencySymbol,
+                iconImageAsset: imageProvider.provide(by: blockchain, filled: true),
                 isLoading: true
             )
         }
@@ -77,6 +76,9 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
                 }
             } catch {
                 AppLogger.error(error: error)
+
+                // Fallback as a last resort
+                displayAlert(error: error)
             }
         }
     }
@@ -86,15 +88,20 @@ final class TransactionNotificationsModalViewModel: ObservableObject {
 
 private extension TransactionNotificationsModalViewModel {
     private func mapAndDisplayEligibleNetworks(response: [NotificationDTO.NetworkItem]) {
+        let imageProvider = NetworkImageProvider()
+
         let viewModels: [TransactionNotificationsItemViewModel] = response.compactMap {
             // We should find and use a exactly same blockchain that in the supportedBlockchains set
-            guard let blockchain = supportedBlockchains[$0.networkId] else {
+            guard let blockchain = SupportedBlockchains.all[$0.networkId] else {
                 return nil
             }
 
-            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: nil)
-
-            return TransactionNotificationsItemViewModel(blockchainNetwork: blockchainNetwork)
+            return TransactionNotificationsItemViewModel(
+                networkName: blockchain.displayName,
+                networkSymbol: blockchain.currencySymbol,
+                iconImageAsset: imageProvider.provide(by: blockchain, filled: true),
+                isLoading: false
+            )
         }
 
         tokenItemViewModels = viewModels

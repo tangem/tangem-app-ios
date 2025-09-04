@@ -9,8 +9,10 @@
 import Foundation
 import Combine
 import LocalAuthentication
+import TangemFoundation
 
 protocol UserWalletRepository {
+    var shouldLockOnBackground: Bool { get }
     var isLocked: Bool { get }
     var models: [UserWalletModel] { get }
     var selectedModel: UserWalletModel? { get }
@@ -18,12 +20,12 @@ protocol UserWalletRepository {
 
     func initialize() async
     func lock()
-    func unlock(with method: UserWalletRepositoryUnlockMethod) throws -> UserWalletModel
-    func unlock(userWalletId: UserWalletId, method: UserWalletRepositoryUnlockMethod) throws
+    func unlock(with method: UserWalletRepositoryUnlockMethod) async throws -> UserWalletModel
     func select(userWalletId: UserWalletId)
     func updateAssociatedCard(userWalletId: UserWalletId, cardId: String)
     func add(userWalletModel: UserWalletModel) throws
     func delete(userWalletId: UserWalletId)
+    func onBiometricsChanged(enabled: Bool)
     func onSaveUserWalletsChanged(enabled: Bool)
     func savePublicData()
     func save(userWalletModel: UserWalletModel)
@@ -51,17 +53,15 @@ enum UserWalletRepositoryEvent {
 
 enum UserWalletRepositoryUnlockMethod {
     case biometrics(LAContext)
-    case card(CardInfo)
-    case mobileWallet(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
+    case biometricsUserWallet(userWalletId: UserWalletId, context: LAContext)
+    case encryptionKey(userWalletId: UserWalletId, encryptionKey: UserWalletEncryptionKey)
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .biometrics:
+        case .biometrics, .biometricsUserWallet:
             return Analytics.ParameterValue.signInTypeBiometrics
-        case .card:
+        case .encryptionKey:
             return Analytics.ParameterValue.card
-        case .mobileWallet:
-            return Analytics.ParameterValue.accessCode
         }
     }
 }
