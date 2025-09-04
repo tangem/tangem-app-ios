@@ -226,10 +226,17 @@ private extension CommonExpressManager {
 
     func updateIsBestFlag() async {
         let bestRate = await bestByRateProvider()
+
+        let enabledProvidersMoreThanOne = await availableProviders
+            .asyncCompactMap { provider -> ExpressQuote? in
+                let state = await provider.getState()
+                return state.quote
+            }
+            .count > 1
+
         availableProviders.forEach { provider in
-            // We set the `isBest` flag only if provider is not a single
-            let providersMoreThanOne: Bool = availableProviders.count > 1
-            provider.isBest = providersMoreThanOne && provider.provider == bestRate?.provider
+            // We set the `isBest` flag only if we have more than one enabled provider
+            provider.isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
 
             ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
         }
