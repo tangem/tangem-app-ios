@@ -111,22 +111,21 @@ private extension CommonCryptoAccountsRepository {
             }
         }
 
-        func edit(accountWithDerivationIndex derivationIndex: Int, editBlock: @escaping (inout StoredCryptoAccount) -> Void) {
-            // This combined read-write operation must be atomic, hence the barrier flag
+        func appendNewOrUpdateExisting(account: StoredCryptoAccount) {
             workingQueue.async(flags: .barrier) {
-                let currentItems = self.unsafeFetch()
+                var editedItems = self.unsafeFetch()
+                var isDirty = false
 
-                // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
-                guard let targetIndex = currentItems.firstIndex(where: { $0.derivationIndex == derivationIndex }) else {
-                    assertionFailure("CommonCryptoAccountsRepository.Storage: No account with derivation index \(derivationIndex) found")
-                    return
+                if let targetIndex = editedItems.firstIndex(where: { $0.derivationIndex == account.derivationIndex }) {
+                    isDirty = editedItems[targetIndex] != account
+                    editedItems[targetIndex] = account
+                } else {
+                    isDirty = true
+                    editedItems.append(account)
                 }
 
-                var editedItems = currentItems
-                editBlock(&editedItems[targetIndex])
-
-                if editedItems[targetIndex] != currentItems[targetIndex] {
-                    self.unsafeSave(currentItems)
+                if isDirty {
+                    self.unsafeSave(editedItems)
                 }
             }
         }
@@ -137,11 +136,11 @@ private extension CommonCryptoAccountsRepository {
                 let currentItems = self.unsafeFetch()
                 var editedItems = currentItems
 
-                // Every wallet has its own storage, therefore account uniqueness is guaranteed by derivation index
                 editedItems.removeAll(where: predicate)
+                let isDirty = editedItems.count != currentItems.count
 
-                if editedItems.count != currentItems.count {
-                    self.unsafeSave(currentItems)
+                if isDirty {
+                    self.unsafeSave(editedItems)
                 }
             }
         }
