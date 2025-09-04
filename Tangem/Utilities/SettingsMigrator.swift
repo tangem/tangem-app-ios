@@ -41,7 +41,6 @@ enum SettingsMigrator {
         AppSettings.shared.saveUserWallets = true
     }
 
-
     private static func cleanStorageIfNeeded() {
         guard !AppSettings.shared.saveUserWallets else {
             return
