@@ -15,4 +15,14 @@ enum WalletConnectTransactionRequestProcessingError: Error {
     case blockchainToAddRequiresDAppReconnection(Blockchain)
     case blockchainToAddIsMissingFromUserWallet(Blockchain)
     case userWalletNotFound
+    case missingBlockchains([String])
+    case unsupportedMethod(String)
+    case notEnoughDataInRequest(String)
+    case dataInWrongFormat(String)
+    case missingTransaction
+    case walletModelNotFound(String)
+    case wrongCardSelected
+    case userWalletRepositoryIsLocked
+    case missingActiveUserWalletModel
+    case userWalletIsLocked
 }
