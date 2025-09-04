@@ -20,7 +20,7 @@ struct SellFlowBaseBuilder {
 
     func makeSendViewModel(sellParameters: PredefinedSellParameters, router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
-        let analyticsLogger = builder.makeSendAnalyticsLogger(coordinatorSource: coordinatorSource)
+        let analyticsLogger = builder.makeSendAnalyticsLogger(sendType: .sell)
         let sendModel = builder.makeSendModel(analyticsLogger: analyticsLogger, predefinedSellParameters: sellParameters)
         let sendFeeProvider = builder.makeSendFeeProvider(input: sendModel)
         let customFeeService = builder.makeCustomFeeService(input: sendModel)
