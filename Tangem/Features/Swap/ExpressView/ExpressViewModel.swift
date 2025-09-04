@@ -111,40 +111,8 @@ final class ExpressViewModel: ObservableObject {
         coordinator?.presentSwappingTokenList(swapDirection: .fromSource(initialWallet))
     }
 
-    func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
-        runTask(in: self) { [weak self] viewModel in
-            guard
-                let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider,
-                let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol
-            else {
-                return
-            }
-
-            let message: String? = { [weak self] in
-                guard let self else { return nil }
-
-                let slippage = formatDoubleToIntString(selectedProvider.slippage)
-
-                switch selectedProvider.type {
-                case .cex:
-                    return formSlippageMessage(tokenItemSymbol: tokenItemSymbol, slippage: slippage)
-                case .dex, .dexBridge:
-                    return formSlippageMessage(
-                        tokenItemSymbol: tokenItemSymbol,
-                        slippage: slippage,
-                        isBigLoss: isBigLoss
-                    )
-                case .onramp, .unknown:
-                    return nil
-                }
-            }()
-
-            guard let message else { return }
-
-            await runOnMain {
-                viewModel.alert = .init(title: "", message: message)
-            }
-        }
+    func userDidTapPriceChangeInfoButton(message: String) {
+        alert = .init(title: "", message: message)
     }
 
     func didTapMainButton() {
@@ -177,42 +145,6 @@ final class ExpressViewModel: ObservableObject {
 
     func didTapCloseButton() {
         coordinator?.closeSwappingView()
-    }
-}
-
-// MARK: - Provider slippage message
-
-private extension ExpressViewModel {
-    func formSlippageMessage(tokenItemSymbol: String, slippage: String?) -> String {
-        if let slippage {
-            return Localization.swappingAlertCexDescriptionWithSlippage(tokenItemSymbol, "\(slippage)%")
-        } else {
-            return Localization.swappingAlertCexDescription(tokenItemSymbol)
-        }
-    }
-
-    func formSlippageMessage(tokenItemSymbol: String, slippage: String?, isBigLoss: Bool) -> String {
-        let swappingAlertDexDescription: String = if let slippage {
-            Localization.swappingAlertDexDescriptionWithSlippage("\(slippage)%")
-        } else {
-            Localization.swappingAlertDexDescription
-        }
-
-        if isBigLoss {
-            return "\(Localization.swappingHighPriceImpactDescription)\n\n\(swappingAlertDexDescription)"
-        }
-
-        return swappingAlertDexDescription
-    }
-
-    func formatDoubleToIntString(_ value: Double?) -> String? {
-        guard let value else { return nil }
-
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(Int(value))
-        } else {
-            return String(value)
-        }
     }
 }
 
@@ -428,14 +360,6 @@ private extension ExpressViewModel {
         )
     }
 
-    func updateHighPricePercentLabel(quote: ExpressQuote?) {
-        receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(
-            quote: quote,
-            sourceCurrencyId: interactor.getSender().tokenItem.currencyId,
-            destinationCurrencyId: interactor.getDestination()?.tokenItem.currencyId
-        )
-    }
-
     // MARK: - Toolbar
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
@@ -460,7 +384,7 @@ private extension ExpressViewModel {
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
-            updateHighPricePercentLabel(quote: .none)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
         case .loading(let type):
             isSwapButtonLoading = true
@@ -470,12 +394,12 @@ private extension ExpressViewModel {
 
             receiveCurrencyViewModel?.update(cryptoAmountState: .loading)
             receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
-            updateHighPricePercentLabel(quote: .none)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
         case .restriction(let restriction, let quote):
             isSwapButtonLoading = false
             updateFiatValue(expectAmount: quote?.expectAmount)
-            updateHighPricePercentLabel(quote: quote)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
 
             // restart timer for pending approve transaction
             switch restriction {
@@ -490,7 +414,7 @@ private extension ExpressViewModel {
             restartTimer()
 
             updateFiatValue(expectAmount: quote.expectAmount)
-            updateHighPricePercentLabel(quote: quote)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
         }
     }
 
@@ -642,26 +566,13 @@ private extension ExpressViewModel {
             option: .exchangeRate
         )
 
-        let badge: ProviderRowViewModel.Badge? = await {
-            let allProviders = await interactor.getAllProviders().filter { $0.isAvailable }
-
-            // We should show the "FCA" badge only when we have a UK geo
-            if ukGeoDefiner.isUK,
-               ExpressConstants.expressProvidersFCAWarningList.contains(selectedProvider.provider.id) {
-                return .fcaWarning
-            }
-
-            // We should show the "bestRate" badge only when we have a choose
-            guard allProviders.count > 1 else {
-                return .none
-            }
-
-            if selectedProvider.provider.recommended == true {
-                return .recommended
-            }
-
-            return selectedProvider.isBest ? .bestRate : .none
-        }()
+        let providerBadge = await expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+        let badge: ProviderRowViewModel.Badge? = switch providerBadge {
+        case .none: .none
+        case .bestRate: .bestRate
+        case .fcaWarning: .fcaWarning
+        case .permissionNeeded: .permissionNeeded
+        }
 
         return ProviderRowViewModel(
             provider: expressProviderFormatter.mapToProvider(provider: selectedProvider.provider),
@@ -785,7 +696,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .unlock,
              .openReferralProgram,
              .addTokenTrustline,
-             .openHotFinishActivation:
+             .openMobileFinishActivation:
             return
         }
     }
@@ -847,7 +758,7 @@ private extension ExpressViewModel {
     func startTimer() {
         ExpressLogger.info("Start timer")
         refreshDataTimer = Just(())
-            .delay(for: 10, scheduler: RunLoop.main)
+            .delay(for: 10, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 ExpressLogger.info("Timer call autoupdate")
                 self?.interactor.refresh(type: .refreshRates)

@@ -66,5 +66,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             ) {
                 PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: ReceiveMainViewModel.self) {
+                ReceiveMainView(viewModel: $0)
+            }
     }
 }
