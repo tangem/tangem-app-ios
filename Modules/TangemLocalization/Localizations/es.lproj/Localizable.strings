@@ -35,6 +35,7 @@
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
+"account_main_account_title" = "Main account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -263,7 +264,7 @@
 "common_origin_ring" = "Anillo primario";
 "common_passphrase" = "Frase de contraseña";
 "common_paste" = "Pegar";
-"common_privacy_policy" = "Política de privacidad";
+"common_privacy_policy" = "Política de privacidad";
 "common_range_with_space" = "%1$@ — %2$@";
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "Leer más";
@@ -303,7 +304,7 @@
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "términos y condiciones";
-"common_terms_of_use" = "Condiciones de uso";
+"common_terms_of_use" = "Condiciones de uso";
 "common_today" = "Hoy";
 "common_transaction_failed" = "Transacción fallida";
 "common_transaction_status" = "Estado de la transacción";
@@ -809,6 +810,7 @@
 "onboarding_wallet_info_title_fourth" = "Restaurar código de acceso";
 "onboarding_wallet_info_title_second" = "Tarjetas idénticas";
 "onboarding_wallet_info_title_third" = "Código de acceso";
+"onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Disponible con %@";
 "onramp_choose_provider_title_hint" = "La compra de criptomonedas en Tangem se lleva a cabo utilizando proveedores externos.";
 "onramp_country_search" = "Buscar por país";
@@ -816,13 +818,20 @@
 "onramp_currency_other" = "Otras monedas";
 "onramp_currency_popular" = "Monedas Fiats Populares";
 "onramp_currency_search" = "Buscar por moneda";
+"onramp_instant_status" = "Instant";
 "onramp_legal" = "Al utilizar la funcionalidad onramp, acepta %1$@ y %2$@ del proveedor.";
 "onramp_max_amount_restriction" = "El monto de la compra no debe ser mayor a %@";
 "onramp_min_amount_restriction" = "La cantidad a comprar debe ser como mínimo %@";
 "onramp_no_available_providers" = "No hay proveedores disponibles para esta moneda";
+"onramp_offer_type_fastet" = "Fastest";
 "onramp_pay_with" = "Pagar con";
+"onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Disponible hasta %@";
 "onramp_provider_min_amount" = "Disponible desde %@";
+"onramp_providers_count" = "%d providers";
+"onramp_providers_subtitle" = "Providers";
+"onramp_recently_used_title" = "Recently used";
+"onramp_recommended_title" = "Recommended";
 "onramp_redirecting_to_provider_subtitle" = "Podrá completar su transacción en el proveedor externo, %@";
 "onramp_redirecting_to_provider_title" = "Redirigiendo a %@...";
 "onramp_residency_bottomsheet_country_not_supported" = "Nuestros servicios no están disponibles en este país";
@@ -831,6 +840,8 @@
 "onramp_settings_residence" = "Residencia";
 "onramp_settings_title" = "Ajustes";
 "onramp_statuses_view_footer" = "Puede comprobar el estado de la transacción desde la página del token.";
+"onramp_timing_minutes" = "%@ min";
+"onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "You will pay";
@@ -1483,7 +1494,7 @@
 "warning_receive_blocked_token_trustline_required_message" = "Debe abrir una trustline para su token antes de recibirlo";
 "warning_rent_fee_title" = "Se requiere tarifa de alquiler de red";
 "warning_seedphrase_action_required_title" = "Acción requerida";
-"warning_seedphrase_contacted_support" = "¿Se puso en contacto con el servicio de soporte a través de la app en los 7 días posteriores a la creación de la billetera? Si lo hiciste o no estás seguro, pulse en \"Sí\" y complete las instrucciones.";
+"warning_seedphrase_contacted_support" = "¿Se puso en contacto con el servicio de soporte a través de la app en los 7 días posteriores a la creación de la billetera? Si lo hizo o no está seguro, pulse en \"Sí\" y complete las instrucciones.";
 "warning_seedphrase_issue_answer_no" = "¡Gracias! ¡Todo listo! No se requieren más acciones.";
 "warning_seedphrase_issue_answer_yes" = "Ahora será redirigido al sitio web oficial de Tangem. Por favor, lea y siga las instrucciones allí indicadas.";
 "warning_seedphrase_issue_message" = "¿Alguna vez contactó al equipo de soporte de Tangem directamente desde esta aplicación?";
@@ -1658,6 +1669,7 @@
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";
