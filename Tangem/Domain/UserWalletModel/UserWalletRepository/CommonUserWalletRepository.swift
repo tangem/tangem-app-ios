@@ -170,7 +170,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
-            userWalletDataStorage.clear(userWalletIds: userWalletIds)
+            userWalletDataStorage.clear()
             encryptionKeyStorage.clear(userWalletIds: userWalletIds)
 
             let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
