@@ -30,7 +30,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
-    @Published var yieldAccountPromoCoordinator: YieldAccountPromoCoordinator? = nil
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -122,21 +122,22 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldAccountPromoView(startEarningAction: @escaping () -> Void, info: YieldAccountPromoInfo) {
-        let coordinator = YieldAccountPromoCoordinator()
+    func openYieldModulePromoView(startEarningAction: @escaping () -> Void, info: YieldModulePromoInfo) {
+        let coordinator = YieldModulePromoCoordinator()
 
-        let options = YieldAccountPromoCoordinator.Options(
+        let options = YieldModulePromoCoordinator.Options(
+            tokenName: info.tokenName,
             startEarningAction: startEarningAction,
             annualYield: info.annualYield,
             currentFee: info.currentFee,
             maxFee: info.maxFee,
-            networkName: info.networkName,
+            blockchainName: info.blockchainName,
             lastYearReturns: info.lastYearReturns,
             tokenImage: info.tokenImage
         )
 
         coordinator.start(with: options)
-        yieldAccountPromoCoordinator = coordinator
+        yieldModulePromoCoordinator = coordinator
     }
 }
 

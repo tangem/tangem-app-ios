@@ -34,7 +34,7 @@ struct TokenDetailsView: View {
                     NotificationView(input: input)
                 }
 
-                Button(action: viewModel.openYieldAccountPromo) {
+                Button(action: viewModel.openYieldModulePromo) {
                     Text("Open promo")
                 }
                 .buttonStyle(.tangemStyle)
