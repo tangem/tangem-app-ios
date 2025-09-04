@@ -828,7 +828,6 @@
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
 "onramp_provider_min_amount" = "Available from %@";
-"onramp_providers_count" = "%d providers";
 "onramp_providers_subtitle" = "Providers";
 "onramp_recently_used_title" = "Recently used";
 "onramp_recommended_title" = "Recommended";
@@ -843,6 +842,7 @@
 "onramp_timing_minutes" = "%@ min";
 "onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
+"onramp_up_to_rate" = "Up to";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Group";
@@ -985,7 +985,7 @@
 "send_recent_transactions" = "Recent";
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer_highlighted_part" = "send to %@";
-"send_recipient_address_footer_v2" = "Ensure you %@ network address, as errors may result in lost transfers";
+"send_recipient_address_footer_v2" = "Make sure you are sending to an address on the %@ network. An error may result in the loss of funds.";
 "send_recipient_address_footer" = "Ensure the receiving wallet address is on **the %@ network** to avoid losing your tokens";
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
@@ -1663,12 +1663,13 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave is trusted by millions worldwide. Total lended value is $10.4B.";
 "yield_module_promo_screen_self_custodial_title" = "Decentralized and self-custodial";
 "yield_module_promo_screen_terms_disclaimer" = "By using service, you agree with provider";
-"yield_module_promo_screen_title" = "Maximize your savings";
+"yield_module_promo_screen_title" = "Earn %@% yearly";
 "yield_module_promo_screen_variable_rate_info" = "Aave • Variable Interest Rate";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";
