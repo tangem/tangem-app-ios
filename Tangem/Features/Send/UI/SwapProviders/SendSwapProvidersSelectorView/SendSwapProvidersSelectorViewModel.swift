@@ -127,13 +127,17 @@ private extension SendSwapProvidersSelectorViewModel {
                     return nil
                 }
 
-                return await mapToSendSwapProvidersSelectorProviderViewData(availableProvider: provider)
+                return await mapToSendSwapProvidersSelectorProviderViewData(
+                    availableProvider: provider
+                )
             }
 
         return viewModels
     }
 
-    func mapToSendSwapProvidersSelectorProviderViewData(availableProvider: ExpressAvailableProvider) async -> SendSwapProvidersSelectorProviderViewData {
+    func mapToSendSwapProvidersSelectorProviderViewData(
+        availableProvider: ExpressAvailableProvider
+    ) async -> SendSwapProvidersSelectorProviderViewData {
         let senderCurrencyCode = tokenItem.currencySymbol
         let destinationCurrencyCode = receiveTokenInput?.receiveToken.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
