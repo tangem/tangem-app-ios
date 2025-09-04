@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 enum AnalyticsContextScope {
     case common
