@@ -35,6 +35,7 @@
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
 "account_label_tokens_info" = "%1$@ in %2$@";
+"account_main_account_title" = "Main account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -263,7 +264,7 @@
 "common_origin_ring" = "Bague principale";
 "common_passphrase" = "Passphrase";
 "common_paste" = "Coller";
-"common_privacy_policy" = "Politique de confidentialité";
+"common_privacy_policy" = "Politique de confidentialité";
 "common_range_with_space" = "%1$@ — %2$@";
 "common_range" = "%1$@-%2$@";
 "common_read_more" = "En savoir plus";
@@ -303,7 +304,7 @@
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "termes et conditions";
-"common_terms_of_use" = "Conditions d'utilisation";
+"common_terms_of_use" = "Conditions d'utilisation";
 "common_today" = "Aujourd'hui";
 "common_transaction_failed" = "La transaction a échoué";
 "common_transaction_status" = "Statut de la transaction";
@@ -809,6 +810,7 @@
 "onboarding_wallet_info_title_fourth" = "Restauration du code d'accès";
 "onboarding_wallet_info_title_second" = "Cartes identiques";
 "onboarding_wallet_info_title_third" = "Code d'accès";
+"onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Disponible avec %@";
 "onramp_choose_provider_title_hint" = "L'achat de crypto-monnaies sur Tangem est assuré par des fournisseurs tiers selon leurs conditions.";
 "onramp_country_search" = "Recherche par pays";
@@ -816,13 +818,20 @@
 "onramp_currency_other" = "Autres devises";
 "onramp_currency_popular" = "Devises Fiats Populaires";
 "onramp_currency_search" = "Recherche par devise";
+"onramp_instant_status" = "Instant";
 "onramp_legal" = "En utilisant la fonctionnalité onramp, vous acceptez %1$@ et %2$@ du fournisseur";
 "onramp_max_amount_restriction" = "Le montant de l'achat ne doit pas dépasser %@";
 "onramp_min_amount_restriction" = "Le montant à acheter doit être au moins %@";
 "onramp_no_available_providers" = "Aucun fournisseur disponible pour cette devise";
+"onramp_offer_type_fastet" = "Fastest";
 "onramp_pay_with" = "Payer avec";
+"onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Disponible jusqu'à %@";
 "onramp_provider_min_amount" = "Disponible à partir de %@";
+"onramp_providers_count" = "%d providers";
+"onramp_providers_subtitle" = "Providers";
+"onramp_recently_used_title" = "Recently used";
+"onramp_recommended_title" = "Recommended";
 "onramp_redirecting_to_provider_subtitle" = "Vous pourrez finaliser votre transaction sur le fournisseur tiers, %@";
 "onramp_redirecting_to_provider_title" = "Redirection vers %@...";
 "onramp_residency_bottomsheet_country_not_supported" = "Nos services ne sont pas disponibles dans ce pays";
@@ -831,6 +840,8 @@
 "onramp_settings_residence" = "Résidence";
 "onramp_settings_title" = "Paramètres";
 "onramp_statuses_view_footer" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton.";
+"onramp_timing_minutes" = "%@ min";
+"onramp_title_you_get" = "You get";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
@@ -1658,6 +1669,7 @@
 "yield_module_rate_info_sheet_chart_average" = "Avg %@";
 "yield_module_rate_info_sheet_chart_title" = "Last year returns";
 "yield_module_rate_info_sheet_description" = "Current interest rate is always variable and automatically computed by AAVE on-chain smart-contract based on real-time supply and demand.";
+"yield_module_rate_info_sheet_powered_by" = "Powered by";
 "yield_module_rate_info_sheet_title" = "Interest rate is variable";
 "yield_module_receive_sheet_description" = "When you top up, your funds will be automatically sent to Aave to start earning interest. A small fee equal to %@ will be deducted to cover the transaction.";
 "yield_module_start_earning_sheet_bottom_button_title" = "Start earning";
