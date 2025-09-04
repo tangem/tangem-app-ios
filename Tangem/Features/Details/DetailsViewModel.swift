@@ -263,12 +263,6 @@ private extension DetailsViewModel {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
         setupBuyWalletViewModel()
-
-        // [REDACTED_TODO_COMMENT]
-//        tangemPayRowViewModel = TangemPayRowViewModel(isKYCInProgress: false) { [weak coordinator] in
-//            coordinator?.openTangemPayOfferViewModel()
-//        }
-
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -314,7 +308,7 @@ private extension DetailsViewModel {
 
     func setupUserWalletViewModels() {
         userWalletsViewModels = userWalletRepository.models.map { userWallet in
-            .init(userWallet: userWallet) { [weak self] in
+            SettingsUserWalletRowViewModel(userWallet: userWallet) { [weak self] in
                 self?.coordinator?.openWalletSettings(options: userWallet)
             }
         }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct WalletConnectRowView: View {
     private let viewModel: WalletConnectRowViewModel
@@ -40,5 +41,6 @@ struct WalletConnectRowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.detailsButton)
     }
 }
