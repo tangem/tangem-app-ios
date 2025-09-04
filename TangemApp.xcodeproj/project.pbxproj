@@ -49,6 +49,7 @@
 		0A83F56C2DD3609400ADB321 /* MarketsNotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */; };
 		0A8DD9772E018F1500783A9E /* MobileWalletImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8DD9762E018F1500783A9E /* MobileWalletImageProvider.swift */; };
 		0A8E6CE42E697F85004ABC72 /* YieldServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E6CE32E697F85004ABC72 /* YieldServiceError.swift */; };
+		0A8E6D0C2E69C878004ABC72 /* ReactivateTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */; };
 		0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */; };
 		0A917D822D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */; };
 		0A92AE8E2E6590BA00CDB659 /* ReservedDataMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */; };
@@ -4207,6 +4208,7 @@
 		0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNotificationsManager.swift; sourceTree = "<group>"; };
 		0A8DD9762E018F1500783A9E /* MobileWalletImageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletImageProvider.swift; sourceTree = "<group>"; };
 		0A8E6CE32E697F85004ABC72 /* YieldServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldServiceError.swift; sourceTree = "<group>"; };
+		0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactivateTokenMethod.swift; sourceTree = "<group>"; };
 		0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
 		0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReservedDataMethod.swift; sourceTree = "<group>"; };
@@ -12938,6 +12940,7 @@
 				0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */,
 				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
 				0A92AE8D2E6590BA00CDB659 /* ReservedDataMethod.swift */,
+				0A8E6D0B2E69C878004ABC72 /* ReactivateTokenMethod.swift */,
 			);
 			path = SmartContractMethods;
 			sourceTree = "<group>";
@@ -25568,6 +25571,7 @@
 				2DB1D7032D56978D00AD43A3 /* ALPH+Tuple2Serde.swift in Sources */,
 				2DB1D7042D56978D00AD43A3 /* ALPH+TxUtils.swift in Sources */,
 				2DB1D7052D56978D00AD43A3 /* ALPH+OutputType.swift in Sources */,
+				0A8E6D0C2E69C878004ABC72 /* ReactivateTokenMethod.swift in Sources */,
 				EF2E71C32D9F2C95007440BE /* RadiantNetworkParams.swift in Sources */,
 				EF42FC6E2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift in Sources */,
 				2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */,
