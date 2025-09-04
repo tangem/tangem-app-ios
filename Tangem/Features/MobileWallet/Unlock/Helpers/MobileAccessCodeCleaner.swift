@@ -11,13 +11,15 @@ import Combine
 import TangemFoundation
 
 final class MobileAccessCodeCleaner {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    private let manager: MobileAccessCodeStorageManager
-    private var bag: Set<AnyCancellable> = []
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
 
-    init(manager: MobileAccessCodeStorageManager) {
-        self.manager = manager
-    }
+    @Injected(\.sessionMobileAccessCodeStorageManager)
+    private var sessionStorageManager: MobileAccessCodeStorageManager
+
+    private let commonStorageManager: MobileAccessCodeStorageManager = CommonMobileAccessCodeStorageManager()
+
+    private var bag: Set<AnyCancellable> = []
 }
 
 // MARK: - Private methods
@@ -57,7 +59,8 @@ private extension MobileAccessCodeCleaner {
     }
 
     func cleanWrongAccessCode(userWalletId: UserWalletId) {
-        manager.removeWrongAccessCode(userWalletId: userWalletId)
+        commonStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
+        sessionStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
     }
 
     func cleanSkippedAccessCode(userWalletId: UserWalletId) {
