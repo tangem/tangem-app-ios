@@ -96,7 +96,7 @@ public final class CommonYieldTokenService: YieldTokenService {
         async let protocolBalance = evmSmartContractInteractor.ethCall(request: protocolRequest).async()
 
         return try await YieldResponseMapper.mapBalances(
-            protocolBalance: effectiveBalance,
+            protocolBalance: protocolBalance,
             effectiveBalance: effectiveBalance
         )
     }
