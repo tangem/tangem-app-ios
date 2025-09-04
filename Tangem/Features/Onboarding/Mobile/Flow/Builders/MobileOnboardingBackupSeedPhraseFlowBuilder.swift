@@ -24,6 +24,8 @@ final class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBui
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: .close(handler: { [weak self] in
+                    Analytics.log(.backupNoticeCanceled)
+
                     self?.closeOnboarding()
                 })
             )
@@ -91,6 +93,7 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
 
 extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhraseValidationDelegate {
     func didValidateSeedPhrase() {
+        Analytics.log(event: .backupFinished, params: [.cardsCount: String(0)])
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
     }
