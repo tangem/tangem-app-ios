@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol VisaTransactionHistoryAPIService {
-    func loadHistoryPage(productInstanceId: String, cardId: String, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO
+    func loadHistoryPage(productInstanceId: String, cardId: String?, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO
 }
 
 struct CommonTransactionHistoryService {
@@ -31,7 +31,7 @@ struct CommonTransactionHistoryService {
 }
 
 extension CommonTransactionHistoryService: VisaTransactionHistoryAPIService {
-    func loadHistoryPage(productInstanceId: String, cardId: String, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO {
+    func loadHistoryPage(productInstanceId: String, cardId: String?, offset: Int, numberOfItemsPerPage: Int) async throws -> VisaTransactionHistoryDTO {
         return try await apiService.request(
             .init(
                 authorizationHeader: authorizationTokensHandler.authorizationHeader,
