@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct YieldInfo: Hashable {
+public struct StakingYieldInfo: Hashable {
     public let id: String
     public let isAvailable: Bool
 
