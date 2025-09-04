@@ -101,7 +101,7 @@
 		0AF4062F2E5F1142006DC3DF /* InitYieldTokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */; };
 		0AF406312E5F1A82006DC3DF /* EnterProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */; };
 		0AF406332E5F1DA5006DC3DF /* SendMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406322E5F1DA5006DC3DF /* SendMethod.swift */; };
-		0AF406352E5F2A11006DC3DF /* ExitProtocolMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */; };
+		0AF406352E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */; };
 		0AF406372E5F2B21006DC3DF /* YieldSmartContractMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */; };
 		0AF406392E5F31CC006DC3DF /* EffectiveBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */; };
 		0AF4063B2E5F3203006DC3DF /* ProtocolBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */; };
@@ -4264,7 +4264,7 @@
 		0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitYieldTokenMethod.swift; sourceTree = "<group>"; };
 		0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterProtocolMethod.swift; sourceTree = "<group>"; };
 		0AF406322E5F1DA5006DC3DF /* SendMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMethod.swift; sourceTree = "<group>"; };
-		0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitProtocolMethod.swift; sourceTree = "<group>"; };
+		0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawAndDeactivateMethod.swift; sourceTree = "<group>"; };
 		0AF406362E5F2B21006DC3DF /* YieldSmartContractMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldSmartContractMethod.swift; sourceTree = "<group>"; };
 		0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectiveBalanceMethod.swift; sourceTree = "<group>"; };
 		0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolBalanceMethod.swift; sourceTree = "<group>"; };
@@ -12932,7 +12932,7 @@
 				0AF4062C2E5F0FAC006DC3DF /* DeployYieldModuleMethod.swift */,
 				0AF4062E2E5F1142006DC3DF /* InitYieldTokenMethod.swift */,
 				0AF406302E5F1A82006DC3DF /* EnterProtocolMethod.swift */,
-				0AF406342E5F2A11006DC3DF /* ExitProtocolMethod.swift */,
+				0AF406342E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift */,
 				0AF406322E5F1DA5006DC3DF /* SendMethod.swift */,
 				0AF406382E5F31CC006DC3DF /* EffectiveBalanceMethod.swift */,
 				0AF4063A2E5F3203006DC3DF /* ProtocolBalanceMethod.swift */,
@@ -25994,7 +25994,7 @@
 				B62D407D2CBC79DA00C2460E /* DogecoinNetworkParams.swift in Sources */,
 				B62D41352CBC79DA00C2460E /* NEARNetworkParams.Transaction.swift in Sources */,
 				B62D41652CBC79DA00C2460E /* PolkadotNetworkService.swift in Sources */,
-				0AF406352E5F2A11006DC3DF /* ExitProtocolMethod.swift in Sources */,
+				0AF406352E5F2A11006DC3DF /* WithdrawAndDeactivateMethod.swift in Sources */,
 				2DB071EC2E2505CE00E9F789 /* SolanaALTTransactionService.swift in Sources */,
 				B62D416A2CBC79DA00C2460E /* SubstrateRuntimeVersion.swift in Sources */,
 				B62D40482CBC79DA00C2460E /* CardanoAPIResolver.swift in Sources */,
