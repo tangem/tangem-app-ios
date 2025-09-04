@@ -19,15 +19,7 @@ public struct InitYieldTokenMethod {
     }
 }
 
-extension InitYieldTokenMethod: SmartContractMethod {
+extension InitYieldTokenMethod: YieldSmartContractMethod {
     /// - Note: First 4 bytes of Keccak-256 hash for the `initYieldToken(address,uint240)` method.
     public var methodId: String { "0xebd4b81c" }
-
-    public var data: Data {
-        let methodId = Data(hex: methodId)
-        let yieldTokenAddress = Data(hexString: yieldTokenAddress).leadingZeroPadding(toLength: 32)
-        let maxNetworkFee = maxNetworkFee.serialize().leadingZeroPadding(toLength: 32)
-
-        return methodId + yieldTokenAddress + maxNetworkFee
-    }
 }
