@@ -9,10 +9,10 @@
 import Foundation
 import BigInt
 
-protocol YieldSmartContractMethod: SmartContractMethod {}
+public protocol YieldSmartContractMethod: SmartContractMethod {}
 
-extension YieldSmartContractMethod {
-    public var data: Data {
+public extension YieldSmartContractMethod {
+    var data: Data {
         var data = Data(hex: methodId)
 
         let mirror = Mirror(reflecting: self)
