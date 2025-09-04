@@ -1,5 +1,5 @@
 //
-//  YieldAccountCoordinatorView.swift
+//  YieldModuleCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,17 +10,17 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct YieldAccountPromoCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: YieldAccountPromoCoordinator
+struct YieldModulePromoCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: YieldModulePromoCoordinator
 
-    init(coordinator: YieldAccountPromoCoordinator) {
+    init(coordinator: YieldModulePromoCoordinator) {
         self.coordinator = coordinator
     }
 
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                YieldAccountPromoView(viewModel: viewModel)
+                YieldModulePromoView(viewModel: viewModel)
             }
 
             sheets
@@ -30,9 +30,6 @@ struct YieldAccountPromoCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .floatingSheetContent(for: YieldInterestRateSheetViewModel.self) {
-                YieldInterestRateSheetView(viewModel: $0)
-            }
             .floatingSheetContent(for: YieldPromoBottomSheetViewModel.self) {
                 YieldPromoBottomSheetView(viewModel: $0)
             }

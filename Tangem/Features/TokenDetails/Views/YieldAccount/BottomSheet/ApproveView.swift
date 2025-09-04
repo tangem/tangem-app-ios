@@ -1,5 +1,5 @@
 //
-//  StartEarningView.swift
+//  ApproveView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,11 +12,11 @@ import TangemUI
 import TangemLocalization
 
 extension YieldPromoBottomSheetView {
-    struct StartEarningView: View {
+    struct ApproveView: View {
         // MARK: - Properties
 
         let fee: String
-        let showFeePolicyAction: () -> Void
+        let readMoreAction: () -> Void
 
         // MARK: - View Body
 
@@ -27,18 +27,18 @@ extension YieldPromoBottomSheetView {
         // MARK: - Sub Views
 
         private var feePolicyText: some View {
-            var attr = AttributedString(Localization.yieldModuleStartEarningSheetNextDeposits)
+            var attr = AttributedString(Localization.yieldModuleApproveSheetFeeNote)
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
-            var linkPart = AttributedString(Localization.yieldModuleStartEarningSheetFeePolicy)
+            var linkPart = AttributedString(Localization.yieldModuleEarnSheetReadMore)
             linkPart.font = Fonts.Regular.footnote
             linkPart.foregroundColor = Colors.Text.accent
 
             attr.append(linkPart)
 
             return Text(attr)
-                .onTapGesture { showFeePolicyAction() }
+                .onTapGesture { readMoreAction() }
                 .fixedSize(horizontal: false, vertical: true)
         }
 
