@@ -11,16 +11,25 @@ import BigInt
 
 public enum YieldTokenState {
     case notDeployed
-    case notInitialized(yieldToken: String)
-    case initialized(activeState: ActiveState)
+    case deployed(DeployedState)
+
+    public struct DeployedState {
+        public let yieldToken: String
+        public let initializationState: InitializationState
+
+        public init(yieldToken: String, initializationState: InitializationState) {
+            self.yieldToken = yieldToken
+            self.initializationState = initializationState
+        }
+    }
+
+    public enum InitializationState {
+        case notInitialized
+        case initialized(activeState: ActiveState)
+    }
 
     public enum ActiveState {
         case notActive
-        case active(ActiveStateInfo)
-    }
-
-    public struct ActiveStateInfo {
-        public let yieldToken: String
-        public let maxNetworkFee: BigUInt
+        case active(maxNetworkFee: BigUInt)
     }
 }
