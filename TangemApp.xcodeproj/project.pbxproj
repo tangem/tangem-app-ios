@@ -3142,8 +3142,10 @@
 		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
 		EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */; };
 		EA0DB86C2E24074D008BFBB2 /* StellarAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */; };
-		EA0EDD812E61DEDA00BCA426 /* YieldAccountPromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD7F2E61DEDA00BCA426 /* YieldAccountPromoView.swift */; };
-		EA0EDD832E61DEE700BCA426 /* YieldAccountPromoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD822E61DEE700BCA426 /* YieldAccountPromoViewModel.swift */; };
+		EA0EDD812E61DEDA00BCA426 /* YieldModulePromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD7F2E61DEDA00BCA426 /* YieldModulePromoView.swift */; };
+		EA0EDD832E61DEE700BCA426 /* YieldModulePromoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0EDD822E61DEE700BCA426 /* YieldModulePromoViewModel.swift */; };
+		EA186D8A2E68884D00F6DFEA /* StopEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA186D892E68884D00F6DFEA /* StopEarningView.swift */; };
+		EA186DAE2E68943000F6DFEA /* ApproveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA186DAD2E68943000F6DFEA /* ApproveView.swift */; };
 		EA2961912DF999D100BC651C /* DucatusTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */; };
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
 		EA4032352E54C11E00573568 /* PromocodeActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4032332E54C11E00573568 /* PromocodeActivationView.swift */; };
@@ -3168,11 +3170,11 @@
 		EAC5CBD92E3BA44B009E5886 /* StellarTrustlineUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC5CBD82E3BA44B009E5886 /* StellarTrustlineUtils.swift */; };
 		EAD10C5C2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */; };
 		EAD10C5E2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */; };
-		EAD2AA6E2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */; };
-		EAD2AA702E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6F2E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift */; };
-		EAD2AA742E66C30300AAAFBB /* YieldAccountCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA732E66C30300AAAFBB /* YieldAccountCoordinatorView.swift */; };
+		EAD2AA6E2E66ABFA00AAAFBB /* InterestRateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6D2E66ABFA00AAAFBB /* InterestRateInfo.swift */; };
+		EAD2AA702E66BA4400AAAFBB /* YieldModulePromoCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA6F2E66BA4400AAAFBB /* YieldModulePromoCoordinator.swift */; };
+		EAD2AA742E66C30300AAAFBB /* YieldModuleCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA732E66C30300AAAFBB /* YieldModuleCoordinatorView.swift */; };
 		EAD2AA762E66FCB700AAAFBB /* StartEarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */; };
-		EAD2AA782E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */; };
+		EAD2AA782E67072100AAAFBB /* YieldModuleBottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD2AA772E67072100AAAFBB /* YieldModuleBottomSheetContainer.swift */; };
 		EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */; };
 		EAF545FC2E0C803000CF7343 /* DeeplinkValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */; };
 		EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */; };
@@ -7225,8 +7227,10 @@
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EA0A284D2E04519100A8353B /* PendingTransactionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionDetails.swift; sourceTree = "<group>"; };
 		EA0DB86B2E24074D008BFBB2 /* StellarAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarAssetIdParser.swift; sourceTree = "<group>"; };
-		EA0EDD7F2E61DEDA00BCA426 /* YieldAccountPromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountPromoView.swift; sourceTree = "<group>"; };
-		EA0EDD822E61DEE700BCA426 /* YieldAccountPromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountPromoViewModel.swift; sourceTree = "<group>"; };
+		EA0EDD7F2E61DEDA00BCA426 /* YieldModulePromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoView.swift; sourceTree = "<group>"; };
+		EA0EDD822E61DEE700BCA426 /* YieldModulePromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoViewModel.swift; sourceTree = "<group>"; };
+		EA186D892E68884D00F6DFEA /* StopEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopEarningView.swift; sourceTree = "<group>"; };
+		EA186DAD2E68943000F6DFEA /* ApproveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveView.swift; sourceTree = "<group>"; };
 		EA2961902DF999D100BC651C /* DucatusTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DucatusTransactionTests.swift; sourceTree = "<group>"; };
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
 		EA4032332E54C11E00573568 /* PromocodeActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationView.swift; sourceTree = "<group>"; };
@@ -7251,11 +7255,11 @@
 		EAC5CBD82E3BA44B009E5886 /* StellarTrustlineUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellarTrustlineUtils.swift; sourceTree = "<group>"; };
 		EAD10C5B2DEDC9B8001FA4D0 /* PushNotificationsEventsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEventsLogger.swift; sourceTree = "<group>"; };
 		EAD10C5D2DEDC9EC001FA4D0 /* PushNotificationsEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsEvents.swift; sourceTree = "<group>"; };
-		EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldInterestRateSheetView.swift; sourceTree = "<group>"; };
-		EAD2AA6F2E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountPromoCoordinator.swift; sourceTree = "<group>"; };
-		EAD2AA732E66C30300AAAFBB /* YieldAccountCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountCoordinatorView.swift; sourceTree = "<group>"; };
+		EAD2AA6D2E66ABFA00AAAFBB /* InterestRateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestRateInfo.swift; sourceTree = "<group>"; };
+		EAD2AA6F2E66BA4400AAAFBB /* YieldModulePromoCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModulePromoCoordinator.swift; sourceTree = "<group>"; };
+		EAD2AA732E66C30300AAAFBB /* YieldModuleCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleCoordinatorView.swift; sourceTree = "<group>"; };
 		EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartEarningView.swift; sourceTree = "<group>"; };
-		EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAccountBottomSheetContainer.swift; sourceTree = "<group>"; };
+		EAD2AA772E67072100AAAFBB /* YieldModuleBottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetContainer.swift; sourceTree = "<group>"; };
 		EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigationAction.swift; sourceTree = "<group>"; };
 		EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkValidator.swift; sourceTree = "<group>"; };
 		EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParserTests.swift; sourceTree = "<group>"; };
@@ -18525,8 +18529,8 @@
 			children = (
 				EAD2AA722E66C2F600AAAFBB /* Coordinator */,
 				EAFCD5E22E65A7FE0038169B /* BottomSheet */,
-				EA0EDD7F2E61DEDA00BCA426 /* YieldAccountPromoView.swift */,
-				EA0EDD822E61DEE700BCA426 /* YieldAccountPromoViewModel.swift */,
+				EA0EDD7F2E61DEDA00BCA426 /* YieldModulePromoView.swift */,
+				EA0EDD822E61DEE700BCA426 /* YieldModulePromoViewModel.swift */,
 			);
 			path = YieldAccount;
 			sourceTree = "<group>";
@@ -18580,8 +18584,8 @@
 		EAD2AA722E66C2F600AAAFBB /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				EAD2AA6F2E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift */,
-				EAD2AA732E66C30300AAAFBB /* YieldAccountCoordinatorView.swift */,
+				EAD2AA6F2E66BA4400AAAFBB /* YieldModulePromoCoordinator.swift */,
+				EAD2AA732E66C30300AAAFBB /* YieldModuleCoordinatorView.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -18619,9 +18623,11 @@
 				EAFCD5E12E65A7FE0038169B /* YieldPromoBottomSheetView.swift */,
 				EAFCD5E42E65A80B0038169B /* YieldPromoBottomSheetViewModel.swift */,
 				EAFCD60A2E65E3F30038169B /* FeePolicyView.swift */,
-				EAD2AA6D2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift */,
+				EAD2AA6D2E66ABFA00AAAFBB /* InterestRateInfo.swift */,
 				EAD2AA752E66FCB700AAAFBB /* StartEarningView.swift */,
-				EAD2AA772E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift */,
+				EAD2AA772E67072100AAAFBB /* YieldModuleBottomSheetContainer.swift */,
+				EA186D892E68884D00F6DFEA /* StopEarningView.swift */,
+				EA186DAD2E68943000F6DFEA /* ApproveView.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -22259,6 +22265,7 @@
 				EFE7D57E2AA20E2B0047D93A /* TokenPriceChangeView.swift in Sources */,
 				B6ED083A2A7DB99D0090E51F /* UserTokensReorderingOptionsConverter.swift in Sources */,
 				EF6A8B002B2786F900CA3535 /* CommonExpressFeeProvider.swift in Sources */,
+				EA186DAE2E68943000F6DFEA /* ApproveView.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				EF9EA9682B110EEB00AC1DA1 /* ExpressModulesFactory.swift in Sources */,
@@ -22586,6 +22593,7 @@
 				EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */,
 				DC2911B42C623D2C00DF53CC /* StakingTransactionDispatcher.swift in Sources */,
 				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
+				EA186D8A2E68884D00F6DFEA /* StopEarningView.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				DC0568CF2E0CF439008A3770 /* WCCustomAllowanceViewModel.swift in Sources */,
 				DCBF4D272D8B497F002C2B8E /* BSDKTransaction.swift in Sources */,
@@ -22601,7 +22609,7 @@
 				DCBF4D2E2D8B497F002C2B8E /* TwinWalletManagerFactory.swift in Sources */,
 				DCBF4D2F2D8B497F002C2B8E /* TransactionCreator+.swift in Sources */,
 				DCBF4D302D8B497F002C2B8E /* VisaWalletManagerFactory.swift in Sources */,
-				EAD2AA702E66BA4400AAAFBB /* YieldAccountPromoCoordinator.swift in Sources */,
+				EAD2AA702E66BA4400AAAFBB /* YieldModulePromoCoordinator.swift in Sources */,
 				DCBF4D312D8B497F002C2B8E /* HDWalletManagerFactory.swift in Sources */,
 				DCBF4D322D8B497F002C2B8E /* CommonXPUBGenerator.swift in Sources */,
 				DCBF4D332D8B497F002C2B8E /* AnyWalletManagerFactory.swift in Sources */,
@@ -22851,7 +22859,7 @@
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
 				DA90396B2C520DEB002C1E6E /* SendTransactionSummaryDescriptionBuilder.swift in Sources */,
 				B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */,
-				EAD2AA6E2E66ABFA00AAAFBB /* YieldInterestRateSheetView.swift in Sources */,
+				EAD2AA6E2E66ABFA00AAAFBB /* InterestRateInfo.swift in Sources */,
 				DAB5E335297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift in Sources */,
 				B6EE593F2C8B2EB9003A0696 /* ViewHierarchySnapshotting.swift in Sources */,
 				EFE7D57B2AA209990047D93A /* TokenQuote.swift in Sources */,
@@ -23042,7 +23050,7 @@
 				EFC9900C2CD3A70C0098B7C8 /* OnrampPaymentMethodsInputOutput.swift in Sources */,
 				5D39515925597DA5002CC452 /* CommonWalletModel.swift in Sources */,
 				EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */,
-				EA0EDD812E61DEDA00BCA426 /* YieldAccountPromoView.swift in Sources */,
+				EA0EDD812E61DEDA00BCA426 /* YieldModulePromoView.swift in Sources */,
 				C2E60C952D8D80B900093E35 /* FloatingSheetViewModel.swift in Sources */,
 				DC2F88E82E142C3D0034D437 /* Staking+UniversalError.swift in Sources */,
 				0F2786392E2B8B0200742D0F /* MobileOnboardingSeedPhraseIntroStep.swift in Sources */,
@@ -23527,7 +23535,7 @@
 				EFADE7962E0ED8E200CA7916 /* SendNewAmountInteractor.swift in Sources */,
 				EFEE22BA2BFCE3D10099917E /* WithdrawalNotificationEvent.swift in Sources */,
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
-				EAD2AA782E67072100AAAFBB /* YieldAccountBottomSheetContainer.swift in Sources */,
+				EAD2AA782E67072100AAAFBB /* YieldModuleBottomSheetContainer.swift in Sources */,
 				EF6883122CF8B6C400658644 /* OnrampStatusCompactView.swift in Sources */,
 				EFF9A2FD2BD6B45E007C63D2 /* UserWalletSettingsViewModel.swift in Sources */,
 				B6EFF1382D83ACCA00D168AC /* NFTAvailabilityUtil.swift in Sources */,
@@ -23574,7 +23582,7 @@
 				EFE54CDC2D0AF12900D803EB /* ExpressAnalyticsLoggerMock.swift in Sources */,
 				B0F318FD2A739432009F131E /* UserWalletConfigStubs.swift in Sources */,
 				304B815A2DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift in Sources */,
-				EA0EDD832E61DEE700BCA426 /* YieldAccountPromoViewModel.swift in Sources */,
+				EA0EDD832E61DEE700BCA426 /* YieldModulePromoViewModel.swift in Sources */,
 				DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				DCBC945D299404510050BC35 /* CommonAnalyticsContext.swift in Sources */,
@@ -24160,7 +24168,7 @@
 				DCFEFE4A2CF081DD002DFE58 /* ActionButtonsSwapCoordinatorView.swift in Sources */,
 				DC288C002C06553300FF94A0 /* ResetToFactoryService.swift in Sources */,
 				B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */,
-				EAD2AA742E66C30300AAAFBB /* YieldAccountCoordinatorView.swift in Sources */,
+				EAD2AA742E66C30300AAAFBB /* YieldModuleCoordinatorView.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */,
 				B0A1BC172C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift in Sources */,
