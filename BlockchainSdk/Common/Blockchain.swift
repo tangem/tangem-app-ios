@@ -270,7 +270,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .radiant,
              .fact0rn,
              .sui,
-             .pepecoin:
+             .pepecoin,
+             .alephium:
             return true
         default:
             return false
@@ -1540,7 +1541,10 @@ private extension Blockchain {
             case .coin: return "pepecoin-network"
             }
         case .hyperliquidEVM:
-            return "hyperliquid"
+            switch type {
+            case .network: return "hyperevm"
+            case .coin: return "hyperliquid"
+            }
         }
     }
 
