@@ -59,19 +59,16 @@ public final class CommonYieldTokenService: YieldTokenService {
 
             let maxNetworkFee = yieldTokenData.maxNetworkFee
 
-            if yieldTokenData.initialized {
+            let initializationState: YieldTokenState.InitializationState = if yieldTokenData.initialized {
                 if yieldTokenData.active {
-                    let activeStateInfo = YieldTokenState.ActiveStateInfo(
-                        yieldToken: yieldToken,
-                        maxNetworkFee: maxNetworkFee
-                    )
-                    return .initialized(activeState: .active(activeStateInfo))
+                    .initialized(activeState: .active(maxNetworkFee: maxNetworkFee))
                 } else {
-                    return .initialized(activeState: .notActive)
+                    .initialized(activeState: .notActive)
                 }
             } else {
-                return .notInitialized(yieldToken: yieldToken)
+                .notInitialized
             }
+            return .deployed(.init(yieldToken: yieldToken, initializationState: initializationState))
         } else {
             return .notDeployed
         }
