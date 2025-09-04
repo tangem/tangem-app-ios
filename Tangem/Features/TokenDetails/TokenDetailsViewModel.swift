@@ -226,7 +226,12 @@ extension TokenDetailsViewModel {
                     break
                 case .initialized(.active(let activeState)):
                     if activeState.hasActiveYield {
-                        print("Already has active yield, balances \(activeState.balances)")
+                        do {
+                            let result = try await exit(activeState: activeState, contractAddress: token.contractAddress)
+                            print(result)
+                        } catch {
+                            print(error)
+                        }
                     } else {
                         let allowanceChecker = AllowanceChecker(
                             blockchain: blockchain,
@@ -413,14 +418,14 @@ extension TokenDetailsViewModel {
 
         return try await transactionDispatcher.send(transaction: .transfer(transaction)).hash
     }
-    
+
     private func exit(
         activeState: YieldBalanceInfo.ActiveStateInfo,
         contractAddress: String
     ) async throws -> String {
         let amount = Amount(with: walletModel.tokenItem.blockchain, type: .coin, value: 0)
 
-        let enterAction = EnterProtocolMethod(
+        let enterAction = WithdrawAndDeactivateMethod(
             yieldTokenAddress: contractAddress
         )
 
