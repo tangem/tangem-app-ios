@@ -48,7 +48,7 @@ struct WalletSelectorItemView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
             HStack(spacing: 4) {
-                Text(viewModel.cardsCount)
+                Text(viewModel.cardSetLabel)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
                 Text(AppConstants.dotSign)
@@ -112,14 +112,15 @@ extension WalletSelectorItemView {
 }
 
 #Preview {
+    let cardSetLabel = UserWalletModelMock().config.cardSetLabel
+
     VStack {
         WalletSelectorItemView(viewModel: .init(
             userWalletId: FakeUserWalletModel.wallet3Cards.userWalletId,
-            cardsCount: 3,
+            cardSetLabel: cardSetLabel,
             isUserWalletLocked: false,
-            userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
+            infoProvider: FakeUserWalletModel.wallet3Cards,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            walletImageProvider: FakeUserWalletModel.wallet3Cards.walletImageProvider,
             isSelected: true,
             didTapWallet: { _ in }
         )
@@ -127,11 +128,10 @@ extension WalletSelectorItemView {
 
         WalletSelectorItemView(viewModel: .init(
             userWalletId: FakeUserWalletModel.wallet3Cards.userWalletId,
-            cardsCount: 3,
+            cardSetLabel: cardSetLabel,
             isUserWalletLocked: false,
-            userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
+            infoProvider: FakeUserWalletModel.wallet3Cards,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            walletImageProvider: FakeUserWalletModel.wallet3Cards.walletImageProvider,
             isSelected: false,
             didTapWallet: { _ in }
         )

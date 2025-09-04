@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemUIUtils
 import TangemUI
+import TangemFoundation
 
 struct OnboardingAddTokensView: View {
     @ObservedObject var viewModel: OnboardingAddTokensViewModel

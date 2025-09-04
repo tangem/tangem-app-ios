@@ -63,6 +63,7 @@ final class WCCustomEvmFeeService {
         return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
     }
 
+    private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -258,25 +259,23 @@ final class WCCustomEvmFeeService {
     }
 }
 
-// MARK: - WCCustomEvmFeeService
+// MARK: - CustomFeeServiceOutput
 
 protocol WCCustomFeeServiceOutput: CustomFeeServiceOutput {
     func updateCustomFeeForInitialization(_ customFee: Fee)
 }
 
-extension WCCustomEvmFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
+        customFee
+            .withWeakCaptureOf(self)
+            .map { $0.zeroFee != $1 }
+            .eraseToAnyPublisher()
     }
 
-    func initialSetupCustomFee(_ fee: Fee) {
-        assert(customFee.value == nil, "Duplicate initial setup")
-
-        customFee.send(fee)
-        updateView(fee: fee)
-    }
-
-    func selectorCustomFeeRowViewModels() -> [FeeSelectorCustomFeeRowViewModel] {
+    func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
             suffix: feeTokenItem.currencySymbol,
@@ -339,6 +338,29 @@ extension WCCustomEvmFeeService: CustomFeeService {
             return [customFeeRowViewModel, gasPriceRowViewModel, gasLimitRowViewModel]
         }
     }
+
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        updateView(fee: cachedCustomFee)
+    }
+}
+
+// MARK: - CustomFeeService
+
+extension WCCustomEvmFeeService: CustomFeeService {
+    func setup(output: any CustomFeeServiceOutput) {
+        self.output = output
+    }
+
+    func initialSetupCustomFee(_ fee: Fee) {
+        assert(customFee.value == nil, "Duplicate initial setup")
+
+        customFee.send(fee)
+        updateView(fee: fee)
+    }
 }
 
 private extension WCCustomEvmFeeService {
@@ -376,7 +398,6 @@ private extension WCCustomEvmFeeService {
         if focused {
             customGasPriceBeforeEditing = gasPrice
         } else {
-            let customGasPriceAfterEditing = gasPrice
             customGasPriceBeforeEditing = nil
         }
     }
