@@ -205,8 +205,8 @@ extension TokenDetailsViewModel {
 
         Task {
             do {
-                let info = try await yieldService.getYieldBalanceInfo(for: walletModel.defaultAddressString, contractAddress: token.contractAddress)
-                switch info.state {
+                let state = try await yieldService.getYieldTokenState(for: walletModel.defaultAddressString, contractAddress: token.contractAddress)
+                switch state {
                 case .notDeployed:
                     do {
                         let result = try await deploy(token: token, contractAddress: token.contractAddress)
@@ -225,7 +225,9 @@ extension TokenDetailsViewModel {
                     // reactivate
                     break
                 case .initialized(.active(let activeState)):
-                    if activeState.hasActiveYield {
+                    let balances = try await yieldService.getYieldBalances(for: activeState.yieldToken, contractAddress: token.contractAddress)
+
+                    if balances.protocol > 0 {
                         do {
                             let result = try await exit(activeState: activeState, contractAddress: token.contractAddress)
                             print(result)
@@ -274,7 +276,7 @@ extension TokenDetailsViewModel {
                         }
                     }
                 }
-                print(info)
+                print(state)
             } catch {
                 print(error)
             }

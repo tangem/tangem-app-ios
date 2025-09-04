@@ -10,6 +10,6 @@ import Foundation
 import BigInt
 
 public struct YieldBalances {
-    let effective: BigUInt
-    let `protocol`: BigUInt
+    public let effective: BigUInt
+    public let `protocol`: BigUInt
 }

@@ -11,7 +11,8 @@ import BigInt
 
 public protocol YieldTokenService {
     func getAPY(for contractAddress: String) async throws -> Decimal
-    func getYieldBalanceInfo(for address: String, contractAddress: String) async throws -> YieldBalanceInfo
+    func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState
+    func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances
 }
 
 public final class CommonYieldTokenService: YieldTokenService {
@@ -44,13 +45,13 @@ public final class CommonYieldTokenService: YieldTokenService {
 
         let (supplyAPYData, serviceFeeRateData) = try await (supplyAPYResult, serviceFeeRateResult)
 
-        let supplyAPYPercent = try YieldServiceAPYConverter.convert(supplyAPYData)
-        let serviceFeeRate = try YieldServiceFeeRateConverter.convert(serviceFeeRateData)
+        let supplyAPYPercent = try YieldResponseMapper.mapAPY(supplyAPYData)
+        let serviceFeeRate = try YieldResponseMapper.mapFeeRate(serviceFeeRateData)
 
         return supplyAPYPercent * (1 - serviceFeeRate)
     }
 
-    public func getYieldBalanceInfo(for address: String, contractAddress: String) async throws -> YieldBalanceInfo {
+    public func getYieldTokenState(for address: String, contractAddress: String) async throws -> YieldTokenState {
         let yieldToken = try await getYieldModule(for: address)
 
         if let yieldToken {
@@ -60,22 +61,44 @@ public final class CommonYieldTokenService: YieldTokenService {
 
             if yieldTokenData.initialized {
                 if yieldTokenData.active {
-                    async let balances = getYieldBalances(for: yieldToken, contractAddress: contractAddress)
-                    let activeStateInfo = try await YieldBalanceInfo.ActiveStateInfo(
+                    let activeStateInfo = YieldTokenState.ActiveStateInfo(
                         yieldToken: yieldToken,
-                        maxNetworkFee: maxNetworkFee,
-                        balances: balances,
+                        maxNetworkFee: maxNetworkFee
                     )
-                    return YieldBalanceInfo(state: .initialized(activeState: .active(activeStateInfo)))
+                    return .initialized(activeState: .active(activeStateInfo))
                 } else {
-                    return YieldBalanceInfo(state: .initialized(activeState: .notActive))
+                    return .initialized(activeState: .notActive)
                 }
             } else {
-                return YieldBalanceInfo(state: .notInitialized(yieldToken: yieldToken))
+                return .notInitialized(yieldToken: yieldToken)
             }
         } else {
-            return YieldBalanceInfo(state: .notDeployed)
+            return .notDeployed
         }
+    }
+
+    public func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
+        let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
+
+        let effectiveRequest = YieldSmartContractRequest(
+            contractAddress: yieldToken,
+            method: effectiveMethod
+        )
+
+        let protocolMethod = ProtocolBalanceMethod(yieldTokenAddress: contractAddress)
+
+        let protocolRequest = YieldSmartContractRequest(
+            contractAddress: yieldToken,
+            method: protocolMethod
+        )
+
+        async let effectiveBalance = evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
+        async let protocolBalance = evmSmartContractInteractor.ethCall(request: protocolRequest).async()
+
+        return try await YieldResponseMapper.mapBalances(
+            protocolBalance: effectiveBalance,
+            effectiveBalance: effectiveBalance
+        )
     }
 
     private func getYieldModule(for address: String) async throws -> String? {
@@ -106,35 +129,6 @@ public final class CommonYieldTokenService: YieldTokenService {
 
         let tokenData = try await evmSmartContractInteractor.ethCall(request: request).async()
 
-        return try YieldServiceYieldTokenDataConverter.convert(tokenData)
-    }
-
-    public func getYieldBalances(for yieldToken: String, contractAddress: String) async throws -> YieldBalances {
-        let effectiveMethod = EffectiveBalanceMethod(yieldTokenAddress: contractAddress)
-
-        let effectiveRequest = YieldSmartContractRequest(
-            contractAddress: yieldToken,
-            method: effectiveMethod
-        )
-
-        let protocolMethod = ProtocolBalanceMethod(yieldTokenAddress: contractAddress)
-
-        let protocolRequest = YieldSmartContractRequest(
-            contractAddress: yieldToken,
-            method: protocolMethod
-        )
-
-        async let effectiveBalanceRequest = evmSmartContractInteractor.ethCall(request: effectiveRequest).async()
-        async let protocolBalanceRequest = evmSmartContractInteractor.ethCall(request: protocolRequest).async()
-
-        let (effectiveBalanceData, protocolBalanceData) = try await (effectiveBalanceRequest, protocolBalanceRequest)
-
-        let effectiveBalance = BigUInt(Data(hexString: effectiveBalanceData))
-        let protocolBalance = BigUInt(Data(hexString: protocolBalanceData))
-
-        return YieldBalances(
-            effective: effectiveBalance,
-            protocol: protocolBalance
-        )
+        return try YieldResponseMapper.mapTokenData(tokenData)
     }
 }
